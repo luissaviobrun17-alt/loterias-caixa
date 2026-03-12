@@ -1,0 +1,48 @@
+============================================
+  B2B LOTERIAS - INSTRUÇÕES DE INSTALAÇÃO
+============================================
+
+COMO INSTALAR NO SEU COMPUTADOR:
+---------------------------------
+1. Extraia todo o conteúdo do ZIP para uma pasta
+   (ex: C:\B2B_Loterias ou Desktop)
+
+2. Execute o arquivo "INSTALAR.bat"
+   (clique com botão direito > "Executar como administrador" se necessário)
+
+3. Um atalho "B2B Loterias" será criado na sua Área de Trabalho
+
+4. Pronto! Dê duplo clique no atalho para abrir o programa
+
+
+COMO USAR O PROGRAMA:
+----------------------
+1. Escolha a loteria desejada no menu superior
+2. Selecione seus números no grid ou use "Aleatório"
+3. Defina a garantia de fechamento e quantidade de jogos
+4. Clique em "Gerar Jogos"
+5. Use os botões Salvar/Copiar/Imprimir para seus jogos
+
+
+COMO COMPARTILHAR ONLINE (NETLIFY):
+------------------------------------
+1. Acesse https://app.netlify.com
+2. Crie uma conta gratuita (ou faça login)
+3. Na página inicial, arraste a pasta do programa
+   para a área "Drag and drop your site output folder here"
+4. Aguarde o upload (alguns segundos)
+5. O Netlify gerará um link como: https://seu-site.netlify.app
+6. Compartilhe este link com seus clientes!
+
+DICA: Você pode personalizar o nome do link em:
+  Site Settings > Domain Management > Custom domains
+
+
+SUPORTE:
+---------
+Em caso de dúvidas, consulte o botão "Aprenda a Navegar"
+dentro do programa.
+
+============================================
+  B2B Loterias © 2026 - Todos os direitos reservados
+============================================

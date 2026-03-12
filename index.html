@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B Loterias</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css?v=9&t=20260203142158">
+    <link rel="stylesheet" href="styles/components.css?v=4&t=20260203142158">
+    <link rel="stylesheet" href="styles/lottery.css?v=4&t=20260203142158">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <!-- Removed potential blocker div -->
+            <div class="header-top" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 20px; min-height: 130px; position: relative;">
+                <style>
+                    @keyframes liquidGold {
+                        0% { background-position: -200% center; }
+                        100% { background-position: 200% center; }
+                    }
+                    @keyframes quantumAura {
+                        0%, 100% { 
+                            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.4)) contrast(1.1); 
+                            transform: translateY(-50%) scale(1);
+                        }
+                        50% { 
+                            filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.7)) contrast(1.3);
+                            transform: translateY(-50%) scale(1.01);
+                        }
+                    }
+                    .tagline-quantum-high {
+                        position: absolute;
+                        right: 215px;
+                        top: 92%;
+                        transform: translateY(-50%);
+                        text-align: right;
+                        z-index: 50;
+                        pointer-events: none;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: flex-end;
+                        animation: quantumAura 4s ease-in-out infinite;
+                    }
+                    .gold-3d-text {
+                        color: #FFD700;
+                        font-family: 'Inter', sans-serif;
+                        font-style: italic;
+                        font-weight: 900;
+                        text-transform: uppercase;
+                        display: block;
+                        line-height: 1;
+                        /* Profundidade 5D Metalizada Intensificada */
+                        text-shadow: 
+                            0 1px 0 #d4af37, 
+                            0 2px 0 #b8860b, 
+                            0 3px 0 #996515, 
+                            0 4px 12px rgba(0,0,0,0.9);
+                        /* Brilho Líquido Metálico Ultra-Dourado */
+                        background: linear-gradient(110deg, #FFD700 30%, #fff8dc 50%, #FFD700 70%);
+                        background-size: 200% auto;
+                        -webkit-background-clip: text;
+                        background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        animation: liquidGold 3s linear infinite;
+                        white-space: nowrap;
+                        filter: contrast(1.2) brightness(1.1);
+                    }
+                    .tagline-main-5d { font-size: 1.4rem; letter-spacing: -0.2px; }
+                    .tagline-sub-5d { font-size: 0.85rem; letter-spacing: 5px; margin-top: 3px; opacity: 0.95; }
+                </style>
+                <div class="tagline-quantum-high">
+                    <span class="gold-3d-text tagline-main-5d">Loteria Inteligente</span>
+                    <span class="gold-3d-text tagline-sub-5d">⚡ Gerada por IA ⚡</span>
+                </div>
+                <div class="brand-logo" style="z-index: 10;">
+                    <div class="logo-container">
+                        <img src="img/logo_atom.png" alt="B2B Loterias" class="header-logo-img">
+                    </div>
+                </div>
+            </div>
+            <nav>
+                <button class="nav-btn active" data-game="megasena">
+                    <span class="nav-name">Mega Sena</span>
+                    <span class="nav-prize" id="prize-nav-megasena">--</span>
+                </button>
+                <button class="nav-btn" data-game="lotofacil">
+                    <span class="nav-name">Lotofácil</span>
+                    <span class="nav-prize" id="prize-nav-lotofacil">--</span>
+                </button>
+                <button class="nav-btn" data-game="quina">
+                    <span class="nav-name">Quina</span>
+                    <span class="nav-prize" id="prize-nav-quina">--</span>
+                </button>
+                <button class="nav-btn" data-game="duplasena">
+                    <span class="nav-name">Dupla Sena</span>
+                    <span class="nav-prize" id="prize-nav-duplasena">--</span>
+                </button>
+                <button class="nav-btn" data-game="lotomania">
+                    <span class="nav-name">Lotomania</span>
+                    <span class="nav-prize" id="prize-nav-lotomania">--</span>
+                </button>
+                <button class="nav-btn" data-game="timemania">
+                    <span class="nav-name">Timemania</span>
+                    <span class="nav-prize" id="prize-nav-timemania">--</span>
+                </button>
+                <button class="nav-btn" data-game="diadesorte">
+                    <span class="nav-name">Dia de Sorte</span>
+                    <span class="nav-prize" id="prize-nav-diadesorte">--</span>
+                </button>
+            </nav>
+        </header>
+
+        <div class="content-wrapper">
+            <main class="main-content">
+                <div class="game-config">
+                    <div class="panel-header" style="flex-wrap: wrap; gap: 1rem;">
+                        <div class="header-left">
+                            <h2 id="current-game-title" style="margin-bottom: 0.2rem;">Mega Sena</h2>
+                            <div id="prize-display" class="prize-display" style="display: none;">
+                                <div class="prize-inner">
+                                    <span class="prize-label">🏆 Prêmio Estimado:</span>
+                                    <span class="prize-value" id="prize-value">R$ 0,00</span>
+                                    <span class="prize-badge" id="prize-badge" style="display: none;">ACUMULADO!</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="countdown">
+                            <small>Próximo Sorteio</small>
+                            <span class="timer" id="timer">--:--:--</span>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <!-- Selection Area First now for logic flow -->
+                        <div class="selection-area">
+                            <div class="selection-header">
+                                <label>Escolha seus números:</label>
+                                <div class="selection-info">
+                                    <span id="selected-count">0</span> / <span id="max-selection">0</span>
+                                    <button id="btn-random-select" class="sm-btn" title="Selecionar Aleatório">🎲
+                                        Aleatório</button>
+                                    <button id="btn-clear-selection" class="sm-btn" title="Limpar">🗑️</button>
+                                    <button id="btn-fixed-mode" class="sm-btn" title="Modo Fixar Números">📌
+                                        Fixar</button>
+                                </div>
+                            </div>
+                            <div id="number-selection-grid" class="number-grid">
+                                <!-- Grid injected by JS -->
+                            </div>
+                            <div id="fixed-info-panel" class="fixed-info"
+                                style="display:none; margin-top: 5px; font-size: 0.8em; color: #F59E0B;">
+                                Fixos: <span id="fixed-numbers-list"></span>
+                            </div>
+                        </div>
+
+                        <div class="control-row">
+                            <div class="control-group">
+                                <label>Garantia de Fechamento</label>
+                                <select id="closing-type">
+                                    <option value="6">Garantir 6 pontos</option>
+                                    <option value="5">Garantir 5 pontos (Quadra/Quina)</option>
+                                    <option value="4">Garantir 4 pontos</option>
+                                </select>
+                            </div>
+
+                            <div class="control-group">
+                                <label>Qtd. Jogos</label>
+                                <input type="number" id="games-quantity" min="1" max="5000" value="10">
+                            </div>
+
+                            <div class="control-group"
+                                style="display: flex; flex-direction: column; justify-content: flex-end;">
+                                <span id="current-bet-cost"
+                                    style="font-size: 1.1rem; color: var(--primary-accent); font-weight: bold; margin-bottom: 5px; text-align: right;">R$
+                                    0,00</span>
+                                <button id="generate-btn" class="action-btn">Gerar Jogos</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-panel">
+                    <div class="stats-header">
+                        <h3>Estatísticas</h3>
+                        <div class="stats-controls">
+                            <button class="stat-toggle" data-range="3">3</button>
+                            <button class="stat-toggle" data-range="5">5</button>
+                            <button class="stat-toggle active" data-range="10">10</button>
+                            <button class="stat-toggle" data-range="15">15</button>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box hot">
+                            <h4>Mais Sorteados</h4>
+                            <div id="hot-numbers" class="number-list"></div>
+                        </div>
+                        <div class="stat-box cold">
+                            <h4>Menos Sorteados</h4>
+                            <div id="cold-numbers" class="number-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- Painel de Sugestões IA -->
+                    <div class="quantum-card" style="margin-top: 1rem;">
+                        <div class="quantum-shine-bar"></div>
+                        <div class="quantum-header">
+                            <div class="quantum-title-group">
+                                <span class="quantum-icon">✨</span>
+                                <h4>Números Sugeridos</h4>
+                                <span class="quantum-badge">IA</span>
+                            </div>
+                        </div>
+                        <div id="quantum-formula" class="formula-display">Processando padrões...</div>
+                        <div class="quantum-controls-row">
+                            <div class="quantum-input-group">
+                                <label for="quantum-count">Quantidade:</label>
+                                <input type="number" id="quantum-count" min="1" max="100" value="6">
+                            </div>
+                            <button id="btn-quantum-calculate" class="quantum-btn quantum-btn-generate">
+                                <span>⚡</span> Gerar Sugestão
+                            </button>
+                        </div>
+                        <div id="quantum-results" class="quantum-results-area">
+                            <div class="quantum-placeholder">Clique em "Gerar Sugestão" para começar</div>
+                        </div>
+                        <button id="btn-use-quantum" class="quantum-btn quantum-btn-use">
+                            ✓ Usar Estes Números no Jogo
+                        </button>
+                    </div>
+
+                </div>
+                <!-- STATS PANEL END (includes Quantum) -->
+
+                <div class="results-area">
+                    <div class="results-header">
+                        <h3>Jogos Gerados</h3>
+                        <div class="results-actions">
+                            <button id="save-btn" class="secondary-btn" title="Salvar Jogos">Salvar</button>
+                            <button id="copy-btn" class="secondary-btn" title="Copiar para Área de Transferência">Copiar</button>
+                            <button id="btn-print" class="secondary-btn" title="Imprimir Jogos">Imprimir</button>
+                            <button id="check-btn" class="secondary-btn" title="Conferir Jogos">Conferir</button>
+                            <button id="btn-play-caixa" class="secondary-btn" title="Ir para Loterias Caixa Online">Jogar Online</button>
+                        </div>
+                    </div>
+                    <div id="check-summary" class="check-summary"
+                        style="margin-bottom: 1rem; padding: 1rem; background: var(--bg-surface); border-radius: var(--radius-sm); border: 1px solid var(--primary-color); display: none;">
+                    </div>
+                    <div id="games-container" class="games-grid">
+                        <div class="empty-state">Selecione as opções e clique em Gerar Jogos</div>
+                    </div>
+                </div>
+            </main>
+
+            <aside class="investment-sidebar">
+                <div class="sidebar-card investment-card" style="border: 2px solid #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); margin-top: 1.5rem; margin-bottom: 0;">
+                    <h3 style="color: #FFD700;">Simulador de Custo</h3>
+                    <div class="cost-summary">
+                        <div class="cost-row">
+                            <span>Números Selecionados</span>
+                            <strong id="cost-selected-count">0</strong>
+                        </div>
+                        <div class="cost-row">
+                            <span>Combinações Totais</span>
+                            <strong id="cost-total-combinations">0</strong>
+                        </div>
+                        <div class="cost-total">
+                            <span>Preço Estimado</span>
+                            <strong id="cost-total-value">R$ 0,00</strong>
+                        </div>
+                    </div>
+                    <div class="closing-estimates" id="closing-estimates">
+                        <!-- Injected by JS -->
+                        <p class="helper-text">Selecione mais números para ver estimativas de fechamento.</p>
+                    </div>
+                </div>
+
+                <div class="sidebar-card recent-results-card"
+                    style="margin-top: 0.15rem; background: var(--bg-main); border: 2px solid #FFD700; border-radius: var(--radius-sm); padding: 1rem; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);">
+                    <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--primary-accent);">Últimos Resultados
+                    </h3>
+                    <div id="recent-results-list" class="recent-list">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Tutorial & Install Button -->
+                <div class="sidebar-card"
+                    style="margin-top: 0.5rem; background: var(--bg-main); border: 2px solid #FCD34D; border-radius: var(--radius-sm); padding: 0.5rem; box-shadow: 0 0 10px rgba(252, 211, 77, 0.3);">
+                    <div id="btn-tutorial" style="display: flex; align-items: center; justify-content: center; gap: 0.3rem; cursor: pointer;">
+                        <span style="font-size: 1rem;">📚</span>
+                        <h3 style="font-size: 0.8rem; margin: 0; color: #FCD34D; font-weight: 600;">APRENDA A NAVEGAR</h3>
+                    </div>
+                    <p style="margin: 0.2rem 0 0 0; font-size: 0.7rem; color: var(--text-secondary); text-align: center;">
+                        Passo a passo para usar o site</p>
+                    <hr style="border: none; border-top: 1px solid rgba(252, 211, 77, 0.3); margin: 0.5rem 0;">
+                    <div id="btn-install" style="display: flex; align-items: center; justify-content: center; gap: 0.3rem; cursor: pointer;">
+                        <span style="font-size: 1rem;">📲</span>
+                        <h3 style="font-size: 0.8rem; margin: 0; color: #FCD34D; font-weight: 600;">INSTALAR ATALHO</h3>
+                    </div>
+                    <p style="margin: 0.2rem 0 0 0; font-size: 0.7rem; color: var(--text-secondary); text-align: center;">
+                        Criar atalho no Desktop</p>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Modal for Checking Games -->
+    <div id="check-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Conferir Resultado</h3>
+                <button class="close-check-modal"
+                    style="background:none; border:none; font-size:1.5rem; color:var(--text-primary); cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom:10px; color:var(--text-secondary);">Digite o Número do Concurso ou os Números
+                    Sorteados:</p>
+                <div class="input-group" style="margin-bottom:15px;">
+                    <input type="text" id="check-input-numbers" placeholder="Ex: 2500 ou 01 02 03 04 05..."
+                        style="width:100%; font-size:1.2rem; padding:10px;">
+                </div>
+
+                <div class="load-saved-section"
+                    style="margin-bottom: 15px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                    <p style="margin-bottom:5px; color:var(--text-secondary); font-size:0.9rem;">Ou carregue um arquivo
+                        salvo:</p>
+                    <input type="file" id="load-games-input" accept=".txt" style="width: 100%; padding: 5px;">
+                </div>
+                <div class="check-actions" style="text-align:right;">
+                    <button id="confirm-check-btn" class="action-btn">Verificar Jogos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Installation Modal -->
+    <div id="install-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>📲 Como Instalar o Gerador</h3>
+                <button class="close-install-modal"
+                    style="background:none; border:none; font-size:1.5rem; color:var(--text-primary); cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom:15px; color:var(--text-primary);">Siga os passos abaixo para criar um atalho na sua área de trabalho:</p>
+                
+                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <ol style="margin-left: 20px; color: var(--text-secondary); line-height: 1.6;">
+                        <li>Abra a pasta onde os arquivos do programa estão localizados.</li>
+                        <li>Localize o arquivo chamado <strong>"INSTALAR_ATALHO.bat"</strong>.</li>
+                        <li>Dê dois cliques nesse arquivo.</li>
+                        <li>Um atalho chamado <strong>"Loterias Caixa"</strong> será criado na sua Área de Trabalho.</li>
+                    </ol>
+                </div>
+
+                <div style="text-align: center; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">Caminho da pasta atual:</p>
+                    <code id="folder-path" style="display: block; background: #000; padding: 10px; border-radius: 4px; margin-bottom: 15px; word-break: break-all; color: #25D366;">C:\Users\luiss\.gemini\antigravity\scratch\loterias-caixa</code>
+                    <button id="btn-copy-path" class="secondary-btn">Copiar Caminho</button>
+                </div>
+
+                <div style="margin-top: 20px; text-align: right;">
+                    <button class="action-btn close-install-modal" style="width: auto; padding: 0.8rem 2rem;">Entendi!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <div id="tutorial-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3>📚 Como Navegar no Site</h3>
+                <button class="close-tutorial-modal"
+                    style="background:none; border:none; font-size:1.5rem; color:var(--text-primary); cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem;">
+
+                <div
+                    style="background: linear-gradient(135deg, #10B981, #059669); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <p style="color: white; margin: 0; text-align: center; font-weight: 600;">Aprenda a fazer seus jogos
+                        com segurança!</p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: var(--primary-accent); margin-bottom: 0.5rem;">🎯 Passo a Passo</h4>
+
+                    <div style="margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid var(--primary-accent);">
+                        <p style="margin: 0.5rem 0; color: var(--text-primary);"><strong>1.</strong> Acesse o programa
+                        </p>
+                        <p style="margin: 0 0 0 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">Abra o site no
+                            seu navegador</p>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid var(--primary-accent);">
+                        <p style="margin: 0.5rem 0; color: var(--text-primary);"><strong>2.</strong> Escolha a loteria
+                            no cabeçalho</p>
+                        <p style="margin: 0 0 0 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">Clique em Mega
+                            Sena, Lotofácil, Quina, etc.</p>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid var(--primary-accent);">
+                        <p style="margin: 0.5rem 0; color: var(--text-primary);"><strong>3.</strong> Selecione seus
+                            números</p>
+                        <p style="margin: 0 0 0 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">Clique nos
+                            números desejados ou use o botão "🎲 Aleatório"</p>
+                        <div
+                            style="margin: 0.5rem 0 0 1.5rem; padding: 0.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 4px; border-left: 2px solid var(--primary-accent);">
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--text-primary);"><strong>📌 Fixar
+                                    Números:</strong></p>
+                            <p style="margin: 0.3rem 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">
+                                Clique no botão "📌 Fixar" para ativar o modo de fixação. Depois, selecione os números
+                                que você quer que apareçam em TODOS os jogos gerados.
+                                Por exemplo, se você fixar os números 7, 13 e 21, todos os jogos terão esses números.
+                                Isso é útil quando você tem números da sorte ou números que você sempre quer jogar.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid var(--primary-accent);">
+                        <p style="margin: 0.5rem 0; color: var(--text-primary);"><strong>4.</strong> Configure o
+                            fechamento</p>
+                        <p style="margin: 0 0 0 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">Escolha a
+                            garantia (6, 5 ou 4 pontos) e quantidade de jogos</p>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid var(--primary-accent);">
+                        <p style="margin: 0.5rem 0; color: var(--text-primary);"><strong>5.</strong> Clique em "Gerar
+                            Jogos"</p>
+                        <p style="margin: 0 0 0 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">O sistema
+                            criará os jogos otimizados para você</p>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid var(--primary-accent);">
+                        <p style="margin: 0.5rem 0; color: var(--text-primary);"><strong>6.</strong> Salve, copie ou
+                            imprima</p>
+                        <p style="margin: 0 0 0 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">Use os botões
+                            💾 Salvar, 📋 Copiar ou 🖨️ Imprimir</p>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: var(--primary-accent); margin-bottom: 0.5rem;">📊 Recursos Extras</h4>
+
+                    <div
+                        style="background: var(--bg-surface); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;">
+                        <p style="margin: 0; color: var(--text-primary);"><strong>📌 Fixar Números:</strong></p>
+                        <p style="margin: 0.3rem 0 0 0; font-size: 0.9rem; color: var(--text-secondary);">Clique em "📌
+                            Fixar" e selecione números que aparecerão em todos os jogos</p>
+                    </div>
+
+                    <div
+                        style="background: var(--bg-surface); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;">
+                        <p style="margin: 0; color: var(--text-primary);"><strong>📊 Estatísticas:</strong></p>
+                        <p style="margin: 0.3rem 0 0 0; font-size: 0.9rem; color: var(--text-secondary);">Veja números
+                            mais e menos sorteados nos últimos 3, 5, 10 ou 15 concursos</p>
+                    </div>
+
+                    <div
+                        style="background: var(--bg-surface); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;">
+                        <p style="margin: 0; color: var(--text-primary);"><strong>⚛️ Números Sugeridos:</strong></p>
+                        <p style="margin: 0.3rem 0 0 0; font-size: 0.9rem; color: var(--text-secondary);">Use o
+                            algoritmo de sugestão para obter números baseados em estatísticas</p>
+                    </div>
+
+                    <div style="background: var(--bg-surface); padding: 1rem; border-radius: 8px;">
+                        <p style="margin: 0; color: var(--text-primary);"><strong>✅ Conferir Resultados:</strong></p>
+                        <p style="margin: 0.3rem 0 0 0; font-size: 0.9rem; color: var(--text-secondary);">Clique em "✅
+                            Conferir" para verificar seus jogos contra resultados oficiais</p>
+                    </div>
+                </div>
+
+                <div
+                    style="background: #059669; border-left: 4px solid #10B981; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                    <h4 style="color: #FCD34D; margin: 0 0 0.5rem 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">⚠️ Dicas
+                        de Segurança</h4>
+                    <ul style="margin: 0; padding-left: 1.5rem; color: #FCD34D; font-weight: 500;">
+                        <li style="margin-bottom: 0.3rem;">Sempre confira seus jogos antes de apostar</li>
+                        <li style="margin-bottom: 0.3rem;">Salve seus jogos para não perdê-los</li>
+                        <li style="margin-bottom: 0.3rem;">Jogue com responsabilidade</li>
+                        <li>Use o botão "🏦 Jogar Online" para ir ao site oficial da Caixa</li>
+                    </ul>
+                </div>
+
+                <div style="text-align: center; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                    <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                        <a href="#" id="print-tutorial"
+                            style="color: var(--primary-accent); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                            🖨️ Imprimir este tutorial
+                        </a>
+                    </p>
+                    <button class="action-btn close-tutorial-modal"
+                        style="width: auto; padding: 0.8rem 2rem;">Entendi!</button>
+                </div>
+            </div>
+            <!-- Manual Copy Fallback Modal -->
+            <div id="copy-modal" class="modal-overlay" style="display: none;">
+                <div class="modal-content" style="max-width: 500px;">
+                    <div class="modal-header">
+                        <h3>📋 Cópia Manual</h3>
+                        <button class="close-copy-modal"
+                            style="background:none; border:none; font-size:1.5rem; color:var(--text-primary); cursor:pointer;">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="margin-bottom:15px; color:var(--text-secondary);">
+                            O seu navegador bloqueou a cópia automática. <br>
+                            <strong>Selecione e copie (Ctrl+C) o texto abaixo:</strong>
+                        </p>
+                        <textarea id="copy-textarea" readonly
+                            style="width: 100%; height: 200px; font-family: monospace; font-size: 0.9rem; padding: 10px; background: rgba(0,0,0,0.2); color: white; border: 1px solid var(--border-color); border-radius: 4px; resize: none;"></textarea>
+                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                            <button id="btn-select-all" class="secondary-btn"
+                                style="width: auto; padding: 0.5rem 1rem; border-color: var(--primary-accent); color: var(--primary-accent);">Selecionar
+                                Tudo</button>
+                            <button class="action-btn close-copy-modal"
+                                style="width: auto; padding: 0.5rem 1.5rem;">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Core Data & Engines -->
+            <script src="js/engines/games.js"></script>
+            <script src="js/data/history_db.js"></script>
+            <script src="js/stats.js"></script>
+            <script src="js/engines/combinations.js?v=3"></script>
+            <script src="js/engines/quantum.js"></script>
+            <script src="js/engines/quantum_god_mode.js"></script>
+            <script src="js/ui.js?v=3"></script>
+            <script src="js/main.js?v=3"></script>
+</body>
+
+</html>
