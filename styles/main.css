@@ -455,19 +455,50 @@ input:focus {
     font-weight: 600;
 }
 
-.sm-btn {
-    padding: 4px 10px;
+/* === BOTÕES PADRONIZADOS (sm-btn & stat-toggle) === */
+.sm-btn,
+.stat-toggle {
+    padding: 5px 14px;
     font-size: 0.8rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--border-color);
-    color: white;
-    border-radius: 4px;
+    font-weight: 700;
+    background: rgba(255, 215, 0, 0.06);
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    color: #FFD700;
+    border-radius: 8px;
     cursor: pointer;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    letter-spacing: 0.3px;
 }
 
-.sm-btn.active {
-    background: var(--primary-accent);
-    border-color: var(--primary-accent);
+.sm-btn:hover,
+.stat-toggle:hover {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: rgba(255, 215, 0, 0.5);
+    color: #FFD700;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.sm-btn.active,
+.stat-toggle.active {
+    background: linear-gradient(135deg, #B8860B, #FFD700);
+    color: #000;
+    border-color: #FFD700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    text-shadow: none;
+    -webkit-text-fill-color: #000;
+}
+
+.sm-btn:active,
+.stat-toggle:active {
+    transform: translateY(0);
 }
 
 .number-grid {
@@ -525,28 +556,12 @@ input:focus {
 
 .stats-controls {
     display: flex;
-    gap: 0.3rem;
-    background: var(--bg-main);
+    gap: 5px;
     padding: 3px;
     border-radius: 8px;
 }
 
-.stat-toggle {
-    padding: 4px 12px;
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: 0.2s;
-}
-
-.stat-toggle.active {
-    background: var(--primary-accent);
-    color: white;
-}
+/* .stat-toggle base/active/hover já definidos acima junto com .sm-btn */
 
 .stats-grid {
     display: grid;

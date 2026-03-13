@@ -38,40 +38,7 @@
     transform: translateY(0);
 }
 
-.sm-btn {
-    background: rgba(255, 255, 255, 0.05);
-    /* Glass tint */
-    color: var(--text-secondary);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    backdrop-filter: blur(4px);
-
-    /* Layout Fixes */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    height: 36px;
-    /* Enforce consistent height */
-    white-space: nowrap;
-}
-
-.sm-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-    border-color: rgba(255, 255, 255, 0.2);
-}
-
-.sm-btn.active {
-    background: var(--primary-accent);
-    color: #fff;
-    border-color: var(--primary-accent);
-    box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
-}
+/* .sm-btn - Estilos unificados definidos em main.css */
 
 .secondary-btn {
     background: rgba(37, 211, 102, 0.05);
@@ -372,21 +339,7 @@ select:focus {
     gap: 5px;
 }
 
-.stat-toggle {
-    background: var(--bg-main);
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary);
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    cursor: pointer;
-}
-
-.stat-toggle.active {
-    background: var(--bg-surface-hover);
-    color: var(--text-primary);
-    border-color: var(--text-primary);
-}
+/* .stat-toggle - Estilos unificados definidos em main.css */
 
 .stats-grid {
     display: grid;

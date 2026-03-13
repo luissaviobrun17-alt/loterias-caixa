@@ -78,6 +78,9 @@ class UI {
         this.closeInstallModalBtns = document.querySelectorAll('.close-install-modal');
         this.btnCopyPath = document.getElementById('btn-copy-path');
         this.folderPathElem = document.getElementById('folder-path');
+
+        // Backup Button
+        this.btnBackup = document.getElementById('btn-backup');
     }
 
     debounce(func, wait) {
@@ -154,6 +157,11 @@ class UI {
                     setTimeout(() => this.btnCopyPath.textContent = originalText, 2000);
                 }
             });
+        }
+
+        // Backup Button
+        if (this.btnBackup) {
+            this.btnBackup.addEventListener('click', () => this.exportBackup());
         }
     }
 
@@ -1631,6 +1639,66 @@ class UI {
 
         if (drawInfo) {
             // alert(`Conferido com ${drawInfo}.\nVeja o resumo acima dos jogos.`);
+        }
+    }
+    exportBackup() {
+        if (this.currentGeneratedGames.length === 0) {
+            alert('Nenhum jogo gerado para fazer backup.\nGere seus jogos primeiro!');
+            return;
+        }
+
+        const game = GAMES[this.currentGameKey];
+        const gameName = game ? game.name : 'Loteria';
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('pt-BR');
+        const timeStr = now.toLocaleTimeString('pt-BR');
+        const dateFile = now.toISOString().slice(0, 10).replace(/-/g, '');
+
+        let content = '═══════════════════════════════════════\n';
+        content += `  BACKUP - B2B LOTERIAS\n`;
+        content += '═══════════════════════════════════════\n';
+        content += `  Jogo: ${gameName}\n`;
+        content += `  Data: ${dateStr} às ${timeStr}\n`;
+        content += `  Total de Jogos: ${this.currentGeneratedGames.length}\n`;
+
+        // Números fixos
+        if (this.fixedNumbers.size > 0) {
+            const fixedArr = Array.from(this.fixedNumbers).sort((a, b) => a - b);
+            content += `  Números Fixos: ${fixedArr.map(n => n.toString().padStart(2, '0')).join(' ')}\n`;
+        }
+
+        content += '═══════════════════════════════════════\n\n';
+
+        this.currentGeneratedGames.forEach((nums, i) => {
+            const formatted = nums.map(n => n.toString().padStart(2, '0')).join('  ');
+            content += `Jogo ${(i + 1).toString().padStart(3, '0')}:  ${formatted}\n`;
+        });
+
+        content += '\n═══════════════════════════════════════\n';
+        content += '  Gerado por B2B Loterias - Boa Sorte!\n';
+        content += '═══════════════════════════════════════\n';
+
+        // Download como arquivo
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_${gameName.replace(/\s+/g, '_')}_${dateFile}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // Feedback visual no botão
+        const h3 = this.btnBackup.querySelector('h3');
+        if (h3) {
+            const original = h3.textContent;
+            h3.textContent = '✅ BACKUP SALVO!';
+            h3.style.color = '#10B981';
+            setTimeout(() => {
+                h3.textContent = original;
+                h3.style.color = '#FCD34D';
+            }, 2500);
         }
     }
 }
