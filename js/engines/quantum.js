@@ -1,17 +1,18 @@
+const formulas = [
+    "Ψ(x,t) = iℏ ∂/∂t Ψ(x,t) + Σ(n=0 to ∞) [P(n) * e^(iθ)]",
+    "∫_{-∞}^{∞} |Ψ(x)|^2 dx = 1 ± δ(Quantum_Fluctuation)",
+    "E = mc^2 + √(Hash(Previous_Draw) * φ)",
+    "Δx * Δp ≥ ℏ/2 * (Chaos_Factor)",
+    "R_μν - 1/2 g_μν R = 8πG/c^4 T_μν + Λ(Luck)",
+    "e^(iπ) + 1 = 0 => Win_Probability -> 100%"
+];
+
 class QuantumService {
-    static formulas = [
-        "Ψ(x,t) = iℏ ∂/∂t Ψ(x,t) + Σ(n=0 to ∞) [P(n) * e^(iθ)]",
-        "∫_{-∞}^{∞} |Ψ(x)|^2 dx = 1 ± δ(Quantum_Fluctuation)",
-        "E = mc^2 + √(Hash(Previous_Draw) * φ)",
-        "Δx * Δp ≥ ℏ/2 * (Chaos_Factor)",
-        "R_μν - 1/2 g_μν R = 8πG/c^4 T_μν + Λ(Luck)",
-        "e^(iπ) + 1 = 0 => Win_Probability -> 100%"
-    ];
 
     static getFormula() {
-        const randomIndex = Math.floor(Math.random() * this.formulas.length);
+        const randomIndex = Math.floor(Math.random() * formulas.length);
         const timestamp = new Date().getTime().toString().slice(-4);
-        return `${this.formulas[randomIndex]} [v.${timestamp}]`;
+        return `${formulas[randomIndex]} [v.${timestamp}]`;
     }
 
     static generateSuggestion(gameType, count, history) {

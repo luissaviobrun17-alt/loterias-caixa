@@ -1,11 +1,61 @@
 class StatsService {
-    static historyStore = {}; // Armazena histórico real em memória
-    static loadingPromises = {}; // Evita chamadas duplicadas
-    static prizeStore = {}; // Armazena dados de prêmio
+
+    // Lista de APIs para fallback (tenta várias se uma falhar)
+    static API_ENDPOINTS = [
+        {
+            name: 'LoteriasAPI',
+            latest: (gameType) => `https://loteriascaixa-api.herokuapp.com/api/${gameType}/latest`,
+            byDraw: (gameType, draw) => `https://loteriascaixa-api.herokuapp.com/api/${gameType}/${draw}`,
+            parse: (data) => data // Já está no formato esperado
+        },
+        {
+            name: 'ServiceBusCaixa',
+            latest: (gameType) => {
+                // Mapeamento de nomes para API da Caixa
+                const map = {
+                    'megasena': 'megasena',
+                    'lotofacil': 'lotofacil',
+                    'quina': 'quina',
+                    'duplasena': 'duplasena',
+                    'lotomania': 'lotomania',
+                    'timemania': 'timemania',
+                    'diadesorte': 'diadesorte'
+                };
+                return `https://servicebus2.caixa.gov.br/portaldeloterias/api/${map[gameType] || gameType}`;
+            },
+            byDraw: (gameType, draw) => {
+                const map = {
+                    'megasena': 'megasena',
+                    'lotofacil': 'lotofacil',
+                    'quina': 'quina',
+                    'duplasena': 'duplasena',
+                    'lotomania': 'lotomania',
+                    'timemania': 'timemania',
+                    'diadesorte': 'diadesorte'
+                };
+                return `https://servicebus2.caixa.gov.br/portaldeloterias/api/${map[gameType] || gameType}/${draw}`;
+            },
+            parse: (data) => {
+                // Formato da API da Caixa pode usar "numero" em vez de "concurso"
+                if (data && !data.concurso && data.numero) {
+                    data.concurso = data.numero;
+                }
+                // Garantir que dezenas existe
+                if (data && !data.dezenas && data.listaDezenas) {
+                    data.dezenas = data.listaDezenas;
+                }
+                return data;
+            }
+        }
+    ];
 
     static async ensureHistory(gameType) {
-        // Se já carregou, retorna
-        if (this.historyStore[gameType] && this.historyStore[gameType].length > 0) return;
+        // Se já carregou, retorna (mas agenda atualização de prêmios em background)
+        if (this.historyStore[gameType] && this.historyStore[gameType].length > 0) {
+            // Mesmo com cache, tenta atualizar prêmios em background
+            this._refreshPrizesInBackground(gameType);
+            return;
+        }
 
         // Evita chamadas duplicadas
         if (this.loadingPromises[gameType]) {
@@ -17,6 +67,24 @@ class StatsService {
         delete this.loadingPromises[gameType];
     }
 
+    // Força atualização de prêmios sem depender do cache de histórico
+    static async _refreshPrizesInBackground(gameType) {
+        // Evitar refresh muito frequente (máximo 1x a cada 5 minutos por jogo)
+        const now = Date.now();
+        if (!this._lastPrizeRefresh) this._lastPrizeRefresh = {};
+        if (this._lastPrizeRefresh[gameType] && (now - this._lastPrizeRefresh[gameType]) < 300000) {
+            return;
+        }
+        this._lastPrizeRefresh[gameType] = now;
+
+        try {
+            await this._fetchLatestWithFallback(gameType);
+            console.log(`[StatsService] Prêmio atualizado para ${gameType}:`, this.prizeStore[gameType]);
+        } catch(e) {
+            // Silencioso em background
+        }
+    }
+
     static async _loadHistory(gameType) {
         // 1. CARREGAR DA BASE ESTÁTICA (Dados Reais)
         if (typeof REAL_HISTORY_DB !== 'undefined' && REAL_HISTORY_DB[gameType]) {
@@ -25,9 +93,9 @@ class StatsService {
             this.historyStore[gameType] = [];
         }
 
-        // 2. BUSCAR DADOS MAIS RECENTES DA API PÚBLICA
+        // 2. BUSCAR DADOS MAIS RECENTES DA API PÚBLICA (com fallback)
         try {
-            const latest = await this.fetchLatestFromAPI(gameType);
+            const latest = await this._fetchLatestWithFallback(gameType);
             if (latest && latest.drawNumber) {
                 const existingIndex = this.historyStore[gameType].findIndex(
                     item => item.drawNumber === latest.drawNumber
@@ -53,7 +121,7 @@ class StatsService {
                 });
             }
         } catch (e) {
-            console.warn(`Não foi possível buscar dados da ${gameType}. Usando base offline.`);
+            console.warn(`[StatsService] Não foi possível buscar dados da ${gameType}. Usando base offline.`, e);
         }
 
         // 3. Fallback se absolutamente necessário
@@ -62,23 +130,43 @@ class StatsService {
         }
     }
 
-    static async fetchLatestFromAPI(gameType) {
-        const apiUrl = `https://loteriascaixa-api.herokuapp.com/api/${gameType}/latest`;
+    // Tenta buscar de múltiplas APIs em sequência
+    static async _fetchLatestWithFallback(gameType) {
+        for (const endpoint of this.API_ENDPOINTS) {
+            try {
+                const url = endpoint.latest(gameType);
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
+                const response = await fetch(url, { 
+                    signal: controller.signal,
+                    headers: { 'Accept': 'application/json' }
+                });
+                clearTimeout(timeoutId);
 
-        try {
-            const response = await fetch(apiUrl, { signal: controller.signal });
-            clearTimeout(timeoutId);
-            if (!response.ok) return null;
+                if (!response.ok) {
+                    console.warn(`[StatsService] API ${endpoint.name} retornou ${response.status} para ${gameType}`);
+                    continue;
+                }
 
-            const data = await response.json();
-            return this._parseAPIResponse(data, gameType);
-        } catch (e) {
-            clearTimeout(timeoutId);
-            return null;
+                const rawData = await response.json();
+                const data = endpoint.parse(rawData);
+                const result = this._parseAPIResponse(data, gameType);
+                
+                if (result) {
+                    console.log(`[StatsService] ✅ ${gameType} carregado via ${endpoint.name} - Prêmio: R$ ${(this.prizeStore[gameType]?.estimatedPrize || 0).toLocaleString('pt-BR')}`);
+                    return result;
+                }
+            } catch (e) {
+                console.warn(`[StatsService] API ${endpoint.name} falhou para ${gameType}:`, e.message);
+                continue;
+            }
         }
+        return null;
+    }
+
+    static async fetchLatestFromAPI(gameType) {
+        return this._fetchLatestWithFallback(gameType);
     }
 
     static async fetchPreviousDraws(gameType, latestDraw, count = 5) {
@@ -92,31 +180,44 @@ class StatsService {
             }
         }
 
-        const results = await Promise.allSettled(promises);
-        results.forEach(result => {
-            if (result.status === 'fulfilled' && result.value) {
-                this.historyStore[gameType].push(result.value);
+        var self = this;
+        var wrappedPromises = [];
+        for (var p = 0; p < promises.length; p++) {
+            wrappedPromises.push(
+                promises[p].then(function(val) { return val; }).catch(function() { return null; })
+            );
+        }
+        var results = await Promise.all(wrappedPromises);
+        for (var r = 0; r < results.length; r++) {
+            if (results[r]) {
+                self.historyStore[gameType].push(results[r]);
             }
-        });
+        }
     }
 
     static async _fetchSingleDraw(gameType, drawNumber) {
-        const apiUrl = `https://loteriascaixa-api.herokuapp.com/api/${gameType}/${drawNumber}`;
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        // Tenta cada endpoint em sequência
+        for (const endpoint of this.API_ENDPOINTS) {
+            try {
+                const url = endpoint.byDraw(gameType, drawNumber);
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-        try {
-            const response = await fetch(apiUrl, { signal: controller.signal });
-            clearTimeout(timeoutId);
-            if (!response.ok) return null;
+                const response = await fetch(url, { 
+                    signal: controller.signal,
+                    headers: { 'Accept': 'application/json' }
+                });
+                clearTimeout(timeoutId);
+                if (!response.ok) continue;
 
-            const data = await response.json();
-            return this._parseAPIResponse(data, gameType);
-        } catch (e) {
-            clearTimeout(timeoutId);
-            return null;
+                const rawData = await response.json();
+                const data = endpoint.parse(rawData);
+                return this._parseAPIResponse(data, gameType);
+            } catch (e) {
+                continue;
+            }
         }
+        return null;
     }
 
     static _parseAPIResponse(data, gameType = null) {
@@ -135,7 +236,8 @@ class StatsService {
             nextDraw: data.proximoConcurso || (parseInt(data.concurso) + 1),
             nextDrawDate: data.dataProximoConcurso || null,
             currentDraw: parseInt(data.concurso),
-            prizes: data.premiacoes || []
+            prizes: data.premiacoes || [],
+            lastUpdated: Date.now()
         };
 
         return {
@@ -146,6 +248,23 @@ class StatsService {
 
     static getPrizeInfo(gameType) {
         return this.prizeStore[gameType] || null;
+    }
+
+    // Força recarregar prêmios de todos os jogos (chamado pelo UI)
+    static async forceRefreshAllPrizes() {
+        const gameKeys = typeof GAMES !== 'undefined' ? Object.keys(GAMES) : [];
+        console.log('[StatsService] 🔄 Forçando atualização de todos os prêmios...');
+        
+        const refreshPromises = gameKeys.map(async (key) => {
+            try {
+                await this._fetchLatestWithFallback(key);
+            } catch(e) {
+                // Silencioso
+            }
+        });
+
+        await Promise.all(refreshPromises);
+        console.log('[StatsService] ✅ Prêmios atualizados:', JSON.parse(JSON.stringify(this.prizeStore)));
     }
 
     static generateFallbackHistory(gameType) {
@@ -234,3 +353,8 @@ class StatsService {
         return this.simulateDraw(game);
     }
 }
+// Compatibilidade Safari iOS (static class fields não suportado em versões antigas)
+StatsService.historyStore = {};
+StatsService.loadingPromises = {};
+StatsService.prizeStore = {};
+StatsService._lastPrizeRefresh = {};

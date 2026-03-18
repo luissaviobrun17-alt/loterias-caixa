@@ -4,11 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data: blob:; connect-src *; font-src * data:;">
     <title>B2B Loterias</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css?v=9&t=20260203142158">
     <link rel="stylesheet" href="styles/components.css?v=4&t=20260203142158">
     <link rel="stylesheet" href="styles/lottery.css?v=4&t=20260203142158">
+    <link rel="stylesheet" href="styles/responsive.css?v=1">
 </head>
 
 <body>
@@ -52,13 +54,11 @@
                         text-transform: uppercase;
                         display: block;
                         line-height: 1;
-                        /* Profundidade 5D Metalizada Intensificada */
                         text-shadow: 
                             0 1px 0 #d4af37, 
                             0 2px 0 #b8860b, 
                             0 3px 0 #996515, 
                             0 4px 12px rgba(0,0,0,0.9);
-                        /* Brilho Líquido Metálico Ultra-Dourado */
                         background: linear-gradient(110deg, #FFD700 30%, #fff8dc 50%, #FFD700 70%);
                         background-size: 200% auto;
                         -webkit-background-clip: text;
@@ -70,6 +70,22 @@
                     }
                     .tagline-main-5d { font-size: 1.4rem; letter-spacing: -0.2px; }
                     .tagline-sub-5d { font-size: 0.85rem; letter-spacing: 5px; margin-top: 3px; opacity: 0.95; }
+                    /* Mobile: reposicionar tagline */
+                    @media screen and (max-width: 767px) {
+                        .tagline-quantum-high {
+                            position: relative;
+                            right: auto;
+                            top: auto;
+                            transform: none;
+                            text-align: center;
+                            align-items: center;
+                            flex: 1;
+                            margin-top: 0;
+                            animation: none;
+                        }
+                        .tagline-main-5d { font-size: 1.1rem; }
+                        .tagline-sub-5d { font-size: 0.6rem; letter-spacing: 3px; }
+                    }
                 </style>
                 <div class="tagline-quantum-high">
                     <span class="gold-3d-text tagline-main-5d">Loteria Inteligente</span>
@@ -423,7 +439,7 @@
                         <div class="sidebar-btn-icon link-icon">🔗</div>
                         <div class="sidebar-btn-text">
                             <h3 class="sidebar-btn-title">Compartilhar Link</h3>
-                            <p class="sidebar-btn-desc">Botão direito → enviar para redes</p>
+                            <p class="sidebar-btn-desc">Clique para enviar para redes</p>
                         </div>
                         <span class="sidebar-btn-arrow">›</span>
                     </div>
@@ -858,6 +874,51 @@
             <script src="js/engines/quantum_god_mode.js"></script>
             <script src="js/ui.js?v=3"></script>
             <script src="js/main.js?v=3"></script>
+
+    <!-- SISTEMA DE LICENÇA -->
+    <script src="js/license.js"></script>
+    <script>
+    (function() {
+        // ====== PROTEÇÃO ANTI-CÓPIA (leve) ======
+
+        // Detectar se é dispositivo touch (celular/tablet)
+        var isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+        // 1. Bloquear Ctrl+U (ver código fonte) - apenas desktop
+        if (!isTouchDevice) {
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        }
+
+        // 2. Bloquear clique direito - apenas desktop (no mobile bloqueia toque longo)
+        if (!isTouchDevice) {
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+        }
+
+        // 3. Desabilitar arrastar - apenas desktop
+        if (!isTouchDevice) {
+            document.addEventListener('dragstart', function(e) { e.preventDefault(); });
+        }
+
+        // 4. Marca d'água com info da licença
+        if (typeof B2B_LICENSE !== 'undefined') {
+            var wm = document.createElement('div');
+            wm.style.cssText = 'position:fixed;bottom:5px;left:10px;font-size:0.55rem;color:rgba(255,255,255,0.15);font-family:monospace;z-index:1;pointer-events:none;';
+            wm.textContent = 'Licença: ' + B2B_LICENSE.key + ' | ' + B2B_LICENSE.computer;
+            document.body.appendChild(wm);
+        }
+
+        // 5. Botão "Compartilhar Link" — proteção removida para não bloquear o menu de compartilhamento
+    })();
+    </script>
+
 </body>
 
 </html>

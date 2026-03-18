@@ -13,6 +13,7 @@ class QuantumGodEngine {
     static runSimulation(gameKey, count, history) {
         const constraints = this.getConstraints(gameKey);
         if (!constraints) return [];
+        const startNum = constraints.startNumber || 1;
 
         // 1. Prepare the Quantum Field (The Laws of Physics for this specific game)
         const entanglementMap = this.mapEntanglement(history, constraints.totalNumbers);
@@ -24,14 +25,14 @@ class QuantumGodEngine {
 
         // 2. SIMULATE THE MULTIVERSE (Monte Carlo)
         const universeCount = 1000;
-        const multiverseResults = new Array(constraints.totalNumbers + 1).fill(0);
+        const multiverseResults = new Array(constraints.totalNumbers + constraints.startNumber).fill(0);
 
         // Pre-process global fields for the multiverse
         const recency = this.calculateRecency(history, constraints.totalNumbers);
         const latency = this.calculateLatency(history, constraints.totalNumbers);
 
         for (let u = 0; u < universeCount; u++) {
-            const simulation = this.simulateSingleUniverse(baseField, entanglementMap, count, constraints.totalNumbers, recency, latency);
+            const simulation = this.simulateSingleUniverse(baseField, entanglementMap, count, constraints.totalNumbers, recency, latency, startNum);
             simulation.forEach(num => {
                 multiverseResults[num]++;
             });
@@ -40,8 +41,9 @@ class QuantumGodEngine {
         // 3. CONVERGENCE (Find the distinct peaks)
         // Map to objects for sorting
         const rankedNumbers = [];
-        for (let i = 1; i <= constraints.totalNumbers; i++) {
-            rankedNumbers.push({ number: i, hits: multiverseResults[i] });
+        const endNum = constraints.startNumber + constraints.totalNumbers - 1;
+        for (let i = startNum; i <= endNum; i++) {
+            rankedNumbers.push({ number: i, hits: multiverseResults[i] || 0 });
         }
 
         // Sort by most frequent appearances in the multiverse
@@ -53,7 +55,7 @@ class QuantumGodEngine {
         return finalSelection.sort((a, b) => a - b);
     }
 
-    static simulateSingleUniverse(baseField, entanglementMap, count, totalNumbers, recency, latency) {
+    static simulateSingleUniverse(baseField, entanglementMap, count, totalNumbers, recency, latency, startNumber = 1) {
         const selectedNumbers = new Set();
         let attempts = 0;
 
@@ -75,7 +77,7 @@ class QuantumGodEngine {
 
             const num = this.collapseWaveFunction(dynamicField);
 
-            if (num > 0 && num <= totalNumbers) {
+            if (num >= startNumber && num < startNumber + totalNumbers) {
                 if (!selectedNumbers.has(num)) {
                     selectedNumbers.add(num);
                 }
@@ -85,7 +87,7 @@ class QuantumGodEngine {
 
         // Fail-safe fill
         while (selectedNumbers.size < count) {
-            const r = Math.floor(Math.random() * totalNumbers) + 1;
+            const r = Math.floor(Math.random() * totalNumbers) + startNumber;
             selectedNumbers.add(r);
         }
 
@@ -274,13 +276,13 @@ class QuantumGodEngine {
 
     static getConstraints(gameKey) {
         const configs = {
-            'megasena': { totalNumbers: 60 },
-            'lotofacil': { totalNumbers: 25 },
-            'quina': { totalNumbers: 80 },
-            'lotomania': { totalNumbers: 100 },
-            'timemania': { totalNumbers: 80 },
-            'duplasena': { totalNumbers: 50 },
-            'diadesorte': { totalNumbers: 31 }
+            'megasena': { totalNumbers: 60, startNumber: 1 },
+            'lotofacil': { totalNumbers: 25, startNumber: 1 },
+            'quina': { totalNumbers: 80, startNumber: 1 },
+            'lotomania': { totalNumbers: 100, startNumber: 0 },
+            'timemania': { totalNumbers: 80, startNumber: 1 },
+            'duplasena': { totalNumbers: 50, startNumber: 1 },
+            'diadesorte': { totalNumbers: 31, startNumber: 1 }
         };
         return configs[gameKey];
     }

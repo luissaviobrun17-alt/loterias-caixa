@@ -81,6 +81,11 @@ class UI {
 
         // Backup Button
         this.btnBackup = document.getElementById('btn-backup');
+
+        // Prize Display Elements
+        this.prizeDisplay = document.getElementById('prize-display');
+        this.prizeValue = document.getElementById('prize-value');
+        this.prizeBadge = document.getElementById('prize-badge');
     }
 
     debounce(func, wait) {
@@ -165,111 +170,25 @@ class UI {
         }
     }
 
-    initShareEvents() {
-        if (this.whatsappBtn) {
-            this.whatsappBtn.onclick = this.debounce(() => this.shareViaWhatsApp(), 300);
-        }
-    }
-
-    async shareViaWhatsApp() {
-        if (this.currentGeneratedGames.length === 0) {
-            alert("Gere jogos primeiro para compartilhar.");
-            return;
-        }
-
-        const gameName = GAMES[this.currentGameKey]?.name || 'Loteria';
-        let text = `*JOGOS DA ${gameName.toUpperCase()}*\n`;
-        text += `Data: ${new Date().toLocaleDateString()}\n\n`;
-
-        this.currentGeneratedGames.forEach((game, i) => {
-            text += `*Jogo ${i + 1}*: ${game.map(n => n.toString().padStart(2, '0')).join(' - ')}\n`;
-        });
-
-        text += `\nGerado por *B2B Loterias*`;
-
-        const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-        window.open(url, '_blank');
-    }
-
-    updateUrlHash() {
-        if (this.currentGeneratedGames.length === 0) {
-            window.location.hash = '';
-            return;
-        }
-
-        const data = {
-            g: this.currentGameKey,
-            j: this.currentGeneratedGames
-        };
-
-        try {
-            const encoded = btoa(JSON.stringify(data));
-            window.location.hash = `games=${encoded}`;
-        } catch (e) {
-            console.warn("Could not update URL hash", e);
-        }
-    }
-
-    restoreGamesFromHash() {
-        const hash = window.location.hash;
-        if (!hash.startsWith('#games=')) return;
-
-        try {
-            const encoded = hash.split('=')[1];
-            const data = JSON.parse(atob(encoded));
-
-            if (data.g && data.j) {
-                this.currentGameKey = data.g;
-                this.currentGeneratedGames = data.j;
-
-                // Wait a bit for everything to be ready
-                setTimeout(() => {
-                    this.updateGameInfo(this.currentGameKey);
-                    this.renderGames({ games: this.currentGeneratedGames }, this.currentGameKey, false);
-                }, 100);
-            }
-        } catch (e) {
-            console.error("Failed to restore games from hash", e);
-        }
-    }
-
-    initQuantum() {
-        if (this.quantumFormula) {
-            this.quantumFormula.textContent = QuantumService.getFormula();
-        }
-
-        if (this.btnQuantumCalculate) {
-            this.btnQuantumCalculate.onclick = () => this.runQuantumCalculation();
-        }
-
-        this.btnUseQuantum = document.getElementById('btn-use-quantum');
-        if (this.btnUseQuantum) {
-            this.btnUseQuantum.onclick = () => this.useQuantumNumbers();
-        }
-    }
-
     runQuantumCalculation() {
         const count = parseInt(this.quantumCountInput.value) || 6;
         const game = GAMES[this.currentGameKey];
+        const constraints = QuantumGodEngine.getConstraints(this.currentGameKey);
+        const totalNumbers = constraints ? constraints.totalNumbers : (game.range[1] - game.range[0] + 1);
+        const minSuggestion = Math.ceil(totalNumbers * 0.5); // Mínimo 50% dos números
 
-        // Basic Validation
-        if (count < game.minBet) {
-            alert(`Mínimo de ${game.minBet} números para ${game.name}.`);
+        // Basic Validation - Mínimo de 50% dos números da loteria
+        if (count < minSuggestion) {
+            alert(`Sugestão IA precisa de no mínimo ${minSuggestion} números (50% de ${totalNumbers}) para ${game.name}.`);
+            this.quantumCountInput.value = minSuggestion;
             return;
         }
 
-        // Validation: Limit to 100 OR the total numbers available in the game
-        // We use QuantumGodEngine's knowledge of the game constraints.
-        const constraints = QuantumGodEngine.getConstraints(this.currentGameKey);
-        const maxForGame = constraints ? constraints.totalNumbers : 100;
+        // Validation: Limit to total numbers available in the game
+        const maxForGame = totalNumbers;
 
         if (count > maxForGame) {
             alert(`Limite excedido: ${game.name} possui apenas ${maxForGame} números.`);
-            return;
-        }
-
-        if (count > 100) {
-            alert("O limite máximo de sugestão é 100 números.");
             return;
         }
 
@@ -519,11 +438,7 @@ class UI {
 
     initQuantum() {
         if (this.btnQuantumCalculate) {
-            this.btnQuantumCalculate.onclick = () => {
-                const count = parseInt(this.quantumCountInput.value) || 6;
-                const result = QuantumService.generateSuggestion(this.currentGameKey, count);
-                this.renderQuantumResults(result);
-            };
+            this.btnQuantumCalculate.onclick = () => this.runQuantumCalculation();
         }
         if (this.btnUseQuantum) {
             this.btnUseQuantum.onclick = () => this.useQuantumNumbers();
@@ -688,9 +603,13 @@ class UI {
         this.fixedInfoPanel.style.display = 'none';
 
         if (this.quantumCountInput) {
-            this.quantumCountInput.value = game.minBet;
-            this.quantumCountInput.min = game.minBet;
-            this.quantumCountInput.max = game.maxBet;
+            // Sugestão IA: padrão = 50% dos números da loteria
+            const qConstraints = QuantumGodEngine.getConstraints(gameKey);
+            const totalNums = qConstraints ? qConstraints.totalNumbers : (game.range[1] - game.range[0] + 1);
+            const defaultSuggestion = Math.ceil(totalNums * 0.5);
+            this.quantumCountInput.value = defaultSuggestion;
+            this.quantumCountInput.min = defaultSuggestion;
+            this.quantumCountInput.max = totalNums;
         }
         if (this.quantumResults) {
             this.quantumResults.innerHTML = '<div class="quantum-placeholder">Clique em "Gerar Sugestão" para começar</div>';
@@ -879,8 +798,14 @@ class UI {
             universe.push(i);
         }
 
-        const shuffled = universe.sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, targetCount);
+        // Fisher-Yates shuffle para aleatoriedade verdadeira
+        for (let i = universe.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const temp = universe[i];
+            universe[i] = universe[j];
+            universe[j] = temp;
+        }
+        const selected = universe.slice(0, targetCount);
 
         selected.forEach(num => {
             const el = this.gridContainer.querySelector(`.grid-num[data-number="${num}"]`);
@@ -1697,7 +1622,7 @@ class UI {
             h3.style.color = '#10B981';
             setTimeout(() => {
                 h3.textContent = original;
-                h3.style.color = '#FCD34D';
+                h3.style.color = '';
             }, 2500);
         }
     }

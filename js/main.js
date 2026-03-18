@@ -1,8 +1,12 @@
 // Global UI usage
 
-document.addEventListener('DOMContentLoaded', () => {
-    const ui = new UI();
-    ui.initEvents(); // initEvents already calls initQuantum, initCopyEvents, initShareEvents, initTutorialEvents, initInstallEvents
-    ui.updateGameInfo('megasena');
-    ui.addInstallButton();
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        var ui = new UI();
+        ui.initEvents();
+        ui.updateGameInfo('megasena');
+        ui.addInstallButton();
+    } catch(e) {
+        alert('ERRO B2B: ' + e.message + '\n\nLinha: ' + (e.stack || ''));
+    }
 });
