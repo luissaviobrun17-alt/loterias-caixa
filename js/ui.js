@@ -175,20 +175,17 @@ class UI {
         const game = GAMES[this.currentGameKey];
         const constraints = QuantumGodEngine.getConstraints(this.currentGameKey);
         const totalNumbers = constraints ? constraints.totalNumbers : (game.range[1] - game.range[0] + 1);
-        const minSuggestion = Math.ceil(totalNumbers * 0.5); // Mínimo 50% dos números
 
-        // Basic Validation - Mínimo de 50% dos números da loteria
-        if (count < minSuggestion) {
-            alert(`Sugestão IA precisa de no mínimo ${minSuggestion} números (50% de ${totalNumbers}) para ${game.name}.`);
-            this.quantumCountInput.value = minSuggestion;
+        // Validação: mínimo é o minBet do jogo
+        if (count < game.minBet) {
+            alert(`Mínimo de ${game.minBet} números para ${game.name}.`);
+            this.quantumCountInput.value = game.minBet;
             return;
         }
 
-        // Validation: Limit to total numbers available in the game
-        const maxForGame = totalNumbers;
-
-        if (count > maxForGame) {
-            alert(`Limite excedido: ${game.name} possui apenas ${maxForGame} números.`);
+        // Validação: máximo é o total de números da loteria
+        if (count > totalNumbers) {
+            alert(`Limite excedido: ${game.name} possui apenas ${totalNumbers} números.`);
             return;
         }
 
@@ -603,12 +600,12 @@ class UI {
         this.fixedInfoPanel.style.display = 'none';
 
         if (this.quantumCountInput) {
-            // Sugestão IA: padrão = 50% dos números da loteria
+            // Sugestão IA: padrão = 50% dos números da loteria, mas mínimo é minBet
             const qConstraints = QuantumGodEngine.getConstraints(gameKey);
             const totalNums = qConstraints ? qConstraints.totalNumbers : (game.range[1] - game.range[0] + 1);
             const defaultSuggestion = Math.ceil(totalNums * 0.5);
             this.quantumCountInput.value = defaultSuggestion;
-            this.quantumCountInput.min = defaultSuggestion;
+            this.quantumCountInput.min = game.minBet;
             this.quantumCountInput.max = totalNums;
         }
         if (this.quantumResults) {
@@ -620,8 +617,8 @@ class UI {
         this.updateSelectionInfo();
         this.updateCurrentCostDisplay();
 
-        // Reset prize display while loading
-        if (this.prizeDisplay) this.prizeDisplay.style.display = 'none';
+        // Mostrar prêmio fallback IMEDIATAMENTE (sem depender da API)
+        this.updatePrizeDisplayWithFallback(gameKey);
 
         // ASYNC LOAD FOR DATA
         (async () => {
@@ -638,12 +635,13 @@ class UI {
                 const tag = this.currentGameTitle.querySelector('.next-draw-tag');
                 if (tag) tag.textContent = `(Concurso: ${nextDrawNumber})`;
 
-                // Update Prize Display
+                // Update Prize Display com dados reais da API
                 this.updatePrizeDisplay(gameKey);
             } catch (e) {
                 console.warn("Async history load failed:", e);
+                // Mantém o fallback exibido
                 if (this.recentResultsContainer) {
-                    this.recentResultsContainer.innerHTML = '<div class="empty-state">Erro ao carregar resultados.</div>';
+                    this.recentResultsContainer.innerHTML = '<div class="empty-state">Usando dados offline.</div>';
                 }
             }
         })();
@@ -654,6 +652,39 @@ class UI {
     updateRecentResults() {
         const results = StatsService.getRecentResults(this.currentGameKey, 5);
         this.renderRecentResults(results);
+    }
+
+    // Exibe prêmio fallback IMEDIATAMENTE (sem precisar de API)
+    updatePrizeDisplayWithFallback(gameKey) {
+        if (!this.prizeDisplay) return;
+        
+        // Primeiro tenta dados reais da API (se já tiver carregado)
+        const prizeInfo = StatsService.getPrizeInfo(gameKey);
+        if (prizeInfo && (prizeInfo.estimatedPrize > 0 || prizeInfo.accumulatedPrize > 0)) {
+            this.updatePrizeDisplay(gameKey);
+            return;
+        }
+
+        // Se não tem dados da API, usa o fallback definido em games.js
+        const game = GAMES[gameKey];
+        const fallbackAmount = game ? (game.estimatedPrizeFallback || 0) : 0;
+        
+        if (fallbackAmount > 0) {
+            const formatted = fallbackAmount.toLocaleString('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+            this.prizeValue.textContent = formatted;
+            this.prizeDisplay.style.display = 'block';
+            
+            if (this.prizeBadge) {
+                this.prizeBadge.style.display = 'none';
+            }
+        } else {
+            this.prizeDisplay.style.display = 'none';
+        }
     }
 
     updatePrizeDisplay(gameKey) {
