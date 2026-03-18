@@ -556,6 +556,40 @@ class QuantumGodEngine {
         var consecDiff = Math.abs(consecutivePairs - patterns.avgConsecutive);
         score += Math.max(0, 1 - consecDiff * 0.3);
 
+        // 6. ANTI-SEQUÊNCIA LÓGICA: penalizar progressões aritméticas
+        // Ex: 5, 10, 15, 20, 25 (diferença constante) = artificial
+        var arithmeticCount = 0;
+        for (var a = 0; a < sortedNums.length - 2; a++) {
+            var diff1 = sortedNums[a+1] - sortedNums[a];
+            var diff2 = sortedNums[a+2] - sortedNums[a+1];
+            if (diff1 === diff2 && diff1 > 0 && diff1 <= 10) arithmeticCount++;
+        }
+        // Penalizar se mais de 20% dos números formam progressão
+        if (arithmeticCount > numCount * 0.2) {
+            score -= arithmeticCount * 0.3;
+        }
+
+        // 7. ANTI-MÚLTIPLOS: penalizar muitos múltiplos do mesmo número
+        for (var mult = 2; mult <= 5; mult++) {
+            var multCount = 0;
+            for (var mi = 0; mi < numCount; mi++) {
+                if (numbers[mi] % mult === 0) multCount++;
+            }
+            // Se >70% são múltiplos do mesmo número, penalizar
+            if (multCount > numCount * 0.7) score -= 0.5;
+        }
+
+        // 8. ANTI-TERMINAÇÃO REPETIDA: penalizar mesmo último dígito
+        var lastDigits = {};
+        for (var ld = 0; ld < numCount; ld++) {
+            var digit = numbers[ld] % 10;
+            lastDigits[digit] = (lastDigits[digit] || 0) + 1;
+        }
+        for (var d in lastDigits) {
+            // Se >40% terminam no mesmo dígito, penalizar
+            if (lastDigits[d] > numCount * 0.4) score -= 0.5;
+        }
+
         return score;
     }
 
