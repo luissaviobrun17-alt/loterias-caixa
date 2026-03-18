@@ -39,7 +39,20 @@ class StatsService {
     }
 
     static async _loadHistory(gameType) {
-        // 1. CARREGAR DA BASE ESTÁTICA
+        // 1. RESTAURAR PRÊMIOS DO CACHE LOCAL (localStorage)
+        try {
+            var savedPrize = localStorage.getItem('b2b_prize_' + gameType);
+            if (savedPrize) {
+                var parsed = JSON.parse(savedPrize);
+                // Usar se tiver menos de 24h
+                if (parsed && parsed.lastUpdated && (Date.now() - parsed.lastUpdated) < 86400000) {
+                    this.prizeStore[gameType] = parsed;
+                    console.log('[StatsService] 💾 Prêmio restaurado do cache local: ' + gameType + ' = R$ ' + (parsed.estimatedPrize || 0).toLocaleString('pt-BR'));
+                }
+            }
+        } catch(e) { /* localStorage indisponível */ }
+
+        // 2. CARREGAR HISTÓRICO DA BASE ESTÁTICA
         if (typeof REAL_HISTORY_DB !== 'undefined' && REAL_HISTORY_DB[gameType]) {
             this.historyStore[gameType] = REAL_HISTORY_DB[gameType].slice();
         } else {
@@ -206,6 +219,12 @@ class StatsService {
             prizes: data.premiacoes || [],
             lastUpdated: Date.now()
         };
+
+        // SALVAR NO CACHE LOCAL (localStorage) para próximas sessões
+        try {
+            localStorage.setItem('b2b_prize_' + storageKey, JSON.stringify(this.prizeStore[storageKey]));
+            console.log('[StatsService] 💾 Prêmio salvo no cache local: ' + storageKey);
+        } catch(e) { /* localStorage cheio ou indisponível */ }
 
         return {
             drawNumber: parseInt(data.concurso),
