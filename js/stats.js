@@ -206,25 +206,32 @@ class StatsService {
     static _parseAPIResponse(data, gameType) {
         if (!data || !data.concurso || !data.dezenas) return null;
 
-        var estimated = data.valorEstimadoProximoConcurso || data.valorAcumuladoProximoConcurso || 0;
+        var drawNum = parseInt(data.concurso);
         var storageKey = gameType || data.loteria;
 
-        this.prizeStore[storageKey] = {
-            estimatedPrize: estimated,
-            accumulatedPrize: data.valorAcumuladoProximoConcurso || 0,
-            accumulated: data.acumulou || false,
-            nextDraw: data.proximoConcurso || (parseInt(data.concurso) + 1),
-            nextDrawDate: data.dataProximoConcurso || null,
-            currentDraw: parseInt(data.concurso),
-            prizes: data.premiacoes || [],
-            lastUpdated: Date.now()
-        };
+        // SÓ atualizar prêmio se este concurso for MAIS RECENTE que o já armazenado
+        var currentStored = this.prizeStore[storageKey];
+        if (!currentStored || drawNum >= currentStored.currentDraw) {
+            var estimated = data.valorEstimadoProximoConcurso || data.valorAcumuladoProximoConcurso || 0;
 
-        // SALVAR NO CACHE LOCAL (localStorage) para próximas sessões
-        try {
-            localStorage.setItem('b2b_prize_' + storageKey, JSON.stringify(this.prizeStore[storageKey]));
-            console.log('[StatsService] 💾 Prêmio salvo no cache local: ' + storageKey);
-        } catch(e) { /* localStorage cheio ou indisponível */ }
+            this.prizeStore[storageKey] = {
+                estimatedPrize: estimated,
+                accumulatedPrize: data.valorAcumuladoProximoConcurso || 0,
+                accumulated: data.acumulou || false,
+                nextDraw: data.proximoConcurso || (drawNum + 1),
+                nextDrawDate: data.dataProximoConcurso || null,
+                currentDraw: drawNum,
+                prizes: data.premiacoes || [],
+                lastUpdated: Date.now()
+            };
+
+            // SALVAR NO CACHE LOCAL (localStorage) para próximas sessões
+            try {
+                localStorage.setItem('b2b_prize_' + storageKey, JSON.stringify(this.prizeStore[storageKey]));
+            } catch(e) { /* localStorage cheio ou indisponível */ }
+
+            console.log('[StatsService] ✅ Prêmio atualizado: ' + storageKey + ' (concurso ' + drawNum + ') = R$ ' + (estimated || 0).toLocaleString('pt-BR'));
+        }
 
         return {
             drawNumber: parseInt(data.concurso),
