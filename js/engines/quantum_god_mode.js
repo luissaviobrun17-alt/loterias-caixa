@@ -60,17 +60,21 @@ class QuantumGodEngine {
         // CAMADA 7: Correlação de trios
         var trios = this._layer7_TrioCorrelation(history, startNum, endNum);
 
+        // CAMADA 8: Análise por final do número do concurso
+        var drawEndingWeights = this._layer8_DrawEnding(history, startNum, endNum);
+
         // ╔══════════════════════════════════════╗
         // ║  SCORE COMBINADO PONDERADO           ║
         // ╚══════════════════════════════════════╝
         var finalScores = {};
         for (var n = startNum; n <= endNum; n++) {
             finalScores[n] = 
-                (recentFreq[n] || 0)  * 0.30 +  // 30% frequência recente
-                (generalFreq[n] || 0) * 0.10 +  // 10% frequência geral
-                (latency[n] || 0)     * 0.15 +  // 15% atraso
-                (cycles[n] || 0)      * 0.20 +  // 20% ciclos
-                (repetition[n] || 0)  * 0.25;   // 25% repetição
+                (recentFreq[n] || 0)       * 0.25 +  // 25% frequência recente
+                (generalFreq[n] || 0)      * 0.08 +  //  8% frequência geral
+                (latency[n] || 0)          * 0.12 +  // 12% atraso
+                (cycles[n] || 0)           * 0.18 +  // 18% ciclos
+                (repetition[n] || 0)       * 0.22 +  // 22% repetição
+                (drawEndingWeights[n] || 0) * 0.15;  // 15% final do concurso
         }
 
         // ╔══════════════════════════════════════╗
@@ -339,6 +343,57 @@ class QuantumGodEngine {
             if (trioMap[tk] >= 2) frequentTrios[tk] = trioMap[tk];
         }
         return frequentTrios;
+    }
+
+    // ═══════════════════════════════════════════
+    // CAMADA 8: ANÁLISE POR FINAL DO CONCURSO
+    // Sorteios terminados em 0 têm padrões diferentes dos terminados em 5
+    // Ex: Concursos 3630, 3620, 3610 → quais números mais saem?
+    // ═══════════════════════════════════════════
+    static _layer8_DrawEnding(history, startNum, endNum) {
+        var weights = {};
+        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
+
+        if (!history || history.length === 0) return weights;
+
+        // Descobrir qual será o próximo concurso
+        var lastDrawNum = history[0].drawNumber || 0;
+        var nextDrawNum = lastDrawNum + 1;
+        var nextEnding = nextDrawNum % 10;
+
+        // Agrupar histórico por último dígito do concurso
+        var groupByEnding = {};
+        for (var e = 0; e <= 9; e++) groupByEnding[e] = [];
+
+        for (var i = 0; i < history.length; i++) {
+            if (history[i].drawNumber) {
+                var ending = history[i].drawNumber % 10;
+                groupByEnding[ending].push(history[i]);
+            }
+        }
+
+        // Analisar frequência dos números APENAS nos concursos com mesmo final
+        var sameEndingDraws = groupByEnding[nextEnding] || [];
+        if (sameEndingDraws.length === 0) return weights;
+
+        for (var d = 0; d < sameEndingDraws.length; d++) {
+            var nums = sameEndingDraws[d].numbers;
+            for (var j = 0; j < nums.length; j++) {
+                var num = nums[j];
+                if (num >= startNum && num <= endNum) {
+                    weights[num]++;
+                }
+            }
+        }
+
+        // Normalizar
+        var maxW = 0;
+        for (var k in weights) { if (weights[k] > maxW) maxW = weights[k]; }
+        if (maxW > 0) { for (var k2 in weights) weights[k2] /= maxW; }
+
+        console.log('[QuantumV6] 📊 Próximo concurso: ' + nextDrawNum + ' (final ' + nextEnding + ') — Sorteios similares analisados: ' + sameEndingDraws.length);
+
+        return weights;
     }
 
     // ═══════════════════════════════════════════
