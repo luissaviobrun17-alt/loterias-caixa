@@ -297,8 +297,6 @@ class UI {
 
         let addedCount = 0;
         numbersToSelect.forEach(num => {
-            if (addedCount >= game.maxBet) return;
-
             const el = this.gridContainer.querySelector(`.grid-num[data-number="${num}"]`);
             if (el) {
                 this.selectedNumbers.add(num);
