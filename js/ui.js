@@ -264,17 +264,14 @@ class UI {
 
     useQuantumNumbers() {
         const resultDiv = this.quantumResults;
-        const balls = resultDiv.querySelectorAll('.ball'); // Assuming balls have class 'ball' (created by createBall but reset style)
-        // Actually, createBall uses class 'ball' but we reset styles. But class name remains? Yes.
-        // Wait, in renderQuantumResults we did `ball.style = ''`.
-        // Let's check renderQuantumResults in step 200. Yes, ball.className is 'ball'.
+        const balls = resultDiv.querySelectorAll('.ball');
 
         if (balls.length === 0) {
             alert("Gere uma sugestão quântica primeiro!");
             return;
         }
 
-        // Extract numbers
+        // IMPORTANTE: Extrair números ANTES de clearSelection (que limpa o DOM)
         const numbersToSelect = [];
         balls.forEach(b => {
             const n = parseInt(b.textContent);
@@ -283,17 +280,25 @@ class UI {
 
         if (numbersToSelect.length === 0) return;
 
-        // Clear current selection? Or append? usually replace for specific suggestion
-        // Let's replace to handle the exact suggestion count
-        this.clearSelection();
+        // Limpar seleção atual (mas preservar os números já extraídos)
+        this.selectedNumbers.clear();
+        this.fixedNumbers.clear();
+        this.isFixedMode = false;
+        this.btnFixedMode.classList.remove('active');
+        this.fixedInfoPanel.style.display = 'none';
+        const selectedEls = this.gridContainer.querySelectorAll('.selected, .fixed');
+        selectedEls.forEach(el => {
+            el.classList.remove('selected');
+            el.classList.remove('fixed');
+        });
+        this.gamesContainer.innerHTML = '<div class="empty-state">Selecione as opções e clique em Gerar Jogos</div>';
 
         const game = GAMES[this.currentGameKey];
 
         let addedCount = 0;
         numbersToSelect.forEach(num => {
-            if (addedCount >= game.maxBet) return; // Safety cap
+            if (addedCount >= game.maxBet) return;
 
-            // Find grid element
             const el = this.gridContainer.querySelector(`.grid-num[data-number="${num}"]`);
             if (el) {
                 this.selectedNumbers.add(num);
@@ -304,8 +309,7 @@ class UI {
 
         this.updateSelectionInfo();
 
-        // Visual Feedback
-        // Scroll to grid
+        // Scroll para a grade
         this.gridContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
