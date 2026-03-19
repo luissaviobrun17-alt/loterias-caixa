@@ -218,64 +218,41 @@ class QuantumGodEngine {
         }
 
         // ╔══════════════════════════════════════╗
-        // ║  MONTE CARLO / SELEÇÃO DIRETA        ║
+        // ║  MONTE CARLO 10.000 — TODAS LOTERIAS  ║
         // ╚══════════════════════════════════════╝
         var gameSize = this._getGameSize(gameKey);
+        var convergenceMap = {};
+        for (var cn = startNum; cn <= endNum; cn++) convergenceMap[cn] = 0;
+        var totalMC = profile.monteCarloRuns;
+        var roundSize = Math.floor(totalMC / 3);
+        // Pair lookups na simulação: desativado para jogos grandes (performance)
+        var mcPairs = isLargeGame ? null : pairs;
 
-        if (!isLargeGame) {
-            // Jogos pequenos: Monte Carlo completo (10.000 sims, 3 rodadas)
-            var convergenceMap = {};
-            for (var cn = startNum; cn <= endNum; cn++) convergenceMap[cn] = 0;
-            var totalMC = profile.monteCarloRuns;
-            var roundSize = Math.floor(totalMC / 3);
+        console.log('[QuantumV8] 🌀 Monte Carlo: ' + totalMC + ' simulações em 3 rodadas para ' + gameKey);
 
-            for (var round = 0; round < 3; round++) {
-                var roundScores = {};
-                for (var rs = startNum; rs <= endNum; rs++) {
-                    roundScores[rs] = (finalScores[rs] || 0) * (1 + (Math.random() - 0.5) * 0.1 * round);
-                }
-                for (var u = 0; u < roundSize; u++) {
-                    var simResult = this._simulateOneDraw(roundScores, pairs, gameSize, startNum, endNum);
-                    for (var s = 0; s < simResult.length; s++) {
-                        convergenceMap[simResult[s]]++;
-                    }
-                }
+        for (var round = 0; round < 3; round++) {
+            var roundScores = {};
+            for (var rs = startNum; rs <= endNum; rs++) {
+                roundScores[rs] = (finalScores[rs] || 0) * (1 + (Math.random() - 0.5) * 0.1 * round);
             }
-
-            for (var mc = startNum; mc <= endNum; mc++) {
-                finalScores[mc] = (finalScores[mc] || 0) * 0.55 + ((convergenceMap[mc] || 0) / totalMC) * 0.45;
-            }
-
-            // Re-ranquear
-            ranked = [];
-            for (var rn = startNum; rn <= endNum; rn++) {
-                ranked.push({ number: rn, score: finalScores[rn] || 0 });
-            }
-            ranked.sort(function(a, b) { return b.score - a.score; });
-        } else {
-            // Jogos grandes: Monte Carlo LEVE (2000 sims, 1 rodada, sem pair lookups)
-            console.log('[QuantumV8] ⚡ Monte Carlo Leve: 2000 simulações para ' + gameKey);
-            var convergenceMapL = {};
-            for (var cn2 = startNum; cn2 <= endNum; cn2++) convergenceMapL[cn2] = 0;
-            var totalMCL = 2000;
-
-            for (var u2 = 0; u2 < totalMCL; u2++) {
-                var simResult2 = this._simulateOneDraw(finalScores, null, gameSize, startNum, endNum);
-                for (var s2 = 0; s2 < simResult2.length; s2++) {
-                    convergenceMapL[simResult2[s2]]++;
+            for (var u = 0; u < roundSize; u++) {
+                var simResult = this._simulateOneDraw(roundScores, mcPairs, gameSize, startNum, endNum);
+                for (var s = 0; s < simResult.length; s++) {
+                    convergenceMap[simResult[s]]++;
                 }
             }
-
-            for (var mc2 = startNum; mc2 <= endNum; mc2++) {
-                finalScores[mc2] = (finalScores[mc2] || 0) * 0.55 + ((convergenceMapL[mc2] || 0) / totalMCL) * 0.45;
-            }
-
-            ranked = [];
-            for (var rn4 = startNum; rn4 <= endNum; rn4++) {
-                ranked.push({ number: rn4, score: finalScores[rn4] || 0 });
-            }
-            ranked.sort(function(a, b) { return b.score - a.score; });
         }
+
+        for (var mc = startNum; mc <= endNum; mc++) {
+            finalScores[mc] = (finalScores[mc] || 0) * 0.55 + ((convergenceMap[mc] || 0) / totalMC) * 0.45;
+        }
+
+        // Re-ranquear com scores combinados
+        ranked = [];
+        for (var rn = startNum; rn <= endNum; rn++) {
+            ranked.push({ number: rn, score: finalScores[rn] || 0 });
+        }
+        ranked.sort(function(a, b) { return b.score - a.score; });
 
         // ╔══════════════════════════════════════╗
         // ║  FILTRO DE QUALIDADE V2              ║
