@@ -135,11 +135,27 @@ class CombinationEngine {
                 if (strat.match === 11) reduction = 1500;
             } else if (gameType === 'megasena') {
                 if (strat.match === 5) reduction = 50;
-                if (strat.match === 4) reduction = 800; // Quadra is much easier
+                if (strat.match === 4) reduction = 800;
+            } else if (gameType === 'lotomania') {
+                // Lotomania: minBet=50 mas draw=20, usar draw como base
+                if (strat.match === 19) reduction = 15;
+                if (strat.match === 18) reduction = 80;
+                if (strat.match === 17) reduction = 400;
+                if (strat.match === 16) reduction = 2000;
+            } else if (gameType === 'duplasena') {
+                if (strat.match === 5) reduction = 50;
+                if (strat.match === 4) reduction = 800;
+            } else if (gameType === 'timemania') {
+                if (strat.match === 6) reduction = 20;
+                if (strat.match === 5) reduction = 200;
+            } else if (gameType === 'diadesorte') {
+                if (strat.match === 6) reduction = 15;
+                if (strat.match === 5) reduction = 120;
             } else {
-                // Generic reduction based on match diff
-                const diff = game.minBet - strat.match;
-                reduction = Math.pow(10, diff);
+                // Generic reduction based on draw size (not minBet)
+                const baseRef = game.draw || game.minBet;
+                const diff = baseRef - strat.match;
+                reduction = Math.pow(10, Math.min(diff, 5));
             }
 
             const estQty = Math.max(1, Math.ceil(totalCombinations / reduction));

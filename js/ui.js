@@ -52,6 +52,8 @@ class UI {
         this.costSelectedCount = document.getElementById('cost-selected-count');
         this.costTotalCombinations = document.getElementById('cost-total-combinations');
         this.costTotalValue = document.getElementById('cost-total-value');
+        this.costUserGames = document.getElementById('cost-user-games');
+        this.costUserGamesDetail = document.getElementById('cost-user-games-detail');
         this.closingEstimatesContainer = document.getElementById('closing-estimates');
 
         this.root = document.documentElement;
@@ -386,6 +388,10 @@ class UI {
 
         this.copyBtn.onclick = () => this.copyGames();
         this.saveBtn.onclick = () => this.saveGames();
+
+        // Atualizar custo em tempo real ao mudar quantidade de jogos
+        this.gamesQuantityInput.addEventListener('input', () => this.updateCurrentCostDisplay());
+
         this.checkBtn.onclick = () => this.openCheckModal();
         this.playCaixaBtn.onclick = () => this.openCaixa();
 
@@ -864,6 +870,7 @@ class UI {
         this.fixedNumbers.clear();
         this.isFixedMode = false;
         this.btnFixedMode.classList.remove('active');
+        this.btnFixedMode.textContent = '📌 Fixar';
         this.fixedInfoPanel.style.display = 'none';
 
         const selected = this.gridContainer.querySelectorAll('.selected, .fixed');
@@ -874,9 +881,17 @@ class UI {
         this.updateSelectionInfo();
 
         // Clear generated games
+        this.currentGeneratedGames = [];
         this.gamesContainer.innerHTML = '<div class="empty-state">Selecione as opções e clique em Gerar Jogos</div>';
 
-        // Clear Quantum Suggestions (Fix for user report)
+        // Clear check summary
+        if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
+
+        // Clear generation feedback
+        const feedback = document.querySelector('.generation-feedback');
+        if (feedback) feedback.remove();
+
+        // Clear Quantum Suggestions
         if (this.quantumResults) this.quantumResults.innerHTML = '';
     }
 
@@ -893,6 +908,14 @@ class UI {
         const cost = qty * game.price;
         if (this.currentBetCostElem) {
             this.currentBetCostElem.textContent = cost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+        // Atualizar custo no Simulador de Custo
+        if (this.costUserGames) {
+            this.costUserGames.textContent = cost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+        if (this.costUserGamesDetail) {
+            const priceFormatted = game.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            this.costUserGamesDetail.textContent = `${qty} jogo${qty > 1 ? 's' : ''} × ${priceFormatted}`;
         }
     }
 

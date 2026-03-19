@@ -158,9 +158,9 @@
                                     <span id="selected-count">0</span> / <span id="max-selection">0</span>
                                     <button id="btn-random-select" class="sm-btn" title="Selecionar Aleatório">🎲
                                         Aleatório</button>
-                                    <button id="btn-clear-selection" class="sm-btn" title="Limpar">🗑️</button>
                                     <button id="btn-fixed-mode" class="sm-btn" title="Modo Fixar Números">📌
                                         Fixar</button>
+                                    <button id="btn-clear-selection" class="sm-btn" title="Limpar todos os números selecionados e jogos gerados" style="margin-left: auto;">🗑️ Excluir Tudo</button>
                                 </div>
                             </div>
                             <div id="number-selection-grid" class="number-grid">
@@ -283,8 +283,15 @@
                             <span>Combinações Totais</span>
                             <strong id="cost-total-combinations">0</strong>
                         </div>
+                        <div class="cost-row" style="margin-top: 8px; padding: 8px 0; border-top: 1px solid rgba(255,215,0,0.2); border-bottom: 1px solid rgba(255,215,0,0.2);">
+                            <span style="color: #10B981; font-weight: 600;">💰 Custo da Sua Aposta</span>
+                            <strong id="cost-user-games" style="color: #10B981; font-size: 1.1rem;">R$ 0,00</strong>
+                        </div>
+                        <div class="cost-row" style="font-size: 0.75rem; opacity: 0.7; margin-top: 2px;">
+                            <span id="cost-user-games-detail"></span>
+                        </div>
                         <div class="cost-total">
-                            <span>Preço Estimado</span>
+                            <span>Preço Total (todas combinações)</span>
                             <strong id="cost-total-value">R$ 0,00</strong>
                         </div>
                     </div>
