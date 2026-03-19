@@ -221,8 +221,9 @@ class QuantumGodEngine {
         var convergenceMap = {};
         for (var cn = startNum; cn <= endNum; cn++) convergenceMap[cn] = 0;
 
-        // 3 Rodadas de Monte Carlo para convergência
-        var totalMC = profile.monteCarloRuns;
+        // Ajustar iterações para jogos com espaço grande
+        var totalRange = endNum - startNum + 1;
+        var totalMC = totalRange > 50 ? Math.min(profile.monteCarloRuns, 4000) : profile.monteCarloRuns;
         var roundSize = Math.floor(totalMC / 3);
 
         for (var round = 0; round < 3; round++) {
@@ -469,10 +470,11 @@ class QuantumGodEngine {
     // ═══════════════════════════════════════════
     static _layer7_TrioCorrelation(history, startNum, endNum) {
         var trioMap = {};
-        var limit = Math.min(12, history.length);
+        var totalRange = endNum - startNum + 1;
+        var limit = Math.min(totalRange > 50 ? 6 : 12, history.length);
         for (var d = 0; d < limit; d++) {
             var nums = history[d].numbers;
-            var maxNums = Math.min(nums.length, 20); // Limitar para performance
+            var maxNums = Math.min(nums.length, totalRange > 50 ? 10 : 20); // Limitar para performance
             for (var i = 0; i < maxNums; i++) {
                 for (var j = i + 1; j < maxNums; j++) {
                     for (var k = j + 1; k < maxNums; k++) {
@@ -829,7 +831,11 @@ class QuantumGodEngine {
         var lineSize = this._getLineSize(gameKey);
         var numLines = Math.ceil(totalRange / lineSize);
 
-        for (var attempt = 0; attempt < profile.qualityAttempts; attempt++) {
+        // Reduzir tentativas para jogos com muitos números
+        var maxAttempts = count > 25 ? Math.min(profile.qualityAttempts, 600) : profile.qualityAttempts;
+        var useTrioBoost = count <= 25; // Desabilitar trio boost para jogos grandes (performance)
+
+        for (var attempt = 0; attempt < maxAttempts; attempt++) {
             var selection = [];
             var usedInAttempt = {};
 
@@ -839,15 +845,17 @@ class QuantumGodEngine {
                 usedInAttempt[guaranteed[gi]] = true;
             }
 
-            // Completar com seleção ponderada + boost de trios
+            // Completar com seleção ponderada + boost de trios (apenas jogos pequenos)
             var remaining = [];
             for (var r = 0; r < candidates.length; r++) {
                 if (!usedInAttempt[candidates[r].number]) {
                     var boostedScore = candidates[r].score;
-                    for (var s1 = 0; s1 < selection.length; s1++) {
-                        for (var s2 = s1 + 1; s2 < selection.length; s2++) {
-                            var trioKey = [selection[s1], selection[s2], candidates[r].number].sort(function(a,b){return a-b}).join('-');
-                            if (trios[trioKey]) boostedScore += trios[trioKey] * 0.12;
+                    if (useTrioBoost) {
+                        for (var s1 = 0; s1 < selection.length; s1++) {
+                            for (var s2 = s1 + 1; s2 < selection.length; s2++) {
+                                var trioKey = [selection[s1], selection[s2], candidates[r].number].sort(function(a,b){return a-b}).join('-');
+                                if (trios[trioKey]) boostedScore += trios[trioKey] * 0.12;
+                            }
                         }
                     }
                     remaining.push({ number: candidates[r].number, score: boostedScore });
@@ -1211,17 +1219,18 @@ class QuantumGodEngine {
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
         if (history.length < 3) return weights;
 
-        // Construir regras: quando par (A,B) aparece, qual C vem no PRÓXIMO sorteio?
+        var totalRange = endNum - startNum + 1;
         var rules = {};
-        var limit = Math.min(history.length - 1, 12);
+        var limit = Math.min(history.length - 1, totalRange > 50 ? 6 : 12);
 
         for (var i = 0; i < limit; i++) {
             var current = history[i].numbers;
             var next = history[i + 1].numbers;
 
-            // Para cada par no sorteio anterior
-            for (var a = 0; a < next.length; a++) {
-                for (var b = a + 1; b < next.length; b++) {
+            // Limitar pares para jogos grandes
+            var maxPairs = totalRange > 50 ? 8 : next.length;
+            for (var a = 0; a < maxPairs; a++) {
+                for (var b = a + 1; b < maxPairs; b++) {
                     var pairKey = Math.min(next[a], next[b]) + '-' + Math.max(next[a], next[b]);
                     if (!rules[pairKey]) rules[pairKey] = {};
                     // Quais números vieram no sorteio seguinte?
@@ -1234,10 +1243,11 @@ class QuantumGodEngine {
             }
         }
 
-        // Aplicar: dado os pares do ÚLTIMO sorteio, quais números têm predição?
+        // Aplicar: dado os pares do ÚLTIMO sorteio
         var lastDraw = history[0].numbers;
-        for (var la = 0; la < lastDraw.length; la++) {
-            for (var lb = la + 1; lb < lastDraw.length; lb++) {
+        var maxLastPairs = totalRange > 50 ? 8 : lastDraw.length;
+        for (var la = 0; la < maxLastPairs; la++) {
+            for (var lb = la + 1; lb < maxLastPairs; lb++) {
                 var lPairKey = Math.min(lastDraw[la], lastDraw[lb]) + '-' + Math.max(lastDraw[la], lastDraw[lb]);
                 if (rules[lPairKey]) {
                     for (var target in rules[lPairKey]) {
