@@ -194,23 +194,29 @@ class UI {
 
         // Phase 1: Deep Oracle Analysis
         setTimeout(() => {
-            statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #6366f1; font-style: normal;">⚡ Detectando Algoritmos Ocultos + 10.000 Universos...</div>';
+            statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #6366f1; font-style: normal;">⚡ Analisando Padrões Ocultos + Algoritmos...</div>';
 
-            // Phase 2: Multiverse Simulation (Monte Carlo)
+            // Phase 2: Processing
             setTimeout(() => {
-                statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #ec4899; font-style: normal;">🔮 Clarividência Profunda — Usando o Passado para Prever o Futuro...</div>';
+                statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #ec4899; font-style: normal;">🔮 Clarividência Profunda — Processando...</div>';
 
-                // Phase 3: Convergence
+                // Phase 3: Run Engine (with error handling)
                 setTimeout(() => {
-                    const history = StatsService.getRecentResults(this.currentGameKey, 100);
-                    // MODO DEUS V3 (Multiverso)
-                    const suggestion = QuantumGodEngine.runSimulation(this.currentGameKey, count, history);
-                    this.renderQuantumResults(suggestion);
-                }, 800);
+                    try {
+                        const history = StatsService.getRecentResults(this.currentGameKey, 100);
+                        console.log('[UI] Histórico carregado: ' + (history ? history.length : 0) + ' sorteios');
+                        const suggestion = QuantumGodEngine.runSimulation(this.currentGameKey, count, history);
+                        console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + ' números');
+                        this.renderQuantumResults(suggestion);
+                    } catch (err) {
+                        console.error('[UI] ERRO no engine:', err);
+                        statusDiv.innerHTML = '<div style="color: #ef4444; text-align: center; padding: 10px;">❌ Erro: ' + err.message + '<br><small>Verifique o console (F12) para detalhes</small></div>';
+                    }
+                }, 100);
 
-            }, 800);
+            }, 600);
 
-        }, 800);
+        }, 600);
     }
 
     renderQuantumResults(numbers) {

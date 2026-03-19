@@ -158,8 +158,8 @@ class QuantumGodEngine {
         var latency = this._layer3_Latency(history, startNum, endNum);
         var cycles = this._layer4_Cycles(history, startNum, endNum);
         var repetition = this._layer5_Repetition(history, startNum, endNum, gameKey);
-        var pairs = isLargeGame ? {} : this._layer6_PairCorrelation(history, startNum, endNum);
-        var trios = isLargeGame ? {} : this._layer7_TrioCorrelation(history, startNum, endNum);
+        var pairs = this._layer6_PairCorrelation(history, startNum, endNum);
+        var trios = this._layer7_TrioCorrelation(history, startNum, endNum);
         var drawEndingWeights = this._layer8_DrawEnding(history, startNum, endNum);
         var lineWeights = this._layer9_LineDistribution(history, startNum, endNum, gameKey);
         var columnWeights = this._layer10_ColumnDistribution(history, startNum, endNum);
@@ -169,14 +169,13 @@ class QuantumGodEngine {
 
         // ⚡ CAMADAS ORÁCULO V8 ⚡
         var markovWeights = this._layer15_MarkovTransition(history, startNum, endNum);
-        // Camadas 16 e 17 são MUITO pesadas para jogos grandes — skip
-        var temporalWeights = isLargeGame ? {} : this._layer16_TemporalSequences(history, startNum, endNum);
-        var conditionalWeights = isLargeGame ? {} : this._layer17_ConditionalCorrelation(history, startNum, endNum);
+        var temporalWeights = this._layer16_TemporalSequences(history, startNum, endNum);
+        var conditionalWeights = this._layer17_ConditionalCorrelation(history, startNum, endNum);
         var algorithmWeights = this._layer18_AlgorithmDetector(history, startNum, endNum);
         var trendWeights = this._layer19_TemporalTrend(history, startNum, endNum);
         var fibonacciWeights = this._layer20_FibonacciGolden(history, startNum, endNum);
 
-        console.log('[QuantumV8] ⚡ Markov + RNG + Tendência + Fibonacci = ATIVO' + (isLargeGame ? ' (modo rápido)' : ' + Sequências + Condicional'));
+        console.log('[QuantumV8] ⚡ TODAS 20 camadas ativas para ' + gameKey);
 
         // ╔══════════════════════════════════════╗
         // ║  SCORE COMBINADO — 20 CAMADAS        ║
@@ -254,14 +253,26 @@ class QuantumGodEngine {
             }
             ranked.sort(function(a, b) { return b.score - a.score; });
         } else {
-            // Jogos grandes: PULA Monte Carlo — usa score direto + ruído controlado
-            console.log('[QuantumV8] ⚡ Modo Rápido: seleção direta por score (sem Monte Carlo)');
-            for (var rn2 = startNum; rn2 <= endNum; rn2++) {
-                finalScores[rn2] = (finalScores[rn2] || 0) * (1 + (Math.random() - 0.5) * 0.15);
+            // Jogos grandes: Monte Carlo LEVE (2000 sims, 1 rodada, sem pair lookups)
+            console.log('[QuantumV8] ⚡ Monte Carlo Leve: 2000 simulações para ' + gameKey);
+            var convergenceMapL = {};
+            for (var cn2 = startNum; cn2 <= endNum; cn2++) convergenceMapL[cn2] = 0;
+            var totalMCL = 2000;
+
+            for (var u2 = 0; u2 < totalMCL; u2++) {
+                var simResult2 = this._simulateOneDraw(finalScores, null, gameSize, startNum, endNum);
+                for (var s2 = 0; s2 < simResult2.length; s2++) {
+                    convergenceMapL[simResult2[s2]]++;
+                }
             }
+
+            for (var mc2 = startNum; mc2 <= endNum; mc2++) {
+                finalScores[mc2] = (finalScores[mc2] || 0) * 0.55 + ((convergenceMapL[mc2] || 0) / totalMCL) * 0.45;
+            }
+
             ranked = [];
-            for (var rn3 = startNum; rn3 <= endNum; rn3++) {
-                ranked.push({ number: rn3, score: finalScores[rn3] || 0 });
+            for (var rn4 = startNum; rn4 <= endNum; rn4++) {
+                ranked.push({ number: rn4, score: finalScores[rn4] || 0 });
             }
             ranked.sort(function(a, b) { return b.score - a.score; });
         }
