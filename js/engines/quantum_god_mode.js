@@ -150,13 +150,16 @@ class QuantumGodEngine {
         // ║  20 CAMADAS DE ANÁLISE ORÁCULO       ║
         // ╚══════════════════════════════════════╝
 
+        var totalRange = endNum - startNum + 1;
+        var isLargeGame = totalRange > 50; // Lotomania 100, Quina 80, Timemania 80
+
         var recentFreq = this._layer1_RecentFrequency(history, startNum, endNum);
         var generalFreq = this._layer2_GeneralFrequency(history, startNum, endNum);
         var latency = this._layer3_Latency(history, startNum, endNum);
         var cycles = this._layer4_Cycles(history, startNum, endNum);
         var repetition = this._layer5_Repetition(history, startNum, endNum, gameKey);
-        var pairs = this._layer6_PairCorrelation(history, startNum, endNum);
-        var trios = this._layer7_TrioCorrelation(history, startNum, endNum);
+        var pairs = isLargeGame ? {} : this._layer6_PairCorrelation(history, startNum, endNum);
+        var trios = isLargeGame ? {} : this._layer7_TrioCorrelation(history, startNum, endNum);
         var drawEndingWeights = this._layer8_DrawEnding(history, startNum, endNum);
         var lineWeights = this._layer9_LineDistribution(history, startNum, endNum, gameKey);
         var columnWeights = this._layer10_ColumnDistribution(history, startNum, endNum);
@@ -166,13 +169,14 @@ class QuantumGodEngine {
 
         // ⚡ CAMADAS ORÁCULO V8 ⚡
         var markovWeights = this._layer15_MarkovTransition(history, startNum, endNum);
-        var temporalWeights = this._layer16_TemporalSequences(history, startNum, endNum);
-        var conditionalWeights = this._layer17_ConditionalCorrelation(history, startNum, endNum);
+        // Camadas 16 e 17 são MUITO pesadas para jogos grandes — skip
+        var temporalWeights = isLargeGame ? {} : this._layer16_TemporalSequences(history, startNum, endNum);
+        var conditionalWeights = isLargeGame ? {} : this._layer17_ConditionalCorrelation(history, startNum, endNum);
         var algorithmWeights = this._layer18_AlgorithmDetector(history, startNum, endNum);
         var trendWeights = this._layer19_TemporalTrend(history, startNum, endNum);
         var fibonacciWeights = this._layer20_FibonacciGolden(history, startNum, endNum);
 
-        console.log('[QuantumV8] ⚡ Markov + Sequências + Condicional + RNG + Tendência + Fibonacci = ATIVO');
+        console.log('[QuantumV8] ⚡ Markov + RNG + Tendência + Fibonacci = ATIVO' + (isLargeGame ? ' (modo rápido)' : ' + Sequências + Condicional'));
 
         // ╔══════════════════════════════════════╗
         // ║  SCORE COMBINADO — 20 CAMADAS        ║
@@ -200,7 +204,7 @@ class QuantumGodEngine {
         }
 
         // ╔══════════════════════════════════════╗
-        // ║  COBERTURA GARANTIDA (60% Lotofácil) ║
+        // ║  COBERTURA GARANTIDA                  ║
         // ╚══════════════════════════════════════╝
         var ranked = [];
         for (var num = startNum; num <= endNum; num++) {
@@ -215,45 +219,52 @@ class QuantumGodEngine {
         }
 
         // ╔══════════════════════════════════════╗
-        // ║  MONTE CARLO TURBINADO (3 RODADAS)   ║
+        // ║  MONTE CARLO / SELEÇÃO DIRETA        ║
         // ╚══════════════════════════════════════╝
         var gameSize = this._getGameSize(gameKey);
-        var convergenceMap = {};
-        for (var cn = startNum; cn <= endNum; cn++) convergenceMap[cn] = 0;
 
-        // Ajustar iterações para jogos com espaço grande
-        var totalRange = endNum - startNum + 1;
-        var totalMC = totalRange > 50 ? 1500 : profile.monteCarloRuns;
-        var numRounds = totalRange > 50 ? 1 : 3;
-        var roundSize = Math.floor(totalMC / numRounds);
-        var skipPairsInMC = totalRange > 50; // Desabilita pair lookups para performance
+        if (!isLargeGame) {
+            // Jogos pequenos: Monte Carlo completo (10.000 sims, 3 rodadas)
+            var convergenceMap = {};
+            for (var cn = startNum; cn <= endNum; cn++) convergenceMap[cn] = 0;
+            var totalMC = profile.monteCarloRuns;
+            var roundSize = Math.floor(totalMC / 3);
 
-        for (var round = 0; round < numRounds; round++) {
-            var roundScores = {};
-            for (var rs = startNum; rs <= endNum; rs++) {
-                // Cada rodada adiciona um pouco de variação
-                roundScores[rs] = (finalScores[rs] || 0) * (1 + (Math.random() - 0.5) * 0.1 * round);
-            }
-
-            for (var u = 0; u < roundSize; u++) {
-                var simResult = this._simulateOneDraw(roundScores, skipPairsInMC ? null : pairs, gameSize, startNum, endNum);
-                for (var s = 0; s < simResult.length; s++) {
-                    convergenceMap[simResult[s]]++;
+            for (var round = 0; round < 3; round++) {
+                var roundScores = {};
+                for (var rs = startNum; rs <= endNum; rs++) {
+                    roundScores[rs] = (finalScores[rs] || 0) * (1 + (Math.random() - 0.5) * 0.1 * round);
+                }
+                for (var u = 0; u < roundSize; u++) {
+                    var simResult = this._simulateOneDraw(roundScores, pairs, gameSize, startNum, endNum);
+                    for (var s = 0; s < simResult.length; s++) {
+                        convergenceMap[simResult[s]]++;
+                    }
                 }
             }
-        }
 
-        // Combinar score final com convergência Monte Carlo
-        for (var mc = startNum; mc <= endNum; mc++) {
-            finalScores[mc] = (finalScores[mc] || 0) * 0.55 + ((convergenceMap[mc] || 0) / totalMC) * 0.45;
-        }
+            for (var mc = startNum; mc <= endNum; mc++) {
+                finalScores[mc] = (finalScores[mc] || 0) * 0.55 + ((convergenceMap[mc] || 0) / totalMC) * 0.45;
+            }
 
-        // Re-ranquear com scores combinados
-        ranked = [];
-        for (var rn = startNum; rn <= endNum; rn++) {
-            ranked.push({ number: rn, score: finalScores[rn] || 0 });
+            // Re-ranquear
+            ranked = [];
+            for (var rn = startNum; rn <= endNum; rn++) {
+                ranked.push({ number: rn, score: finalScores[rn] || 0 });
+            }
+            ranked.sort(function(a, b) { return b.score - a.score; });
+        } else {
+            // Jogos grandes: PULA Monte Carlo — usa score direto + ruído controlado
+            console.log('[QuantumV8] ⚡ Modo Rápido: seleção direta por score (sem Monte Carlo)');
+            for (var rn2 = startNum; rn2 <= endNum; rn2++) {
+                finalScores[rn2] = (finalScores[rn2] || 0) * (1 + (Math.random() - 0.5) * 0.15);
+            }
+            ranked = [];
+            for (var rn3 = startNum; rn3 <= endNum; rn3++) {
+                ranked.push({ number: rn3, score: finalScores[rn3] || 0 });
+            }
+            ranked.sort(function(a, b) { return b.score - a.score; });
         }
-        ranked.sort(function(a, b) { return b.score - a.score; });
 
         // ╔══════════════════════════════════════╗
         // ║  FILTRO DE QUALIDADE V2              ║
