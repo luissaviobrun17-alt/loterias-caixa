@@ -190,15 +190,15 @@ class UI {
         }
 
         const statusDiv = this.quantumResults;
-        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">🔬 Analisando 14 Camadas Estatísticas...</div>';
+        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">🔮 Ativando 20 Camadas Oráculo...</div>';
 
-        // Phase 1: Deep Analysis
+        // Phase 1: Deep Oracle Analysis
         setTimeout(() => {
-            statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #6366f1; font-style: normal;">🌀 Simulando 10.000 Universos Quânticos (3 rodadas)...</div>';
+            statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #6366f1; font-style: normal;">⚡ Detectando Algoritmos Ocultos + 10.000 Universos...</div>';
 
             // Phase 2: Multiverse Simulation (Monte Carlo)
             setTimeout(() => {
-                statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #ec4899; font-style: normal;">🔮 Clarividência Profunda — Convergindo Realidades...</div>';
+                statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #ec4899; font-style: normal;">🔮 Clarividência Profunda — Usando o Passado para Prever o Futuro...</div>';
 
                 // Phase 3: Convergence
                 setTimeout(() => {

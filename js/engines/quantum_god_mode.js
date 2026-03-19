@@ -1,29 +1,33 @@
 /**
- * QUANTUM GOD ENGINE V7 (ANÁLISE ESTATÍSTICA ULTRA-PROFUNDA)
- * ===========================================================
- * 14 CAMADAS DE ANÁLISE — Calibração específica por loteria
+ * QUANTUM GOD ENGINE V8 — ORÁCULO (CLARIVIDÊNCIA QUÂNTICA)
+ * =========================================================
+ * 20 CAMADAS DE ANÁLISE — Detecção de padrões ocultos e algoritmos
  * 
- * CAMADA 1:  Frequência Recente (últimos 3-5 sorteios = peso MÁXIMO)
- * CAMADA 2:  Frequência Geral (todos os sorteios disponíveis)
+ * CAMADA 1:  Frequência Recente (últimos 3-5 sorteios)
+ * CAMADA 2:  Frequência Geral (todos os sorteios)
  * CAMADA 3:  Análise de Atraso (números "devendo")
- * CAMADA 4:  Detecção de Ciclos (periodicidade individual)
- * CAMADA 5:  Repetição entre Sorteios (quantos repetem do último)
- * CAMADA 6:  Correlação de Pares (números que saem juntos)
- * CAMADA 7:  Correlação de Trios (3 números que saem juntos)
- * CAMADA 8:  Análise por Final do Concurso
- * CAMADA 9:  Distribuição por LINHAS (faixas)
- * CAMADA 10: Distribuição por COLUNAS (final do número)
+ * CAMADA 4:  Detecção de Ciclos (periodicidade)
+ * CAMADA 5:  Repetição entre Sorteios consecutivos
+ * CAMADA 6:  Correlação de Pares (saem juntos)
+ * CAMADA 7:  Correlação de Trios (3 juntos)
+ * CAMADA 8:  Final do Concurso (padrões por dígito)
+ * CAMADA 9:  Distribuição por LINHAS
+ * CAMADA 10: Distribuição por COLUNAS
  * CAMADA 11: Análise de PRIMOS
  * CAMADA 12: Análise de SOMA (faixa ideal)
- * CAMADA 13: Espelhos/Complementares (n ↔ max-n+1)
- * CAMADA 14: Frequência por Dezena Final (terminados em 0-9)
+ * CAMADA 13: Espelhos/Complementares
+ * CAMADA 14: Frequência por Dezena Final
+ * CAMADA 15: MARKOV — "Saiu X → Próximo vem Y" ⚡
+ * CAMADA 16: SEQUÊNCIAS TEMPORAIS — padrões cíclicos ⚡
+ * CAMADA 17: CORRELAÇÃO CONDICIONAL — A+B → C ⚡
+ * CAMADA 18: DETECTOR DE ALGORITMO/RNG — viés oculto ⚡
+ * CAMADA 19: TENDÊNCIA TEMPORAL — ascensão/declínio ⚡
+ * CAMADA 20: FIBONACCI / PROPORÇÃO ÁUREA ⚡
  * 
- * GARANTIA: Top 60% dos números com maior score são OBRIGATÓRIOS
- * MONTE CARLO: 10.000 universos ponderados (3 rodadas)
- * FILTRO FINAL V2: Validação rigorosa por jogo
- * BACKTESTING: Conferência automática contra sorteios reais
+ * MONTE CARLO: 10.000 universos (3 rodadas)
+ * FILTRO V2 + BACKTESTING AUTOMÁTICO
  * 
- * "O sistema que analisa TUDO antes de sugerir."
+ * "O Oráculo que usa o passado para prever o futuro."
  */
 class QuantumGodEngine {
 
@@ -34,158 +38,94 @@ class QuantumGodEngine {
         var profiles = {
             // Lotofácil: 15/25 — repetição é REI (7-9 repetem entre sorteios)
             'lotofacil': {
-                recentFreq:   0.12,  // Frequência recente
-                generalFreq:  0.04,  // Frequência geral
-                latency:      0.06,  // Atraso
-                cycles:       0.08,  // Ciclos
-                repetition:   0.30,  // REPETIÇÃO = maior peso (7-9 repetem!)
-                drawEnding:   0.05,  // Final do concurso
-                lines:        0.12,  // Distribuição por linhas
-                columns:      0.08,  // Distribuição por colunas
-                primes:       0.04,  // Primos
-                mirrors:      0.05,  // Espelhos
-                digitEnding:  0.06,  // Dezena final
-                // Parâmetros de filtragem
-                sumMin: 170, sumMax: 230,        // Soma ideal
-                linesPerRow: [2, 4],             // Mín/máx por linha
-                maxConsecutive: 4,               // Máx consecutivos
-                evenOddTolerance: 2,             // Tolerância par/ímpar
-                repeatFromLast: [6, 10],         // Esperado repetir do último
-                guaranteedPct: 0.60,             // 60% garantidos
-                monteCarloRuns: 10000,
-                qualityAttempts: 1500
+                recentFreq:   0.08, generalFreq: 0.03, latency: 0.04,
+                cycles:       0.05, repetition: 0.22, drawEnding: 0.03,
+                lines:        0.08, columns: 0.05, primes: 0.03,
+                mirrors:      0.03, digitEnding: 0.04,
+                markov:       0.10, temporal: 0.06, conditional: 0.08,
+                algorithm:    0.04, trend: 0.06, fibonacci: 0.02,
+                sumMin: 170, sumMax: 230, linesPerRow: [2, 4],
+                maxConsecutive: 4, evenOddTolerance: 2,
+                repeatFromLast: [6, 10], guaranteedPct: 0.60,
+                monteCarloRuns: 10000, qualityAttempts: 1500
             },
             // Mega Sena: 6/60 — muito aleatória, frequência recente + atraso importam
             'megasena': {
-                recentFreq:   0.22,
-                generalFreq:  0.08,
-                latency:      0.15,
-                cycles:       0.15,
-                repetition:   0.10,
-                drawEnding:   0.10,
-                lines:        0.05,
-                columns:      0.05,
-                primes:       0.03,
-                mirrors:      0.03,
-                digitEnding:  0.04,
-                sumMin: 100, sumMax: 250,
-                linesPerRow: [0, 3],
-                maxConsecutive: 2,
-                evenOddTolerance: 2,
-                repeatFromLast: [0, 3],
-                guaranteedPct: 0.50,
-                monteCarloRuns: 10000,
-                qualityAttempts: 1200
+                recentFreq:   0.16, generalFreq: 0.06, latency: 0.10,
+                cycles:       0.10, repetition: 0.07, drawEnding: 0.07,
+                lines:        0.04, columns: 0.04, primes: 0.02,
+                mirrors:      0.02, digitEnding: 0.03,
+                markov:       0.10, temporal: 0.06, conditional: 0.06,
+                algorithm:    0.05, trend: 0.05, fibonacci: 0.01,
+                sumMin: 100, sumMax: 250, linesPerRow: [0, 3],
+                maxConsecutive: 2, evenOddTolerance: 2,
+                repeatFromLast: [0, 3], guaranteedPct: 0.50,
+                monteCarloRuns: 10000, qualityAttempts: 1200
             },
             // Quina: 5/80 — espaço grande, ciclos e atraso são cruciais
             'quina': {
-                recentFreq:   0.20,
-                generalFreq:  0.08,
-                latency:      0.18,
-                cycles:       0.18,
-                repetition:   0.08,
-                drawEnding:   0.10,
-                lines:        0.04,
-                columns:      0.04,
-                primes:       0.03,
-                mirrors:      0.03,
-                digitEnding:  0.04,
-                sumMin: 80, sumMax: 280,
-                linesPerRow: [0, 3],
-                maxConsecutive: 2,
-                evenOddTolerance: 2,
-                repeatFromLast: [0, 2],
-                guaranteedPct: 0.50,
-                monteCarloRuns: 10000,
-                qualityAttempts: 1200
+                recentFreq:   0.14, generalFreq: 0.06, latency: 0.12,
+                cycles:       0.12, repetition: 0.06, drawEnding: 0.07,
+                lines:        0.03, columns: 0.03, primes: 0.02,
+                mirrors:      0.02, digitEnding: 0.03,
+                markov:       0.10, temporal: 0.06, conditional: 0.06,
+                algorithm:    0.04, trend: 0.05, fibonacci: 0.01,
+                sumMin: 80, sumMax: 280, linesPerRow: [0, 3],
+                maxConsecutive: 2, evenOddTolerance: 2,
+                repeatFromLast: [0, 2], guaranteedPct: 0.50,
+                monteCarloRuns: 10000, qualityAttempts: 1200
             },
             // Dupla Sena: 6/50 — similar à Mega, espaço menor
             'duplasena': {
-                recentFreq:   0.22,
-                generalFreq:  0.08,
-                latency:      0.15,
-                cycles:       0.15,
-                repetition:   0.12,
-                drawEnding:   0.08,
-                lines:        0.05,
-                columns:      0.05,
-                primes:       0.03,
-                mirrors:      0.03,
-                digitEnding:  0.04,
-                sumMin: 70, sumMax: 210,
-                linesPerRow: [0, 3],
-                maxConsecutive: 2,
-                evenOddTolerance: 2,
-                repeatFromLast: [0, 3],
-                guaranteedPct: 0.50,
-                monteCarloRuns: 10000,
-                qualityAttempts: 1200
+                recentFreq:   0.16, generalFreq: 0.06, latency: 0.10,
+                cycles:       0.10, repetition: 0.08, drawEnding: 0.06,
+                lines:        0.04, columns: 0.04, primes: 0.02,
+                mirrors:      0.02, digitEnding: 0.03,
+                markov:       0.10, temporal: 0.06, conditional: 0.06,
+                algorithm:    0.05, trend: 0.05, fibonacci: 0.01,
+                sumMin: 70, sumMax: 210, linesPerRow: [0, 3],
+                maxConsecutive: 2, evenOddTolerance: 2,
+                repeatFromLast: [0, 3], guaranteedPct: 0.50,
+                monteCarloRuns: 10000, qualityAttempts: 1200
             },
             // Lotomania: 20/100 — espaço enorme, distribuição por dezenas é crucial
             'lotomania': {
-                recentFreq:   0.12,
-                generalFreq:  0.06,
-                latency:      0.10,
-                cycles:       0.10,
-                repetition:   0.20,
-                drawEnding:   0.05,
-                lines:        0.12,
-                columns:      0.08,
-                primes:       0.04,
-                mirrors:      0.04,
-                digitEnding:  0.09,
-                sumMin: 800, sumMax: 1200,
-                linesPerRow: [1, 4],
-                maxConsecutive: 3,
-                evenOddTolerance: 3,
-                repeatFromLast: [5, 12],
-                guaranteedPct: 0.55,
-                monteCarloRuns: 10000,
-                qualityAttempts: 1200
+                recentFreq:   0.08, generalFreq: 0.04, latency: 0.07,
+                cycles:       0.07, repetition: 0.15, drawEnding: 0.03,
+                lines:        0.08, columns: 0.06, primes: 0.03,
+                mirrors:      0.03, digitEnding: 0.06,
+                markov:       0.10, temporal: 0.06, conditional: 0.06,
+                algorithm:    0.05, trend: 0.05, fibonacci: 0.02,
+                sumMin: 800, sumMax: 1200, linesPerRow: [1, 4],
+                maxConsecutive: 3, evenOddTolerance: 3,
+                repeatFromLast: [5, 12], guaranteedPct: 0.55,
+                monteCarloRuns: 10000, qualityAttempts: 1200
             },
             // Timemania: 7/80 — espaço grande, apostando 10
             'timemania': {
-                recentFreq:   0.20,
-                generalFreq:  0.08,
-                latency:      0.16,
-                cycles:       0.16,
-                repetition:   0.10,
-                drawEnding:   0.08,
-                lines:        0.05,
-                columns:      0.05,
-                primes:       0.04,
-                mirrors:      0.04,
-                digitEnding:  0.04,
-                sumMin: 100, sumMax: 350,
-                linesPerRow: [0, 3],
-                maxConsecutive: 2,
-                evenOddTolerance: 2,
-                repeatFromLast: [0, 3],
-                guaranteedPct: 0.50,
-                monteCarloRuns: 10000,
-                qualityAttempts: 1200
+                recentFreq:   0.14, generalFreq: 0.06, latency: 0.10,
+                cycles:       0.10, repetition: 0.07, drawEnding: 0.06,
+                lines:        0.04, columns: 0.04, primes: 0.03,
+                mirrors:      0.03, digitEnding: 0.03,
+                markov:       0.10, temporal: 0.06, conditional: 0.06,
+                algorithm:    0.05, trend: 0.05, fibonacci: 0.02,
+                sumMin: 100, sumMax: 350, linesPerRow: [0, 3],
+                maxConsecutive: 2, evenOddTolerance: 2,
+                repeatFromLast: [0, 3], guaranteedPct: 0.50,
+                monteCarloRuns: 10000, qualityAttempts: 1200
             },
             // Dia de Sorte: 7/31 — espaço pequeno, repetição alta
             'diadesorte': {
-                recentFreq:   0.15,
-                generalFreq:  0.06,
-                latency:      0.10,
-                cycles:       0.10,
-                repetition:   0.25,
-                drawEnding:   0.06,
-                lines:        0.08,
-                columns:      0.06,
-                primes:       0.04,
-                mirrors:      0.04,
-                digitEnding:  0.06,
-                sumMin: 70, sumMax: 160,
-                linesPerRow: [0, 4],
-                maxConsecutive: 3,
-                evenOddTolerance: 2,
-                repeatFromLast: [2, 5],
-                guaranteedPct: 0.55,
-                monteCarloRuns: 10000,
-                qualityAttempts: 1200
+                recentFreq:   0.10, generalFreq: 0.04, latency: 0.07,
+                cycles:       0.07, repetition: 0.18, drawEnding: 0.04,
+                lines:        0.06, columns: 0.04, primes: 0.03,
+                mirrors:      0.03, digitEnding: 0.04,
+                markov:       0.10, temporal: 0.06, conditional: 0.06,
+                algorithm:    0.04, trend: 0.06, fibonacci: 0.02,
+                sumMin: 70, sumMax: 160, linesPerRow: [0, 4],
+                maxConsecutive: 3, evenOddTolerance: 2,
+                repeatFromLast: [2, 5], guaranteedPct: 0.55,
+                monteCarloRuns: 10000, qualityAttempts: 1200
             }
         };
         return profiles[gameKey] || profiles['megasena'];
@@ -203,72 +143,60 @@ class QuantumGodEngine {
             return this._randomFallback(startNum, endNum, count);
         }
 
-        console.log('[QuantumV7] 🔍 Iniciando análise ULTRA-PROFUNDA: ' + gameKey + ' (' + history.length + ' sorteios)');
-        console.log('[QuantumV7] 📋 Perfil de pesos: ' + gameKey);
+        console.log('[QuantumV8] 🔮 Iniciando ORÁCULO QUÂNTICO: ' + gameKey + ' (' + history.length + ' sorteios)');
+        console.log('[QuantumV8] 📋 20 Camadas de Análise Profunda');
 
         // ╔══════════════════════════════════════╗
-        // ║  14 CAMADAS DE ANÁLISE ESTATÍSTICA   ║
+        // ║  20 CAMADAS DE ANÁLISE ORÁCULO       ║
         // ╚══════════════════════════════════════╝
 
-        // CAMADA 1: Frequência recente (últimos 3-5 sorteios)
         var recentFreq = this._layer1_RecentFrequency(history, startNum, endNum);
-
-        // CAMADA 2: Frequência geral (todos os sorteios)
         var generalFreq = this._layer2_GeneralFrequency(history, startNum, endNum);
-
-        // CAMADA 3: Análise de atraso
         var latency = this._layer3_Latency(history, startNum, endNum);
-
-        // CAMADA 4: Detecção de ciclos
         var cycles = this._layer4_Cycles(history, startNum, endNum);
-
-        // CAMADA 5: Repetição entre sorteios consecutivos
         var repetition = this._layer5_Repetition(history, startNum, endNum, gameKey);
-
-        // CAMADA 6: Correlação de pares
         var pairs = this._layer6_PairCorrelation(history, startNum, endNum);
-
-        // CAMADA 7: Correlação de trios
         var trios = this._layer7_TrioCorrelation(history, startNum, endNum);
-
-        // CAMADA 8: Análise por final do concurso
         var drawEndingWeights = this._layer8_DrawEnding(history, startNum, endNum);
-
-        // CAMADA 9: Distribuição por LINHAS (faixas)
         var lineWeights = this._layer9_LineDistribution(history, startNum, endNum, gameKey);
-
-        // CAMADA 10: Distribuição por COLUNAS (final do número)
         var columnWeights = this._layer10_ColumnDistribution(history, startNum, endNum);
-
-        // CAMADA 11: Análise de PRIMOS
         var primeWeights = this._layer11_PrimeAnalysis(history, startNum, endNum);
-
-        // CAMADA 12: Análise de SOMA (não pesa diretamente, usado no filtro)
-        // (usado no filtro de qualidade V2)
-
-        // CAMADA 13: Espelhos/Complementares
         var mirrorWeights = this._layer13_Mirrors(history, startNum, endNum);
-
-        // CAMADA 14: Frequência por Dezena Final
         var digitEndWeights = this._layer14_DigitEnding(history, startNum, endNum);
 
+        // ⚡ CAMADAS ORÁCULO V8 ⚡
+        var markovWeights = this._layer15_MarkovTransition(history, startNum, endNum);
+        var temporalWeights = this._layer16_TemporalSequences(history, startNum, endNum);
+        var conditionalWeights = this._layer17_ConditionalCorrelation(history, startNum, endNum);
+        var algorithmWeights = this._layer18_AlgorithmDetector(history, startNum, endNum);
+        var trendWeights = this._layer19_TemporalTrend(history, startNum, endNum);
+        var fibonacciWeights = this._layer20_FibonacciGolden(history, startNum, endNum);
+
+        console.log('[QuantumV8] ⚡ Markov + Sequências + Condicional + RNG + Tendência + Fibonacci = ATIVO');
+
         // ╔══════════════════════════════════════╗
-        // ║  SCORE COMBINADO COM PERFIL DO JOGO  ║
+        // ║  SCORE COMBINADO — 20 CAMADAS        ║
         // ╚══════════════════════════════════════╝
         var finalScores = {};
         for (var n = startNum; n <= endNum; n++) {
             finalScores[n] = 
-                (recentFreq[n] || 0)        * profile.recentFreq +
-                (generalFreq[n] || 0)       * profile.generalFreq +
-                (latency[n] || 0)           * profile.latency +
-                (cycles[n] || 0)            * profile.cycles +
-                (repetition[n] || 0)        * profile.repetition +
-                (drawEndingWeights[n] || 0) * profile.drawEnding +
-                (lineWeights[n] || 0)       * profile.lines +
-                (columnWeights[n] || 0)     * profile.columns +
-                (primeWeights[n] || 0)      * profile.primes +
-                (mirrorWeights[n] || 0)     * profile.mirrors +
-                (digitEndWeights[n] || 0)   * profile.digitEnding;
+                (recentFreq[n] || 0)         * profile.recentFreq +
+                (generalFreq[n] || 0)        * profile.generalFreq +
+                (latency[n] || 0)            * profile.latency +
+                (cycles[n] || 0)             * profile.cycles +
+                (repetition[n] || 0)         * profile.repetition +
+                (drawEndingWeights[n] || 0)  * profile.drawEnding +
+                (lineWeights[n] || 0)        * profile.lines +
+                (columnWeights[n] || 0)      * profile.columns +
+                (primeWeights[n] || 0)       * profile.primes +
+                (mirrorWeights[n] || 0)      * profile.mirrors +
+                (digitEndWeights[n] || 0)    * profile.digitEnding +
+                (markovWeights[n] || 0)      * (profile.markov || 0) +
+                (temporalWeights[n] || 0)    * (profile.temporal || 0) +
+                (conditionalWeights[n] || 0) * (profile.conditional || 0) +
+                (algorithmWeights[n] || 0)   * (profile.algorithm || 0) +
+                (trendWeights[n] || 0)       * (profile.trend || 0) +
+                (fibonacciWeights[n] || 0)   * (profile.fibonacci || 0);
         }
 
         // ╔══════════════════════════════════════╗
@@ -345,9 +273,9 @@ class QuantumGodEngine {
         }
         avgScore = (avgScore / finalSelection.length * 100).toFixed(1);
 
-        console.log('[QuantumV7] ✅ ' + gameKey + ': ' + finalSelection.length + ' números | Score médio: ' + avgScore + '%');
-        console.log('[QuantumV7] 📊 BACKTESTING: ' + backtest.summary);
-        console.log('[QuantumV7] 🎯 Confiança: ' + backtest.confidence + '%');
+        console.log('[QuantumV8] ✅ ' + gameKey + ': ' + finalSelection.length + ' números | Score médio: ' + avgScore + '%');
+        console.log('[QuantumV8] 📊 BACKTESTING: ' + backtest.summary);
+        console.log('[QuantumV8] 🔮 Confiança Oráculo: ' + backtest.confidence + '%');
 
         return finalSelection.sort(function(a, b) { return a - b; });
     }
@@ -1168,6 +1096,315 @@ class QuantumGodEngine {
             if (sieve[n]) primes[n] = true;
         }
         return primes;
+    }
+
+    // ═══════════════════════════════════════════
+    // CAMADA 15: MARKOV — "Saiu X → Próximo vem Y" (NOVO V8)
+    // Analisa transições: quando um número aparece, qual vem no sorteio seguinte?
+    // ═══════════════════════════════════════════
+    static _layer15_MarkovTransition(history, startNum, endNum) {
+        var weights = {};
+        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
+        if (history.length < 2) return weights;
+
+        // Construir matriz de transição
+        var transitions = {};
+        for (var n2 = startNum; n2 <= endNum; n2++) transitions[n2] = {};
+
+        var limit = Math.min(history.length - 1, 15);
+        for (var i = 0; i < limit; i++) {
+            var currentDraw = history[i].numbers;
+            var nextDraw = history[i + 1].numbers;
+            // Para cada número do sorteio ANTERIOR, quais números vieram no SEGUINTE?
+            for (var c = 0; c < nextDraw.length; c++) {
+                for (var p = 0; p < currentDraw.length; p++) {
+                    var from = nextDraw[c], to = currentDraw[p];
+                    if (from >= startNum && from <= endNum && to >= startNum && to <= endNum) {
+                        transitions[from][to] = (transitions[from][to] || 0) + 1;
+                    }
+                }
+            }
+        }
+
+        // Agora: dado o ÚLTIMO sorteio, quais números têm maior probabilidade de vir?
+        var lastDraw = history[0].numbers;
+        for (var ld = 0; ld < lastDraw.length; ld++) {
+            var fromNum = lastDraw[ld];
+            if (transitions[fromNum]) {
+                for (var target in transitions[fromNum]) {
+                    if (target >= startNum && target <= endNum) {
+                        weights[target] += transitions[fromNum][target];
+                    }
+                }
+            }
+        }
+
+        return this._normalize(weights);
+    }
+
+    // ═══════════════════════════════════════════
+    // CAMADA 16: SEQUÊNCIAS TEMPORAIS (NOVO V8)
+    // Detecta padrões que se repetem a cada N sorteios
+    // Ex: Número 7 sai a cada 3 sorteios, e faz 3 que não sai → alta chance
+    // ═══════════════════════════════════════════
+    static _layer16_TemporalSequences(history, startNum, endNum) {
+        var weights = {};
+        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
+        if (history.length < 4) return weights;
+
+        for (var num = startNum; num <= endNum; num++) {
+            // Encontrar todas as posições onde o número apareceu
+            var positions = [];
+            for (var i = 0; i < history.length; i++) {
+                var found = false;
+                for (var j = 0; j < history[i].numbers.length; j++) {
+                    if (history[i].numbers[j] === num) { found = true; break; }
+                }
+                if (found) positions.push(i);
+            }
+
+            if (positions.length < 3) { weights[num] = 0.3; continue; }
+
+            // Calcular intervalos entre aparições
+            var gaps = [];
+            for (var g = 0; g < positions.length - 1; g++) {
+                gaps.push(positions[g + 1] - positions[g]);
+            }
+
+            // Detectar periodicidade: desvio padrão baixo = padrão regular
+            var avgGap = 0;
+            for (var a = 0; a < gaps.length; a++) avgGap += gaps[a];
+            avgGap /= gaps.length;
+
+            var variance = 0;
+            for (var v = 0; v < gaps.length; v++) variance += Math.pow(gaps[v] - avgGap, 2);
+            variance /= gaps.length;
+            var stdDev = Math.sqrt(variance);
+
+            // Coeficiente de regularidade (menor = mais previsível)
+            var regularity = avgGap > 0 ? stdDev / avgGap : 1;
+
+            // Quanto mais regular E quanto mais perto do ponto de repetição → maior score
+            var sinceLast = positions[0];
+            var ratio = avgGap > 0 ? sinceLast / avgGap : 0;
+
+            if (regularity < 0.5 && ratio >= 0.8 && ratio <= 1.3) {
+                weights[num] = 1.0; // Padrão regular E no ponto certo!
+            } else if (regularity < 0.5) {
+                weights[num] = 0.7; // Padrão regular mas fora do ponto
+            } else if (ratio >= 0.9 && ratio <= 1.2) {
+                weights[num] = 0.6; // No ponto mas padrão irregular
+            } else {
+                weights[num] = 0.2;
+            }
+        }
+
+        return this._normalize(weights);
+    }
+
+    // ═══════════════════════════════════════════
+    // CAMADA 17: CORRELAÇÃO CONDICIONAL (NOVO V8)
+    // Se A e B saíram no último, C tem alta chance de vir
+    // ═══════════════════════════════════════════
+    static _layer17_ConditionalCorrelation(history, startNum, endNum) {
+        var weights = {};
+        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
+        if (history.length < 3) return weights;
+
+        // Construir regras: quando par (A,B) aparece, qual C vem no PRÓXIMO sorteio?
+        var rules = {};
+        var limit = Math.min(history.length - 1, 12);
+
+        for (var i = 0; i < limit; i++) {
+            var current = history[i].numbers;
+            var next = history[i + 1].numbers;
+
+            // Para cada par no sorteio anterior
+            for (var a = 0; a < next.length; a++) {
+                for (var b = a + 1; b < next.length; b++) {
+                    var pairKey = Math.min(next[a], next[b]) + '-' + Math.max(next[a], next[b]);
+                    if (!rules[pairKey]) rules[pairKey] = {};
+                    // Quais números vieram no sorteio seguinte?
+                    for (var c = 0; c < current.length; c++) {
+                        if (current[c] >= startNum && current[c] <= endNum) {
+                            rules[pairKey][current[c]] = (rules[pairKey][current[c]] || 0) + 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Aplicar: dado os pares do ÚLTIMO sorteio, quais números têm predição?
+        var lastDraw = history[0].numbers;
+        for (var la = 0; la < lastDraw.length; la++) {
+            for (var lb = la + 1; lb < lastDraw.length; lb++) {
+                var lPairKey = Math.min(lastDraw[la], lastDraw[lb]) + '-' + Math.max(lastDraw[la], lastDraw[lb]);
+                if (rules[lPairKey]) {
+                    for (var target in rules[lPairKey]) {
+                        if (target >= startNum && target <= endNum) {
+                            weights[target] += rules[lPairKey][target];
+                        }
+                    }
+                }
+            }
+        }
+
+        return this._normalize(weights);
+    }
+
+    // ═══════════════════════════════════════════
+    // CAMADA 18: DETECTOR DE ALGORITMO/RNG (NOVO V8)
+    // Detecta viés na distribuição que sugere padrão no gerador
+    // Analisa resíduos e distribuição qui-quadrado
+    // ═══════════════════════════════════════════
+    static _layer18_AlgorithmDetector(history, startNum, endNum) {
+        var weights = {};
+        var totalRange = endNum - startNum + 1;
+        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
+        if (history.length < 5) return weights;
+
+        // Frequência observada vs esperada (qui-quadrado)
+        var observed = {};
+        for (var n2 = startNum; n2 <= endNum; n2++) observed[n2] = 0;
+
+        var totalNums = 0;
+        for (var i = 0; i < history.length; i++) {
+            for (var j = 0; j < history[i].numbers.length; j++) {
+                var num = history[i].numbers[j];
+                if (num >= startNum && num <= endNum) {
+                    observed[num]++;
+                    totalNums++;
+                }
+            }
+        }
+
+        var expected = totalNums / totalRange;
+
+        // Números com desvio POSITIVO significativo (saem MAIS que o esperado)
+        // são favorecidos pelo "algoritmo"
+        for (var k in observed) {
+            var deviation = (observed[k] - expected) / Math.max(1, Math.sqrt(expected));
+            // Chi-score positivo = número sai mais que o esperado (viés positivo)
+            if (deviation > 1.0) {
+                weights[k] = 0.5 + deviation * 0.15;
+            } else if (deviation > 0) {
+                weights[k] = 0.5 + deviation * 0.1;
+            } else {
+                // Números abaixo do esperado podem estar "devendo"
+                weights[k] = 0.3 + Math.abs(deviation) * 0.08;
+            }
+        }
+
+        // Detectar padrões de adjacência no RNG
+        // Se o RNG tem viés, números adjacentes podem ter correlação
+        for (var d = 0; d < Math.min(history.length, 10); d++) {
+            var nums = history[d].numbers.slice().sort(function(a,b){return a-b});
+            for (var s = 0; s < nums.length - 1; s++) {
+                var gap = nums[s + 1] - nums[s];
+                // Gaps de exatamente 1, 2 ou 3 sugerem padrão no RNG
+                if (gap <= 3) {
+                    weights[nums[s]] += 0.05;
+                    weights[nums[s + 1]] += 0.05;
+                }
+            }
+        }
+
+        return this._normalize(weights);
+    }
+
+    // ═══════════════════════════════════════════
+    // CAMADA 19: TENDÊNCIA TEMPORAL (NOVO V8)
+    // Números em ascensão (aparecendo cada vez mais) vs declínio
+    // ═══════════════════════════════════════════
+    static _layer19_TemporalTrend(history, startNum, endNum) {
+        var weights = {};
+        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
+        if (history.length < 6) return weights;
+
+        // Dividir histórico em 3 terços e comparar frequências
+        var third = Math.floor(history.length / 3);
+        var periods = [
+            history.slice(0, third),                    // Recente
+            history.slice(third, third * 2),            // Médio
+            history.slice(third * 2, history.length)    // Antigo
+        ];
+
+        for (var num = startNum; num <= endNum; num++) {
+            var freqs = [0, 0, 0];
+            for (var p = 0; p < 3; p++) {
+                for (var d = 0; d < periods[p].length; d++) {
+                    for (var j = 0; j < periods[p][d].numbers.length; j++) {
+                        if (periods[p][d].numbers[j] === num) freqs[p]++;
+                    }
+                }
+                // Normalizar pelo tamanho do período
+                freqs[p] = periods[p].length > 0 ? freqs[p] / periods[p].length : 0;
+            }
+
+            // Tendência: recente > médio > antigo = ASCENSÃO
+            if (freqs[0] > freqs[1] && freqs[1] > freqs[2]) {
+                weights[num] = 1.0; // Tendência forte de ascensão!
+            } else if (freqs[0] > freqs[1]) {
+                weights[num] = 0.8; // Ascensão recente
+            } else if (freqs[0] >= freqs[2]) {
+                weights[num] = 0.5; // Estável
+            } else {
+                weights[num] = 0.2; // Em declínio
+            }
+        }
+
+        return this._normalize(weights);
+    }
+
+    // ═══════════════════════════════════════════
+    // CAMADA 20: FIBONACCI / PROPORÇÃO ÁUREA (NOVO V8)
+    // Números em posições de Fibonacci ou próximos da razão áurea
+    // ═══════════════════════════════════════════
+    static _layer20_FibonacciGolden(history, startNum, endNum) {
+        var weights = {};
+        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
+
+        // Gerar Fibonacci até endNum
+        var fibs = {};
+        var fa = 1, fb = 1;
+        while (fa <= endNum) {
+            if (fa >= startNum) fibs[fa] = true;
+            var temp = fa + fb;
+            fa = fb;
+            fb = temp;
+        }
+
+        // Razão áurea: distribuir números pela proporção phi
+        var phi = 1.618033988749895;
+        var goldenPositions = {};
+        for (var g = 1; g <= 20; g++) {
+            var pos = Math.round(startNum + (endNum - startNum) * ((g * phi) % 1));
+            if (pos >= startNum && pos <= endNum) goldenPositions[pos] = true;
+        }
+
+        // Analisar se números Fibonacci/Golden aparecem mais nos sorteios reais
+        var fibBoost = 0, goldenBoost = 0, totalChecks = 0;
+        var limit = Math.min(history.length, 10);
+        for (var i = 0; i < limit; i++) {
+            for (var j = 0; j < history[i].numbers.length; j++) {
+                var num = history[i].numbers[j];
+                totalChecks++;
+                if (fibs[num]) fibBoost++;
+                if (goldenPositions[num]) goldenBoost++;
+            }
+        }
+
+        var fibRate = totalChecks > 0 ? fibBoost / totalChecks : 0;
+        var goldenRate = totalChecks > 0 ? goldenBoost / totalChecks : 0;
+
+        // Aplicar boost baseado na taxa real
+        for (var n2 = startNum; n2 <= endNum; n2++) {
+            weights[n2] = 0.5; // Base
+            if (fibs[n2]) weights[n2] += fibRate * 3;
+            if (goldenPositions[n2]) weights[n2] += goldenRate * 3;
+        }
+
+        return this._normalize(weights);
     }
 
     static _getLineSize(gameKey) {
