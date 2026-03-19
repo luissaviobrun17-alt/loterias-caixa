@@ -134,7 +134,7 @@ class QuantumGodEngine {
     static runSimulation(gameKey, count, history) {
         var constraints = this.getConstraints(gameKey);
         if (!constraints) return [];
-        var startNum = constraints.startNumber || 1;
+        var startNum = (constraints.startNumber !== undefined) ? constraints.startNumber : 1;
         var totalNumbers = constraints.totalNumbers;
         var endNum = startNum + totalNumbers - 1;
         var profile = this.getWeightProfile(gameKey);
@@ -537,6 +537,7 @@ class QuantumGodEngine {
         for (var i = 0; i < history.length; i++) {
             if (history[i].drawNumber) {
                 var ending = history[i].drawNumber % 10;
+                if (!groupByEnding[ending]) groupByEnding[ending] = [];
                 groupByEnding[ending].push(history[i]);
             }
         }
@@ -583,6 +584,7 @@ class QuantumGodEngine {
                 lineCount[lineIdx]++;
             }
             for (var lk in lineCount) {
+                if (!lineFreq[lk]) lineFreq[lk] = [];
                 lineFreq[lk].push(lineCount[lk]);
             }
         }
