@@ -223,10 +223,12 @@ class QuantumGodEngine {
 
         // Ajustar iterações para jogos com espaço grande
         var totalRange = endNum - startNum + 1;
-        var totalMC = totalRange > 50 ? Math.min(profile.monteCarloRuns, 4000) : profile.monteCarloRuns;
-        var roundSize = Math.floor(totalMC / 3);
+        var totalMC = totalRange > 50 ? 1500 : profile.monteCarloRuns;
+        var numRounds = totalRange > 50 ? 1 : 3;
+        var roundSize = Math.floor(totalMC / numRounds);
+        var skipPairsInMC = totalRange > 50; // Desabilita pair lookups para performance
 
-        for (var round = 0; round < 3; round++) {
+        for (var round = 0; round < numRounds; round++) {
             var roundScores = {};
             for (var rs = startNum; rs <= endNum; rs++) {
                 // Cada rodada adiciona um pouco de variação
@@ -234,7 +236,7 @@ class QuantumGodEngine {
             }
 
             for (var u = 0; u < roundSize; u++) {
-                var simResult = this._simulateOneDraw(roundScores, pairs, gameSize, startNum, endNum);
+                var simResult = this._simulateOneDraw(roundScores, skipPairsInMC ? null : pairs, gameSize, startNum, endNum);
                 for (var s = 0; s < simResult.length; s++) {
                     convergenceMap[simResult[s]]++;
                 }
@@ -727,36 +729,43 @@ class QuantumGodEngine {
     static _simulateOneDraw(field, pairMap, gameSize, startNum, endNum) {
         var selected = [];
         var used = {};
-        var attempts = 0;
 
-        while (selected.length < gameSize && attempts < 200) {
-            var totalWeight = 0;
-            var weightList = [];
+        // Pré-calcular array de pesos (MUITO mais rápido que recalcular)
+        var weightList = [];
+        var totalBaseWeight = 0;
+        for (var n = startNum; n <= endNum; n++) {
+            var w = field[n] || 0.01;
+            totalBaseWeight += w;
+            weightList.push({ number: n, weight: w, idx: weightList.length });
+        }
 
-            for (var n = startNum; n <= endNum; n++) {
-                if (used[n]) continue;
-                var w = field[n] || 0.01;
-
-                for (var s = 0; s < selected.length; s++) {
-                    var pair = pairMap[selected[s]];
-                    if (pair && pair[n]) w += pair[n] * 0.10;
+        for (var pick = 0; pick < gameSize && weightList.length > 0; pick++) {
+            // Pair boost apenas se pairMap fornecido e poucos selecionados
+            if (pairMap && selected.length > 0 && selected.length < 5) {
+                totalBaseWeight = 0;
+                for (var wi = 0; wi < weightList.length; wi++) {
+                    var extraW = 0;
+                    for (var s = 0; s < selected.length; s++) {
+                        var pair = pairMap[selected[s]];
+                        if (pair && pair[weightList[wi].number]) extraW += pair[weightList[wi].number] * 0.10;
+                    }
+                    weightList[wi].weight = (field[weightList[wi].number] || 0.01) + extraW;
+                    totalBaseWeight += weightList[wi].weight;
                 }
-
-                totalWeight += w;
-                weightList.push({ number: n, weight: w });
             }
 
-            var rand = Math.random() * totalWeight;
+            var rand = Math.random() * totalBaseWeight;
             var cumulative = 0;
-            var chosen = weightList[0] ? weightList[0].number : startNum;
+            var chosenIdx = 0;
 
             for (var i = 0; i < weightList.length; i++) {
                 cumulative += weightList[i].weight;
-                if (rand <= cumulative) { chosen = weightList[i].number; break; }
+                if (rand <= cumulative) { chosenIdx = i; break; }
             }
 
-            if (!used[chosen]) { selected.push(chosen); used[chosen] = true; }
-            attempts++;
+            selected.push(weightList[chosenIdx].number);
+            totalBaseWeight -= weightList[chosenIdx].weight;
+            weightList.splice(chosenIdx, 1);
         }
         return selected;
     }
