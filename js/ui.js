@@ -192,15 +192,15 @@ class UI {
         }
 
         const statusDiv = this.quantumResults;
-        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">🔮 Ativando 20 Camadas Oráculo...</div>';
+        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">🔮 MODO DEUS V9 — Ativando 22 Camadas Oráculo...</div>';
 
         // Phase 1: Deep Oracle Analysis
         setTimeout(() => {
-            statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #6366f1; font-style: normal;">⚡ Analisando Padrões Ocultos + Algoritmos...</div>';
+            statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #6366f1; font-style: normal;">⚡ Análise Profunda + Cross-Validation + Markov V9...</div>';
 
             // Phase 2: Processing
             setTimeout(() => {
-                statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #ec4899; font-style: normal;">🔮 Clarividência Profunda — Processando...</div>';
+                statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #ec4899; font-style: normal;">🔮 Clarividência Quântica — Verificando contra sorteios reais...</div>';
 
                 // Phase 3: Run Engine (with error handling)
                 setTimeout(() => {
@@ -266,8 +266,34 @@ class UI {
 
         this.quantumResults.appendChild(card);
 
+        // Indicador de Confiança V9
+        try {
+            const confidence = QuantumGodEngine.getLastConfidence ? QuantumGodEngine.getLastConfidence() : 50;
+            const backtest = QuantumGodEngine.getLastBacktest ? QuantumGodEngine.getLastBacktest() : null;
+            const confColor = confidence >= 70 ? '#22C55E' : confidence >= 50 ? '#EAB308' : '#EF4444';
+            const confEmoji = confidence >= 70 ? '🟢' : confidence >= 50 ? '🟡' : '🔴';
+            const confLabel = confidence >= 70 ? 'ALTA' : confidence >= 50 ? 'MODERADA' : 'BAIXA';
+
+            let confHTML = `<div style="margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(0,0,0,0.3);border:1px solid ${confColor}40;font-size:0.78rem;">`;
+            confHTML += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">`;
+            confHTML += `<span style="color:${confColor};font-weight:800;">${confEmoji} Confiança: ${confidence}% (${confLabel})</span>`;
+            if (backtest && backtest.improvement) {
+                const impColor = backtest.improvement >= 1.0 ? '#22C55E' : '#EF4444';
+                confHTML += `<span style="color:${impColor};font-weight:700;">${backtest.improvement >= 1.0 ? '↑' : '↓'} ${(backtest.improvement * 100 - 100).toFixed(0)}% vs chance</span>`;
+            }
+            confHTML += `</div>`;
+            if (backtest && backtest.avgHits !== undefined) {
+                confHTML += `<div style="color:#94a3b8;font-size:0.72rem;">Média: ${backtest.avgHits.toFixed(1)} acertos (esperado: ${(backtest.expectedByChance || 0).toFixed(1)}) | Taxa de vitória: ${((backtest.winRate || 0) * 100).toFixed(0)}%</div>`;
+            }
+            confHTML += `</div>`;
+
+            const confDiv = document.createElement('div');
+            confDiv.innerHTML = confHTML;
+            this.quantumResults.appendChild(confDiv);
+        } catch(e) { console.log('Conf indicator error:', e); }
+
         // Update formula again for "Next Run"
-        this.quantumFormula.textContent = QuantumService.getFormula();
+        try { this.quantumFormula.textContent = QuantumService.getFormula(); } catch(e) {}
     }
 
     useQuantumNumbers() {
