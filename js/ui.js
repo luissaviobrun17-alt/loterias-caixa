@@ -364,11 +364,8 @@ class UI {
             ? parseInt(this.smartDrawSizeSelect.value) || game.minBet
             : game.minBet;
 
-        // AUTO-INCLUIR números sugeridos pela IA Quantum conforme o MODO selecionado
-        const modeQuantumBtn = document.getElementById('smart-mode-quantum');
-        const useQuantumMode = modeQuantumBtn && modeQuantumBtn.classList.contains('active');
-        
-        if (selectedArr.length === 0 && useQuantumMode && this.quantumResults) {
+        // AUTO-USAR números sugeridos pela fórmula IA (se nenhum selecionado no grid)
+        if (selectedArr.length === 0 && this.quantumResults) {
             const quantumBalls = this.quantumResults.querySelectorAll('.ball');
             if (quantumBalls.length > 0) {
                 const quantumNums = [];
@@ -376,19 +373,11 @@ class UI {
                     const n = parseInt(b.textContent);
                     if (!isNaN(n)) quantumNums.push(n);
                 });
-                if (quantumNums.length >= customDrawSize) {
+                if (quantumNums.length > 0) {
                     selectedArr = quantumNums;
-                    console.log(`[SmartBets] 🧠 Modo "Sugeridos IA": usando ${quantumNums.length} números do Quantum`);
-                } else if (quantumNums.length > 0) {
-                    // Se tem números Quantum mas são poucos, ainda assim usa como pool
-                    selectedArr = quantumNums;
-                    console.log(`[SmartBets] 🧠 Modo "Sugeridos IA": usando ${quantumNums.length} números (pool menor)`);
+                    console.log(`[SmartBets] 🧠 Usando ${quantumNums.length} números da fórmula IA`);
                 }
             }
-        }
-
-        if (selectedArr.length === 0) {
-            console.log(`[SmartBets] 🎲 Modo "Todos Números": usando pool completo`);
         }
 
         // Validação mínima
