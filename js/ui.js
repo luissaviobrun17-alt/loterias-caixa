@@ -5,6 +5,7 @@ class UI {
         this.closingSelect = document.getElementById('closing-type');
         this.gamesQuantityInput = document.getElementById('games-quantity');
         this.generateBtn = document.getElementById('generate-btn');
+        this.generateSmartBtn = document.getElementById('generate-smart-btn');
         this.copyBtn = document.getElementById('copy-btn');
         this.gamesContainer = document.getElementById('games-container');
         this.currentBetCostElem = document.getElementById('current-bet-cost');
@@ -345,6 +346,143 @@ class UI {
         this.gridContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
+    // ╔══════════════════════════════════════════════════════════╗
+    // ║  GERAR JOGOS COM IA (SMART BETS)                        ║
+    // ╚══════════════════════════════════════════════════════════╝
+    runSmartGeneration() {
+        const game = GAMES[this.currentGameKey];
+        if (!game) return;
+
+        const quantity = parseInt(this.gamesQuantityInput.value) || 10;
+        const selectedArr = Array.from(this.selectedNumbers);
+        const fixedArr = Array.from(this.fixedNumbers);
+
+        // Validação mínima
+        if (selectedArr.length > 0 && selectedArr.length < game.minBet) {
+            alert(`Selecione pelo menos ${game.minBet} números para ${game.name}, ou não selecione nenhum para usar todos.`);
+            return;
+        }
+
+        // Limpar feedback anterior
+        const oldFeedback = this.gamesContainer.parentNode.querySelector('.generation-feedback');
+        if (oldFeedback) oldFeedback.remove();
+        const oldAnalysis = this.gamesContainer.parentNode.querySelector('.smart-analysis-panel');
+        if (oldAnalysis) oldAnalysis.remove();
+
+        // Loading - Fase 1
+        this.gamesContainer.innerHTML = `
+            <div style="text-align:center;padding:30px;">
+                <div style="font-size:2rem;margin-bottom:10px;">🧠</div>
+                <div style="color:#8B5CF6;font-weight:700;font-size:1rem;">Motor IA Ativado</div>
+                <div style="color:#94A3B8;font-size:0.85rem;margin-top:5px;">Analisando ${game.name}...</div>
+                <div style="margin-top:15px;width:60%;height:4px;background:rgba(139,92,246,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
+                    <div style="width:30%;height:100%;background:linear-gradient(90deg,#8B5CF6,#EC4899);border-radius:4px;animation:smartProgress 1.5s ease-in-out infinite;"></div>
+                </div>
+            </div>
+            <style>@keyframes smartProgress{0%{width:10%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:10%;margin-left:90%}}</style>
+        `;
+
+        if (this.generateSmartBtn) {
+            this.generateSmartBtn.disabled = true;
+            this.generateSmartBtn.style.opacity = '0.6';
+        }
+
+        // Fase 2: Análise profunda
+        setTimeout(() => {
+            this.gamesContainer.querySelector('div > div:nth-child(3)').textContent = 'Duplas, trios, Markov, Fibonacci...';
+
+            // Fase 3: Geração
+            setTimeout(() => {
+                this.gamesContainer.querySelector('div > div:nth-child(3)').textContent = 'Gerando jogos inteligentes...';
+
+                setTimeout(() => {
+                    try {
+                        const result = SmartBetsEngine.generate(
+                            this.currentGameKey,
+                            quantity,
+                            selectedArr.length >= game.minBet ? selectedArr : [],
+                            fixedArr
+                        );
+
+                        if (!result || !result.games || result.games.length === 0) {
+                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">❌ Não foi possível gerar jogos. Tente selecionar mais números.</div>';
+                            return;
+                        }
+
+                        // Renderizar jogos (mesmo visual do CombinationEngine)
+                        this.renderGames(result, this.currentGameKey);
+                        if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
+
+                        // ── PAINEL DE ANÁLISE IA ──
+                        const analysis = result.analysis;
+                        if (analysis) {
+                            const confColor = analysis.confidence >= 70 ? '#22C55E' : analysis.confidence >= 50 ? '#EAB308' : '#EF4444';
+                            const confEmoji = analysis.confidence >= 70 ? '🟢' : analysis.confidence >= 50 ? '🟡' : '🔴';
+                            const confLabel = analysis.confidence >= 70 ? 'ALTA' : analysis.confidence >= 50 ? 'MODERADA' : 'BAIXA';
+
+                            const analysisHTML = `
+                                <div class="smart-analysis-panel" style="margin-top:10px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(15,23,42,0.95),rgba(30,41,59,0.9));border:1px solid ${confColor}40;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+                                        <span style="color:${confColor};font-weight:800;font-size:0.9rem;">${confEmoji} Confiança IA: ${analysis.confidence}% (${confLabel})</span>
+                                        <span style="color:#8B5CF6;font-weight:700;font-size:0.78rem;">🧠 Smart Bets Engine</span>
+                                    </div>
+                                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;font-size:0.75rem;">
+                                        <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
+                                            <div style="color:#94A3B8;">Cobertura</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.coverage}%</div>
+                                        </div>
+                                        <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
+                                            <div style="color:#94A3B8;">Diversidade</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.diversity}%</div>
+                                        </div>
+                                        <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
+                                            <div style="color:#94A3B8;">Duplas Top</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.pairsCovered}</div>
+                                        </div>
+                                        <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
+                                            <div style="color:#94A3B8;">Trios Top</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.triosCovered}</div>
+                                        </div>
+                                        <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
+                                            <div style="color:#94A3B8;">Backtest</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.backtestScore}%</div>
+                                        </div>
+                                        <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
+                                            <div style="color:#94A3B8;">Nº Únicos</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.uniqueNumbers}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+
+                            const analysisDiv = document.createElement('div');
+                            analysisDiv.innerHTML = analysisHTML;
+                            this.gamesContainer.parentNode.insertBefore(analysisDiv.firstElementChild, this.gamesContainer);
+                        }
+
+                        // Feedback
+                        const feedback = document.createElement('div');
+                        feedback.className = 'generation-feedback';
+                        feedback.style.cssText = 'color:#8B5CF6;text-align:center;padding:10px;font-weight:bold;margin-top:10px;margin-bottom:10px;';
+                        feedback.textContent = `🧠 ${result.games.length} jogos inteligentes gerados com sucesso!`;
+                        this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
+
+                        feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    } catch (err) {
+                        console.error('[SmartBets] ERRO:', err);
+                        this.gamesContainer.innerHTML = `<div class="empty-state" style="color:#EF4444;">❌ Erro: ${err.message}<br><small>Verifique o console (F12)</small></div>`;
+                    } finally {
+                        if (this.generateSmartBtn) {
+                            this.generateSmartBtn.disabled = false;
+                            this.generateSmartBtn.style.opacity = '1';
+                        }
+                    }
+                }, 200);
+            }, 500);
+        }, 500);
+    }
+
     initHeaderAnimations() {
         // Disabled to improve performance and prevent server crashes
         /*
@@ -377,7 +515,7 @@ class UI {
         // Fixed Mode Toggle
         this.btnFixedMode.onclick = () => this.toggleFixedMode();
 
-        // Generate
+        // Generate (Fechamento)
         this.generateBtn.onclick = () => {
             const result = CombinationEngine.generate(
                 this.currentGameKey,
@@ -387,7 +525,7 @@ class UI {
                 Array.from(this.fixedNumbers)
             );
             this.renderGames(result, this.currentGameKey);
-            if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none'; // Reset summary on new generation
+            if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
 
             // Visual Feedback
             const feedback = document.createElement('div');
@@ -396,21 +534,21 @@ class UI {
             feedback.style.padding = '10px';
             feedback.style.fontWeight = 'bold';
             feedback.textContent = 'Jogos gerados com sucesso!';
-            // Insert BEFORE grid
             if (this.gamesContainer.parentNode) {
-                // Remove any old feedback first to avoid duplicates
                 const old = this.gamesContainer.parentNode.querySelector('.generation-feedback');
                 if (old) old.remove();
-
                 feedback.classList.add('generation-feedback');
                 feedback.style.marginTop = '10px';
                 feedback.style.marginBottom = '10px';
                 this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
             }
-
-            // Scroll to feedback
             feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
         };
+
+        // Generate (IA Smart Bets)
+        if (this.generateSmartBtn) {
+            this.generateSmartBtn.onclick = () => this.runSmartGeneration();
+        }
 
         this.copyBtn.onclick = () => this.copyGames();
         this.saveBtn.onclick = () => this.saveGames();
