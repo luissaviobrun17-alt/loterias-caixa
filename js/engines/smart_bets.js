@@ -803,7 +803,7 @@ class SmartBetsEngine {
         // Bonus para jogos com muitos números (Lotomania = 50 nums → naturalmente mais acertos)
         const game = GAMES[gameKey];
         const drawSize = game ? game.minBet : profile.draw;
-        const largeGameBonus = drawSize >= 20 ? 20 : (drawSize >= 15 ? 8 : 0);
+        const largeGameBonus = drawSize >= 20 ? 25 : (drawSize >= 15 ? 8 : 0);
         
         const confidence = Math.min(95, Math.max(25, Math.round(
             avgQuality * 2.5 +
