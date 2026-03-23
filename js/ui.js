@@ -6,6 +6,8 @@ class UI {
         this.gamesQuantityInput = document.getElementById('games-quantity');
         this.generateBtn = document.getElementById('generate-btn');
         this.generateSmartBtn = document.getElementById('generate-smart-btn');
+        this.smartDrawSizeSelect = document.getElementById('smart-draw-size');
+        this.smartDrawInfo = document.getElementById('smart-draw-info');
         this.copyBtn = document.getElementById('copy-btn');
         this.gamesContainer = document.getElementById('games-container');
         this.currentBetCostElem = document.getElementById('current-bet-cost');
@@ -357,9 +359,14 @@ class UI {
         const selectedArr = Array.from(this.selectedNumbers);
         const fixedArr = Array.from(this.fixedNumbers);
 
+        // Ler quantidade de números por jogo IA
+        const customDrawSize = this.smartDrawSizeSelect
+            ? parseInt(this.smartDrawSizeSelect.value) || game.minBet
+            : game.minBet;
+
         // Validação mínima
-        if (selectedArr.length > 0 && selectedArr.length < game.minBet) {
-            alert(`Selecione pelo menos ${game.minBet} números para ${game.name}, ou não selecione nenhum para usar todos.`);
+        if (selectedArr.length > 0 && selectedArr.length < customDrawSize) {
+            alert(`Selecione pelo menos ${customDrawSize} números para ${game.name}, ou não selecione nenhum para usar todos.`);
             return;
         }
 
@@ -374,7 +381,7 @@ class UI {
             <div style="text-align:center;padding:30px;">
                 <div style="font-size:2rem;margin-bottom:10px;">🧠</div>
                 <div style="color:#8B5CF6;font-weight:700;font-size:1rem;">Motor IA Ativado</div>
-                <div style="color:#94A3B8;font-size:0.85rem;margin-top:5px;">Analisando ${game.name}...</div>
+                <div style="color:#94A3B8;font-size:0.85rem;margin-top:5px;">Analisando ${game.name} (${customDrawSize} números)...</div>
                 <div style="margin-top:15px;width:60%;height:4px;background:rgba(139,92,246,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
                     <div style="width:30%;height:100%;background:linear-gradient(90deg,#8B5CF6,#EC4899);border-radius:4px;animation:smartProgress 1.5s ease-in-out infinite;"></div>
                 </div>
@@ -400,8 +407,9 @@ class UI {
                         const result = SmartBetsEngine.generate(
                             this.currentGameKey,
                             quantity,
-                            selectedArr.length >= game.minBet ? selectedArr : [],
-                            fixedArr
+                            selectedArr.length >= customDrawSize ? selectedArr : [],
+                            fixedArr,
+                            customDrawSize
                         );
 
                         if (!result || !result.games || result.games.length === 0) {
@@ -790,6 +798,9 @@ class UI {
             this.quantumResults.innerHTML = '<div class="quantum-placeholder">Clique em "Gerar Sugestão" para começar</div>';
         }
 
+        // Atualizar seletor de números por jogo IA
+        this.updateSmartDrawSizeSelect(gameKey, game);
+
         // RENDER GRID IMMEDIATELY
         this.renderNumberGrid(game);
         this.updateSelectionInfo();
@@ -825,6 +836,46 @@ class UI {
         })();
 
         this.gamesContainer.innerHTML = '<div class="empty-state">Selecione as opções e clique em Gerar Jogos</div>';
+    }
+
+    // ╔══════════════════════════════════════════════════════════╗
+    // ║  ATUALIZAR SELECT DE NÚMEROS POR JOGO IA              ║
+    // ╚══════════════════════════════════════════════════════════╝
+    updateSmartDrawSizeSelect(gameKey, game) {
+        if (!this.smartDrawSizeSelect) return;
+
+        this.smartDrawSizeSelect.innerHTML = '';
+        const min = game.minBet;
+        // Limitar max a algo razoável para o select (ex: Mega Sena não precisa até 60)
+        const maxDisplay = Math.min(game.maxBet, min + 14); // Até 15 opções
+        
+        for (let i = min; i <= maxDisplay; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = i + ' núm.';
+            if (i === min) opt.textContent += ' ★'; // Marcar padrão
+            this.smartDrawSizeSelect.appendChild(opt);
+        }
+
+        // Se max for maior que maxDisplay, adicionar como última opção
+        if (game.maxBet > maxDisplay) {
+            const optMax = document.createElement('option');
+            optMax.value = game.maxBet;
+            optMax.textContent = game.maxBet + ' núm. (máx)';
+            this.smartDrawSizeSelect.appendChild(optMax);
+        }
+
+        // Definir padrão como minBet
+        this.smartDrawSizeSelect.value = min;
+
+        // Atualizar info
+        if (this.smartDrawInfo) {
+            if (min === game.maxBet) {
+                this.smartDrawInfo.textContent = `Fixo: ${min} números`;
+            } else {
+                this.smartDrawInfo.textContent = `Mín: ${min} | Máx: ${game.maxBet}`;
+            }
+        }
     }
 
     updateRecentResults() {

@@ -156,14 +156,14 @@ class SmartBetsEngine {
     // ╔══════════════════════════════════════════════════════╗
     // ║  MÉTODO PRINCIPAL: GERAR N JOGOS INTELIGENTES       ║
     // ╚══════════════════════════════════════════════════════╝
-    static generate(gameKey, numGames, selectedNumbers, fixedNumbers = []) {
+    static generate(gameKey, numGames, selectedNumbers, fixedNumbers = [], customDrawSize = null) {
         const profile = this.getProfile(gameKey);
         const game = GAMES[gameKey];
         if (!game) return { games: [], analysis: null };
 
         const startNum = profile.range[0];
         const endNum = profile.range[1];
-        const drawSize = game.minBet || profile.draw;
+        const drawSize = customDrawSize || game.minBet || profile.draw;
 
         // Pool de números: usar selecionados ou universo completo
         let pool = selectedNumbers && selectedNumbers.length >= drawSize
