@@ -418,19 +418,32 @@ class SmartBetsEngine {
     static _generateSingleSmartGame(gameKey, pool, drawSize, profile, analysis, history, existingGames, usedCounts, fixedNumbers) {
         const startNum = profile.range[0];
         const endNum = profile.range[1];
+        const totalRange = endNum - startNum + 1;
 
-        // ── PESOS PARA CADA NÚMERO ──
+        // ══════════════════════════════════════════
+        // FASE 1: PESOS INTELIGENTES PARA CADA NÚMERO
+        // ══════════════════════════════════════════
         const weights = {};
         const poolSet = new Set(pool);
 
+        // Classificar números em hot/cold/normal
+        const sortedByScore = pool.slice().sort((a, b) => 
+            (analysis.numberScores[b] || 0) - (analysis.numberScores[a] || 0)
+        );
+        const hotThreshold = Math.ceil(pool.length * 0.3);
+        const coldThreshold = Math.ceil(pool.length * 0.7);
+        const hotNums = new Set(sortedByScore.slice(0, hotThreshold));
+        const coldNums = new Set(sortedByScore.slice(coldThreshold));
+
         for (let i = 0; i < pool.length; i++) {
             const n = pool[i];
-            let w = 0.5;
+            let w = 1.0; // Base mais alta
 
-            // Score base (frequência + atraso)
-            w += (analysis.numberScores[n] || 0.5) * 0.3;
+            // ── Score base (frequência + atraso) — peso maior ──
+            const baseScore = analysis.numberScores[n] || 0.5;
+            w += baseScore * 0.5;
 
-            // Markov boost (últimos números → próximos prováveis)
+            // ── Markov boost amplificado ──
             if (analysis.lastDraw.length > 0) {
                 let markovScore = 0;
                 for (let ld = 0; ld < analysis.lastDraw.length; ld++) {
@@ -439,33 +452,44 @@ class SmartBetsEngine {
                         markovScore += analysis.markovNext[from][n];
                     }
                 }
-                w += Math.min(0.5, markovScore * 0.02) * profile.markovWeight;
+                w += Math.min(0.8, markovScore * 0.03) * profile.markovWeight;
             }
 
-            // Tendência (em alta vs em baixa)
+            // ── Tendência temporal (em alta = boost forte) ──
             const trend = analysis.trendScores[n] || 1.0;
-            if (trend > 1.2) w += 0.15 * profile.trendWeight;
-            else if (trend < 0.5) w -= 0.1;
+            if (trend > 1.5) w += 0.35 * profile.trendWeight;
+            else if (trend > 1.2) w += 0.2 * profile.trendWeight;
+            else if (trend < 0.3) w -= 0.15;
+            else if (trend < 0.6) w -= 0.05;
 
-            // Fibonacci boost leve
-            if (analysis.fibNumbers[n]) w += 0.08 * profile.fibWeight;
+            // ── Fibonacci boost ──
+            if (analysis.fibNumbers[n]) w += 0.12 * profile.fibWeight;
 
-            // Diversidade: penalizar números já usados demais
+            // ── Primo boost leve ──
+            if (analysis.primes[n]) w += 0.05;
+
+            // ── Hot/Cold balancing: mix equilibrado ──
+            if (hotNums.has(n)) w += 0.15;
+            else if (coldNums.has(n)) w += 0.05; // Cold não é ruim, apenas menos peso
+
+            // ── Diversidade inter-jogos: penalizar números muito usados ──
             if (usedCounts[n]) {
-                w -= usedCounts[n] * 0.05;
+                w -= usedCounts[n] * 0.12; // Penalidade mais forte
             }
 
-            // Ruído controlado para diversidade
-            w += (Math.random() - 0.5) * 0.3;
+            // ── Ruído controlado — REDUZIDO para jogos mais inteligentes ──
+            w += (Math.random() - 0.5) * 0.15;
 
             weights[n] = Math.max(0.01, w);
         }
 
-        // ── SELEÇÃO POR PESOS + FIXOS ──
+        // ══════════════════════════════════════════
+        // FASE 2: CONSTRUÇÃO DO JOGO
+        // ══════════════════════════════════════════
         const ticket = [];
         const usedInTicket = new Set();
 
-        // Números fixos primeiro
+        // ── 2a. Números fixos ──
         for (let f = 0; f < fixedNumbers.length; f++) {
             if (poolSet.has(fixedNumbers[f]) && ticket.length < drawSize) {
                 ticket.push(fixedNumbers[f]);
@@ -473,53 +497,130 @@ class SmartBetsEngine {
             }
         }
 
-        // Boost duplas frequentes: tentar incluir pelo menos 1-2 no jogo
-        const pairBoosted = new Set();
-        if (analysis.topPairs.length > 0 && Math.random() < profile.pairBoost) {
-            const pairIdx = Math.floor(Math.random() * Math.min(10, analysis.topPairs.length));
-            const pair = analysis.topPairs[pairIdx];
-            for (let pi = 0; pi < pair.nums.length; pi++) {
-                if (poolSet.has(pair.nums[pi]) && !usedInTicket.has(pair.nums[pi]) && ticket.length < drawSize) {
-                    ticket.push(pair.nums[pi]);
-                    usedInTicket.add(pair.nums[pi]);
-                    pairBoosted.add(pair.nums[pi]);
-                    weights[pair.nums[pi]] *= 1.5;
+        // ── 2b. Seed com MÚLTIPLAS duplas frequentes (2-3 pares) ──
+        if (analysis.topPairs.length > 0) {
+            const numPairsToSeed = Math.min(
+                Math.ceil(drawSize / 4),
+                Math.floor(analysis.topPairs.length / 2),
+                3
+            );
+            const usedPairIdx = new Set();
+            for (let p = 0; p < numPairsToSeed; p++) {
+                if (Math.random() > profile.pairBoost * 1.3) continue;
+                let pairIdx;
+                let attempts = 0;
+                do {
+                    pairIdx = Math.floor(Math.random() * Math.min(15, analysis.topPairs.length));
+                    attempts++;
+                } while (usedPairIdx.has(pairIdx) && attempts < 10);
+                if (usedPairIdx.has(pairIdx)) continue;
+                usedPairIdx.add(pairIdx);
+                
+                const pair = analysis.topPairs[pairIdx];
+                let canAdd = true;
+                for (const num of pair.nums) {
+                    if (!poolSet.has(num) || usedInTicket.has(num)) { canAdd = false; break; }
+                }
+                if (canAdd && ticket.length + pair.nums.length <= drawSize) {
+                    for (const num of pair.nums) {
+                        ticket.push(num);
+                        usedInTicket.add(num);
+                        weights[num] *= 2.0;
+                    }
                 }
             }
         }
 
-        // Boost trios frequentes
-        if (analysis.topTrios.length > 0 && Math.random() < profile.trioBoost) {
-            const trioIdx = Math.floor(Math.random() * Math.min(5, analysis.topTrios.length));
+        // ── 2c. Seed com trio frequente ──
+        if (analysis.topTrios.length > 0 && Math.random() < profile.trioBoost * 1.5) {
+            const trioIdx = Math.floor(Math.random() * Math.min(8, analysis.topTrios.length));
             const trio = analysis.topTrios[trioIdx];
-            for (let ti = 0; ti < trio.nums.length; ti++) {
-                if (poolSet.has(trio.nums[ti]) && !usedInTicket.has(trio.nums[ti]) && ticket.length < drawSize) {
-                    ticket.push(trio.nums[ti]);
-                    usedInTicket.add(trio.nums[ti]);
+            let canAdd = true;
+            for (const num of trio.nums) {
+                if (!poolSet.has(num) || usedInTicket.has(num)) { canAdd = false; break; }
+            }
+            if (canAdd && ticket.length + trio.nums.length <= drawSize) {
+                for (const num of trio.nums) {
+                    ticket.push(num);
+                    usedInTicket.add(num);
                 }
             }
         }
 
-        // Repetição do último sorteio
+        // ── 2d. Repetição do último sorteio (seed inteligente) ──
         if (analysis.lastDraw.length > 0) {
             const minRepeat = profile.repeatFromLast[0];
             let currentRepeat = 0;
             for (const n of ticket) {
                 if (analysis.lastDraw.includes(n)) currentRepeat++;
             }
-            while (currentRepeat < minRepeat && ticket.length < drawSize) {
-                const candidates = analysis.lastDraw.filter(n => poolSet.has(n) && !usedInTicket.has(n));
-                if (candidates.length === 0) break;
-                const pick = candidates[Math.floor(Math.random() * candidates.length)];
-                ticket.push(pick);
-                usedInTicket.add(pick);
+            // Ordenar candidatos do último sorteio por score (mais fortes primeiro)
+            const lastDrawCandidates = analysis.lastDraw
+                .filter(n => poolSet.has(n) && !usedInTicket.has(n))
+                .sort((a, b) => (analysis.numberScores[b] || 0) - (analysis.numberScores[a] || 0));
+            
+            let idx = 0;
+            while (currentRepeat < minRepeat && idx < lastDrawCandidates.length && ticket.length < drawSize) {
+                ticket.push(lastDrawCandidates[idx]);
+                usedInTicket.add(lastDrawCandidates[idx]);
                 currentRepeat++;
+                idx++;
             }
         }
 
-        // Completar com seleção ponderada
+        // ── 2e. COBERTURA DE ZONAS (garantir distribuição) ──
+        if (drawSize >= 5 && drawSize < 20) {
+            const zoneSize = profile.faixaSize;
+            const numZones = Math.ceil(totalRange / zoneSize);
+            const minZonesToCover = Math.min(numZones, Math.ceil(drawSize / 2));
+            
+            // Verificar quais zonas já estão cobertas
+            const coveredZones = new Set();
+            for (const n of ticket) {
+                coveredZones.add(Math.floor((n - startNum) / zoneSize));
+            }
+
+            // Preencher zonas vazias com melhor número de cada zona
+            if (coveredZones.size < minZonesToCover) {
+                for (let z = 0; z < numZones && ticket.length < drawSize; z++) {
+                    if (coveredZones.has(z)) continue;
+                    const zStart = startNum + z * zoneSize;
+                    const zEnd = Math.min(endNum, zStart + zoneSize - 1);
+                    
+                    let bestNum = -1, bestWeight = -1;
+                    for (let n = zStart; n <= zEnd; n++) {
+                        if (poolSet.has(n) && !usedInTicket.has(n) && (weights[n] || 0) > bestWeight) {
+                            bestWeight = weights[n] || 0;
+                            bestNum = n;
+                        }
+                    }
+                    if (bestNum >= 0) {
+                        ticket.push(bestNum);
+                        usedInTicket.add(bestNum);
+                        coveredZones.add(z);
+                    }
+                }
+            }
+        }
+
+        // ── 2f. Completar com seleção ponderada ANTI-CLUSTER ──
         const remaining = pool.filter(n => !usedInTicket.has(n));
         while (ticket.length < drawSize && remaining.length > 0) {
+            // Ajustar pesos para evitar clustering
+            const sortedTicket = ticket.slice().sort((a, b) => a - b);
+            for (let r = 0; r < remaining.length; r++) {
+                const num = remaining[r];
+                // Penalizar números muito próximos dos já selecionados
+                let minDist = Infinity;
+                for (const t of sortedTicket) {
+                    const d = Math.abs(num - t);
+                    if (d < minDist) minDist = d;
+                }
+                if (minDist <= 1 && sortedTicket.length > drawSize * 0.5) {
+                    weights[num] *= 0.5; // Penalizar consecutivo tardio
+                }
+            }
+
             let totalW = 0;
             for (let r = 0; r < remaining.length; r++) {
                 totalW += weights[remaining[r]] || 0.01;
