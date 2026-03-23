@@ -580,6 +580,11 @@ class UI {
         // Atualizar custo em tempo real ao mudar quantidade de jogos
         this.gamesQuantityInput.addEventListener('input', () => this.updateCurrentCostDisplay());
 
+        // Atualizar custo ao mudar nº por jogo IA
+        if (this.smartDrawSizeSelect) {
+            this.smartDrawSizeSelect.addEventListener('change', () => this.updateCurrentCostDisplay());
+        }
+
         this.checkBtn.onclick = () => this.openCheckModal();
         this.playCaixaBtn.onclick = () => this.openCaixa();
 
@@ -1136,7 +1141,20 @@ class UI {
     updateCurrentCostDisplay() {
         const game = GAMES[this.currentGameKey];
         const qty = parseInt(this.gamesQuantityInput.value) || 10;
-        const cost = qty * game.price;
+
+        // Calcular preço por jogo baseado no número de números selecionados
+        let pricePerGame = game.price;
+        const smartDrawSize = this.smartDrawSizeSelect 
+            ? parseInt(this.smartDrawSizeSelect.value) || game.minBet
+            : game.minBet;
+
+        // Se o jogador escolheu mais números que o mínimo, calcular combinações
+        if (smartDrawSize > game.minBet) {
+            const combinations = this._calcCombinations(smartDrawSize, game.minBet);
+            pricePerGame = combinations * game.price;
+        }
+
+        const cost = qty * pricePerGame;
         if (this.currentBetCostElem) {
             this.currentBetCostElem.textContent = cost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
@@ -1145,9 +1163,38 @@ class UI {
             this.costUserGames.textContent = cost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
         if (this.costUserGamesDetail) {
-            const priceFormatted = game.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            this.costUserGamesDetail.textContent = `${qty} jogo${qty > 1 ? 's' : ''} × ${priceFormatted}`;
+            const priceFormatted = pricePerGame.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            const detail = smartDrawSize > game.minBet
+                ? `${qty} jogo${qty > 1 ? 's' : ''} × ${priceFormatted} (${smartDrawSize} núm.)`
+                : `${qty} jogo${qty > 1 ? 's' : ''} × ${priceFormatted}`;
+            this.costUserGamesDetail.textContent = detail;
         }
+
+        // Atualizar info de preço no painel IA
+        if (this.smartDrawInfo) {
+            if (smartDrawSize > game.minBet) {
+                const priceFormatted = pricePerGame.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                this.smartDrawInfo.textContent = `${priceFormatted}/jogo`;
+                this.smartDrawInfo.style.color = '#F59E0B';
+                this.smartDrawInfo.style.fontWeight = '700';
+            } else {
+                const basePrice = game.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                this.smartDrawInfo.textContent = `${basePrice}/jogo`;
+                this.smartDrawInfo.style.color = '#94A3B8';
+                this.smartDrawInfo.style.fontWeight = '400';
+            }
+        }
+    }
+
+    // Calcular C(n, k) = n! / (k! × (n-k)!)
+    _calcCombinations(n, k) {
+        if (k > n) return 0;
+        if (k === 0 || k === n) return 1;
+        let result = 1;
+        for (let i = 0; i < k; i++) {
+            result = result * (n - i) / (i + 1);
+        }
+        return Math.round(result);
     }
 
     updateInvestmentPanel() {
