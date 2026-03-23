@@ -199,15 +199,27 @@
                             </div>
                         </div>
 
-                        <!-- Seletor de números por jogo IA -->
-                        <div id="smart-numbers-row" style="display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 8px 12px; background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2); border-radius: 8px;">
-                            <label for="smart-draw-size" style="color: #C4B5FD; font-size: 0.85rem; font-weight: 600; white-space: nowrap; margin-bottom: 0;">
-                                🧠 Nº por Jogo IA:
-                            </label>
-                            <select id="smart-draw-size" style="flex: 1; max-width: 100px; background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.3); color: #E2E8F0; padding: 6px 8px; border-radius: 6px; font-size: 0.9rem; font-weight: 700; cursor: pointer; outline: none;">
-                                <!-- Preenchido dinamicamente pelo JS -->
-                            </select>
-                            <span id="smart-draw-info" style="color: #94A3B8; font-size: 0.75rem; flex: 1;">Mín: 6 | Máx: 20</span>
+                        <!-- Painel de controle IA -->
+                        <div id="smart-numbers-row" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 10px 12px; background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2); border-radius: 8px;">
+                            <!-- Linha 1: Quantidade de números -->
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <label for="smart-draw-size" style="color: #C4B5FD; font-size: 0.85rem; font-weight: 600; white-space: nowrap; margin-bottom: 0;">
+                                    🧠 Nº por Jogo:
+                                </label>
+                                <select id="smart-draw-size" style="max-width: 100px; background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.3); color: #E2E8F0; padding: 6px 8px; border-radius: 6px; font-size: 0.9rem; font-weight: 700; cursor: pointer; outline: none;">
+                                </select>
+                                <span id="smart-draw-info" style="color: #94A3B8; font-size: 0.75rem; flex: 1;">Mín: 6 | Máx: 20</span>
+                            </div>
+                            <!-- Linha 2: Modo de geração -->
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="color: #94A3B8; font-size: 0.78rem; margin-right: 2px;">Modo:</span>
+                                <button id="smart-mode-quantum" class="smart-mode-btn active" onclick="document.getElementById('smart-mode-quantum').classList.add('active');document.getElementById('smart-mode-all').classList.remove('active');" style="flex: 1; padding: 5px 8px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(139,92,246,0.4); border-radius: 6px; cursor: pointer; background: rgba(139,92,246,0.25); color: #C4B5FD; transition: all 0.2s;">
+                                    🧠 Sugeridos IA
+                                </button>
+                                <button id="smart-mode-all" class="smart-mode-btn" onclick="document.getElementById('smart-mode-all').classList.add('active');document.getElementById('smart-mode-quantum').classList.remove('active');" style="flex: 1; padding: 5px 8px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(139,92,246,0.2); border-radius: 6px; cursor: pointer; background: rgba(0,0,0,0.2); color: #94A3B8; transition: all 0.2s;">
+                                    🎲 Todos Números
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

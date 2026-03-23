@@ -70,6 +70,23 @@
     cursor: not-allowed;
 }
 
+/* Smart Mode Toggle Buttons */
+.smart-mode-btn.active {
+    background: rgba(139, 92, 246, 0.35) !important;
+    border-color: rgba(139, 92, 246, 0.6) !important;
+    color: #C4B5FD !important;
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.2);
+}
+.smart-mode-btn:not(.active) {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border-color: rgba(139, 92, 246, 0.15) !important;
+    color: #64748B !important;
+}
+.smart-mode-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
 /* .sm-btn - Estilos unificados definidos em main.css */
 
 .secondary-btn {
