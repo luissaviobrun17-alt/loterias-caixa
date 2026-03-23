@@ -356,13 +356,29 @@ class UI {
         if (!game) return;
 
         const quantity = parseInt(this.gamesQuantityInput.value) || 10;
-        const selectedArr = Array.from(this.selectedNumbers);
+        let selectedArr = Array.from(this.selectedNumbers);
         const fixedArr = Array.from(this.fixedNumbers);
 
         // Ler quantidade de números por jogo IA
         const customDrawSize = this.smartDrawSizeSelect
             ? parseInt(this.smartDrawSizeSelect.value) || game.minBet
             : game.minBet;
+
+        // AUTO-INCLUIR números sugeridos pela IA Quantum (se nenhum selecionado manualmente)
+        if (selectedArr.length === 0 && this.quantumResults) {
+            const quantumBalls = this.quantumResults.querySelectorAll('.ball');
+            if (quantumBalls.length > 0) {
+                const quantumNums = [];
+                quantumBalls.forEach(b => {
+                    const n = parseInt(b.textContent);
+                    if (!isNaN(n)) quantumNums.push(n);
+                });
+                if (quantumNums.length >= customDrawSize) {
+                    selectedArr = quantumNums;
+                    console.log(`[SmartBets] 🧠 Usando ${quantumNums.length} números sugeridos pela IA Quantum`);
+                }
+            }
+        }
 
         // Validação mínima
         if (selectedArr.length > 0 && selectedArr.length < customDrawSize) {
