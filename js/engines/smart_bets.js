@@ -33,70 +33,92 @@ class SmartBetsEngine {
             megasena: {
                 name: 'Mega Sena',
                 draw: 6, range: [1, 60],
-                maxConsecutive: 2,
-                evenOddIdeal: [3, 3], evenOddTolerance: 1,
+                maxConsecutive: 2,           // REAL: max 2, média 1.4
+                evenOddIdeal: [3, 3], evenOddTolerance: 1, // REAL: 2.9/3.1 equilibrado
                 faixaSize: 10, faixaMin: 0, faixaMax: 2,
-                sumMin: 100, sumMax: 250,
-                gapMin: 3, gapMax: 18,
-                repeatFromLast: [0, 3],
-                primeRatio: [0.25, 0.55],
+                sumMin: 72, sumMax: 253,     // REAL: 72-253, média 176
+                gapMin: 5, gapMax: 12,       // REAL: gap médio 5.4-11.8
+                repeatFromLast: [0, 2],      // REAL: 0-2, média 0.6
+                primeRatio: [0.05, 0.55],    // REAL: 0-4 primos, média 1.6
                 maxSameEnding: 2,
                 fibWeight: 0.3,
-                markovWeight: 0.6,
-                trendWeight: 0.5,
-                pairBoost: 0.4,
-                trioBoost: 0.3
+                markovWeight: 0.80,          // Amplificado
+                trendWeight: 0.75,           // Amplificado
+                pairBoost: 0.60,             // Amplificado: duplas 3x saem juntas
+                trioBoost: 0.40,
+                multiWindow: true,           // Ativar multi-janela
+                zoneMinCover: 3,             // REAL: 3-5 zonas, média 4.2
+                hotNumbers: [10, 9, 32, 1, 46, 6, 27, 15, 42, 41, 43, 53, 60, 44, 35],
+                coldNumbers: [4, 23, 25, 55, 54, 11, 36, 48, 34, 23]
             },
             lotofacil: {
                 name: 'Lotofácil',
                 draw: 15, range: [1, 25],
-                maxConsecutive: 4,
-                evenOddIdeal: [7, 8], evenOddTolerance: 1,
-                faixaSize: 5, faixaMin: 2, faixaMax: 4,
-                sumMin: 175, sumMax: 225,
+                maxConsecutive: 7,          // REAL: 5-7 consecutivos por sorteio!
+                evenOddIdeal: [5, 10], evenOddTolerance: 2, // REAL: tendência forte a ímpares
+                faixaSize: 5, faixaMin: 1, faixaMax: 4,
+                sumMin: 170, sumMax: 225,   // REAL: 162-223, média ~198
                 gapMin: 1, gapMax: 3,
-                repeatFromLast: [7, 11],
-                primeRatio: [0.25, 0.50],
+                repeatFromLast: [5, 9],     // CORRIGIDO: [8,11] excluía 3 números (teto 12!)
+                primeRatio: [0.25, 0.45],   // REAL: 4-6 primos de 9 possíveis
+                primeCount: [4, 6],         // Novo: contagem absoluta
                 maxSameEnding: 4,
                 fibWeight: 0.2,
-                markovWeight: 0.7,
-                trendWeight: 0.6,
-                pairBoost: 0.5,
-                trioBoost: 0.4
+                markovWeight: 0.75,         // Reduzido: evitar pool restrito
+                trendWeight: 0.65,          // Reduzido: não penalizar "frios" demais
+                pairBoost: 0.60,            // Moderado
+                trioBoost: 0.50,            // Moderado
+                // NOVOS campos específicos Lotofácil
+                gridRows: 5, gridCols: 5,
+                gridMinPerRow: 1, gridMaxPerRow: 4,
+                bordaIdeal: [9, 12],        // REAL: 60-80% borda
+                centroIdeal: [3, 6],        // REAL: 20-40% centro
+                espelhosIdeal: [3, 5],      // REAL: 3-5 espelhos (N + N' = 26)
+                baixosIdeal: [5, 9],        // REAL: metade baixa (1-12)
+                altosIdeal: [6, 10],        // REAL: metade alta (13-25)
+                multiWindow: true           // Ativar multi-janela temporal
             },
             quina: {
                 name: 'Quina',
                 draw: 5, range: [1, 80],
-                maxConsecutive: 2,
-                evenOddIdeal: [2, 3], evenOddTolerance: 1,
+                maxConsecutive: 2,           // REAL: max 2, média 1.2
+                evenOddIdeal: [3, 2], evenOddTolerance: 1, // REAL: 2.7P/2.3I
                 faixaSize: 10, faixaMin: 0, faixaMax: 2,
-                sumMin: 90, sumMax: 270,
-                gapMin: 5, gapMax: 30,
-                repeatFromLast: [0, 2],
-                primeRatio: [0.20, 0.50],
+                sumMin: 108, sumMax: 292,    // REAL: 108-292, média 191
+                gapMin: 5, gapMax: 20,       // REAL: gap médio 5.3-19.8
+                repeatFromLast: [0, 1],      // REAL: 0-1, média 0.3
+                primeRatio: [0.05, 0.55],    // REAL: 0-4 primos, média 1.2
                 maxSameEnding: 2,
                 fibWeight: 0.3,
-                markovWeight: 0.6,
-                trendWeight: 0.5,
-                pairBoost: 0.4,
-                trioBoost: 0.2
+                markovWeight: 0.80,          // Amplificado
+                trendWeight: 0.75,           // Amplificado
+                pairBoost: 0.55,             // Amplificado
+                trioBoost: 0.35,
+                multiWindow: true,
+                zoneMinCover: 3,             // REAL: 3-5 zonas, média 4.2
+                hotNumbers: [7, 56, 74, 6, 1, 68, 24, 44, 26, 60, 62, 14, 78, 27, 9],
+                coldNumbers: [70, 50, 61, 71, 40, 69, 76, 36, 16, 5]
             },
             duplasena: {
                 name: 'Dupla Sena',
                 draw: 6, range: [1, 50],
-                maxConsecutive: 2,
-                evenOddIdeal: [3, 3], evenOddTolerance: 1,
-                faixaSize: 10, faixaMin: 0, faixaMax: 2,
-                sumMin: 80, sumMax: 200,
-                gapMin: 3, gapMax: 15,
-                repeatFromLast: [0, 3],
-                primeRatio: [0.25, 0.55],
-                maxSameEnding: 2,
+                maxConsecutive: 4,           // REAL: max 4! média 1.9
+                evenOddIdeal: [3, 3], evenOddTolerance: 1, // REAL: 3.0/3.0 perfeito
+                faixaSize: 10, faixaMin: 0, faixaMax: 3,
+                sumMin: 42, sumMax: 151,     // REAL: 42-151, média 78
+                gapMin: 2, gapMax: 7,        // REAL: gap médio 2.2-6.4
+                repeatFromLast: [0, 4],      // REAL: 0-4, média 1.2
+                primeRatio: [0.05, 0.60],    // REAL: 0-4 primos, média 2.3
+                maxSameEnding: 3,
                 fibWeight: 0.3,
-                markovWeight: 0.6,
-                trendWeight: 0.5,
-                pairBoost: 0.4,
-                trioBoost: 0.3
+                markovWeight: 0.85,          // Amplificado: universo pequeno
+                trendWeight: 0.80,           // Amplificado: números se repetem muito
+                pairBoost: 0.70,             // Amplificado: duplas 5-7x!
+                trioBoost: 0.50,             // Amplificado
+                multiWindow: true,
+                // REAL: números concentrados até 34!
+                hotNumbers: [2, 20, 17, 12, 7, 15, 9, 3, 4, 11, 6, 13, 14, 18, 19],
+                coldNumbers: [37, 40, 41, 38, 39, 35, 36, 32, 29, 44, 42, 43, 45, 46, 47, 48, 49, 50]
             },
             lotomania: {
                 name: 'Lotomania',
@@ -118,36 +140,47 @@ class SmartBetsEngine {
             timemania: {
                 name: 'Timemania',
                 draw: 7, range: [1, 80],
-                maxConsecutive: 2,
-                evenOddIdeal: [3, 4], evenOddTolerance: 1,
+                maxConsecutive: 2,           // REAL: max 2 consecutivos (50% sem nenhum!)
+                evenOddIdeal: [3, 4], evenOddTolerance: 2, // REAL: 3.4P/3.6I, mas varia muito
                 faixaSize: 10, faixaMin: 0, faixaMax: 2,
-                sumMin: 130, sumMax: 310,
-                gapMin: 4, gapMax: 20,
-                repeatFromLast: [0, 4],
-                primeRatio: [0.20, 0.50],
+                sumMin: 150, sumMax: 375,    // REAL: 152-375, média 269
+                gapMin: 5, gapMax: 12,       // REAL: gap médio 5.2-11.5
+                repeatFromLast: [0, 2],      // REAL: 0-2, média 0.7 — quase zero!
+                primeRatio: [0.05, 0.55],    // REAL: 0-4 primos, média 1.9
                 maxSameEnding: 2,
-                fibWeight: 0.3,
-                markovWeight: 0.6,
-                trendWeight: 0.5,
-                pairBoost: 0.4,
-                trioBoost: 0.3
+                fibWeight: 0.25,
+                markovWeight: 0.80,          // Amplificado: transições são úteis
+                trendWeight: 0.75,           // Amplificado: números quentes importam
+                pairBoost: 0.60,             // Amplificado: duplas 3x saem juntas
+                trioBoost: 0.45,             // Amplificado: trios 2x
+                // Campos específicos Timemania
+                zoneMinCover: 4,             // REAL: 4-6 zonas, média 5.0
+                zoneIdealCover: 5,           // Ideal: 5 de 8 zonas
+                multiWindow: true,           // Ativar multi-janela temporal
+                // Top números quentes (9-5x em 35 sorteios)
+                hotNumbers: [35, 71, 21, 26, 19, 22, 52, 8, 44, 67, 36, 33, 40, 1, 10],
+                // Números GELADOS (0x em 35 sorteios!) — NÃO devem aparecer
+                coldNumbers: [80, 78, 27, 68, 2, 20, 23, 25]
             },
             diadesorte: {
                 name: 'Dia de Sorte',
                 draw: 7, range: [1, 31],
-                maxConsecutive: 3,
-                evenOddIdeal: [3, 4], evenOddTolerance: 1,
-                faixaSize: 8, faixaMin: 1, faixaMax: 3,
-                sumMin: 78, sumMax: 152,
-                gapMin: 1, gapMax: 8,
-                repeatFromLast: [2, 5],
-                primeRatio: [0.25, 0.55],
-                maxSameEnding: 2,
+                maxConsecutive: 4,           // REAL: max 4, média 2.0
+                evenOddIdeal: [3, 4], evenOddTolerance: 2, // REAL: 3.4/3.6
+                faixaSize: 8, faixaMin: 1, faixaMax: 4,
+                sumMin: 51, sumMax: 161,     // REAL: 51-161, média 111
+                gapMin: 2, gapMax: 5,        // REAL: gap médio 2.3-5.0
+                repeatFromLast: [0, 4],      // REAL: 0-4, média 1.3
+                primeRatio: [0.05, 0.65],    // REAL: 0-5 primos, média 2.5
+                maxSameEnding: 3,
                 fibWeight: 0.3,
-                markovWeight: 0.7,
-                trendWeight: 0.6,
-                pairBoost: 0.5,
-                trioBoost: 0.3
+                markovWeight: 0.85,          // Amplificado: universo pequeno (31)
+                trendWeight: 0.80,           // Amplificado
+                pairBoost: 0.70,             // Amplificado: duplas 5-6x!
+                trioBoost: 0.50,             // Amplificado
+                multiWindow: true,
+                hotNumbers: [6, 31, 3, 12, 7, 30, 16, 13, 8, 25, 14, 19, 22, 24, 28],
+                coldNumbers: [4, 10, 11, 20, 27]  // 4-6x em 35 sorteios
             }
         };
         return profiles[gameKey] || profiles.megasena;
@@ -409,6 +442,157 @@ class SmartBetsEngine {
         analysis.avgGap = count > 0 ? totalGap / count : 5;
         analysis.avgConsecutive = count > 0 ? totalConsec / count : 1;
 
+        // ══════════════════════════════════════════════════════════════
+        // NOVAS CAMADAS DE ANÁLISE — Lotofácil & Timemania otimizadas
+        // ══════════════════════════════════════════════════════════════
+
+        // ── MULTI-JANELA TEMPORAL (tendência em 3, 5, 10, 15 sorteios) ──
+        if (profile.multiWindow) {
+            analysis.multiWindowScores = {};
+            const windows = [3, 5, 10, 15];
+            for (let n = startNum; n <= endNum; n++) {
+                let windowScore = 0;
+                let windowCount = 0;
+                for (let w = 0; w < windows.length; w++) {
+                    const winSize = Math.min(windows[w], history.length);
+                    if (winSize === 0) continue;
+                    let hits = 0;
+                    for (let i = 0; i < winSize; i++) {
+                        if (history[i].numbers.includes(n)) hits++;
+                    }
+                    const rate = hits / winSize;
+                    // Peso maior para janelas recentes
+                    const winWeight = w === 0 ? 1.5 : (w === 1 ? 1.2 : (w === 2 ? 0.8 : 0.5));
+                    windowScore += rate * winWeight;
+                    windowCount += winWeight;
+                }
+                analysis.multiWindowScores[n] = windowCount > 0 ? windowScore / windowCount : 0.5;
+            }
+            console.log('[SmartBets] 🪟 Multi-janela temporal calculada (3/5/10/15 sorteios)');
+        }
+
+        // ── GRID 5×5 — Distribuição real por linhas (Lotofácil) ──
+        if (profile.gridRows) {
+            analysis.gridPatterns = [];
+            analysis.avgGrid = new Array(profile.gridRows).fill(0);
+            const gridCount = Math.min(10, history.length);
+            for (let i = 0; i < gridCount; i++) {
+                const row = new Array(profile.gridRows).fill(0);
+                for (let j = 0; j < history[i].numbers.length; j++) {
+                    const n = history[i].numbers[j];
+                    const rowIdx = Math.min(profile.gridRows - 1, Math.floor((n - startNum) / profile.gridCols));
+                    row[rowIdx]++;
+                }
+                analysis.gridPatterns.push(row);
+                for (let r = 0; r < profile.gridRows; r++) analysis.avgGrid[r] += row[r];
+            }
+            for (let r = 0; r < profile.gridRows; r++) {
+                analysis.avgGrid[r] = analysis.avgGrid[r] / gridCount;
+            }
+            console.log('[SmartBets] 📊 Grid médio:', analysis.avgGrid.map(v => v.toFixed(1)).join('-'));
+        }
+
+        // ── BORDAS vs CENTRO (Grid 5×5) ──
+        if (profile.bordaIdeal) {
+            // Grid:  1  2  3  4  5
+            //        6  7  8  9 10
+            //       11 12 13 14 15
+            //       16 17 18 19 20
+            //       21 22 23 24 25
+            const totalNums = endNum - startNum + 1;
+            const cols = profile.gridCols || 5;
+            const rows = profile.gridRows || 5;
+            analysis.bordaNumbers = {};
+            analysis.centroNumbers = {};
+            for (let n = startNum; n <= endNum; n++) {
+                const r = Math.floor((n - startNum) / cols);
+                const c = (n - startNum) % cols;
+                if (r === 0 || r === rows - 1 || c === 0 || c === cols - 1) {
+                    analysis.bordaNumbers[n] = true;
+                } else {
+                    analysis.centroNumbers[n] = true;
+                }
+            }
+            // Padrão médio de bordas nos últimos sorteios
+            let avgBorda = 0;
+            const bCount = Math.min(10, history.length);
+            for (let i = 0; i < bCount; i++) {
+                let b = 0;
+                for (let j = 0; j < history[i].numbers.length; j++) {
+                    if (analysis.bordaNumbers[history[i].numbers[j]]) b++;
+                }
+                avgBorda += b;
+            }
+            analysis.avgBorda = bCount > 0 ? avgBorda / bCount : 10;
+            console.log('[SmartBets] 🔲 Borda média:', analysis.avgBorda.toFixed(1));
+        }
+
+        // ── ESPELHOS (N + N' = endNum + startNum) ──
+        if (profile.espelhosIdeal) {
+            const mirrorSum = endNum + startNum;
+            analysis.mirrorPairs = {};
+            for (let n = startNum; n <= endNum; n++) {
+                const mirror = mirrorSum - n;
+                if (mirror >= startNum && mirror <= endNum && mirror !== n) {
+                    if (n < mirror) analysis.mirrorPairs[n] = mirror;
+                }
+            }
+            // Contar espelhos médios nos sorteios
+            let avgMirrors = 0;
+            const mCount = Math.min(10, history.length);
+            for (let i = 0; i < mCount; i++) {
+                const numSet = new Set(history[i].numbers);
+                let mirrors = 0;
+                for (const n of history[i].numbers) {
+                    const mirror = mirrorSum - n;
+                    if (n < mirror && numSet.has(mirror)) mirrors++;
+                }
+                avgMirrors += mirrors;
+            }
+            analysis.avgMirrors = mCount > 0 ? avgMirrors / mCount : 3;
+            console.log('[SmartBets] 🪞 Espelhos médios:', analysis.avgMirrors.toFixed(1));
+        }
+
+        // ── QUADRAS FREQUENTES (top 4-números) ──
+        if (profile.draw >= 15) {
+            const quadCount = {};
+            const quadLimit = Math.min(10, history.length);
+            for (let d = 0; d < quadLimit; d++) {
+                const nums = history[d].numbers;
+                const maxN = Math.min(nums.length, 15);
+                for (let i = 0; i < maxN; i++) {
+                    for (let j = i + 1; j < maxN; j++) {
+                        for (let k = j + 1; k < maxN; k++) {
+                            for (let l = k + 1; l < maxN; l++) {
+                                const arr = [nums[i], nums[j], nums[k], nums[l]].sort((a, b) => a - b);
+                                const key = arr.join('-');
+                                quadCount[key] = (quadCount[key] || 0) + 1;
+                            }
+                        }
+                    }
+                }
+            }
+            analysis.topQuads = Object.entries(quadCount)
+                .filter(([, c]) => c >= 3)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10)
+                .map(([key, count]) => ({
+                    nums: key.split('-').map(Number),
+                    count
+                }));
+            console.log('[SmartBets] 🎯 Quadras frequentes:', analysis.topQuads.length);
+        }
+
+        // ── SCORE APRIMORADO (multi-janela + grid + bordas) ──
+        if (profile.multiWindow && analysis.multiWindowScores) {
+            for (let n = startNum; n <= endNum; n++) {
+                const mwScore = analysis.multiWindowScores[n] || 0.5;
+                const baseScore = analysis.numberScores[n] || 0.5;
+                // Combinar: 50% base + 50% multi-janela
+                analysis.numberScores[n] = baseScore * 0.5 + mwScore * 0.5;
+            }
+        }
+
         return analysis;
     }
 
@@ -470,15 +654,38 @@ class SmartBetsEngine {
 
             // ── Hot/Cold balancing: mix equilibrado ──
             if (hotNums.has(n)) w += 0.15;
-            else if (coldNums.has(n)) w += 0.05; // Cold não é ruim, apenas menos peso
+            else if (coldNums.has(n)) w += 0.05;
+
+            // ── NOVO: Multi-janela temporal boost ──
+            if (analysis.multiWindowScores && analysis.multiWindowScores[n]) {
+                const mwScore = analysis.multiWindowScores[n];
+                if (mwScore > 0.7) w += 0.40 * profile.trendWeight;  // Quente em TODAS janelas
+                else if (mwScore > 0.5) w += 0.20 * profile.trendWeight;
+                else if (mwScore < 0.2) w -= 0.15;  // Frio em todas janelas
+            }
+
+            // ── NOVO: Borda/Centro boost (Lotofácil) ──
+            if (analysis.bordaNumbers && analysis.bordaNumbers[n]) {
+                w += 0.10;  // Borda tem leve vantagem (60-80% nos sorteios)
+            }
+
+            // ── NOVO: Hot/Cold numbers do perfil (dados reais) ──
+            if (profile.hotNumbers && profile.hotNumbers.includes(n)) {
+                w += 0.40;  // Números comprovadamente quentes (forte!)
+            }
+            if (profile.coldNumbers && profile.coldNumbers.includes(n)) {
+                w -= 0.50;  // Números comprovadamente frios (punição forte!)
+            }
 
             // ── Diversidade inter-jogos: penalizar números muito usados ──
             if (usedCounts[n]) {
-                w -= usedCounts[n] * 0.12; // Penalidade mais forte
+                const divPenalty = (drawSize >= 15) ? 0.25 : 0.10; // LOTOFÁCIL: penalidade forte!
+                w -= usedCounts[n] * divPenalty;
             }
 
-            // ── Ruído controlado — REDUZIDO para jogos mais inteligentes ──
-            w += (Math.random() - 0.5) * 0.15;
+            // ── Ruído controlado (MAIOR para LF → forçar exploração) ──
+            const noise = (drawSize >= 15) ? 0.22 : 0.12;
+            w += (Math.random() - 0.5) * noise;
 
             weights[n] = Math.max(0.01, w);
         }
@@ -500,13 +707,13 @@ class SmartBetsEngine {
         // ── 2b. Seed com MÚLTIPLAS duplas frequentes (2-3 pares) ──
         if (analysis.topPairs.length > 0) {
             const numPairsToSeed = Math.min(
-                Math.ceil(drawSize / 4),
+                Math.ceil(drawSize / 3),  // Mais duplas para melhor cobertura
                 Math.floor(analysis.topPairs.length / 2),
-                3
+                4
             );
             const usedPairIdx = new Set();
             for (let p = 0; p < numPairsToSeed; p++) {
-                if (Math.random() > profile.pairBoost * 1.3) continue;
+                if (Math.random() > profile.pairBoost * 1.5) continue;  // Mais agressivo
                 let pairIdx;
                 let attempts = 0;
                 do {
@@ -547,6 +754,22 @@ class SmartBetsEngine {
             }
         }
 
+        // ── 2c-bis. Seed com QUADRA frequente (Lotofácil) ──
+        if (analysis.topQuads && analysis.topQuads.length > 0 && Math.random() < (profile.trioBoost || 0.4)) {
+            const quadIdx = Math.floor(Math.random() * Math.min(5, analysis.topQuads.length));
+            const quad = analysis.topQuads[quadIdx];
+            let canAdd = true;
+            for (const num of quad.nums) {
+                if (!poolSet.has(num) || usedInTicket.has(num)) { canAdd = false; break; }
+            }
+            if (canAdd && ticket.length + quad.nums.length <= drawSize) {
+                for (const num of quad.nums) {
+                    ticket.push(num);
+                    usedInTicket.add(num);
+                }
+            }
+        }
+
         // ── 2d. Repetição do último sorteio (seed inteligente) ──
         if (analysis.lastDraw.length > 0) {
             const minRepeat = profile.repeatFromLast[0];
@@ -572,7 +795,7 @@ class SmartBetsEngine {
         if (drawSize >= 5 && drawSize < 20) {
             const zoneSize = profile.faixaSize;
             const numZones = Math.ceil(totalRange / zoneSize);
-            const minZonesToCover = Math.min(numZones, Math.ceil(drawSize / 2));
+            const minZonesToCover = profile.zoneMinCover || Math.min(numZones, Math.ceil(drawSize / 2));
             
             // Verificar quais zonas já estão cobertas
             const coveredZones = new Set();
@@ -603,21 +826,24 @@ class SmartBetsEngine {
             }
         }
 
-        // ── 2f. Completar com seleção ponderada ANTI-CLUSTER ──
+        // ── 2f. Completar com seleção ponderada INTELIGENTE ──
+        // Para Lotofácil: NÃO penalizar consecutivos (eles são normais!)
+        const isLotofacilType = profile.maxConsecutive >= 5;
         const remaining = pool.filter(n => !usedInTicket.has(n));
         while (ticket.length < drawSize && remaining.length > 0) {
-            // Ajustar pesos para evitar clustering
-            const sortedTicket = ticket.slice().sort((a, b) => a - b);
-            for (let r = 0; r < remaining.length; r++) {
-                const num = remaining[r];
-                // Penalizar números muito próximos dos já selecionados
-                let minDist = Infinity;
-                for (const t of sortedTicket) {
-                    const d = Math.abs(num - t);
-                    if (d < minDist) minDist = d;
-                }
-                if (minDist <= 1 && sortedTicket.length > drawSize * 0.5) {
-                    weights[num] *= 0.5; // Penalizar consecutivo tardio
+            // Ajustar pesos — anti-cluster apenas para jogos de universo grande
+            if (!isLotofacilType) {
+                const sortedTicket = ticket.slice().sort((a, b) => a - b);
+                for (let r = 0; r < remaining.length; r++) {
+                    const num = remaining[r];
+                    let minDist = Infinity;
+                    for (const t of sortedTicket) {
+                        const d = Math.abs(num - t);
+                        if (d < minDist) minDist = d;
+                    }
+                    if (minDist <= 1 && sortedTicket.length > drawSize * 0.5) {
+                        weights[num] *= 0.5;
+                    }
                 }
             }
 
@@ -650,7 +876,7 @@ class SmartBetsEngine {
     }
 
     // ╔══════════════════════════════════════════════════════╗
-    // ║  VALIDAÇÃO DE UM JOGO (14 REGRAS)                   ║
+    // ║  VALIDAÇÃO DE UM JOGO (20+ REGRAS)                  ║
     // ╚══════════════════════════════════════════════════════╝
     static _validateGame(ticket, profile, analysis) {
         const n = ticket.length;
@@ -658,6 +884,9 @@ class SmartBetsEngine {
 
         // Para jogos grandes (Lotomania = 50 números), validação relaxada
         if (n >= 20) return true;
+
+        const startNum = profile.range[0];
+        const endNum = profile.range[1];
 
         // REGRA 1: Consecutivos máximos
         let maxRun = 1, currentRun = 1;
@@ -681,12 +910,12 @@ class SmartBetsEngine {
         const oddDiff = Math.abs(odds - profile.evenOddIdeal[1]);
         if (evenDiff > profile.evenOddTolerance + 1 || oddDiff > profile.evenOddTolerance + 1) return false;
 
-        // REGRA 5: Soma
+        // REGRA 3: Soma
         let sum = 0;
         for (let i = 0; i < n; i++) sum += ticket[i];
-        if (sum < profile.sumMin * 0.85 || sum > profile.sumMax * 1.15) return false;
+        if (sum < profile.sumMin * 0.90 || sum > profile.sumMax * 1.10) return false;
 
-        // REGRA 8: Anti-progressão aritmética (máx 3 em PA)
+        // REGRA 4: Anti-progressão aritmética (máx 3 em PA)
         let paCount = 0;
         for (let i = 0; i < n - 2; i++) {
             const d1 = ticket[i + 1] - ticket[i];
@@ -695,7 +924,7 @@ class SmartBetsEngine {
         }
         if (paCount > n * 0.3) return false;
 
-        // REGRA: Anti-terminação repetida
+        // REGRA 5: Anti-terminação repetida
         const endings = {};
         for (let i = 0; i < n; i++) {
             const d = ticket[i] % 10;
@@ -703,6 +932,67 @@ class SmartBetsEngine {
         }
         for (const d in endings) {
             if (endings[d] > profile.maxSameEnding + 1) return false;
+        }
+
+        // ══════════════════════════════════════════════
+        // NOVAS REGRAS — Lotofácil & Timemania
+        // ══════════════════════════════════════════════
+
+        // REGRA 6: Grid 5×5 — cada linha deve ter entre min e max números
+        if (profile.gridRows && profile.gridCols) {
+            const gridRow = new Array(profile.gridRows).fill(0);
+            for (let i = 0; i < n; i++) {
+                const rowIdx = Math.min(profile.gridRows - 1, Math.floor((ticket[i] - startNum) / profile.gridCols));
+                gridRow[rowIdx]++;
+            }
+            for (let r = 0; r < profile.gridRows; r++) {
+                if (gridRow[r] < profile.gridMinPerRow || gridRow[r] > profile.gridMaxPerRow) {
+                    return false;
+                }
+            }
+        }
+
+        // REGRA 7: Bordas vs Centro
+        if (profile.bordaIdeal && analysis.bordaNumbers) {
+            let bordaCount = 0;
+            for (let i = 0; i < n; i++) {
+                if (analysis.bordaNumbers[ticket[i]]) bordaCount++;
+            }
+            const centroCount = n - bordaCount;
+            if (bordaCount < profile.bordaIdeal[0] - 1 || bordaCount > profile.bordaIdeal[1] + 1) return false;
+            if (centroCount < profile.centroIdeal[0] - 1 || centroCount > profile.centroIdeal[1] + 1) return false;
+        }
+
+        // REGRA 8: Metades (baixos vs altos)
+        if (profile.baixosIdeal) {
+            const midPoint = Math.ceil((endNum + startNum) / 2);
+            let baixos = 0;
+            for (let i = 0; i < n; i++) {
+                if (ticket[i] <= midPoint) baixos++;
+            }
+            if (baixos < profile.baixosIdeal[0] - 1 || baixos > profile.baixosIdeal[1] + 1) return false;
+        }
+
+        // REGRA 9: Espelhos — verificar que tem entre ideal[0] e ideal[1] espelhos
+        if (profile.espelhosIdeal && analysis.mirrorPairs) {
+            const numSet = new Set(ticket);
+            const mirrorSum = endNum + startNum;
+            let mirrorCount = 0;
+            for (const num of ticket) {
+                const mirror = mirrorSum - num;
+                if (num < mirror && numSet.has(mirror)) mirrorCount++;
+            }
+            // Aceitar se estiver dentro da faixa ±1
+            if (mirrorCount < profile.espelhosIdeal[0] - 1 || mirrorCount > profile.espelhosIdeal[1] + 1) return false;
+        }
+
+        // REGRA 10: Cobertura de zonas (Timemania)
+        if (profile.zoneMinCover) {
+            const coveredZones = new Set();
+            for (let i = 0; i < n; i++) {
+                coveredZones.add(Math.floor((ticket[i] - startNum) / profile.faixaSize));
+            }
+            if (coveredZones.size < profile.zoneMinCover) return false;
         }
 
         return true;
@@ -835,6 +1125,67 @@ class SmartBetsEngine {
                 if (t > 1.1) trendHits++;
             }
             score += Math.min(2.0, trendHits * 0.4);
+        }
+
+        // ══════════════════════════════════════════
+        // NOVAS PONTUAÇÕES — Lotofácil & Timemania
+        // ══════════════════════════════════════════
+
+        // 15. Grid 5×5 — bonus para distribuição ideal
+        if (profile.gridRows && profile.gridCols) {
+            const gridRow = new Array(profile.gridRows).fill(0);
+            for (let i = 0; i < n; i++) {
+                const rowIdx = Math.min(profile.gridRows - 1, Math.floor((ticket[i] - startNum) / profile.gridCols));
+                gridRow[rowIdx]++;
+            }
+            // Verificar se todas as linhas estão dentro da faixa ideal
+            let gridOk = 0;
+            for (let r = 0; r < profile.gridRows; r++) {
+                if (gridRow[r] >= profile.gridMinPerRow && gridRow[r] <= profile.gridMaxPerRow) gridOk++;
+            }
+            score += (gridOk / profile.gridRows) * 3.0; // Até 3.0 para grid perfeito
+        }
+
+        // 16. Bordas vs Centro — bonus para proporção real
+        if (profile.bordaIdeal && analysis.bordaNumbers) {
+            let bordaCount = 0;
+            for (let i = 0; i < n; i++) {
+                if (analysis.bordaNumbers[ticket[i]]) bordaCount++;
+            }
+            if (bordaCount >= profile.bordaIdeal[0] && bordaCount <= profile.bordaIdeal[1]) {
+                score += 2.5;
+            } else {
+                const bDist = bordaCount < profile.bordaIdeal[0]
+                    ? profile.bordaIdeal[0] - bordaCount
+                    : bordaCount - profile.bordaIdeal[1];
+                score += Math.max(0, 1.5 - bDist * 0.5);
+            }
+        }
+
+        // 17. Espelhos — bonus para quantidade ideal
+        if (profile.espelhosIdeal && analysis.mirrorPairs) {
+            const numSet = new Set(ticket);
+            const mirrorSum = endNum + startNum;
+            let mirrorCount = 0;
+            for (const num of ticket) {
+                const mirror = mirrorSum - num;
+                if (num < mirror && numSet.has(mirror)) mirrorCount++;
+            }
+            if (mirrorCount >= profile.espelhosIdeal[0] && mirrorCount <= profile.espelhosIdeal[1]) {
+                score += 2.0;
+            } else {
+                score += Math.max(0, 1.0 - Math.abs(mirrorCount - analysis.avgMirrors) * 0.3);
+            }
+        }
+
+        // 18. Multi-janela — bonus para números quentes em múltiplas janelas
+        if (analysis.multiWindowScores) {
+            let multiHot = 0;
+            for (let i = 0; i < n; i++) {
+                const mw = analysis.multiWindowScores[ticket[i]] || 0.5;
+                if (mw > 0.6) multiHot++;
+            }
+            score += Math.min(2.5, multiHot * 0.3);
         }
 
         return score;
