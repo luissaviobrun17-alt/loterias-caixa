@@ -36,69 +36,69 @@ class QuantumGodEngine {
     // ╚══════════════════════════════════════════════════════╝
     static getWeightProfile(gameKey) {
         var profiles = {
-            // Lotofácil: 15/25 — V9 GOD: repetição domina + Markov máximo
+            // Lotofácil: 15/25 — V10: range pequeno, diversidade natural alta
             'lotofacil': {
-                recentFreq:   0.06, generalFreq: 0.02, latency: 0.04,
-                cycles:       0.04, repetition: 0.25, drawEnding: 0.02,
+                recentFreq:   0.06, generalFreq: 0.03, latency: 0.06,
+                cycles:       0.05, repetition: 0.18, drawEnding: 0.02,
                 lines:        0.06, columns: 0.04, primes: 0.01,
-                mirrors:      0.02, digitEnding: 0.03,
-                markov:       0.16, temporal: 0.08, conditional: 0.10,
-                algorithm:    0.03, trend: 0.08, fibonacci: 0.01,
-                sumMin: 175, sumMax: 225, linesPerRow: [2, 4],
+                mirrors:      0.03, digitEnding: 0.03,
+                markov:       0.12, temporal: 0.08, conditional: 0.08,
+                algorithm:    0.03, trend: 0.06, fibonacci: 0.01,
+                sumMin: 170, sumMax: 225, linesPerRow: [2, 4],
                 maxConsecutive: 4, evenOddTolerance: 2,
-                repeatFromLast: [7, 11], guaranteedPct: 0.70,
+                repeatFromLast: [7, 11], guaranteedPct: 0.55,
                 monteCarloRuns: 20000, qualityAttempts: 2500
             },
-            // Mega Sena: 6/60 — muito aleatória, frequência recente + atraso importam
+            // Mega Sena: 6/60 — V10: diversidade + latência equilibrada
             'megasena': {
-                recentFreq:   0.16, generalFreq: 0.06, latency: 0.10,
-                cycles:       0.10, repetition: 0.07, drawEnding: 0.07,
+                recentFreq:   0.10, generalFreq: 0.06, latency: 0.14,
+                cycles:       0.12, repetition: 0.04, drawEnding: 0.05,
                 lines:        0.04, columns: 0.04, primes: 0.02,
-                mirrors:      0.02, digitEnding: 0.03,
-                markov:       0.10, temporal: 0.06, conditional: 0.06,
+                mirrors:      0.03, digitEnding: 0.03,
+                markov:       0.08, temporal: 0.06, conditional: 0.06,
                 algorithm:    0.05, trend: 0.05, fibonacci: 0.01,
                 sumMin: 100, sumMax: 250, linesPerRow: [0, 3],
                 maxConsecutive: 2, evenOddTolerance: 2,
-                repeatFromLast: [0, 3], guaranteedPct: 0.50,
+                repeatFromLast: [0, 3], guaranteedPct: 0.40,
                 monteCarloRuns: 20000, qualityAttempts: 2500
             },
-            // Quina: 5/80 — V9 GOD: Markov máximo + latência + ciclos
+            // Quina: 5/80 — V10: range grande, diversidade máxima
             'quina': {
-                recentFreq:   0.10, generalFreq: 0.04, latency: 0.12,
-                cycles:       0.10, repetition: 0.06, drawEnding: 0.04,
-                lines:        0.03, columns: 0.02, primes: 0.01,
-                mirrors:      0.02, digitEnding: 0.02,
-                markov:       0.16, temporal: 0.08, conditional: 0.10,
-                algorithm:    0.03, trend: 0.08, fibonacci: 0.01,
+                recentFreq:   0.08, generalFreq: 0.05, latency: 0.14,
+                cycles:       0.12, repetition: 0.04, drawEnding: 0.04,
+                lines:        0.04, columns: 0.03, primes: 0.01,
+                mirrors:      0.03, digitEnding: 0.03,
+                markov:       0.10, temporal: 0.08, conditional: 0.08,
+                algorithm:    0.04, trend: 0.06, fibonacci: 0.01,
                 sumMin: 90, sumMax: 270, linesPerRow: [0, 3],
                 maxConsecutive: 2, evenOddTolerance: 2,
-                repeatFromLast: [0, 2], guaranteedPct: 0.65,
+                repeatFromLast: [0, 2], guaranteedPct: 0.40,
                 monteCarloRuns: 20000, qualityAttempts: 2500
             },
-            // Dupla Sena: 6/50 — V9 GOD: Markov máximo + repetição + trend
+            // Dupla Sena: 6/50 — V10: diversidade + ciclos
             'duplasena': {
-                recentFreq:   0.10, generalFreq: 0.04, latency: 0.10,
-                cycles:       0.08, repetition: 0.10, drawEnding: 0.04,
-                lines:        0.03, columns: 0.03, primes: 0.01,
-                mirrors:      0.02, digitEnding: 0.02,
-                markov:       0.16, temporal: 0.08, conditional: 0.10,
-                algorithm:    0.04, trend: 0.08, fibonacci: 0.01,
+                recentFreq:   0.08, generalFreq: 0.05, latency: 0.14,
+                cycles:       0.10, repetition: 0.06, drawEnding: 0.04,
+                lines:        0.04, columns: 0.03, primes: 0.01,
+                mirrors:      0.03, digitEnding: 0.03,
+                markov:       0.10, temporal: 0.08, conditional: 0.08,
+                algorithm:    0.04, trend: 0.06, fibonacci: 0.01,
                 sumMin: 80, sumMax: 200, linesPerRow: [0, 3],
                 maxConsecutive: 2, evenOddTolerance: 2,
-                repeatFromLast: [0, 3], guaranteedPct: 0.65,
+                repeatFromLast: [0, 3], guaranteedPct: 0.42,
                 monteCarloRuns: 20000, qualityAttempts: 2500
             },
-            // Lotomania: 20/100 — V9 GOD: Markov máximo + repetição forte
+            // Lotomania: 20/100 — V10: range enorme, diversidade crítica
             'lotomania': {
-                recentFreq:   0.05, generalFreq: 0.02, latency: 0.08,
-                cycles:       0.05, repetition: 0.22, drawEnding: 0.02,
+                recentFreq:   0.05, generalFreq: 0.03, latency: 0.10,
+                cycles:       0.06, repetition: 0.12, drawEnding: 0.02,
                 lines:        0.06, columns: 0.04, primes: 0.01,
-                mirrors:      0.02, digitEnding: 0.04,
-                markov:       0.16, temporal: 0.08, conditional: 0.10,
-                algorithm:    0.03, trend: 0.08, fibonacci: 0.01,
+                mirrors:      0.03, digitEnding: 0.04,
+                markov:       0.10, temporal: 0.08, conditional: 0.08,
+                algorithm:    0.04, trend: 0.06, fibonacci: 0.01,
                 sumMin: 870, sumMax: 1130, linesPerRow: [1, 3],
                 maxConsecutive: 3, evenOddTolerance: 3,
-                repeatFromLast: [7, 14], guaranteedPct: 0.70,
+                repeatFromLast: [7, 14], guaranteedPct: 0.45,
                 monteCarloRuns: 20000, qualityAttempts: 3000
             },
             // Timemania: 10/80 — V10: DIVERSIDADE + latência equilibrada
@@ -114,17 +114,17 @@ class QuantumGodEngine {
                 repeatFromLast: [0, 2], guaranteedPct: 0.40,
                 monteCarloRuns: 20000, qualityAttempts: 2500
             },
-            // Dia de Sorte: 7/31 — V9 GOD: espaço pequeno, repetição+Markov dominam
+            // Dia de Sorte: 7/31 — V10: espaço pequeno, equilibrado
             'diadesorte': {
-                recentFreq:   0.06, generalFreq: 0.02, latency: 0.08,
-                cycles:       0.05, repetition: 0.25, drawEnding: 0.02,
-                lines:        0.04, columns: 0.02, primes: 0.01,
-                mirrors:      0.02, digitEnding: 0.02,
-                markov:       0.16, temporal: 0.10, conditional: 0.10,
-                algorithm:    0.02, trend: 0.08, fibonacci: 0.01,
+                recentFreq:   0.06, generalFreq: 0.04, latency: 0.10,
+                cycles:       0.08, repetition: 0.15, drawEnding: 0.03,
+                lines:        0.04, columns: 0.03, primes: 0.01,
+                mirrors:      0.03, digitEnding: 0.03,
+                markov:       0.12, temporal: 0.08, conditional: 0.08,
+                algorithm:    0.03, trend: 0.06, fibonacci: 0.01,
                 sumMin: 78, sumMax: 152, linesPerRow: [0, 4],
                 maxConsecutive: 3, evenOddTolerance: 2,
-                repeatFromLast: [2, 6], guaranteedPct: 0.70,
+                repeatFromLast: [2, 6], guaranteedPct: 0.50,
                 monteCarloRuns: 20000, qualityAttempts: 2500
             }
         };

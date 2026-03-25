@@ -33,92 +33,104 @@ class SmartBetsEngine {
             megasena: {
                 name: 'Mega Sena',
                 draw: 6, range: [1, 60],
-                maxConsecutive: 2,           // REAL: max 2, média 1.4
-                evenOddIdeal: [3, 3], evenOddTolerance: 1, // REAL: 2.9/3.1 equilibrado
+                maxConsecutive: 2,
+                evenOddIdeal: [3, 3], evenOddTolerance: 1,
                 faixaSize: 10, faixaMin: 0, faixaMax: 2,
-                sumMin: 72, sumMax: 253,     // REAL: 72-253, média 176
-                gapMin: 5, gapMax: 12,       // REAL: gap médio 5.4-11.8
-                repeatFromLast: [0, 2],      // REAL: 0-2, média 0.6
-                primeRatio: [0.05, 0.55],    // REAL: 0-4 primos, média 1.6
+                sumMin: 72, sumMax: 253,
+                gapMin: 5, gapMax: 12,
+                repeatFromLast: [0, 2],
+                primeRatio: [0.05, 0.55],
                 maxSameEnding: 2,
                 fibWeight: 0.3,
-                markovWeight: 0.80,          // Amplificado
-                trendWeight: 0.75,           // Amplificado
-                pairBoost: 0.60,             // Amplificado: duplas 3x saem juntas
-                trioBoost: 0.40,
-                multiWindow: true,           // Ativar multi-janela
-                zoneMinCover: 3,             // REAL: 3-5 zonas, média 4.2
-                hotNumbers: [10, 9, 32, 1, 46, 6, 27, 15, 42, 41, 43, 53, 60, 44, 35],
-                coldNumbers: [4, 23, 25, 55, 54, 11, 36, 48, 34, 23]
+                markovWeight: 0.55,
+                trendWeight: 0.50,
+                pairBoost: 0.45,
+                trioBoost: 0.35,
+                multiWindow: true,
+                zoneMinCover: 3,
+                hotNumbers: [],
+                coldNumbers: [],
+                diversityPenalty: 0.40,
+                maxConcentration: 0.35,
+                forceNewEvery: 3
             },
             lotofacil: {
                 name: 'Lotofácil',
                 draw: 15, range: [1, 25],
-                maxConsecutive: 7,          // REAL: 5-7 consecutivos por sorteio!
-                evenOddIdeal: [5, 10], evenOddTolerance: 2, // REAL: tendência forte a ímpares
+                maxConsecutive: 7,
+                evenOddIdeal: [5, 10], evenOddTolerance: 2,
                 faixaSize: 5, faixaMin: 1, faixaMax: 4,
-                sumMin: 170, sumMax: 225,   // REAL: 162-223, média ~198
+                sumMin: 170, sumMax: 225,
                 gapMin: 1, gapMax: 3,
-                repeatFromLast: [5, 9],     // CORRIGIDO: [8,11] excluía 3 números (teto 12!)
-                primeRatio: [0.25, 0.45],   // REAL: 4-6 primos de 9 possíveis
-                primeCount: [4, 6],         // Novo: contagem absoluta
+                repeatFromLast: [5, 9],
+                primeRatio: [0.25, 0.45],
+                primeCount: [4, 6],
                 maxSameEnding: 4,
                 fibWeight: 0.2,
-                markovWeight: 0.75,         // Reduzido: evitar pool restrito
-                trendWeight: 0.65,          // Reduzido: não penalizar "frios" demais
-                pairBoost: 0.60,            // Moderado
-                trioBoost: 0.50,            // Moderado
-                // NOVOS campos específicos Lotofácil
+                markovWeight: 0.50,
+                trendWeight: 0.45,
+                pairBoost: 0.40,
+                trioBoost: 0.35,
                 gridRows: 5, gridCols: 5,
                 gridMinPerRow: 1, gridMaxPerRow: 4,
-                bordaIdeal: [9, 12],        // REAL: 60-80% borda
-                centroIdeal: [3, 6],        // REAL: 20-40% centro
-                espelhosIdeal: [3, 5],      // REAL: 3-5 espelhos (N + N' = 26)
-                baixosIdeal: [5, 9],        // REAL: metade baixa (1-12)
-                altosIdeal: [6, 10],        // REAL: metade alta (13-25)
-                multiWindow: true           // Ativar multi-janela temporal
+                bordaIdeal: [9, 12],
+                centroIdeal: [3, 6],
+                espelhosIdeal: [3, 5],
+                baixosIdeal: [5, 9],
+                altosIdeal: [6, 10],
+                multiWindow: true,
+                hotNumbers: [],
+                coldNumbers: [],
+                diversityPenalty: 0.20,
+                maxConcentration: 0.50,
+                forceNewEvery: 5
             },
             quina: {
                 name: 'Quina',
                 draw: 5, range: [1, 80],
-                maxConsecutive: 2,           // REAL: max 2, média 1.2
-                evenOddIdeal: [3, 2], evenOddTolerance: 1, // REAL: 2.7P/2.3I
+                maxConsecutive: 2,
+                evenOddIdeal: [3, 2], evenOddTolerance: 1,
                 faixaSize: 10, faixaMin: 0, faixaMax: 2,
-                sumMin: 108, sumMax: 292,    // REAL: 108-292, média 191
-                gapMin: 5, gapMax: 20,       // REAL: gap médio 5.3-19.8
-                repeatFromLast: [0, 1],      // REAL: 0-1, média 0.3
-                primeRatio: [0.05, 0.55],    // REAL: 0-4 primos, média 1.2
+                sumMin: 108, sumMax: 292,
+                gapMin: 5, gapMax: 20,
+                repeatFromLast: [0, 1],
+                primeRatio: [0.05, 0.55],
                 maxSameEnding: 2,
                 fibWeight: 0.3,
-                markovWeight: 0.80,          // Amplificado
-                trendWeight: 0.75,           // Amplificado
-                pairBoost: 0.55,             // Amplificado
-                trioBoost: 0.35,
+                markovWeight: 0.55,
+                trendWeight: 0.50,
+                pairBoost: 0.40,
+                trioBoost: 0.30,
                 multiWindow: true,
-                zoneMinCover: 3,             // REAL: 3-5 zonas, média 4.2
-                hotNumbers: [7, 56, 74, 6, 1, 68, 24, 44, 26, 60, 62, 14, 78, 27, 9],
-                coldNumbers: [70, 50, 61, 71, 40, 69, 76, 36, 16, 5]
+                zoneMinCover: 3,
+                hotNumbers: [],
+                coldNumbers: [],
+                diversityPenalty: 0.45,
+                maxConcentration: 0.35,
+                forceNewEvery: 3
             },
             duplasena: {
                 name: 'Dupla Sena',
                 draw: 6, range: [1, 50],
-                maxConsecutive: 4,           // REAL: max 4! média 1.9
-                evenOddIdeal: [3, 3], evenOddTolerance: 1, // REAL: 3.0/3.0 perfeito
+                maxConsecutive: 4,
+                evenOddIdeal: [3, 3], evenOddTolerance: 1,
                 faixaSize: 10, faixaMin: 0, faixaMax: 3,
-                sumMin: 42, sumMax: 151,     // REAL: 42-151, média 78
-                gapMin: 2, gapMax: 7,        // REAL: gap médio 2.2-6.4
-                repeatFromLast: [0, 4],      // REAL: 0-4, média 1.2
-                primeRatio: [0.05, 0.60],    // REAL: 0-4 primos, média 2.3
+                sumMin: 42, sumMax: 151,
+                gapMin: 2, gapMax: 7,
+                repeatFromLast: [0, 4],
+                primeRatio: [0.05, 0.60],
                 maxSameEnding: 3,
                 fibWeight: 0.3,
-                markovWeight: 0.85,          // Amplificado: universo pequeno
-                trendWeight: 0.80,           // Amplificado: números se repetem muito
-                pairBoost: 0.70,             // Amplificado: duplas 5-7x!
-                trioBoost: 0.50,             // Amplificado
+                markovWeight: 0.55,
+                trendWeight: 0.50,
+                pairBoost: 0.45,
+                trioBoost: 0.35,
                 multiWindow: true,
-                // REAL: números concentrados até 34!
-                hotNumbers: [2, 20, 17, 12, 7, 15, 9, 3, 4, 11, 6, 13, 14, 18, 19],
-                coldNumbers: [37, 40, 41, 38, 39, 35, 36, 32, 29, 44, 42, 43, 45, 46, 47, 48, 49, 50]
+                hotNumbers: [],
+                coldNumbers: [],
+                diversityPenalty: 0.35,
+                maxConcentration: 0.38,
+                forceNewEvery: 3
             },
             lotomania: {
                 name: 'Lotomania',
@@ -132,10 +144,16 @@ class SmartBetsEngine {
                 primeRatio: [0.15, 0.50],
                 maxSameEnding: 8,
                 fibWeight: 0.2,
-                markovWeight: 0.5,
-                trendWeight: 0.4,
-                pairBoost: 0.3,
-                trioBoost: 0.2
+                markovWeight: 0.40,
+                trendWeight: 0.35,
+                pairBoost: 0.25,
+                trioBoost: 0.15,
+                multiWindow: true,
+                hotNumbers: [],
+                coldNumbers: [],
+                diversityPenalty: 0.50,
+                maxConcentration: 0.30,
+                forceNewEvery: 2
             },
             timemania: {
                 name: 'Timemania',
@@ -167,22 +185,25 @@ class SmartBetsEngine {
             diadesorte: {
                 name: 'Dia de Sorte',
                 draw: 7, range: [1, 31],
-                maxConsecutive: 4,           // REAL: max 4, média 2.0
-                evenOddIdeal: [3, 4], evenOddTolerance: 2, // REAL: 3.4/3.6
+                maxConsecutive: 4,
+                evenOddIdeal: [3, 4], evenOddTolerance: 2,
                 faixaSize: 8, faixaMin: 1, faixaMax: 4,
-                sumMin: 51, sumMax: 161,     // REAL: 51-161, média 111
-                gapMin: 2, gapMax: 5,        // REAL: gap médio 2.3-5.0
-                repeatFromLast: [0, 4],      // REAL: 0-4, média 1.3
-                primeRatio: [0.05, 0.65],    // REAL: 0-5 primos, média 2.5
+                sumMin: 51, sumMax: 161,
+                gapMin: 2, gapMax: 5,
+                repeatFromLast: [0, 4],
+                primeRatio: [0.05, 0.65],
                 maxSameEnding: 3,
                 fibWeight: 0.3,
-                markovWeight: 0.85,          // Amplificado: universo pequeno (31)
-                trendWeight: 0.80,           // Amplificado
-                pairBoost: 0.70,             // Amplificado: duplas 5-6x!
-                trioBoost: 0.50,             // Amplificado
+                markovWeight: 0.55,
+                trendWeight: 0.50,
+                pairBoost: 0.45,
+                trioBoost: 0.35,
                 multiWindow: true,
-                hotNumbers: [6, 31, 3, 12, 7, 30, 16, 13, 8, 25, 14, 19, 22, 24, 28],
-                coldNumbers: [4, 10, 11, 20, 27]  // 4-6x em 35 sorteios
+                hotNumbers: [],
+                coldNumbers: [],
+                diversityPenalty: 0.25,
+                maxConcentration: 0.45,
+                forceNewEvery: 4
             }
         };
         return profiles[gameKey] || profiles.megasena;
