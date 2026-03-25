@@ -101,17 +101,17 @@ class QuantumGodEngine {
                 repeatFromLast: [7, 14], guaranteedPct: 0.70,
                 monteCarloRuns: 20000, qualityAttempts: 3000
             },
-            // Timemania: 7/80 — V9 GOD: Markov máximo + latência + trend
+            // Timemania: 10/80 — V10: DIVERSIDADE + latência equilibrada
             'timemania': {
-                recentFreq:   0.10, generalFreq: 0.03, latency: 0.12,
-                cycles:       0.08, repetition: 0.10, drawEnding: 0.03,
-                lines:        0.03, columns: 0.02, primes: 0.01,
-                mirrors:      0.02, digitEnding: 0.02,
-                markov:       0.16, temporal: 0.10, conditional: 0.10,
-                algorithm:    0.03, trend: 0.09, fibonacci: 0.01,
-                sumMin: 130, sumMax: 310, linesPerRow: [0, 3],
+                recentFreq:   0.08, generalFreq: 0.05, latency: 0.14,
+                cycles:       0.10, repetition: 0.05, drawEnding: 0.04,
+                lines:        0.04, columns: 0.03, primes: 0.01,
+                mirrors:      0.03, digitEnding: 0.03,
+                markov:       0.10, temporal: 0.08, conditional: 0.08,
+                algorithm:    0.04, trend: 0.06, fibonacci: 0.01,
+                sumMin: 150, sumMax: 375, linesPerRow: [0, 3],
                 maxConsecutive: 2, evenOddTolerance: 2,
-                repeatFromLast: [0, 4], guaranteedPct: 0.70,
+                repeatFromLast: [0, 2], guaranteedPct: 0.40,
                 monteCarloRuns: 20000, qualityAttempts: 2500
             },
             // Dia de Sorte: 7/31 — V9 GOD: espaço pequeno, repetição+Markov dominam
@@ -234,8 +234,8 @@ class QuantumGodEngine {
         var gapWeights = this._layer21_GapAnalysis(history, startNum, endNum);
         var quadrantWeights = this._layer22_QuadrantBalance(history, startNum, endNum);
 
-        // Diversidade extra em retries
-        var diversityBoost = retryNum * 0.03;
+        // Diversidade extra em retries (V10: mais agressivo)
+        var diversityBoost = retryNum * 0.08;
 
         var finalScores = {};
         for (var n = startNum; n <= endNum; n++) {

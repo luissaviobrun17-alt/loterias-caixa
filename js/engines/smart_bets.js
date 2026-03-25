@@ -140,27 +140,29 @@ class SmartBetsEngine {
             timemania: {
                 name: 'Timemania',
                 draw: 7, range: [1, 80],
-                maxConsecutive: 2,           // REAL: max 2 consecutivos (50% sem nenhum!)
-                evenOddIdeal: [3, 4], evenOddTolerance: 2, // REAL: 3.4P/3.6I, mas varia muito
+                maxConsecutive: 2,
+                evenOddIdeal: [3, 4], evenOddTolerance: 2,
                 faixaSize: 10, faixaMin: 0, faixaMax: 2,
-                sumMin: 150, sumMax: 375,    // REAL: 152-375, média 269
-                gapMin: 5, gapMax: 12,       // REAL: gap médio 5.2-11.5
-                repeatFromLast: [0, 2],      // REAL: 0-2, média 0.7 — quase zero!
-                primeRatio: [0.05, 0.55],    // REAL: 0-4 primos, média 1.9
+                sumMin: 150, sumMax: 375,
+                gapMin: 5, gapMax: 12,
+                repeatFromLast: [0, 2],
+                primeRatio: [0.05, 0.55],
                 maxSameEnding: 2,
                 fibWeight: 0.25,
-                markovWeight: 0.80,          // Amplificado: transições são úteis
-                trendWeight: 0.75,           // Amplificado: números quentes importam
-                pairBoost: 0.60,             // Amplificado: duplas 3x saem juntas
-                trioBoost: 0.45,             // Amplificado: trios 2x
-                // Campos específicos Timemania
-                zoneMinCover: 4,             // REAL: 4-6 zonas, média 5.0
-                zoneIdealCover: 5,           // Ideal: 5 de 8 zonas
-                multiWindow: true,           // Ativar multi-janela temporal
-                // Top números quentes (9-5x em 35 sorteios)
-                hotNumbers: [35, 71, 21, 26, 19, 22, 52, 8, 44, 67, 36, 33, 40, 1, 10],
-                // Números GELADOS (0x em 35 sorteios!) — NÃO devem aparecer
-                coldNumbers: [80, 78, 27, 68, 2, 20, 23, 25]
+                markovWeight: 0.55,          // REDUZIDO: evitar vício nos mesmos
+                trendWeight: 0.50,           // REDUZIDO: diversidade > tendência
+                pairBoost: 0.40,             // REDUZIDO: pares não devem dominar
+                trioBoost: 0.30,             // REDUZIDO
+                zoneMinCover: 5,             // AUMENTADO: forçar 5 de 8 zonas
+                zoneIdealCover: 6,           // Ideal: 6 zonas cobertas
+                multiWindow: true,
+                // REMOVIDO: hotNumbers/coldNumbers fixos — agora usa dados dinâmicos
+                hotNumbers: [],              // Vazio: usar apenas dados do histórico
+                coldNumbers: [],             // Vazio: não penalizar fixo
+                // NOVO: Controle de diversidade agressiva
+                diversityPenalty: 0.45,      // Penalidade por reutilização (era 0.10)
+                maxConcentration: 0.35,      // Max 35% dos jogos com mesmo número
+                forceNewEvery: 3             // A cada 3 jogos, forçar 2+ números novos
             },
             diadesorte: {
                 name: 'Dia de Sorte',
@@ -222,11 +224,17 @@ class SmartBetsEngine {
         const allUsedNumbers = {};
         const usedCombinations = new Set();
         const isLargeGame = drawSize >= 15;
-        const isVeryLargeGame = drawSize >= 20; // Lotomania (50 números por jogo)
+        const isVeryLargeGame = drawSize >= 20;
+        const isLargeRange = (endNum - startNum + 1) >= 60; // Timemania/Quina: range 80
         const maxAttempts = isVeryLargeGame ? numGames * 3000 : (isLargeGame ? numGames * 1000 : numGames * 500);
         let attempts = 0;
 
-        console.log(`[SmartBets] 🔧 drawSize=${drawSize}, isLargeGame=${isLargeGame}, isVeryLargeGame=${isVeryLargeGame}, maxAttempts=${maxAttempts}`);
+        // ── CONTROLE DE CONCENTRAÇÃO GLOBAL ──
+        const maxConcentration = profile.maxConcentration || 0.40;
+        const forceNewEvery = profile.forceNewEvery || 5;
+        const totalRange = endNum - startNum + 1;
+
+        console.log(`[SmartBets] 🔧 drawSize=${drawSize}, largeRange=${isLargeRange}, maxConc=${maxConcentration}`);
 
         while (games.length < numGames && attempts < maxAttempts) {
             attempts++;
@@ -240,9 +248,21 @@ class SmartBetsEngine {
             const key = ticket.join(',');
             if (usedCombinations.has(key)) continue;
 
+            // ── ANTI-CONCENTRAÇÃO: rejeitar jogos com números super-usados ──
+            if (isLargeRange && games.length > 3) {
+                const maxAllowed = Math.max(2, Math.ceil(games.length * maxConcentration));
+                let tooConcentrated = false;
+                for (const num of ticket) {
+                    if ((allUsedNumbers[num] || 0) >= maxAllowed) {
+                        tooConcentrated = true;
+                        break;
+                    }
+                }
+                if (tooConcentrated && attempts < maxAttempts * 0.85) continue;
+            }
+
             // ── VALIDAÇÃO FINAL ──
             if (isVeryLargeGame) {
-                // Para Lotomania (50 números): aceitar diretamente — qualidade é via pesos
                 games.push(ticket);
                 usedCombinations.add(key);
                 ticket.forEach(n => allUsedNumbers[n] = (allUsedNumbers[n] || 0) + 1);
@@ -666,25 +686,39 @@ class SmartBetsEngine {
 
             // ── NOVO: Borda/Centro boost (Lotofácil) ──
             if (analysis.bordaNumbers && analysis.bordaNumbers[n]) {
-                w += 0.10;  // Borda tem leve vantagem (60-80% nos sorteios)
+                w += 0.10;
             }
 
-            // ── NOVO: Hot/Cold numbers do perfil (dados reais) ──
-            if (profile.hotNumbers && profile.hotNumbers.includes(n)) {
-                w += 0.40;  // Números comprovadamente quentes (forte!)
+            // ── Hot/Cold numbers do perfil (com decaimento por uso) ──
+            if (profile.hotNumbers && profile.hotNumbers.length > 0 && profile.hotNumbers.includes(n)) {
+                const hotDecay = usedCounts[n] ? Math.max(0, 0.20 - usedCounts[n] * 0.04) : 0.20;
+                w += hotDecay;  // Decai de 0.20 até 0 conforme é reutilizado
             }
-            if (profile.coldNumbers && profile.coldNumbers.includes(n)) {
-                w -= 0.50;  // Números comprovadamente frios (punição forte!)
+            if (profile.coldNumbers && profile.coldNumbers.length > 0 && profile.coldNumbers.includes(n)) {
+                w -= 0.25;  // Penalidade reduzida (era 0.50)
             }
 
-            // ── Diversidade inter-jogos: penalizar números muito usados ──
+            // ── Diversidade inter-jogos: penalidade EXPONENCIAL ──
             if (usedCounts[n]) {
-                const divPenalty = (drawSize >= 15) ? 0.25 : 0.10; // LOTOFÁCIL: penalidade forte!
-                w -= usedCounts[n] * divPenalty;
+                const isLargeRange = (endNum - startNum + 1) >= 60;
+                const basePenalty = profile.diversityPenalty || (drawSize >= 15 ? 0.25 : (isLargeRange ? 0.35 : 0.10));
+                // Penalidade exponencial: cresce rapidamente com reutilização
+                const expPenalty = basePenalty * Math.pow(usedCounts[n], 1.4);
+                w -= expPenalty;
             }
 
-            // ── Ruído controlado (MAIOR para LF → forçar exploração) ──
-            const noise = (drawSize >= 15) ? 0.22 : 0.12;
+            // ── Boost para números NUNCA usados (forçar exploração) ──
+            if (!usedCounts[n] && Object.keys(usedCounts).length > 0) {
+                const isLargeRange = (endNum - startNum + 1) >= 60;
+                const totalGames = Object.values(usedCounts).reduce((a, b) => a + b, 0) / drawSize;
+                if (isLargeRange && totalGames > 3) {
+                    w += 0.30;  // Boost forte para números inexplorados
+                }
+            }
+
+            // ── Ruído controlado (MAIOR para range grande → forçar exploração) ──
+            const isLargeRangeNoise = (endNum - startNum + 1) >= 60;
+            const noise = (drawSize >= 15) ? 0.22 : (isLargeRangeNoise ? 0.25 : 0.12);
             w += (Math.random() - 0.5) * noise;
 
             weights[n] = Math.max(0.01, w);
