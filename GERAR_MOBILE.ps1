@@ -117,11 +117,11 @@ foreach ($jsInfo in $jsFiles) {
     }
 }
 
-# 6. NOVO: Injetar fix de compatibilidade iOS Safari
+# 6. NOVO: Injetar fix de compatibilidade iOS/Android
 Write-Host "[6/7] Injetando fix de compatibilidade iOS..." -ForegroundColor Yellow
 $iosFix = @"
 <script>
-/* iOS Safari Compatibility Fix — B2B Loterias V10 */
+/* Mobile Touch Fix — B2B Loterias V10 */
 (function() {
     'use strict';
     
@@ -133,23 +133,66 @@ $iosFix = @"
     fixVH();
     window.addEventListener('resize', fixVH);
     
-    // Fix 2: Smooth scroll para iOS
-    document.documentElement.style.setProperty('-webkit-overflow-scrolling', 'touch');
+    // Fix 2: Garantir meta viewport
+    if (!document.querySelector('meta[name="viewport"]')) {
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes';
+        document.head.appendChild(meta);
+    }
     
-    // Fix 3: Console polyfill (iOS antigo)
+    // Fix 3: FASTCLICK — Eliminar delay de 300ms no iOS
+    // Converte touch em click imediato para todos os elementos interativos
+    var touchStartX = 0, touchStartY = 0, touchMoved = false;
+    
+    document.addEventListener('touchstart', function(e) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchMoved = false;
+    }, { passive: true });
+    
+    document.addEventListener('touchmove', function(e) {
+        if (Math.abs(e.touches[0].clientX - touchStartX) > 10 || 
+            Math.abs(e.touches[0].clientY - touchStartY) > 10) {
+            touchMoved = true;
+        }
+    }, { passive: true });
+    
+    document.addEventListener('touchend', function(e) {
+        if (touchMoved) return; // Foi scroll, não click
+        
+        var target = e.target;
+        // Subir até encontrar um elemento clicável
+        while (target && target !== document.body) {
+            if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.tagName === 'SELECT' || target.tagName === 'INPUT' ||
+                target.classList.contains('nav-btn') || target.classList.contains('grid-num') || 
+                target.classList.contains('stat-toggle') || target.classList.contains('action-btn') ||
+                target.classList.contains('secondary-btn') || target.classList.contains('smart-ia-btn') ||
+                target.classList.contains('quantum-btn') || target.classList.contains('sm-btn') ||
+                target.classList.contains('sidebar-modern-btn') || target.classList.contains('share-menu-item') ||
+                target.classList.contains('copy-single-btn') || target.classList.contains('ball') ||
+                target.onclick || target.getAttribute('data-game') || target.getAttribute('data-range') ||
+                target.getAttribute('data-number')) {
+                // Disparar click imediatamente
+                e.preventDefault();
+                target.click();
+                return;
+            }
+            target = target.parentElement;
+        }
+    }, { passive: false });
+    
+    // Fix 4: CSS touch-action para elementos interativos
+    var style = document.createElement('style');
+    style.textContent = 'button,a,.nav-btn,.grid-num,.stat-toggle,.action-btn,.secondary-btn,.sm-btn,.ball,.sidebar-modern-btn,.quantum-btn,.smart-ia-btn,.copy-single-btn,.share-menu-item,select,input{touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,0);cursor:pointer;}nav{overflow-x:auto;-webkit-overflow-scrolling:touch;}';
+    document.head.appendChild(style);
+    
+    // Fix 5: Console polyfill
     if (typeof console === 'undefined') {
         window.console = { log: function(){}, warn: function(){}, error: function(){} };
     }
     
-    // Fix 4: Garantir que meta viewport exista
-    if (!document.querySelector('meta[name="viewport"]')) {
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-        document.head.appendChild(meta);
-    }
-    
-    console.log('[B2B Mobile] iOS/Android compatibility loaded');
+    console.log('[B2B Mobile] Touch fix + FastClick loaded');
 })();
 </script>
 "@
