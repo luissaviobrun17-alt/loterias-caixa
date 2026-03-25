@@ -6,11 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data: blob:; connect-src *; font-src * data:;">
     <title>B2B Loterias</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#10B981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="B2B Loterias">
+    <link rel="apple-touch-icon" href="img/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="B2B Loterias">
+    <meta name="description" content="Gerador inteligente de apostas para todas as loterias da Caixa com IA">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/main.css?v=9&t=20260203142158">
-    <link rel="stylesheet" href="styles/components.css?v=4&t=20260203142158">
-    <link rel="stylesheet" href="styles/lottery.css?v=4&t=20260203142158">
-    <link rel="stylesheet" href="styles/responsive.css?v=1">
+    <link rel="stylesheet" href="styles/main.css?v=10">
+    <link rel="stylesheet" href="styles/components.css?v=5">
+    <link rel="stylesheet" href="styles/lottery.css?v=5">
+    <link rel="stylesheet" href="styles/responsive.css?v=2">
+
+    <!-- Service Worker Registration -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('sw.js')
+                .then(function(reg) { console.log('[PWA] Service Worker registrado:', reg.scope); })
+                .catch(function(err) { console.log('[PWA] SW falhou (ok):', err); });
+        });
+    }
+    </script>
 </head>
 
 <body>
