@@ -125,15 +125,7 @@ $iosFix = @"
 (function() {
     'use strict';
     
-    // Fix 1: Desabilitar contextmenu no mobile (bloqueia touch no iOS)
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            return false;
-        }, { passive: false });
-    }
-    
-    // Fix 2: Fix para iOS Safari viewport height (100vh bug)
+    // Fix 1: iOS Safari viewport height (100vh bug)
     function fixVH() {
         var vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', vh + 'px');
@@ -141,24 +133,20 @@ $iosFix = @"
     fixVH();
     window.addEventListener('resize', fixVH);
     
-    // Fix 3: Fix para iOS Safari smooth scroll
-    if (CSS && CSS.supports && !CSS.supports('overflow', 'overlay')) {
-        document.documentElement.style.setProperty('-webkit-overflow-scrolling', 'touch');
-    }
+    // Fix 2: Smooth scroll para iOS
+    document.documentElement.style.setProperty('-webkit-overflow-scrolling', 'touch');
     
-    // Fix 4: Desabilitar zoom duplo toque no iOS
-    var lastTouchEnd = 0;
-    document.addEventListener('touchend', function(e) {
-        var now = Date.now();
-        if (now - lastTouchEnd <= 300) {
-            e.preventDefault();
-        }
-        lastTouchEnd = now;
-    }, { passive: false });
-    
-    // Fix 5: Console polyfill (alguns iOS antigos)
+    // Fix 3: Console polyfill (iOS antigo)
     if (typeof console === 'undefined') {
         window.console = { log: function(){}, warn: function(){}, error: function(){} };
+    }
+    
+    // Fix 4: Garantir que meta viewport exista
+    if (!document.querySelector('meta[name="viewport"]')) {
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+        document.head.appendChild(meta);
     }
     
     console.log('[B2B Mobile] iOS/Android compatibility loaded');
