@@ -607,11 +607,11 @@ class UI {
             // ── ADICIONAR TOGGLE MODO PRECISÃO (só Lotofácil) ──
             const precisionContainer = document.createElement('div');
             precisionContainer.id = 'precision-mode-container';
-            precisionContainer.style.cssText = 'display:none; flex-direction: column; gap:10px; margin-top:12px; width: 100%;';
+            precisionContainer.style.cssText = 'display:none; margin-top:10px; width: 100%;';
             precisionContainer.innerHTML = `
-                <label id="precision-mode-label" class="sm-btn" style="cursor:pointer; height: 44px; width: 100%; justify-content: center; font-size: 0.85rem; border-width: 1.5px; font-weight: 800;">
-                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:16px;height:16px;cursor:pointer;margin:0 12px 0 0;">
-                    🎯 Modo Precisão (14/15 acertos)
+                <label id="precision-mode-label" class="action-btn" style="cursor:pointer; background: linear-gradient(135deg, #B8860B, #D4A017); box-shadow: 0 4px 15px rgba(184, 134, 11, 0.3); font-size: 0.85rem;">
+                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:16px;height:16px;cursor:pointer;margin:0 8px 0 0;">
+                    🎯 Modo Precisão
                 </label>
             `;
             this.generateSmartBtn.parentNode.insertBefore(precisionContainer, this.generateSmartBtn.nextSibling);
@@ -620,8 +620,15 @@ class UI {
             const toggle = precisionContainer.querySelector('#precision-mode-toggle');
             const label = precisionContainer.querySelector('#precision-mode-label');
             toggle.onchange = () => {
-                if (toggle.checked) label.classList.add('active');
-                else label.classList.remove('active');
+                if (toggle.checked) {
+                    label.style.background = 'linear-gradient(135deg, #FFD700, #F59E0B)';
+                    label.style.color = '#000';
+                    label.style.boxShadow = '0 6px 25px rgba(255, 215, 0, 0.5)';
+                } else {
+                    label.style.background = 'linear-gradient(135deg, #B8860B, #D4A017)';
+                    label.style.color = '#fff';
+                    label.style.boxShadow = '0 4px 15px rgba(184, 134, 11, 0.3)';
+                }
             };
         }
 
