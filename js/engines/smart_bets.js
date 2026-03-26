@@ -1399,4 +1399,276 @@ class SmartBetsEngine {
         for (let i = startNum; i <= endNum; i++) pool.push(i);
         return pool;
     }
+
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║  MODO PRECISÃO — Maximizar 14-15 acertos (Lotofácil)       ║
+    // ║  Estratégia: Pool reduzido de ~17 números + variações      ║
+    // ╚══════════════════════════════════════════════════════════════╝
+    static generatePrecisionMode(gameKey, numGames) {
+        const profile = this.getProfile(gameKey);
+        const game = GAMES[gameKey];
+        if (!game) return { games: [], analysis: null };
+
+        const startNum = profile.range[0];
+        const endNum = profile.range[1];
+        const drawSize = game.minBet || profile.draw;
+        const totalRange = endNum - startNum + 1;
+
+        // Carregar histórico
+        let history = [];
+        try {
+            history = StatsService.getRecentResults(gameKey, 100) || [];
+        } catch (e) {
+            console.warn('[Precisão] Sem histórico');
+        }
+
+        console.log(`[Precisão] 🎯 MODO PRECISÃO ativado para ${profile.name}`);
+        console.log(`[Precisão] 📊 Histórico: ${history.length} sorteios`);
+
+        // ═══════════════════════════════════════════
+        // PASSO 1: CALCULAR SCORE DE CADA NÚMERO
+        // Combinar 6 análises para ranking de probabilidade
+        // ═══════════════════════════════════════════
+        const scores = {};
+        for (let n = startNum; n <= endNum; n++) scores[n] = 0;
+
+        // 1A. Frequência multi-janela (3, 5, 10, 15 sorteios)
+        const windows = [3, 5, 10, 15];
+        const windowWeights = [2.0, 1.5, 1.0, 0.5];
+        for (let n = startNum; n <= endNum; n++) {
+            for (let w = 0; w < windows.length; w++) {
+                const winSize = Math.min(windows[w], history.length);
+                let hits = 0;
+                for (let i = 0; i < winSize; i++) {
+                    if (history[i].numbers.includes(n)) hits++;
+                }
+                scores[n] += (hits / Math.max(1, winSize)) * windowWeights[w];
+            }
+        }
+
+        // 1B. Repetição entre sorteios consecutivos (números que "grudam")
+        const stickyLimit = Math.min(10, history.length - 1);
+        for (let i = 0; i < stickyLimit; i++) {
+            const curr = new Set(history[i].numbers);
+            const next = history[i + 1] ? new Set(history[i + 1].numbers) : new Set();
+            for (let n = startNum; n <= endNum; n++) {
+                if (curr.has(n) && next.has(n)) scores[n] += 0.3 * (1 - i * 0.08);
+            }
+        }
+
+        // 1C. Markov (transições do último sorteio → próximo)
+        if (history.length > 1) {
+            const lastDraw = history[0].numbers;
+            const markovBoost = {};
+            const markovLimit = Math.min(history.length - 1, 20);
+            for (let i = 0; i < markovLimit; i++) {
+                const older = history[i + 1].numbers;
+                const newer = history[i].numbers;
+                for (const from of older) {
+                    for (const to of newer) {
+                        if (!markovBoost[to]) markovBoost[to] = 0;
+                        markovBoost[to] += lastDraw.includes(from) ? 0.05 : 0;
+                    }
+                }
+            }
+            for (let n = startNum; n <= endNum; n++) {
+                scores[n] += Math.min(0.8, markovBoost[n] || 0);
+            }
+        }
+
+        // 1D. Pares frequentes (números que saem juntos)
+        const pairBoost = {};
+        const pairLimit = Math.min(20, history.length);
+        for (let d = 0; d < pairLimit; d++) {
+            const nums = history[d].numbers;
+            for (let i = 0; i < nums.length; i++) {
+                for (let j = i + 1; j < nums.length; j++) {
+                    if (!pairBoost[nums[i]]) pairBoost[nums[i]] = 0;
+                    if (!pairBoost[nums[j]]) pairBoost[nums[j]] = 0;
+                    pairBoost[nums[i]] += 0.02;
+                    pairBoost[nums[j]] += 0.02;
+                }
+            }
+        }
+        for (let n = startNum; n <= endNum; n++) {
+            scores[n] += Math.min(0.5, pairBoost[n] || 0);
+        }
+
+        // 1E. Ciclo (número "devendo" = atraso longo)
+        for (let n = startNum; n <= endNum; n++) {
+            let lastSeen = -1;
+            for (let i = 0; i < history.length; i++) {
+                if (history[i].numbers.includes(n)) { lastSeen = i; break; }
+            }
+            if (lastSeen > 3) scores[n] += 0.2; // Número "devendo"
+        }
+
+        // ═══════════════════════════════════════════
+        // PASSO 2: SELECIONAR POOL DE PRECISÃO
+        // Top ~17 números (para Lotofácil 15/25)
+        // ═══════════════════════════════════════════
+        const ranked = Object.entries(scores)
+            .map(([n, s]) => ({ num: parseInt(n), score: s }))
+            .sort((a, b) => b.score - a.score);
+
+        // Pool size: drawSize + 2 a drawSize + 4 (para Lotofácil: 17-19)
+        const poolSize = Math.min(totalRange, drawSize + Math.max(2, Math.ceil(drawSize * 0.15)));
+        const precisionPool = ranked.slice(0, poolSize).map(r => r.num).sort((a, b) => a - b);
+
+        console.log(`[Precisão] 🎯 Pool de Precisão: [${precisionPool.join(', ')}] (${precisionPool.length} números)`);
+        console.log(`[Precisão] 📊 Scores: ${ranked.slice(0, poolSize).map(r => `${r.num}(${r.score.toFixed(2)})`).join(', ')}`);
+
+        // ═══════════════════════════════════════════
+        // PASSO 3: GERAR JOGOS SISTEMÁTICOS
+        // Todas as C(poolSize, drawSize) combinações,
+        // filtradas e ranqueadas por qualidade
+        // ═══════════════════════════════════════════
+        const allCombinations = [];
+        const analysis = this._deepAnalysis(gameKey, precisionPool, history, profile, startNum, endNum);
+
+        // Gerar TODAS as combinações possíveis do pool de precisão
+        const generateCombinations = (arr, size, start, current) => {
+            if (current.length === size) {
+                allCombinations.push([...current]);
+                return;
+            }
+            // Limitar a 5000 combinações para performance
+            if (allCombinations.length >= 5000) return;
+            for (let i = start; i < arr.length; i++) {
+                current.push(arr[i]);
+                generateCombinations(arr, size, i + 1, current);
+                current.pop();
+            }
+        };
+        generateCombinations(precisionPool, drawSize, 0, []);
+
+        console.log(`[Precisão] 📊 Combinações possíveis: ${allCombinations.length}`);
+
+        // ═══════════════════════════════════════════
+        // PASSO 4: PONTUAR E FILTRAR COMBINAÇÕES
+        // ═══════════════════════════════════════════
+        const scoredCombinations = [];
+        for (const combo of allCombinations) {
+            // Validar regras básicas
+            if (!this._validateGame(combo, profile, analysis)) continue;
+
+            // Pontuar qualidade
+            let comboScore = this._scoreGame(combo, profile, analysis, history);
+
+            // Bonus: quantos dos top-10 números estão presentes
+            let topCount = 0;
+            const top10 = new Set(ranked.slice(0, 10).map(r => r.num));
+            for (const n of combo) {
+                if (top10.has(n)) topCount++;
+            }
+            comboScore += topCount * 0.5;
+
+            // Bonus: score total dos números no combo
+            let totalNumScore = 0;
+            for (const n of combo) totalNumScore += scores[n] || 0;
+            comboScore += totalNumScore * 0.3;
+
+            scoredCombinations.push({ combo, score: comboScore });
+        }
+
+        // Ordenar por score (melhor primeiro)
+        scoredCombinations.sort((a, b) => b.score - a.score);
+
+        console.log(`[Precisão] ✅ Combinações válidas: ${scoredCombinations.length}`);
+
+        // ═══════════════════════════════════════════
+        // PASSO 5: SELECIONAR OS MELHORES JOGOS
+        // Com controle de diversidade mínima
+        // ═══════════════════════════════════════════
+        const games = [];
+        const maxOverlap = drawSize - 2; // Max N-2 overlap entre jogos
+
+        for (const sc of scoredCombinations) {
+            if (games.length >= numGames) break;
+
+            // Verificar overlap com jogos já selecionados
+            let tooSimilar = false;
+            for (const existing of games) {
+                let overlap = 0;
+                const existSet = new Set(existing);
+                for (const n of sc.combo) {
+                    if (existSet.has(n)) overlap++;
+                }
+                if (overlap > maxOverlap) {
+                    tooSimilar = true;
+                    break;
+                }
+            }
+            if (tooSimilar) continue;
+
+            games.push(sc.combo);
+        }
+
+        // Se não temos jogos suficientes, relaxar o overlap
+        if (games.length < numGames) {
+            for (const sc of scoredCombinations) {
+                if (games.length >= numGames) break;
+                const key = sc.combo.join(',');
+                if (games.some(g => g.join(',') === key)) continue;
+                games.push(sc.combo);
+            }
+        }
+
+        // ═══════════════════════════════════════════
+        // PASSO 6: ANÁLISE DE CONFIANÇA
+        // ═══════════════════════════════════════════
+        // Backtesting: quantos dos últimos sorteios teriam sido cobertos
+        let bt14plus = 0, bt13plus = 0, bt12plus = 0;
+        const btCount = Math.min(10, history.length);
+        for (let t = 0; t < btCount; t++) {
+            const drawn = new Set(history[t].numbers);
+            let bestHits = 0;
+            for (const g of games) {
+                let hits = 0;
+                for (const n of g) { if (drawn.has(n)) hits++; }
+                if (hits > bestHits) bestHits = hits;
+            }
+            if (bestHits >= 14) bt14plus++;
+            if (bestHits >= 13) bt13plus++;
+            if (bestHits >= 12) bt12plus++;
+        }
+
+        // Verificar se o pool contém os números sorteados
+        let poolHits = 0;
+        for (let t = 0; t < btCount; t++) {
+            let poolMatch = 0;
+            for (const n of history[t].numbers) {
+                if (precisionPool.includes(n)) poolMatch++;
+            }
+            poolHits += poolMatch;
+        }
+        const avgPoolMatch = poolHits / btCount;
+
+        const setAnalysis = {
+            confidence: Math.min(95, Math.round(
+                (bt14plus / btCount) * 30 +
+                (bt13plus / btCount) * 25 +
+                (bt12plus / btCount) * 15 +
+                (avgPoolMatch / drawSize) * 25 + 5
+            )),
+            coverage: Math.round(precisionPool.length / totalRange * 100),
+            diversity: Math.round((1 - (maxOverlap / drawSize)) * 100),
+            poolSize: precisionPool.length,
+            precisionPool: precisionPool,
+            backtestHits: { '14+': bt14plus, '13+': bt13plus, '12+': bt12plus },
+            avgPoolMatch: avgPoolMatch.toFixed(1),
+            totalGames: games.length,
+            mode: 'PRECISÃO'
+        };
+
+        console.log(`[Precisão] 🎯 Pool cobre média de ${avgPoolMatch.toFixed(1)}/${drawSize} números por sorteio`);
+        console.log(`[Precisão] 📊 Backtesting: 14+=${bt14plus}/${btCount}, 13+=${bt13plus}/${btCount}, 12+=${bt12plus}/${btCount}`);
+        console.log(`[Precisão] ✅ ${games.length} jogos gerados | Confiança: ${setAnalysis.confidence}%`);
+
+        return {
+            pool: precisionPool,
+            games: games,
+            analysis: setAnalysis
+        };
+    }
 }

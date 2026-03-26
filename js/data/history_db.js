@@ -1,6 +1,6 @@
 // ==================================================================
 // BASE DE DADOS REAL - Resultados Oficiais das Loterias da Caixa
-// Atualizado em: 20/03/2026
+// Atualizado em: 26/03/2026
 // Fonte: API Loterias Caixa (loteriascaixa-api.herokuapp.com)
 // DADOS 100% REAIS — VERIFICADOS VIA API OFICIAL
 // ==================================================================
@@ -44,6 +44,11 @@ const REAL_HISTORY_DB = {
         { drawNumber: 2952, numbers: [1, 20, 45, 48, 51, 58] }
     ],
     lotofacil: [
+        { drawNumber: 3645, numbers: [1, 3, 6, 7, 8, 9, 10, 12, 13, 15, 17, 18, 19, 21, 25] },
+        { drawNumber: 3644, numbers: [1, 4, 5, 9, 10, 11, 13, 14, 19, 20, 21, 22, 23, 24, 25] },
+        { drawNumber: 3643, numbers: [3, 4, 5, 6, 8, 9, 10, 13, 17, 19, 20, 22, 23, 24, 25] },
+        { drawNumber: 3642, numbers: [1, 2, 4, 5, 6, 7, 9, 10, 12, 13, 14, 18, 20, 23, 25] },
+        { drawNumber: 3641, numbers: [1, 2, 3, 5, 6, 9, 10, 13, 14, 16, 19, 20, 21, 22, 25] },
         { drawNumber: 3640, numbers: [1, 4, 6, 7, 9, 10, 11, 13, 14, 15, 16, 18, 19, 22, 24] },
         { drawNumber: 3639, numbers: [1, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 15, 18, 23, 25] },
         { drawNumber: 3638, numbers: [2, 3, 6, 7, 8, 10, 11, 13, 15, 18, 19, 20, 22, 24, 25] },
