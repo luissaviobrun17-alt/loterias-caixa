@@ -609,9 +609,9 @@ class UI {
             precisionContainer.id = 'precision-mode-container';
             precisionContainer.style.cssText = 'display:none; flex-direction: column; gap:10px; margin-top:12px; width: 100%;';
             precisionContainer.innerHTML = `
-                <label id="precision-mode-label" class="sm-btn" style="cursor:pointer; height: 46px; width: 100%; justify-content: center; font-size: 0.9rem; border-width: 1.5px;">
-                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:18px;height:18px;cursor:pointer;margin:0 10px 0 0;">
-                    🎯 MODO PRECISÃO (14/15 ACERTOS)
+                <label id="precision-mode-label" class="sm-btn" style="cursor:pointer; height: 42px; width: 100%; justify-content: center; font-size: 0.8rem; border-width: 1.5px; text-transform: uppercase; letter-spacing: 0.8px;">
+                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:15px;height:15px;cursor:pointer;margin:0 10px 0 0;">
+                    🎯 Modo Precisão (14/15)
                 </label>
             `;
             this.generateSmartBtn.parentNode.insertBefore(precisionContainer, this.generateSmartBtn.nextSibling);
