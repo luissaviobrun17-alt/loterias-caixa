@@ -607,15 +607,22 @@ class UI {
             // ── ADICIONAR TOGGLE MODO PRECISÃO (só Lotofácil) ──
             const precisionContainer = document.createElement('div');
             precisionContainer.id = 'precision-mode-container';
-            precisionContainer.style.cssText = 'display:none;align-items:center;gap:8px;margin-top:6px;';
+            precisionContainer.style.cssText = 'display:none;align-items:center;gap:10px;margin-top:10px;';
             precisionContainer.innerHTML = `
-                <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;color:#F59E0B;font-weight:700;padding:5px 14px;border-radius:8px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.25);white-space:nowrap;backdrop-filter:blur(4px);letter-spacing:0.3px;">
-                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#F59E0B;width:14px;height:14px;cursor:pointer;margin:0;">
-                    🎯 Modo Precisão
+                <label id="precision-mode-label" class="sm-btn" style="cursor:pointer; height: 32px; padding: 0 16px;">
+                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:15px;height:15px;cursor:pointer;margin:0 8px 0 0;">
+                    🎯 MODO PRECISÃO (14/15)
                 </label>
-                <span style="color:#94A3B8;font-size:0.7rem;">14-15 acertos</span>
             `;
             this.generateSmartBtn.parentNode.insertBefore(precisionContainer, this.generateSmartBtn.nextSibling);
+
+            // Lógica para toggle visual (classe active)
+            const toggle = precisionContainer.querySelector('#precision-mode-toggle');
+            const label = precisionContainer.querySelector('#precision-mode-label');
+            toggle.onchange = () => {
+                if (toggle.checked) label.classList.add('active');
+                else label.classList.remove('active');
+            };
         }
 
         this.copyBtn.onclick = () => this.copyGames();
