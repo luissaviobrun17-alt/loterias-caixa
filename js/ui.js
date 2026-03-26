@@ -607,10 +607,10 @@ class UI {
             // ── ADICIONAR TOGGLE MODO PRECISÃO (só Lotofácil) ──
             const precisionContainer = document.createElement('div');
             precisionContainer.id = 'precision-mode-container';
-            precisionContainer.style.cssText = 'display:none; margin-top:10px; width: 100%;';
+            precisionContainer.style.cssText = 'display:none; margin-top:8px; width: 100%;';
             precisionContainer.innerHTML = `
-                <label id="precision-mode-label" class="action-btn" style="cursor:pointer; background: linear-gradient(135deg, #B8860B, #D4A017); box-shadow: 0 4px 15px rgba(184, 134, 11, 0.3); font-size: 0.85rem;">
-                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:16px;height:16px;cursor:pointer;margin:0 8px 0 0;">
+                <label id="precision-mode-label" class="action-btn" style="cursor:pointer; background: linear-gradient(135deg, #B8860B, #D4A017); box-shadow: 0 4px 15px rgba(184, 134, 11, 0.3);">
+                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:16px;height:16px;cursor:pointer;">
                     🎯 Modo Precisão
                 </label>
             `;
