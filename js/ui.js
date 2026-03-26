@@ -607,13 +607,13 @@ class UI {
             // ── ADICIONAR TOGGLE MODO PRECISÃO (só Lotofácil) ──
             const precisionContainer = document.createElement('div');
             precisionContainer.id = 'precision-mode-container';
-            precisionContainer.style.cssText = 'display:none;align-items:center;gap:6px;margin-top:6px;';
+            precisionContainer.style.cssText = 'display:none;align-items:center;gap:8px;margin-top:6px;';
             precisionContainer.innerHTML = `
-                <label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:0.78rem;color:#F59E0B;font-weight:600;padding:4px 10px;border-radius:6px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);white-space:nowrap;">
-                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#F59E0B;width:13px;height:13px;cursor:pointer;margin:0;">
-                    🎯 Precisão
+                <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;color:#F59E0B;font-weight:700;padding:5px 14px;border-radius:8px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.25);white-space:nowrap;backdrop-filter:blur(4px);letter-spacing:0.3px;">
+                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#F59E0B;width:14px;height:14px;cursor:pointer;margin:0;">
+                    🎯 Modo Precisão
                 </label>
-                <span style="color:#64748B;font-size:0.65rem;">14-15 acertos</span>
+                <span style="color:#94A3B8;font-size:0.7rem;">14-15 acertos</span>
             `;
             this.generateSmartBtn.parentNode.insertBefore(precisionContainer, this.generateSmartBtn.nextSibling);
         }
