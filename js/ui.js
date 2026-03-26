@@ -607,13 +607,13 @@ class UI {
             // ── ADICIONAR TOGGLE MODO PRECISÃO (só Lotofácil) ──
             const precisionContainer = document.createElement('div');
             precisionContainer.id = 'precision-mode-container';
-            precisionContainer.style.cssText = 'display:none;align-items:center;gap:8px;margin-top:8px;padding:8px 12px;border-radius:8px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);';
+            precisionContainer.style.cssText = 'display:none;align-items:center;gap:6px;margin-top:6px;';
             precisionContainer.innerHTML = `
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.82rem;color:#F59E0B;font-weight:600;white-space:nowrap;">
-                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#F59E0B;width:16px;height:16px;cursor:pointer;">
-                    🎯 Modo Precisão
+                <label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:0.78rem;color:#F59E0B;font-weight:600;padding:4px 10px;border-radius:6px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);white-space:nowrap;">
+                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#F59E0B;width:13px;height:13px;cursor:pointer;margin:0;">
+                    🎯 Precisão
                 </label>
-                <span style="color:#94A3B8;font-size:0.7rem;">Pool de 20-22 números — maximiza 14-15 acertos</span>
+                <span style="color:#64748B;font-size:0.65rem;">14-15 acertos</span>
             `;
             this.generateSmartBtn.parentNode.insertBefore(precisionContainer, this.generateSmartBtn.nextSibling);
         }
