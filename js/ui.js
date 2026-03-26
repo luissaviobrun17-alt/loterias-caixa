@@ -604,9 +604,10 @@ class UI {
         if (this.generateSmartBtn) {
             this.generateSmartBtn.onclick = () => this.runSmartGeneration();
 
-            // ── ADICIONAR TOGGLE MODO PRECISÃO ──
+            // ── ADICIONAR TOGGLE MODO PRECISÃO (só Lotofácil) ──
             const precisionContainer = document.createElement('div');
-            precisionContainer.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 12px;border-radius:8px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);';
+            precisionContainer.id = 'precision-mode-container';
+            precisionContainer.style.cssText = 'display:none;align-items:center;gap:8px;margin-top:8px;padding:8px 12px;border-radius:8px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);';
             precisionContainer.innerHTML = `
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.82rem;color:#F59E0B;font-weight:600;white-space:nowrap;">
                     <input type="checkbox" id="precision-mode-toggle" style="accent-color:#F59E0B;width:16px;height:16px;cursor:pointer;">
@@ -848,6 +849,12 @@ class UI {
         this.btnFixedMode.classList.remove('active');
         this.btnFixedMode.textContent = '📌 Fixar';
         this.fixedInfoPanel.style.display = 'none';
+
+        // Mostrar toggle Modo Precisão APENAS para Lotofácil
+        const precisionContainer = document.getElementById('precision-mode-container');
+        if (precisionContainer) {
+            precisionContainer.style.display = gameKey === 'lotofacil' ? 'flex' : 'none';
+        }
 
         if (this.quantumCountInput) {
             // Sugestão IA: padrão = 50% dos números da loteria, mas mínimo é minBet
