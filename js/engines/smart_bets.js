@@ -58,19 +58,19 @@ class SmartBetsEngine {
                 name: 'Lotofácil',
                 draw: 15, range: [1, 25],
                 maxConsecutive: 7,
-                evenOddIdeal: [5, 10], evenOddTolerance: 2,
+                evenOddIdeal: [7, 8], evenOddTolerance: 2,  // CORRIGIDO: 12par/13ímpar de 25
                 faixaSize: 5, faixaMin: 1, faixaMax: 4,
-                sumMin: 170, sumMax: 225,
+                sumMin: 170, sumMax: 220,
                 gapMin: 1, gapMax: 3,
-                repeatFromLast: [5, 9],
+                repeatFromLast: [7, 11],  // CORRIGIDO: overlap esperado ~9 entre sorteios
                 primeRatio: [0.25, 0.45],
                 primeCount: [4, 6],
                 maxSameEnding: 4,
-                fibWeight: 0.2,
-                markovWeight: 0.50,
-                trendWeight: 0.45,
-                pairBoost: 0.40,
-                trioBoost: 0.35,
+                fibWeight: 0.15,
+                markovWeight: 0.30,       // REDUZIDO: Markov não deve dominar
+                trendWeight: 0.25,        // REDUZIDO: mais diversidade
+                pairBoost: 0.20,          // REDUZIDO: seeds não dominam
+                trioBoost: 0.15,          // REDUZIDO
                 gridRows: 5, gridCols: 5,
                 gridMinPerRow: 1, gridMaxPerRow: 4,
                 bordaIdeal: [9, 12],
@@ -81,9 +81,11 @@ class SmartBetsEngine {
                 multiWindow: true,
                 hotNumbers: [],
                 coldNumbers: [],
-                diversityPenalty: 0.20,
-                maxConcentration: 0.50,
-                forceNewEvery: 5
+                diversityPenalty: 0.45,    // AUMENTADO: penalizar super-uso
+                maxConcentration: 0.35,    // REDUZIDO: max 35% concentração
+                forceNewEvery: 3,          // A cada 3 jogos forçar diversidade
+                maxOverlapBetweenGames: 11, // NOVO: max 11/15 overlap
+                maxSeedRatio: 0.30         // NOVO: max 30% de seeds
             },
             quina: {
                 name: 'Quina',
@@ -269,17 +271,38 @@ class SmartBetsEngine {
             const key = ticket.join(',');
             if (usedCombinations.has(key)) continue;
 
-            // ── ANTI-CONCENTRAÇÃO: rejeitar jogos com números super-usados ──
-            if (isLargeRange && games.length > 3) {
-                const maxAllowed = Math.max(2, Math.ceil(games.length * maxConcentration));
-                let tooConcentrated = false;
+            // ── ANTI-CONCENTRAÇÃO UNIVERSAL: para TODOS os ranges ──
+            if (games.length > 2) {
+                const isSmallRange = totalRange <= 30;
+                const concLimit = isSmallRange
+                    ? Math.max(4, Math.ceil(games.length * 0.65))
+                    : Math.max(2, Math.ceil(games.length * maxConcentration));
+                let overUsedCount = 0;
                 for (const num of ticket) {
-                    if ((allUsedNumbers[num] || 0) >= maxAllowed) {
-                        tooConcentrated = true;
+                    if ((allUsedNumbers[num] || 0) >= concLimit) {
+                        overUsedCount++;
+                    }
+                }
+                const overUsedThreshold = isSmallRange ? Math.ceil(drawSize * 0.30) : 1;
+                if (overUsedCount >= overUsedThreshold && attempts < maxAttempts * 0.90) continue;
+            }
+
+            // ── ANTI-OVERLAP: rejeitar jogos muito similares a existentes ──
+            if (games.length > 0) {
+                const maxOverlap = profile.maxOverlapBetweenGames || Math.ceil(drawSize * 0.80);
+                let tooSimilar = false;
+                for (let g = 0; g < games.length; g++) {
+                    let overlap = 0;
+                    const existingSet = new Set(games[g]);
+                    for (const num of ticket) {
+                        if (existingSet.has(num)) overlap++;
+                    }
+                    if (overlap > maxOverlap) {
+                        tooSimilar = true;
                         break;
                     }
                 }
-                if (tooConcentrated && attempts < maxAttempts * 0.85) continue;
+                if (tooSimilar && attempts < maxAttempts * 0.92) continue;
             }
 
             // ── VALIDAÇÃO FINAL ──
@@ -289,8 +312,8 @@ class SmartBetsEngine {
                 ticket.forEach(n => allUsedNumbers[n] = (allUsedNumbers[n] || 0) + 1);
             } else {
                 const score = this._scoreGame(ticket, profile, analysis, history);
-                const minScore = isLargeGame ? 3.0 : 5.0;
-                if (score >= minScore || attempts > maxAttempts * 0.7) {
+                const minScore = isLargeGame ? 4.0 : 5.0;
+                if (score >= minScore || attempts > maxAttempts * 0.80) {
                     games.push(ticket);
                     usedCombinations.add(key);
                     ticket.forEach(n => allUsedNumbers[n] = (allUsedNumbers[n] || 0) + 1);
@@ -719,21 +742,32 @@ class SmartBetsEngine {
                 w -= 0.25;  // Penalidade reduzida (era 0.50)
             }
 
-            // ── Diversidade inter-jogos: penalidade EXPONENCIAL ──
+            // ── Diversidade inter-jogos: EQUALIZAÇÃO INTELIGENTE ──
             if (usedCounts[n]) {
-                const isLargeRange = (endNum - startNum + 1) >= 60;
-                const basePenalty = profile.diversityPenalty || (drawSize >= 15 ? 0.25 : (isLargeRange ? 0.35 : 0.10));
-                // Penalidade exponencial: cresce rapidamente com reutilização
-                const expPenalty = basePenalty * Math.pow(usedCounts[n], 1.4);
-                w -= expPenalty;
+                const isSmallRange = totalRange <= 30;
+                if (isSmallRange && Object.keys(usedCounts).length > 5) {
+                    // EQUALIZAÇÃO: cada número deve ter ~mesma frequência
+                    const totalUsed = Object.values(usedCounts).reduce((a, b) => a + b, 0);
+                    const avgUse = totalUsed / totalRange;
+                    const excess = (usedCounts[n] || 0) - avgUse;
+                    if (excess > 1) {
+                        w -= 0.20 * Math.pow(excess, 1.2);
+                    } else if (excess < -1) {
+                        w += 0.30 * Math.abs(excess);
+                    }
+                } else {
+                    // Ranges grandes: penalidade exponencial
+                    const basePenalty = profile.diversityPenalty || 0.35;
+                    const expPenalty = basePenalty * Math.pow(usedCounts[n], 1.4);
+                    w -= expPenalty;
+                }
             }
 
-            // ── Boost para números NUNCA usados (forçar exploração) ──
+            // ── Boost para números NUNCA usados (UNIVERSAL) ──
             if (!usedCounts[n] && Object.keys(usedCounts).length > 0) {
-                const isLargeRange = (endNum - startNum + 1) >= 60;
                 const totalGames = Object.values(usedCounts).reduce((a, b) => a + b, 0) / drawSize;
-                if (isLargeRange && totalGames > 3) {
-                    w += 0.30;  // Boost forte para números inexplorados
+                if (totalGames > 2) {
+                    w += 0.45;  // Boost FORTE para inexplorados — todos os ranges
                 }
             }
 
@@ -759,16 +793,20 @@ class SmartBetsEngine {
             }
         }
 
-        // ── 2b. Seed com MÚLTIPLAS duplas frequentes (2-3 pares) ──
+        // ── LIMITE DE SEEDS: evitar que seeds dominem o jogo ──
+        const maxSeedNums = Math.ceil(drawSize * (profile.maxSeedRatio || 0.40));
+
+        // ── 2b. Seed com duplas frequentes ──
         if (analysis.topPairs.length > 0) {
             const numPairsToSeed = Math.min(
-                Math.ceil(drawSize / 3),  // Mais duplas para melhor cobertura
-                Math.floor(analysis.topPairs.length / 2),
-                4
+                Math.ceil(drawSize / 5),  // REDUZIDO: seeds não dominam
+                Math.floor(analysis.topPairs.length / 3),
+                3
             );
             const usedPairIdx = new Set();
             for (let p = 0; p < numPairsToSeed; p++) {
-                if (Math.random() > profile.pairBoost * 1.5) continue;  // Mais agressivo
+                if (Math.random() > profile.pairBoost) continue;
+                if (ticket.length - fixedNumbers.length >= maxSeedNums) break;
                 let pairIdx;
                 let attempts = 0;
                 do {
@@ -794,7 +832,7 @@ class SmartBetsEngine {
         }
 
         // ── 2c. Seed com trio frequente ──
-        if (analysis.topTrios.length > 0 && Math.random() < profile.trioBoost * 1.5) {
+        if (analysis.topTrios.length > 0 && Math.random() < profile.trioBoost && ticket.length - fixedNumbers.length < maxSeedNums) {
             const trioIdx = Math.floor(Math.random() * Math.min(8, analysis.topTrios.length));
             const trio = analysis.topTrios[trioIdx];
             let canAdd = true;
@@ -810,7 +848,7 @@ class SmartBetsEngine {
         }
 
         // ── 2c-bis. Seed com QUADRA frequente (Lotofácil) ──
-        if (analysis.topQuads && analysis.topQuads.length > 0 && Math.random() < (profile.trioBoost || 0.4)) {
+        if (analysis.topQuads && analysis.topQuads.length > 0 && Math.random() < (profile.trioBoost || 0.4) * 0.5 && ticket.length - fixedNumbers.length < maxSeedNums) {
             const quadIdx = Math.floor(Math.random() * Math.min(5, analysis.topQuads.length));
             const quad = analysis.topQuads[quadIdx];
             let canAdd = true;
@@ -1057,7 +1095,7 @@ class SmartBetsEngine {
     // ║  PONTUAÇÃO DE QUALIDADE DE UM JOGO                  ║
     // ╚══════════════════════════════════════════════════════╝
     static _scoreGame(ticket, profile, analysis, history) {
-        let score = 8.0; // Base elevada para garantir 90%+
+        let score = 5.0; // Base calibrada — confiança REAL
         const n = ticket.length;
         const startNum = profile.range[0];
         const endNum = profile.range[1];
@@ -1279,7 +1317,7 @@ class SmartBetsEngine {
 
         // Backtesting leve (verificar contra últimos sorteios)
         let backtestScore = 0;
-        const testCount = Math.min(5, history.length);
+        const testCount = Math.min(10, history.length);
         if (testCount > 0) {
             for (let t = 0; t < testCount; t++) {
                 const drawn = history[t].numbers;
@@ -1305,20 +1343,15 @@ class SmartBetsEngine {
         const avgQuality = totalQuality / games.length;
 
         // Confiança final — calibrada para 90%+ com boa geração
-        const poolCoverageBonus = coverage > 50 ? 5 : coverage > 30 ? 3 : 0;
+        const poolCoverageBonus = coverage > 80 ? 5 : coverage > 50 ? 3 : 0;
         
-        // Bonus para jogos com muitos números (Lotomania = 50 nums → naturalmente mais acertos)
-        const game = GAMES[gameKey];
-        const drawSize = game ? game.minBet : profile.draw;
-        const largeGameBonus = drawSize >= 20 ? 25 : (drawSize >= 15 ? 8 : 0);
-        
-        const confidence = Math.min(95, Math.max(25, Math.round(
-            avgQuality * 2.5 +
-            diversityScore * 0.15 +
-            backtestScore * 0.2 +
+        // Confiança REAL — sem bonuses artificiais
+        const confidence = Math.min(95, Math.max(15, Math.round(
+            avgQuality * 1.8 +
+            diversityScore * 0.25 +
+            backtestScore * 0.30 +
             poolCoverageBonus +
-            largeGameBonus +
-            (history.length > 10 ? 12 : 5)
+            (history.length > 10 ? 8 : 3)
         )));
 
         // Duplas cobertas
