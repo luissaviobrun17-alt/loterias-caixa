@@ -1511,8 +1511,8 @@ class SmartBetsEngine {
             .map(([n, s]) => ({ num: parseInt(n), score: s }))
             .sort((a, b) => b.score - a.score);
 
-        // Pool size: drawSize + 2 a drawSize + 4 (para Lotofácil: 17-19)
-        const poolSize = Math.min(totalRange, drawSize + Math.max(2, Math.ceil(drawSize * 0.15)));
+        // Pool size: 20 a 22 números (AMPLIADO para maior cobertura)
+        const poolSize = Math.min(totalRange, Math.max(20, drawSize + Math.ceil(drawSize * 0.45)));
         const precisionPool = ranked.slice(0, poolSize).map(r => r.num).sort((a, b) => a - b);
 
         console.log(`[Precisão] 🎯 Pool de Precisão: [${precisionPool.join(', ')}] (${precisionPool.length} números)`);
@@ -1526,21 +1526,57 @@ class SmartBetsEngine {
         const allCombinations = [];
         const analysis = this._deepAnalysis(gameKey, precisionPool, history, profile, startNum, endNum);
 
-        // Gerar TODAS as combinações possíveis do pool de precisão
-        const generateCombinations = (arr, size, start, current) => {
-            if (current.length === size) {
-                allCombinations.push([...current]);
-                return;
+        // Para pools grandes (C(22,15)=170K), usar amostragem inteligente
+        const maxCombinations = 8000;
+        if (poolSize <= 18) {
+            // Pool pequeno: gerar TODAS as combinações
+            const generateCombinations = (arr, size, start, current) => {
+                if (current.length === size) {
+                    allCombinations.push([...current]);
+                    return;
+                }
+                if (allCombinations.length >= maxCombinations) return;
+                for (let i = start; i < arr.length; i++) {
+                    current.push(arr[i]);
+                    generateCombinations(arr, size, i + 1, current);
+                    current.pop();
+                }
+            };
+            generateCombinations(precisionPool, drawSize, 0, []);
+        } else {
+            // Pool grande: amostragem Monte Carlo ponderada por score
+            const poolScores = precisionPool.map(n => scores[n] || 0);
+            const totalPoolScore = poolScores.reduce((a, b) => a + b, 0);
+            const usedKeys = new Set();
+
+            for (let attempt = 0; attempt < maxCombinations * 5 && allCombinations.length < maxCombinations; attempt++) {
+                // Selecionar 15 números ponderados pelo score
+                const combo = [];
+                const available = [...precisionPool];
+                const availScores = [...poolScores];
+
+                while (combo.length < drawSize && available.length > 0) {
+                    let totalW = availScores.reduce((a, b) => a + b, 0);
+                    let rand = Math.random() * totalW;
+                    let cumul = 0;
+                    let chosen = 0;
+                    for (let i = 0; i < available.length; i++) {
+                        cumul += availScores[i];
+                        if (rand <= cumul) { chosen = i; break; }
+                    }
+                    combo.push(available[chosen]);
+                    available.splice(chosen, 1);
+                    availScores.splice(chosen, 1);
+                }
+
+                combo.sort((a, b) => a - b);
+                const key = combo.join(',');
+                if (!usedKeys.has(key)) {
+                    usedKeys.add(key);
+                    allCombinations.push(combo);
+                }
             }
-            // Limitar a 5000 combinações para performance
-            if (allCombinations.length >= 5000) return;
-            for (let i = start; i < arr.length; i++) {
-                current.push(arr[i]);
-                generateCombinations(arr, size, i + 1, current);
-                current.pop();
-            }
-        };
-        generateCombinations(precisionPool, drawSize, 0, []);
+        }
 
         console.log(`[Precisão] 📊 Combinações possíveis: ${allCombinations.length}`);
 

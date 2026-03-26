@@ -349,11 +349,15 @@ class UI {
     }
 
     // ╔══════════════════════════════════════════════════════════╗
-    // ║  GERAR JOGOS COM IA (SMART BETS)                        ║
+    // ║  GERAR JOGOS COM IA (SMART BETS + MODO PRECISÃO)        ║
     // ╚══════════════════════════════════════════════════════════╝
     runSmartGeneration() {
         const game = GAMES[this.currentGameKey];
         if (!game) return;
+
+        // Verificar se Modo Precisão está ativo
+        const precisionCheckbox = document.getElementById('precision-mode-toggle');
+        const isPrecisionMode = precisionCheckbox && precisionCheckbox.checked;
 
         const quantity = parseInt(this.gamesQuantityInput.value) || 10;
         let selectedArr = Array.from(this.selectedNumbers);
@@ -420,13 +424,23 @@ class UI {
 
                 setTimeout(() => {
                     try {
-                        const result = SmartBetsEngine.generate(
-                            this.currentGameKey,
-                            quantity,
-                            selectedArr.length >= customDrawSize ? selectedArr : [],
-                            fixedArr,
-                            customDrawSize
-                        );
+                        let result;
+                        if (isPrecisionMode && typeof SmartBetsEngine.generatePrecisionMode === 'function') {
+                            // ── MODO PRECISÃO: Pool reduzido + geração sistemática ──
+                            result = SmartBetsEngine.generatePrecisionMode(
+                                this.currentGameKey,
+                                quantity
+                            );
+                        } else {
+                            // ── MODO PADRÃO: Geração com diversidade ──
+                            result = SmartBetsEngine.generate(
+                                this.currentGameKey,
+                                quantity,
+                                selectedArr.length >= customDrawSize ? selectedArr : [],
+                                fixedArr,
+                                customDrawSize
+                            );
+                        }
 
                         if (!result || !result.games || result.games.length === 0) {
                             this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">❌ Não foi possível gerar jogos. Tente selecionar mais números.</div>';
@@ -443,12 +457,13 @@ class UI {
                             const confColor = analysis.confidence >= 70 ? '#22C55E' : analysis.confidence >= 50 ? '#EAB308' : '#EF4444';
                             const confEmoji = analysis.confidence >= 70 ? '🟢' : analysis.confidence >= 50 ? '🟡' : '🔴';
                             const confLabel = analysis.confidence >= 70 ? 'ALTA' : analysis.confidence >= 50 ? 'MODERADA' : 'BAIXA';
+                            const modeLabel = analysis.mode === 'PRECISÃO' ? '🎯 Modo Precisão' : '🧠 Smart Bets';
 
-                            const analysisHTML = `
+                            let analysisHTML = `
                                 <div class="smart-analysis-panel" style="margin-top:10px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(15,23,42,0.95),rgba(30,41,59,0.9));border:1px solid ${confColor}40;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
                                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
                                         <span style="color:${confColor};font-weight:800;font-size:0.9rem;">${confEmoji} Confiança IA: ${analysis.confidence}% (${confLabel})</span>
-                                        <span style="color:#8B5CF6;font-weight:700;font-size:0.78rem;">🧠 Smart Bets Engine</span>
+                                        <span style="color:${analysis.mode === 'PRECISÃO' ? '#F59E0B' : '#8B5CF6'};font-weight:700;font-size:0.78rem;">${modeLabel}</span>
                                     </div>
                                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;font-size:0.75rem;">
                                         <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
@@ -461,23 +476,39 @@ class UI {
                                         </div>
                                         <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
                                             <div style="color:#94A3B8;">Duplas Top</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.pairsCovered}</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.pairsCovered || '-'}</div>
                                         </div>
                                         <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
                                             <div style="color:#94A3B8;">Trios Top</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.triosCovered}</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.triosCovered || '-'}</div>
                                         </div>
                                         <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
                                             <div style="color:#94A3B8;">Backtest</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.backtestScore}%</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.backtestScore || '-'}%</div>
                                         </div>
                                         <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
                                             <div style="color:#94A3B8;">Nº Únicos</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.uniqueNumbers}</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.uniqueNumbers || '-'}</div>
                                         </div>
                                     </div>
                                 </div>
                             `;
+
+                            // ── PAINEL EXTRA MODO PRECISÃO ──
+                            if (analysis.mode === 'PRECISÃO' && analysis.precisionPool) {
+                                analysisHTML += `
+                                <div class="smart-analysis-panel" style="margin-top:6px;margin-bottom:10px;padding:10px 14px;border-radius:10px;background:linear-gradient(145deg,rgba(245,158,11,0.08),rgba(15,23,42,0.95));border:1px solid #F59E0B30;">
+                                    <div style="color:#F59E0B;font-weight:700;font-size:0.82rem;margin-bottom:6px;">🎯 Pool de Precisão: ${analysis.poolSize} números</div>
+                                    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">
+                                        ${analysis.precisionPool.map(n => '<span style="background:#F59E0B22;color:#F59E0B;padding:2px 7px;border-radius:12px;font-size:0.75rem;font-weight:700;">' + String(n).padStart(2,'0') + '</span>').join('')}
+                                    </div>
+                                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:0.72rem;">
+                                        <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:4px;text-align:center;"><span style="color:#94A3B8;">14+ hits</span><br><span style="color:#22C55E;font-weight:700;">${analysis.backtestHits['14+']}/10</span></div>
+                                        <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:4px;text-align:center;"><span style="color:#94A3B8;">13+ hits</span><br><span style="color:#EAB308;font-weight:700;">${analysis.backtestHits['13+']}/10</span></div>
+                                        <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:4px;text-align:center;"><span style="color:#94A3B8;">Pool Match</span><br><span style="color:#E2E8F0;font-weight:700;">${analysis.avgPoolMatch}/15</span></div>
+                                    </div>
+                                </div>`;
+                            }
 
                             const analysisDiv = document.createElement('div');
                             analysisDiv.innerHTML = analysisHTML;
@@ -572,6 +603,18 @@ class UI {
         // Generate (IA Smart Bets)
         if (this.generateSmartBtn) {
             this.generateSmartBtn.onclick = () => this.runSmartGeneration();
+
+            // ── ADICIONAR TOGGLE MODO PRECISÃO ──
+            const precisionContainer = document.createElement('div');
+            precisionContainer.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 12px;border-radius:8px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);';
+            precisionContainer.innerHTML = `
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.82rem;color:#F59E0B;font-weight:600;white-space:nowrap;">
+                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#F59E0B;width:16px;height:16px;cursor:pointer;">
+                    🎯 Modo Precisão
+                </label>
+                <span style="color:#94A3B8;font-size:0.7rem;">Pool de 20-22 números — maximiza 14-15 acertos</span>
+            `;
+            this.generateSmartBtn.parentNode.insertBefore(precisionContainer, this.generateSmartBtn.nextSibling);
         }
 
         this.copyBtn.onclick = () => this.copyGames();
