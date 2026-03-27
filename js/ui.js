@@ -609,7 +609,7 @@ class UI {
             precisionContainer.id = 'precision-mode-container';
             precisionContainer.style.cssText = 'display:none; margin-top:8px; width: 100%;';
             precisionContainer.innerHTML = `
-                <label id="precision-mode-label" class="action-btn" style="cursor:pointer; background: linear-gradient(135deg, #B8860B, #D4A017); box-shadow: 0 4px 15px rgba(184, 134, 11, 0.3);">
+                <label id="precision-mode-label" class="action-btn" style="cursor:pointer; background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);">
                     <input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:16px;height:16px;cursor:pointer;">
                     🎯 Modo Precisão
                 </label>
@@ -625,9 +625,9 @@ class UI {
                     label.style.color = '#000';
                     label.style.boxShadow = '0 6px 25px rgba(255, 215, 0, 0.5)';
                 } else {
-                    label.style.background = 'linear-gradient(135deg, #B8860B, #D4A017)';
+                    label.style.background = 'linear-gradient(135deg, #F59E0B, #D97706)';
                     label.style.color = '#fff';
-                    label.style.boxShadow = '0 4px 15px rgba(184, 134, 11, 0.3)';
+                    label.style.boxShadow = '0 4px 15px rgba(245, 158, 11, 0.35)';
                 }
             };
         }

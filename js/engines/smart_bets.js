@@ -161,28 +161,31 @@ class SmartBetsEngine {
                 name: 'Timemania',
                 draw: 7, range: [1, 80],
                 maxConsecutive: 2,
-                evenOddIdeal: [3, 4], evenOddTolerance: 2,
+                evenOddIdeal: [4, 6], evenOddTolerance: 2,
                 faixaSize: 10, faixaMin: 0, faixaMax: 2,
-                sumMin: 150, sumMax: 375,
+                sumMin: 180, sumMax: 340,              // AJUSTADO: faixa real mais precisa
                 gapMin: 5, gapMax: 12,
                 repeatFromLast: [0, 2],
                 primeRatio: [0.05, 0.55],
                 maxSameEnding: 2,
-                fibWeight: 0.25,
-                markovWeight: 0.55,          // REDUZIDO: evitar vício nos mesmos
-                trendWeight: 0.50,           // REDUZIDO: diversidade > tendência
-                pairBoost: 0.40,             // REDUZIDO: pares não devem dominar
-                trioBoost: 0.30,             // REDUZIDO
-                zoneMinCover: 5,             // AUMENTADO: forçar 5 de 8 zonas
-                zoneIdealCover: 6,           // Ideal: 6 zonas cobertas
+                fibWeight: 0.15,                       // REDUZIDO: quase irrelevante
+                markovWeight: 0.15,                    // REDUZIDO 0.55→0.15: era a causa raiz do vício
+                trendWeight: 0.15,                     // REDUZIDO 0.50→0.15: diversidade > tendência
+                pairBoost: 0.10,                       // REDUZIDO 0.40→0.10: pares não devem dominar
+                trioBoost: 0.05,                       // REDUZIDO 0.30→0.05: quase desabilitar
+                zoneMinCover: 5,                       // MANTER: 5 de 8 zonas
+                zoneIdealCover: 7,                     // AUMENTADO: ideal 7 zonas cobertas
                 multiWindow: true,
-                // REMOVIDO: hotNumbers/coldNumbers fixos — agora usa dados dinâmicos
-                hotNumbers: [],              // Vazio: usar apenas dados do histórico
-                coldNumbers: [],             // Vazio: não penalizar fixo
-                // NOVO: Controle de diversidade agressiva
-                diversityPenalty: 0.45,      // Penalidade por reutilização (era 0.10)
-                maxConcentration: 0.35,      // Max 35% dos jogos com mesmo número
-                forceNewEvery: 3             // A cada 3 jogos, forçar 2+ números novos
+                hotNumbers: [],
+                coldNumbers: [],
+                // CONTROLE DE DIVERSIDADE AGRESSIVO (RECONSTRUÍDO)
+                diversityPenalty: 0.80,                // AUMENTADO 0.45→0.80: penalidade SEVERA
+                maxConcentration: 0.20,                // REDUZIDO 0.35→0.20: max 3 jogos com mesmo nº em 15
+                forceNewEvery: 2,                      // REDUZIDO 3→2: a cada 2 jogos forçar novos
+                maxOverlapBetweenGames: 4,             // NOVO: max 4/10 overlap entre jogos (era 8)
+                maxSeedRatio: 0.20,                    // NOVO: max 20% de seeds (2/10)
+                // Ruído alto para exploração do range grande
+                noiseLevel: 0.40                       // NOVO: ruído controlado alto
             },
             diadesorte: {
                 name: 'Dia de Sorte',
@@ -272,7 +275,7 @@ class SmartBetsEngine {
             if (usedCombinations.has(key)) continue;
 
             // ── ANTI-CONCENTRAÇÃO UNIVERSAL: para TODOS os ranges ──
-            if (games.length > 2) {
+            if (games.length > 1) {
                 const isSmallRange = totalRange <= 30;
                 const concLimit = isSmallRange
                     ? Math.max(4, Math.ceil(games.length * 0.65))
@@ -283,8 +286,9 @@ class SmartBetsEngine {
                         overUsedCount++;
                     }
                 }
+                // Ranges grandes: rejeitar se QUALQUER número estiver super-usado (era threshold 1 com 90%)
                 const overUsedThreshold = isSmallRange ? Math.ceil(drawSize * 0.30) : 1;
-                if (overUsedCount >= overUsedThreshold && attempts < maxAttempts * 0.90) continue;
+                if (overUsedCount >= overUsedThreshold && attempts < maxAttempts * 0.70) continue;
             }
 
             // ── ANTI-OVERLAP: rejeitar jogos muito similares a existentes ──
@@ -773,7 +777,8 @@ class SmartBetsEngine {
 
             // ── Ruído controlado (MAIOR para range grande → forçar exploração) ──
             const isLargeRangeNoise = (endNum - startNum + 1) >= 60;
-            const noise = (drawSize >= 15) ? 0.22 : (isLargeRangeNoise ? 0.25 : 0.12);
+            const noiseFromProfile = profile.noiseLevel || (isLargeRangeNoise ? 0.25 : 0.12);
+            const noise = (drawSize >= 15) ? 0.22 : noiseFromProfile;
             w += (Math.random() - 0.5) * noise;
 
             weights[n] = Math.max(0.01, w);

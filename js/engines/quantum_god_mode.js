@@ -101,18 +101,18 @@ class QuantumGodEngine {
                 repeatFromLast: [7, 14], guaranteedPct: 0.45,
                 monteCarloRuns: 20000, qualityAttempts: 3000
             },
-            // Timemania: 10/80 — V10: DIVERSIDADE + latência equilibrada
+            // Timemania: 10/80 — V11: DIVERSIDADE MÁXIMA + pool amplo
             'timemania': {
-                recentFreq:   0.08, generalFreq: 0.05, latency: 0.14,
-                cycles:       0.10, repetition: 0.05, drawEnding: 0.04,
-                lines:        0.04, columns: 0.03, primes: 0.01,
-                mirrors:      0.03, digitEnding: 0.03,
-                markov:       0.10, temporal: 0.08, conditional: 0.08,
-                algorithm:    0.04, trend: 0.06, fibonacci: 0.01,
-                sumMin: 150, sumMax: 375, linesPerRow: [0, 3],
+                recentFreq:   0.06, generalFreq: 0.04, latency: 0.18,
+                cycles:       0.14, repetition: 0.04, drawEnding: 0.05,
+                lines:        0.05, columns: 0.04, primes: 0.01,
+                mirrors:      0.03, digitEnding: 0.04,
+                markov:       0.04, temporal: 0.06, conditional: 0.04,
+                algorithm:    0.08, trend: 0.04, fibonacci: 0.01,
+                sumMin: 180, sumMax: 340, linesPerRow: [0, 3],
                 maxConsecutive: 2, evenOddTolerance: 2,
-                repeatFromLast: [0, 2], guaranteedPct: 0.40,
-                monteCarloRuns: 20000, qualityAttempts: 2500
+                repeatFromLast: [0, 2], guaranteedPct: 0.25,
+                monteCarloRuns: 30000, qualityAttempts: 4000
             },
             // Dia de Sorte: 7/31 — V10: espaço pequeno, equilibrado
             'diadesorte': {
