@@ -233,9 +233,21 @@ class StatsService {
             console.log('[StatsService] ✅ Prêmio atualizado: ' + storageKey + ' (concurso ' + drawNum + ') = R$ ' + (estimated || 0).toLocaleString('pt-BR'));
         }
 
+        // Deduplicar números (Dupla Sena pode ter números repetidos entre sorteios 1 e 2)
+        var rawNumbers = data.dezenas.map(function(n) { return parseInt(n); });
+        var uniqueNumbers = [];
+        var seen = {};
+        for (var u = 0; u < rawNumbers.length; u++) {
+            if (!seen[rawNumbers[u]]) {
+                seen[rawNumbers[u]] = true;
+                uniqueNumbers.push(rawNumbers[u]);
+            }
+        }
+        uniqueNumbers.sort(function(a, b) { return a - b; });
+
         return {
             drawNumber: parseInt(data.concurso),
-            numbers: data.dezenas.map(function(n) { return parseInt(n); }).sort(function(a, b) { return a - b; })
+            numbers: uniqueNumbers
         };
     }
 
