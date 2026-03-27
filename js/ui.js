@@ -1335,11 +1335,13 @@ class UI {
             return;
         }
 
+        const self = this;
+
         recents.forEach(item => {
             const row = document.createElement('div');
             row.className = 'recent-row';
             row.style.display = 'flex';
-            row.style.flexDirection = 'column'; // Vertical stack
+            row.style.flexDirection = 'column';
             row.style.gap = '5px';
             row.style.marginBottom = '0.8rem';
             row.style.padding = '0.5rem';
@@ -1350,36 +1352,55 @@ class UI {
             const label = document.createElement('span');
             label.className = 'recent-label';
             label.style.fontWeight = 'bold';
-            label.style.color = '#F59E0B'; // Gold
+            label.style.color = '#F59E0B';
             label.style.fontSize = '0.85rem';
             label.textContent = `Concurso ${item.drawNumber}`;
-
-            const numbersDiv = document.createElement('div');
-            numbersDiv.className = 'recent-numbers';
-            numbersDiv.style.display = 'flex';
-            numbersDiv.style.gap = '4px';
-            numbersDiv.style.flexWrap = 'wrap';
-
-            item.numbers.forEach(num => {
-                const ball = document.createElement('span');
-                ball.className = 'mini-ball';
-                ball.textContent = num.toString().padStart(2, '0');
-                ball.style.display = 'inline-flex';
-                ball.style.alignItems = 'center';
-                ball.style.justifyContent = 'center';
-                ball.style.width = '20px'; // Slightly smaller
-                ball.style.height = '20px';
-                ball.style.borderRadius = '50%';
-                ball.style.backgroundColor = 'var(--bg-main)';
-                ball.style.border = '1px solid var(--border-color)';
-                ball.style.fontSize = '0.75rem';
-                ball.style.color = 'var(--text-primary)';
-
-                numbersDiv.appendChild(ball);
-            });
-
             row.appendChild(label);
-            row.appendChild(numbersDiv);
+
+            // Função auxiliar para criar linha de bolas
+            function createBallsRow(numbers, labelText) {
+                if (labelText) {
+                    const sortLabel = document.createElement('span');
+                    sortLabel.style.fontSize = '0.7rem';
+                    sortLabel.style.color = '#94A3B8';
+                    sortLabel.style.fontWeight = '600';
+                    sortLabel.style.marginTop = '2px';
+                    sortLabel.textContent = labelText;
+                    row.appendChild(sortLabel);
+                }
+                const numbersDiv = document.createElement('div');
+                numbersDiv.className = 'recent-numbers';
+                numbersDiv.style.display = 'flex';
+                numbersDiv.style.gap = '4px';
+                numbersDiv.style.flexWrap = 'wrap';
+
+                numbers.forEach(num => {
+                    const ball = document.createElement('span');
+                    ball.className = 'mini-ball';
+                    ball.textContent = num.toString().padStart(2, '0');
+                    ball.style.display = 'inline-flex';
+                    ball.style.alignItems = 'center';
+                    ball.style.justifyContent = 'center';
+                    ball.style.width = '20px';
+                    ball.style.height = '20px';
+                    ball.style.borderRadius = '50%';
+                    ball.style.backgroundColor = 'var(--bg-main)';
+                    ball.style.border = '1px solid var(--border-color)';
+                    ball.style.fontSize = '0.75rem';
+                    ball.style.color = 'var(--text-primary)';
+                    numbersDiv.appendChild(ball);
+                });
+                row.appendChild(numbersDiv);
+            }
+
+            // Dupla Sena: exibir Sorteio 1 e Sorteio 2 separados
+            if (item.numbers2 && item.numbers2.length > 0) {
+                createBallsRow(item.numbers, '1º Sorteio');
+                createBallsRow(item.numbers2, '2º Sorteio');
+            } else {
+                createBallsRow(item.numbers, null);
+            }
+
             this.recentResultsContainer.appendChild(row);
         });
     }

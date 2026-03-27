@@ -233,22 +233,33 @@ class StatsService {
             console.log('[StatsService] ✅ Prêmio atualizado: ' + storageKey + ' (concurso ' + drawNum + ') = R$ ' + (estimated || 0).toLocaleString('pt-BR'));
         }
 
-        // Deduplicar números (Dupla Sena pode ter números repetidos entre sorteios 1 e 2)
+        // Dupla Sena: API retorna 12 números (6 Sorteio 1 + 6 Sorteio 2) no array dezenas
         var rawNumbers = data.dezenas.map(function(n) { return parseInt(n); });
-        var uniqueNumbers = [];
-        var seen = {};
-        for (var u = 0; u < rawNumbers.length; u++) {
-            if (!seen[rawNumbers[u]]) {
-                seen[rawNumbers[u]] = true;
-                uniqueNumbers.push(rawNumbers[u]);
-            }
-        }
-        uniqueNumbers.sort(function(a, b) { return a - b; });
-
-        return {
-            drawNumber: parseInt(data.concurso),
-            numbers: uniqueNumbers
+        var result = {
+            drawNumber: parseInt(data.concurso)
         };
+
+        if (gameType === 'duplasena' && rawNumbers.length === 12) {
+            // Separar os dois sorteios
+            var sort1 = rawNumbers.slice(0, 6).sort(function(a, b) { return a - b; });
+            var sort2 = rawNumbers.slice(6, 12).sort(function(a, b) { return a - b; });
+            result.numbers = sort1;
+            result.numbers2 = sort2;
+        } else {
+            // Deduplicar para outros jogos (segurança)
+            var uniqueNumbers = [];
+            var seen = {};
+            for (var u = 0; u < rawNumbers.length; u++) {
+                if (!seen[rawNumbers[u]]) {
+                    seen[rawNumbers[u]] = true;
+                    uniqueNumbers.push(rawNumbers[u]);
+                }
+            }
+            uniqueNumbers.sort(function(a, b) { return a - b; });
+            result.numbers = uniqueNumbers;
+        }
+
+        return result;
     }
 
     static getPrizeInfo(gameType) {
