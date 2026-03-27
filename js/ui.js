@@ -1409,16 +1409,31 @@ class UI {
         this.hotNumbersContainer.innerHTML = '';
         this.coldNumbersContainer.innerHTML = '';
 
-        const createStatItem = (num) => {
+        // Mostrar total de sorteios analisados no cabeçalho
+        const statsHeader = document.querySelector('.stats-header h3');
+        if (statsHeader && stats.totalDraws) {
+            statsHeader.innerHTML = `Estatísticas <span style="font-size:0.7em;color:#94A3B8;font-weight:400;">(${stats.totalDraws} sorteios)</span>`;
+        }
+
+        const createStatItem = (stat) => {
             const container = document.createElement('div');
             container.className = 'stat-ball-wrapper';
+            container.style.position = 'relative';
 
-            const ball = this.createBall(num);
+            const ball = this.createBall(stat.number);
             ball.classList.add('stat-ball');
 
             // Initial state based on current selection
-            if (this.selectedNumbers.has(num)) {
+            if (this.selectedNumbers.has(stat.number)) {
                 ball.classList.add('selected');
+            }
+
+            // Badge de frequência
+            if (stat.count > 0) {
+                const badge = document.createElement('span');
+                badge.style.cssText = 'position:absolute;top:-4px;right:-4px;background:#F59E0B;color:#000;font-size:0.6rem;font-weight:800;padding:1px 3px;border-radius:6px;min-width:14px;text-align:center;line-height:1.2;z-index:2;';
+                badge.textContent = stat.count + '×';
+                container.appendChild(badge);
             }
 
             const addIcon = document.createElement('div');
@@ -1428,9 +1443,8 @@ class UI {
 
             container.onclick = (e) => {
                 e.stopPropagation();
-                this.toggleNumber(num);
-                // Update specific stat ball visual immediately
-                if (this.selectedNumbers.has(num)) {
+                this.toggleNumber(stat.number);
+                if (this.selectedNumbers.has(stat.number)) {
                     ball.classList.add('selected');
                 } else {
                     ball.classList.remove('selected');
@@ -1443,11 +1457,11 @@ class UI {
         };
 
         stats.hot.forEach(stat => {
-            this.hotNumbersContainer.appendChild(createStatItem(stat.number));
+            this.hotNumbersContainer.appendChild(createStatItem(stat));
         });
 
         stats.cold.forEach(stat => {
-            this.coldNumbersContainer.appendChild(createStatItem(stat.number));
+            this.coldNumbersContainer.appendChild(createStatItem(stat));
         });
     }
 

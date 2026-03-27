@@ -76,8 +76,8 @@ class StatsService {
                     this.historyStore[gameType][existingIndex] = latest;
                 }
 
-                // Buscar concursos anteriores
-                await this._fetchPreviousDraws(gameType, latest.drawNumber, 5);
+                // Buscar concursos anteriores (15 para estatísticas mais confiáveis)
+                await this._fetchPreviousDraws(gameType, latest.drawNumber, 15);
 
                 // Ordenar: mais recente primeiro
                 this.historyStore[gameType].sort(function(a, b) { return b.drawNumber - a.drawNumber; });
@@ -320,7 +320,7 @@ class StatsService {
         var analyzesCount = Math.min(rangeAnalysis, history.length);
         var recentDraws = history.slice(0, analyzesCount);
 
-        if (recentDraws.length === 0) return { hot: [], cold: [] };
+        if (recentDraws.length === 0) return { hot: [], cold: [], totalDraws: 0 };
 
         var frequencyMap = {};
         for (var i = game.range[0]; i <= game.range[1]; i++) {
@@ -328,14 +328,27 @@ class StatsService {
         }
 
         recentDraws.forEach(function(item) {
-            item.numbers.forEach(function(num) {
-                if (frequencyMap[num] !== undefined) frequencyMap[num]++;
-            });
+            // Contar números do sorteio principal
+            if (item.numbers) {
+                item.numbers.forEach(function(num) {
+                    if (frequencyMap[num] !== undefined) frequencyMap[num]++;
+                });
+            }
+            // Dupla Sena: contar também os números do 2º Sorteio
+            if (item.numbers2) {
+                item.numbers2.forEach(function(num) {
+                    if (frequencyMap[num] !== undefined) frequencyMap[num]++;
+                });
+            }
         });
 
         var sortedStats = Object.keys(frequencyMap).map(function(num) {
             return { number: parseInt(num), count: frequencyMap[num] };
-        }).sort(function(a, b) { return b.count - a.count; });
+        }).sort(function(a, b) { 
+            // Ordenar por frequência descendente, desempate por número ascendente
+            if (b.count !== a.count) return b.count - a.count;
+            return a.number - b.number;
+        });
 
         var limit = game.statsCount || 10;
         var hot = sortedStats.slice(0, limit);
@@ -346,7 +359,7 @@ class StatsService {
             cold.sort(function(a, b) { return a.number - b.number; });
         }
 
-        return { hot: hot, cold: cold };
+        return { hot: hot, cold: cold, totalDraws: analyzesCount };
     }
 
     static simulateDraw(game) {
