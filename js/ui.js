@@ -570,7 +570,7 @@ class UI {
         // Fixed Mode Toggle
         this.btnFixedMode.onclick = () => this.toggleFixedMode();
 
-        // Generate (Fechamento)
+        // Generate (Fechamento) — Motor Inteligente v3
         this.generateBtn.onclick = () => {
             const result = CombinationEngine.generate(
                 this.currentGameKey,
@@ -582,19 +582,125 @@ class UI {
             this.renderGames(result, this.currentGameKey);
             if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
 
-            // Visual Feedback
+            // Limpar feedback/análise anterior
+            const oldFeedback = this.gamesContainer.parentNode.querySelector('.generation-feedback');
+            if (oldFeedback) oldFeedback.remove();
+            const oldAnalysis = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+            if (oldAnalysis) oldAnalysis.remove();
+
+            // Painel de análise inteligente
+            if (result.smartAnalysis) {
+                const sa = result.smartAnalysis;
+                const allNums = new Set();
+                result.games.forEach(g => g.forEach(n => allNums.add(n)));
+
+                let html = `
+                    <div class="smart-gen-analysis" style="margin-top:8px;margin-bottom:8px;padding:10px 14px;border-radius:10px;background:linear-gradient(145deg,rgba(16,185,129,0.08),rgba(15,23,42,0.95));border:1px solid #10B98130;">
+                        <div style="color:#10B981;font-weight:700;font-size:0.85rem;margin-bottom:6px;">🧠 Motor ${sa.engineVersion || 'v4.0'}</div>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:0.68rem;">
+                            <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
+                                <span style="color:#94A3B8;">Sorteios</span><br>
+                                <span style="color:#E2E8F0;font-weight:700;">${sa.historySize}</span>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
+                                <span style="color:#94A3B8;">Candidatos</span><br>
+                                <span style="color:#E2E8F0;font-weight:700;">${sa.candidatesGenerated || '—'}</span>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
+                                <span style="color:#94A3B8;">Score médio</span><br>
+                                <span style="color:#10B981;font-weight:700;">${sa.avgScore || '—'}</span>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:0.68rem;margin-top:4px;">
+                            <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
+                                <span style="color:#94A3B8;">Soma esperada</span><br>
+                                <span style="color:#E2E8F0;font-weight:600;">${sa.sumRange || '—'}</span>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
+                                <span style="color:#94A3B8;">Par/Ímpar</span><br>
+                                <span style="color:#E2E8F0;font-weight:600;">${sa.parImparRatio || '—'}</span>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
+                                <span style="color:#94A3B8;">Nº Únicos</span><br>
+                                <span style="color:#E2E8F0;font-weight:700;">${allNums.size}</span>
+                            </div>
+                        </div>`;
+                
+                if (sa.pairsUsed && sa.pairsUsed.length > 0) {
+                    html += `<div style="margin-top:6px;font-size:0.68rem;">
+                        <span style="color:#F59E0B;font-weight:600;">🔗 Duplas:</span>
+                        <span style="color:#CBD5E1;">${sa.pairsUsed.join(' | ')}</span>
+                    </div>`;
+                }
+                if (sa.triosUsed && sa.triosUsed.length > 0) {
+                    html += `<div style="margin-top:3px;font-size:0.68rem;">
+                        <span style="color:#8B5CF6;font-weight:600;">🔺 Trios:</span>
+                        <span style="color:#CBD5E1;">${sa.triosUsed.join(' | ')}</span>
+                    </div>`;
+                }
+
+                // Padrões Ocultos
+                let hasPatterns = false;
+                let patternHtml = '<div style="margin-top:6px;padding:6px 8px;border-radius:6px;background:rgba(139,92,246,0.08);border:1px solid #8B5CF620;">';
+                patternHtml += '<div style="color:#A78BFA;font-weight:700;font-size:0.72rem;margin-bottom:4px;">🔍 Padrões Ocultos Detectados</div>';
+
+                if (sa.cycleNumbers && sa.cycleNumbers.length > 0) {
+                    hasPatterns = true;
+                    patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
+                        <span style="color:#F59E0B;">⏰ Ciclos:</span>
+                        <span style="color:#CBD5E1;">${sa.cycleNumbers.join(', ')}</span>
+                    </div>`;
+                }
+                if (sa.mirrorsDetected && sa.mirrorsDetected.length > 0) {
+                    hasPatterns = true;
+                    patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
+                        <span style="color:#EC4899;">🪞 Espelhos:</span>
+                        <span style="color:#CBD5E1;">${sa.mirrorsDetected.join(', ')}</span>
+                    </div>`;
+                }
+                if (sa.fibonacciRatio) {
+                    hasPatterns = true;
+                    patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
+                        <span style="color:#14B8A6;">🌀 Fibonacci:</span>
+                        <span style="color:#CBD5E1;">${sa.fibonacciRatio} dos gaps</span>
+                    </div>`;
+                }
+                if (sa.sumModPatterns && sa.sumModPatterns.length > 0) {
+                    hasPatterns = true;
+                    patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
+                        <span style="color:#6366F1;">🔢 Soma mod:</span>
+                        <span style="color:#CBD5E1;">${sa.sumModPatterns.join(', ')}</span>
+                    </div>`;
+                }
+                if (sa.delayedNumbers && sa.delayedNumbers.length > 0) {
+                    hasPatterns = true;
+                    patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
+                        <span style="color:#EF4444;">⏳ Atrasados:</span>
+                        <span style="color:#CBD5E1;">${sa.delayedNumbers.join(', ')}</span>
+                    </div>`;
+                }
+
+                patternHtml += '</div>';
+                if (hasPatterns) html += patternHtml;
+
+                html += `</div>`;
+
+                const analysisDiv = document.createElement('div');
+                analysisDiv.innerHTML = html;
+                this.gamesContainer.parentNode.insertBefore(analysisDiv.firstElementChild, this.gamesContainer);
+            }
+
+            // Feedback
             const feedback = document.createElement('div');
             feedback.style.color = '#10B981';
             feedback.style.textAlign = 'center';
             feedback.style.padding = '10px';
             feedback.style.fontWeight = 'bold';
-            feedback.textContent = 'Jogos gerados com sucesso!';
+            feedback.textContent = `🧠 ${result.games.length} jogos inteligentes gerados!`;
+            feedback.classList.add('generation-feedback');
+            feedback.style.marginTop = '10px';
+            feedback.style.marginBottom = '10px';
             if (this.gamesContainer.parentNode) {
-                const old = this.gamesContainer.parentNode.querySelector('.generation-feedback');
-                if (old) old.remove();
-                feedback.classList.add('generation-feedback');
-                feedback.style.marginTop = '10px';
-                feedback.style.marginBottom = '10px';
                 this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
             }
             feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
