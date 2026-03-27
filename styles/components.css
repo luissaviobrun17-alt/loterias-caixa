@@ -25,6 +25,26 @@
     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
     /* Green shadow */
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+/* Container dos 3 botões de ação (Gerar Jogos, Gerar com IA, Precisão) */
+#action-buttons-row {
+    display: flex;
+    gap: 6px;
+    align-items: stretch;
+}
+#action-buttons-row > * {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Label Modo Precisão — mesma aparência que buttons */
+#precision-mode-label {
+    height: 48px;
+    font-size: 0.85rem;
+    padding: 0 0.8rem;
 }
 
 .action-btn:hover {

@@ -605,29 +605,29 @@ class UI {
             this.generateSmartBtn.onclick = () => this.runSmartGeneration();
 
             // ── ADICIONAR TOGGLE MODO PRECISÃO (só Lotofácil) ──
-            const precisionContainer = document.createElement('div');
-            precisionContainer.id = 'precision-mode-container';
-            precisionContainer.style.cssText = 'display:none; margin-top:8px; width: 100%;';
-            precisionContainer.innerHTML = `
-                <label id="precision-mode-label" class="action-btn" style="cursor:pointer; background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);">
-                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:16px;height:16px;cursor:pointer;">
-                    🎯 Modo Precisão
-                </label>
-            `;
-            this.generateSmartBtn.parentNode.insertBefore(precisionContainer, this.generateSmartBtn.nextSibling);
+            const actionRow = document.getElementById('action-buttons-row');
+            const precisionLabel = document.createElement('label');
+            precisionLabel.id = 'precision-mode-label';
+            precisionLabel.className = 'action-btn';
+            precisionLabel.style.cssText = 'cursor:pointer; background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); white-space: nowrap; flex: 1; min-width: 0; display: none;';
+            precisionLabel.innerHTML = `<input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:16px;height:16px;cursor:pointer;"> 🎯 Precisão`;
+            if (actionRow) {
+                actionRow.appendChild(precisionLabel);
+            } else {
+                this.generateSmartBtn.parentNode.appendChild(precisionLabel);
+            }
 
             // Lógica para toggle visual (classe active)
-            const toggle = precisionContainer.querySelector('#precision-mode-toggle');
-            const label = precisionContainer.querySelector('#precision-mode-label');
+            const toggle = precisionLabel.querySelector('#precision-mode-toggle');
             toggle.onchange = () => {
                 if (toggle.checked) {
-                    label.style.background = 'linear-gradient(135deg, #FFD700, #F59E0B)';
-                    label.style.color = '#000';
-                    label.style.boxShadow = '0 6px 25px rgba(255, 215, 0, 0.5)';
+                    precisionLabel.style.background = 'linear-gradient(135deg, #FFD700, #F59E0B)';
+                    precisionLabel.style.color = '#000';
+                    precisionLabel.style.boxShadow = '0 6px 25px rgba(255, 215, 0, 0.5)';
                 } else {
-                    label.style.background = 'linear-gradient(135deg, #F59E0B, #D97706)';
-                    label.style.color = '#fff';
-                    label.style.boxShadow = '0 4px 15px rgba(245, 158, 11, 0.35)';
+                    precisionLabel.style.background = 'linear-gradient(135deg, #F59E0B, #D97706)';
+                    precisionLabel.style.color = '#fff';
+                    precisionLabel.style.boxShadow = '0 4px 15px rgba(245, 158, 11, 0.35)';
                 }
             };
         }
@@ -865,9 +865,9 @@ class UI {
         this.fixedInfoPanel.style.display = 'none';
 
         // Mostrar toggle Modo Precisão APENAS para Lotofácil
-        const precisionContainer = document.getElementById('precision-mode-container');
-        if (precisionContainer) {
-            precisionContainer.style.display = gameKey === 'lotofacil' ? 'flex' : 'none';
+        const precisionEl = document.getElementById('precision-mode-label');
+        if (precisionEl) {
+            precisionEl.style.display = gameKey === 'lotofacil' ? 'flex' : 'none';
         }
 
         if (this.quantumCountInput) {
