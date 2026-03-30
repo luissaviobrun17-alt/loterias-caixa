@@ -129,25 +129,32 @@ class SmartBetsEngine {
             duplasena: {
                 name: 'Dupla Sena',
                 draw: 6, range: [1, 50],
-                maxConsecutive: 4,
-                evenOddIdeal: [3, 3], evenOddTolerance: 1,
+                maxConsecutive: 3,                           // v2.3: 4→3
+                evenOddIdeal: [3, 3], evenOddTolerance: 2,   // v2.3: tol 1→2
                 faixaSize: 10, faixaMin: 0, faixaMax: 3,
-                sumMin: 42, sumMax: 151,
-                gapMin: 2, gapMax: 7,
-                repeatFromLast: [0, 4],
-                primeRatio: [0.05, 0.60],
-                maxSameEnding: 3,
-                fibWeight: 0.3,
-                markovWeight: 0.55,
-                trendWeight: 0.50,
-                pairBoost: 0.45,
-                trioBoost: 0.35,
+                sumMin: 60, sumMax: 220,                     // v2.3: ajustado P10-P90
+                gapMin: 3, gapMax: 15,                       // v2.3: gapMin 2→3, gapMax 7→15
+                repeatFromLast: [0, 2],                      // v2.3: 0-4→0-2
+                primeRatio: [0.0, 0.55],
+                maxSameEnding: 2,                            // v2.3: 3→2
+                fibWeight: 0.08,                             // v2.3: 0.3→0.08
+                markovWeight: 0.15,                          // v2.3: 0.55→0.15 — CAUSA RAIZ
+                trendWeight: 0.15,                           // v2.3: 0.50→0.15
+                pairBoost: 0.08,                             // v2.3: 0.45→0.08
+                trioBoost: 0.04,                             // v2.3: 0.35→0.04
                 multiWindow: true,
+                zoneMinCover: 3,                             // NOVO: cobrir 3 de 5 zonas
                 hotNumbers: [],
                 coldNumbers: [],
-                diversityPenalty: 0.35,
-                maxConcentration: 0.38,
-                forceNewEvery: 3
+                diversityPenalty: 0.85,                      // v2.3: 0.35→0.85 — penalidade SEVERA
+                maxConcentration: 0.15,                      // v2.3: 0.38→0.15 (6/50=12%, +3%)
+                forceNewEvery: 2,                            // v2.3: 3→2
+                maxOverlapBetweenGames: 2,                   // NOVO: max 2/6 overlap
+                maxSeedRatio: 0.20,                          // NOVO
+                noiseLevel: 0.45,                            // NOVO: ruído para range 50
+                hotRatio: 0.40,
+                warmRatio: 0.35,
+                coldRatio: 0.25
             },
             lotomania: {
                 name: 'Lotomania',

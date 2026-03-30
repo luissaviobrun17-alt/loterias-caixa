@@ -68,7 +68,8 @@ const GAMES = {
         strategies: [
             { id: "sena", label: "Sena (6)", match: 6, prize: 200000 },
             { id: "quina", label: "Quina (5)", match: 5, prize: 4000 },
-            { id: "quadra", label: "Quadra (4)", match: 4, prize: 100 }
+            { id: "quadra", label: "Quadra (4)", match: 4, prize: 100 },
+            { id: "terno", label: "Terno (3)", match: 3, prize: 0 }
         ],
         minBet: 6,
         maxBet: 50,
