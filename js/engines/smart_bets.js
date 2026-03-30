@@ -211,25 +211,31 @@ class SmartBetsEngine {
             diadesorte: {
                 name: 'Dia de Sorte',
                 draw: 7, range: [1, 31],
-                maxConsecutive: 4,
+                maxConsecutive: 3,                           // v2.3: 4→3
                 evenOddIdeal: [3, 4], evenOddTolerance: 2,
-                faixaSize: 8, faixaMin: 1, faixaMax: 4,
-                sumMin: 51, sumMax: 161,
-                gapMin: 2, gapMax: 5,
-                repeatFromLast: [0, 4],
-                primeRatio: [0.05, 0.65],
-                maxSameEnding: 3,
-                fibWeight: 0.3,
-                markovWeight: 0.55,
-                trendWeight: 0.50,
-                pairBoost: 0.45,
-                trioBoost: 0.35,
+                faixaSize: 8, faixaMin: 1, faixaMax: 3,     // v2.3: faixaMax 4→3
+                sumMin: 60, sumMax: 155,                     // v2.3: ajustado
+                gapMin: 1, gapMax: 7,                        // v2.3: gapMax 5→7
+                repeatFromLast: [0, 3],                      // v2.3: 0-4→0-3
+                primeRatio: [0.0, 0.60],
+                maxSameEnding: 2,                            // v2.3: 3→2
+                fibWeight: 0.06,                             // v2.3: 0.3→0.06
+                markovWeight: 0.12,                          // v2.3: 0.55→0.12 — CAUSA RAIZ
+                trendWeight: 0.12,                           // v2.3: 0.50→0.12
+                pairBoost: 0.06,                             // v2.3: 0.45→0.06
+                trioBoost: 0.03,                             // v2.3: 0.35→0.03
                 multiWindow: true,
                 hotNumbers: [],
                 coldNumbers: [],
-                diversityPenalty: 0.25,
-                maxConcentration: 0.45,
-                forceNewEvery: 4
+                diversityPenalty: 0.88,                      // v2.3: 0.25→0.88 — MUITO agressivo (range 31!)
+                maxConcentration: 0.28,                      // v2.3: 0.45→0.28 (7/31=22.5%, +5.5%)
+                forceNewEvery: 2,                            // v2.3: 4→2
+                maxOverlapBetweenGames: 3,                   // NOVO: max 3/7 overlap
+                maxSeedRatio: 0.15,                          // NOVO
+                noiseLevel: 0.35,                            // NOVO
+                hotRatio: 0.40,
+                warmRatio: 0.35,
+                coldRatio: 0.25
             }
         };
         return profiles[gameKey] || profiles.megasena;

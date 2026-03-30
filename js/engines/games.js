@@ -126,7 +126,9 @@ const GAMES = {
         strategies: [
             { id: "7pts", label: "7 Pontos", match: 7, prize: 1000000 },
             { id: "6pts", label: "6 Pontos", match: 6, prize: 2000 },
-            { id: "5pts", label: "5 Pontos", match: 5, prize: 25 }
+            { id: "5pts", label: "5 Pontos", match: 5, prize: 25 },
+            { id: "terno", label: "Terno (3)", match: 3, prize: 0 },
+            { id: "duque", label: "Duque (2)", match: 2, prize: 0 }
         ],
         minBet: 7,
         maxBet: 31,
