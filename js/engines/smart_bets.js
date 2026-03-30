@@ -182,31 +182,31 @@ class SmartBetsEngine {
                 name: 'Timemania',
                 draw: 7, range: [1, 80],
                 maxConsecutive: 2,
-                evenOddIdeal: [4, 6], evenOddTolerance: 2,
+                evenOddIdeal: [5, 5], evenOddTolerance: 3,  // v2.3b: 4/6→5/5, tol 2→3
                 faixaSize: 10, faixaMin: 0, faixaMax: 2,
-                sumMin: 180, sumMax: 340,              // AJUSTADO: faixa real mais precisa
-                gapMin: 5, gapMax: 12,
+                sumMin: 150, sumMax: 380,                    // v2.3b: expandido
+                gapMin: 3, gapMax: 20,                       // v2.3b: gapMax 12→20 (range 80)
                 repeatFromLast: [0, 2],
-                primeRatio: [0.05, 0.55],
+                primeRatio: [0.0, 0.55],
                 maxSameEnding: 2,
-                fibWeight: 0.15,                       // REDUZIDO: quase irrelevante
-                markovWeight: 0.15,                    // REDUZIDO 0.55→0.15: era a causa raiz do vício
-                trendWeight: 0.15,                     // REDUZIDO 0.50→0.15: diversidade > tendência
-                pairBoost: 0.10,                       // REDUZIDO 0.40→0.10: pares não devem dominar
-                trioBoost: 0.05,                       // REDUZIDO 0.30→0.05: quase desabilitar
-                zoneMinCover: 5,                       // MANTER: 5 de 8 zonas
-                zoneIdealCover: 7,                     // AUMENTADO: ideal 7 zonas cobertas
+                fibWeight: 0.06,                             // v2.3b: 0.15→0.06
+                markovWeight: 0.10,                          // v2.3b: 0.15→0.10 — CAUSA da concentração
+                trendWeight: 0.10,                           // v2.3b: 0.15→0.10
+                pairBoost: 0.06,                             // v2.3b: 0.10→0.06
+                trioBoost: 0.03,                             // v2.3b: 0.05→0.03
+                zoneMinCover: 3,                             // v2.3b: 5→3 (10 nums em 80 = 3-4 zonas real)
                 multiWindow: true,
                 hotNumbers: [],
                 coldNumbers: [],
-                // CONTROLE DE DIVERSIDADE AGRESSIVO (RECONSTRUÍDO)
-                diversityPenalty: 0.80,                // AUMENTADO 0.45→0.80: penalidade SEVERA
-                maxConcentration: 0.20,                // REDUZIDO 0.35→0.20: max 3 jogos com mesmo nº em 15
-                forceNewEvery: 2,                      // REDUZIDO 3→2: a cada 2 jogos forçar novos
-                maxOverlapBetweenGames: 4,             // NOVO: max 4/10 overlap entre jogos (era 8)
-                maxSeedRatio: 0.20,                    // NOVO: max 20% de seeds (2/10)
-                // Ruído alto para exploração do range grande
-                noiseLevel: 0.40                       // NOVO: ruído controlado alto
+                diversityPenalty: 0.85,                      // v2.3b: 0.80→0.85
+                maxConcentration: 0.15,                      // v2.3b: 0.20→0.15 (10/80=12.5%, +2.5%)
+                forceNewEvery: 2,
+                maxOverlapBetweenGames: 3,                   // v2.3b: 4→3 (max 3/10 overlap)
+                maxSeedRatio: 0.15,
+                noiseLevel: 0.50,                            // v2.3b: 0.40→0.50 ruído ALTO
+                hotRatio: 0.40,
+                warmRatio: 0.35,
+                coldRatio: 0.25
             },
             diadesorte: {
                 name: 'Dia de Sorte',
