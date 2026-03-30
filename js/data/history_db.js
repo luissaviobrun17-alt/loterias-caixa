@@ -1,12 +1,13 @@
 // ==================================================================
 // BASE DE DADOS REAL - Resultados Oficiais das Loterias da Caixa
-// Atualizado em: 27/03/2026
+// Atualizado em: 30/03/2026
 // Fonte: API Loterias Caixa (loteriascaixa-api.herokuapp.com)
 // DADOS 100% REAIS — VERIFICADOS VIA API OFICIAL
 // ==================================================================
 
 const REAL_HISTORY_DB = {
     megasena: [
+        { drawNumber: 2990, numbers: [6, 14, 18, 29, 30, 44] },
         { drawNumber: 2989, numbers: [6, 14, 28, 31, 56, 59] },
         { drawNumber: 2988, numbers: [21, 23, 28, 36, 57, 58] },
         { drawNumber: 2987, numbers: [16, 17, 20, 28, 46, 47] },
@@ -47,6 +48,8 @@ const REAL_HISTORY_DB = {
         { drawNumber: 2952, numbers: [1, 20, 45, 48, 51, 58] }
     ],
     lotofacil: [
+        { drawNumber: 3648, numbers: [1, 2, 5, 7, 8, 9, 10, 11, 13, 14, 15, 18, 19, 20, 22] },
+        { drawNumber: 3647, numbers: [2, 4, 5, 8, 10, 12, 15, 16, 17, 19, 20, 21, 22, 24, 25] },
         { drawNumber: 3646, numbers: [1, 3, 5, 7, 8, 11, 13, 15, 16, 18, 19, 20, 23, 24, 25] },
         { drawNumber: 3645, numbers: [1, 3, 6, 7, 8, 9, 10, 12, 13, 15, 17, 18, 19, 21, 25] },
         { drawNumber: 3644, numbers: [1, 4, 5, 9, 10, 11, 13, 14, 19, 20, 21, 22, 23, 24, 25] },
@@ -90,6 +93,8 @@ const REAL_HISTORY_DB = {
         { drawNumber: 3606, numbers: [2, 3, 6, 7, 9, 11, 12, 14, 15, 17, 19, 20, 21, 23, 24] }
     ],
     quina: [
+        { drawNumber: 6988, numbers: [3, 9, 12, 24, 80] },
+        { drawNumber: 6987, numbers: [31, 36, 37, 58, 60] },
         { drawNumber: 6986, numbers: [18, 26, 44, 51, 73] },
         { drawNumber: 6985, numbers: [4, 9, 39, 43, 73] },
         { drawNumber: 6984, numbers: [4, 15, 19, 21, 58] },
@@ -171,6 +176,7 @@ const REAL_HISTORY_DB = {
         { drawNumber: 2904, numbers: [5, 11, 12, 15, 16, 17] }
     ],
     lotomania: [
+        { drawNumber: 2905, numbers: [6, 7, 9, 14, 17, 22, 29, 32, 36, 40, 52, 54, 55, 67, 69, 73, 74, 78, 91, 98] },
         { drawNumber: 2904, numbers: [9, 22, 41, 43, 44, 45, 52, 55, 57, 62, 69, 72, 75, 77, 79, 87, 91, 93, 96, 99] },
         { drawNumber: 2903, numbers: [10, 12, 18, 24, 37, 43, 45, 49, 50, 53, 54, 61, 70, 72, 75, 82, 89, 93, 95, 98] },
         { drawNumber: 2902, numbers: [5, 12, 21, 25, 29, 31, 33, 36, 46, 47, 50, 54, 58, 60, 61, 66, 68, 72, 78, 83] },
@@ -211,6 +217,7 @@ const REAL_HISTORY_DB = {
         { drawNumber: 2867, numbers: [4, 5, 11, 22, 27, 28, 34, 36, 38, 44, 47, 48, 51, 62, 65, 66, 72, 87, 89, 93] }
     ],
     timemania: [
+        { drawNumber: 2373, numbers: [13, 31, 33, 42, 62, 65, 76] },
         { drawNumber: 2372, numbers: [12, 13, 18, 23, 38, 54, 55] },
         { drawNumber: 2371, numbers: [2, 16, 22, 29, 32, 61, 77] },
         { drawNumber: 2370, numbers: [10, 22, 40, 63, 74, 76, 79] },
@@ -251,6 +258,7 @@ const REAL_HISTORY_DB = {
         { drawNumber: 2335, numbers: [5, 26, 44, 48, 63, 69, 75] }
     ],
     diadesorte: [
+        { drawNumber: 1194, numbers: [7, 8, 10, 19, 24, 25, 28] },
         { drawNumber: 1193, numbers: [1, 4, 11, 18, 21, 23, 27] },
         { drawNumber: 1192, numbers: [10, 11, 12, 16, 21, 22, 24] },
         { drawNumber: 1191, numbers: [9, 12, 13, 17, 18, 29, 30] },
