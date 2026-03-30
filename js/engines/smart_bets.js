@@ -153,24 +153,30 @@ class SmartBetsEngine {
                 name: 'Lotomania',
                 draw: 20, range: [0, 99],
                 maxConsecutive: 4,
-                evenOddIdeal: [25, 25], evenOddTolerance: 5,
-                faixaSize: 10, faixaMin: 1, faixaMax: 8,
-                sumMin: 2100, sumMax: 2900,
-                gapMin: 1, gapMax: 3,
-                repeatFromLast: [7, 14],
-                primeRatio: [0.15, 0.50],
-                maxSameEnding: 8,
-                fibWeight: 0.2,
-                markovWeight: 0.40,
-                trendWeight: 0.35,
-                pairBoost: 0.25,
-                trioBoost: 0.15,
+                evenOddIdeal: [10, 10], evenOddTolerance: 3, // v2.3: corrigido 25/25→10/10 (20 números!)
+                faixaSize: 10, faixaMin: 1, faixaMax: 4,
+                sumMin: 800, sumMax: 1200,              // v2.3: ajustado para range real
+                gapMin: 1, gapMax: 7,                   // v2.3: gapMax 3→7 (range 100)
+                repeatFromLast: [3, 10],                 // v2.3: 7-14→3-10 (mais flexível)
+                primeRatio: [0.10, 0.45],
+                maxSameEnding: 4,                        // v2.3: 8→4
+                fibWeight: 0.06,                         // v2.3: 0.2→0.06
+                markovWeight: 0.12,                      // v2.3: 0.40→0.12 — anti-concentração
+                trendWeight: 0.12,                       // v2.3: 0.35→0.12
+                pairBoost: 0.06,                         // v2.3: 0.25→0.06
+                trioBoost: 0.03,                         // v2.3: 0.15→0.03
                 multiWindow: true,
                 hotNumbers: [],
                 coldNumbers: [],
-                diversityPenalty: 0.50,
-                maxConcentration: 0.30,
-                forceNewEvery: 2
+                diversityPenalty: 0.80,                  // v2.3: 0.50→0.80 — penalidade severa
+                maxConcentration: 0.25,                  // v2.3: 0.30→0.25 (20/100=20%, +5%)
+                forceNewEvery: 2,
+                maxOverlapBetweenGames: 10,              // NOVO: max 10/20 overlap
+                maxSeedRatio: 0.15,                      // NOVO
+                noiseLevel: 0.40,                        // NOVO: ruído para explorar range 100
+                hotRatio: 0.40,
+                warmRatio: 0.35,
+                coldRatio: 0.25
             },
             timemania: {
                 name: 'Timemania',

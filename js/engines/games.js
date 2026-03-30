@@ -86,7 +86,9 @@ const GAMES = {
             { id: "20pts", label: "20 Pontos", match: 20, prize: 5000000 },
             { id: "19pts", label: "19 Pontos", match: 19, prize: 60000 },
             { id: "18pts", label: "18 Pontos", match: 18, prize: 2500 },
-            { id: "17pts", label: "17 Pontos", match: 17, prize: 200 }
+            { id: "17pts", label: "17 Pontos", match: 17, prize: 200 },
+            { id: "16pts", label: "16 Pontos", match: 16, prize: 0 },
+            { id: "15pts", label: "15 Pontos", match: 15, prize: 0 }
         ],
         minBet: 50,
         maxBet: 100,
