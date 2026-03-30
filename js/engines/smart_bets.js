@@ -153,27 +153,27 @@ class SmartBetsEngine {
                 name: 'Lotomania',
                 draw: 20, range: [0, 99],
                 maxConsecutive: 4,
-                evenOddIdeal: [10, 10], evenOddTolerance: 3, // v2.3: corrigido 25/25→10/10 (20 números!)
-                faixaSize: 10, faixaMin: 1, faixaMax: 4,
-                sumMin: 800, sumMax: 1200,              // v2.3: ajustado para range real
-                gapMin: 1, gapMax: 7,                   // v2.3: gapMax 3→7 (range 100)
-                repeatFromLast: [3, 10],                 // v2.3: 7-14→3-10 (mais flexível)
-                primeRatio: [0.10, 0.45],
-                maxSameEnding: 4,                        // v2.3: 8→4
-                fibWeight: 0.06,                         // v2.3: 0.2→0.06
-                markovWeight: 0.12,                      // v2.3: 0.40→0.12 — anti-concentração
-                trendWeight: 0.12,                       // v2.3: 0.35→0.12
-                pairBoost: 0.06,                         // v2.3: 0.25→0.06
-                trioBoost: 0.03,                         // v2.3: 0.15→0.03
+                evenOddIdeal: [25, 25], evenOddTolerance: 5, // v2.3: CORRIGIDO — jogo tem 50 nums, não 20!
+                faixaSize: 10, faixaMin: 1, faixaMax: 8,    // v2.3: CORRIGIDO — 50 nums cobrem 8+ faixas
+                sumMin: 2100, sumMax: 2900,                  // v2.3: CORRIGIDO — soma de 50 nums ~2475
+                gapMin: 1, gapMax: 3,                        // v2.3: CORRIGIDO — 50/100 = gaps pequenos
+                repeatFromLast: [7, 14],                     // v2.3: CORRIGIDO — 50 nums, overlap alto esperado
+                primeRatio: [0.15, 0.50],
+                maxSameEnding: 8,                            // v2.3: CORRIGIDO — 50 nums = ~5 por terminação
+                fibWeight: 0.06,                             // v2.3: 0.2→0.06 ✅
+                markovWeight: 0.12,                          // v2.3: 0.40→0.12 — anti-concentração ✅
+                trendWeight: 0.12,                           // v2.3: 0.35→0.12 ✅
+                pairBoost: 0.06,                             // v2.3: 0.25→0.06 ✅
+                trioBoost: 0.03,                             // v2.3: 0.15→0.03 ✅
                 multiWindow: true,
                 hotNumbers: [],
                 coldNumbers: [],
-                diversityPenalty: 0.80,                  // v2.3: 0.50→0.80 — penalidade severa
-                maxConcentration: 0.25,                  // v2.3: 0.30→0.25 (20/100=20%, +5%)
+                diversityPenalty: 0.80,                      // v2.3: 0.50→0.80 ✅
+                maxConcentration: 0.55,                      // v2.3: 0.30→0.55 (50/100=50%, +5%)
                 forceNewEvery: 2,
-                maxOverlapBetweenGames: 10,              // NOVO: max 10/20 overlap
-                maxSeedRatio: 0.15,                      // NOVO
-                noiseLevel: 0.40,                        // NOVO: ruído para explorar range 100
+                maxOverlapBetweenGames: 35,                  // NOVO: max 35/50 overlap
+                maxSeedRatio: 0.15,                          // NOVO
+                noiseLevel: 0.35,                            // NOVO: ruído para explorar range 100
                 hotRatio: 0.40,
                 warmRatio: 0.35,
                 coldRatio: 0.25
