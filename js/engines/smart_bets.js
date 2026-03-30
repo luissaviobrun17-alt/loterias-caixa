@@ -99,25 +99,32 @@ class SmartBetsEngine {
                 name: 'Quina',
                 draw: 5, range: [1, 80],
                 maxConsecutive: 2,
-                evenOddIdeal: [3, 2], evenOddTolerance: 1,
+                evenOddIdeal: [3, 2], evenOddTolerance: 2,  // v2.3: tolerância 1→2
                 faixaSize: 10, faixaMin: 0, faixaMax: 2,
-                sumMin: 108, sumMax: 292,
-                gapMin: 5, gapMax: 20,
+                sumMin: 100, sumMax: 300,               // v2.3: ajustado P10-P90
+                gapMin: 5, gapMax: 25,                  // v2.3: gapMax 20→25 (range 80)
                 repeatFromLast: [0, 1],
-                primeRatio: [0.05, 0.55],
+                primeRatio: [0.0, 0.55],
                 maxSameEnding: 2,
-                fibWeight: 0.3,
-                markovWeight: 0.55,
-                trendWeight: 0.50,
-                pairBoost: 0.40,
-                trioBoost: 0.30,
+                fibWeight: 0.08,                        // v2.3: 0.3→0.08
+                markovWeight: 0.15,                     // v2.3: 0.55→0.15 — CAUSA RAIZ da concentração
+                trendWeight: 0.15,                      // v2.3: 0.50→0.15
+                pairBoost: 0.08,                        // v2.3: 0.40→0.08
+                trioBoost: 0.04,                        // v2.3: 0.30→0.04
                 multiWindow: true,
-                zoneMinCover: 3,
+                zoneMinCover: 3,                        // Cobrir 3 de 8 zonas
                 hotNumbers: [],
                 coldNumbers: [],
-                diversityPenalty: 0.45,
-                maxConcentration: 0.35,
-                forceNewEvery: 3
+                diversityPenalty: 0.85,                 // v2.3: 0.45→0.85 — penalidade SEVERA
+                maxConcentration: 0.08,                 // v2.3: 0.35→0.08 (5/80=6.25%, +2% margem)
+                forceNewEvery: 2,                       // v2.3: 3→2
+                maxOverlapBetweenGames: 2,              // NOVO: max 2/5 overlap
+                maxSeedRatio: 0.20,                     // NOVO
+                noiseLevel: 0.50,                       // NOVO: ruído ALTO (range 80)
+                // Camadas de temperatura
+                hotRatio: 0.40,                         // ~2/5 do pool HOT
+                warmRatio: 0.35,                        // ~2/5 do warm
+                coldRatio: 0.25                         // ~1/5 do cold
             },
             duplasena: {
                 name: 'Dupla Sena',
