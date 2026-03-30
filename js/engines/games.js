@@ -12,7 +12,8 @@ const GAMES = {
         strategies: [
             { id: "sena", label: "Sena (6)", match: 6, prize: 60000000 },
             { id: "quina", label: "Quina (5)", match: 5, prize: 50000 },
-            { id: "quadra", label: "Quadra (4)", match: 4, prize: 1200 }
+            { id: "quadra", label: "Quadra (4)", match: 4, prize: 1200 },
+            { id: "terno", label: "Terno (3)", match: 3, prize: 0 }
         ],
         minBet: 6,
         maxBet: 60,
@@ -29,7 +30,9 @@ const GAMES = {
         strategies: [
             { id: "15pts", label: "15 Pontos", match: 15, prize: 2000000 },
             { id: "14pts", label: "14 Pontos", match: 14, prize: 1800 },
-            { id: "13pts", label: "13 Pontos", match: 13, prize: 30 }
+            { id: "13pts", label: "13 Pontos", match: 13, prize: 30 },
+            { id: "12pts", label: "12 Pontos", match: 12, prize: 0 },
+            { id: "11pts", label: "11 Pontos", match: 11, prize: 0 }
         ],
         minBet: 15,
         maxBet: 25,
