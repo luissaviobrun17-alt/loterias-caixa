@@ -192,37 +192,35 @@ class SmartBetsEngine {
             timemania: {
                 name: 'Timemania',
                 draw: 7, range: [1, 80],
-                maxConsecutive: 3,                           // V3: 2→3 (dados reais permitem)
+                maxConsecutive: 2,                           // V5: dados reais: avg 0.56 consecutivos
                 evenOddIdeal: [5, 5], evenOddTolerance: 3,
-                faixaSize: 10, faixaMin: 0, faixaMax: 3,     // V3: max 2→3
-                sumMin: 180, sumMax: 380,                    // V3: [200,360]→[180,380] — aceitar outliers
-                gapMin: 2, gapMax: 25,                       // V3: gapMin 3→2
-                repeatFromLast: [0, 3],
-                primeRatio: [0.0, 0.60],                     // V3: 0.55→0.60
-                maxSameEnding: 3,                            // V3: 2→3
-                fibWeight: 0.06,
-                markovWeight: 0.08,                          // V3: 0.12→0.08 — reduzir viés
-                trendWeight: 0.10,                           // V3: 0.14→0.10
-                pairBoost: 0.06,                             // V3: 0.08→0.06
-                trioBoost: 0.03,                             // V3: 0.04→0.03
-                zoneMinCover: 4,
+                faixaSize: 10, faixaMin: 0, faixaMax: 3,
+                sumMin: 200, sumMax: 340,                    // V5: centro de massa real 270.8
+                gapMin: 2, gapMax: 25,
+                repeatFromLast: [0, 2],                      // V5: dados reais: avg 0.74 repetições
+                primeRatio: [0.0, 0.60],
+                maxSameEnding: 3,
+                fibWeight: 0.04,
+                markovWeight: 0.05,                          // V5: dados espalhados demais para Markov
+                trendWeight: 0.08,
+                pairBoost: 0.04,
+                trioBoost: 0.02,
+                zoneMinCover: 5,                             // V5: dados reais: avg 5.0 zonas
                 multiWindow: true,
                 hotNumbers: [],
                 coldNumbers: [],
-                // ── EXCLUSÃO INTELIGENTE (V3) ──
-                useExclusionStrategy: true,                  // V3: NOVO
-                exclusionCount: [55, 65],                    // V3: NOVO — excluir 55-65 de 80 (manter pool de 15-25)
-                exclusionThreshold: 0.20,                    // V3: NOVO
-                // ── DIVERSIDADE RECALIBRADA (V3) ──
-                diversityPenalty: 0.70,                      // V3: 0.88→0.70
-                maxConcentration: 0.15,
+                // ── V5: EXCLUSÃO DESATIVADA — dados esparsos demais (39 draws / 80 nums) ──
+                useExclusionStrategy: false,                 // V5: DESATIVADO — exclusão prejudica com poucos dados
+                // ── DIVERSIDADE RECALIBRADA (V5) ──
+                diversityPenalty: 0.55,
+                maxConcentration: 0.20,
                 forceNewEvery: 2,
-                maxOverlapBetweenGames: 4,                   // V3: 3→4
-                maxSeedRatio: 0.20,
-                noiseLevel: 0.35,                            // V3: 0.45→0.35 — menos ruído
-                hotRatio: 0.40,
+                maxOverlapBetweenGames: 5,
+                maxSeedRatio: 0.25,
+                noiseLevel: 0.30,                            // V5: 0.25→0.30 — mais exploração
+                hotRatio: 0.45,
                 warmRatio: 0.35,
-                coldRatio: 0.25
+                coldRatio: 0.20
             },
             diadesorte: {
                 name: 'Dia de Sorte',

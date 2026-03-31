@@ -151,24 +151,25 @@ class BacktestingEngine {
     }
 
     /**
-     * Calcular métricas detalhadas
+     * Calcular métricas detalhadas — V2: adaptativo por jogo
      */
     static _calculateMetrics(results, gameKey, drawSize) {
         let totalHits = 0;
         let totalGames = 0;
         let bestOverall = 0;
-        let hits11plus = 0, hits12plus = 0, hits13plus = 0, hits14plus = 0;
         let hitsByDraw = [];
+
+        // V2: Thresholds específicos por jogo (faixas de premiação reais)
+        const thresholds = this._getGameThresholds(gameKey);
+        const hitCounts = {};
+        thresholds.forEach(t => hitCounts[t] = 0);
 
         for (const draw of results) {
             for (const hit of draw.hits) {
                 totalHits += hit;
                 totalGames++;
                 if (hit > bestOverall) bestOverall = hit;
-                if (hit >= 11) hits11plus++;
-                if (hit >= 12) hits12plus++;
-                if (hit >= 13) hits13plus++;
-                if (hit >= 14) hits14plus++;
+                thresholds.forEach(t => { if (hit >= t) hitCounts[t]++; });
             }
             hitsByDraw.push({
                 draw: draw.drawNumber,
@@ -189,33 +190,44 @@ class BacktestingEngine {
 
         // Determinar nível de confiança
         let confidenceLevel = 'baixa';
-        let confidenceColor = '#EF4444'; // vermelho
+        let confidenceColor = '#EF4444';
         if (improvement >= 10) { confidenceLevel = 'alta'; confidenceColor = '#10B981'; }
         else if (improvement >= 3) { confidenceLevel = 'média'; confidenceColor = '#F59E0B'; }
         else if (improvement >= 0) { confidenceLevel = 'marginal'; confidenceColor = '#F97316'; }
 
+        const pctByThreshold = {};
+        thresholds.forEach(t => {
+            pctByThreshold[t] = totalGames > 0 ? Math.round(hitCounts[t] / totalGames * 100) : 0;
+        });
+
         return {
-            gameKey,
-            engine: 'smart',
-            concursosTested: results.length,
-            totalGames,
-            avgHits,
-            bestOverall,
+            gameKey, engine: 'smart', concursosTested: results.length,
+            totalGames, avgHits, bestOverall,
             expectedRandom: expectedRandom.toFixed(1),
-            improvement: improvement,
-            pct11plus: totalGames > 0 ? Math.round(hits11plus / totalGames * 100) : 0,
-            pct12plus: totalGames > 0 ? Math.round(hits12plus / totalGames * 100) : 0,
-            pct13plus: totalGames > 0 ? Math.round(hits13plus / totalGames * 100) : 0,
-            pct14plus: totalGames > 0 ? Math.round(hits14plus / totalGames * 100) : 0,
-            confidenceLevel,
-            confidenceColor,
-            hitsByDraw,
-            summary: `Média: ${avgHits.toFixed(1)} hits (acaso: ${expectedRandom}) | Melhor: ${bestOverall} | Melhoria: ${improvement >= 0 ? '+' : ''}${improvement.toFixed(1)}%`
+            improvement, thresholds, pctByThreshold,
+            pct11plus: pctByThreshold[11] || 0,
+            pct12plus: pctByThreshold[12] || 0,
+            pct13plus: pctByThreshold[13] || 0,
+            confidenceLevel, confidenceColor, hitsByDraw,
+            summary: `Média: ${avgHits.toFixed(1)} hits (acaso: ${expectedRandom}) | Melhor: ${bestOverall}`
         };
     }
 
+    static _getGameThresholds(gameKey) {
+        const map = {
+            lotofacil: [11, 12, 13],
+            timemania: [3, 4, 5],
+            megasena: [4, 5, 6],
+            quina: [2, 3, 4],
+            duplasena: [3, 4, 5],
+            lotomania: [15, 16, 17],
+            diadesorte: [3, 4, 5]
+        };
+        return map[gameKey] || [3, 4, 5];
+    }
+
     /**
-     * Formatar resultado para exibição na UI
+     * Formatar resultado para exibição na UI — V2: adaptativo
      */
     static formatForUI(metrics) {
         if (!metrics) return '<span style="color: #94A3B8;">Sem dados para backtesting</span>';
@@ -226,34 +238,34 @@ class BacktestingEngine {
             quina: 'Quina', duplasena: 'Dupla Sena', lotomania: 'Lotomania', diadesorte: 'Dia de Sorte'
         };
 
-        return `
-            <div style="padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid ${metrics.confidenceColor}40; margin-top: 8px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span style="font-weight: 700; color: ${metrics.confidenceColor}; font-size: 0.85rem;">
-                        ${icon} Backtesting ${gameNames[metrics.gameKey] || metrics.gameKey}
-                    </span>
-                    <span style="font-size: 0.75rem; color: #94A3B8;">${metrics.concursosTested} concursos</span>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.78rem;">
-                    <span style="color: #CBD5E1;">Média acertos:</span>
-                    <span style="color: ${metrics.confidenceColor}; font-weight: 600; text-align: right;">${metrics.avgHits.toFixed(1)} (acaso: ${metrics.expectedRandom})</span>
-                    <span style="color: #CBD5E1;">Melhor resultado:</span>
-                    <span style="color: #F1F5F9; font-weight: 600; text-align: right;">${metrics.bestOverall} pontos</span>
-                    <span style="color: #CBD5E1;">Melhoria vs acaso:</span>
-                    <span style="color: ${metrics.confidenceColor}; font-weight: 600; text-align: right;">${metrics.improvement >= 0 ? '+' : ''}${metrics.improvement.toFixed(1)}%</span>
-                    <span style="color: #CBD5E1;">≥11 pts:</span>
-                    <span style="color: #F1F5F9; text-align: right;">${metrics.pct11plus}%</span>
-                    <span style="color: #CBD5E1;">≥12 pts:</span>
-                    <span style="color: #F1F5F9; text-align: right;">${metrics.pct12plus}%</span>
-                    <span style="color: #CBD5E1;">≥13 pts:</span>
-                    <span style="color: ${metrics.pct13plus > 0 ? '#10B981' : '#F1F5F9'}; font-weight: ${metrics.pct13plus > 0 ? '700' : '400'}; text-align: right;">${metrics.pct13plus}%</span>
-                </div>
-                <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.05);">
-                    <span style="font-size: 0.7rem; color: ${metrics.confidenceColor}; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                        Confiança: ${metrics.confidenceLevel}
-                    </span>
-                </div>
-            </div>
-        `;
+        let thresholdRows = '';
+        if (metrics.thresholds && metrics.pctByThreshold) {
+            metrics.thresholds.forEach(t => {
+                const pct = metrics.pctByThreshold[t] || 0;
+                const color = pct > 0 ? '#10B981' : '#F1F5F9';
+                const weight = pct > 0 ? '700' : '400';
+                thresholdRows += '<span style="color: #CBD5E1;">≥' + t + ' pts:</span>';
+                thresholdRows += '<span style="color: ' + color + '; font-weight: ' + weight + '; text-align: right;">' + pct + '%</span>';
+            });
+        }
+
+        return '<div style="padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid ' + metrics.confidenceColor + '40; margin-top: 8px;">' +
+            '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">' +
+                '<span style="font-weight: 700; color: ' + metrics.confidenceColor + '; font-size: 0.85rem;">' + icon + ' Backtesting ' + (gameNames[metrics.gameKey] || metrics.gameKey) + '</span>' +
+                '<span style="font-size: 0.75rem; color: #94A3B8;">' + metrics.concursosTested + ' concursos</span>' +
+            '</div>' +
+            '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.78rem;">' +
+                '<span style="color: #CBD5E1;">Média acertos:</span>' +
+                '<span style="color: ' + metrics.confidenceColor + '; font-weight: 600; text-align: right;">' + metrics.avgHits.toFixed(1) + ' (acaso: ' + metrics.expectedRandom + ')</span>' +
+                '<span style="color: #CBD5E1;">Melhor resultado:</span>' +
+                '<span style="color: #F1F5F9; font-weight: 600; text-align: right;">' + metrics.bestOverall + ' pontos</span>' +
+                '<span style="color: #CBD5E1;">Melhoria vs acaso:</span>' +
+                '<span style="color: ' + metrics.confidenceColor + '; font-weight: 600; text-align: right;">' + (metrics.improvement >= 0 ? '+' : '') + metrics.improvement.toFixed(1) + '%</span>' +
+                thresholdRows +
+            '</div>' +
+            '<div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.05);">' +
+                '<span style="font-size: 0.7rem; color: ' + metrics.confidenceColor + '; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Confiança: ' + metrics.confidenceLevel + '</span>' +
+            '</div>' +
+        '</div>';
     }
 }

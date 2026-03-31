@@ -110,21 +110,21 @@ class QuantumGodEngine {
                 repeatFromLast: [7, 14], guaranteedPct: 0.45,
                 monteCarloRuns: 20000, qualityAttempts: 3000
             },
-            // Timemania: 10/80 — V3: CLARIVIDÊNCIA QUÂNTICA RECALIBRADA
+            // Timemania: 10/80 — V4: RECALIBRADA COM DADOS FORENSES
             'timemania': {
-                recentFreq:   0.08, generalFreq: 0.05, latency: 0.12,  // V3: lat 0.14→0.12
-                cycles:       0.10, repetition: 0.05, drawEnding: 0.05, // V3: cycles 0.12→0.10
+                recentFreq:   0.10, generalFreq: 0.06, latency: 0.12,  // V4: recentFreq 0.08→0.10
+                cycles:       0.08, repetition: 0.04, drawEnding: 0.04, // V4: rep 0.05→0.04
                 lines:        0.05, columns: 0.04, primes: 0.02,
-                mirrors:      0.03, digitEnding: 0.04,                 // V3: mirrors 0.04→0.03
-                markov:       0.05, temporal: 0.06, conditional: 0.05, // V3: markov 0.06→0.05
-                algorithm:    0.05, trend: 0.06, fibonacci: 0.02,
-                // Camadas quânticas V12 (recalibradas V3)
-                harmonics:    0.06, entropy: 0.05, regression: 0.07,   // V3: reduzidos
-                phaseAlign:   0.06, resonance: 0.07, clairvoyance: 0.10, // V3: clair 0.12→0.10
-                sumMin: 180, sumMax: 380, linesPerRow: [0, 3],         // V3: ampliado
-                maxConsecutive: 3, evenOddTolerance: 3,                // V3: maxCons 2→3
-                repeatFromLast: [0, 4], guaranteedPct: 0.30,           // V3: guaranteedPct 0.35→0.30
-                monteCarloRuns: 50000, qualityAttempts: 6000
+                mirrors:      0.03, digitEnding: 0.04,
+                markov:       0.04, temporal: 0.07, conditional: 0.05, // V4: markov 0.05→0.04, temp 0.06→0.07
+                algorithm:    0.05, trend: 0.07, fibonacci: 0.02,     // V4: trend 0.06→0.07
+                // Camadas quânticas V12 (recalibradas V4)
+                harmonics:    0.05, entropy: 0.04, regression: 0.06,   // V4: reduzidos mais
+                phaseAlign:   0.05, resonance: 0.06, clairvoyance: 0.08, // V4: clair 0.10→0.08
+                sumMin: 200, sumMax: 340, linesPerRow: [0, 3],         // V4: soma real [200,340]
+                maxConsecutive: 2, evenOddTolerance: 3,                // V4: maxCons 3→2
+                repeatFromLast: [0, 2], guaranteedPct: 0.25,           // V4: repeat [0,4]→[0,2], guar 0.30→0.25
+                monteCarloRuns: 65000, qualityAttempts: 8000           // V4: mais simulações
             },
             // Dia de Sorte: 7/31 — V10: espaço pequeno, equilibrado
             'diadesorte': {
