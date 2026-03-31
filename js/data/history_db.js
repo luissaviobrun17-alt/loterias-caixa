@@ -48,6 +48,7 @@ const REAL_HISTORY_DB = {
         { drawNumber: 2952, numbers: [1, 20, 45, 48, 51, 58] }
     ],
     lotofacil: [
+        { drawNumber: 3649, numbers: [6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 20, 21, 24, 25] },
         { drawNumber: 3648, numbers: [1, 2, 5, 7, 8, 9, 10, 11, 13, 14, 15, 18, 19, 20, 22] },
         { drawNumber: 3647, numbers: [2, 4, 5, 8, 10, 12, 15, 16, 17, 19, 20, 21, 22, 24, 25] },
         { drawNumber: 3646, numbers: [1, 3, 5, 7, 8, 11, 13, 15, 16, 18, 19, 20, 23, 24, 25] },

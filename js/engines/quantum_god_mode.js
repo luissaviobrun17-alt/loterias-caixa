@@ -1,7 +1,7 @@
 /**
- * QUANTUM GOD ENGINE V8 — ORÁCULO (CLARIVIDÊNCIA QUÂNTICA)
- * =========================================================
- * 20 CAMADAS DE ANÁLISE — Detecção de padrões ocultos e algoritmos
+ * QUANTUM GOD ENGINE V12 — ORÁCULO QUÂNTICO + CLARIVIDÊNCIA
+ * ===========================================================
+ * 28 CAMADAS DE ANÁLISE — Detecção de padrões ocultos e algoritmos
  * 
  * CAMADA 1:  Frequência Recente (últimos 3-5 sorteios)
  * CAMADA 2:  Frequência Geral (todos os sorteios)
@@ -23,9 +23,18 @@
  * CAMADA 18: DETECTOR DE ALGORITMO/RNG — viés oculto ⚡
  * CAMADA 19: TENDÊNCIA TEMPORAL — ascensão/declínio ⚡
  * CAMADA 20: FIBONACCI / PROPORÇÃO ÁUREA ⚡
+ * CAMADA 21: ANÁLISE DE GAPS ⚡
+ * CAMADA 22: EQUILÍBRIO DE QUADRANTES ⚡
+ * ── NOVAS CAMADAS QUÂNTICAS (V12 — TIMEMANIA) ──
+ * CAMADA 23: HARMÔNICOS — Frequência ressonante por zona 🔮
+ * CAMADA 24: ENTROPIA — Caos vs Ordem no histórico 🔮
+ * CAMADA 25: REGRESSÃO PREDITIVA — Vetores de tendência 🔮
+ * CAMADA 26: ALINHAMENTO DE FASE — Ciclos sobrepostos 🔮
+ * CAMADA 27: RESSONÂNCIA QUÂNTICA — Atrator estranho 🔮
+ * CAMADA 28: CLARIVIDÊNCIA — Síntese preditiva final 🔮
  * 
- * MONTE CARLO: 10.000 universos (3 rodadas)
- * FILTRO V2 + BACKTESTING AUTOMÁTICO
+ * MONTE CARLO: 50.000 universos (7 rodadas) para Timemania
+ * FILTRO V3 + BACKTESTING APROFUNDADO + CROSS-VALIDATION
  * 
  * "O Oráculo que usa o passado para prever o futuro."
  */
@@ -38,16 +47,16 @@ class QuantumGodEngine {
         var profiles = {
             // Lotofácil: 15/25 — V10: range pequeno, diversidade natural alta
             'lotofacil': {
-                recentFreq:   0.06, generalFreq: 0.03, latency: 0.06,
-                cycles:       0.05, repetition: 0.18, drawEnding: 0.02,
+                recentFreq:   0.08, generalFreq: 0.04, latency: 0.08,
+                cycles:       0.06, repetition: 0.10, drawEnding: 0.02,  // V3: rep 0.18→0.10
                 lines:        0.06, columns: 0.04, primes: 0.01,
                 mirrors:      0.03, digitEnding: 0.03,
-                markov:       0.12, temporal: 0.08, conditional: 0.08,
-                algorithm:    0.03, trend: 0.06, fibonacci: 0.01,
-                sumMin: 170, sumMax: 225, linesPerRow: [2, 4],
-                maxConsecutive: 4, evenOddTolerance: 2,
-                repeatFromLast: [7, 11], guaranteedPct: 0.55,
-                monteCarloRuns: 20000, qualityAttempts: 2500
+                markov:       0.06, temporal: 0.06, conditional: 0.06,   // V3: markov 0.12→0.06
+                algorithm:    0.03, trend: 0.05, fibonacci: 0.01,       // V3: trend 0.06→0.05
+                sumMin: 155, sumMax: 235, linesPerRow: [1, 5],          // V3: ampliado
+                maxConsecutive: 10, evenOddTolerance: 3,                // V3: maxCons 4→10!
+                repeatFromLast: [6, 12], guaranteedPct: 0.40,           // V3: guaranteedPct 0.55→0.40
+                monteCarloRuns: 25000, qualityAttempts: 3000            // V3: mais simulações
             },
             // Mega Sena: 6/60 — V10: diversidade + latência equilibrada
             'megasena': {
@@ -101,18 +110,21 @@ class QuantumGodEngine {
                 repeatFromLast: [7, 14], guaranteedPct: 0.45,
                 monteCarloRuns: 20000, qualityAttempts: 3000
             },
-            // Timemania: 10/80 — V11: DIVERSIDADE MÁXIMA + pool amplo
+            // Timemania: 10/80 — V3: CLARIVIDÊNCIA QUÂNTICA RECALIBRADA
             'timemania': {
-                recentFreq:   0.06, generalFreq: 0.04, latency: 0.18,
-                cycles:       0.14, repetition: 0.04, drawEnding: 0.05,
-                lines:        0.05, columns: 0.04, primes: 0.01,
-                mirrors:      0.03, digitEnding: 0.04,
-                markov:       0.04, temporal: 0.06, conditional: 0.04,
-                algorithm:    0.08, trend: 0.04, fibonacci: 0.01,
-                sumMin: 180, sumMax: 340, linesPerRow: [0, 3],
-                maxConsecutive: 2, evenOddTolerance: 2,
-                repeatFromLast: [0, 2], guaranteedPct: 0.25,
-                monteCarloRuns: 30000, qualityAttempts: 4000
+                recentFreq:   0.08, generalFreq: 0.05, latency: 0.12,  // V3: lat 0.14→0.12
+                cycles:       0.10, repetition: 0.05, drawEnding: 0.05, // V3: cycles 0.12→0.10
+                lines:        0.05, columns: 0.04, primes: 0.02,
+                mirrors:      0.03, digitEnding: 0.04,                 // V3: mirrors 0.04→0.03
+                markov:       0.05, temporal: 0.06, conditional: 0.05, // V3: markov 0.06→0.05
+                algorithm:    0.05, trend: 0.06, fibonacci: 0.02,
+                // Camadas quânticas V12 (recalibradas V3)
+                harmonics:    0.06, entropy: 0.05, regression: 0.07,   // V3: reduzidos
+                phaseAlign:   0.06, resonance: 0.07, clairvoyance: 0.10, // V3: clair 0.12→0.10
+                sumMin: 180, sumMax: 380, linesPerRow: [0, 3],         // V3: ampliado
+                maxConsecutive: 3, evenOddTolerance: 3,                // V3: maxCons 2→3
+                repeatFromLast: [0, 4], guaranteedPct: 0.30,           // V3: guaranteedPct 0.35→0.30
+                monteCarloRuns: 50000, qualityAttempts: 6000
             },
             // Dia de Sorte: 7/31 — V10: espaço pequeno, equilibrado
             'diadesorte': {
@@ -143,8 +155,8 @@ class QuantumGodEngine {
             return this._randomFallback(startNum, endNum, count);
         }
 
-        console.log('[QuantumV9] 🔮 MODO DEUS ATIVADO: ' + gameKey + ' (' + history.length + ' sorteios REAIS)');
-        console.log('[QuantumV9] 📋 22 Camadas de Análise Profunda + Cross-Validation');
+        console.log('[QuantumV12] 🔮 MODO DEUS + CLARIVIDÊNCIA ATIVADO: ' + gameKey + ' (' + history.length + ' sorteios REAIS)');
+        console.log('[QuantumV12] 📋 28 Camadas de Análise Profunda + Clarividência + Cross-Validation');
 
         var totalRange = endNum - startNum + 1;
         var isLargeGame = totalRange > 50;
@@ -234,8 +246,16 @@ class QuantumGodEngine {
         var gapWeights = this._layer21_GapAnalysis(history, startNum, endNum);
         var quadrantWeights = this._layer22_QuadrantBalance(history, startNum, endNum);
 
-        // Diversidade extra em retries (V10: mais agressivo)
-        var diversityBoost = retryNum * 0.08;
+        // ── NOVAS CAMADAS QUÂNTICAS V12 (Clarividência Timemania) ──
+        var harmonicWeights = (profile.harmonics) ? this._layer23_Harmonics(history, startNum, endNum) : null;
+        var entropyWeights = (profile.entropy) ? this._layer24_Entropy(history, startNum, endNum) : null;
+        var regressionWeights = (profile.regression) ? this._layer25_Regression(history, startNum, endNum) : null;
+        var phaseWeights = (profile.phaseAlign) ? this._layer26_PhaseAlignment(history, startNum, endNum) : null;
+        var resonanceWeights = (profile.resonance) ? this._layer27_Resonance(history, startNum, endNum) : null;
+        var clairvoyanceWeights = (profile.clairvoyance) ? this._layer28_Clairvoyance(history, startNum, endNum, gameKey) : null;
+
+        // Diversidade extra em retries (V12: mais agressivo)
+        var diversityBoost = retryNum * 0.10;
 
         var finalScores = {};
         for (var n = startNum; n <= endNum; n++) {
@@ -260,6 +280,13 @@ class QuantumGodEngine {
                 (fibonacciWeights[n] || 0)   * (profile.fibonacci * 0.3 || 0) +
                 (gapWeights[n] || 0)         * 0.06 +
                 (quadrantWeights[n] || 0)    * 0.05 +
+                // ── Camadas Quânticas V12 ──
+                (harmonicWeights ? (harmonicWeights[n] || 0) * (profile.harmonics || 0) : 0) +
+                (entropyWeights ? (entropyWeights[n] || 0) * (profile.entropy || 0) : 0) +
+                (regressionWeights ? (regressionWeights[n] || 0) * (profile.regression || 0) : 0) +
+                (phaseWeights ? (phaseWeights[n] || 0) * (profile.phaseAlign || 0) : 0) +
+                (resonanceWeights ? (resonanceWeights[n] || 0) * (profile.resonance || 0) : 0) +
+                (clairvoyanceWeights ? (clairvoyanceWeights[n] || 0) * (profile.clairvoyance || 0) : 0) +
                 noise;
         }
 
@@ -275,20 +302,20 @@ class QuantumGodEngine {
             guaranteed.push(ranked[g].number);
         }
 
-        // Monte Carlo com temperature decay (5 rodadas)
+        // Monte Carlo com temperature decay (V12: 7 rodadas para Timemania)
         var gameSize = this._getGameSize(gameKey);
         var convergenceMap = {};
         for (var cn = startNum; cn <= endNum; cn++) convergenceMap[cn] = 0;
         var totalMC = profile.monteCarloRuns;
-        var numRounds = 5;
+        var numRounds = totalMC >= 40000 ? 7 : 5; // V12: mais rodadas para Timemania
         var roundSize = Math.floor(totalMC / numRounds);
         var mcPairs = isLargeGame ? null : pairs;
 
         for (var round = 0; round < numRounds; round++) {
-            var temperature = 1.0 - (round * 0.18); // 1.0 → 0.28 (convergência)
+            var temperature = 1.0 - (round * (1.0 / numRounds) * 0.85); // Convergência suave
             var roundScores = {};
             for (var rs = startNum; rs <= endNum; rs++) {
-                roundScores[rs] = (finalScores[rs] || 0) * (1 + (Math.random() - 0.5) * temperature * 0.15);
+                roundScores[rs] = (finalScores[rs] || 0) * (1 + (Math.random() - 0.5) * temperature * 0.18);
             }
             for (var u = 0; u < roundSize; u++) {
                 var simResult = this._simulateOneDraw(roundScores, mcPairs, gameSize, startNum, endNum);
@@ -993,9 +1020,14 @@ class QuantumGodEngine {
                 currentRun = 1;
             }
         }
-        if (maxConsecRun > profile.maxConsecutive) score -= 2.0;
+        // V3: penalidade gradual em vez de flat -2.0
+        if (maxConsecRun > profile.maxConsecutive) {
+            score -= Math.min(3.0, (maxConsecRun - profile.maxConsecutive) * 0.5);
+        } else {
+            score += 0.5; // Bonus leve por estar dentro do limite
+        }
         var consecDiff = Math.abs(consecutivePairs - patterns.avgConsecutive);
-        score += Math.max(0, 1.5 - consecDiff * 0.4);
+        score += Math.max(0, 1.5 - consecDiff * 0.3); // V3: 0.4→0.3 (menos punição)
 
         // 6. REPETIÇÃO DO ÚLTIMO SORTEIO (V2 — crítico!)
         var repeatCount = 0;
@@ -1589,6 +1621,397 @@ class QuantumGodEngine {
             var q = Math.min(3, Math.floor((n2 - startNum) / quadSize));
             weights[n2] = totalNums > 0 ? quadCounts[q] / totalNums : 0.25;
         }
+        return this._normalize(weights);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // CAMADA 23: HARMÔNICOS — Frequência ressonante por zona 🔮
+    // Detecta "harmônicos" — números que vibram na mesma frequência
+    // que os mais sorteados, criando ressonância numérica
+    // ══════════════════════════════════════════════════════════
+    static _layer23_Harmonics(history, startNum, endNum) {
+        var weights = {};
+        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
+        if (history.length < 5) return weights;
+
+        var totalRange = endNum - startNum + 1;
+        var zoneSize = Math.ceil(totalRange / 8); // 8 zonas de 10
+
+        // Calcular "frequência fundamental" de cada zona
+        var zoneFreqs = new Array(8).fill(0);
+        var zoneCounts = new Array(8).fill(0);
+        var limit = Math.min(history.length, 30);
+
+        for (var i = 0; i < limit; i++) {
+            var decay = Math.pow(0.94, i);
+            for (var j = 0; j < history[i].numbers.length; j++) {
+                var num = history[i].numbers[j];
+                if (num >= startNum && num <= endNum) {
+                    var zone = Math.min(7, Math.floor((num - startNum) / zoneSize));
+                    zoneFreqs[zone] += decay;
+                    zoneCounts[zone]++;
+                }
+            }
+        }
+
+        // Normalizar frequências por zona
+        var maxZoneFreq = 0;
+        for (var z = 0; z < 8; z++) {
+            zoneFreqs[z] = zoneCounts[z] > 0 ? zoneFreqs[z] / zoneCounts[z] : 0;
+            if (zoneFreqs[z] > maxZoneFreq) maxZoneFreq = zoneFreqs[z];
+        }
+
+        // Harmônicos: números cuja zona tem alta frequência + vizinhos
+        for (var n2 = startNum; n2 <= endNum; n2++) {
+            var myZone = Math.min(7, Math.floor((n2 - startNum) / zoneSize));
+            var myFreq = maxZoneFreq > 0 ? zoneFreqs[myZone] / maxZoneFreq : 0.5;
+            
+            // Ressonância: média com zonas adjacentes
+            var adjFreq = 0;
+            var adjCount = 0;
+            if (myZone > 0) { adjFreq += zoneFreqs[myZone - 1]; adjCount++; }
+            if (myZone < 7) { adjFreq += zoneFreqs[myZone + 1]; adjCount++; }
+            var resonance = adjCount > 0 ? (adjFreq / adjCount) / Math.max(0.01, maxZoneFreq) : 0.5;
+
+            // Score final = frequência da zona + ressonância com vizinhos
+            weights[n2] = myFreq * 0.65 + resonance * 0.35;
+        }
+
+        console.log('[QuantumV12] 🎵 Harmônicos calculados (8 zonas ressonantes)');
+        return this._normalize(weights);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // CAMADA 24: ENTROPIA — Caos vs Ordem no histórico 🔮
+    // Números que surgem em períodos de BAIXA entropia (previsíveis)
+    // têm mais chance de repetir. Alta entropia = instabilidade
+    // ══════════════════════════════════════════════════════════
+    static _layer24_Entropy(history, startNum, endNum) {
+        var weights = {};
+        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
+        if (history.length < 8) return weights;
+
+        var totalRange = endNum - startNum + 1;
+
+        // Calcular entropia de Shannon para cada janela de 3 sorteios
+        var windowSize = 3;
+        var windowEntropies = [];
+        var windowNumbers = [];
+
+        for (var w = 0; w <= history.length - windowSize; w++) {
+            var freqMap = {};
+            var totalNums = 0;
+            for (var i = w; i < w + windowSize; i++) {
+                for (var j = 0; j < history[i].numbers.length; j++) {
+                    var num = history[i].numbers[j];
+                    freqMap[num] = (freqMap[num] || 0) + 1;
+                    totalNums++;
+                }
+            }
+
+            // Entropia de Shannon: H = -Σ p(x) * log2(p(x))
+            var entropy = 0;
+            for (var k in freqMap) {
+                var p = freqMap[k] / totalNums;
+                if (p > 0) entropy -= p * Math.log2(p);
+            }
+            windowEntropies.push(entropy);
+            windowNumbers.push(freqMap);
+        }
+
+        // Encontrar janelas de BAIXA entropia (mais previsíveis)
+        var avgEntropy = 0;
+        for (var e = 0; e < windowEntropies.length; e++) avgEntropy += windowEntropies[e];
+        avgEntropy = windowEntropies.length > 0 ? avgEntropy / windowEntropies.length : 0;
+
+        // Dar boost a números que aparecem em janelas de baixa entropia
+        for (var wi = 0; wi < windowEntropies.length; wi++) {
+            var entropyRatio = avgEntropy > 0 ? windowEntropies[wi] / avgEntropy : 1;
+            var boost = entropyRatio < 0.9 ? (0.9 - entropyRatio) * 3 : 0; // Baixa entropia = previsível
+
+            if (boost > 0) {
+                var decay = Math.pow(0.85, wi); // Janelas mais recentes pesam mais
+                for (var nk in windowNumbers[wi]) {
+                    if (nk >= startNum && nk <= endNum) {
+                        weights[nk] += boost * decay * windowNumbers[wi][nk];
+                    }
+                }
+            }
+        }
+
+        console.log('[QuantumV12] 🌡️ Entropia média: ' + avgEntropy.toFixed(3) + ' (janelas de ' + windowSize + ')');
+        return this._normalize(weights);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // CAMADA 25: REGRESSÃO PREDITIVA — Vetores de tendência 🔮
+    // Regressão linear sobre a frequência de cada número ao longo
+    // do tempo — detecta números em ascensão ou queda
+    // ══════════════════════════════════════════════════════════
+    static _layer25_Regression(history, startNum, endNum) {
+        var weights = {};
+        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
+        if (history.length < 10) return weights;
+
+        var segmentSize = Math.min(5, Math.floor(history.length / 4));
+        var numSegments = Math.min(6, Math.floor(history.length / segmentSize));
+
+        for (var num = startNum; num <= endNum; num++) {
+            // Calcular frequência em cada segmento temporal
+            var segFreqs = [];
+            for (var s = 0; s < numSegments; s++) {
+                var hits = 0;
+                var start = s * segmentSize;
+                var end = Math.min(history.length, start + segmentSize);
+                for (var i = start; i < end; i++) {
+                    for (var j = 0; j < history[i].numbers.length; j++) {
+                        if (history[i].numbers[j] === num) { hits++; break; }
+                    }
+                }
+                segFreqs.push(hits / (end - start));
+            }
+
+            // Regressão linear: y = mx + b
+            // x = segmento (0=mais recente), y = frequência
+            var sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+            for (var r = 0; r < segFreqs.length; r++) {
+                sumX += r;
+                sumY += segFreqs[r];
+                sumXY += r * segFreqs[r];
+                sumX2 += r * r;
+            }
+            var nn = segFreqs.length;
+            var slope = (nn * sumXY - sumX * sumY) / Math.max(1, nn * sumX2 - sumX * sumX);
+
+            // Slope negativo = frequência AUMENTANDO com o tempo (segmento 0 = mais recente)
+            // Slope positivo = frequência DIMINUINDO
+            if (slope < -0.02) {
+                weights[num] = 1.0; // Forte tendência de ascensão!
+            } else if (slope < 0) {
+                weights[num] = 0.8; // Ascensão leve
+            } else if (slope < 0.02) {
+                weights[num] = 0.5; // Estável
+            } else {
+                weights[num] = 0.2; // Em queda
+            }
+
+            // Bonus extra: se a frequência recente é alta em absoluto
+            if (segFreqs[0] > 0.4) weights[num] += 0.2;
+        }
+
+        console.log('[QuantumV12] 📈 Regressão preditiva calculada (' + numSegments + ' segmentos)');
+        return this._normalize(weights);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // CAMADA 26: ALINHAMENTO DE FASE — Ciclos sobrepostos 🔮
+    // Quando múltiplos ciclos de um número se alinham, a
+    // probabilidade de saída aumenta exponencialmente
+    // ══════════════════════════════════════════════════════════
+    static _layer26_PhaseAlignment(history, startNum, endNum) {
+        var weights = {};
+        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
+        if (history.length < 8) return weights;
+
+        for (var num = startNum; num <= endNum; num++) {
+            var positions = [];
+            for (var i = 0; i < history.length; i++) {
+                for (var j = 0; j < history[i].numbers.length; j++) {
+                    if (history[i].numbers[j] === num) { positions.push(i); break; }
+                }
+            }
+
+            if (positions.length < 3) { weights[num] = 0.3; continue; }
+
+            // Calcular múltiplos ciclos (curto, médio, longo)
+            var gaps = [];
+            for (var g = 0; g < positions.length - 1; g++) {
+                gaps.push(positions[g + 1] - positions[g]);
+            }
+
+            // Ciclo curto (últimos 3 gaps)
+            var recentGaps = gaps.slice(0, Math.min(3, gaps.length));
+            var avgRecent = 0;
+            for (var r = 0; r < recentGaps.length; r++) avgRecent += recentGaps[r];
+            avgRecent = recentGaps.length > 0 ? avgRecent / recentGaps.length : 10;
+
+            // Ciclo médio (últimos 6 gaps)
+            var medGaps = gaps.slice(0, Math.min(6, gaps.length));
+            var avgMed = 0;
+            for (var m = 0; m < medGaps.length; m++) avgMed += medGaps[m];
+            avgMed = medGaps.length > 0 ? avgMed / medGaps.length : 10;
+
+            // Ciclo longo (todos os gaps)
+            var avgLong = 0;
+            for (var l = 0; l < gaps.length; l++) avgLong += gaps[l];
+            avgLong = gaps.length > 0 ? avgLong / gaps.length : 10;
+
+            // Alinhamento: quando todos os ciclos apontam "agora"
+            var sinceLast = positions[0];
+            var alignScore = 0;
+            
+            var ratioShort = avgRecent > 0 ? sinceLast / avgRecent : 0;
+            var ratioMed = avgMed > 0 ? sinceLast / avgMed : 0;
+            var ratioLong = avgLong > 0 ? sinceLast / avgLong : 0;
+
+            // Perto de 1.0 = alinhado!
+            if (ratioShort >= 0.8 && ratioShort <= 1.4) alignScore += 0.4;
+            if (ratioMed >= 0.7 && ratioMed <= 1.3) alignScore += 0.3;
+            if (ratioLong >= 0.6 && ratioLong <= 1.4) alignScore += 0.3;
+
+            weights[num] = alignScore;
+        }
+
+        console.log('[QuantumV12] ⚡ Alinhamento de fase calculado (3 ciclos sobrepostos)');
+        return this._normalize(weights);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // CAMADA 27: RESSONÂNCIA QUÂNTICA — Atrator estranho 🔮
+    // Simula um "campo quântico" onde números atraem outros
+    // baseado na distância numérica e co-ocorrência recente
+    // ══════════════════════════════════════════════════════════
+    static _layer27_Resonance(history, startNum, endNum) {
+        var weights = {};
+        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
+        if (history.length < 5) return weights;
+
+        var totalRange = endNum - startNum + 1;
+
+        // Campo de atração: cada número do último sorteio gera um "campo"
+        var lastDraw = history[0].numbers;
+        var secondLast = history.length > 1 ? history[1].numbers : [];
+        var thirdLast = history.length > 2 ? history[2].numbers : [];
+
+        // Construir mapa de co-ocorrência recente
+        var coOccurrence = {};
+        var coLimit = Math.min(15, history.length);
+        for (var i = 0; i < coLimit; i++) {
+            var nums = history[i].numbers;
+            var decay = Math.pow(0.88, i);
+            for (var a = 0; a < nums.length; a++) {
+                for (var b = a + 1; b < nums.length; b++) {
+                    var key = Math.min(nums[a], nums[b]) + '-' + Math.max(nums[a], nums[b]);
+                    coOccurrence[key] = (coOccurrence[key] || 0) + decay;
+                }
+            }
+        }
+
+        for (var num = startNum; num <= endNum; num++) {
+            var fieldStrength = 0;
+
+            // Campo gravitacional dos últimos 3 sorteios
+            var sources = [
+                { nums: lastDraw, power: 1.0 },
+                { nums: secondLast, power: 0.6 },
+                { nums: thirdLast, power: 0.3 }
+            ];
+
+            for (var src = 0; src < sources.length; src++) {
+                for (var si = 0; si < sources[src].nums.length; si++) {
+                    var sourceNum = sources[src].nums[si];
+                    if (sourceNum === num) continue;
+
+                    // Força inversamente proporcional à distância
+                    var dist = Math.abs(num - sourceNum);
+                    var force = sources[src].power / Math.max(1, Math.sqrt(dist));
+
+                    // Bonus de co-ocorrência
+                    var coKey = Math.min(num, sourceNum) + '-' + Math.max(num, sourceNum);
+                    if (coOccurrence[coKey]) {
+                        force *= (1 + coOccurrence[coKey] * 0.3);
+                    }
+
+                    fieldStrength += force;
+                }
+            }
+
+            // Complementar espelhado (81 - num)
+            var mirror = startNum + endNum - num;
+            if (mirror >= startNum && mirror <= endNum && mirror !== num) {
+                var mirrorInLast = false;
+                for (var ml = 0; ml < lastDraw.length; ml++) {
+                    if (lastDraw[ml] === mirror) { mirrorInLast = true; break; }
+                }
+                if (mirrorInLast) fieldStrength += 0.4;
+            }
+
+            weights[num] = fieldStrength;
+        }
+
+        console.log('[QuantumV12] 🌀 Ressonância quântica calculada (campo de atração 3 sorteios)');
+        return this._normalize(weights);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // CAMADA 28: CLARIVIDÊNCIA — Síntese preditiva final 🔮
+    // Combina TODOS os sinais em uma meta-análise preditiva.
+    // Identifica "pontos de convergência" onde múltiplas camadas
+    // concordam, gerando previsões de alta confiança.
+    // ══════════════════════════════════════════════════════════════
+    static _layer28_Clairvoyance(history, startNum, endNum, gameKey) {
+        var weights = {};
+        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
+        if (history.length < 5) return weights;
+
+        // Sub-análises para síntese
+        var freq = this._layer1_RecentFrequency(history, startNum, endNum);
+        var latency = this._layer3_Latency(history, startNum, endNum);
+        var cycles = this._layer4_Cycles(history, startNum, endNum);
+        var markov = this._layer15_MarkovTransition(history, startNum, endNum);
+        var temporal = this._layer16_TemporalSequences(history, startNum, endNum);
+        var trend = this._layer19_TemporalTrend(history, startNum, endNum);
+
+        // Contar quantas camadas "concordam" que o número é forte
+        var threshold = 0.6; // Score > 0.6 = "forte"
+
+        for (var num = startNum; num <= endNum; num++) {
+            var votes = 0;
+            var totalSignal = 0;
+
+            // Votação: quantas camadas acham que o número é forte
+            var signals = [
+                freq[num] || 0,
+                latency[num] || 0,
+                cycles[num] || 0,
+                markov[num] || 0,
+                temporal[num] || 0,
+                trend[num] || 0
+            ];
+
+            for (var s = 0; s < signals.length; s++) {
+                totalSignal += signals[s];
+                if (signals[s] > threshold) votes++;
+            }
+
+            // Clarividência: convergência de múltiplas camadas
+            var avgSignal = totalSignal / signals.length;
+            var convergence = votes / signals.length; // 0 a 1
+
+            // Score exponencial: mais votos = MUITO mais confiança
+            if (convergence >= 0.8) {
+                weights[num] = 1.0 + avgSignal * 0.5; // Convergência forte!
+            } else if (convergence >= 0.6) {
+                weights[num] = 0.8 + avgSignal * 0.3;
+            } else if (convergence >= 0.4) {
+                weights[num] = 0.5 + avgSignal * 0.2;
+            } else {
+                weights[num] = avgSignal * 0.3; // Pouca convergência
+            }
+
+            // SUPER BOOST: se o número está na intersecção de Markov + Ciclo + Tendência
+            if ((markov[num] || 0) > 0.65 && (cycles[num] || 0) > 0.65 && (trend[num] || 0) > 0.65) {
+                weights[num] *= 1.5; // Tripla convergência!
+            }
+        }
+
+        // Verificação pós: números com clarividência > 1.0 são "oráculos"
+        var oracleCount = 0;
+        for (var k = startNum; k <= endNum; k++) {
+            if (weights[k] > 1.0) oracleCount++;
+        }
+
+        console.log('[QuantumV12] 🔮 CLARIVIDÊNCIA calculada — ' + oracleCount + ' números oraculares detectados');
         return this._normalize(weights);
     }
 

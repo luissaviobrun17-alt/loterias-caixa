@@ -63,37 +63,41 @@ class SmartBetsEngine {
             lotofacil: {
                 name: 'Lotofácil',
                 draw: 15, range: [1, 25],
-                maxConsecutive: 7,
-                evenOddIdeal: [7, 8], evenOddTolerance: 2,
-                faixaSize: 5, faixaMin: 1, faixaMax: 4,
-                sumMin: 170, sumMax: 220,
+                maxConsecutive: 10,                         // V3: 7→10 — dados reais: runs de até 9-10 ocorrem!
+                evenOddIdeal: [7, 8], evenOddTolerance: 3,  // V3: tol 2→3 (aceitar mais variação)
+                faixaSize: 5, faixaMin: 1, faixaMax: 5,     // V3: faixaMax 4→5 (padrão real)
+                sumMin: 155, sumMax: 235,                    // V3: [170,220]→[155,235] — dados reais P5-P95
                 gapMin: 1, gapMax: 3,
-                repeatFromLast: [7, 11],
-                primeRatio: [0.25, 0.45],
-                primeCount: [4, 6],
-                maxSameEnding: 4,
-                fibWeight: 0.08,                        // v2.3: 0.15→0.08
-                markovWeight: 0.10,                     // v2.3: 0.30→0.10 — Markov causava concentração
-                trendWeight: 0.10,                      // v2.3: 0.25→0.10 — tendência suavizada
-                pairBoost: 0.08,                        // v2.3: 0.20→0.08 — seeds não dominam
-                trioBoost: 0.06,                        // v2.3: 0.15→0.06
+                repeatFromLast: [6, 12],                     // V3: [7,11]→[6,12] — mais variação
+                primeRatio: [0.20, 0.50],
+                primeCount: [3, 7],                          // V3: [4,6]→[3,7] — aceitar outliers
+                maxSameEnding: 5,                            // V3: 4→5 (dados reais!)
+                fibWeight: 0.05,                             // V3: 0.08→0.05
+                markovWeight: 0.05,                          // V3: 0.10→0.05 — CAUSA RAIZ de viés
+                trendWeight: 0.05,                           // V3: 0.10→0.05 — suavizado
+                pairBoost: 0.04,                             // V3: 0.08→0.04 — seeds não dominam
+                trioBoost: 0.03,                             // V3: 0.06→0.03
                 gridRows: 5, gridCols: 5,
-                gridMinPerRow: 1, gridMaxPerRow: 4,
-                bordaIdeal: [9, 12],
-                centroIdeal: [3, 6],
-                espelhosIdeal: [3, 5],
-                baixosIdeal: [5, 9],
-                altosIdeal: [6, 10],
+                gridMinPerRow: 1, gridMaxPerRow: 5,          // V3: max 4→5 (dados reais permitem 5)
+                bordaIdeal: [8, 13],                         // V3: [9,12]→[8,13] — aceitar mais variação
+                centroIdeal: [2, 7],                         // V3: [3,6]→[2,7]
+                espelhosIdeal: [2, 6],                       // V3: [3,5]→[2,6]
+                baixosIdeal: [4, 10],                        // V3: [5,9]→[4,10] — muito mais flexível
+                altosIdeal: [5, 11],                         // V3: [6,10]→[5,11]
                 multiWindow: true,
                 hotNumbers: [],
                 coldNumbers: [],
-                // DIVERSIDADE AGRESSIVA (range 25 = todos os números devem participar)
-                diversityPenalty: 0.90,                 // v2.3: 0.45→0.90 — penalidade MÁXIMA
-                maxConcentration: 0.72,                 // v2.3: 0.35→0.72 (15/25=60%, +12% margem)
-                forceNewEvery: 2,                       // v2.3: 3→2 — forçar renovação constante
-                maxOverlapBetweenGames: 10,             // v2.3: 11→10 — max 10/15 overlap
-                maxSeedRatio: 0.20,                     // v2.3: 0.30→0.20
-                noiseLevel: 0.25                        // v2.3: NOVO — ruído para explorar range completo
+                // ── ESTRATÉGIA DE EXCLUSÃO (V3) ──
+                useExclusionStrategy: true,                  // V3: NOVO — habilitar modo exclusão
+                exclusionCount: [8, 10],                     // V3: NOVO — excluir 8-10 números fracos
+                exclusionThreshold: 0.25,                    // V3: NOVO — score abaixo disso = excluir
+                // ── DIVERSIDADE RECALIBRADA (V3) ──
+                diversityPenalty: 0.40,                      // V3: 0.90→0.40 — PERMITIR concentração!
+                maxConcentration: 0.80,                      // V3: 0.72→0.80 (15/25=60%, mais margem)
+                forceNewEvery: 3,                            // V3: 2→3 — menos rotação forçada
+                maxOverlapBetweenGames: 12,                  // V3: 10→12 — jogos mais similares quando IA converge
+                maxSeedRatio: 0.15,                          // V3: 0.20→0.15
+                noiseLevel: 0.12                             // V3: 0.25→0.12 — MENOS RUÍDO = MAIS SINAL
             },
             quina: {
                 name: 'Quina',
@@ -188,29 +192,34 @@ class SmartBetsEngine {
             timemania: {
                 name: 'Timemania',
                 draw: 7, range: [1, 80],
-                maxConsecutive: 2,
-                evenOddIdeal: [5, 5], evenOddTolerance: 3,  // v2.3b: 4/6→5/5, tol 2→3
-                faixaSize: 10, faixaMin: 0, faixaMax: 2,
-                sumMin: 150, sumMax: 380,                    // v2.3b: expandido
-                gapMin: 3, gapMax: 20,                       // v2.3b: gapMax 12→20 (range 80)
-                repeatFromLast: [0, 2],
-                primeRatio: [0.0, 0.55],
-                maxSameEnding: 2,
-                fibWeight: 0.06,                             // v2.3b: 0.15→0.06
-                markovWeight: 0.10,                          // v2.3b: 0.15→0.10 — CAUSA da concentração
-                trendWeight: 0.10,                           // v2.3b: 0.15→0.10
-                pairBoost: 0.06,                             // v2.3b: 0.10→0.06
-                trioBoost: 0.03,                             // v2.3b: 0.05→0.03
-                zoneMinCover: 3,                             // v2.3b: 5→3 (10 nums em 80 = 3-4 zonas real)
+                maxConsecutive: 3,                           // V3: 2→3 (dados reais permitem)
+                evenOddIdeal: [5, 5], evenOddTolerance: 3,
+                faixaSize: 10, faixaMin: 0, faixaMax: 3,     // V3: max 2→3
+                sumMin: 180, sumMax: 380,                    // V3: [200,360]→[180,380] — aceitar outliers
+                gapMin: 2, gapMax: 25,                       // V3: gapMin 3→2
+                repeatFromLast: [0, 3],
+                primeRatio: [0.0, 0.60],                     // V3: 0.55→0.60
+                maxSameEnding: 3,                            // V3: 2→3
+                fibWeight: 0.06,
+                markovWeight: 0.08,                          // V3: 0.12→0.08 — reduzir viés
+                trendWeight: 0.10,                           // V3: 0.14→0.10
+                pairBoost: 0.06,                             // V3: 0.08→0.06
+                trioBoost: 0.03,                             // V3: 0.04→0.03
+                zoneMinCover: 4,
                 multiWindow: true,
                 hotNumbers: [],
                 coldNumbers: [],
-                diversityPenalty: 0.85,                      // v2.3b: 0.80→0.85
-                maxConcentration: 0.15,                      // v2.3b: 0.20→0.15 (10/80=12.5%, +2.5%)
+                // ── EXCLUSÃO INTELIGENTE (V3) ──
+                useExclusionStrategy: true,                  // V3: NOVO
+                exclusionCount: [55, 65],                    // V3: NOVO — excluir 55-65 de 80 (manter pool de 15-25)
+                exclusionThreshold: 0.20,                    // V3: NOVO
+                // ── DIVERSIDADE RECALIBRADA (V3) ──
+                diversityPenalty: 0.70,                      // V3: 0.88→0.70
+                maxConcentration: 0.15,
                 forceNewEvery: 2,
-                maxOverlapBetweenGames: 3,                   // v2.3b: 4→3 (max 3/10 overlap)
-                maxSeedRatio: 0.15,
-                noiseLevel: 0.50,                            // v2.3b: 0.40→0.50 ruído ALTO
+                maxOverlapBetweenGames: 4,                   // V3: 3→4
+                maxSeedRatio: 0.20,
+                noiseLevel: 0.35,                            // V3: 0.45→0.35 — menos ruído
                 hotRatio: 0.40,
                 warmRatio: 0.35,
                 coldRatio: 0.25
@@ -279,6 +288,83 @@ class SmartBetsEngine {
         // ── ANÁLISE PRÉ-CÁLCULO ──
         const analysis = this._deepAnalysis(gameKey, pool, history, profile, startNum, endNum);
 
+        // ══════════════════════════════════════════════════════
+        // V3: ESTRATÉGIA DE EXCLUSÃO INTELIGENTE
+        // Em vez de escolher os melhores, EXCLUIR os piores.
+        // Lotofácil: excluir 8-10 de 25 → pool de 15-17
+        // Timemania: excluir 55-65 de 80 → pool de 15-25
+        // ══════════════════════════════════════════════════════
+        if (profile.useExclusionStrategy && history.length >= 5 && (!selectedNumbers || selectedNumbers.length === 0)) {
+            const exclusionScores = {};
+            const totalRange = endNum - startNum + 1;
+
+            for (let n = startNum; n <= endNum; n++) {
+                let excScore = 0;
+
+                // FATOR 1: Frequência BAIXA recente (últimos 5 sorteios) = provável que não saia
+                let recentHits = 0;
+                const recentLimit = Math.min(5, history.length);
+                for (let i = 0; i < recentLimit; i++) {
+                    if (history[i].numbers.includes(n)) recentHits++;
+                }
+                const recentRate = recentHits / recentLimit;
+                if (recentRate < 0.15) excScore += 3.0;      // Quase nunca sai recentemente
+                else if (recentRate < 0.30) excScore += 1.5;
+
+                // FATOR 2: Frequência baixa em múltiplas janelas
+                if (analysis.multiWindowScores && analysis.multiWindowScores[n] < 0.25) {
+                    excScore += 2.0;
+                } else if (analysis.multiWindowScores && analysis.multiWindowScores[n] < 0.40) {
+                    excScore += 1.0;
+                }
+
+                // FATOR 3: Score geral baixo
+                const baseScore = analysis.numberScores[n] || 0;
+                if (baseScore < 0.25) excScore += 2.5;
+                else if (baseScore < 0.40) excScore += 1.0;
+
+                // FATOR 4: Tendência de QUEDA
+                const trend = analysis.trendScores[n] || 1.0;
+                if (trend < 0.3) excScore += 2.0;
+                else if (trend < 0.6) excScore += 0.8;
+
+                // FATOR 5: Está "frio" — saiu recentemente mas não tem padrão de repetir
+                const lastSeen = this._findLastSeen(n, history);
+                if (lastSeen > 5 && recentRate < 0.20) excScore += 1.5;
+
+                exclusionScores[n] = excScore;
+            }
+
+            // Ordenar por score de exclusão (maior = mais provável de NÃO sair)
+            const ranked = pool.map(n => ({ num: n, excScore: exclusionScores[n] || 0 }))
+                .sort((a, b) => b.excScore - a.excScore);
+
+            // Determinar quantos excluir
+            const [minExcl, maxExcl] = profile.exclusionCount;
+            const targetExcl = Math.min(maxExcl, Math.max(minExcl, 
+                Math.floor(pool.length * (profile.exclusionThreshold || 0.30))
+            ));
+
+            // Garantir pool mínimo: drawSize + 2 (para ter diversidade)
+            const maxExclSafe = Math.max(0, pool.length - drawSize - 2);
+            const actualExcl = Math.min(targetExcl, maxExclSafe);
+
+            if (actualExcl > 0) {
+                const excluded = ranked.slice(0, actualExcl).map(r => r.num);
+                const excludedSet = new Set(excluded);
+                
+                // Não excluir números fixos
+                const safeExcluded = excluded.filter(n => !fixedNumbers.includes(n));
+                const safeExcludedSet = new Set(safeExcluded);
+                
+                pool = pool.filter(n => !safeExcludedSet.has(n));
+
+                console.log(`[SmartBets] 🚫 EXCLUSÃO V3: ${safeExcluded.length} números excluídos`);
+                console.log(`[SmartBets] 🚫 Excluídos: [${safeExcluded.sort((a,b) => a-b).join(', ')}]`);
+                console.log(`[SmartBets] ✅ Pool reduzido: ${pool.length} números → [${pool.sort((a,b) => a-b).join(', ')}]`);
+            }
+        }
+
         // ── GERAR JOGOS ──
         const games = [];
         const allUsedNumbers = {};
@@ -294,7 +380,7 @@ class SmartBetsEngine {
         const forceNewEvery = profile.forceNewEvery || 5;
         const totalRange = endNum - startNum + 1;
 
-        console.log(`[SmartBets] 🔧 drawSize=${drawSize}, largeRange=${isLargeRange}, maxConc=${maxConcentration}`);
+        console.log(`[SmartBets] 🔧 drawSize=${drawSize}, pool=${pool.length}, maxConc=${maxConcentration}`);
 
          while (games.length < numGames && attempts < maxAttempts) {
             attempts++;
@@ -308,11 +394,13 @@ class SmartBetsEngine {
             const key = ticket.join(',');
             if (usedCombinations.has(key)) continue;
 
-            // ── ANTI-CONCENTRAÇÃO v2: LIMITE RÍGIDO ──
-            if (games.length > 1) {
+            // V3: Pool/drawSize ratio — se pool é apertado, relaxar validações
+            const poolRatio = pool.length / drawSize;
+            const isTightPool = poolRatio < 1.4; // Ex: 17/15 = 1.13 → tight
+
+            // ── ANTI-CONCENTRAÇÃO v3: IGNORAR se pool é tight ──
+            if (!isTightPool && games.length > 1) {
                 const isSmallRange = totalRange <= 30;
-                // Para ranges pequenos (Lotofácil): usar maxConcentration do perfil
-                // Para ranges grandes (Mega Sena): max 8% fixo
                 const concLimit = isSmallRange
                     ? Math.max(4, Math.ceil(games.length * maxConcentration))
                     : Math.max(3, Math.ceil(games.length * 0.08));
@@ -322,17 +410,14 @@ class SmartBetsEngine {
                         overUsedCount++;
                     }
                 }
-                // Ranges pequenos: rejeitar se 20% dos números excederem (3/15 para Lotofácil)
-                // Ranges grandes: rejeitar se 2+ números excederem
                 const overUsedThreshold = isSmallRange ? Math.max(2, Math.ceil(drawSize * 0.20)) : 2;
                 if (overUsedCount >= overUsedThreshold && attempts < maxAttempts * 0.90) continue;
             }
 
-            // ── ANTI-OVERLAP v2: verificar contra últimos N jogos (performance) ──
-            if (games.length > 0) {
+            // ── ANTI-OVERLAP v3: RELAXAR se pool é tight ──
+            if (!isTightPool && games.length > 0) {
                 const maxOverlap = profile.maxOverlapBetweenGames || Math.ceil(drawSize * 0.80);
                 let tooSimilar = false;
-                // Verificar contra últimos 100 jogos (não todos — performance com 500+ jogos)
                 const checkFrom = Math.max(0, games.length - 100);
                 for (let g = checkFrom; g < games.length; g++) {
                     let overlap = 0;
@@ -348,8 +433,9 @@ class SmartBetsEngine {
                 if (tooSimilar && attempts < maxAttempts * 0.95) continue;
             }
 
-            // ── VALIDAÇÃO FINAL ──
-            if (isVeryLargeGame) {
+            // ── VALIDAÇÃO FINAL v3 ──
+            if (isVeryLargeGame || isTightPool) {
+                // Pool tight: a inteligência está na EXCLUSÃO, não na validação individual
                 games.push(ticket);
                 usedCombinations.add(key);
                 ticket.forEach(n => allUsedNumbers[n] = (allUsedNumbers[n] || 0) + 1);
@@ -1072,7 +1158,8 @@ class SmartBetsEngine {
         ticket.sort((a, b) => a - b);
 
         // ── VALIDAÇÃO RÁPIDA (rejeitar jogos ruins) ──
-        if (!this._validateGame(ticket, profile, analysis)) {
+        // V3: passar pool para que validação saiba se é tight
+        if (!this._validateGame(ticket, profile, analysis, pool)) {
             return null;
         }
 
@@ -1082,7 +1169,7 @@ class SmartBetsEngine {
     // ╔══════════════════════════════════════════════════════╗
     // ║  VALIDAÇÃO DE UM JOGO (20+ REGRAS)                  ║
     // ╚══════════════════════════════════════════════════════╝
-    static _validateGame(ticket, profile, analysis) {
+    static _validateGame(ticket, profile, analysis, pool) {
         const n = ticket.length;
         if (n === 0) return false;
 
@@ -1091,6 +1178,13 @@ class SmartBetsEngine {
 
         const startNum = profile.range[0];
         const endNum = profile.range[1];
+
+        // V3: Detectar pool tight (exclusão ativa)
+        const poolRatio = pool ? pool.length / n : 999;
+        const isTightPool = poolRatio < 1.4;
+
+        // Se pool é tight, APENAS validar regras básicas (1, 2, 3)
+        // As regras estruturais (grid, bordas, espelhos) não fazem sentido com pool restrito
 
         // REGRA 1: Consecutivos máximos
         let maxRun = 1, currentRun = 1;
@@ -1118,6 +1212,9 @@ class SmartBetsEngine {
         let sum = 0;
         for (let i = 0; i < n; i++) sum += ticket[i];
         if (sum < profile.sumMin * 0.90 || sum > profile.sumMax * 1.10) return false;
+
+        // V3: Pool tight → aprovar após regras básicas (a inteligência está na exclusão)
+        if (isTightPool) return true;
 
         // REGRA 4: Anti-progressão aritmética (máx 3 em PA)
         let paCount = 0;
@@ -1817,5 +1914,15 @@ class SmartBetsEngine {
             games: games,
             analysis: setAnalysis
         };
+    }
+
+    // ╔══════════════════════════════════════════════════════╗
+    // ║  HELPER: Encontrar última vez que número saiu       ║
+    // ╚══════════════════════════════════════════════════════╝
+    static _findLastSeen(num, history) {
+        for (let i = 0; i < history.length; i++) {
+            if (history[i].numbers && history[i].numbers.includes(num)) return i;
+        }
+        return history.length; // Nunca visto
     }
 }

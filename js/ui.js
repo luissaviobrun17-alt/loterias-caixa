@@ -522,6 +522,22 @@ class UI {
                         feedback.textContent = `🧠 ${result.games.length} jogos inteligentes gerados com sucesso!`;
                         this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
 
+                        // ── BACKTESTING AUTOMÁTICO V3 ──
+                        try {
+                            if (typeof BacktestingEngine !== 'undefined') {
+                                const btMetrics = BacktestingEngine.run(this.currentGameKey, 'smart', 10, 8);
+                                if (btMetrics) {
+                                    const btHTML = BacktestingEngine.formatForUI(btMetrics);
+                                    const btDiv = document.createElement('div');
+                                    btDiv.className = 'smart-analysis-panel';
+                                    btDiv.innerHTML = btHTML;
+                                    this.gamesContainer.parentNode.insertBefore(btDiv, this.gamesContainer);
+                                }
+                            }
+                        } catch(btErr) {
+                            console.warn('[Backtest] Erro no backtesting:', btErr.message);
+                        }
+
                         feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
                     } catch (err) {
