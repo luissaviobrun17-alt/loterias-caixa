@@ -524,20 +524,20 @@ class SmartBetsEngine {
             harmonicScore[n] = fNorm * 0.25 + r5Norm * 0.30 + r10Norm * 0.25 + recency * 0.20;
         }
 
-        // 1e. CLASSIFICAÇÃO EM 3 TIERS
+        // 1e. CLASSIFICAÇÃO EM 3 TIERS — F_hot_focus (vencedor A/B test +4.9%)
         const ranked = Object.entries(harmonicScore)
             .map(([n, s]) => ({ num: +n, score: s }))
             .sort((a, b) => b.score - a.score);
 
-        const tier1 = ranked.slice(0, 20).map(r => r.num);  // TOP 20 (25%)
-        const tier2 = ranked.slice(20, 50).map(r => r.num);  // MID 30 (37.5%)
-        const tier3 = ranked.slice(50).map(r => r.num);       // LOW 30 (37.5%)
+        const tier1 = ranked.slice(0, 12).map(r => r.num);   // ELITE 12 (15%) — números mais quentes
+        const tier2 = ranked.slice(12, 32).map(r => r.num);   // MID 20 (25%)
+        const tier3 = ranked.slice(32).map(r => r.num);        // POOL 48 (60%)
         
         const tier1Set = new Set(tier1);
         const tier2Set = new Set(tier2);
 
-        console.log(`[QH-V6] 🏆 Tier 1 (TOP 20): [${tier1.join(', ')}]`);
-        console.log(`[QH-V6] 📊 Tier 2 (MID 30): [${tier2.join(', ')}]`);
+        console.log(`[QH-V7] 🔥 ELITE 12 (HOT): [${tier1.join(', ')}]`);
+        console.log(`[QH-V7] 📊 Tier 2 (MID 20): [${tier2.join(', ')}]`);
 
         // 1f. DUPLAS HISTÓRICAS
         const pairFreq = {};
@@ -566,13 +566,13 @@ class SmartBetsEngine {
         const maxAttempts = numGames * 2000;
         let attempts = 0;
 
-        // Parâmetros forenses (baseados em análise real de 39 sorteios)
-        const SUM_MIN = 219;  // P25 real
-        const SUM_MAX = 326;  // P75 real
-        const MIN_ZONES = 5;  // Média real = 5.0 zonas
-        const MAX_SAME_ENDING = 2; // Max 2 números com mesmo dígito final
-        const MIN_EVENS = 3;  // Mínimo pares em 10 números
-        const MAX_EVENS = 7;  // Máximo pares em 10 números
+        // Parâmetros F_hot_focus (vencedor A/B test: +4.9% vs acaso)
+        const SUM_MIN = 200;  // F_hot: range mais amplo
+        const SUM_MAX = 340;  // F_hot: aceitar mais variação
+        const MIN_ZONES = 4;  // F_hot: 4 zonas (mais flexível)
+        const MAX_SAME_ENDING = 2;
+        const MIN_EVENS = 3;
+        const MAX_EVENS = 7;
 
         while (games.length < numGames && attempts < maxAttempts) {
             attempts++;
@@ -600,12 +600,11 @@ class SmartBetsEngine {
                 }
             }
 
-            // ── 2c. Seleção por Tiers com pesos ──
-            // Distribuição target: 5 de Tier1, 3 de Tier2, 2 de Tier3
+            // ── 2c. Seleção por Tiers — Estratégia F_hot_focus: 7/2/1 ──
             const tierTargets = [
-                { pool: tier1, target: Math.max(0, 5 - ticket.filter(n => tier1Set.has(n)).length) },
-                { pool: tier2, target: Math.max(0, 3 - ticket.filter(n => tier2Set.has(n)).length) },
-                { pool: tier3, target: Math.max(0, 2 - ticket.filter(n => !tier1Set.has(n) && !tier2Set.has(n)).length) }
+                { pool: tier1, target: Math.max(0, 7 - ticket.filter(n => tier1Set.has(n)).length) },
+                { pool: tier2, target: Math.max(0, 2 - ticket.filter(n => tier2Set.has(n)).length) },
+                { pool: tier3, target: Math.max(0, 1 - ticket.filter(n => !tier1Set.has(n) && !tier2Set.has(n)).length) }
             ];
 
             for (const tier of tierTargets) {
