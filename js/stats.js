@@ -350,6 +350,28 @@ class StatsService {
             return a.number - b.number;
         });
 
+        // Calcular delay (atraso): há quantos sorteios o número não sai
+        var lastSeenMap = {};
+        var fullHistory = this.historyStore[gameType] || [];
+        for (var i = game.range[0]; i <= game.range[1]; i++) {
+            lastSeenMap[i] = fullHistory.length; // padrão = nunca visto
+        }
+        for (var h = 0; h < fullHistory.length; h++) {
+            var drawNums = fullHistory[h].numbers || [];
+            var drawNums2 = fullHistory[h].numbers2 || [];
+            var allNums = drawNums.concat(drawNums2);
+            allNums.forEach(function(n) {
+                if (lastSeenMap[n] === fullHistory.length) { // ainda não visto
+                    lastSeenMap[n] = h; // h = quantos sorteios atrás
+                }
+            });
+        }
+
+        // Adicionar delay a cada stat
+        sortedStats.forEach(function(s) {
+            s.delay = lastSeenMap[s.number] !== undefined ? lastSeenMap[s.number] : 0;
+        });
+
         var limit = game.statsCount || 10;
         var hot = sortedStats.slice(0, limit);
         var cold = sortedStats.slice(-limit).reverse();

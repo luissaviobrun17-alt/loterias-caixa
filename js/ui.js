@@ -1546,10 +1546,14 @@ class UI {
             statsHeader.innerHTML = `Estatísticas <span style="font-size:0.7em;color:#94A3B8;font-weight:400;">(${stats.totalDraws} sorteios)</span>`;
         }
 
-        const createStatItem = (stat) => {
+        const createStatItem = (stat, isHot) => {
             const container = document.createElement('div');
             container.className = 'stat-ball-wrapper';
             container.style.position = 'relative';
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.alignItems = 'center';
+            container.style.gap = '2px';
 
             const ball = this.createBall(stat.number);
             ball.classList.add('stat-ball');
@@ -1559,7 +1563,7 @@ class UI {
                 ball.classList.add('selected');
             }
 
-            // Badge de frequência
+            // Badge de frequência (vezes que saiu)
             if (stat.count > 0) {
                 const badge = document.createElement('span');
                 badge.style.cssText = 'position:absolute;top:-4px;right:-4px;background:#F59E0B;color:#000;font-size:0.6rem;font-weight:800;padding:1px 3px;border-radius:6px;min-width:14px;text-align:center;line-height:1.2;z-index:2;';
@@ -1584,15 +1588,36 @@ class UI {
 
             container.appendChild(ball);
             container.appendChild(addIcon);
+
+            // Badge de atraso (delay) — exibido ABAIXO da bola para ambos hot e cold
+            if (stat.delay !== undefined && stat.delay > 0) {
+                const delayBadge = document.createElement('span');
+                // Cor do badge: vermelho = muito atrasado, amarelo = moderado, cinza = normal
+                const delayColor = stat.delay >= 10 ? '#EF4444' : stat.delay >= 5 ? '#F59E0B' : '#64748B';
+                const delayBg   = stat.delay >= 10 ? 'rgba(239,68,68,0.12)' : stat.delay >= 5 ? 'rgba(245,158,11,0.12)' : 'rgba(100,116,139,0.10)';
+                const delayIcon = stat.delay >= 10 ? '⏳' : stat.delay >= 5 ? '🕑' : '•';
+                delayBadge.style.cssText = `font-size:0.58rem;font-weight:700;color:${delayColor};background:${delayBg};padding:1px 4px;border-radius:4px;line-height:1.3;white-space:nowrap;margin-top:1px;`;
+                delayBadge.textContent = `${delayIcon} ${stat.delay}d`;
+                delayBadge.title = `Há ${stat.delay} sorteio${stat.delay !== 1 ? 's' : ''} sem sair`;
+                container.appendChild(delayBadge);
+            } else if (stat.delay === 0) {
+                // Saiu no último sorteio
+                const freshBadge = document.createElement('span');
+                freshBadge.style.cssText = 'font-size:0.58rem;font-weight:700;color:#22C55E;background:rgba(34,197,94,0.10);padding:1px 4px;border-radius:4px;line-height:1.3;margin-top:1px;';
+                freshBadge.textContent = '✔ recente';
+                freshBadge.title = 'Saiu no último sorteio';
+                container.appendChild(freshBadge);
+            }
+
             return container;
         };
 
         stats.hot.forEach(stat => {
-            this.hotNumbersContainer.appendChild(createStatItem(stat));
+            this.hotNumbersContainer.appendChild(createStatItem(stat, true));
         });
 
         stats.cold.forEach(stat => {
-            this.coldNumbersContainer.appendChild(createStatItem(stat));
+            this.coldNumbersContainer.appendChild(createStatItem(stat, false));
         });
     }
 
