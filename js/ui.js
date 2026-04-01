@@ -1540,70 +1540,88 @@ class UI {
         this.hotNumbersContainer.innerHTML = '';
         this.coldNumbersContainer.innerHTML = '';
 
-        // Mostrar total de sorteios analisados no cabeçalho
+        // Atualizar header com total de sorteios e split 50/50
         const statsHeader = document.querySelector('.stats-header h3');
-        if (statsHeader && stats.totalDraws) {
-            statsHeader.innerHTML = `Estatísticas <span style="font-size:0.7em;color:#94A3B8;font-weight:400;">(${stats.totalDraws} sorteios)</span>`;
+        if (statsHeader) {
+            const label = stats.totalDraws
+                ? `Estatísticas <span style="font-size:0.7em;color:#94A3B8;font-weight:400;">(${stats.totalDraws} sorteios analisados — 50% hot / 50% cold)</span>`
+                : 'Estatísticas';
+            statsHeader.innerHTML = label;
         }
+
+        // Atualizar títulos das seções com contagem
+        const hotHeader = document.querySelector('.stat-box.hot h4');
+        const coldHeader = document.querySelector('.stat-box.cold h4');
+        if (hotHeader) hotHeader.textContent = `Mais Sorteados (${stats.hot.length})`;
+        if (coldHeader) coldHeader.textContent = `Menos Sorteados (${stats.cold.length})`;
+
+        // Container scrollável quando há muitos números
+        const listStyle = 'display:flex;flex-wrap:wrap;gap:8px;max-height:260px;overflow-y:auto;padding:4px 2px;';
+        if (this.hotNumbersContainer)  this.hotNumbersContainer.setAttribute('style', listStyle);
+        if (this.coldNumbersContainer) this.coldNumbersContainer.setAttribute('style', listStyle);
 
         const createStatItem = (stat, isHot) => {
             const container = document.createElement('div');
             container.className = 'stat-ball-wrapper';
-            container.style.position = 'relative';
-            container.style.display = 'flex';
-            container.style.flexDirection = 'column';
-            container.style.alignItems = 'center';
-            container.style.gap = '2px';
+            container.style.cssText = 'position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;';
+            container.title = `Clique para adicionar ao jogo`;
 
             const ball = this.createBall(stat.number);
             ball.classList.add('stat-ball');
 
-            // Initial state based on current selection
+            // Estado inicial baseado na seleção atual
             if (this.selectedNumbers.has(stat.number)) {
                 ball.classList.add('selected');
             }
 
-            // Badge de frequência (vezes que saiu)
+            // Badge de frequência
             if (stat.count > 0) {
                 const badge = document.createElement('span');
-                badge.style.cssText = 'position:absolute;top:-4px;right:-4px;background:#F59E0B;color:#000;font-size:0.6rem;font-weight:800;padding:1px 3px;border-radius:6px;min-width:14px;text-align:center;line-height:1.2;z-index:2;';
+                badge.style.cssText = 'position:absolute;top:-4px;right:-4px;background:#F59E0B;color:#000;font-size:0.6rem;font-weight:800;padding:1px 3px;border-radius:6px;min-width:14px;text-align:center;line-height:1.2;z-index:2;pointer-events:none;';
                 badge.textContent = stat.count + '×';
                 container.appendChild(badge);
             }
 
             const addIcon = document.createElement('div');
             addIcon.className = 'stat-add-icon';
-            addIcon.innerHTML = '+';
+            addIcon.innerHTML = this.selectedNumbers.has(stat.number) ? '✓' : '+';
             addIcon.title = 'Adicionar ao jogo';
 
+            // Click: adicionar/remover do grid de jogo acima
             container.onclick = (e) => {
                 e.stopPropagation();
                 this.toggleNumber(stat.number);
-                if (this.selectedNumbers.has(stat.number)) {
+                const isSelected = this.selectedNumbers.has(stat.number);
+                if (isSelected) {
                     ball.classList.add('selected');
+                    addIcon.innerHTML = '✓';
+                    addIcon.style.background = '#10B981';
+                    // Pulsar para confirmar
+                    ball.style.transform = 'scale(1.3)';
+                    setTimeout(() => { ball.style.transform = ''; }, 300);
                 } else {
                     ball.classList.remove('selected');
+                    addIcon.innerHTML = '+';
+                    addIcon.style.background = '';
                 }
             };
 
             container.appendChild(ball);
             container.appendChild(addIcon);
 
-            // Badge de atraso (delay) — exibido ABAIXO da bola para ambos hot e cold
+            // Badge de atraso (delay)
             if (stat.delay !== undefined && stat.delay > 0) {
                 const delayBadge = document.createElement('span');
-                // Cor do badge: vermelho = muito atrasado, amarelo = moderado, cinza = normal
                 const delayColor = stat.delay >= 10 ? '#EF4444' : stat.delay >= 5 ? '#F59E0B' : '#64748B';
-                const delayBg   = stat.delay >= 10 ? 'rgba(239,68,68,0.12)' : stat.delay >= 5 ? 'rgba(245,158,11,0.12)' : 'rgba(100,116,139,0.10)';
-                const delayIcon = stat.delay >= 10 ? '⏳' : stat.delay >= 5 ? '🕑' : '•';
-                delayBadge.style.cssText = `font-size:0.58rem;font-weight:700;color:${delayColor};background:${delayBg};padding:1px 4px;border-radius:4px;line-height:1.3;white-space:nowrap;margin-top:1px;`;
+                const delayBg    = stat.delay >= 10 ? 'rgba(239,68,68,0.12)' : stat.delay >= 5 ? 'rgba(245,158,11,0.12)' : 'rgba(100,116,139,0.10)';
+                const delayIcon  = stat.delay >= 10 ? '⏳' : stat.delay >= 5 ? '🕑' : '•';
+                delayBadge.style.cssText = `font-size:0.58rem;font-weight:700;color:${delayColor};background:${delayBg};padding:1px 4px;border-radius:4px;line-height:1.3;white-space:nowrap;margin-top:1px;pointer-events:none;`;
                 delayBadge.textContent = `${delayIcon} ${stat.delay}d`;
                 delayBadge.title = `Há ${stat.delay} sorteio${stat.delay !== 1 ? 's' : ''} sem sair`;
                 container.appendChild(delayBadge);
             } else if (stat.delay === 0) {
-                // Saiu no último sorteio
                 const freshBadge = document.createElement('span');
-                freshBadge.style.cssText = 'font-size:0.58rem;font-weight:700;color:#22C55E;background:rgba(34,197,94,0.10);padding:1px 4px;border-radius:4px;line-height:1.3;margin-top:1px;';
+                freshBadge.style.cssText = 'font-size:0.58rem;font-weight:700;color:#22C55E;background:rgba(34,197,94,0.10);padding:1px 4px;border-radius:4px;line-height:1.3;margin-top:1px;pointer-events:none;';
                 freshBadge.textContent = '✔ recente';
                 freshBadge.title = 'Saiu no último sorteio';
                 container.appendChild(freshBadge);
