@@ -113,7 +113,7 @@ const GAMES = {
             { id: "duque", label: "Duque (2)", match: 2, prize: 0 }
         ],
         minBet: 10,
-        maxBet: 10,
+        maxBet: 80,
         statsCount: 20
     },
     diadesorte: {

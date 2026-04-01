@@ -379,14 +379,16 @@ class UI {
                 });
                 if (quantumNums.length > 0) {
                     selectedArr = quantumNums;
-                    console.log(`[SmartBets] 🧠 Usando ${quantumNums.length} números da fórmula IA`);
+                    console.log(`[SmartBets] 🔮 Usando ${quantumNums.length} números da Telepatia Quântica`);
                 }
             }
         }
 
-        // Validação mínima
-        if (selectedArr.length > 0 && selectedArr.length < customDrawSize) {
-            alert(`Selecione pelo menos ${customDrawSize} números para ${game.name}, ou não selecione nenhum para usar todos.`);
+        // V9: Sem validação restritiva — qualquer quantidade de selecionados é aceita
+        // O motor IA usa os selecionados como pool preferencial (veja smart_bets.js)
+        // Só bloquear se 0 < selected < 2 (impossível de fazer qualquer jogo)
+        if (selectedArr.length > 0 && selectedArr.length < 2) {
+            alert(`Selecione pelo menos ${customDrawSize} números (ou nenhum para usar análise completa).`);
             return;
         }
 
@@ -396,12 +398,17 @@ class UI {
         const oldAnalysis = this.gamesContainer.parentNode.querySelector('.smart-analysis-panel');
         if (oldAnalysis) oldAnalysis.remove();
 
+        // V9: Indicador de modo
+        const modeLabel = selectedArr.length > 0
+            ? `🎯 ${selectedArr.length} números selecionados → gerando variantes`
+            : '🧠 Análise IA completa do universo';
+
         // Loading - Fase 1
         this.gamesContainer.innerHTML = `
             <div style="text-align:center;padding:30px;">
-                <div style="font-size:2rem;margin-bottom:10px;">🧠</div>
-                <div style="color:#8B5CF6;font-weight:700;font-size:1rem;">Motor IA Ativado</div>
-                <div style="color:#94A3B8;font-size:0.85rem;margin-top:5px;">Analisando ${game.name} (${customDrawSize} números)...</div>
+                <div style="font-size:2rem;margin-bottom:10px;">🔮</div>
+                <div style="color:#8B5CF6;font-weight:700;font-size:1rem;">Telepatia Quântica V9 Ativada</div>
+                <div style="color:#94A3B8;font-size:0.85rem;margin-top:5px;">${modeLabel}</div>
                 <div style="margin-top:15px;width:60%;height:4px;background:rgba(139,92,246,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
                     <div style="width:30%;height:100%;background:linear-gradient(90deg,#8B5CF6,#EC4899);border-radius:4px;animation:smartProgress 1.5s ease-in-out infinite;"></div>
                 </div>
@@ -416,11 +423,11 @@ class UI {
 
         // Fase 2: Análise profunda
         setTimeout(() => {
-            this.gamesContainer.querySelector('div > div:nth-child(3)').textContent = 'Duplas, trios, Markov, Fibonacci...';
+            try { this.gamesContainer.querySelector('div > div:nth-child(3)').textContent = '⏳ Superfície Quântica — Frequência, Markov, Delay...'; } catch(e) {}
 
             // Fase 3: Geração
             setTimeout(() => {
-                this.gamesContainer.querySelector('div > div:nth-child(3)').textContent = 'Gerando jogos inteligentes...';
+                try { this.gamesContainer.querySelector('div > div:nth-child(3)').textContent = '⚡ Sintonizando Telepatia + Anti-Concentração Brutal...'; } catch(e) {}
 
                 setTimeout(() => {
                     try {
@@ -432,11 +439,13 @@ class UI {
                                 quantity
                             );
                         } else {
-                            // ── MODO PADRÃO: Geração com diversidade ──
+                            // ── MODO PADRÃO: Geração com diversidade V9 ──
+                            // V9 BUG FIX: sempre passa selectedArr ao motor
+                            // O motor decide como usar (pool completo ou preferencial)
                             result = SmartBetsEngine.generate(
                                 this.currentGameKey,
                                 quantity,
-                                selectedArr.length >= customDrawSize ? selectedArr : [],
+                                selectedArr, // V9: SEMPRE passar, motor gerencia o uso
                                 fixedArr,
                                 customDrawSize
                             );

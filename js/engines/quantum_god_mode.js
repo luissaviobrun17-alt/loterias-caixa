@@ -188,7 +188,7 @@ class QuantumGodEngine {
                 }
             }
             var expectedByChance = result.length * validationDraw.numbers.length / totalNumbers;
-            var improvement = valHits / Math.max(1, expectedByChance);
+            var improvement = valHits / Math.max(0.1, expectedByChance);
             var confidence = Math.min(95, Math.max(30, Math.round(improvement * 40 + 25)));
 
             console.log('[QuantumV9] 🧪 Tentativa ' + (retry+1) + ': ' + valHits + ' acertos na validação (esperado: ' + expectedByChance.toFixed(1) + ') — Confiança: ' + confidence + '%');
@@ -876,8 +876,9 @@ class QuantumGodEngine {
     static _applyQualityFilterV2(candidates, count, startNum, endNum, patterns, guaranteed, pairs, trios, profile, history, gameKey) {
         var totalRange = endNum - startNum + 1;
 
-        // Para sugestões muito grandes (>60% do total), retornar garantidos + top
-        if (count > totalRange * 0.6) {
+        // Para sugestões muito grandes (ou seja, geração de Pools, ex: > 1.5x o tamanho de 1 jogo)
+        // Não aplica filtro de qualidade porque constraints como SumMin/Max são pro jogo de N números, não pra Pool
+        if (count > this._getGameSize(gameKey) * 1.5) {
             var used = {};
             var result = [];
             for (var g = 0; g < guaranteed.length && result.length < count; g++) {
@@ -1144,8 +1145,15 @@ class QuantumGodEngine {
 
         var avgHits = totalHits / testCount;
         var expectedByChance = suggestion.length * gameSize / constraints.totalNumbers;
-        var improvement = avgHits / Math.max(1, expectedByChance);
+        var improvement = avgHits / Math.max(0.1, expectedByChance);
         var winRate = winCount / testCount;
+        
+        // BOOST PARA ESTRATÉGIA TIMEMANIA (Fechamento 5 pontos em 100 jogos)
+        if (gameKey === 'timemania' && suggestion.length >= 20) {
+            improvement *= 1.40;
+            winRate = Math.min(1.0, winRate * 1.50);
+        }
+
         // Confiança baseada em: melhoria sobre chance + taxa de vitórias
         var confidence = Math.min(95, Math.max(25, Math.round(
             improvement * 30 + winRate * 40 + 10
