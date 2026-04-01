@@ -324,13 +324,9 @@ class StatsService {
         var game = typeof GAMES !== 'undefined' ? GAMES[gameType] : null;
         if (!game) return { hot: [], cold: [] };
 
-        if (!this.historyStore[gameType]) {
-            this.ensureHistory(gameType);
-        }
+        if (!this.historyStore[gameType]) this.ensureHistory(gameType);
         var history = this.historyStore[gameType] || [];
 
-        // Usar TODO o histórico disponível para dados confiáveis
-        // rangeAnalysis define quantos sorteios usar (0 ou undefined = todos)
         var analyzesCount = (!rangeAnalysis || rangeAnalysis === 0)
             ? history.length
             : Math.min(rangeAnalysis, history.length);
@@ -338,61 +334,43 @@ class StatsService {
         var recentDraws = history.slice(0, analyzesCount);
         if (recentDraws.length === 0) return { hot: [], cold: [], totalDraws: 0 };
 
-        // Inicializar mapa de frequência para TODOS os números do range
-        var frequencyMap = {};
-        for (var i = game.range[0]; i <= game.range[1]; i++) {
-            frequencyMap[i] = 0;
-        }
+        // Contar quantas vezes cada número saiu
+        var countMap = {};
+        for (var i = game.range[0]; i <= game.range[1]; i++) countMap[i] = 0;
 
         recentDraws.forEach(function(item) {
-            if (item.numbers) {
-                item.numbers.forEach(function(num) {
-                    if (frequencyMap[num] !== undefined) frequencyMap[num]++;
-                });
-            }
-            // Dupla Sena: contar ambos os sorteios
-            if (item.numbers2) {
-                item.numbers2.forEach(function(num) {
-                    if (frequencyMap[num] !== undefined) frequencyMap[num]++;
-                });
-            }
+            (item.numbers  || []).forEach(function(n) { if (countMap[n] !== undefined) countMap[n]++; });
+            (item.numbers2 || []).forEach(function(n) { if (countMap[n] !== undefined) countMap[n]++; });
         });
 
-        // Ordenar por frequência: índice 0 = mais sorteado
-        var allStats = Object.keys(frequencyMap).map(function(num) {
-            return { number: parseInt(num), count: frequencyMap[num] };
-        }).sort(function(a, b) {
-            if (b.count !== a.count) return b.count - a.count; // mais sorteado primeiro
-            return a.number - b.number; // desempate: menor número primeiro
-        });
-
-        // ── DELAY (atraso): há quantos sorteios o número não sai ─────────
-        var lastSeenMap = {};
-        var fullHistory = this.historyStore[gameType] || [];
-        for (var n = game.range[0]; n <= game.range[1]; n++) {
-            lastSeenMap[n] = fullHistory.length; // nunca visto = máximo
-        }
-        for (var h = 0; h < fullHistory.length; h++) {
-            var nums = (fullHistory[h].numbers || []).concat(fullHistory[h].numbers2 || []);
+        // Delay: há quantos sorteios o número não sai
+        var delayMap = {};
+        var fullHist = history;
+        for (var n = game.range[0]; n <= game.range[1]; n++) delayMap[n] = fullHist.length;
+        for (var h = 0; h < fullHist.length; h++) {
+            var nums = (fullHist[h].numbers || []).concat(fullHist[h].numbers2 || []);
             nums.forEach(function(n) {
-                if (n >= game.range[0] && n <= game.range[1] && lastSeenMap[n] === fullHistory.length) {
-                    lastSeenMap[n] = h;
-                }
+                if (n >= game.range[0] && n <= game.range[1] && delayMap[n] === fullHist.length)
+                    delayMap[n] = h;
             });
         }
-        allStats.forEach(function(s) {
-            s.delay = lastSeenMap[s.number] !== undefined ? lastSeenMap[s.number] : 0;
+
+        // Criar lista ordenada pela quantidade de sorteios (desc)
+        var sorted = Object.keys(countMap).map(function(num) {
+            var n = parseInt(num);
+            return { number: n, count: countMap[n], delay: delayMap[n] !== undefined ? delayMap[n] : 0 };
+        }).sort(function(a, b) {
+            if (b.count !== a.count) return b.count - a.count; // mais sorteados primeiro
+            return a.delay - b.delay;                           // desempate: menos atrasado primeiro
         });
 
-        // ── SPLIT 50% / 50% ─────────────────────────────────────────────
-        var total      = allStats.length;          // total de números do jogo
-        var half       = Math.ceil(total / 2);     // 50% (arredonda pra cima se ímpar)
+        var half = Math.ceil(sorted.length / 2);
 
-        // HOT: os 50% mais sorteados — ordem: mais → menos (índice 0 = campeão)
-        var hot = allStats.slice(0, half);
+        // HOT: top 50% — do mais sorteado ao menos sorteado
+        var hot = sorted.slice(0, half);
 
-        // COLD: os outros 50% — ordem: menos → mais (índice 0 = menos sorteado de todos)
-        var cold = allStats.slice(half).reverse();
+        // COLD: bottom 50% — do menos sorteado ao mais sorteado
+        var cold = sorted.slice(half).reverse();
 
         return { hot: hot, cold: cold, totalDraws: analyzesCount };
     }
