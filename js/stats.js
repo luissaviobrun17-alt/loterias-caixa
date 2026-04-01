@@ -233,20 +233,33 @@ class StatsService {
             console.log('[StatsService] ✅ Prêmio atualizado: ' + storageKey + ' (concurso ' + drawNum + ') = R$ ' + (estimated || 0).toLocaleString('pt-BR'));
         }
 
-        // Dupla Sena: API retorna 12 números (6 Sorteio 1 + 6 Sorteio 2) no array dezenas
         var rawNumbers = data.dezenas.map(function(n) { return parseInt(n); });
-        var result = {
-            drawNumber: parseInt(data.concurso)
-        };
+        var result = { drawNumber: parseInt(data.concurso) };
 
-        if (gameType === 'duplasena' && rawNumbers.length === 12) {
-            // Separar os dois sorteios
-            var sort1 = rawNumbers.slice(0, 6).sort(function(a, b) { return a - b; });
-            var sort2 = rawNumbers.slice(6, 12).sort(function(a, b) { return a - b; });
-            result.numbers = sort1;
-            result.numbers2 = sort2;
+        if (gameType === 'duplasena') {
+            // Dupla Sena: pode vir como 12 números juntos, ou em dezenas + dezenas2 separados
+            if (data.dezenas2 && data.dezenas2.length > 0) {
+                // Formato com dezenas2 separado (algumas APIs)
+                var sort1 = rawNumbers.sort(function(a, b) { return a - b; });
+                var sort2 = data.dezenas2.map(function(n) { return parseInt(n); }).sort(function(a, b) { return a - b; });
+                result.numbers  = sort1;
+                result.numbers2 = sort2;
+            } else if (rawNumbers.length >= 12) {
+                // 12 números juntos (api hercules)
+                result.numbers  = rawNumbers.slice(0, 6).sort(function(a, b) { return a - b; });
+                result.numbers2 = rawNumbers.slice(6, 12).sort(function(a, b) { return a - b; });
+            } else if (rawNumbers.length === 6) {
+                // Apenas 1 sorteio retornado pela API (incompleto)
+                result.numbers  = rawNumbers.sort(function(a, b) { return a - b; });
+                result.numbers2 = [];
+            } else {
+                // Qualquer outro caso: dividir ao meio
+                var half = Math.floor(rawNumbers.length / 2);
+                result.numbers  = rawNumbers.slice(0, half).sort(function(a, b) { return a - b; });
+                result.numbers2 = rawNumbers.slice(half).sort(function(a, b) { return a - b; });
+            }
         } else {
-            // Deduplicar para outros jogos (segurança)
+            // Outros jogos: deduplicar e ordenar
             var uniqueNumbers = [];
             var seen = {};
             for (var u = 0; u < rawNumbers.length; u++) {
