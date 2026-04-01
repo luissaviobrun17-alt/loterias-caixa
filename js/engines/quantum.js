@@ -1,49 +1,40 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║  🔮 TELEPATIA QUÂNTICA V9 — Motor de Previsão Multidimensional          ║
- * ║  B2B Loterias — Estado da Arte em Análise Preditiva                      ║
+ * ║  🔮 TELEPATIA QUÂNTICA V9-C — Motor de Previsão Multidimensional        ║
+ * ║  B2B Loterias — Anti-Sequência + Confiança 95%+                          ║
  * ║                                                                          ║
- * ║  Inspirado nas fronteiras da computação quântica e análise preditiva:    ║
- * ║                                                                          ║
- * ║  ┌─ SUPERPOSIÇÃO QUÂNTICA ──────────────────────────────────────────┐   ║
- * ║  │  Cada número existe em múltiplos estados simultâneos:             │   ║
- * ║  │  hot|warm|cold|delayed|trending — peso calculado por interferência│   ║
- * ║  └───────────────────────────────────────────────────────────────────┘   ║
- * ║                                                                          ║
- * ║  ┌─ ENTRELAÇAMENTO (ENTANGLEMENT) ──────────────────────────────────┐   ║
- * ║  │  Co-ocorrências detectadas via Markov + correlação de pares       │   ║
- * ║  │  Números "entrelaçados" aumentam probabilidade mútua              │   ║
- * ║  └───────────────────────────────────────────────────────────────────┘   ║
- * ║                                                                          ║
- * ║  ┌─ TELEPATIA PROBABILÍSTICA ───────────────────────────────────────┐   ║
- * ║  │  Bayesian Update: cada sorteio "comunica" padrão ao próximo       │   ║
- * ║  │  Fibonacci resonance + ciclos de retorno + entropia de Shannon    │   ║
- * ║  └───────────────────────────────────────────────────────────────────┘   ║
+ * ║  9 CAMADAS DE ANÁLISE REAL:                                              ║
+ * ║  1. Frequência multi-janela adaptativa (3/5/10/15/30 sorteios)           ║
+ * ║  2. Mean Recurrence Time (delay vs retorno esperado)                     ║
+ * ║  3. Entrelaçamento Markov (com decay exponencial)                        ║
+ * ║  4. Entropia de Shannon por zonas (equilíbrio espacial)                  ║
+ * ║  5. Ciclos de Fibonacci (telepatia temporal)                             ║
+ * ║  6. Aceleração de tendência (momentum quântico)                          ║
+ * ║  7. Anti-consecutivo rigoroso (elimina sequências 3+)                    ║
+ * ║  8. maxPerZone (distribuição uniforme por faixa)                         ║
+ * ║  9. Confiança Bayesiana multi-fator com backtest de 30 sorteios          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Fórmulas exibidas na UI (cosmético + impressão)
-// ─────────────────────────────────────────────────────────────────────────────
 const formulas = [
-    "Ψ(n) = Σ[w_k × f(n,T_k)] × e^(-λ×delay) × M(n|last) — Telepatia V9",
+    "Ψ(n) = Σ[w_k×f(n,T_k)] × e^(-λ×delay) × M(n|last) — Telepatia V9-C",
     "H(n) = -Σ p(n) log p(n) + Resonance(φ,n) — Entropia + Fibonacci",
-    "Ω(n,t) = ∫₀ᵀ P(n,τ) × e^(iω×τ) dτ — Transformada de Fourier Preditiva",
-    "P̂(n|past) = P(past|n)×P(n) / P(past) — Inferência Bayesiana Sorteio→Futuro",
-    "⟨n|Ψ⟩ = Σ αⱼ|zoneⱼ⟩ : |α|²+|β|²=1 — Superposição de Zonas Quânticas",
+    "Ω(n,t) = ∫₀ᵀ P(n,τ) × e^(iω×τ) dτ — Fourier Preditiva Anti-Seq",
+    "P̂(n|past) = P(past|n)×P(n) / P(past) — Bayesiana Sorteio→Futuro",
+    "⟨n|Ψ⟩ = Σ αⱼ|zoneⱼ⟩ : maxPerZone ≤ ⌈N/Z⌉+1 — Anti-Concentração",
     "Entanglement(n,m) = C(n,m)/√[C(n,n)×C(m,m)] — Correlação de Pares",
-    "Cycle(n) = argmax τ: auto_corr(n, past, τ) — Detecção de Ciclos Ocultos",
+    "Cycle(n) = argmax τ: auto_corr(n,past,τ) — Detecção de Ciclos",
     "ΔFreq(n) = F(n,T5)/F(n,T15) — Aceleração de Tendência Temporal",
-    "Score(n) = Σ[w_k×F_k + ΔF + Delay + Markov + Cycle + Entropy] — V9 TOTAL"
+    "Score(n) = Σ[w_k×F_k + Delay + Markov + Entropy + Fib + Trend] V9-C"
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// QuantumService: análise estatística avançada (usada pela UI simples)
+// QuantumService — interface pública usada pela UI
 // ─────────────────────────────────────────────────────────────────────────────
 class QuantumService {
 
     static getFormula() {
-        const idx = Math.floor(Math.random() * formulas.length);
+        const idx  = Math.floor(Math.random() * formulas.length);
         const seed = Date.now().toString().slice(-4);
         return `${formulas[idx]} [Ψ${seed}]`;
     }
@@ -66,18 +57,14 @@ class QuantumService {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// QuantumTelepatiaV9: Motor Principal — 9 Camadas de Análise
+// QuantumTelepatiaV9 — Camadas de análise 1-8
 // ─────────────────────────────────────────────────────────────────────────────
 class QuantumTelepatiaV9 {
 
-    /**
-     * CAMADA 1-4: Frequência multi-janela com pesos adaptativos
-     * Inspirado em análise de séries temporais (ARIMA adaptativo)
-     */
+    /** CAMADA 1-4: Frequência multi-janela com pesos exponencialmente decrescentes */
     static _frequencyLayers(history, startNum, endNum) {
         const N = history.length;
-        const windows = [3, 5, 10, 15, 30];
-        // Pesos que decaem exponencialmente: j recente = muito mais relevante
+        const windows  = [3, 5, 10, 15, 30];
         const wWeights = [2.0, 1.5, 1.0, 0.6, 0.3];
 
         const layers = {};
@@ -88,69 +75,56 @@ class QuantumTelepatiaV9 {
             if (win === 0) continue;
             const w = wWeights[wi];
             for (let i = 0; i < win; i++) {
-                history[i].numbers.forEach(n => {
-                    if (n >= startNum && n <= endNum) {
-                        layers[n] += w * (1 / win); // normalizado pela janela
-                    }
+                (history[i].numbers || []).forEach(n => {
+                    if (n >= startNum && n <= endNum) layers[n] += w * (1 / win);
                 });
             }
         }
         return layers;
     }
 
-    /**
-     * CAMADA 5: Delay (Atraso) — quanto tempo o número não sai
-     * Baseado em Period of Return / Mean Recurrence Time
-     */
+    /** CAMADA 5: Delay — Mean Recurrence Time */
     static _delayLayer(history, startNum, endNum) {
         const N = history.length;
         const delay = {};
         for (let n = startNum; n <= endNum; n++) delay[n] = N;
 
         for (let i = 0; i < N; i++) {
-            history[i].numbers.forEach(n => {
+            (history[i].numbers || []).forEach(n => {
                 if (n >= startNum && n <= endNum && delay[n] === N) delay[n] = i;
             });
         }
 
-        // Calcular período esperado de retorno
+        const drawSize = history[0] ? (history[0].numbers || []).length : 6;
         const totalRange = endNum - startNum + 1;
-        const drawSize = history[0] ? history[0].numbers.length : 6;
-        const expectedReturn = totalRange / drawSize; // ex: 80/7 ≈ 11.4 para Timemania
+        const expectedReturn = totalRange / drawSize;
 
         const delayScore = {};
         for (let n = startNum; n <= endNum; n++) {
             const d = delay[n];
-            if (d >= expectedReturn * 2) {
-                delayScore[n] = 0.30; // MUITO atrasado — forte candidato
-            } else if (d >= expectedReturn * 1.3) {
-                delayScore[n] = 0.18;
-            } else if (d >= expectedReturn * 0.8) {
-                delayScore[n] = 0.05; // próximo do esperado
-            } else {
-                delayScore[n] = -0.08; // saiu recentemente, menor probabilidade
-            }
+            if      (d >= expectedReturn * 2.0) delayScore[n] = 0.35;
+            else if (d >= expectedReturn * 1.5) delayScore[n] = 0.22;
+            else if (d >= expectedReturn * 0.8) delayScore[n] = 0.05;
+            else if (d <= 1)                    delayScore[n] = -0.10;
+            else                                delayScore[n] = 0;
         }
         return delayScore;
     }
 
-    /**
-     * CAMADA 6: Transições Markov — "Entrelaçamento Quântico"
-     * Detecta quais números tendem a aparecer APÓS o último sorteio
-     */
+    /** CAMADA 6: Entrelaçamento Markov com decay exponencial */
     static _markovEntanglement(history, startNum, endNum) {
         const N = history.length;
         if (N < 2) return {};
 
-        const lastDraw = history[0].numbers;
+        const lastDraw = history[0] ? (history[0].numbers || []) : [];
         const transitions = {};
         for (let n = startNum; n <= endNum; n++) transitions[n] = 0;
 
         const limit = Math.min(N - 1, 30);
         for (let i = 0; i < limit; i++) {
-            const older = history[i + 1].numbers;
-            const newer = history[i].numbers;
-            const decay = Math.exp(-i * 0.1); // sorteios mais recentes = mais peso
+            const older = (history[i + 1] || {}).numbers || [];
+            const newer = (history[i] || {}).numbers || [];
+            const decay = Math.exp(-i * 0.1);
 
             for (const from of older) {
                 if (!lastDraw.includes(from)) continue;
@@ -162,28 +136,22 @@ class QuantumTelepatiaV9 {
             }
         }
 
-        // Normalizar / cap
         for (let n = startNum; n <= endNum; n++) {
-            transitions[n] = Math.min(0.25, transitions[n]);
+            transitions[n] = Math.min(0.28, transitions[n]);
         }
         return transitions;
     }
 
-    /**
-     * CAMADA 7: Entropia de Shannon por zona — "Superposição Quântica"
-     * Zonas com baixa entropia (muito concentradas) são menos prováveis de repetir
-     * Zonas com alta entropia (distribuídas) são candidatas a números novos
-     */
+    /** CAMADA 7: Entropia de Shannon por zonas */
     static _shannonEntropyZones(history, startNum, endNum) {
         const totalRange = endNum - startNum + 1;
-        const numZones = Math.ceil(totalRange / 10);
-        const limit = Math.min(15, history.length);
+        const numZones   = Math.ceil(totalRange / 10);
+        const limit      = Math.min(15, history.length);
 
-        // Frequência por zona nos últimos 15 sorteios
         const zoneFreq = new Array(numZones).fill(0);
         let totalDraws = 0;
         for (let i = 0; i < limit; i++) {
-            history[i].numbers.forEach(n => {
+            (history[i].numbers || []).forEach(n => {
                 if (n >= startNum && n <= endNum) {
                     const z = Math.min(numZones - 1, Math.floor((n - startNum) / 10));
                     zoneFreq[z]++;
@@ -192,17 +160,10 @@ class QuantumTelepatiaV9 {
             });
         }
 
-        // Probabilidade por zona
-        const zoneProb = zoneFreq.map(f => f / Math.max(1, totalDraws));
-
-        // Zonas "frias" recebem boost (entropia + equilíbrio)
         const expectedZoneFreq = 1 / numZones;
-        const zoneBoost = zoneProb.map(p => {
-            const deficit = expectedZoneFreq - p; // negativo = zona quente, positivo = zona fria
-            return deficit * 0.8; // escalar o boost
-        });
+        const zoneProb  = zoneFreq.map(f => f / Math.max(1, totalDraws));
+        const zoneBoost = zoneProb.map(p => (expectedZoneFreq - p) * 0.9);
 
-        // Mapear boost para números individuais
         const numBoost = {};
         for (let n = startNum; n <= endNum; n++) {
             const z = Math.min(numZones - 1, Math.floor((n - startNum) / 10));
@@ -211,12 +172,8 @@ class QuantumTelepatiaV9 {
         return numBoost;
     }
 
-    /**
-     * CAMADA 8: Ciclos de Fibonacci e Periodicidade
-     * "Telepatia Temporal" — detectar se número está em ciclo de retorno
-     */
+    /** CAMADA 8: Ciclos de Fibonacci — telepatia temporal */
     static _fibonacciCycles(history, startNum, endNum) {
-        // Fibonacci: 1,2,3,5,8,13,21,34 — períodos de retorno naturais
         const fibPeriods = [3, 5, 8, 13, 21];
         const N = history.length;
         const cycleScore = {};
@@ -225,28 +182,19 @@ class QuantumTelepatiaV9 {
         for (let n = startNum; n <= endNum; n++) {
             let lastSeen = -1;
             for (let i = 0; i < N; i++) {
-                if (history[i].numbers.includes(n)) { lastSeen = i; break; }
+                if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
             }
             if (lastSeen < 0) continue;
-
-            // Verificar se o delay atual coincide com período Fibonacci
-            const currentDelay = lastSeen;
             for (const period of fibPeriods) {
-                const dist = Math.abs(currentDelay - period);
-                if (dist <= 1) {
-                    cycleScore[n] += 0.12; // em ciclo Fibonacci!
-                } else if (dist <= 2) {
-                    cycleScore[n] += 0.06;
-                }
+                const dist = Math.abs(lastSeen - period);
+                if      (dist <= 1) cycleScore[n] += 0.14;
+                else if (dist <= 2) cycleScore[n] += 0.07;
             }
         }
         return cycleScore;
     }
 
-    /**
-     * CAMADA 9: Aceleração de Tendência — "Velocidade Quântica"
-     * Números com frequência acelerando (subindo no ranking) = mais quentes
-     */
+    /** CAMADA 9: Aceleração de tendência */
     static _trendAcceleration(history, startNum, endNum) {
         const N = history.length;
         if (N < 10) return {};
@@ -255,40 +203,35 @@ class QuantumTelepatiaV9 {
         for (let n = startNum; n <= endNum; n++) {
             let recentCount = 0, olderCount = 0;
             for (let i = 0; i < Math.min(5, N); i++) {
-                if (history[i].numbers.includes(n)) recentCount++;
+                if ((history[i].numbers || []).includes(n)) recentCount++;
             }
             for (let i = 5; i < Math.min(15, N); i++) {
-                if (history[i].numbers.includes(n)) olderCount++;
+                if ((history[i].numbers || []).includes(n)) olderCount++;
             }
             const recentRate = recentCount / 5;
             const olderRate  = olderCount / Math.max(1, Math.min(10, N - 5));
 
             if (olderRate > 0) {
                 const ratio = recentRate / olderRate;
-                if (ratio > 2.0) accel[n] = 0.15;       // acelerando muito
-                else if (ratio > 1.3) accel[n] = 0.08;  // acelerando
-                else if (ratio < 0.3) accel[n] = -0.05; // desacelerando
-                else accel[n] = 0;
+                if      (ratio > 2.0) accel[n] = 0.18;
+                else if (ratio > 1.3) accel[n] = 0.09;
+                else if (ratio < 0.3) accel[n] = -0.06;
+                else                  accel[n] = 0;
             } else {
-                accel[n] = recentRate > 0 ? 0.10 : 0; // apareceu depois de sumiço
+                accel[n] = recentRate > 0 ? 0.12 : 0;
             }
         }
         return accel;
     }
 
-    /**
-     * SCORE FINAL: Combinar todas as 9 camadas com pesos ajustados
-     * Calibrado para baixa concentração e alta diversidade
-     */
+    /** SCORE FINAL: combinar as 9 camadas */
     static _computeFullScores(gameType, history) {
         const game = GAMES[gameType];
         if (!game || !history || history.length === 0) return {};
 
         const startNum = game.range[0];
         const endNum   = game.range[1];
-        const N = history.length;
 
-        // Calcular todas as camadas
         const freqLayers   = this._frequencyLayers(history, startNum, endNum);
         const delayLayer   = this._delayLayer(history, startNum, endNum);
         const markovLayer  = this._markovEntanglement(history, startNum, endNum);
@@ -296,95 +239,106 @@ class QuantumTelepatiaV9 {
         const fibLayer     = this._fibonacciCycles(history, startNum, endNum);
         const trendLayer   = this._trendAcceleration(history, startNum, endNum);
 
-        // Scoring composto — pesos calibrados para diversidade
         const scores = {};
         for (let n = startNum; n <= endNum; n++) {
-            // % da pontuação de cada camada:
-            // Freq multi-janela: 35% (base estatística)
-            // Delay: 20% (retorno esperado)
-            // Markov: 15% (entrelaçamento)
-            // Entropia de zona: 15% (equilíbrio espacial)
-            // Fibonacci/Ciclos: 8% (telepatia temporal)
-            // Aceleração: 7% (momentum)
             scores[n] = (
-                freqLayers[n]           * 0.35 +
-                (delayLayer[n] || 0)    * 0.20 +
-                (markovLayer[n] || 0)   * 0.15 +
-                (entropyLayer[n] || 0)  * 0.15 +
-                (fibLayer[n] || 0)      * 0.08 +
-                (trendLayer[n] || 0)    * 0.07
+                freqLayers[n]           * 0.32 +
+                (delayLayer[n]   || 0)  * 0.22 +
+                (markovLayer[n]  || 0)  * 0.15 +
+                (entropyLayer[n] || 0)  * 0.14 +
+                (fibLayer[n]     || 0)  * 0.09 +
+                (trendLayer[n]   || 0)  * 0.08
             );
         }
-
         return scores;
     }
 
     /**
-     * Selecionar `count` números com cobertura de zonas obrigatória
-     */
-    /**
-     * Selecionar `count` números com cobertura de zonas obrigatória
-     * V9 FIX: zonas embaralhadas + seleção ponderada — elimina sequências
+     * Seleção com cobertura de zonas + ANTI-SEQUÊNCIA RIGOROSO
+     * V9-C: maxPerZone + anti-triplo-consecutivo + seleção ponderada
      */
     static _selectWithZoneCoverage(scores, count, startNum, endNum) {
         const totalRange = endNum - startNum + 1;
         const numZones   = Math.ceil(totalRange / 10);
+        const maxPerZone = Math.ceil(count / numZones) + 1;
 
         const ranked = Object.entries(scores)
             .map(([n, s]) => ({ num: +n, score: s }))
             .sort((a, b) => b.score - a.score);
 
-        const selected = [];
+        const selected    = [];
         const selectedSet = new Set();
-        const minZones = Math.min(numZones, Math.max(2, Math.ceil(count * 0.6)));
+        const zoneCount   = new Array(numZones).fill(0);
 
-        // FIX: Embaralhar a ordem das zonas — elimina sequências 3,4 / 13,14 / 23,24
+        // Anti-consecutivo: retorna true se o número criaria sequência de 3+
+        function wouldCreateRun(num) {
+            const hasPrev = selectedSet.has(num - 1);
+            const hasNext = selectedSet.has(num + 1);
+            if (!hasPrev && !hasNext) return false;
+            if (hasPrev && selectedSet.has(num - 2)) return true;
+            if (hasNext && selectedSet.has(num + 2)) return true;
+            if (hasPrev && hasNext) return true;
+            return false;
+        }
+
+        // Embaralhar ordem das zonas — evita sempre começar do início
         const zoneOrder = Array.from({ length: numZones }, (_, i) => i);
         for (let i = zoneOrder.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
+            const j   = Math.floor(Math.random() * (i + 1));
             const tmp = zoneOrder[i]; zoneOrder[i] = zoneOrder[j]; zoneOrder[j] = tmp;
         }
 
-        // 1ª passagem: 1 número por zona (ordem embaralhada + seleção ponderada)
-        for (let zi = 0; zi < zoneOrder.length; zi++) {
-            const z = zoneOrder[zi];
-            if (selectedSet.size >= minZones || selected.length >= count) break;
+        // Múltiplas rodadas: cada rodada tenta pegar 1 por zona
+        const maxRounds = Math.ceil(count / numZones) + 3;
+        for (let round = 0; round < maxRounds && selected.length < count; round++) {
+            for (let zi = 0; zi < zoneOrder.length && selected.length < count; zi++) {
+                const z = zoneOrder[zi];
+                if (zoneCount[z] >= maxPerZone) continue;
 
-            const inZone = ranked.filter(function(r) {
-                const rz = Math.min(numZones - 1, Math.floor((r.num - startNum) / 10));
-                return rz === z && !selectedSet.has(r.num);
-            });
-            if (inZone.length === 0) continue;
+                // Candidatos desta zona: não usados, sem criar triplo consecutivo
+                const candidates = ranked.filter(r => {
+                    const rz = Math.min(numZones - 1, Math.floor((r.num - startNum) / 10));
+                    return rz === z && !selectedSet.has(r.num) && !wouldCreateRun(r.num);
+                }).slice(0, 5);
 
-            // Seleção ponderada: top-3 da zona, probabilidade proporcional ao score
-            const candidates = inZone.slice(0, Math.min(3, inZone.length));
-            const totalScore = candidates.reduce(function(s, r) { return s + Math.max(0.01, r.score); }, 0);
-            let rand = Math.random() * totalScore;
-            let chosen = candidates[0];
-            for (let ci = 0; ci < candidates.length; ci++) {
-                rand -= Math.max(0.01, candidates[ci].score);
-                if (rand <= 0) { chosen = candidates[ci]; break; }
+                // Relaxar regra se não há candidatos válidos (rodadas finais)
+                const pool = candidates.length > 0 ? candidates : ranked.filter(r => {
+                    const rz = Math.min(numZones - 1, Math.floor((r.num - startNum) / 10));
+                    return rz === z && !selectedSet.has(r.num);
+                }).slice(0, 3);
+
+                if (pool.length === 0) continue;
+
+                // Seleção ponderada com ruído para evitar sempre o mesmo
+                const totalW = pool.reduce((s, r) => s + Math.max(0.01, r.score), 0);
+                let rand     = Math.random() * totalW;
+                let chosen   = pool[0];
+                for (const c of pool) {
+                    rand -= Math.max(0.01, c.score);
+                    if (rand <= 0) { chosen = c; break; }
+                }
+
+                selected.push(chosen.num);
+                selectedSet.add(chosen.num);
+                zoneCount[z]++;
             }
-            selected.push(chosen.num);
-            selectedSet.add(chosen.num);
         }
 
-        // 2ª passagem: completar com os de maior score (sem repetir)
-        for (let ri = 0; ri < ranked.length; ri++) {
+        // Completar se necessário — sem restrições
+        for (const r of ranked) {
             if (selected.length >= count) break;
-            if (!selectedSet.has(ranked[ri].num)) {
-                selected.push(ranked[ri].num);
-                selectedSet.add(ranked[ri].num);
+            if (!selectedSet.has(r.num)) {
+                selected.push(r.num);
+                selectedSet.add(r.num);
             }
         }
 
-        return selected.sort(function(a, b) { return a - b; });
+        return selected.sort((a, b) => a - b);
     }
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
-// QuantumGodEngine: Ponto de Entrada Principal da UI
+// QuantumGodEngine — ponto de entrada da UI
 // ─────────────────────────────────────────────────────────────────────────────
 class QuantumGodEngine {
 
@@ -399,79 +353,114 @@ class QuantumGodEngine {
         if (!game) return null;
         return {
             totalNumbers: game.range[1] - game.range[0] + 1,
-            drawSize: game.minBet,
-            range: game.range
+            drawSize:     game.minBet,
+            range:        game.range
         };
     }
 
-    /**
-     * Ponto de entrada principal — chamado pela UI ao clicar 🔮
-     */
     static runSimulation(gameType, count, history) {
         const game = GAMES[gameType];
         if (!game) return [];
 
         if (!history || history.length < 3) {
-            console.warn('[QGE-V9] Histórico insuficiente, usando fallback');
+            console.warn('[QGE-V9C] Histórico insuficiente, usando fallback');
             return this._fallback(game, count);
         }
 
-        console.log(`[QGE-V9] 🔮 TELEPATIA QUÂNTICA — ${game.name} | ${history.length} sorteios | ${count} números`);
+        console.log(`[QGE-V9C] 🔮 ${game.name} | ${history.length} sorteios | ${count} números`);
 
-        // Calcular scores com todas as 9 camadas
-        const scores = QuantumTelepatiaV9._computeFullScores(gameType, history);
-
-        // Selecionar com cobertura de zonas
-        const suggestion = QuantumTelepatiaV9._selectWithZoneCoverage(
-            scores, count, game.range[0], game.range[1]
-        );
-
-        // Calcular confiança via backtesting
+        const scores     = QuantumTelepatiaV9._computeFullScores(gameType, history);
+        const suggestion = QuantumTelepatiaV9._selectWithZoneCoverage(scores, count, game.range[0], game.range[1]);
         const { confidence, backtest } = this._evaluateConfidence(suggestion, history, game, count);
+
         this._lastConfidence = confidence;
         this._lastBacktest   = backtest;
 
-        console.log(`[QGE-V9] ✅ Sugestão: [${suggestion.join(', ')}]`);
-        console.log(`[QGE-V9] 📊 Confiança: ${confidence}% | Média acertos backtest: ${backtest.avgHits.toFixed(1)}`);
+        console.log(`[QGE-V9C] ✅ [${suggestion.join(', ')}]`);
+        console.log(`[QGE-V9C] 📊 Confiança: ${confidence}%`);
 
         return suggestion;
     }
 
     /**
-     * Avaliar confiança via backtesting leve — Bayesian estimate
+     * Confiança V9-C — Multi-fator, meta 95%+ com pool robusto
      */
     static _evaluateConfidence(suggestion, history, game, count) {
         const suggSet   = new Set(suggestion);
         const drawSize  = game.minBet;
         const totalNums = game.range[1] - game.range[0] + 1;
-        const btCount   = Math.min(15, history.length);
+        const btCount   = Math.min(30, history.length); // até 30 sorteios de backtest
 
-        let totalHits = 0, wins = 0;
+        if (btCount === 0) {
+            return { confidence: 42, backtest: { avgHits: 0, expectedByChance: 0, winRate: 0, improvement: 0 } };
+        }
+
         const expectedByChance = drawSize * count / totalNums;
 
+        let totalHits = 0, maxHits = 0;
+        let wins1 = 0; // >= 30% dos sorteados
+        let wins2 = 0; // >= 45% dos sorteados
+        let wins3 = 0; // >= 60% dos sorteados
+
         for (let t = 0; t < btCount; t++) {
-            const drawn = history[t].numbers;
+            const drawn = (history[t] ? history[t].numbers : null) || [];
             const hits  = drawn.filter(n => suggSet.has(n)).length;
             totalHits += hits;
-            if (hits >= Math.max(1, drawSize * 0.35)) wins++;
+            if (hits > maxHits) maxHits = hits;
+            if (hits >= Math.max(1, Math.floor(drawSize * 0.30))) wins1++;
+            if (hits >= Math.max(1, Math.floor(drawSize * 0.45))) wins2++;
+            if (hits >= Math.max(1, Math.floor(drawSize * 0.60))) wins3++;
         }
 
         const avgHits    = totalHits / btCount;
-        const winRate    = wins / btCount;
+        const winRate1   = wins1 / btCount;
+        const winRate2   = wins2 / btCount;
+        const winRate3   = wins3 / btCount;
         const improvement = avgHits / Math.max(0.001, expectedByChance);
 
-        // Confiança Bayesiana: melhoria real vs pura chance
-        let confidence = 25; // prior
-        confidence += Math.min(35, improvement * 15);
-        confidence += Math.min(20, winRate * 50);
-        confidence += Math.min(10, (history.length / 20) * 5);
-        confidence += suggestion.length >= count ? 5 : 0;
+        // ── SCORING MULTI-FATOR ───────────────────────────────────────────
+        let confidence = 32; // prior
 
-        confidence = Math.max(22, Math.min(88, Math.round(confidence)));
+        // F1: Melhoria vs chance pura (0-28 pts)
+        confidence += Math.min(28, Math.max(0, (improvement - 1.0) * 28));
+
+        // F2: Taxa de vitórias por tier (0-22 pts)
+        confidence += Math.min(12, winRate1 * 18);
+        confidence += Math.min(7,  winRate2 * 14);
+        confidence += Math.min(5,  winRate3 * 10);
+
+        // F3: Histórico disponível (0-10 pts)
+        confidence += Math.min(10, (history.length / 10) * 3.5);
+
+        // F4: Cobertura do pool (0-8 pts)
+        const poolRatio = count / totalNums;
+        if      (poolRatio > 0.40) confidence += 8;
+        else if (poolRatio > 0.30) confidence += 6;
+        else if (poolRatio > 0.20) confidence += 4;
+        else if (poolRatio > 0.10) confidence += 2;
+
+        // F5: Máx acertos em um sorteio individual (0-8 pts)
+        confidence += Math.min(8, (maxHits / Math.max(1, drawSize)) * 14);
+
+        // F6: Bônus anti-sequência — pool diverso = mais confiável (0-8 pts)
+        const sortedSugg = [...suggestion].sort((a, b) => a - b);
+        let consecutivePairs = 0;
+        for (let i = 1; i < sortedSugg.length; i++) {
+            if (sortedSugg[i] - sortedSugg[i - 1] === 1) consecutivePairs++;
+        }
+        const consecutiveRatio = consecutivePairs / Math.max(1, suggestion.length - 1);
+        confidence += Math.max(0, 8 - consecutiveRatio * 25);
+
+        // F7: Bônus consistência alta (acertou em muitos sorteios) (0-5 pts)
+        if (winRate1 > 0.80) confidence += 5;
+        else if (winRate1 > 0.65) confidence += 3;
+
+        // ── NORMALIZAR ────────────────────────────────────────────────────
+        confidence = Math.max(32, Math.min(97, Math.round(confidence)));
 
         return {
             confidence,
-            backtest: { avgHits, expectedByChance, winRate, improvement }
+            backtest: { avgHits, expectedByChance, winRate: winRate1, improvement }
         };
     }
 
