@@ -767,7 +767,37 @@ class SmartBetsEngine {
             ticket.forEach(n => usedCount[n] = (usedCount[n] || 0) + 1);
         }
 
-        console.log('[QU-V9D] ✅ ' + games.length + ' jogos em ' + attempts + ' tentativas');
+        // ━━ GARANTIA DE CONTAGEM EXATA ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Preencher jogos faltantes sem nenhuma restrição
+        if (games.length < numGames) {
+            console.warn('[QU-V9D] ⚠️ Preenchendo ' + (numGames - games.length) + ' jogo(s)');
+            let fillAtt = 0;
+            const fillMax = (numGames - games.length) * 500;
+            while (games.length < numGames && fillAtt < fillMax) {
+                fillAtt++;
+                const ticket   = [...fixedNumbers.filter(f => pool.includes(f))];
+                const usedFill = new Set(ticket);
+                const remaining = pool.filter(n => !usedFill.has(n)).sort(() => Math.random() - 0.5);
+                for (const n of remaining) {
+                    if (ticket.length >= drawCount) break;
+                    ticket.push(n); usedFill.add(n);
+                }
+                if (ticket.length < drawCount) continue;
+                ticket.sort((a, b) => a - b);
+                const key = ticket.join(',');
+                if (!usedKeys.has(key)) {
+                    games.push(ticket);
+                    usedKeys.add(key);
+                    ticket.forEach(n => usedCount[n] = (usedCount[n] || 0) + 1);
+                }
+            }
+            // Último recurso absoluto
+            while (games.length < numGames && games.length > 0) {
+                games.push([...games[games.length % games.length]]);
+            }
+        }
+
+        console.log('[QU-V9D] ✅ ' + games.length + '/' + numGames + ' jogos em ' + attempts + ' tentativas');
 
         // ── FASE 4: ANÁLISE E CONFIANÇA 95%+ ─────────────────────────────────
         const uniqueNums = new Set();
@@ -1039,7 +1069,39 @@ class SmartBetsEngine {
             ticket.forEach(n => usedCount[n] = (usedCount[n] || 0) + 1);
         }
 
-        console.log('[QH-V9] ✅ ' + games.length + ' jogos gerados em ' + attempts + ' tentativas');
+        // ━━ GARANTIA DE CONTAGEM EXATA ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Se o loop principal não gerou todos, preencher com jogos simples
+        // Sem restrições de overlap ou uso — garante exatamente numGames
+        if (games.length < numGames) {
+            console.warn('[QH-V9] ⚠️ Preenchendo ' + (numGames - games.length) + ' jogo(s) restante(s) sem restrições');
+            let fillAttempts = 0;
+            const fillMax = (numGames - games.length) * 500;
+            while (games.length < numGames && fillAttempts < fillMax) {
+                fillAttempts++;
+                const ticket    = [...fixedNumbers.filter(f => pool.includes(f))];
+                const usedFill  = new Set(ticket);
+                const remaining = pool.filter(n => !usedFill.has(n)).sort(() => Math.random() - 0.5);
+                for (const n of remaining) {
+                    if (ticket.length >= drawSize) break;
+                    ticket.push(n);
+                    usedFill.add(n);
+                }
+                if (ticket.length < drawSize) continue;
+                ticket.sort((a, b) => a - b);
+                const key = ticket.join(',');
+                if (!usedKeys.has(key)) {
+                    games.push(ticket);
+                    usedKeys.add(key);
+                    ticket.forEach(n => usedCount[n] = (usedCount[n] || 0) + 1);
+                }
+            }
+            // Último recurso: se não conseguir combinações únicas, repetir o melhor
+            while (games.length < numGames) {
+                games.push([...games[games.length % Math.max(1, games.length - 1)]].sort((a,b) => a-b));
+            }
+        }
+
+        console.log('[QH-V9] ✅ ' + games.length + '/' + numGames + ' jogos gerados em ' + attempts + ' tentativas');
 
         // ══════════════════════════════════════════════
         // FASE 4: ANALISE DO SET
