@@ -921,20 +921,30 @@ class UI {
             btnGroup.onclick = () => {
                 const container = document.getElementById('lge-group-container');
                 if (!container) return;
-                container.innerHTML = '<div style="color:#c026d3;font-size:0.72rem;padding:8px;text-align:center;">🎯 Carregando análise de grupos 5×5...</div>';
+                container.innerHTML = '<div style="color:#c026d3;font-size:0.72rem;padding:8px;text-align:center;">🎯 Carregando análise de grupos...</div>';
                 setTimeout(() => {
                     try {
-                        const history = StatsService.getRecentResults('lotofacil', 200) || [];
+                        const history = StatsService.getRecentResults(this.currentGameKey, 200) || [];
                         if (history.length < 5) {
                             container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Histórico insuficiente.</div>';
                             return;
                         }
-                        const result = LotofacilGroupEngine.generate(history, 15, true);
-                        container.innerHTML = '';
-                        LotofacilGroupEngine.renderPanel(result.analysis, container, result);
+                        // Usar UniversalGroupEngine para todas as loterias
+                        if (typeof UniversalGroupEngine !== 'undefined' && UniversalGroupEngine.CONFIGS[this.currentGameKey]) {
+                            const result = UniversalGroupEngine.generate(this.currentGameKey, history);
+                            container.innerHTML = '';
+                            UniversalGroupEngine.renderPanel(result.analysis, container, result);
+                        } else if (this.currentGameKey === 'lotofacil' && typeof LotofacilGroupEngine !== 'undefined') {
+                            // Fallback para o motor específico da Lotofácil
+                            const result = LotofacilGroupEngine.generate(history, 15, true);
+                            container.innerHTML = '';
+                            LotofacilGroupEngine.renderPanel(result.analysis, container, result);
+                        } else {
+                            container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Motor de grupos não disponível.</div>';
+                        }
                     } catch (e) {
                         container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Erro: ' + e.message + '</div>';
-                        console.error('[LGE] Erro análise por grupos:', e);
+                        console.error('[UGE] Erro análise por grupos:', e);
                     }
                 }, 100);
             };
@@ -1055,13 +1065,19 @@ class UI {
         this.updateTheme(game.color);
         this.updateCountdown(gameKey);
 
-        // Mostrar botão de análise de grupos apenas para Lotofácil
+        // Botão de análise de grupos: disponível para TODAS as loterias via UniversalGroupEngine
         const btnGroup = document.getElementById('btn-group-analysis');
         const lgeContainer = document.getElementById('lge-group-container');
         if (btnGroup) {
-            btnGroup.style.display = gameKey === 'lotofacil' ? 'block' : 'none';
+            const hasConfig = typeof UniversalGroupEngine !== 'undefined' &&
+                              UniversalGroupEngine.CONFIGS && UniversalGroupEngine.CONFIGS[gameKey];
+            btnGroup.style.display = hasConfig ? 'block' : 'none';
+            if (hasConfig) {
+                const groupCount = UniversalGroupEngine.CONFIGS[gameKey].groups.length;
+                btnGroup.textContent = `🎯 Análise por Grupos (${groupCount}G) — ${game.name}`;
+            }
         }
-        if (lgeContainer && gameKey !== 'lotofacil') lgeContainer.innerHTML = '';
+        if (lgeContainer) lgeContainer.innerHTML = '';
 
         this.navButtons.forEach(btn => {
             const isActive = btn.dataset.game === gameKey;
