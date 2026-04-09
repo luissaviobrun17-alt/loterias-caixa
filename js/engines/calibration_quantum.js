@@ -235,7 +235,9 @@ const QuantumCalibration = {
         // ── 2b. DENSIDADE DE PROBABILIDADE DE CONJUNTOS
         // Monte Carlo leve: simular quais combinações ainda não saíram
         // e identificar quais números aparecem em combinações "sob-representadas"
-        const MONTE_RUNS = 500;
+        // Monte Carlo leve: 60 iterações (era 500 — gargalo crítico com 1000 jogos)
+        const MONTE_RUNS = 60;
+
         const combinationDensity = {};
         for (let n = min; n <= max; n++) combinationDensity[n] = 0;
 
@@ -596,12 +598,16 @@ const QuantumCalibration = {
         const usedCount = {};
         basePool.forEach(n => usedCount[n] = 0);
 
-        const maxUsePerNum = Math.max(3, Math.ceil(numGames * 0.25));
+        const maxUsePerNum = Math.max(3, Math.ceil(numGames * 0.30));
         let attempts = 0;
-        const maxAttempts = numGames * 2000;
+        // LIMITE SEGURO: max 100 tentativas por jogo + timeout de 15s
+        const maxAttempts = Math.min(numGames * 100, 80000);
+        const tStart = Date.now();
+        const MAX_MS  = 15000;
 
-        while (games.length < numGames && attempts < maxAttempts) {
+        while (games.length < numGames && attempts < maxAttempts && (Date.now() - tStart) < MAX_MS) {
             attempts++;
+
 
             // Pesos dinâmicos: combina calibração + penalidade de uso
             const ticket = [...fixed.filter(f => basePool.includes(f) && f >= min && f <= max)];

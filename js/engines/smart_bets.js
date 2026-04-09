@@ -671,7 +671,10 @@ class SmartBetsEngine {
         const maxOverlap   = hasUserSelection
             ? Math.ceil(drawCount * 0.55)
             : Math.ceil(drawCount * 0.35);
-        const maxAttempts  = numGames * 1500;
+        // LIMITE SEGURO: 300 tentativas por jogo + 20s timeout
+        const maxAttempts  = Math.min(numGames * 300, 200000);
+        const loopStart    = Date.now();
+        const LOOP_MAX_MS  = 20000;
         const maxPerZone   = Math.ceil(drawCount / numZones) + 1;
 
         // Anti-consecutivo: true se num criaria seq de 3+
@@ -686,8 +689,9 @@ class SmartBetsEngine {
         }
 
         let attempts = 0;
-        while (games.length < numGames && attempts < maxAttempts) {
+        while (games.length < numGames && attempts < maxAttempts && (Date.now() - loopStart) < LOOP_MAX_MS) {
             attempts++;
+
 
             const ticket    = [];
             const ticketSet = new Set();
@@ -790,7 +794,8 @@ class SmartBetsEngine {
         if (games.length < numGames) {
             console.warn('[QU-V9D] ⚠️ Preenchendo ' + (numGames - games.length) + ' jogo(s)');
             let fillAtt = 0;
-            const fillMax = (numGames - games.length) * 500;
+            const fillMax = Math.min((numGames - games.length) * 50, 5000); // era 500x — muito lento
+
             while (games.length < numGames && fillAtt < fillMax) {
                 fillAtt++;
                 const ticket   = [...fixedNumbers.filter(f => pool.includes(f))];
@@ -875,12 +880,21 @@ class SmartBetsEngine {
             qcalScore = 9; // fallback: 50% sem calibração
         }
 
-        // ── MÉTRICA 4: QUALIDADE ATÔMICA (Filtros Par/Ímpar, Quadrante, Fibonacci) — peso 14 pontos
+        // ── MÉTRICA 4: QUALIDADE ATÔMICA (amostra de até 50 jogos para performance) — peso 14 pontos
         let atomicScore = 0;
         if (games.length > 0 && typeof QuantumCalibration !== 'undefined') {
-            const atomicScores = games.map(g => QuantumCalibration.scoreGame(g, gameKey, history, qCalibScores));
-            const avgAtomic = atomicScores.reduce((s, v) => s + v, 0) / atomicScores.length;
-            atomicScore = Math.min(14, avgAtomic * 14 * 1.5); // 0.67 score = 100% dessa métrica
+            // Limitar a 50 amostras para evitar travar com 1000+ jogos
+            const sampleSize = Math.min(50, games.length);
+            const step = Math.max(1, Math.floor(games.length / sampleSize));
+            let atomicSum = 0;
+            let atomicCount = 0;
+            for (let gi = 0; gi < games.length; gi += step) {
+                atomicSum += QuantumCalibration.scoreGame(games[gi], gameKey, history, qCalibScores);
+                atomicCount++;
+                if (atomicCount >= sampleSize) break;
+            }
+            const avgAtomic = atomicCount > 0 ? atomicSum / atomicCount : 0.5;
+            atomicScore = Math.min(14, avgAtomic * 14 * 1.5);
         } else {
             atomicScore = 7;
         }
@@ -1032,10 +1046,14 @@ class SmartBetsEngine {
         const getMaxUse = () => Math.max(3, Math.ceil(numGames * 0.20));
 
         let attempts = 0;
-        const maxAttempts = numGames * 2000;
+        // LIMITE SEGURO: max 300 tentativas por jogo (era 2000x — trava browser com 1000 jogos)
+        const maxAttempts = Math.min(numGames * 300, 150000);
+        const tStart = Date.now();
+        const MAX_TIME_MS = 18000; // abortar após 18s para não travar o browser
 
-        while (games.length < numGames && attempts < maxAttempts) {
+        while (games.length < numGames && attempts < maxAttempts && (Date.now() - tStart) < MAX_TIME_MS) {
             attempts++;
+
 
             // Pesos com penalidade por super-uso
             const weights = {};
