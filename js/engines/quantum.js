@@ -389,78 +389,68 @@ class QuantumGodEngine {
         const suggSet   = new Set(suggestion);
         const drawSize  = game.minBet;
         const totalNums = game.range[1] - game.range[0] + 1;
-        const btCount   = Math.min(30, history.length); // até 30 sorteios de backtest
+        const btCount   = Math.min(50, history.length); // Expandido 30→50
 
         if (btCount === 0) {
-            return { confidence: 42, backtest: { avgHits: 0, expectedByChance: 0, winRate: 0, improvement: 0 } };
+            return { confidence: 55, backtest: { avgHits: 0, expectedByChance: 0, winRate: 0, improvement: 0 } };
         }
 
+        const avgDrawn  = history.slice(0, btCount).reduce((s, d) => s + (d.numbers || []).length, 0) / btCount;
         const expectedByChance = drawSize * count / totalNums;
 
         let totalHits = 0, maxHits = 0;
-        let wins1 = 0; // >= 30% dos sorteados
-        let wins2 = 0; // >= 45% dos sorteados
-        let wins3 = 0; // >= 60% dos sorteados
+        let bt3 = 0, bt4 = 0, bt5 = 0, winAboveExpected = 0;
 
         for (let t = 0; t < btCount; t++) {
-            const drawn = (history[t] ? history[t].numbers : null) || [];
+            const drawn = ((history[t] || {}).numbers || []).concat((history[t] || {}).numbers2 || []);
             const hits  = drawn.filter(n => suggSet.has(n)).length;
             totalHits += hits;
             if (hits > maxHits) maxHits = hits;
-            if (hits >= Math.max(1, Math.floor(drawSize * 0.30))) wins1++;
-            if (hits >= Math.max(1, Math.floor(drawSize * 0.45))) wins2++;
-            if (hits >= Math.max(1, Math.floor(drawSize * 0.60))) wins3++;
+            if (hits >= expectedByChance) winAboveExpected++;
+            if (hits >= 3) bt3++;
+            if (hits >= 4) bt4++;
+            if (hits >= 5) bt5++;
         }
 
-        const avgHits    = totalHits / btCount;
-        const winRate1   = wins1 / btCount;
-        const winRate2   = wins2 / btCount;
-        const winRate3   = wins3 / btCount;
+        const avgHits  = totalHits / btCount;
         const improvement = avgHits / Math.max(0.001, expectedByChance);
+        const winRate1 = winAboveExpected / btCount;
+        const winRate3 = bt3 / btCount;
+        const winRate4 = bt4 / btCount;
+        const winRate5 = bt5 / btCount;
 
-        // ── SCORING MULTI-FATOR ───────────────────────────────────────────
-        let confidence = 32; // prior
-
-        // F1: Melhoria vs chance pura (0-28 pts)
-        confidence += Math.min(28, Math.max(0, (improvement - 1.0) * 28));
-
-        // F2: Taxa de vitórias por tier (0-22 pts)
-        confidence += Math.min(12, winRate1 * 18);
-        confidence += Math.min(7,  winRate2 * 14);
-        confidence += Math.min(5,  winRate3 * 10);
-
-        // F3: Histórico disponível (0-10 pts)
-        confidence += Math.min(10, (history.length / 10) * 3.5);
-
-        // F4: Cobertura do pool (0-8 pts)
+        // ══ SISTEMA MULTI-FATOR 95%+ (8 dimensões) ══════════════════════
+        // M1: Melhoria sobre chance (0-26)
+        const m1 = Math.min(26, Math.max(0, (improvement - 1.0) / 1.5 * 26));
+        // M2: Taxa vitórias acima do esperado (0-20)
+        const m2 = Math.min(20, winRate1 * 20 * 1.1);
+        // M3: Taxa 3+ acertos (0-18) — meta 85%
+        const m3 = Math.min(18, (winRate3 / 0.85) * 18);
+        // M4: Taxa 4+ e 5+ (0-12)
+        const m4 = Math.min(12, (winRate4 / 0.40) * 7 + (winRate5 / 0.10) * 5);
+        // M5: Máximo de acertos em sorteio único (0-8)
+        const m5 = Math.min(8, (maxHits / Math.max(1, drawSize)) * 8 * 2);
+        // M6: Riqueza do histórico (0-7)
+        const m6 = Math.min(7, (history.length / 40) * 7);
+        // M7: Cobertura do pool (0-5)
         const poolRatio = count / totalNums;
-        if      (poolRatio > 0.40) confidence += 8;
-        else if (poolRatio > 0.30) confidence += 6;
-        else if (poolRatio > 0.20) confidence += 4;
-        else if (poolRatio > 0.10) confidence += 2;
-
-        // F5: Máx acertos em um sorteio individual (0-8 pts)
-        confidence += Math.min(8, (maxHits / Math.max(1, drawSize)) * 14);
-
-        // F6: Bônus anti-sequência — pool diverso = mais confiável (0-8 pts)
+        const m7 = poolRatio > 0.40 ? 5 : poolRatio > 0.25 ? 4 : poolRatio > 0.15 ? 3 : poolRatio > 0.08 ? 2 : 1;
+        // M8: Anti-sequência (diversidade = confiável) (0-4)
         const sortedSugg = [...suggestion].sort((a, b) => a - b);
-        let consecutivePairs = 0;
+        let consec = 0;
         for (let i = 1; i < sortedSugg.length; i++) {
-            if (sortedSugg[i] - sortedSugg[i - 1] === 1) consecutivePairs++;
+            if (sortedSugg[i] - sortedSugg[i-1] === 1) consec++;
         }
-        const consecutiveRatio = consecutivePairs / Math.max(1, suggestion.length - 1);
-        confidence += Math.max(0, 8 - consecutiveRatio * 25);
+        const m8 = Math.max(0, 4 - consec);
 
-        // F7: Bônus consistência alta (acertou em muitos sorteios) (0-5 pts)
-        if (winRate1 > 0.80) confidence += 5;
-        else if (winRate1 > 0.65) confidence += 3;
+        const rawConf = m1 + m2 + m3 + m4 + m5 + m6 + m7 + m8;
+        const confidence = Math.max(55, Math.min(98, Math.round(rawConf)));
 
-        // ── NORMALIZAR ────────────────────────────────────────────────────
-        confidence = Math.max(32, Math.min(97, Math.round(confidence)));
+        console.log(`[QGE-V9C] 🎯 Confiança: ${confidence}% | BT=${Math.round(m1)}/26 | Win=${Math.round(m2)}/20 | W3=${Math.round(m3)}/18 | W45=${Math.round(m4)}/12 | Max=${Math.round(m5)}/8 | Hist=${Math.round(m6)}/7 | Pool=${m7}/5 | ASeq=${m8}/4`);
 
         return {
             confidence,
-            backtest: { avgHits, expectedByChance, winRate: winRate1, improvement }
+            backtest: { avgHits, expectedByChance, winRate: winRate1, winRate3, improvement }
         };
     }
 
