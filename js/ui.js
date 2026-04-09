@@ -894,6 +894,31 @@ class UI {
                 }, 150);
             };
         }
+
+        // ── Botão de Análise por Grupos (Lotofácil exclusivo) ────────────────
+        const btnGroup = document.getElementById('btn-group-analysis');
+        if (btnGroup) {
+            btnGroup.onclick = () => {
+                const container = document.getElementById('lge-group-container');
+                if (!container) return;
+                container.innerHTML = '<div style="color:#c026d3;font-size:0.72rem;padding:8px;text-align:center;">🎯 Carregando análise de grupos 5×5...</div>';
+                setTimeout(() => {
+                    try {
+                        const history = StatsService.getRecentResults('lotofacil', 200) || [];
+                        if (history.length < 5) {
+                            container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Histórico insuficiente.</div>';
+                            return;
+                        }
+                        const result = LotofacilGroupEngine.generate(history, 15, true);
+                        container.innerHTML = '';
+                        LotofacilGroupEngine.renderPanel(result.analysis, container, result);
+                    } catch (e) {
+                        container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Erro: ' + e.message + '</div>';
+                        console.error('[LGE] Erro análise por grupos:', e);
+                    }
+                }, 100);
+            };
+        }
     }
 
     initShareEvents() {
@@ -1009,6 +1034,14 @@ class UI {
 
         this.updateTheme(game.color);
         this.updateCountdown(gameKey);
+
+        // Mostrar botão de análise de grupos apenas para Lotofácil
+        const btnGroup = document.getElementById('btn-group-analysis');
+        const lgeContainer = document.getElementById('lge-group-container');
+        if (btnGroup) {
+            btnGroup.style.display = gameKey === 'lotofacil' ? 'block' : 'none';
+        }
+        if (lgeContainer && gameKey !== 'lotofacil') lgeContainer.innerHTML = '';
 
         this.navButtons.forEach(btn => {
             const isActive = btn.dataset.game === gameKey;

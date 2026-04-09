@@ -282,7 +282,7 @@
                         <button id="btn-use-quantum" class="quantum-btn quantum-btn-use">
                             ✓ Usar Estes Números no Jogo
                         </button>
-                        <button id="btn-analyse-selection" class="quantum-btn" style="
+        <button id="btn-analyse-selection" class="quantum-btn" style="
                             background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
                             border: 1px solid #6366f140;
                             color: #a5b4fc;
@@ -296,7 +296,24 @@
                         " onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='#6366f140'">
                             🔬 Analisar Minha Seleção (12 Dimensões)
                         </button>
+                        <!-- Botão de análise de grupos — exclusivo Lotofácil -->
+                        <button id="btn-group-analysis" class="quantum-btn" style="
+                            background: linear-gradient(135deg, #4a044e 0%, #701a75 100%);
+                            border: 1px solid #c026d340;
+                            color: #f0abfc;
+                            font-size: 0.75rem;
+                            padding: 8px 14px;
+                            margin-top: 5px;
+                            width: 100%;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                            display: none;
+                        " onmouseover="this.style.borderColor='#c026d3'" onmouseout="this.style.borderColor='#c026d340'">
+                            🎯 Análise por Grupos (5×5) — Lotofácil
+                        </button>
                         <div id="ae-manual-container"></div>
+                        <div id="lge-group-container"></div>
                     </div>
 
                 </div>
@@ -967,9 +984,10 @@
             <script src="js/engines/quantum.js?v=4"></script>
             <script src="js/engines/quantum_god_mode.js?v=5"></script>
             <script src="js/engines/smart_bets.js?v=5"></script>
-            <script src="js/engines/backtesting.js?v=1"></script>
-            <script src="js/engines/analysis_engine.js?v=1"></script>
-            <script src="js/ui.js?v=6"></script>
+            <script src="js/engines/backtesting.js?v=2"></script>
+            <script src="js/engines/analysis_engine.js?v=2"></script>
+            <script src="js/engines/lotofacil_group_engine.js?v=1"></script>
+            <script src="js/ui.js?v=7"></script>
             <script src="js/main.js?v=5"></script>
 
     <!-- SISTEMA DE LICENÇA -->
