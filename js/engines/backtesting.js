@@ -22,7 +22,7 @@ class BacktestingEngine {
      * @param {number} numConcursos - Quantos concursos testar (default: 8)
      * @returns {Object} Resultado do backtesting
      */
-    static run(gameKey, engine = 'smart', numGames = 10, numConcursos = 8) {
+    static run(gameKey, engine = 'smart', numGames = 10, numConcursos = 20) {
         const game = GAMES[gameKey];
         if (!game) return null;
 
@@ -42,7 +42,10 @@ class BacktestingEngine {
         console.log(`[Backtest] 🧪 Iniciando backtesting ${gameKey} (${engine}) — ${numConcursos} concursos, ${numGames} jogos cada`);
 
         const results = [];
-        const drawSize = game.minBet || game.draw;
+        // CRITICO: usar game.draw (bolas sorteadas), NAO game.minBet (aposta)
+        // Lotomania: minBet=50 (aposta) != draw=20 (sorteio) → bug afeta expectedRandom
+        const drawSize = game.draw || game.minBet;
+        const betSize  = game.minBet; // tamanho da aposta do jogador (para gerar jogos)
 
         for (let t = 0; t < numConcursos; t++) {
             // Concurso a testar (resultado real)
@@ -61,7 +64,7 @@ class BacktestingEngine {
                 StatsService.historyStore[gameKey] = trainingHistory;
                 
                 try {
-                    const result = SmartBetsEngine.generate(gameKey, numGames, [], [], drawSize);
+                    const result = SmartBetsEngine.generate(gameKey, numGames, [], [], betSize);
                     games = result.games || [];
                 } catch(e) {
                     console.warn('[Backtest] Erro na geração:', e.message);
@@ -188,12 +191,21 @@ class BacktestingEngine {
         const expectedRandom = drawSize * drawnPerGame / totalRange;
         const improvement = expectedRandom > 0 ? ((avgHits - expectedRandom) / expectedRandom) * 100 : 0;
 
-        // Determinar nível de confiança
+        // Determinar nível de confiança — com nota de significância estatística
+        // N<15 sorteios: impossível estabelecer significância, mostrar aviso
+        const sampleTooSmall = results.length < 15;
         let confidenceLevel = 'baixa';
         let confidenceColor = '#EF4444';
-        if (improvement >= 10) { confidenceLevel = 'alta'; confidenceColor = '#10B981'; }
-        else if (improvement >= 3) { confidenceLevel = 'média'; confidenceColor = '#F59E0B'; }
-        else if (improvement >= 0) { confidenceLevel = 'marginal'; confidenceColor = '#F97316'; }
+        if (sampleTooSmall) {
+            // Amosta pequena: classificar pela direção mas avisar
+            if (improvement >= 0) { confidenceLevel = 'indeterminada (amostra pequena)'; confidenceColor = '#94a3b8'; }
+            else { confidenceLevel = 'indeterminada (amostra pequena)'; confidenceColor = '#94a3b8'; }
+        } else {
+            if (improvement >= 10) { confidenceLevel = 'alta'; confidenceColor = '#10B981'; }
+            else if (improvement >= 3) { confidenceLevel = 'média'; confidenceColor = '#F59E0B'; }
+            else if (improvement >= 0) { confidenceLevel = 'marginal'; confidenceColor = '#F97316'; }
+            else { confidenceLevel = 'baixa'; confidenceColor = '#EF4444'; }
+        }
 
         const pctByThreshold = {};
         thresholds.forEach(t => {
@@ -209,19 +221,22 @@ class BacktestingEngine {
             pct12plus: pctByThreshold[12] || 0,
             pct13plus: pctByThreshold[13] || 0,
             confidenceLevel, confidenceColor, hitsByDraw,
-            summary: `Média: ${avgHits.toFixed(1)} hits (acaso: ${expectedRandom}) | Melhor: ${bestOverall}`
+            sampleTooSmall,
+            summary: `Média: ${avgHits.toFixed(1)} hits (acaso: ${expectedRandom}) | Melhor: ${bestOverall}${sampleTooSmall ? ' | ⚠️ amostra < 15' : ''}`
         };
     }
 
     static _getGameThresholds(gameKey) {
         const map = {
-            lotofacil: [11, 12, 13],
-            timemania: [3, 4, 5],
-            megasena: [4, 5, 6],
-            quina: [2, 3, 4],
-            duplasena: [3, 4, 5],
-            lotomania: [15, 16, 17],
-            diadesorte: [3, 4, 5]
+            lotofacil:   [11, 12, 13],
+            timemania:   [3, 4, 5],
+            megasena:    [4, 5, 6],
+            quina:       [2, 3, 4],
+            duplasena:   [3, 4, 5],
+            // Lotomania: acertos em jogos individuais (jogo tem 50 nums, acerto vs 20 drawn)
+            // Premio começa em 0 acertos (!) ou a partir de 15 acertos
+            lotomania:   [12, 15, 18],
+            diadesorte:  [3, 4, 5]
         };
         return map[gameKey] || [3, 4, 5];
     }
@@ -265,6 +280,7 @@ class BacktestingEngine {
             '</div>' +
             '<div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.05);">' +
                 '<span style="font-size: 0.7rem; color: ' + metrics.confidenceColor + '; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Confiança: ' + metrics.confidenceLevel + '</span>' +
+                (metrics.sampleTooSmall ? '<span style="font-size: 0.65rem; color: #94a3b8; display:block; margin-top:2px;">⚠️ Amostra < 15 sorteios — resultado estatisticamente inconclusivo</span>' : '') +
             '</div>' +
         '</div>';
     }
