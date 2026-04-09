@@ -323,6 +323,26 @@ class UI {
                 }, 200);
             }
         } catch(e) { console.warn('[AE] Erro ao iniciar análise:', e); }
+
+        // ── PAINEL DE DECISÃO INTEGRADO ──────────────────────────────────────
+        // Une AE-V2 + LGE-V1 e entrega recomendação concreta: "jogue estes números"
+        try {
+            if (typeof DecisionEngine !== 'undefined' && numbers && numbers.length > 0) {
+                setTimeout(() => {
+                    try {
+                        const history = StatsService.getRecentResults(this.currentGameKey, 200) || [];
+                        const decision = DecisionEngine.decide(this.currentGameKey, numbers, history);
+                        if (decision) {
+                            const deContainer = document.createElement('div');
+                            DecisionEngine.renderDecisionPanel(decision, deContainer);
+                            this.quantumResults.appendChild(deContainer);
+                        }
+                    } catch (deErr) {
+                        console.warn('[DE] Erro motor de decisão:', deErr);
+                    }
+                }, 600); // após AE-V2 (200ms) para não competir
+            }
+        } catch(e) { console.warn('[DE] Erro ao iniciar decisão:', e); }
     }
 
     useQuantumNumbers() {
