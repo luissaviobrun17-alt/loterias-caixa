@@ -296,6 +296,33 @@ class UI {
 
         // Update formula again for "Next Run"
         try { this.quantumFormula.textContent = QuantumService.getFormula(); } catch(e) {}
+
+        // ── ANÁLISE PROFUNDA DE EFICIÊNCIA ──────────────────────────────────
+        // Roda análise de 12 dimensões nos números selecionados pela IA
+        try {
+            if (typeof AnalysisEngine !== 'undefined' && numbers && numbers.length > 0) {
+                const aeStatus = document.createElement('div');
+                aeStatus.style.cssText = 'text-align:center;color:#8B5CF6;font-size:0.72rem;padding:6px;opacity:0.8;';
+                aeStatus.textContent = '🔬 Analisando eficiência da seleção em 12 dimensões...';
+                this.quantumResults.appendChild(aeStatus);
+
+                setTimeout(() => {
+                    try {
+                        const history = StatsService.getRecentResults(this.currentGameKey, 100) || [];
+                        const analysis = AnalysisEngine.analyze(this.currentGameKey, numbers, history);
+                        aeStatus.remove();
+                        if (analysis) {
+                            const aeContainer = document.createElement('div');
+                            AnalysisEngine.renderPanel(analysis, aeContainer);
+                            this.quantumResults.appendChild(aeContainer);
+                        }
+                    } catch (aeErr) {
+                        aeStatus.textContent = '⚠️ Análise indisponível: ' + aeErr.message;
+                        console.warn('[AE] Erro:', aeErr);
+                    }
+                }, 200);
+            }
+        } catch(e) { console.warn('[AE] Erro ao iniciar análise:', e); }
     }
 
     useQuantumNumbers() {
@@ -834,6 +861,38 @@ class UI {
         }
         if (this.btnUseQuantum) {
             this.btnUseQuantum.onclick = () => this.useQuantumNumbers();
+        }
+
+        // ── Botão de Análise Manual da Seleção ──────────────────────────────
+        const btnAnalyse = document.getElementById('btn-analyse-selection');
+        if (btnAnalyse) {
+            btnAnalyse.onclick = () => {
+                const container = document.getElementById('ae-manual-container');
+                if (!container) return;
+
+                const nums = [...this.selectedNumbers].sort((a, b) => a - b);
+                if (nums.length < 2) {
+                    container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Selecione pelo menos 2 números no grid para analisar.</div>';
+                    return;
+                }
+
+                container.innerHTML = '<div style="color:#8B5CF6;font-size:0.72rem;padding:8px;text-align:center;">🔬 Analisando ' + nums.length + ' números em 12 dimensões...</div>';
+
+                setTimeout(() => {
+                    try {
+                        const history = StatsService.getRecentResults(this.currentGameKey, 100) || [];
+                        const analysis = AnalysisEngine.analyze(this.currentGameKey, nums, history);
+                        if (analysis) {
+                            AnalysisEngine.renderPanel(analysis, container);
+                        } else {
+                            container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Histórico insuficiente para análise.</div>';
+                        }
+                    } catch (e) {
+                        container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Erro: ' + e.message + '</div>';
+                        console.error('[AE] Erro análise manual:', e);
+                    }
+                }, 150);
+            };
         }
     }
 

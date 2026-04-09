@@ -282,6 +282,21 @@
                         <button id="btn-use-quantum" class="quantum-btn quantum-btn-use">
                             ✓ Usar Estes Números no Jogo
                         </button>
+                        <button id="btn-analyse-selection" class="quantum-btn" style="
+                            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+                            border: 1px solid #6366f140;
+                            color: #a5b4fc;
+                            font-size: 0.75rem;
+                            padding: 8px 14px;
+                            margin-top: 6px;
+                            width: 100%;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                        " onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='#6366f140'">
+                            🔬 Analisar Minha Seleção (12 Dimensões)
+                        </button>
+                        <div id="ae-manual-container"></div>
                     </div>
 
                 </div>
@@ -953,7 +968,8 @@
             <script src="js/engines/quantum_god_mode.js?v=5"></script>
             <script src="js/engines/smart_bets.js?v=5"></script>
             <script src="js/engines/backtesting.js?v=1"></script>
-            <script src="js/ui.js?v=5"></script>
+            <script src="js/engines/analysis_engine.js?v=1"></script>
+            <script src="js/ui.js?v=6"></script>
             <script src="js/main.js?v=5"></script>
 
     <!-- SISTEMA DE LICENÇA -->
