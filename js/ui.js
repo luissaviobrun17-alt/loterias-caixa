@@ -297,8 +297,37 @@ class UI {
         // Update formula again for "Next Run"
         try { this.quantumFormula.textContent = QuantumService.getFormula(); } catch(e) {}
 
+        // ── HELPER: obter histórico robusto (StatsService + fallback REAL_HISTORY_DB) ────
+        const _getHistory = (gameKey, maxCount) => {
+            let h = [];
+            try { h = StatsService.getRecentResults(gameKey, maxCount) || []; } catch(e) {}
+            // Fallback: usar REAL_HISTORY_DB diretamente se StatsService retornar vazio
+            if (h.length < 3 && typeof REAL_HISTORY_DB !== 'undefined' && REAL_HISTORY_DB[gameKey]) {
+                h = REAL_HISTORY_DB[gameKey].slice(0, maxCount);
+                console.log('[UI] Fallback para REAL_HISTORY_DB:', h.length, 'registros');
+            }
+            return h;
+        };
+
+        // ── DIAGNÓSTICO: quais engines estão carregados ────────────────────────
+        const enginesLoaded = [
+            typeof AnalysisEngine !== 'undefined'       ? '🔬AE-V2'  : null,
+            typeof DecisionEngine !== 'undefined'       ? '✅DE-V1'  : null,
+            typeof UniversalGroupEngine !== 'undefined' ? '🎯UGE-V1' : null,
+        ].filter(Boolean);
+        if (enginesLoaded.length > 0) {
+            const diagDiv = document.createElement('div');
+            diagDiv.style.cssText = 'text-align:center;font-size:0.58rem;color:#475569;padding:3px 0 1px;letter-spacing:0.5px;';
+            diagDiv.textContent = 'Motores: ' + enginesLoaded.join(' · ');
+            this.quantumResults.appendChild(diagDiv);
+        } else {
+            const diagDiv = document.createElement('div');
+            diagDiv.style.cssText = 'text-align:center;font-size:0.65rem;color:#EF4444;padding:4px;';
+            diagDiv.textContent = '⚠️ Motores de análise não carregados — recarregue a página (Ctrl+Shift+R)';
+            this.quantumResults.appendChild(diagDiv);
+        }
+
         // ── ANÁLISE PROFUNDA DE EFICIÊNCIA ──────────────────────────────────
-        // Roda análise de 12 dimensões nos números selecionados pela IA
         try {
             if (typeof AnalysisEngine !== 'undefined' && numbers && numbers.length > 0) {
                 const aeStatus = document.createElement('div');
@@ -308,16 +337,23 @@ class UI {
 
                 setTimeout(() => {
                     try {
-                        const history = StatsService.getRecentResults(this.currentGameKey, 100) || [];
+                        const history = _getHistory(this.currentGameKey, 100);
+                        if (history.length < 3) {
+                            aeStatus.textContent = '⚠️ AE-V2: histórico insuficiente (' + history.length + ' registros)';
+                            return;
+                        }
                         const analysis = AnalysisEngine.analyze(this.currentGameKey, numbers, history);
                         aeStatus.remove();
                         if (analysis) {
                             const aeContainer = document.createElement('div');
                             AnalysisEngine.renderPanel(analysis, aeContainer);
                             this.quantumResults.appendChild(aeContainer);
+                        } else {
+                            aeStatus.textContent = '⚠️ AE-V2: análise retornou null';
                         }
                     } catch (aeErr) {
-                        aeStatus.textContent = '⚠️ Análise indisponível: ' + aeErr.message;
+                        aeStatus.style.color = '#EF4444';
+                        aeStatus.textContent = '⚠️ AE-V2 erro: ' + aeErr.message;
                         console.warn('[AE] Erro:', aeErr);
                     }
                 }, 200);
@@ -325,12 +361,12 @@ class UI {
         } catch(e) { console.warn('[AE] Erro ao iniciar análise:', e); }
 
         // ── PAINEL DE DECISÃO INTEGRADO ──────────────────────────────────────
-        // Une AE-V2 + LGE-V1 e entrega recomendação concreta: "jogue estes números"
         try {
             if (typeof DecisionEngine !== 'undefined' && numbers && numbers.length > 0) {
                 setTimeout(() => {
                     try {
-                        const history = StatsService.getRecentResults(this.currentGameKey, 200) || [];
+                        const history = _getHistory(this.currentGameKey, 200);
+                        if (history.length < 3) return;
                         const decision = DecisionEngine.decide(this.currentGameKey, numbers, history);
                         if (decision) {
                             const deContainer = document.createElement('div');
@@ -338,9 +374,13 @@ class UI {
                             this.quantumResults.appendChild(deContainer);
                         }
                     } catch (deErr) {
+                        const errDiv = document.createElement('div');
+                        errDiv.style.cssText = 'color:#EF4444;font-size:0.65rem;padding:6px;text-align:center;';
+                        errDiv.textContent = '⚠️ Decisão erro: ' + deErr.message;
+                        this.quantumResults.appendChild(errDiv);
                         console.warn('[DE] Erro motor de decisão:', deErr);
                     }
-                }, 600); // após AE-V2 (200ms) para não competir
+                }, 600);
             }
         } catch(e) { console.warn('[DE] Erro ao iniciar decisão:', e); }
     }
