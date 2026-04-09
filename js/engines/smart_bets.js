@@ -860,8 +860,11 @@ class SmartBetsEngine {
         }
 
         const avgHits    = btCount > 0 ? totalHits / btCount : 0;
-        const avgDrawn   = btCount > 0 ? history.slice(0, btCount).reduce((s, d) => s + (d.numbers || []).length, 0) / btCount : drawCount;
-        const expectedRnd = drawCount * avgDrawn / totalRange;
+        // Para Lotomania: game.draw=20 (bolas sorteadas) !== game.minBet=50 (aposta do jogador)
+        // Se game.draw existe e é diferente de drawCount, usar game.draw para esperança
+        const actualDrawCount = (game && game.draw && game.draw < drawCount) ? game.draw : drawCount;
+        const avgDrawn   = btCount > 0 ? history.slice(0, btCount).reduce((s, d) => s + (d.numbers || []).length, 0) / btCount : actualDrawCount;
+        const expectedRnd = actualDrawCount * avgDrawn / totalRange;
         const improvement = avgHits / Math.max(0.001, expectedRnd);
         const winRate3 = btCount > 0 ? bt3 / btCount : 0;
         const winRate4 = btCount > 0 ? bt4 / btCount : 0;

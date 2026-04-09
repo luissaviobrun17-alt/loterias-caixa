@@ -28,11 +28,14 @@ const AnalysisEngine = {
         const game  = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         const min   = game ? game.range[0] : 1;
         const max   = game ? game.range[1] : 60;
-        const drawSize = game ? game.minBet : 6;
+        // CRITICO: usar game.draw (bolas sorteadas), NAO game.minBet (aposta do jogador)
+        // Lotomania: minBet=50 (jogador aposta 50) mas draw=20 (20 bolas saem)
+        const drawSize   = game ? (game.draw || game.minBet) : 6;
+        const betSize    = game ? game.minBet : drawSize; // aposta do jogador
         const totalRange = max - min + 1;
         const N = history.length;
 
-        console.log(`[AE-V2] 🔬 Análise Profunda: ${selectedNumbers.length} nums | ${gameKey} | ${N} sorteios`);
+        console.log(`[AE-V2] 🔬 Análise Profunda: ${selectedNumbers.length} nums | ${gameKey} | ${N} sorteios | draw=${drawSize} bet=${betSize}`);
 
         // ── 1. Score de todos os números do range ─────────────────────────
         const allScores = {};
@@ -72,6 +75,7 @@ const AnalysisEngine = {
         const distribution     = this._analyzeDistribution(selectedNumbers, history, min, max, drawSize, totalRange);
         const backtestResult   = this._backtestSelection(selectedNumbers, history, drawSize, totalRange);
 
+
         console.log(`[AE-V2] ✅ Ef=${overallEfficiency}% | Pos=${Math.round(positioningScore)}% | Cov=${Math.round(coverageScore)}%`);
 
         return {
@@ -108,7 +112,7 @@ const AnalysisEngine = {
             if (getDrawNums(history[i]).includes(n)) { if (lastSeen < 0) lastSeen = i; appearances.push(i); }
         }
         const delay = lastSeen < 0 ? N : lastSeen;
-        const expectedReturn = totalRange / drawSize;
+        const expectedReturn = totalRange / drawSize; // usa draw (bolas sorteadas), coreto para Lotomania
         const delayScore = delay >= expectedReturn*2.5 ? 1.0 : delay >= expectedReturn*1.8 ? 0.85 : delay >= expectedReturn*1.2 ? 0.60 : delay >= expectedReturn*0.7 ? 0.35 : delay <= 1 ? 0.05 : 0.20;
         dims.atraso = { score: delayScore, val: `${delay} sorteios sem sair (esp: ${expectedReturn.toFixed(1)})`, delay };
 

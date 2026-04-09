@@ -387,15 +387,18 @@ class QuantumGodEngine {
      */
     static _evaluateConfidence(suggestion, history, game, count) {
         const suggSet   = new Set(suggestion);
-        const drawSize  = game.minBet;
+        // CRITICO: usar game.draw (bolas sorteadas), NAO game.minBet (aposta do jogador)
+        // Lotomania: minBet=50 mas draw=20 → sem correção, improvement fica = 0.4x errado
+        const drawSize  = game.draw || game.minBet;
         const totalNums = game.range[1] - game.range[0] + 1;
-        const btCount   = Math.min(50, history.length); // Expandido 30→50
+        const btCount   = Math.min(50, history.length);
 
         if (btCount === 0) {
             return { confidence: 55, backtest: { avgHits: 0, expectedByChance: 0, winRate: 0, improvement: 0 } };
         }
 
         const avgDrawn  = history.slice(0, btCount).reduce((s, d) => s + (d.numbers || []).length, 0) / btCount;
+        // expectedByChance: quantos da sugestão saem por puro acaso por sorteio
         const expectedByChance = drawSize * count / totalNums;
 
         let totalHits = 0, maxHits = 0;

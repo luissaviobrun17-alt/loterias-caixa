@@ -1167,6 +1167,11 @@ class QuantumGodEngine {
         }
 
         var avgHits = totalHits / testCount;
+        // CRITICO: gameSize deve ser game.draw (bolas sorteadas), NAO game.minBet (aposta)
+        // Lotomania: suggestion.length * 50 / 100 = 40+ esperados (impossivel, max=20)
+        // Fix: usar game.draw=20 → suggestion.length * 20 / 100 = calculo correto
+        var gameObj = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+        var gameSize = (gameObj && gameObj.draw) ? gameObj.draw : this._getGameSize(gameKey);
         var expectedByChance = suggestion.length * gameSize / totalNumbers;
         var improvement = avgHits / Math.max(0.1, expectedByChance);
         var winRate = winCount / testCount;
