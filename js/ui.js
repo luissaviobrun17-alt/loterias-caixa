@@ -143,18 +143,17 @@ class UI {
     }
 
     initInstallEvents() {
-        if (this.btnInstall && this.installModal) {
-            this.btnInstall.addEventListener('click', () => {
-                this.installModal.style.display = 'flex';
-            });
-        }
-
-        if (this.closeInstallModalBtns) {
-            this.closeInstallModalBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    this.installModal.style.display = 'none';
+        // btn-install agora é um link <a> para INSTALAR_B2B.html — não precisa de handler
+        // Apenas garante que o modal antigo não seja aberto por acidente
+        if (this.installModal) {
+            // Fechar modal antigo se ainda existir (retrocompatibilidade)
+            if (this.closeInstallModalBtns) {
+                this.closeInstallModalBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.installModal.style.display = 'none';
+                    });
                 });
-            });
+            }
         }
 
         if (this.btnCopyPath && this.folderPathElem) {

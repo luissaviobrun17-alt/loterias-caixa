@@ -535,7 +535,18 @@ class SmartBetsEngine {
         try { history = StatsService.getRecentResults(gameKey, 200) || []; } catch(e) {}
 
         const N = history.length;
-        console.log('[QU-V9D] ' + (game.name || gameKey) + ' | ' + N + ' sorteios | drawSize=' + drawSize);
+        console.log('[QU-QCALV3] ⚛️ ' + (game.name || gameKey) + ' | ' + N + ' sorteios | drawSize=' + drawSize + ' | CALIBRAÇÃO QUÂNTICA ATIVA');
+
+        // ── CALIBRAÇÃO QUÂNTICA META-HEURÍSTICA (QCAL-V3) ─────────────────────
+        // Integra Entropia Temporal + Clarividência Computacional + Filtros Atômicos
+        let qCalibScores = null;
+        if (typeof QuantumCalibration !== 'undefined' && N >= 3) {
+            try {
+                qCalibScores = QuantumCalibration.calibrate(gameKey, history, drawCount);
+            } catch(e) {
+                console.warn('[QU-QCALV3] Calibração quântica ignorada:', e.message);
+            }
+        }
 
         // ── FASE 1: SCORES MULTI-CAMADA ──────────────────────────────────────
         const freq   = {}, delay = {};
@@ -596,7 +607,7 @@ class SmartBetsEngine {
         const drawCount = drawSize > 0 ? drawSize : (game.minBet || 6);
         const expectedReturn = totalRange / drawCount;
 
-        // Score final composto
+        // Score final composto — V9-D + QCAL-V3 Fusion
         const scores = {};
         for (let n = startNum; n <= endNum; n++) {
             const fNorm   = freq[n] / Math.max(1, N);
@@ -609,8 +620,15 @@ class SmartBetsEngine {
             const delayBonus = d >= expectedReturn*2 ? 0.30 : d >= expectedReturn*1.3 ? 0.15 : d <= 1 ? -0.08 : 0;
             const mkBoost = Math.min(0.20, markov[n] || 0);
 
-            scores[n] = fNorm*0.28 + r5Norm*0.18 + r10Norm*0.20 + r15Norm*0.10
-                      + delayBonus*0.10 + zBoost*0.08 + mkBoost*0.06;
+            // Score base V9-D
+            const baseScore = fNorm*0.28 + r5Norm*0.18 + r10Norm*0.20 + r15Norm*0.10
+                            + delayBonus*0.10 + zBoost*0.08 + mkBoost*0.06;
+
+            // Score QCAL-V3: Entropia + Clarividência + Filtros Atômicos
+            const qScore = qCalibScores ? (qCalibScores[n] || 0) : 0;
+
+            // Fusão: 62% V9-D (dados históricos) + 38% QCAL-V3 (padrões quânticos)
+            scores[n] = baseScore * 0.62 + qScore * 0.38;
         }
 
         // ── FASE 2: DEFINIR POOL ─────────────────────────────────────────────
@@ -859,8 +877,8 @@ class SmartBetsEngine {
                 backtestHits:  { '5+': bt5, '4+': bt4, '3+': bt3 },
                 pairsCovered:  '-',
                 triosCovered:  '-',
-                engine: 'Quantum Universal V9-D — ' + (game.name || gameKey),
-                mode:   hasUserSelection ? 'SELEÇÃO DO USUÁRIO' : 'ANÁLISE IA COMPLETA'
+                engine: 'Quantum Universal V9-D + QCAL-V3 — ' + (game.name || gameKey),
+                mode:   (hasUserSelection ? 'SELEÇÃO DO USUÁRIO' : 'ANÁLISE IA COMPLETA') + (qCalibScores ? ' ⚛️ CALIBRAÇÃO QUÂNTICA' : '')
             }
         };
     }

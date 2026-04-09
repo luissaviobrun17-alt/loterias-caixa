@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B Loterias — Como Instalar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold: #FFD700;
+            --gold-dark: #D4AF37;
+            --green: #10B981;
+            --green-dark: #059669;
+            --bg: #0a0f1e;
+            --bg2: #111827;
+            --bg3: #1e2a3a;
+            --border: rgba(255,215,0,0.15);
+            --text: #F1F5F9;
+            --text2: #94A3B8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* BACKGROUND ANIMADO */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(16,185,129,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(255,215,0,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.06) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* HEADER */
+        .hero {
+            text-align: center;
+            padding: 3rem 0 2rem;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(255,215,0,0.1));
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 50px;
+            padding: 0.4rem 1.2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #FFD700 0%, #FFF8DC 40%, #10B981 80%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text2);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* LOGO */
+        .logo-wrap {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, rgba(255,215,0,0.2), rgba(16,185,129,0.1));
+            border: 2px solid rgba(255,215,0,0.3);
+            box-shadow: 0 0 40px rgba(255,215,0,0.15), 0 0 80px rgba(16,185,129,0.08);
+            animation: logoPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(255,215,0,0.15), 0 0 80px rgba(16,185,129,0.08); }
+            50% { box-shadow: 0 0 60px rgba(255,215,0,0.30), 0 0 100px rgba(16,185,129,0.15); }
+        }
+
+        .logo-wrap img {
+            width: 85px;
+            height: 85px;
+            object-fit: contain;
+        }
+
+        .logo-fallback {
+            font-size: 3rem;
+        }
+
+        /* CARDS */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+            margin: 2.5rem 0;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(30,42,58,0.95), rgba(17,24,39,0.9));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.04), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .card:hover::before { left: 100%; }
+        .card:hover {
+            border-color: rgba(255,215,0,0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(255,215,0,0.08);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            font-size: 0.85rem;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        /* SEÇÃO DE INSTALAÇÃO */
+        .install-section {
+            background: linear-gradient(145deg, rgba(16,185,129,0.08), rgba(17,24,39,0.95));
+            border: 1px solid rgba(16,185,129,0.25);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .install-section h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--green);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--green), var(--green-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 800;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+        }
+
+        .step-content h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.25rem;
+        }
+
+        .step-content p {
+            font-size: 0.82rem;
+            color: var(--text2);
+            line-height: 1.5;
+        }
+
+        .step-content code {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,215,0,0.2);
+            color: var(--gold);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.82rem;
+        }
+
+        /* BOTÕES DE AÇÃO */
+        .action-section {
+            margin: 2rem 0;
+        }
+
+        .action-section h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .btn-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 1.2rem;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-action::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 0; height: 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease, height 0.4s ease;
+        }
+
+        .btn-action:active::after {
+            width: 200%; height: 200%;
+        }
+
+        .btn-action .btn-icon {
+            font-size: 2rem;
+        }
+
+        .btn-action .btn-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .btn-action .btn-sub {
+            font-size: 0.72rem;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            box-shadow: 0 6px 25px rgba(16,185,129,0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 35px rgba(16,185,129,0.5);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #FFD700, #D4AF37);
+            color: #000;
+            box-shadow: 0 6px 25px rgba(255,215,0,0.35);
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 35px rgba(255,215,0,0.5);
+        }
+
+        .btn-blue {
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            color: white;
+            box-shadow: 0 6px 25px rgba(59,130,246,0.35);
+        }
+
+        .btn-blue:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 35px rgba(59,130,246,0.5);
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+            color: white;
+            box-shadow: 0 6px 25px rgba(139,92,246,0.35);
+        }
+
+        .btn-purple:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 35px rgba(139,92,246,0.5);
+        }
+
+        /* PASTA PATH */
+        .path-box {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,215,0,0.2);
+            border-radius: 10px;
+            padding: 1rem 1.2rem;
+            margin: 1.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .path-text {
+            font-family: monospace;
+            font-size: 0.82rem;
+            color: var(--green);
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .btn-copy-path {
+            background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(212,175,55,0.1));
+            border: 1px solid rgba(255,215,0,0.3);
+            color: var(--gold);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-copy-path:hover {
+            background: rgba(255,215,0,0.25);
+            transform: scale(1.02);
+        }
+
+        /* NOTIFICAÇÃO */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            transform: translateY(6rem);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* FEATURES LIST */
+        .features {
+            background: linear-gradient(145deg, rgba(255,215,0,0.05), rgba(17,24,39,0.95));
+            border: 1px solid rgba(255,215,0,0.15);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .features h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            color: var(--text2);
+        }
+
+        .feature-item .check {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--green), var(--green-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text2);
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 2rem;
+        }
+
+        .footer a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        /* RESPONSIVO */
+        @media (max-width: 600px) {
+            .action-buttons {
+                grid-template-columns: 1fr 1fr;
+            }
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ANIMAÇÕES */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .delay-3 { animation-delay: 0.3s; opacity: 0; }
+        .delay-4 { animation-delay: 0.4s; opacity: 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- HERO -->
+    <div class="hero animate">
+        <div class="logo-wrap">
+            <img src="img/logo_atom.png" alt="B2B Loterias" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+            <div class="logo-fallback" style="display:none">🎰</div>
+        </div>
+        <div class="hero-badge">⚡ Versão Desktop &amp; Mobile</div>
+        <h1>B2B Loterias<br>Como Instalar</h1>
+        <p>Gerador inteligente de apostas com IA para todas as loterias da Caixa. Instale em segundos no seu computador.</p>
+    </div>
+
+    <!-- RECURSOS -->
+    <div class="features animate delay-1">
+        <h2>✨ O que inclui</h2>
+        <div class="features-grid">
+            <div class="feature-item"><div class="check">✓</div> Mega Sena com fechamento</div>
+            <div class="feature-item"><div class="check">✓</div> Lotofácil (15, 14, 13 pts)</div>
+            <div class="feature-item"><div class="check">✓</div> Quina (5, 4, 3 pontos)</div>
+            <div class="feature-item"><div class="check">✓</div> Dupla Sena (6, 5, 4 pts)</div>
+            <div class="feature-item"><div class="check">✓</div> Lotomania 20-17 números</div>
+            <div class="feature-item"><div class="check">✓</div> Timemania (7, 6, 5 pts)</div>
+            <div class="feature-item"><div class="check">✓</div> Dia de Sorte (7, 6, 5 pts)</div>
+            <div class="feature-item"><div class="check">✓</div> Estatísticas 3/5/10/15 concursos</div>
+            <div class="feature-item"><div class="check">✓</div> Motor IA com 14 regras</div>
+            <div class="feature-item"><div class="check">✓</div> Simulador de custo</div>
+            <div class="feature-item"><div class="check">✓</div> Conferidor de resultados</div>
+            <div class="feature-item"><div class="check">✓</div> Funciona 100% offline</div>
+        </div>
+    </div>
+
+    <!-- AÇÕES PRINCIPAIS -->
+    <div class="action-section animate delay-2">
+        <h2>🚀 Instalar Agora</h2>
+        <div class="action-buttons">
+            <button class="btn-action btn-primary" id="btn-abrir">
+                <span class="btn-icon">▶️</span>
+                <span class="btn-label">Abrir o Programa</span>
+                <span class="btn-sub">Clique para abrir agora</span>
+            </button>
+            <a class="btn-action btn-gold" href="../B2B_Loterias_v2.zip" download="B2B_Loterias.zip" id="btn-download">
+                <span class="btn-icon">📦</span>
+                <span class="btn-label">Baixar ZIP</span>
+                <span class="btn-sub">Copiar para outro PC</span>
+            </a>
+            <button class="btn-action btn-blue" id="btn-criar-atalho">
+                <span class="btn-icon">🖥️</span>
+                <span class="btn-label">Criar Atalho</span>
+                <span class="btn-sub">Fixar no Desktop</span>
+            </button>
+            <button class="btn-action btn-purple" id="btn-copiar-link">
+                <span class="btn-icon">🔗</span>
+                <span class="btn-label">Copiar Caminho</span>
+                <span class="btn-sub">Compartilhar o link local</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- CAMINHO DA PASTA -->
+    <div class="path-box animate delay-2">
+        <div class="path-text" id="folder-path-display">Carregando caminho...</div>
+        <button class="btn-copy-path" id="btn-copy-folder">📋 Copiar Caminho</button>
+    </div>
+
+    <!-- PASSOS DE INSTALAÇÃO -->
+    <div class="install-section animate delay-3">
+        <h2>📋 Passo a Passo de Instalação</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h4>Baixe o arquivo ZIP</h4>
+                    <p>Clique em <strong>"Baixar ZIP"</strong> acima. O arquivo <code>B2B_Loterias.zip</code> será salvo na sua pasta de Downloads.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h4>Extraia em qualquer pasta</h4>
+                    <p>Clique com o botão direito no ZIP e escolha <strong>"Extrair tudo"</strong>. Escolha a pasta desejada (ex: <code>C:\B2B_Loterias\</code>).</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h4>Execute o instalador</h4>
+                    <p>Dentro da pasta extraída, dê duplo clique em <code>INSTALAR.bat</code>. Um atalho <strong>"B2B Loterias"</strong> será criado automaticamente no Desktop.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                    <h4>Pronto para usar!</h4>
+                    <p>Clique no atalho criado no Desktop para abrir o programa. Funciona completamente offline, sem necessidade de internet* (dados históricos incluídos).</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARDS INFO -->
+    <div class="cards-grid animate delay-4">
+        <div class="card">
+            <div class="card-icon">🌐</div>
+            <h3>Funciona no Navegador</h3>
+            <p>Compatível com Chrome, Edge, Firefox e Safari. Melhor experiência no Google Chrome para um visual mais rico.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">📱</div>
+            <h3>Versão Mobile</h3>
+            <p>O arquivo <code>B2B_Loterias_Mobile.zip</code> pode ser instalado em Android ou iPhone como app. Veja o tutorial na barra lateral do programa.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">🔒</div>
+            <h3>100% Seguro &amp; Offline</h3>
+            <p>Não instala nada no sistema. Não requer internet. Seus dados ficam apenas no seu computador, nenhuma informação é enviada para servidores.</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>B2B Loterias &copy; 2026 — Gerador Inteligente com IA</p>
+        <p style="margin-top:0.5rem"><a href="index.html">← Abrir o Programa</a></p>
+    </div>
+
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast" id="toast">✅ <span id="toast-msg">Copiado!</span></div>
+
+<script>
+(function() {
+    // Detectar caminho da pasta atual
+    var currentPath = window.location.pathname.replace('/INSTALAR_B2B.html', '').replace(/\//g, '\\');
+    if (window.location.protocol === 'file:') {
+        var fullPath = window.location.href
+            .replace('file:///', '')
+            .replace('/INSTALAR_B2B.html', '')
+            .replace(/\//g, '\\')
+            .replace(/%20/g, ' ');
+        document.getElementById('folder-path-display').textContent = fullPath;
+    } else {
+        document.getElementById('folder-path-display').textContent = window.location.origin + '/loterias-caixa';
+    }
+
+    // Toast helper
+    function showToast(msg) {
+        var toast = document.getElementById('toast');
+        var toastMsg = document.getElementById('toast-msg');
+        toastMsg.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 3000);
+    }
+
+    // Copiar para clipboard
+    function copyText(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text)
+                .then(function() { showToast('Caminho copiado para a área de transferência!'); })
+                .catch(function() { fallbackCopy(text); });
+        } else {
+            fallbackCopy(text);
+        }
+    }
+
+    function fallbackCopy(text) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand('copy');
+            showToast('Caminho copiado!');
+        } catch(e) {
+            prompt('Copie o caminho abaixo:', text);
+        }
+        document.body.removeChild(ta);
+    }
+
+    // Botão Copiar Caminho (inline)
+    document.getElementById('btn-copy-folder').addEventListener('click', function() {
+        var path = document.getElementById('folder-path-display').textContent;
+        copyText(path);
+    });
+
+    // Botão Copiar Link (roxo)
+    document.getElementById('btn-copiar-link').addEventListener('click', function() {
+        var path = document.getElementById('folder-path-display').textContent;
+        copyText(path);
+        var me = this;
+        var originalHTML = me.innerHTML;
+        me.innerHTML = '<span class="btn-icon">✅</span><span class="btn-label">Caminho Copiado!</span><span class="btn-sub">Cole no navegador</span>';
+        setTimeout(function() { me.innerHTML = originalHTML; }, 2500);
+    });
+
+    // Botão Abrir Programa
+    document.getElementById('btn-abrir').addEventListener('click', function() {
+        window.location.href = 'index.html';
+    });
+
+    // Botão Criar Atalho (instrução)
+    document.getElementById('btn-criar-atalho').addEventListener('click', function() {
+        var msg = 'Para criar um atalho no Desktop:\n\n' +
+            '1. Abra a pasta do programa\n' +
+            '2. Dê duplo clique em "INSTALAR.bat"\n' +
+            '3. Um atalho será criado automaticamente!\n\n' +
+            'Pasta: ' + document.getElementById('folder-path-display').textContent;
+        alert(msg);
+    });
+
+    // Download feedback
+    document.getElementById('btn-download').addEventListener('click', function() {
+        showToast('📦 Download iniciado! Extraia e execute INSTALAR.bat');
+    });
+})();
+</script>
+
+</body>
+</html>

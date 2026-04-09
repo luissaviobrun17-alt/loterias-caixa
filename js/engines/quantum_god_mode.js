@@ -48,67 +48,81 @@ class QuantumGodEngine {
             // Lotofácil: 15/25 — V10: range pequeno, diversidade natural alta
             'lotofacil': {
                 recentFreq:   0.08, generalFreq: 0.04, latency: 0.08,
-                cycles:       0.06, repetition: 0.10, drawEnding: 0.02,  // V3: rep 0.18→0.10
+                cycles:       0.06, repetition: 0.10, drawEnding: 0.02,
                 lines:        0.06, columns: 0.04, primes: 0.01,
                 mirrors:      0.03, digitEnding: 0.03,
-                markov:       0.06, temporal: 0.06, conditional: 0.06,   // V3: markov 0.12→0.06
-                algorithm:    0.03, trend: 0.05, fibonacci: 0.01,       // V3: trend 0.06→0.05
-                sumMin: 155, sumMax: 235, linesPerRow: [1, 5],          // V3: ampliado
-                maxConsecutive: 10, evenOddTolerance: 3,                // V3: maxCons 4→10!
-                repeatFromLast: [6, 12], guaranteedPct: 0.40,           // V3: guaranteedPct 0.55→0.40
-                monteCarloRuns: 25000, qualityAttempts: 3000            // V3: mais simulações
+                markov:       0.05, temporal: 0.05, conditional: 0.05,
+                algorithm:    0.03, trend: 0.04, fibonacci: 0.01,
+                // ══ NOVAS CAMADAS QUÂNTICAS QCAL-V3 (todas as loterias) ══
+                harmonics:    0.04, entropy: 0.04, regression: 0.04,
+                phaseAlign:   0.04, resonance: 0.04, clairvoyance: 0.06,
+                sumMin: 155, sumMax: 235, linesPerRow: [1, 5],
+                maxConsecutive: 10, evenOddTolerance: 3,
+                repeatFromLast: [6, 12], guaranteedPct: 0.40,
+                monteCarloRuns: 28000, qualityAttempts: 3500
             },
-            // Mega Sena: 6/60 — V10: diversidade + latência equilibrada
             'megasena': {
-                recentFreq:   0.10, generalFreq: 0.06, latency: 0.14,
-                cycles:       0.12, repetition: 0.04, drawEnding: 0.05,
+                recentFreq:   0.09, generalFreq: 0.05, latency: 0.13,
+                cycles:       0.10, repetition: 0.04, drawEnding: 0.05,
                 lines:        0.04, columns: 0.04, primes: 0.02,
                 mirrors:      0.03, digitEnding: 0.03,
-                markov:       0.08, temporal: 0.06, conditional: 0.06,
-                algorithm:    0.05, trend: 0.05, fibonacci: 0.01,
+                markov:       0.06, temporal: 0.05, conditional: 0.05,
+                algorithm:    0.04, trend: 0.04, fibonacci: 0.01,
+                // ══ CAMADAS QUÂNTICAS QCAL-V3 ══
+                harmonics:    0.05, entropy: 0.05, regression: 0.05,
+                phaseAlign:   0.04, resonance: 0.05, clairvoyance: 0.07,
                 sumMin: 100, sumMax: 250, linesPerRow: [0, 3],
                 maxConsecutive: 2, evenOddTolerance: 2,
                 repeatFromLast: [0, 3], guaranteedPct: 0.40,
-                monteCarloRuns: 20000, qualityAttempts: 2500
+                monteCarloRuns: 25000, qualityAttempts: 3000
             },
-            // Quina: 5/80 — V10: range grande, diversidade máxima
+            // Quina: 5/80 — QCAL-V3: range grande, clarividência máxima
             'quina': {
-                recentFreq:   0.08, generalFreq: 0.05, latency: 0.14,
-                cycles:       0.12, repetition: 0.04, drawEnding: 0.04,
+                recentFreq:   0.07, generalFreq: 0.05, latency: 0.13,
+                cycles:       0.10, repetition: 0.04, drawEnding: 0.04,
                 lines:        0.04, columns: 0.03, primes: 0.01,
                 mirrors:      0.03, digitEnding: 0.03,
-                markov:       0.10, temporal: 0.08, conditional: 0.08,
-                algorithm:    0.04, trend: 0.06, fibonacci: 0.01,
+                markov:       0.08, temporal: 0.06, conditional: 0.06,
+                algorithm:    0.03, trend: 0.05, fibonacci: 0.01,
+                // ══ CAMADAS QUÂNTICAS QCAL-V3 ══
+                harmonics:    0.06, entropy: 0.05, regression: 0.05,
+                phaseAlign:   0.04, resonance: 0.05, clairvoyance: 0.08,
                 sumMin: 90, sumMax: 270, linesPerRow: [0, 3],
                 maxConsecutive: 2, evenOddTolerance: 2,
                 repeatFromLast: [0, 2], guaranteedPct: 0.40,
-                monteCarloRuns: 20000, qualityAttempts: 2500
+                monteCarloRuns: 25000, qualityAttempts: 3000
             },
-            // Dupla Sena: 6/50 — V10: diversidade + ciclos
+            // Dupla Sena: 6/50 — QCAL-V3: ciclos + vácuo duplo
             'duplasena': {
-                recentFreq:   0.08, generalFreq: 0.05, latency: 0.14,
-                cycles:       0.10, repetition: 0.06, drawEnding: 0.04,
+                recentFreq:   0.07, generalFreq: 0.05, latency: 0.13,
+                cycles:       0.09, repetition: 0.06, drawEnding: 0.04,
                 lines:        0.04, columns: 0.03, primes: 0.01,
                 mirrors:      0.03, digitEnding: 0.03,
-                markov:       0.10, temporal: 0.08, conditional: 0.08,
-                algorithm:    0.04, trend: 0.06, fibonacci: 0.01,
+                markov:       0.07, temporal: 0.06, conditional: 0.06,
+                algorithm:    0.03, trend: 0.05, fibonacci: 0.01,
+                // ══ CAMADAS QUÂNTICAS QCAL-V3 ══
+                harmonics:    0.05, entropy: 0.05, regression: 0.05,
+                phaseAlign:   0.04, resonance: 0.05, clairvoyance: 0.07,
                 sumMin: 80, sumMax: 200, linesPerRow: [0, 3],
                 maxConsecutive: 2, evenOddTolerance: 2,
                 repeatFromLast: [0, 3], guaranteedPct: 0.42,
-                monteCarloRuns: 20000, qualityAttempts: 2500
+                monteCarloRuns: 25000, qualityAttempts: 3000
             },
-            // Lotomania: 20/100 — V10: range enorme, diversidade crítica
+            // Lotomania: 20/100 — QCAL-V3: range enorme, entropia máxima
             'lotomania': {
-                recentFreq:   0.05, generalFreq: 0.03, latency: 0.10,
-                cycles:       0.06, repetition: 0.12, drawEnding: 0.02,
-                lines:        0.06, columns: 0.04, primes: 0.01,
+                recentFreq:   0.04, generalFreq: 0.03, latency: 0.09,
+                cycles:       0.06, repetition: 0.10, drawEnding: 0.02,
+                lines:        0.05, columns: 0.04, primes: 0.01,
                 mirrors:      0.03, digitEnding: 0.04,
-                markov:       0.10, temporal: 0.08, conditional: 0.08,
-                algorithm:    0.04, trend: 0.06, fibonacci: 0.01,
+                markov:       0.07, temporal: 0.06, conditional: 0.06,
+                algorithm:    0.03, trend: 0.05, fibonacci: 0.01,
+                // ══ CAMADAS QUÂNTICAS QCAL-V3 ══
+                harmonics:    0.06, entropy: 0.07, regression: 0.06,
+                phaseAlign:   0.05, resonance: 0.05, clairvoyance: 0.08,
                 sumMin: 870, sumMax: 1130, linesPerRow: [1, 3],
                 maxConsecutive: 3, evenOddTolerance: 3,
                 repeatFromLast: [7, 14], guaranteedPct: 0.45,
-                monteCarloRuns: 20000, qualityAttempts: 3000
+                monteCarloRuns: 25000, qualityAttempts: 3500
             },
             // Timemania: 10/80 — V4: RECALIBRADA COM DADOS FORENSES
             'timemania': {
@@ -126,18 +140,21 @@ class QuantumGodEngine {
                 repeatFromLast: [0, 2], guaranteedPct: 0.25,           // V4: repeat [0,4]→[0,2], guar 0.30→0.25
                 monteCarloRuns: 65000, qualityAttempts: 8000           // V4: mais simulações
             },
-            // Dia de Sorte: 7/31 — V10: espaço pequeno, equilibrado
+            // Dia de Sorte: 7/31 — QCAL-V3: espaço pequeno, Fibonacci prevalente
             'diadesorte': {
-                recentFreq:   0.06, generalFreq: 0.04, latency: 0.10,
-                cycles:       0.08, repetition: 0.15, drawEnding: 0.03,
+                recentFreq:   0.05, generalFreq: 0.04, latency: 0.09,
+                cycles:       0.07, repetition: 0.14, drawEnding: 0.03,
                 lines:        0.04, columns: 0.03, primes: 0.01,
                 mirrors:      0.03, digitEnding: 0.03,
-                markov:       0.12, temporal: 0.08, conditional: 0.08,
-                algorithm:    0.03, trend: 0.06, fibonacci: 0.01,
+                markov:       0.09, temporal: 0.06, conditional: 0.06,
+                algorithm:    0.03, trend: 0.05, fibonacci: 0.01,
+                // ══ CAMADAS QUÂNTICAS QCAL-V3 ══
+                harmonics:    0.05, entropy: 0.04, regression: 0.05,
+                phaseAlign:   0.04, resonance: 0.05, clairvoyance: 0.08,
                 sumMin: 78, sumMax: 152, linesPerRow: [0, 4],
                 maxConsecutive: 3, evenOddTolerance: 2,
                 repeatFromLast: [2, 6], guaranteedPct: 0.50,
-                monteCarloRuns: 20000, qualityAttempts: 2500
+                monteCarloRuns: 22000, qualityAttempts: 2800
             }
         };
         return profiles[gameKey] || profiles['megasena'];
