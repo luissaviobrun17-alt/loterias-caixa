@@ -315,8 +315,30 @@
                         " onmouseover="this.style.borderColor='#c026d3'" onmouseout="this.style.borderColor='#c026d340'">
                             🎯 Análise por Grupos (5×5) — Lotofácil
                         </button>
+                        <!-- ⚡ ESTRATÉGIA DUAL 2 GRUPOS — EXCLUSIVO LOTOFÁCIL -->
+                        <button id="btn-dual-strategy" class="quantum-btn" style="
+                            background: linear-gradient(135deg, #1a0533 0%, #3b0764 50%, #4c1d95 100%);
+                            border: 2px solid #7c3aed80;
+                            color: #c4b5fd;
+                            font-size: 0.78rem;
+                            font-weight: 700;
+                            padding: 10px 14px;
+                            margin-top: 6px;
+                            width: 100%;
+                            border-radius: 10px;
+                            cursor: pointer;
+                            transition: all 0.25s;
+                            display: none;
+                            letter-spacing: 0.3px;
+                            box-shadow: 0 4px 15px rgba(124,58,237,0.25);
+                        "
+                        onmouseover="this.style.borderColor='#7c3aed';this.style.boxShadow='0 6px 20px rgba(124,58,237,0.45)';this.style.color='#e9d5ff';"
+                        onmouseout="this.style.borderColor='#7c3aed80';this.style.boxShadow='0 4px 15px rgba(124,58,237,0.25)';this.style.color='#c4b5fd';">
+                            ⚡ Estratégia Dual 2G — Gerar Jogos Lotofácil
+                        </button>
                         <div id="ae-manual-container"></div>
                         <div id="lge-group-container"></div>
+                        <div id="dual-strategy-container"></div>
                     </div>
 
                 </div>
@@ -979,7 +1001,7 @@
             </div>
 
             <!-- Core Data & Engines -->
-            <script src="js/engines/games.js"></script>
+            <script src="js/engines/games.js?v=3"></script>
             <script src="js/data/history_db.js?v=4"></script>
             <script src="js/stats.js?v=4"></script>
             <script src="js/engines/calibration_quantum.js?v=1"></script>
@@ -992,7 +1014,8 @@
             <script src="js/engines/lotofacil_group_engine.js?v=2"></script>
             <script src="js/engines/universal_group_engine.js?v=2"></script>
             <script src="js/engines/decision_engine.js?v=2"></script>
-            <script src="js/ui.js?v=10"></script>
+            <script src="js/engines/lotofacil_dual_strategy.js?v=2"></script>
+            <script src="js/ui.js?v=12"></script>
             <script src="js/main.js?v=6"></script>
 
     <!-- SISTEMA DE LICENÇA -->

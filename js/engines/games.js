@@ -1,5 +1,9 @@
 
 // js/engines/games.js
+// Premiações baseadas nas faixas oficiais da Caixa Econômica Federal
+// Os valores de prize são referências aproximadas (prêmio fixo onde existe,
+// ou estimativa de acumulado para o prêmio principal)
+
 const GAMES = {
     megasena: {
         name: "Mega Sena",
@@ -9,11 +13,11 @@ const GAMES = {
         colorGrad: "#0d6b28",
         cols: 10,
         price: 6.00,
+        // Faixas oficiais: Sena (6), Quina (5), Quadra (4) — Terno NÃO é premiado
         strategies: [
-            { id: "sena", label: "Sena (6)", match: 6, prize: 60000000 },
-            { id: "quina", label: "Quina (5)", match: 5, prize: 50000 },
-            { id: "quadra", label: "Quadra (4)", match: 4, prize: 1200 },
-            { id: "terno", label: "Terno (3)", match: 3, prize: 0 }
+            { id: "sena",   label: "Sena (6 acertos)",   match: 6, prize: 60000000, paid: true  },
+            { id: "quina",  label: "Quina (5 acertos)",   match: 5, prize: 60000,   paid: true  },
+            { id: "quadra", label: "Quadra (4 acertos)",  match: 4, prize: 1400,    paid: true  }
         ],
         minBet: 6,
         maxBet: 60,
@@ -27,12 +31,13 @@ const GAMES = {
         colorGrad: "#5e0058",
         cols: 5,
         price: 3.50,
+        // Faixas oficiais: 15, 14, 13, 12, 11 acertos
         strategies: [
-            { id: "15pts", label: "15 Pontos", match: 15, prize: 2000000 },
-            { id: "14pts", label: "14 Pontos", match: 14, prize: 1800 },
-            { id: "13pts", label: "13 Pontos", match: 13, prize: 30 },
-            { id: "12pts", label: "12 Pontos", match: 12, prize: 0 },
-            { id: "11pts", label: "11 Pontos", match: 11, prize: 0 }
+            { id: "15pts", label: "15 Pontos",  match: 15, prize: 2000000, paid: true  },
+            { id: "14pts", label: "14 Pontos",  match: 14, prize: 2000,    paid: true  },
+            { id: "13pts", label: "13 Pontos",  match: 13, prize: 35,      paid: true  },
+            { id: "12pts", label: "12 Pontos",  match: 12, prize: 12,      paid: true  },
+            { id: "11pts", label: "11 Pontos",  match: 11, prize: 6,       paid: true  }
         ],
         minBet: 15,
         maxBet: 25,
@@ -47,11 +52,11 @@ const GAMES = {
         colorGrad: "#1a3d6b",
         cols: 10,
         price: 3.00,
+        // Faixas oficiais: Quina (5), Quadra (4), Terno (3) — Duque NÃO é premiado
         strategies: [
-            { id: "quina", label: "Quina (5)", match: 5, prize: 6000000 },
-            { id: "quadra", label: "Quadra (4)", match: 4, prize: 6000 },
-            { id: "terno", label: "Terno (3)", match: 3, prize: 150 },
-            { id: "duque", label: "Duque (2)", match: 2, prize: 0 }
+            { id: "quina",  label: "Quina (5 acertos)",   match: 5, prize: 6000000, paid: true  },
+            { id: "quadra", label: "Quadra (4 acertos)",   match: 4, prize: 7000,    paid: true  },
+            { id: "terno",  label: "Terno (3 acertos)",    match: 3, prize: 3.50,    paid: true  }
         ],
         minBet: 5,
         maxBet: 80,
@@ -65,11 +70,12 @@ const GAMES = {
         colorGrad: "#8f0009",
         cols: 10,
         price: 3.00,
+        // Faixas oficiais: Sena (6), Quina (5), Quadra (4) em DOIS sorteios por concurso
+        // Terno (3) NÃO é premiado
         strategies: [
-            { id: "sena", label: "Sena (6)", match: 6, prize: 200000 },
-            { id: "quina", label: "Quina (5)", match: 5, prize: 4000 },
-            { id: "quadra", label: "Quadra (4)", match: 4, prize: 100 },
-            { id: "terno", label: "Terno (3)", match: 3, prize: 0 }
+            { id: "sena",   label: "Sena (6 acertos)",   match: 6, prize: 500000,  paid: true  },
+            { id: "quina",  label: "Quina (5 acertos)",   match: 5, prize: 5000,    paid: true  },
+            { id: "quadra", label: "Quadra (4 acertos)",  match: 4, prize: 120,     paid: true  }
         ],
         minBet: 6,
         maxBet: 50,
@@ -83,13 +89,15 @@ const GAMES = {
         colorGrad: "#9b5000",
         cols: 10,
         price: 3.00,
+        // Faixas oficiais: 20, 19, 18, 17, 16, 15 acertos E 0 acertos (prêmio especial)
         strategies: [
-            { id: "20pts", label: "20 Pontos", match: 20, prize: 5000000 },
-            { id: "19pts", label: "19 Pontos", match: 19, prize: 60000 },
-            { id: "18pts", label: "18 Pontos", match: 18, prize: 2500 },
-            { id: "17pts", label: "17 Pontos", match: 17, prize: 200 },
-            { id: "16pts", label: "16 Pontos", match: 16, prize: 0 },
-            { id: "15pts", label: "15 Pontos", match: 15, prize: 0 }
+            { id: "20pts",  label: "20 Pontos",  match: 20, prize: 5000000, paid: true  },
+            { id: "19pts",  label: "19 Pontos",  match: 19, prize: 80000,   paid: true  },
+            { id: "18pts",  label: "18 Pontos",  match: 18, prize: 3000,    paid: true  },
+            { id: "17pts",  label: "17 Pontos",  match: 17, prize: 250,     paid: true  },
+            { id: "16pts",  label: "16 Pontos",  match: 16, prize: 5,       paid: true  },
+            { id: "15pts",  label: "15 Pontos",  match: 15, prize: 3,       paid: true  },
+            { id: "0pts",   label: "0 Pontos (Mania de Milionário)", match: 0, prize: 250, paid: true }
         ],
         minBet: 50,
         maxBet: 100,
@@ -105,12 +113,13 @@ const GAMES = {
         colorGrad: "#006638",
         cols: 10,
         price: 3.50,
+        // Faixas oficiais: 7, 6, 5, 4, 3 acertos — Duque e Terno sem prêmio fixo abaixo de 3
         strategies: [
-            { id: "7pts", label: "7 Pontos", match: 7, prize: 4000000 },
-            { id: "6pts", label: "6 Pontos", match: 6, prize: 30000 },
-            { id: "5pts", label: "5 Pontos", match: 5, prize: 800 },
-            { id: "terno", label: "Terno (3)", match: 3, prize: 0 },
-            { id: "duque", label: "Duque (2)", match: 2, prize: 0 }
+            { id: "7pts",  label: "7 Pontos (Timemania)",  match: 7, prize: 4000000, paid: true  },
+            { id: "6pts",  label: "6 Pontos",               match: 6, prize: 30000,   paid: true  },
+            { id: "5pts",  label: "5 Pontos",               match: 5, prize: 800,     paid: true  },
+            { id: "4pts",  label: "4 Pontos",               match: 4, prize: 5,       paid: true  },
+            { id: "3pts",  label: "3 Pontos",               match: 3, prize: 3.50,    paid: true  }
         ],
         minBet: 10,
         maxBet: 80,
@@ -124,12 +133,12 @@ const GAMES = {
         colorGrad: "#8f4c0f",
         cols: 7,
         price: 3.00,
+        // Faixas oficiais: 7, 6, 5, 4 acertos — abaixo de 4 NÃO é premiado
         strategies: [
-            { id: "7pts", label: "7 Pontos", match: 7, prize: 1000000 },
-            { id: "6pts", label: "6 Pontos", match: 6, prize: 2000 },
-            { id: "5pts", label: "5 Pontos", match: 5, prize: 25 },
-            { id: "terno", label: "Terno (3)", match: 3, prize: 0 },
-            { id: "duque", label: "Duque (2)", match: 2, prize: 0 }
+            { id: "7pts",  label: "7 Pontos (Dia de Sorte)",  match: 7, prize: 1000000, paid: true  },
+            { id: "6pts",  label: "6 Pontos",                  match: 6, prize: 2500,    paid: true  },
+            { id: "5pts",  label: "5 Pontos",                  match: 5, prize: 30,      paid: true  },
+            { id: "4pts",  label: "4 Pontos",                  match: 4, prize: 3,       paid: true  }
         ],
         minBet: 7,
         maxBet: 31,
