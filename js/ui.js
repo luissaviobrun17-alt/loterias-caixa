@@ -626,7 +626,7 @@ class UI {
                         feedback.textContent = `🧠 ${result.games.length} jogos inteligentes gerados com sucesso!`;
                         this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
 
-                        // ── APOSTAR NA CAIXA — BOTÃO DINÂMICO ──
+                        // ── APOSTAR NA CAIXA — EXTENSÃO CHROME ──
                         this._lastGeneratedGames = result.games;
                         this._lastGameKey = this.currentGameKey;
                         
@@ -642,10 +642,8 @@ class UI {
 
                         const lotteryConfig = onlineLotteries[this.currentGameKey];
                         if (lotteryConfig && result.games.length > 0) {
-                            // Limpar painel anterior se existir
                             var oldPanel = document.getElementById('caixa-panel');
                             if (oldPanel) oldPanel.remove();
-                            // Salvar referências dinamicas
                             var _self = this;
                             var _cfg = lotteryConfig;
                             var _cp = document.createElement('div');
@@ -662,31 +660,27 @@ class UI {
                             _cp.appendChild(_st);
                             this.gamesContainer.parentNode.insertBefore(_cp, this.gamesContainer);
                             _btn.addEventListener('click', function() {
-                                // SEMPRE gera script dos jogos MAIS RECENTES
                                 var currentGames = _self._lastGeneratedGames;
                                 var currentKey = _self._lastGameKey;
                                 var cfg = onlineLotteries[currentKey] || _cfg;
-                                var freshScript = _self._generateCaixaScript_LEGACY(cfg, currentGames);
                                 var freshUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfg.url;
-                                console.log('[B2B] Copiando ' + currentGames.length + ' jogos de ' + cfg.name);
-                                navigator.clipboard.writeText(freshScript).then(function() {
-                                    window.open(freshUrl, '_blank');
-                                    _st.style.display = 'block';
-                                    _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1.1rem;margin-bottom:12px;">\u2705 ' + currentGames.length + ' jogos copiados! Site aberto!</div>' +
-                                        '<div style="background:#0F172A;border-radius:10px;padding:14px;text-align:left;">' +
-                                        '<div style="color:#F59E0B;font-weight:800;margin-bottom:10px;font-size:0.95rem;">No site da Caixa:</div>' +
-                                        '<div style="color:#60A5FA;font-size:0.88rem;margin-bottom:8px;line-height:1.7;"><b style="background:#0066CC;color:white;padding:2px 8px;border-radius:50%;font-size:0.75rem;">1</b> Aperte <kbd style="background:#334155;padding:3px 8px;border-radius:4px;font-weight:800;">F12</kbd> (abre Developer Tools)</div>' +
-                                        '<div style="color:#F59E0B;font-size:0.88rem;margin-bottom:8px;line-height:1.7;"><b style="background:#D97706;color:white;padding:2px 8px;border-radius:50%;font-size:0.75rem;">2</b> Clique no <kbd style="background:#334155;padding:3px 8px;border-radius:4px;font-weight:800;">></kbd> do Console</div>' +
-                                        '<div style="color:#A78BFA;font-size:0.88rem;margin-bottom:8px;line-height:1.7;"><b style="background:#7C3AED;color:white;padding:2px 8px;border-radius:50%;font-size:0.75rem;">3</b> Cole com <kbd style="background:#334155;padding:3px 8px;border-radius:4px;font-weight:800;">Ctrl+V</kbd> e aperte <kbd style="background:#22C55E;color:black;padding:3px 10px;border-radius:4px;font-weight:900;">ENTER</kbd></div>' +
-                                        '</div>' +
-                                        '<div style="color:#22C55E;font-weight:800;font-size:0.85rem;margin-top:10px;text-align:center;">\uD83C\uDFAF ' + currentGames.length + ' jogos serao preenchidos automaticamente!</div>';
-                                    _btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-                                    _btn.textContent = '\u2705 ' + currentGames.length + ' JOGOS COPIADOS \u2014 Cole no Console (F12)';
-                                }).catch(function() {
-                                    window.open(freshUrl, '_blank');
-                                    _st.style.display = 'block';
-                                    _st.textContent = 'Erro ao copiar - use F12 > Console no site da Caixa';
-                                });
+                                console.log('[B2B] Enviando ' + currentGames.length + ' jogos de ' + cfg.name);
+                                // Via extensão Chrome
+                                document.dispatchEvent(new CustomEvent('b2b-aposte-online', {
+                                    detail: { games: currentGames, config: cfg }
+                                }));
+                                // Fallback clipboard
+                                var freshScript = _self._generateCaixaScript_LEGACY(cfg, currentGames);
+                                navigator.clipboard.writeText(freshScript).catch(function(){});
+                                setTimeout(function() {
+                                    if (!window._b2bExtensionOpened) window.open(freshUrl, '_blank');
+                                }, 500);
+                                _st.style.display = 'block';
+                                _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1.1rem;margin-bottom:8px;">\u2705 ' + currentGames.length + ' jogos enviados!</div>' +
+                                    '<div style="color:#E2E8F0;font-size:0.88rem;">Os numeros serao preenchidos automaticamente no site da Caixa.</div>' +
+                                    '<div style="color:#94A3B8;font-size:0.75rem;margin-top:6px;">Fallback: F12 > Console > Ctrl+V > Enter</div>';
+                                _btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+                                _btn.textContent = '\u2705 ' + currentGames.length + ' JOGOS ENVIADOS';
                             });
                         }
 

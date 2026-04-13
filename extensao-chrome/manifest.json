@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "B2B Loterias - Apostador Automático",
+  "version": "1.0",
+  "description": "Preenche apostas automaticamente no site da Caixa Loterias Online",
+  "permissions": ["storage", "activeTab"],
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://127.0.0.1:8080/*", "http://localhost:8080/*"],
+      "js": ["b2b_bridge.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.loteriasonline.caixa.gov.br/*"],
+      "js": ["caixa_automator.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
