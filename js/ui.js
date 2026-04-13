@@ -659,28 +659,44 @@ class UI {
                             _cp.appendChild(_btn);
                             _cp.appendChild(_st);
                             this.gamesContainer.parentNode.insertBefore(_cp, this.gamesContainer);
-                            _btn.addEventListener('click', function() {
+                            _btn.addEventListener('click', async function() {
                                 var currentGames = _self._lastGeneratedGames;
                                 var currentKey = _self._lastGameKey;
                                 var cfg = onlineLotteries[currentKey] || _cfg;
                                 var freshUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfg.url;
-                                console.log('[B2B] Enviando ' + currentGames.length + ' jogos de ' + cfg.name);
-                                // Via extensão Chrome
+                                var freshScript = _self._generateCaixaScript_LEGACY(cfg, currentGames);
+                                
+                                // COPIAR PRIMEIRO, ABRIR DEPOIS (resolve o bug do clipboard)
+                                try {
+                                    await navigator.clipboard.writeText(freshScript);
+                                    console.log('[B2B] ✅ ' + currentGames.length + ' jogos copiados com sucesso!');
+                                } catch(e) {
+                                    // Fallback: usar textarea escondido
+                                    var ta = document.createElement('textarea');
+                                    ta.value = freshScript;
+                                    ta.style.cssText = 'position:fixed;left:-9999px;';
+                                    document.body.appendChild(ta);
+                                    ta.select();
+                                    document.execCommand('copy');
+                                    document.body.removeChild(ta);
+                                    console.log('[B2B] ✅ ' + currentGames.length + ' jogos copiados (fallback)');
+                                }
+                                
+                                // Extensão Chrome
                                 document.dispatchEvent(new CustomEvent('b2b-aposte-online', {
                                     detail: { games: currentGames, config: cfg }
                                 }));
-                                // Fallback clipboard
-                                var freshScript = _self._generateCaixaScript_LEGACY(cfg, currentGames);
-                                navigator.clipboard.writeText(freshScript).catch(function(){});
+                                
+                                // AGORA SIM, abrir site da Caixa
                                 setTimeout(function() {
                                     if (!window._b2bExtensionOpened) window.open(freshUrl, '_blank');
-                                }, 500);
+                                }, 300);
+                                
                                 _st.style.display = 'block';
-                                _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1.1rem;margin-bottom:8px;">\u2705 ' + currentGames.length + ' jogos enviados!</div>' +
-                                    '<div style="color:#E2E8F0;font-size:0.88rem;">Os numeros serao preenchidos automaticamente no site da Caixa.</div>' +
-                                    '<div style="color:#94A3B8;font-size:0.75rem;margin-top:6px;">Fallback: F12 > Console > Ctrl+V > Enter</div>';
+                                _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1.1rem;margin-bottom:8px;">\u2705 ' + currentGames.length + ' jogos copiados!</div>' +
+                                    '<div style="color:#E2E8F0;font-size:0.88rem;">Site da Caixa abrindo... cole com Ctrl+V no Console (F12).</div>';
                                 _btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-                                _btn.textContent = '\u2705 ' + currentGames.length + ' JOGOS ENVIADOS';
+                                _btn.textContent = '\u2705 ' + currentGames.length + ' JOGOS COPIADOS — Cole no Console (F12)';
                             });
                         }
 
