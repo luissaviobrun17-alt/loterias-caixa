@@ -3,7 +3,7 @@
 // ║  Versão: 10.0                                           ║
 // ╚══════════════════════════════════════════════════════════╝
 
-const CACHE_NAME = 'b2b-loterias-v10';
+const CACHE_NAME = 'b2b-loterias-v11';
 const ASSETS_TO_CACHE = [
     '/loterias-caixa/',
     '/loterias-caixa/index.html',
@@ -17,6 +17,7 @@ const ASSETS_TO_CACHE = [
     '/loterias-caixa/js/engines/combinations.js',
     '/loterias-caixa/js/engines/quantum.js',
     '/loterias-caixa/js/engines/quantum_god_mode.js',
+    '/loterias-caixa/js/engines/nova_era_engine.js',
     '/loterias-caixa/js/engines/smart_bets.js',
     '/loterias-caixa/js/ui.js',
     '/loterias-caixa/js/main.js',
@@ -83,7 +84,23 @@ self.addEventListener('fetch', event => {
         return;
     }
     
-    // Assets estáticos — Cache First
+    // Assets JS — Network First (para garantir versões novas dos engines)
+    if (url.pathname.endsWith('.js')) {
+        event.respondWith(
+            fetch(event.request)
+                .then(response => {
+                    const responseClone = response.clone();
+                    caches.open(CACHE_NAME).then(cache => {
+                        cache.put(event.request, responseClone);
+                    });
+                    return response;
+                })
+                .catch(() => caches.match(event.request))
+        );
+        return;
+    }
+
+    // Demais assets — Cache First
     event.respondWith(
         caches.match(event.request)
             .then(cachedResponse => {

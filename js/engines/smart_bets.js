@@ -274,16 +274,17 @@ class SmartBetsEngine {
         // Motor especializado com anÃ¡lise profunda para 10/80
         // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         // ╔═══════════════════════════════════════════════════════════════╗
-        // ║  V9-D: MOTOR QUÂNTICO UNIVERSAL — TODAS AS LOTERIAS           ║
-        // ║  Anti-sequência + Cobertura de Zonas + Confiança 95%+          ║
+        // ║  NOVA ERA V1: Motor de Projeção Futura — TODAS AS LOTERIAS      ║
+        // ║  Cobertura Total + Diversidade Máxima + Backtesting Honesto      ║
         // ╚═══════════════════════════════════════════════════════════════╝
-
-        // ──────────────────────────────────────────────────────────────────
-        // FUNÇÃO COMPARTILHADA: Motor Quântico Genérico V9-C
-        // Usada por todas as loterias para geração de alta qualidade
-        // ──────────────────────────────────────────────────────────────────
-        if (['megasena','lotofacil','quina','duplasena','lotomania','diadesort','timemania'].includes(gameKey)) {
-            return this._generateQuantumUniversal(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
+        if (['megasena','lotofacil','quina','duplasena','lotomania','diadesorte','timemania'].includes(gameKey)) {
+            if (typeof NovaEraEngine !== 'undefined') {
+                console.log('[SmartBets] ⚡ Redirecionando para NOVA ERA V1 — ' + gameKey);
+                return NovaEraEngine.generate(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
+            } else {
+                console.warn('[SmartBets] ⚠️ NovaEraEngine não carregado, usando motor legado');
+                return this._generateQuantumUniversal(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
+            }
         }
 
         // V9: Motor Timemania Quantum — Respeita números selecionados pelo usuário

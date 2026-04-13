@@ -194,22 +194,29 @@ class UI {
         }
 
         const statusDiv = this.quantumResults;
-        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">🔮 MODO DEUS V9 — Ativando 22 Camadas Oráculo...</div>';
+        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">⚡ NOVA ERA V1 — Projeção Futura Ativada...</div>';
 
-        // Phase 1: Deep Oracle Analysis
+        // Phase 1: Analysis
         setTimeout(() => {
-            statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #6366f1; font-style: normal;">⚡ Análise Profunda + Cross-Validation + Markov V9...</div>';
+            statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #6366f1; font-style: normal;">🔮 7 Camadas Preditivas: Frequência + Tendência + Markov + Fase...</div>';
 
             // Phase 2: Processing
             setTimeout(() => {
-                statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #ec4899; font-style: normal;">🔮 Clarividência Quântica — Verificando contra sorteios reais...</div>';
+                statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #ec4899; font-style: normal;">⚡ Clarividência Sintética — Monte Carlo Convergindo...</div>';
 
                 // Phase 3: Run Engine (with error handling)
                 setTimeout(() => {
                     try {
-                        const history = StatsService.getRecentResults(this.currentGameKey, 100);
-                        console.log('[UI] Histórico carregado: ' + (history ? history.length : 0) + ' sorteios');
-                        const suggestion = QuantumGodEngine.runSimulation(this.currentGameKey, count, history);
+                        let suggestion;
+                        if (typeof NovaEraEngine !== 'undefined') {
+                            // NOVA ERA V1: Sugestão sintética e objetiva
+                            console.log('[UI] Usando NovaEraEngine.suggestNumbers para ' + this.currentGameKey);
+                            suggestion = NovaEraEngine.suggestNumbers(this.currentGameKey, count);
+                        } else {
+                            // Fallback: motor legado
+                            const history = StatsService.getRecentResults(this.currentGameKey, 100);
+                            suggestion = QuantumGodEngine.runSimulation(this.currentGameKey, count, history);
+                        }
                         console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + ' números');
                         this.renderQuantumResults(suggestion);
                     } catch (err) {
@@ -493,7 +500,7 @@ class UI {
         this.gamesContainer.innerHTML = `
             <div style="text-align:center;padding:30px;">
                 <div style="font-size:2rem;margin-bottom:10px;">🔮</div>
-                <div style="color:#8B5CF6;font-weight:700;font-size:1rem;">Telepatia Quântica V9 Ativada</div>
+                <div style="color:#8B5CF6;font-weight:700;font-size:1rem;">⚡ Nova Era V1 — Projeção Futura</div>
                 <div style="color:#94A3B8;font-size:0.85rem;margin-top:5px;">${modeLabel}</div>
                 <div style="margin-top:15px;width:60%;height:4px;background:rgba(139,92,246,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
                     <div style="width:30%;height:100%;background:linear-gradient(90deg,#8B5CF6,#EC4899);border-radius:4px;animation:smartProgress 1.5s ease-in-out infinite;"></div>
@@ -509,11 +516,11 @@ class UI {
 
         // Fase 2: Análise profunda
         setTimeout(() => {
-            try { this.gamesContainer.querySelector('div > div:nth-child(3)').textContent = '⏳ Superfície Quântica — Frequência, Markov, Delay...'; } catch(e) {}
+            try { this.gamesContainer.querySelector('div > div:nth-child(3)').textContent = '⏳ 7 Camadas: Frequência + Tendência + Markov + Fase...'; } catch(e) {}
 
             // Fase 3: Geração
             setTimeout(() => {
-                try { this.gamesContainer.querySelector('div > div:nth-child(3)').textContent = '⚡ Sintonizando Telepatia + Anti-Concentração Brutal...'; } catch(e) {}
+                try { this.gamesContainer.querySelector('div > div:nth-child(3)').textContent = '⚡ Clarividência Sintética + Diversidade Máxima...'; } catch(e) {}
 
                 setTimeout(() => {
                     try {
