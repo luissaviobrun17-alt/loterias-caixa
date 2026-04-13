@@ -490,8 +490,8 @@ class UI {
         if (oldFeedback) oldFeedback.remove();
         const oldAnalysis = this.gamesContainer.parentNode.querySelector('.smart-analysis-panel');
         if (oldAnalysis) oldAnalysis.remove();
-        const oldCaixaBtn = document.getElementById('btn-apostar-caixa');
-        if (oldCaixaBtn && oldCaixaBtn.parentNode) oldCaixaBtn.parentNode.remove();
+        const oldCaixaBtn = document.getElementById('caixa-panel');
+        if (oldCaixaBtn) oldCaixaBtn.remove();
 
         // V9: Indicador de modo
         const modeLabel = selectedArr.length > 0
@@ -626,51 +626,76 @@ class UI {
                         feedback.textContent = `🧠 ${result.games.length} jogos inteligentes gerados com sucesso!`;
                         this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
 
-                        // ── BOTÃO APOSTAR NA CAIXA ONLINE ──
-                        // Mapear jogos para gerar script de automação
+                        // ── APOSTAR NA CAIXA ONLINE — SIMPLIFICADO ──
                         this._lastGeneratedGames = result.games;
                         this._lastGameKey = this.currentGameKey;
                         
-                        // Loterias suportadas para aposta online
                         const onlineLotteries = {
-                            lotofacil: { name: 'Lotofácil', url: 'lotofacil', range: 25, prefix: 'n' },
-                            megasena: { name: 'Mega-Sena', url: 'megasena', range: 60, prefix: 'n' },
-                            quina: { name: 'Quina', url: 'quina', range: 80, prefix: 'n' },
-                            lotomania: { name: 'Lotomania', url: 'lotomania', range: 100, prefix: 'n' },
-                            duplasena: { name: 'Dupla Sena', url: 'duplasena', range: 50, prefix: 'n' },
-                            timemania: { name: 'Timemania', url: 'timemania', range: 80, prefix: 'n' },
-                            diadesorte: { name: 'Dia de Sorte', url: 'diadesorte', range: 31, prefix: 'n' }
+                            lotofacil: { name: 'Lotofácil', url: 'lotofacil' },
+                            megasena: { name: 'Mega-Sena', url: 'megasena' },
+                            quina: { name: 'Quina', url: 'quina' },
+                            lotomania: { name: 'Lotomania', url: 'lotomania' },
+                            duplasena: { name: 'Dupla Sena', url: 'duplasena' },
+                            timemania: { name: 'Timemania', url: 'timemania' },
+                            diadesorte: { name: 'Dia de Sorte', url: 'diadesorte' }
                         };
 
                         const lotteryConfig = onlineLotteries[this.currentGameKey];
                         if (lotteryConfig && result.games.length > 0) {
-                            const apostarDiv = document.createElement('div');
-                            apostarDiv.style.cssText = 'text-align:center;margin:12px 0;';
-                            apostarDiv.innerHTML = `
-                                <button id="btn-apostar-caixa" style="
-                                    background: linear-gradient(135deg, #0066CC, #003D80);
-                                    color: white;
-                                    border: none;
-                                    padding: 14px 28px;
-                                    border-radius: 12px;
-                                    font-size: 1rem;
-                                    font-weight: 800;
-                                    cursor: pointer;
-                                    width: 100%;
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    gap: 10px;
-                                    transition: all 0.3s ease;
-                                    box-shadow: 0 4px 15px rgba(0,102,204,0.3);
-                                ">
-                                    🏦 Apostar na Caixa Online — ${result.games.length} jogos
-                                </button>
+                            const automationScript = this._generateCaixaScript(lotteryConfig, result.games);
+                            const caixaPanel = document.createElement('div');
+                            caixaPanel.id = 'caixa-panel';
+                            caixaPanel.style.cssText = 'margin:12px 0;padding:16px;background:linear-gradient(145deg,rgba(0,60,120,0.2),rgba(0,102,204,0.08));border:2px solid #0066CC50;border-radius:14px;';
+                            caixaPanel.innerHTML = `
+                                <div style="text-align:center;margin-bottom:10px;">
+                                    <span style="color:#60A5FA;font-weight:800;font-size:1rem;">🏦 Jogar na Caixa Online</span>
+                                    <div style="color:#94A3B8;font-size:0.75rem;margin-top:4px;">
+                                        ${result.games.length} jogos de ${lotteryConfig.name} prontos para apostar
+                                    </div>
+                                </div>
+                                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                    <button id="btn-copiar-script" style="
+                                        flex:1;min-width:200px;
+                                        background:linear-gradient(135deg,#22C55E,#16A34A);
+                                        color:white;border:none;padding:14px 20px;
+                                        border-radius:10px;font-size:0.95rem;font-weight:800;
+                                        cursor:pointer;transition:all 0.3s ease;
+                                    ">📋 COPIAR SCRIPT</button>
+                                    <button id="btn-abrir-caixa" style="
+                                        flex:1;min-width:200px;
+                                        background:linear-gradient(135deg,#0066CC,#003D80);
+                                        color:white;border:none;padding:14px 20px;
+                                        border-radius:10px;font-size:0.95rem;font-weight:800;
+                                        cursor:pointer;transition:all 0.3s ease;
+                                    ">🌐 ABRIR SITE DA CAIXA</button>
+                                </div>
+                                <div style="margin-top:10px;padding:10px;background:rgba(0,0,0,0.2);border-radius:8px;font-size:0.72rem;color:#94A3B8;line-height:1.6;">
+                                    <strong style="color:#F59E0B;">Como usar:</strong> 
+                                    1️⃣ Clique "COPIAR SCRIPT" → 
+                                    2️⃣ Abra o site da Caixa e faça login → 
+                                    3️⃣ Pressione <kbd style="background:#334155;padding:1px 5px;border-radius:3px;">F12</kbd> → Console → 
+                                    4️⃣ Cole (<kbd style="background:#334155;padding:1px 5px;border-radius:3px;">Ctrl+V</kbd>) e Enter → 
+                                    ✅ Os números são preenchidos automaticamente!
+                                </div>
                             `;
-                            this.gamesContainer.parentNode.appendChild(apostarDiv);
+                            this.gamesContainer.parentNode.insertBefore(caixaPanel, this.gamesContainer);
 
-                            document.getElementById('btn-apostar-caixa').addEventListener('click', () => {
-                                this._showCaixaAutomationPanel(lotteryConfig, result.games);
+                            document.getElementById('btn-copiar-script').addEventListener('click', function() {
+                                navigator.clipboard.writeText(automationScript).then(() => {
+                                    this.textContent = '✅ COPIADO! Cole no Console da Caixa (F12)';
+                                    this.style.background = 'linear-gradient(135deg, #059669, #047857)';
+                                    setTimeout(() => {
+                                        this.textContent = '📋 COPIAR SCRIPT';
+                                        this.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)';
+                                    }, 5000);
+                                }).catch(() => {
+                                    // Fallback: prompt com o script
+                                    prompt('Copie o script abaixo (Ctrl+A, Ctrl+C):', automationScript);
+                                });
+                            });
+
+                            document.getElementById('btn-abrir-caixa').addEventListener('click', () => {
+                                window.open('https://www.loteriasonline.caixa.gov.br/silce-web/#/' + lotteryConfig.url, '_blank');
                             });
                         }
 
