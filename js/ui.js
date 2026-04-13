@@ -624,6 +624,54 @@ class UI {
                         feedback.textContent = `🧠 ${result.games.length} jogos inteligentes gerados com sucesso!`;
                         this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
 
+                        // ── BOTÃO APOSTAR NA CAIXA ONLINE ──
+                        // Mapear jogos para gerar script de automação
+                        this._lastGeneratedGames = result.games;
+                        this._lastGameKey = this.currentGameKey;
+                        
+                        // Loterias suportadas para aposta online
+                        const onlineLotteries = {
+                            lotofacil: { name: 'Lotofácil', url: 'lotofacil', range: 25, prefix: 'n' },
+                            megasena: { name: 'Mega-Sena', url: 'megasena', range: 60, prefix: 'n' },
+                            quina: { name: 'Quina', url: 'quina', range: 80, prefix: 'n' },
+                            lotomania: { name: 'Lotomania', url: 'lotomania', range: 100, prefix: 'n' },
+                            duplasena: { name: 'Dupla Sena', url: 'duplasena', range: 50, prefix: 'n' },
+                            timemania: { name: 'Timemania', url: 'timemania', range: 80, prefix: 'n' },
+                            diadesorte: { name: 'Dia de Sorte', url: 'diadesorte', range: 31, prefix: 'n' }
+                        };
+
+                        const lotteryConfig = onlineLotteries[this.currentGameKey];
+                        if (lotteryConfig && result.games.length > 0) {
+                            const apostarDiv = document.createElement('div');
+                            apostarDiv.style.cssText = 'text-align:center;margin:12px 0;';
+                            apostarDiv.innerHTML = `
+                                <button id="btn-apostar-caixa" style="
+                                    background: linear-gradient(135deg, #0066CC, #003D80);
+                                    color: white;
+                                    border: none;
+                                    padding: 14px 28px;
+                                    border-radius: 12px;
+                                    font-size: 1rem;
+                                    font-weight: 800;
+                                    cursor: pointer;
+                                    width: 100%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    gap: 10px;
+                                    transition: all 0.3s ease;
+                                    box-shadow: 0 4px 15px rgba(0,102,204,0.3);
+                                ">
+                                    🏦 Apostar na Caixa Online — ${result.games.length} jogos
+                                </button>
+                            `;
+                            this.gamesContainer.parentNode.insertBefore(apostarDiv, this.gamesContainer);
+
+                            document.getElementById('btn-apostar-caixa').addEventListener('click', () => {
+                                this._showCaixaAutomationPanel(lotteryConfig, result.games);
+                            });
+                        }
+
                         // ── BACKTESTING AUTOMÁTICO V3 ──
                         try {
                             if (typeof BacktestingEngine !== 'undefined') {
@@ -654,6 +702,276 @@ class UI {
                 }, 200);
             }, 500);
         }, 500);
+    }
+
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║  SISTEMA DE APOSTA ONLINE — CAIXA LOTERIAS                  ║
+    // ║  Gera script de automação para preencher jogos no site      ║
+    // ║  da Caixa Econômica Federal (Loterias Online)               ║
+    // ╚══════════════════════════════════════════════════════════════╝
+    _showCaixaAutomationPanel(config, games) {
+        // Remover modal anterior se existir
+        const existing = document.getElementById('caixa-automation-modal');
+        if (existing) existing.remove();
+
+        // Gerar o script de automação
+        const gamesJSON = JSON.stringify(games);
+        const automationScript = this._generateCaixaScript(config, games);
+
+        // Criar modal
+        const modal = document.createElement('div');
+        modal.id = 'caixa-automation-modal';
+        modal.style.cssText = `
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.85);z-index:10000;
+            display:flex;align-items:center;justify-content:center;
+            padding:20px;box-sizing:border-box;
+        `;
+        modal.innerHTML = `
+            <div style="
+                background:linear-gradient(145deg,#0F172A,#1E293B);
+                border-radius:16px;border:1px solid #0066CC40;
+                max-width:520px;width:100%;max-height:90vh;overflow-y:auto;
+                padding:24px;color:#E2E8F0;
+                box-shadow:0 20px 60px rgba(0,0,0,0.5);
+            ">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h2 style="margin:0;font-size:1.2rem;color:#0066CC;">
+                        🏦 Apostar na Caixa Online
+                    </h2>
+                    <button id="close-caixa-modal" style="
+                        background:none;border:none;color:#94A3B8;font-size:1.5rem;cursor:pointer;
+                    ">✕</button>
+                </div>
+
+                <div style="background:rgba(0,102,204,0.1);border:1px solid #0066CC30;border-radius:10px;padding:14px;margin-bottom:16px;">
+                    <div style="font-weight:700;color:#60A5FA;margin-bottom:8px;">📋 ${games.length} jogos de ${config.name} prontos</div>
+                    <div style="font-size:0.8rem;color:#94A3B8;">
+                        ${games.map((g, i) => '<span style="color:#E2E8F0;font-weight:600;">Jogo ' + (i+1) + ':</span> ' + g.map(n => String(n).padStart(2,'0')).join(', ')).join('<br>')}
+                    </div>
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <div style="font-weight:700;color:#F59E0B;margin-bottom:10px;">📝 Passo a passo:</div>
+                    <div style="font-size:0.85rem;line-height:1.8;">
+                        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
+                            <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">1</span>
+                            <span>Abra: <a href="https://www.loteriasonline.caixa.gov.br/silce-web/#/${config.url}" target="_blank" style="color:#60A5FA;text-decoration:underline;">Loterias Online — ${config.name}</a></span>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
+                            <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">2</span>
+                            <span>Faça login na sua conta da Caixa</span>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
+                            <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">3</span>
+                            <span>Na página do jogo, pressione <kbd style="background:#334155;padding:2px 6px;border-radius:4px;font-size:0.75rem;">F12</kbd> para abrir o Console</span>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
+                            <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">4</span>
+                            <span>Clique em <strong>"Copiar Script"</strong> abaixo</span>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
+                            <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">5</span>
+                            <span>Cole <kbd style="background:#334155;padding:2px 6px;border-radius:4px;font-size:0.75rem;">Ctrl+V</kbd> no Console e pressione <kbd style="background:#334155;padding:2px 6px;border-radius:4px;font-size:0.75rem;">Enter</kbd></span>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
+                            <span style="background:#22C55E;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">✓</span>
+                            <span style="color:#22C55E;font-weight:700;">O script preenche cada jogo automaticamente!</span>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:flex-start;">
+                            <span style="background:#F59E0B;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">6</span>
+                            <span>Após todos os jogos, finalize o pagamento manualmente</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="copy-caixa-script" style="
+                    background: linear-gradient(135deg, #22C55E, #16A34A);
+                    color: white;
+                    border: none;
+                    padding: 14px 24px;
+                    border-radius: 10px;
+                    font-size: 1rem;
+                    font-weight: 800;
+                    cursor: pointer;
+                    width: 100%;
+                    margin-bottom: 10px;
+                    transition: all 0.3s ease;
+                ">📋 Copiar Script de Automação</button>
+
+                <button id="open-caixa-site" style="
+                    background: linear-gradient(135deg, #0066CC, #003D80);
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 10px;
+                    font-size: 0.9rem;
+                    font-weight: 700;
+                    cursor: pointer;
+                    width: 100%;
+                    transition: all 0.3s ease;
+                ">🌐 Abrir Loterias Online da Caixa</button>
+
+                <div style="margin-top:12px;padding:10px;background:rgba(245,158,11,0.08);border:1px solid #F59E0B30;border-radius:8px;font-size:0.72rem;color:#F59E0B;">
+                    ⚠️ O script seleciona os números e adiciona ao carrinho automaticamente. O pagamento é feito manualmente por você. Delay entre jogos: 3 segundos.
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Event listeners
+        document.getElementById('close-caixa-modal').addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+
+        document.getElementById('copy-caixa-script').addEventListener('click', () => {
+            navigator.clipboard.writeText(automationScript).then(() => {
+                const btn = document.getElementById('copy-caixa-script');
+                btn.textContent = '✅ Script Copiado!';
+                btn.style.background = 'linear-gradient(135deg, #059669, #047857)';
+                setTimeout(() => {
+                    btn.textContent = '📋 Copiar Script de Automação';
+                    btn.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
+                }, 3000);
+            }).catch(() => {
+                // Fallback: mostrar textarea
+                const ta = document.createElement('textarea');
+                ta.value = automationScript;
+                ta.style.cssText = 'width:100%;height:200px;margin-top:10px;background:#0F172A;color:#E2E8F0;border:1px solid #334155;border-radius:8px;padding:10px;font-family:monospace;font-size:0.7rem;';
+                document.getElementById('copy-caixa-script').parentNode.insertBefore(ta, document.getElementById('open-caixa-site'));
+                ta.select();
+            });
+        });
+
+        document.getElementById('open-caixa-site').addEventListener('click', () => {
+            window.open('https://www.loteriasonline.caixa.gov.br/silce-web/#/' + config.url, '_blank');
+        });
+    }
+
+    // Gerar o script JavaScript para automação no site da Caixa
+    _generateCaixaScript(config, games) {
+        const gamesJSON = JSON.stringify(games);
+        return `
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  B2B Loterias — Script de Aposta Automática                  ║
+// ║  ${config.name}: ${games.length} jogos                                     ║
+// ║  Gerado pelo MODO DEUS+ — 12 Camadas de Predição            ║
+// ╚══════════════════════════════════════════════════════════════╝
+(async function() {
+    const JOGOS = ${gamesJSON};
+    const DELAY_ENTRE_JOGOS = 3000; // 3 segundos entre jogos
+    const DELAY_ENTRE_CLIQUES = 150; // 150ms entre cliques de números
+
+    console.log('🏦 B2B Loterias — Iniciando ${games.length} jogos de ${config.name}...');
+
+    // Função para aguardar
+    const delay = ms => new Promise(r => setTimeout(r, ms));
+
+    // Função para clicar em um número
+    function clicarNumero(num) {
+        const id = 'n' + String(num).padStart(2, '0');
+        const el = document.querySelector('#' + id) || document.querySelector('a#' + id);
+        if (el) {
+            el.click();
+            return true;
+        }
+        // Tentativa alternativa: buscar por texto
+        const allNums = document.querySelectorAll('.number, .dezena, .num, [class*="number"]');
+        for (const btn of allNums) {
+            if (btn.textContent.trim() === String(num).padStart(2, '0') || btn.textContent.trim() === String(num)) {
+                btn.click();
+                return true;
+            }
+        }
+        console.warn('⚠️ Número ' + num + ' não encontrado (id: ' + id + ')');
+        return false;
+    }
+
+    // Função para clicar no botão "Colocar no Carrinho"
+    function colocarNoCarrinho() {
+        const btn = document.querySelector('#colocarnocarrinho') || 
+                    document.querySelector('button#colocarnocarrinho') ||
+                    document.querySelector('[id*="carrinho"]') ||
+                    document.querySelector('button[class*="carrinho"]');
+        if (btn) {
+            btn.click();
+            return true;
+        }
+        // Buscar por texto
+        const allBtns = document.querySelectorAll('button');
+        for (const b of allBtns) {
+            const txt = b.textContent.toLowerCase();
+            if (txt.includes('carrinho') || txt.includes('adicionar') || txt.includes('colocar')) {
+                b.click();
+                return true;
+            }
+        }
+        console.warn('⚠️ Botão "Colocar no Carrinho" não encontrado');
+        return false;
+    }
+
+    // Função para limpar o volante
+    function limparVolante() {
+        const btn = document.querySelector('#limparvolante') || 
+                    document.querySelector('button#limparvolante') ||
+                    document.querySelector('[id*="limpar"]');
+        if (btn) {
+            btn.click();
+            return true;
+        }
+        const allBtns = document.querySelectorAll('button');
+        for (const b of allBtns) {
+            if (b.textContent.toLowerCase().includes('limpar')) {
+                b.click();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Processar cada jogo
+    for (let i = 0; i < JOGOS.length; i++) {
+        const jogo = JOGOS[i];
+        console.log('🎯 Jogo ' + (i + 1) + '/' + JOGOS.length + ': [' + jogo.join(', ') + ']');
+
+        // Limpar seleção anterior (exceto no primeiro jogo)
+        if (i > 0) {
+            limparVolante();
+            await delay(500);
+        }
+
+        // Clicar em cada número do jogo
+        for (const num of jogo) {
+            clicarNumero(num);
+            await delay(DELAY_ENTRE_CLIQUES);
+        }
+
+        // Aguardar um pouco para a seleção ser processada
+        await delay(800);
+
+        // Colocar no carrinho
+        const ok = colocarNoCarrinho();
+        if (ok) {
+            console.log('✅ Jogo ' + (i + 1) + ' adicionado ao carrinho!');
+        } else {
+            console.error('❌ Falha ao adicionar jogo ' + (i + 1) + ' ao carrinho. Adicione manualmente.');
+        }
+
+        // Aguardar entre jogos
+        if (i < JOGOS.length - 1) {
+            console.log('⏳ Aguardando ' + (DELAY_ENTRE_JOGOS/1000) + 's para o próximo jogo...');
+            await delay(DELAY_ENTRE_JOGOS);
+        }
+    }
+
+    console.log('');
+    console.log('🏆 ═══════════════════════════════════════════════════');
+    console.log('🏆  CONCLUÍDO! ' + JOGOS.length + ' jogos de ${config.name} no carrinho!');
+    console.log('🏆  Agora finalize o pagamento manualmente.');
+    console.log('🏆 ═══════════════════════════════════════════════════');
+    alert('✅ ' + JOGOS.length + ' jogos de ${config.name} foram adicionados ao carrinho!\\n\\nFinalize o pagamento manualmente.');
+})();
+`.trim();
     }
 
     initHeaderAnimations() {
