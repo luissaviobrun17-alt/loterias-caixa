@@ -490,6 +490,8 @@ class UI {
         if (oldFeedback) oldFeedback.remove();
         const oldAnalysis = this.gamesContainer.parentNode.querySelector('.smart-analysis-panel');
         if (oldAnalysis) oldAnalysis.remove();
+        const oldCaixaBtn = document.getElementById('btn-apostar-caixa');
+        if (oldCaixaBtn && oldCaixaBtn.parentNode) oldCaixaBtn.parentNode.remove();
 
         // V9: Indicador de modo
         const modeLabel = selectedArr.length > 0
@@ -665,7 +667,7 @@ class UI {
                                     🏦 Apostar na Caixa Online — ${result.games.length} jogos
                                 </button>
                             `;
-                            this.gamesContainer.parentNode.insertBefore(apostarDiv, this.gamesContainer);
+                            this.gamesContainer.parentNode.appendChild(apostarDiv);
 
                             document.getElementById('btn-apostar-caixa').addEventListener('click', () => {
                                 this._showCaixaAutomationPanel(lotteryConfig, result.games);
