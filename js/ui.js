@@ -669,20 +669,20 @@ class UI {
                                         cursor:pointer;transition:all 0.3s ease;
                                     ">🌐 ABRIR SITE DA CAIXA</button>
                                 </div>
-                                <div style="margin-top:10px;padding:10px;background:rgba(0,0,0,0.2);border-radius:8px;font-size:0.72rem;color:#94A3B8;line-height:1.6;">
-                                    <strong style="color:#F59E0B;">Como usar:</strong> 
-                                    1️⃣ Clique "COPIAR SCRIPT" → 
-                                    2️⃣ Abra o site da Caixa e faça login → 
-                                    3️⃣ Pressione <kbd style="background:#334155;padding:1px 5px;border-radius:3px;">F12</kbd> → Console → 
-                                    4️⃣ Cole (<kbd style="background:#334155;padding:1px 5px;border-radius:3px;">Ctrl+V</kbd>) e Enter → 
-                                    ✅ Os números são preenchidos automaticamente!
+                                <div style="margin-top:10px;padding:12px;background:rgba(0,0,0,0.25);border-radius:8px;font-size:0.78rem;color:#CBD5E1;line-height:2;">
+                                    <div style="color:#F59E0B;font-weight:700;margin-bottom:4px;">📝 3 passos simples:</div>
+                                    <div>1️⃣ Clique <strong style="color:#22C55E;">COPIAR SCRIPT</strong> acima</div>
+                                    <div>2️⃣ No site da Caixa, pressione <kbd style="background:#F59E0B;color:black;padding:2px 8px;border-radius:4px;font-weight:800;font-size:0.8rem;">Ctrl + Shift + J</kbd> (abre o Console)</div>
+                                    <div>3️⃣ Cole com <kbd style="background:#334155;padding:2px 6px;border-radius:4px;">Ctrl+V</kbd> e aperte <kbd style="background:#334155;padding:2px 6px;border-radius:4px;">Enter</kbd></div>
+                                    <div style="color:#22C55E;font-weight:700;margin-top:4px;">✅ Pronto! Os números são preenchidos sozinhos!</div>
+                                    <div style="color:#94A3B8;font-size:0.68rem;margin-top:6px;">💡 Se pedir "allow pasting", digite isso primeiro e depois cole o script.</div>
                                 </div>
                             `;
                             this.gamesContainer.parentNode.insertBefore(caixaPanel, this.gamesContainer);
 
                             document.getElementById('btn-copiar-script').addEventListener('click', function() {
                                 navigator.clipboard.writeText(automationScript).then(() => {
-                                    this.textContent = '✅ COPIADO! Cole no Console da Caixa (F12)';
+                                    this.textContent = '✅ COPIADO! No site da Caixa: Ctrl+Shift+J → Ctrl+V → Enter';
                                     this.style.background = 'linear-gradient(135deg, #059669, #047857)';
                                     setTimeout(() => {
                                         this.textContent = '📋 COPIAR SCRIPT';
