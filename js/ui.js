@@ -626,7 +626,7 @@ class UI {
                         feedback.textContent = `🧠 ${result.games.length} jogos inteligentes gerados com sucesso!`;
                         this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
 
-                        // ── APOSTAR NA CAIXA — FAVORITO MÁGICO ──
+                        // ── APOSTAR NA CAIXA — BOTÃO DINÂMICO ──
                         this._lastGeneratedGames = result.games;
                         this._lastGameKey = this.currentGameKey;
                         
@@ -645,42 +645,47 @@ class UI {
                             // Limpar painel anterior se existir
                             var oldPanel = document.getElementById('caixa-panel');
                             if (oldPanel) oldPanel.remove();
-                            var oldStatus = document.getElementById('caixa-status');
-                            if (oldStatus) oldStatus.remove();
-                            const _script = this._generateCaixaScript_LEGACY(lotteryConfig, result.games);
-                            const _url = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + lotteryConfig.url;
-                            const _cp = document.createElement('div');
+                            // Salvar referências dinamicas
+                            var _self = this;
+                            var _cfg = lotteryConfig;
+                            var _cp = document.createElement('div');
                             _cp.id = 'caixa-panel';
                             _cp.style.cssText = 'margin:16px 0;text-align:center;';
-                            const _btn = document.createElement('button');
+                            var _btn = document.createElement('button');
                             _btn.id = 'btn-aposte-online';
                             _btn.style.cssText = 'width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:18px 28px;border-radius:14px;font-size:1.1rem;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(0,102,204,0.4);';
                             _btn.textContent = '\u{1F3E6} APOSTE ONLINE \u{2014} ' + result.games.length + ' jogos de ' + lotteryConfig.name;
-                            const _st = document.createElement('div');
+                            var _st = document.createElement('div');
                             _st.id = 'caixa-status';
                             _st.style.cssText = 'display:none;margin-top:12px;padding:14px;background:linear-gradient(145deg,rgba(34,197,94,0.15),rgba(0,60,120,0.1));border:1px solid #22C55E50;border-radius:12px;';
                             _cp.appendChild(_btn);
                             _cp.appendChild(_st);
                             this.gamesContainer.parentNode.insertBefore(_cp, this.gamesContainer);
                             _btn.addEventListener('click', function() {
-                                navigator.clipboard.writeText(_script).then(function() {
-                                    window.open(_url, '_blank');
+                                // SEMPRE gera script dos jogos MAIS RECENTES
+                                var currentGames = _self._lastGeneratedGames;
+                                var currentKey = _self._lastGameKey;
+                                var cfg = onlineLotteries[currentKey] || _cfg;
+                                var freshScript = _self._generateCaixaScript_LEGACY(cfg, currentGames);
+                                var freshUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfg.url;
+                                console.log('[B2B] Copiando ' + currentGames.length + ' jogos de ' + cfg.name);
+                                navigator.clipboard.writeText(freshScript).then(function() {
+                                    window.open(freshUrl, '_blank');
                                     _st.style.display = 'block';
-                                    _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1.1rem;margin-bottom:12px;">\u2705 Script copiado! Site aberto!</div>' +
+                                    _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1.1rem;margin-bottom:12px;">\u2705 ' + currentGames.length + ' jogos copiados! Site aberto!</div>' +
                                         '<div style="background:#0F172A;border-radius:10px;padding:14px;text-align:left;">' +
-                                        '<div style="color:#F59E0B;font-weight:800;margin-bottom:10px;font-size:0.95rem;">No site da Caixa, siga estes passos:</div>' +
+                                        '<div style="color:#F59E0B;font-weight:800;margin-bottom:10px;font-size:0.95rem;">No site da Caixa:</div>' +
                                         '<div style="color:#60A5FA;font-size:0.88rem;margin-bottom:8px;line-height:1.7;"><b style="background:#0066CC;color:white;padding:2px 8px;border-radius:50%;font-size:0.75rem;">1</b> Aperte <kbd style="background:#334155;padding:3px 8px;border-radius:4px;font-weight:800;">F12</kbd> (abre Developer Tools)</div>' +
-                                        '<div style="color:#E879F9;font-size:0.88rem;margin-bottom:8px;line-height:1.7;"><b style="background:#A855F7;color:white;padding:2px 8px;border-radius:50%;font-size:0.75rem;">2</b> Clique em <kbd style="background:#7C3AED;padding:3px 8px;border-radius:4px;font-weight:800;">Sources</kbd> (aba superior) e depois <kbd style="background:#7C3AED;padding:3px 8px;border-radius:4px;font-weight:800;">Snippets</kbd></div>' +
-                                        '<div style="color:#F59E0B;font-size:0.88rem;margin-bottom:8px;line-height:1.7;"><b style="background:#D97706;color:white;padding:2px 8px;border-radius:50%;font-size:0.75rem;">3</b> Clique <kbd style="background:#D97706;padding:3px 8px;border-radius:4px;font-weight:800;">+ New snippet</kbd> e cole com <kbd style="background:#334155;padding:3px 8px;border-radius:4px;font-weight:800;">Ctrl+V</kbd></div>' +
-                                        '<div style="color:#22C55E;font-size:0.88rem;margin-bottom:4px;line-height:1.7;"><b style="background:#16A34A;color:white;padding:2px 8px;border-radius:50%;font-size:0.75rem;">4</b> Aperte <kbd style="background:#22C55E;color:black;padding:3px 10px;border-radius:4px;font-weight:900;font-size:0.95rem;">Ctrl + Enter</kbd> para executar!</div>' +
+                                        '<div style="color:#F59E0B;font-size:0.88rem;margin-bottom:8px;line-height:1.7;"><b style="background:#D97706;color:white;padding:2px 8px;border-radius:50%;font-size:0.75rem;">2</b> Clique no <kbd style="background:#334155;padding:3px 8px;border-radius:4px;font-weight:800;">></kbd> do Console</div>' +
+                                        '<div style="color:#A78BFA;font-size:0.88rem;margin-bottom:8px;line-height:1.7;"><b style="background:#7C3AED;color:white;padding:2px 8px;border-radius:50%;font-size:0.75rem;">3</b> Cole com <kbd style="background:#334155;padding:3px 8px;border-radius:4px;font-weight:800;">Ctrl+V</kbd> e aperte <kbd style="background:#22C55E;color:black;padding:3px 10px;border-radius:4px;font-weight:900;">ENTER</kbd></div>' +
                                         '</div>' +
-                                        '<div style="color:#22C55E;font-weight:800;font-size:0.85rem;margin-top:10px;text-align:center;">\uD83C\uDFAF Os numeros sao preenchidos sozinhos! Aguarde o alerta final.</div>';
+                                        '<div style="color:#22C55E;font-weight:800;font-size:0.85rem;margin-top:10px;text-align:center;">\uD83C\uDFAF ' + currentGames.length + ' jogos serao preenchidos automaticamente!</div>';
                                     _btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-                                    _btn.textContent = '\u2705 SITE ABERTO \u2014 Siga os 4 passos abaixo';
+                                    _btn.textContent = '\u2705 ' + currentGames.length + ' JOGOS COPIADOS \u2014 Cole no Console (F12)';
                                 }).catch(function() {
-                                    window.open(_url, '_blank');
+                                    window.open(freshUrl, '_blank');
                                     _st.style.display = 'block';
-                                    _st.textContent = 'Copie manualmente - abra o console (Ctrl+Shift+J) e cole o script';
+                                    _st.textContent = 'Erro ao copiar - use F12 > Console no site da Caixa';
                                 });
                             });
                         }
