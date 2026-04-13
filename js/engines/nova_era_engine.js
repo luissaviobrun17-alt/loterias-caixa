@@ -622,13 +622,246 @@ class NovaEraEngine {
     }
 
     // ╔══════════════════════════════════════════════════════════════╗
+    // ║  CAMADA 8: PROJEÇÃO DO PRÓXIMO SORTEIO — POR LOTERIA        ║
+    // ║  Analisa padrões de transição ESPECÍFICOS de cada loteria    ║
+    // ║  Foco: projetar o que acontece no resultado SEGUINTE         ║
+    // ╚══════════════════════════════════════════════════════════════╝
+    static _layerNextDraw(gameKey, history, startNum, endNum, N, profile) {
+        const scores = {};
+        for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
+        if (N < 3) return scores;
+
+        // ━━━ Analisar taxa de repetição REAL desta loteria ━━━
+        const drawSize = profile.lotteryDraw;
+        const repRates = [];
+        for (let i = 0; i < Math.min(20, N - 1); i++) {
+            const current = new Set(history[i].numbers || []);
+            const next = new Set(history[i + 1].numbers || []);
+            let rep = 0;
+            for (const n of current) if (next.has(n)) rep++;
+            repRates.push(rep);
+        }
+        const avgRepetition = repRates.length > 0 ? repRates.reduce((a, b) => a + b, 0) / repRates.length : 0;
+        const lastDraw = new Set(history[0].numbers || []);
+
+        console.log('[NE-V1] 🎯 ' + gameKey + ' | Taxa de repetição média: ' + avgRepetition.toFixed(1) + '/' + drawSize);
+
+        // ━━━ CALIBRAÇÃO INDIVIDUAL POR LOTERIA ━━━
+        switch (gameKey) {
+
+            // ──────────────────────────────────────────────────────
+            // MEGA SENA: Repetição baixa (~0.8/6)
+            // Números do último sorteio RARAMENTE repetem
+            // Foco: números atrasados + tendência recente
+            // ──────────────────────────────────────────────────────
+            case 'megasena': {
+                for (let n = startNum; n <= endNum; n++) {
+                    if (lastDraw.has(n)) {
+                        // Números que acabaram de sair: PENALIZAR (raramente repetem)
+                        scores[n] = 0.15;
+                    } else {
+                        // Calcular "pressão de retorno" individual
+                        let lastSeen = N;
+                        for (let i = 0; i < N; i++) {
+                            if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
+                        }
+                        // Números entre 5-15 sorteios sem sair são os mais prováveis
+                        if (lastSeen >= 8 && lastSeen <= 18) scores[n] = 0.95;
+                        else if (lastSeen >= 4 && lastSeen <= 25) scores[n] = 0.75;
+                        else if (lastSeen < 4) scores[n] = 0.35;
+                        else scores[n] = 0.60; // Muito atrasados
+                    }
+                }
+                // Bonus: números que saíram no penúltimo mas NÃO no último
+                if (N >= 2) {
+                    const penultimo = new Set(history[1].numbers || []);
+                    for (const n of penultimo) {
+                        if (!lastDraw.has(n) && scores[n] !== undefined) scores[n] = Math.min(1.0, scores[n] + 0.15);
+                    }
+                }
+                break;
+            }
+
+            // ──────────────────────────────────────────────────────
+            // LOTOFÁCIL: Repetição ALTÍSSIMA (~8-12/15)
+            // Estratégia: MANTER a maioria do último sorteio
+            // Foco: quais 3-7 números TROCAR
+            // ──────────────────────────────────────────────────────
+            case 'lotofacil': {
+                // Na Lotofácil, ~8-12 números repetem do sorteio anterior!
+                // Estratégia invertida: ALTA probabilidade de repetição
+                for (let n = startNum; n <= endNum; n++) {
+                    if (lastDraw.has(n)) {
+                        // Números do último: BOA chance de repetir
+                        scores[n] = 0.80;
+                    } else {
+                        // Números que NÃO saíram: avaliar "pressão de entrada"
+                        let lastSeen = N;
+                        for (let i = 0; i < N; i++) {
+                            if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
+                        }
+                        if (lastSeen >= 3) scores[n] = 0.85; // 3+ sem sair = provável entrar
+                        else if (lastSeen === 2) scores[n] = 0.65;
+                        else scores[n] = 0.45; // Saiu recentemente, fora agora
+                    }
+                }
+                // Identificar quais do último são mais prováveis de SAIR (exclusão)
+                if (N >= 3) {
+                    for (const n of lastDraw) {
+                        let consecAppears = 0;
+                        for (let i = 0; i < Math.min(5, N); i++) {
+                            if ((history[i].numbers || []).includes(n)) consecAppears++;
+                            else break;
+                        }
+                        // Números que apareceram em 4-5 consecutivos: podem "descansar"
+                        if (consecAppears >= 4) scores[n] = Math.max(0.3, scores[n] - 0.25);
+                    }
+                }
+                break;
+            }
+
+            // ──────────────────────────────────────────────────────
+            // QUINA: Repetição muito baixa (~0.3/5)
+            // Range amplo (80 números), baixa cobertura por sorteio
+            // Foco: distribuição por zonas + ciclos longos
+            // ──────────────────────────────────────────────────────
+            case 'quina': {
+                for (let n = startNum; n <= endNum; n++) {
+                    if (lastDraw.has(n)) {
+                        scores[n] = 0.10; // Quase nunca repete
+                    } else {
+                        let lastSeen = N;
+                        for (let i = 0; i < N; i++) {
+                            if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
+                        }
+                        const expectedCycle = 80 / 5; // = 16 sorteios
+                        const ratio = lastSeen / expectedCycle;
+                        if (ratio >= 1.5 && ratio <= 3.0) scores[n] = 0.90;
+                        else if (ratio >= 0.8 && ratio < 1.5) scores[n] = 0.70;
+                        else if (ratio < 0.8) scores[n] = 0.30;
+                        else scores[n] = 0.55;
+                    }
+                }
+                break;
+            }
+
+            // ──────────────────────────────────────────────────────
+            // DUPLA SENA: Repetição baixa (~0.7/6) mas TEM 2 sorteios
+            // Considerar AMBOS os sorteios (numbers + numbers2)
+            // ──────────────────────────────────────────────────────
+            case 'duplasena': {
+                const lastDraw2 = new Set(history[0].numbers2 || []);
+                const lastBoth = new Set([...lastDraw, ...lastDraw2]);
+                for (let n = startNum; n <= endNum; n++) {
+                    if (lastDraw.has(n) || lastDraw2.has(n)) {
+                        scores[n] = 0.20; // Baixa repetição
+                    } else {
+                        let lastSeen = N;
+                        for (let i = 0; i < N; i++) {
+                            const all = (history[i].numbers || []).concat(history[i].numbers2 || []);
+                            if (all.includes(n)) { lastSeen = i; break; }
+                        }
+                        const expectedCycle = 50 / 12; // ~4.2 (6 de cada, 2 sorteios)
+                        const ratio = lastSeen / expectedCycle;
+                        if (ratio >= 1.2 && ratio <= 3.0) scores[n] = 0.90;
+                        else if (ratio >= 0.7) scores[n] = 0.65;
+                        else scores[n] = 0.30;
+                    }
+                }
+                break;
+            }
+
+            // ──────────────────────────────────────────────────────
+            // LOTOMANIA: Jogador marca 50 de 100, loteria sorteia 20
+            // Taxa de repetição dos 20 sorteados: ~4/20
+            // Estratégia: cobrir o máximo das zonas que "devem"
+            // ──────────────────────────────────────────────────────
+            case 'lotomania': {
+                for (let n = startNum; n <= endNum; n++) {
+                    if (lastDraw.has(n)) {
+                        scores[n] = 0.40; // Repetição moderada (4/20)
+                    } else {
+                        let lastSeen = N;
+                        for (let i = 0; i < N; i++) {
+                            if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
+                        }
+                        const expectedCycle = 100 / 20; // = 5
+                        const ratio = lastSeen / expectedCycle;
+                        if (ratio >= 1.0 && ratio <= 2.5) scores[n] = 0.85;
+                        else if (ratio >= 0.5) scores[n] = 0.60;
+                        else scores[n] = 0.35;
+                    }
+                }
+                break;
+            }
+
+            // ──────────────────────────────────────────────────────
+            // TIMEMANIA: Loteria sorteia 7 de 80, jogador marca 10
+            // Repetição muito baixa (~0.6/7)
+            // Foco: espalhar por zonas, evitar repetições
+            // ──────────────────────────────────────────────────────
+            case 'timemania': {
+                for (let n = startNum; n <= endNum; n++) {
+                    if (lastDraw.has(n)) {
+                        scores[n] = 0.12;
+                    } else {
+                        let lastSeen = N;
+                        for (let i = 0; i < N; i++) {
+                            if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
+                        }
+                        const expectedCycle = 80 / 7; // ~11.4
+                        const ratio = lastSeen / expectedCycle;
+                        if (ratio >= 1.2 && ratio <= 2.5) scores[n] = 0.90;
+                        else if (ratio >= 0.6) scores[n] = 0.65;
+                        else scores[n] = 0.25;
+                    }
+                }
+                break;
+            }
+
+            // ──────────────────────────────────────────────────────
+            // DIA DE SORTE: 7 de 31 — range pequeno
+            // Repetição moderada (~1.5/7)
+            // Foco: equilíbrio entre repetição e renovação
+            // ──────────────────────────────────────────────────────
+            case 'diadesorte': {
+                for (let n = startNum; n <= endNum; n++) {
+                    if (lastDraw.has(n)) {
+                        // Range pequeno = repetição moderada
+                        scores[n] = 0.45;
+                    } else {
+                        let lastSeen = N;
+                        for (let i = 0; i < N; i++) {
+                            if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
+                        }
+                        const expectedCycle = 31 / 7; // ~4.4
+                        const ratio = lastSeen / expectedCycle;
+                        if (ratio >= 1.0 && ratio <= 2.5) scores[n] = 0.90;
+                        else if (ratio >= 0.5) scores[n] = 0.60;
+                        else scores[n] = 0.30;
+                    }
+                }
+                break;
+            }
+
+            default: {
+                // Genérico: penalizar repetição, favorecer atrasados
+                for (let n = startNum; n <= endNum; n++) {
+                    scores[n] = lastDraw.has(n) ? 0.25 : 0.55;
+                }
+            }
+        }
+
+        return this._normalizeScores(scores, startNum, endNum);
+    }
+
+    // ╔══════════════════════════════════════════════════════════════╗
     // ║  SÍNTESE: SCORAR TODOS OS NÚMEROS                           ║
-    // ║  Combina as 7 camadas com pesos do perfil da loteria        ║
-    // ║  Resultado: scores com clamp [min, max] — NADA elimina      ║
+    // ║  Combina as 8 camadas com CALIBRAÇÃO INDIVIDUAL por loteria ║
+    // ║  Pesos ajustados para PROJEÇÃO DO PRÓXIMO SORTEIO           ║
     // ╚══════════════════════════════════════════════════════════════╝
     static _scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange) {
         const N = history.length;
-        const w = profile.weights;
         const drawSize = profile.lotteryDraw;
 
         // Calcular cada camada
@@ -639,21 +872,27 @@ class NovaEraEngine {
         const markovScores = this._layerMarkov(history, startNum, endNum, N);
         const phaseScores = this._layerPhase(history, startNum, endNum, N);
         const clairScores = this._layerClairvoyance(history, startNum, endNum, N, drawSize);
+        const nextDrawScores = this._layerNextDraw(gameKey, history, startNum, endNum, N, profile);
 
-        // Fusão ponderada
+        // ━━━ PESOS CALIBRADOS INDIVIDUALMENTE POR LOTERIA ━━━
+        // Cada loteria tem distribuição de pesos OTIMIZADA para seu perfil
+        const weights = this._getCalibratedWeights(gameKey);
+
+        // Fusão ponderada com calibração individual
         const scores = {};
         const [clampMin, clampMax] = profile.scoreClamp;
 
         for (let n = startNum; n <= endNum; n++) {
-            let raw = (freqScores[n] || 0) * w.frequency
-                    + (delayScores[n] || 0) * w.delay
-                    + (trendScores[n] || 0) * w.trend
-                    + (entropyScores[n] || 0) * w.zone
-                    + (markovScores[n] || 0) * w.markov
-                    + (phaseScores[n] || 0) * w.phase
-                    + (clairScores[n] || 0) * w.entropy;
+            let raw = (freqScores[n] || 0) * weights.frequency
+                    + (delayScores[n] || 0) * weights.delay
+                    + (trendScores[n] || 0) * weights.trend
+                    + (entropyScores[n] || 0) * weights.zone
+                    + (markovScores[n] || 0) * weights.markov
+                    + (phaseScores[n] || 0) * weights.phase
+                    + (clairScores[n] || 0) * weights.clairvoyance
+                    + (nextDrawScores[n] || 0) * weights.nextDraw;
             // Noise: componente aleatório para diversidade
-            raw += (Math.random() - 0.5) * w.noise;
+            raw += (Math.random() - 0.5) * weights.noise;
 
             // CLAMP: nenhum número é eliminado, apenas ajustado
             scores[n] = Math.max(clampMin, Math.min(clampMax, raw + 1.0));
@@ -667,6 +906,75 @@ class NovaEraEngine {
         console.log('[NE-V1] 📊 Score range: ' + sorted[sorted.length - 1][1].toFixed(3) + ' — ' + sorted[0][1].toFixed(3) + ' (clamp ' + clampMin + '-' + clampMax + ')');
 
         return scores;
+    }
+
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║  PESOS CALIBRADOS INDIVIDUALMENTE POR LOTERIA               ║
+    // ║  Não é "macro" — cada loteria tem sua própria distribuição   ║
+    // ╚══════════════════════════════════════════════════════════════╝
+    static _getCalibratedWeights(gameKey) {
+        const calibrations = {
+
+            // Mega Sena: foco pesado no próximo sorteio + atraso
+            // Repetição muito baixa → nextDraw tem peso ALTO
+            megasena: {
+                frequency: 0.08, delay: 0.15, trend: 0.10,
+                zone: 0.06, markov: 0.06, phase: 0.04,
+                clairvoyance: 0.06, nextDraw: 0.30, noise: 0.15
+            },
+
+            // Lotofácil: nextDraw é DOMINANTE (repetição 8-12/15)
+            // Frequência importa pouco — quase tudo repete
+            lotofacil: {
+                frequency: 0.03, delay: 0.08, trend: 0.07,
+                zone: 0.05, markov: 0.03, phase: 0.02,
+                clairvoyance: 0.04, nextDraw: 0.48, noise: 0.20
+            },
+
+            // Quina: range muito amplo → delay e zona são cruciais
+            // Baixíssima repetição → nextDraw antirepetição
+            quina: {
+                frequency: 0.08, delay: 0.20, trend: 0.08,
+                zone: 0.12, markov: 0.05, phase: 0.05,
+                clairvoyance: 0.07, nextDraw: 0.20, noise: 0.15
+            },
+
+            // Dupla Sena: 2 sorteios por concurso muda tudo
+            // Delay curto (mais números saem por concurso)
+            duplasena: {
+                frequency: 0.10, delay: 0.12, trend: 0.10,
+                zone: 0.08, markov: 0.07, phase: 0.05,
+                clairvoyance: 0.06, nextDraw: 0.27, noise: 0.15
+            },
+
+            // Lotomania: jogador marca 50/100 — zona é crítica
+            // Precisa cobrir 10 zonas de 10 números equilibradamente
+            lotomania: {
+                frequency: 0.06, delay: 0.10, trend: 0.08,
+                zone: 0.18, markov: 0.04, phase: 0.03,
+                clairvoyance: 0.08, nextDraw: 0.20, noise: 0.23
+            },
+
+            // Timemania: range 80, sorteia 7 — spread máximo
+            // Delay longo esperado → delay tem peso alto
+            timemania: {
+                frequency: 0.08, delay: 0.22, trend: 0.10,
+                zone: 0.12, markov: 0.05, phase: 0.04,
+                clairvoyance: 0.06, nextDraw: 0.18, noise: 0.15
+            },
+
+            // Dia de Sorte: range pequeno (31) — tudo importa mais
+            // Repetição moderada → equilíbrio entre camadas
+            diadesorte: {
+                frequency: 0.10, delay: 0.12, trend: 0.12,
+                zone: 0.08, markov: 0.10, phase: 0.06,
+                clairvoyance: 0.07, nextDraw: 0.20, noise: 0.15
+            }
+        };
+
+        const w = calibrations[gameKey] || calibrations.megasena;
+        console.log('[NE-V1] ⚖️ Pesos calibrados para ' + gameKey + ': nextDraw=' + (w.nextDraw * 100).toFixed(0) + '% | delay=' + (w.delay * 100).toFixed(0) + '% | freq=' + (w.frequency * 100).toFixed(0) + '%');
+        return w;
     }
 
     // ╔══════════════════════════════════════════════════════════════╗
@@ -1110,6 +1418,99 @@ class NovaEraEngine {
             }
         }
         return freq;
+    }
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║  NÚMEROS SUGERIDOS — Versão Sintética e Objetiva             ║
+    // ║  Foco: PRÓXIMO SORTEIO com calibração individual             ║
+    // ║  Retorna apenas os N números com maior projeção futura      ║
+    // ╚══════════════════════════════════════════════════════════════╝
+    static suggestNumbers(gameKey, count) {
+        const profile = this.getProfile(gameKey);
+        const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+        if (!game) return [];
+
+        const startNum = profile.range[0];
+        const endNum = profile.range[1];
+        const totalRange = endNum - startNum + 1;
+
+        let history = [];
+        try {
+            if (typeof StatsService !== 'undefined') {
+                history = StatsService.getRecentResults(gameKey, 200) || [];
+            }
+            if (history.length === 0 && typeof REAL_HISTORY_DB !== 'undefined') {
+                history = REAL_HISTORY_DB[gameKey] || [];
+            }
+        } catch (e) {}
+
+        // Calcular scores deterministicos com calibração individual
+        const scores = this._scoreForSuggestion(gameKey, profile, history, startNum, endNum, totalRange);
+
+        // Ordenar e retornar os top N
+        const ranked = Object.entries(scores)
+            .map(([n, s]) => ({ num: parseInt(n), score: s }))
+            .sort((a, b) => b.score - a.score);
+
+        // Garantir cobertura de zonas nos sugeridos
+        const numZones = profile.zones;
+        const zoneSize = profile.zoneSize;
+        const result = [];
+        const zoneCovered = new Array(numZones).fill(false);
+
+        // Primeiro: pelo menos 1 de cada zona (dos melhores da zona)
+        for (let z = 0; z < numZones; z++) {
+            const inZone = ranked.filter(r => {
+                const nz = Math.min(numZones - 1, Math.floor((r.num - startNum) / zoneSize));
+                return nz === z;
+            });
+            if (inZone.length > 0 && result.length < count) {
+                result.push(inZone[0].num);
+                zoneCovered[z] = true;
+            }
+        }
+
+        // Completar com os melhores globais
+        for (const r of ranked) {
+            if (result.length >= count) break;
+            if (!result.includes(r.num)) {
+                result.push(r.num);
+            }
+        }
+
+        return result.sort((a, b) => a - b).slice(0, count);
+    }
+
+    // Score para sugestões: SEM noise e com foco no próximo sorteio
+    static _scoreForSuggestion(gameKey, profile, history, startNum, endNum, totalRange) {
+        const N = history.length;
+        const drawSize = profile.lotteryDraw;
+
+        const freqScores = this._layerFrequency(history, startNum, endNum, N);
+        const trendScores = this._layerTrend(history, startNum, endNum, N);
+        const delayScores = this._layerDelay(history, startNum, endNum, N, drawSize, totalRange);
+        const entropyScores = this._layerEntropy(history, startNum, endNum, N, profile);
+        const markovScores = this._layerMarkov(history, startNum, endNum, N);
+        const phaseScores = this._layerPhase(history, startNum, endNum, N);
+        const clairScores = this._layerClairvoyance(history, startNum, endNum, N, drawSize);
+        const nextDrawScores = this._layerNextDraw(gameKey, history, startNum, endNum, N, profile);
+
+        // Pesos calibrados da loteria — SEM noise (determinístico)
+        const w = this._getCalibratedWeights(gameKey);
+        const scores = {};
+
+        for (let n = startNum; n <= endNum; n++) {
+            // Para sugestões: PESO EXTRA no nextDraw (objetivo: próximo sorteio!)
+            scores[n] = (freqScores[n] || 0) * w.frequency
+                      + (delayScores[n] || 0) * w.delay
+                      + (trendScores[n] || 0) * w.trend
+                      + (entropyScores[n] || 0) * w.zone
+                      + (markovScores[n] || 0) * w.markov
+                      + (phaseScores[n] || 0) * w.phase
+                      + (clairScores[n] || 0) * w.clairvoyance
+                      + (nextDrawScores[n] || 0) * (w.nextDraw + w.noise * 0.5);
+        }
+
+        return scores;
     }
 }
 
