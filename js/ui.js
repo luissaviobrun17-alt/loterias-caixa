@@ -626,7 +626,7 @@ class UI {
                         feedback.textContent = `🧠 ${result.games.length} jogos inteligentes gerados com sucesso!`;
                         this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
 
-                        // ── APOSTAR NA CAIXA ONLINE — SIMPLIFICADO ──
+                        // ── APOSTAR NA CAIXA — FAVORITO MÁGICO ──
                         this._lastGeneratedGames = result.games;
                         this._lastGameKey = this.currentGameKey;
                         
@@ -642,57 +642,32 @@ class UI {
 
                         const lotteryConfig = onlineLotteries[this.currentGameKey];
                         if (lotteryConfig && result.games.length > 0) {
-                            const automationScript = this._generateCaixaScript(lotteryConfig, result.games);
+                            const bookmarkletCode = this._generateBookmarklet(result.games);
                             const caixaPanel = document.createElement('div');
                             caixaPanel.id = 'caixa-panel';
-                            caixaPanel.style.cssText = 'margin:12px 0;padding:16px;background:linear-gradient(145deg,rgba(0,60,120,0.2),rgba(0,102,204,0.08));border:2px solid #0066CC50;border-radius:14px;';
+                            caixaPanel.style.cssText = 'margin:16px 0;padding:20px;background:linear-gradient(145deg,rgba(0,60,120,0.25),rgba(0,102,204,0.1));border:2px solid #0066CC60;border-radius:16px;';
                             caixaPanel.innerHTML = `
-                                <div style="text-align:center;margin-bottom:10px;">
-                                    <span style="color:#60A5FA;font-weight:800;font-size:1rem;">🏦 Jogar na Caixa Online</span>
-                                    <div style="color:#94A3B8;font-size:0.75rem;margin-top:4px;">
-                                        ${result.games.length} jogos de ${lotteryConfig.name} prontos para apostar
+                                <div style="text-align:center;margin-bottom:14px;">
+                                    <div style="color:#60A5FA;font-weight:800;font-size:1.1rem;">🏦 Apostar na Caixa Online</div>
+                                    <div style="color:#94A3B8;font-size:0.8rem;margin-top:4px;">${result.games.length} jogos de ${lotteryConfig.name} prontos</div>
+                                </div>
+                                <div style="background:rgba(245,158,11,0.1);border:1px solid #F59E0B40;border-radius:12px;padding:14px;margin-bottom:12px;">
+                                    <div style="color:#F59E0B;font-weight:800;font-size:0.95rem;margin-bottom:8px;">① Arraste o botão laranja para sua barra de favoritos ↑</div>
+                                    <div style="text-align:center;">
+                                        <a id="bookmarklet-link" href="${bookmarkletCode}" style="display:inline-block;background:linear-gradient(135deg,#F59E0B,#D97706);color:black;padding:12px 24px;border-radius:10px;font-size:1rem;font-weight:900;text-decoration:none;cursor:grab;box-shadow:0 4px 15px rgba(245,158,11,0.4);user-select:none;" title="Arraste para a barra de favoritos!" onclick="event.preventDefault();alert('Não clique aqui!\\nARRASTE este botão para a barra de favoritos ↑');">🎰 B2B — ${lotteryConfig.name}</a>
                                     </div>
+                                    <div style="text-align:center;color:#94A3B8;font-size:0.7rem;margin-top:6px;">Clique e segure → arraste para cima → solte nos favoritos</div>
                                 </div>
-                                <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                                    <button id="btn-copiar-script" style="
-                                        flex:1;min-width:200px;
-                                        background:linear-gradient(135deg,#22C55E,#16A34A);
-                                        color:white;border:none;padding:14px 20px;
-                                        border-radius:10px;font-size:0.95rem;font-weight:800;
-                                        cursor:pointer;transition:all 0.3s ease;
-                                    ">📋 COPIAR SCRIPT</button>
-                                    <button id="btn-abrir-caixa" style="
-                                        flex:1;min-width:200px;
-                                        background:linear-gradient(135deg,#0066CC,#003D80);
-                                        color:white;border:none;padding:14px 20px;
-                                        border-radius:10px;font-size:0.95rem;font-weight:800;
-                                        cursor:pointer;transition:all 0.3s ease;
-                                    ">🌐 ABRIR SITE DA CAIXA</button>
+                                <div style="background:rgba(0,102,204,0.1);border:1px solid #0066CC40;border-radius:12px;padding:14px;margin-bottom:12px;">
+                                    <div style="color:#60A5FA;font-weight:800;font-size:0.95rem;margin-bottom:8px;">② Abra o site da Caixa e faça login</div>
+                                    <button id="btn-abrir-caixa" style="width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:12px 20px;border-radius:10px;font-size:0.9rem;font-weight:800;cursor:pointer;">🌐 Abrir Loterias Online → ${lotteryConfig.name}</button>
                                 </div>
-                                <div style="margin-top:10px;padding:12px;background:rgba(0,0,0,0.25);border-radius:8px;font-size:0.78rem;color:#CBD5E1;line-height:2;">
-                                    <div style="color:#F59E0B;font-weight:700;margin-bottom:4px;">📝 3 passos simples:</div>
-                                    <div>1️⃣ Clique <strong style="color:#22C55E;">COPIAR SCRIPT</strong> acima</div>
-                                    <div>2️⃣ No site da Caixa, pressione <kbd style="background:#F59E0B;color:black;padding:2px 8px;border-radius:4px;font-weight:800;font-size:0.8rem;">Ctrl + Shift + J</kbd> (abre o Console)</div>
-                                    <div>3️⃣ Cole com <kbd style="background:#334155;padding:2px 6px;border-radius:4px;">Ctrl+V</kbd> e aperte <kbd style="background:#334155;padding:2px 6px;border-radius:4px;">Enter</kbd></div>
-                                    <div style="color:#22C55E;font-weight:700;margin-top:4px;">✅ Pronto! Os números são preenchidos sozinhos!</div>
-                                    <div style="color:#94A3B8;font-size:0.68rem;margin-top:6px;">💡 Se pedir "allow pasting", digite isso primeiro e depois cole o script.</div>
+                                <div style="background:rgba(34,197,94,0.1);border:1px solid #22C55E40;border-radius:12px;padding:14px;">
+                                    <div style="color:#22C55E;font-weight:800;font-size:0.95rem;margin-bottom:4px;">③ No site da Caixa, clique em "🎰 B2B" nos seus favoritos</div>
+                                    <div style="color:#94A3B8;font-size:0.78rem;line-height:1.6;">Os ${result.games.length} jogos serão preenchidos automaticamente!<br>Depois é só finalizar o pagamento.</div>
                                 </div>
                             `;
                             this.gamesContainer.parentNode.insertBefore(caixaPanel, this.gamesContainer);
-
-                            document.getElementById('btn-copiar-script').addEventListener('click', function() {
-                                navigator.clipboard.writeText(automationScript).then(() => {
-                                    this.textContent = '✅ COPIADO! No site da Caixa: Ctrl+Shift+J → Ctrl+V → Enter';
-                                    this.style.background = 'linear-gradient(135deg, #059669, #047857)';
-                                    setTimeout(() => {
-                                        this.textContent = '📋 COPIAR SCRIPT';
-                                        this.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)';
-                                    }, 5000);
-                                }).catch(() => {
-                                    // Fallback: prompt com o script
-                                    prompt('Copie o script abaixo (Ctrl+A, Ctrl+C):', automationScript);
-                                });
-                            });
 
                             document.getElementById('btn-abrir-caixa').addEventListener('click', () => {
                                 window.open('https://www.loteriasonline.caixa.gov.br/silce-web/#/' + lotteryConfig.url, '_blank');
@@ -736,7 +711,14 @@ class UI {
     // ║  Gera script de automação para preencher jogos no site      ║
     // ║  da Caixa Econômica Federal (Loterias Online)               ║
     // ╚══════════════════════════════════════════════════════════════╝
-    _showCaixaAutomationPanel(config, games) {
+    _generateBookmarklet(games) {
+        const gJSON = JSON.stringify(games);
+        const script = `(async()=>{var J=${gJSON};var d=ms=>new Promise(r=>setTimeout(r,ms));var C=n=>{var e=document.querySelector('#n'+String(n).padStart(2,'0'));if(e){e.click();return}var a=document.querySelectorAll('a,span,div');for(var b of a){if(b.textContent.trim()===String(n).padStart(2,'0')){b.click();return}}};var K=()=>{var b=document.querySelector('#colocarnocarrinho')||document.querySelector('[id*=carrinho]');if(b){b.click();return 1}var a=document.querySelectorAll('button');for(var x of a){if(x.textContent.toLowerCase().includes('carrinho')){x.click();return 1}}return 0};var L=()=>{var b=document.querySelector('#limparvolante')||document.querySelector('[id*=limpar]');if(b)b.click();else{var a=document.querySelectorAll('button');for(var x of a){if(x.textContent.toLowerCase().includes('limpar')){x.click();break}}}};for(var i=0;i<J.length;i++){if(i>0){L();await d(500)}for(var n of J[i]){C(n);await d(150)}await d(800);K();await d(3000)}alert('Pronto! '+J.length+' jogos no carrinho! Finalize o pagamento.')})()`;
+        return 'javascript:' + encodeURIComponent(script);
+    }
+
+    // Mantido como fallback — não usado diretamente
+    _showCaixaAutomationPanel_LEGACY(config, games) {
         // Remover modal anterior se existir
         const existing = document.getElementById('caixa-automation-modal');
         if (existing) existing.remove();
