@@ -642,35 +642,33 @@ class UI {
 
                         const lotteryConfig = onlineLotteries[this.currentGameKey];
                         if (lotteryConfig && result.games.length > 0) {
-                            const bookmarkletCode = this._generateBookmarklet(result.games);
-                            const caixaPanel = document.createElement('div');
-                            caixaPanel.id = 'caixa-panel';
-                            caixaPanel.style.cssText = 'margin:16px 0;padding:20px;background:linear-gradient(145deg,rgba(0,60,120,0.25),rgba(0,102,204,0.1));border:2px solid #0066CC60;border-radius:16px;';
-                            caixaPanel.innerHTML = `
-                                <div style="text-align:center;margin-bottom:14px;">
-                                    <div style="color:#60A5FA;font-weight:800;font-size:1.1rem;">🏦 Apostar na Caixa Online</div>
-                                    <div style="color:#94A3B8;font-size:0.8rem;margin-top:4px;">${result.games.length} jogos de ${lotteryConfig.name} prontos</div>
-                                </div>
-                                <div style="background:rgba(245,158,11,0.1);border:1px solid #F59E0B40;border-radius:12px;padding:14px;margin-bottom:12px;">
-                                    <div style="color:#F59E0B;font-weight:800;font-size:0.95rem;margin-bottom:8px;">① Arraste o botão laranja para sua barra de favoritos ↑</div>
-                                    <div style="text-align:center;">
-                                        <a id="bookmarklet-link" href="${bookmarkletCode}" style="display:inline-block;background:linear-gradient(135deg,#F59E0B,#D97706);color:black;padding:12px 24px;border-radius:10px;font-size:1rem;font-weight:900;text-decoration:none;cursor:grab;box-shadow:0 4px 15px rgba(245,158,11,0.4);user-select:none;" title="Arraste para a barra de favoritos!" onclick="event.preventDefault();alert('Não clique aqui!\\nARRASTE este botão para a barra de favoritos ↑');">🎰 B2B — ${lotteryConfig.name}</a>
-                                    </div>
-                                    <div style="text-align:center;color:#94A3B8;font-size:0.7rem;margin-top:6px;">Clique e segure → arraste para cima → solte nos favoritos</div>
-                                </div>
-                                <div style="background:rgba(0,102,204,0.1);border:1px solid #0066CC40;border-radius:12px;padding:14px;margin-bottom:12px;">
-                                    <div style="color:#60A5FA;font-weight:800;font-size:0.95rem;margin-bottom:8px;">② Abra o site da Caixa e faça login</div>
-                                    <button id="btn-abrir-caixa" style="width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:12px 20px;border-radius:10px;font-size:0.9rem;font-weight:800;cursor:pointer;">🌐 Abrir Loterias Online → ${lotteryConfig.name}</button>
-                                </div>
-                                <div style="background:rgba(34,197,94,0.1);border:1px solid #22C55E40;border-radius:12px;padding:14px;">
-                                    <div style="color:#22C55E;font-weight:800;font-size:0.95rem;margin-bottom:4px;">③ No site da Caixa, clique em "🎰 B2B" nos seus favoritos</div>
-                                    <div style="color:#94A3B8;font-size:0.78rem;line-height:1.6;">Os ${result.games.length} jogos serão preenchidos automaticamente!<br>Depois é só finalizar o pagamento.</div>
-                                </div>
-                            `;
-                            this.gamesContainer.parentNode.insertBefore(caixaPanel, this.gamesContainer);
-
-                            document.getElementById('btn-abrir-caixa').addEventListener('click', () => {
-                                window.open('https://www.loteriasonline.caixa.gov.br/silce-web/#/' + lotteryConfig.url, '_blank');
+                            const _script = this._generateCaixaScript_LEGACY(lotteryConfig, result.games);
+                            const _url = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + lotteryConfig.url;
+                            const _cp = document.createElement('div');
+                            _cp.id = 'caixa-panel';
+                            _cp.style.cssText = 'margin:16px 0;text-align:center;';
+                            const _btn = document.createElement('button');
+                            _btn.id = 'btn-aposte-online';
+                            _btn.style.cssText = 'width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:18px 28px;border-radius:14px;font-size:1.1rem;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(0,102,204,0.4);';
+                            _btn.textContent = '\u{1F3E6} APOSTE ONLINE \u{2014} ' + result.games.length + ' jogos de ' + lotteryConfig.name;
+                            const _st = document.createElement('div');
+                            _st.id = 'caixa-status';
+                            _st.style.cssText = 'display:none;margin-top:12px;padding:14px;background:linear-gradient(145deg,rgba(34,197,94,0.15),rgba(0,60,120,0.1));border:1px solid #22C55E50;border-radius:12px;';
+                            _cp.appendChild(_btn);
+                            _cp.appendChild(_st);
+                            this.gamesContainer.parentNode.insertBefore(_cp, this.gamesContainer);
+                            _btn.addEventListener('click', function() {
+                                navigator.clipboard.writeText(_script).then(function() {
+                                    window.open(_url, '_blank');
+                                    _st.style.display = 'block';
+                                    _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1rem;margin-bottom:8px;">\u2705 Script copiado e site aberto!</div><div style="color:#E2E8F0;font-size:0.9rem;line-height:1.8;">No site da Caixa:<br><b style="color:#F59E0B;font-size:1.1rem;">Ctrl+Shift+J \u2192 Ctrl+V \u2192 Enter</b></div><div style="color:#94A3B8;font-size:0.72rem;margin-top:8px;">\uD83D\uDCA1 Se pedir allow pasting, digite isso e cole de novo.</div>';
+                                    _btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+                                    _btn.textContent = '\u2705 SITE ABERTO \u2014 Cole com Ctrl+Shift+J > Ctrl+V > Enter';
+                                }).catch(function() {
+                                    window.open(_url, '_blank');
+                                    _st.style.display = 'block';
+                                    _st.textContent = 'Copie manualmente - abra o console (Ctrl+Shift+J) e cole o script';
+                                });
                             });
                         }
 
@@ -715,6 +713,13 @@ class UI {
         const gJSON = JSON.stringify(games);
         const script = `(async()=>{var J=${gJSON};var d=ms=>new Promise(r=>setTimeout(r,ms));var C=n=>{var e=document.querySelector('#n'+String(n).padStart(2,'0'));if(e){e.click();return}var a=document.querySelectorAll('a,span,div');for(var b of a){if(b.textContent.trim()===String(n).padStart(2,'0')){b.click();return}}};var K=()=>{var b=document.querySelector('#colocarnocarrinho')||document.querySelector('[id*=carrinho]');if(b){b.click();return 1}var a=document.querySelectorAll('button');for(var x of a){if(x.textContent.toLowerCase().includes('carrinho')){x.click();return 1}}return 0};var L=()=>{var b=document.querySelector('#limparvolante')||document.querySelector('[id*=limpar]');if(b)b.click();else{var a=document.querySelectorAll('button');for(var x of a){if(x.textContent.toLowerCase().includes('limpar')){x.click();break}}}};for(var i=0;i<J.length;i++){if(i>0){L();await d(500)}for(var n of J[i]){C(n);await d(150)}await d(800);K();await d(3000)}alert('Pronto! '+J.length+' jogos no carrinho! Finalize o pagamento.')})()`;
         return 'javascript:' + encodeURIComponent(script);
+    }
+
+
+    // Gera script de automacao para o site da Caixa
+    _generateCaixaScript_LEGACY(config, games) {
+        const gamesJSON = JSON.stringify(games);
+        return '(async function(){var JOGOS=' + gamesJSON + ';var delay=ms=>new Promise(r=>setTimeout(r,ms));function clicarNumero(num){var id="n"+String(num).padStart(2,"0");var el=document.querySelector("#"+id)||document.querySelector("a#"+id);if(el){el.click();return true}var allNums=document.querySelectorAll(".number,.dezena,.num,[class*=number]");for(var btn of allNums){if(btn.textContent.trim()===String(num).padStart(2,"0")||btn.textContent.trim()===String(num)){btn.click();return true}}console.warn("Numero "+num+" nao encontrado");return false}function colocarNoCarrinho(){var btn=document.querySelector("#colocarnocarrinho")||document.querySelector("[id*=carrinho]");if(btn){btn.click();return true}var allBtns=document.querySelectorAll("button");for(var b of allBtns){if(b.textContent.toLowerCase().includes("carrinho")){b.click();return true}}return false}function limparVolante(){var btn=document.querySelector("#limparvolante")||document.querySelector("[id*=limpar]");if(btn){btn.click();return}var allBtns=document.querySelectorAll("button");for(var b of allBtns){if(b.textContent.toLowerCase().includes("limpar")){b.click();return}}}for(var i=0;i<JOGOS.length;i++){var jogo=JOGOS[i];console.log("Jogo "+(i+1)+"/"+JOGOS.length+": ["+jogo.join(",")+"]");if(i>0){limparVolante();await delay(500)}for(var num of jogo){clicarNumero(num);await delay(150)}await delay(800);colocarNoCarrinho();if(i<JOGOS.length-1){await delay(3000)}}alert("Pronto! "+JOGOS.length+" jogos de ' + config.name + ' no carrinho! Finalize o pagamento.")})()';
     }
 
     // Mantido como fallback — não usado diretamente
