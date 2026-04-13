@@ -855,16 +855,222 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  SÍNTESE: SCORAR TODOS OS NÚMEROS                           ║
-    // ║  Combina as 8 camadas com CALIBRAÇÃO INDIVIDUAL por loteria ║
-    // ║  Pesos ajustados para PROJEÇÃO DO PRÓXIMO SORTEIO           ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // ╔══════════════════════════════════════════════════════════════════╗
+    // ║  ★ MODO DEUS — CAMADA 9: CONVERGÊNCIA BAYESIANA               ║
+    // ║  P(número | últimos K sorteios) com atualização posterior       ║
+    // ║  Proir uniforme → atualiza com cada sorteio observado          ║
+    // ╚══════════════════════════════════════════════════════════════════╝
+    static _godBayesian(history, startNum, endNum, N, drawSize) {
+        const scores = {};
+        const totalRange = endNum - startNum + 1;
+        // Prior uniforme com suavização de Laplace
+        for (let n = startNum; n <= endNum; n++) scores[n] = 1.0;
+        if (N < 3) return this._normalizeScores(scores, startNum, endNum);
+
+        // Atualização Bayesiana: cada sorteio atualiza a posterior
+        const limit = Math.min(50, N);
+        for (let i = 0; i < limit; i++) {
+            const nums = new Set((history[i].numbers || []).concat(history[i].numbers2 || []));
+            // Decaimento temporal — sorteios recentes pesam EXPONENCIALMENTE mais
+            const weight = Math.exp(-i * 0.04);
+            // Taxa base: probabilidade de um número sair = drawSize / totalRange
+            const baseRate = drawSize / totalRange;
+
+            for (let n = startNum; n <= endNum; n++) {
+                if (nums.has(n)) {
+                    // Likelihood: apareceu → boost posterior
+                    scores[n] *= (1.0 + weight * (1.0 - baseRate));
+                } else {
+                    // Likelihood: NÃO apareceu → reduzir levemente
+                    scores[n] *= (1.0 - weight * baseRate * 0.3);
+                }
+            }
+        }
+
+        // Normalizar posterior
+        return this._normalizeScores(scores, startNum, endNum);
+    }
+
+    // ╔══════════════════════════════════════════════════════════════════╗
+    // ║  ★ MODO DEUS — CAMADA 10: ANÁLISE POSICIONAL                  ║
+    // ║  Em um resultado ordenado [a,b,c,d,e,f], quais números        ║
+    // ║  tendem a ocupar cada POSIÇÃO? Ex: posição 1 sempre < 15      ║
+    // ╚══════════════════════════════════════════════════════════════════╝
+    static _godPositional(history, startNum, endNum, N, drawSize) {
+        const scores = {};
+        for (let n = startNum; n <= endNum; n++) scores[n] = 0;
+        if (N < 5) {
+            for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
+            return scores;
+        }
+
+        // Para cada posição (0..drawSize-1), construir distribuição
+        const limit = Math.min(30, N);
+        const positionDist = [];
+        for (let p = 0; p < drawSize; p++) positionDist.push({});
+
+        for (let i = 0; i < limit; i++) {
+            const nums = (history[i].numbers || []).slice().sort((a, b) => a - b);
+            const decay = Math.exp(-i * 0.05);
+            for (let p = 0; p < Math.min(drawSize, nums.length); p++) {
+                const n = nums[p];
+                if (n >= startNum && n <= endNum) {
+                    positionDist[p][n] = (positionDist[p][n] || 0) + decay;
+                }
+            }
+        }
+
+        // Para cada número: somar P(n aparece em alguma posição)
+        for (let p = 0; p < drawSize; p++) {
+            // Normalizar distribuição da posição
+            let total = 0;
+            for (const v of Object.values(positionDist[p])) total += v;
+            if (total === 0) continue;
+
+            for (const [n, count] of Object.entries(positionDist[p])) {
+                const num = parseInt(n);
+                if (num >= startNum && num <= endNum) {
+                    scores[num] += (count / total) / drawSize;
+                }
+            }
+        }
+
+        return this._normalizeScores(scores, startNum, endNum);
+    }
+
+    // ╔══════════════════════════════════════════════════════════════════╗
+    // ║  ★ MODO DEUS — CAMADA 11: CADEIA DE DEPENDÊNCIA SEQUENCIAL    ║
+    // ║  Quando X apareceu no sorteio N, o que aparece no N+1?         ║
+    // ║  Grafo de transição: "predecessores geram sucessores"          ║
+    // ╚══════════════════════════════════════════════════════════════════╝
+    static _godSequentialChain(history, startNum, endNum, N) {
+        const scores = {};
+        for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
+        if (N < 5) return scores;
+
+        // Construir grafo de transição: predecessor[X] → sucessor[Y]
+        const transitions = {}; // transitions[X] = { Y: count, Z: count, ... }
+        const limit = Math.min(40, N - 1);
+
+        for (let i = 0; i < limit; i++) {
+            const predecessors = new Set((history[i + 1].numbers || []).concat(history[i + 1].numbers2 || []));
+            const successors = (history[i].numbers || []).concat(history[i].numbers2 || []);
+            const decay = Math.exp(-i * 0.04);
+
+            for (const pred of predecessors) {
+                if (!transitions[pred]) transitions[pred] = {};
+                for (const succ of successors) {
+                    if (succ >= startNum && succ <= endNum) {
+                        transitions[pred][succ] = (transitions[pred][succ] || 0) + decay;
+                    }
+                }
+            }
+        }
+
+        // Dado o ÚLTIMO sorteio, projetar o próximo
+        const lastDraw = (history[0].numbers || []).concat(history[0].numbers2 || []);
+        const projectedScores = {};
+        for (let n = startNum; n <= endNum; n++) projectedScores[n] = 0;
+
+        for (const pred of lastDraw) {
+            if (transitions[pred]) {
+                // Normalizar transições deste predecessor
+                let total = 0;
+                for (const v of Object.values(transitions[pred])) total += v;
+                if (total === 0) continue;
+
+                for (const [succ, count] of Object.entries(transitions[pred])) {
+                    const num = parseInt(succ);
+                    if (num >= startNum && num <= endNum) {
+                        projectedScores[num] += (count / total);
+                    }
+                }
+            }
+        }
+
+        // Combinar com scores base
+        for (let n = startNum; n <= endNum; n++) {
+            scores[n] = 0.3 + projectedScores[n] * 0.7;
+        }
+
+        return this._normalizeScores(scores, startNum, endNum);
+    }
+
+    // ╔══════════════════════════════════════════════════════════════════╗
+    // ║  ★ MODO DEUS — CAMADA 12: MOMENTUM DE SOMA E PARIDADE         ║
+    // ║  Se soma subiu 3x seguidas, tende a descer → boost baixos     ║
+    // ║  Se paridade desequilibrou, tende a corrigir                   ║
+    // ╚══════════════════════════════════════════════════════════════════╝
+    static _godMomentum(history, startNum, endNum, N, drawSize) {
+        const scores = {};
+        for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
+        if (N < 5) return scores;
+
+        // ━━━ Análise de momentum de SOMA ━━━
+        const sums = [];
+        for (let i = 0; i < Math.min(10, N); i++) {
+            const nums = history[i].numbers || [];
+            sums.push(nums.reduce((a, b) => a + b, 0));
+        }
+
+        // Direção: soma subindo ou descendo?
+        let sumTrend = 0;
+        for (let i = 0; i < sums.length - 1; i++) {
+            sumTrend += (sums[i] > sums[i + 1]) ? 1 : -1;
+        }
+
+        // Soma média esperada
+        const avgSum = (startNum + endNum) / 2 * drawSize;
+        const lastSum = sums[0] || avgSum;
+        const sumDeviation = lastSum - avgSum; // > 0 = soma alta, < 0 = soma baixa
+
+        // Se soma está alta e subindo → boost números BAIXOS (regressão)
+        // Se soma está baixa e descendo → boost números ALTOS (regressão)
+        const midPoint = (startNum + endNum) / 2;
+        for (let n = startNum; n <= endNum; n++) {
+            let momentum = 0;
+            if (sumDeviation > 0 && sumTrend > 0) {
+                // Soma alta + subindo → boost baixos (regressão à média)
+                momentum = (midPoint - n) / (endNum - startNum) * 0.4;
+            } else if (sumDeviation < 0 && sumTrend < 0) {
+                // Soma baixa + descendo → boost altos
+                momentum = (n - midPoint) / (endNum - startNum) * 0.4;
+            }
+            scores[n] = 0.5 + momentum;
+        }
+
+        // ━━━ Análise de paridade ━━━
+        const lastNums = history[0].numbers || [];
+        const evens = lastNums.filter(n => n % 2 === 0).length;
+        const odds = lastNums.length - evens;
+        const parityRatio = evens / Math.max(1, lastNums.length);
+
+        // Paridade desequilibrada → boost para o lado fraco
+        if (parityRatio > 0.65) {
+            // Muitos pares → boost ímpares
+            for (let n = startNum; n <= endNum; n++) {
+                if (n % 2 !== 0) scores[n] = Math.min(1.0, scores[n] + 0.15);
+            }
+        } else if (parityRatio < 0.35) {
+            // Muitos ímpares → boost pares
+            for (let n = startNum; n <= endNum; n++) {
+                if (n % 2 === 0) scores[n] = Math.min(1.0, scores[n] + 0.15);
+            }
+        }
+
+        return this._normalizeScores(scores, startNum, endNum);
+    }
+
+    // ╔══════════════════════════════════════════════════════════════════════╗
+    // ║  ★★★ SÍNTESE MODO DEUS — 12 CAMADAS DE PREDIÇÃO ★★★              ║
+    // ║  Combina 8 camadas clássicas + 4 camadas avançadas Modo Deus      ║
+    // ║  CALIBRAÇÃO INDIVIDUAL por loteria com foco MÁXIMO no próximo     ║
+    // ╚══════════════════════════════════════════════════════════════════════╝
     static _scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange) {
         const N = history.length;
         const drawSize = profile.lotteryDraw;
 
-        // Calcular cada camada
+        // ━━━ CAMADAS 1-8: Base NE-V1 ━━━
         const freqScores = this._layerFrequency(history, startNum, endNum, N);
         const trendScores = this._layerTrend(history, startNum, endNum, N);
         const delayScores = this._layerDelay(history, startNum, endNum, N, drawSize, totalRange);
@@ -874,11 +1080,18 @@ class NovaEraEngine {
         const clairScores = this._layerClairvoyance(history, startNum, endNum, N, drawSize);
         const nextDrawScores = this._layerNextDraw(gameKey, history, startNum, endNum, N, profile);
 
-        // ━━━ PESOS CALIBRADOS INDIVIDUALMENTE POR LOTERIA ━━━
-        // Cada loteria tem distribuição de pesos OTIMIZADA para seu perfil
-        const weights = this._getCalibratedWeights(gameKey);
+        // ━━━ CAMADAS 9-12: MODO DEUS ━━━
+        const bayesianScores = this._godBayesian(history, startNum, endNum, N, drawSize);
+        const positionalScores = this._godPositional(history, startNum, endNum, N, drawSize);
+        const sequentialScores = this._godSequentialChain(history, startNum, endNum, N);
+        const momentumScores = this._godMomentum(history, startNum, endNum, N, drawSize);
 
-        // Fusão ponderada com calibração individual
+        console.log('[NE-V1] ★ MODO DEUS ATIVADO — 12 camadas de predição para ' + gameKey);
+
+        // ━━━ PESOS CALIBRADOS — MODO DEUS ━━━
+        const weights = this._getGodModeWeights(gameKey);
+
+        // Fusão ponderada com Modo Deus
         const scores = {};
         const [clampMin, clampMax] = profile.scoreClamp;
 
@@ -890,11 +1103,14 @@ class NovaEraEngine {
                     + (markovScores[n] || 0) * weights.markov
                     + (phaseScores[n] || 0) * weights.phase
                     + (clairScores[n] || 0) * weights.clairvoyance
-                    + (nextDrawScores[n] || 0) * weights.nextDraw;
-            // Noise: componente aleatório para diversidade
+                    + (nextDrawScores[n] || 0) * weights.nextDraw
+                    + (bayesianScores[n] || 0) * weights.bayesian
+                    + (positionalScores[n] || 0) * weights.positional
+                    + (sequentialScores[n] || 0) * weights.sequential
+                    + (momentumScores[n] || 0) * weights.momentum;
+            // Noise reduzido no Modo Deus — confiança maior
             raw += (Math.random() - 0.5) * weights.noise;
 
-            // CLAMP: nenhum número é eliminado, apenas ajustado
             scores[n] = Math.max(clampMin, Math.min(clampMax, raw + 1.0));
         }
 
@@ -902,79 +1118,99 @@ class NovaEraEngine {
         const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
         const top5 = sorted.slice(0, 5).map(e => e[0] + '(' + e[1].toFixed(2) + ')').join(', ');
         const bot5 = sorted.slice(-5).map(e => e[0] + '(' + e[1].toFixed(2) + ')').join(', ');
-        console.log('[NE-V1] 🔝 Top: ' + top5 + ' | 🔻 Bottom: ' + bot5);
-        console.log('[NE-V1] 📊 Score range: ' + sorted[sorted.length - 1][1].toFixed(3) + ' — ' + sorted[0][1].toFixed(3) + ' (clamp ' + clampMin + '-' + clampMax + ')');
+        console.log('[NE-V1] ★ DEUS Top: ' + top5 + ' | 🔻 Bottom: ' + bot5);
+        console.log('[NE-V1] 📊 Score range: ' + sorted[sorted.length - 1][1].toFixed(3) + ' — ' + sorted[0][1].toFixed(3));
 
         return scores;
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  PESOS CALIBRADOS INDIVIDUALMENTE POR LOTERIA               ║
-    // ║  Não é "macro" — cada loteria tem sua própria distribuição   ║
-    // ╚══════════════════════════════════════════════════════════════╝
-    static _getCalibratedWeights(gameKey) {
+    // ╔══════════════════════════════════════════════════════════════════════╗
+    // ║  ★★★ PESOS MODO DEUS — CALIBRAÇÃO INDIVIDUAL POR LOTERIA ★★★     ║
+    // ║  12 dimensões de peso otimizadas para PREVER o próximo sorteio    ║
+    // ╚══════════════════════════════════════════════════════════════════════╝
+    static _getGodModeWeights(gameKey) {
         const calibrations = {
 
-            // Mega Sena: foco pesado no próximo sorteio + atraso
-            // Repetição muito baixa → nextDraw tem peso ALTO
+            // ★ MEGA SENA: 6/60 — nextDraw + sequential dominam
             megasena: {
-                frequency: 0.08, delay: 0.15, trend: 0.10,
-                zone: 0.06, markov: 0.06, phase: 0.04,
-                clairvoyance: 0.06, nextDraw: 0.30, noise: 0.15
+                frequency: 0.04, delay: 0.08, trend: 0.05,
+                zone: 0.04, markov: 0.03, phase: 0.02,
+                clairvoyance: 0.04, nextDraw: 0.22,
+                bayesian: 0.12, positional: 0.10,
+                sequential: 0.14, momentum: 0.06,
+                noise: 0.06
             },
 
-            // Lotofácil: nextDraw é DOMINANTE (repetição 8-12/15)
-            // Frequência importa pouco — quase tudo repete
+            // ★ LOTOFÁCIL: 15/25 — nextDraw absoluto (repetição 8-12/15)
             lotofacil: {
-                frequency: 0.03, delay: 0.08, trend: 0.07,
-                zone: 0.05, markov: 0.03, phase: 0.02,
-                clairvoyance: 0.04, nextDraw: 0.48, noise: 0.20
+                frequency: 0.02, delay: 0.04, trend: 0.03,
+                zone: 0.03, markov: 0.02, phase: 0.01,
+                clairvoyance: 0.02, nextDraw: 0.38,
+                bayesian: 0.10, positional: 0.06,
+                sequential: 0.15, momentum: 0.04,
+                noise: 0.10
             },
 
-            // Quina: range muito amplo → delay e zona são cruciais
-            // Baixíssima repetição → nextDraw antirepetição
+            // ★ QUINA: 5/80 — bayesian + delay dominam (range amplo)
             quina: {
-                frequency: 0.08, delay: 0.20, trend: 0.08,
-                zone: 0.12, markov: 0.05, phase: 0.05,
-                clairvoyance: 0.07, nextDraw: 0.20, noise: 0.15
+                frequency: 0.04, delay: 0.12, trend: 0.05,
+                zone: 0.08, markov: 0.03, phase: 0.03,
+                clairvoyance: 0.05, nextDraw: 0.15,
+                bayesian: 0.14, positional: 0.08,
+                sequential: 0.12, momentum: 0.05,
+                noise: 0.06
             },
 
-            // Dupla Sena: 2 sorteios por concurso muda tudo
-            // Delay curto (mais números saem por concurso)
+            // ★ DUPLA SENA: 6/50 — sequential forte (2 sorteios de dados)
             duplasena: {
-                frequency: 0.10, delay: 0.12, trend: 0.10,
-                zone: 0.08, markov: 0.07, phase: 0.05,
-                clairvoyance: 0.06, nextDraw: 0.27, noise: 0.15
+                frequency: 0.05, delay: 0.07, trend: 0.05,
+                zone: 0.05, markov: 0.04, phase: 0.03,
+                clairvoyance: 0.04, nextDraw: 0.18,
+                bayesian: 0.12, positional: 0.10,
+                sequential: 0.16, momentum: 0.05,
+                noise: 0.06
             },
 
-            // Lotomania: jogador marca 50/100 — zona é crítica
-            // Precisa cobrir 10 zonas de 10 números equilibradamente
+            // ★ LOTOMANIA: 50/100 — zona + bayesian (cobertura ampla)
             lotomania: {
-                frequency: 0.06, delay: 0.10, trend: 0.08,
-                zone: 0.18, markov: 0.04, phase: 0.03,
-                clairvoyance: 0.08, nextDraw: 0.20, noise: 0.23
+                frequency: 0.03, delay: 0.06, trend: 0.04,
+                zone: 0.12, markov: 0.02, phase: 0.02,
+                clairvoyance: 0.05, nextDraw: 0.14,
+                bayesian: 0.15, positional: 0.05,
+                sequential: 0.10, momentum: 0.06,
+                noise: 0.16
             },
 
-            // Timemania: range 80, sorteia 7 — spread máximo
-            // Delay longo esperado → delay tem peso alto
+            // ★ TIMEMANIA: 10/80 — delay + bayesian (range amplo, sorteia 7)
             timemania: {
-                frequency: 0.08, delay: 0.22, trend: 0.10,
-                zone: 0.12, markov: 0.05, phase: 0.04,
-                clairvoyance: 0.06, nextDraw: 0.18, noise: 0.15
+                frequency: 0.04, delay: 0.14, trend: 0.05,
+                zone: 0.08, markov: 0.03, phase: 0.03,
+                clairvoyance: 0.04, nextDraw: 0.14,
+                bayesian: 0.14, positional: 0.08,
+                sequential: 0.12, momentum: 0.05,
+                noise: 0.06
             },
 
-            // Dia de Sorte: range pequeno (31) — tudo importa mais
-            // Repetição moderada → equilíbrio entre camadas
+            // ★ DIA DE SORTE: 7/31 — positional + sequential (range pequeno)
             diadesorte: {
-                frequency: 0.10, delay: 0.12, trend: 0.12,
-                zone: 0.08, markov: 0.10, phase: 0.06,
-                clairvoyance: 0.07, nextDraw: 0.20, noise: 0.15
+                frequency: 0.05, delay: 0.07, trend: 0.06,
+                zone: 0.05, markov: 0.06, phase: 0.04,
+                clairvoyance: 0.04, nextDraw: 0.15,
+                bayesian: 0.12, positional: 0.12,
+                sequential: 0.13, momentum: 0.05,
+                noise: 0.06
             }
         };
 
         const w = calibrations[gameKey] || calibrations.megasena;
-        console.log('[NE-V1] ⚖️ Pesos calibrados para ' + gameKey + ': nextDraw=' + (w.nextDraw * 100).toFixed(0) + '% | delay=' + (w.delay * 100).toFixed(0) + '% | freq=' + (w.frequency * 100).toFixed(0) + '%');
+        const godPct = ((w.bayesian + w.positional + w.sequential + w.momentum) * 100).toFixed(0);
+        console.log('[NE-V1] ★ MODO DEUS ' + gameKey + ': God=' + godPct + '% | nextDraw=' + (w.nextDraw * 100).toFixed(0) + '% | noise=' + (w.noise * 100).toFixed(0) + '%');
         return w;
+    }
+
+    // Manter retrocompatibilidade
+    static _getCalibratedWeights(gameKey) {
+        return this._getGodModeWeights(gameKey);
     }
 
     // ╔══════════════════════════════════════════════════════════════╗
@@ -1315,11 +1551,17 @@ class NovaEraEngine {
         return result.sort((a, b) => a - b).slice(0, count);
     }
 
-    // Score determinístico (sem noise) para sugestões
+    // Score determinístico MODO DEUS (sem noise) para sugestões
     static _scoreAllNumbersDeterministic(gameKey, profile, history, startNum, endNum, totalRange) {
+        return this._scoreForSuggestion(gameKey, profile, history, startNum, endNum, totalRange);
+    }
+
+    // ★★★ Score para sugestões: MODO DEUS sem noise ★★★
+    static _scoreForSuggestion(gameKey, profile, history, startNum, endNum, totalRange) {
         const N = history.length;
         const drawSize = profile.lotteryDraw;
 
+        // Todas as 12 camadas
         const freqScores = this._layerFrequency(history, startNum, endNum, N);
         const trendScores = this._layerTrend(history, startNum, endNum, N);
         const delayScores = this._layerDelay(history, startNum, endNum, N, drawSize, totalRange);
@@ -1327,18 +1569,30 @@ class NovaEraEngine {
         const markovScores = this._layerMarkov(history, startNum, endNum, N);
         const phaseScores = this._layerPhase(history, startNum, endNum, N);
         const clairScores = this._layerClairvoyance(history, startNum, endNum, N, drawSize);
+        const nextDrawScores = this._layerNextDraw(gameKey, history, startNum, endNum, N, profile);
+        const bayesianScores = this._godBayesian(history, startNum, endNum, N, drawSize);
+        const positionalScores = this._godPositional(history, startNum, endNum, N, drawSize);
+        const sequentialScores = this._godSequentialChain(history, startNum, endNum, N);
+        const momentumScores = this._godMomentum(history, startNum, endNum, N, drawSize);
 
-        const w = profile.weights;
+        // Pesos Modo Deus — SEM noise, redistribuído para predição
+        const w = this._getGodModeWeights(gameKey);
         const scores = {};
+        const boostFactor = w.noise * 0.5; // Redistribuir noise para predição
 
         for (let n = startNum; n <= endNum; n++) {
-            scores[n] = (freqScores[n] || 0) * (w.frequency + w.noise * 0.3)
-                      + (delayScores[n] || 0) * (w.delay + w.noise * 0.2)
-                      + (trendScores[n] || 0) * (w.trend + w.noise * 0.2)
+            scores[n] = (freqScores[n] || 0) * w.frequency
+                      + (delayScores[n] || 0) * w.delay
+                      + (trendScores[n] || 0) * w.trend
                       + (entropyScores[n] || 0) * w.zone
                       + (markovScores[n] || 0) * w.markov
                       + (phaseScores[n] || 0) * w.phase
-                      + (clairScores[n] || 0) * (w.entropy + w.noise * 0.3);
+                      + (clairScores[n] || 0) * w.clairvoyance
+                      + (nextDrawScores[n] || 0) * (w.nextDraw + boostFactor * 0.3)
+                      + (bayesianScores[n] || 0) * (w.bayesian + boostFactor * 0.2)
+                      + (positionalScores[n] || 0) * w.positional
+                      + (sequentialScores[n] || 0) * (w.sequential + boostFactor * 0.3)
+                      + (momentumScores[n] || 0) * (w.momentum + boostFactor * 0.2);
         }
 
         return scores;
