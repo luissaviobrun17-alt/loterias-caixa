@@ -1088,38 +1088,142 @@ class NovaEraEngine {
 
         console.log('[NE-V1] ★ MODO DEUS ATIVADO — 12 camadas de predição para ' + gameKey);
 
-        // ━━━ PESOS CALIBRADOS — MODO DEUS ━━━
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // ★★★ CONSENSO ENSEMBLE — Votação entre 12 camadas ★★★
+        // Números que MÚLTIPLAS camadas concordam como TOP
+        // recebem boost EXPONENCIAL — este é o diferencial
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const allLayers = [
+            freqScores, trendScores, delayScores, entropyScores,
+            markovScores, phaseScores, clairScores, nextDrawScores,
+            bayesianScores, positionalScores, sequentialScores, momentumScores
+        ];
+
+        // Para cada camada: identificar top drawSize*2 candidatos
+        const topCandidateSize = Math.min(drawSize * 3, totalRange);
+        const voteCount = {};
+        for (let n = startNum; n <= endNum; n++) voteCount[n] = 0;
+
+        for (const layer of allLayers) {
+            const ranked = Object.entries(layer)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, topCandidateSize);
+            for (const [numStr] of ranked) {
+                voteCount[parseInt(numStr)]++;
+            }
+        }
+
+        // Encontrar o consenso máximo
+        let maxVotes = 0;
+        for (let n = startNum; n <= endNum; n++) {
+            if (voteCount[n] > maxVotes) maxVotes = voteCount[n];
+        }
+
+        // Log consenso
+        const consensusNums = [];
+        for (let n = startNum; n <= endNum; n++) {
+            if (voteCount[n] >= 9) consensusNums.push(n + '(' + voteCount[n] + ')');
+        }
+        if (consensusNums.length > 0) {
+            console.log('[NE-V1] ★ CONSENSO 9+/12: ' + consensusNums.join(', '));
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // ★★★ CALIBRAÇÃO DINÂMICA — Qual camada acertou? ★★★
+        // Testa cada camada contra os últimos 3 sorteios REAIS
+        // e ajusta pesos em tempo real
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let dynamicBoosts = new Array(12).fill(1.0);
+        if (N >= 4) {
+            // Simular: usando histórico [1..N], prever o sorteio [0]
+            // e comparar com o resultado REAL de [0]
+            const testDraws = Math.min(3, N - 3);
+            for (let t = 0; t < testDraws; t++) {
+                const testHistory = history.slice(t + 1);
+                const actualResult = new Set(history[t].numbers || []);
+                const testN = testHistory.length;
+
+                // Recalcular cada camada com histórico deslocado
+                const testLayers = [
+                    this._layerFrequency(testHistory, startNum, endNum, testN),
+                    this._layerTrend(testHistory, startNum, endNum, testN),
+                    this._layerDelay(testHistory, startNum, endNum, testN, drawSize, totalRange),
+                    this._layerEntropy(testHistory, startNum, endNum, testN, profile),
+                    this._layerMarkov(testHistory, startNum, endNum, testN),
+                    this._layerPhase(testHistory, startNum, endNum, testN),
+                    this._layerClairvoyance(testHistory, startNum, endNum, testN, drawSize),
+                    this._layerNextDraw(gameKey, testHistory, startNum, endNum, testN, profile),
+                    this._godBayesian(testHistory, startNum, endNum, testN, drawSize),
+                    this._godPositional(testHistory, startNum, endNum, testN, drawSize),
+                    this._godSequentialChain(testHistory, startNum, endNum, testN),
+                    this._godMomentum(testHistory, startNum, endNum, testN, drawSize)
+                ];
+
+                // Para cada camada: quantos dos seus top drawSize acertaram?
+                for (let L = 0; L < 12; L++) {
+                    const layerTop = Object.entries(testLayers[L])
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, drawSize * 2)
+                        .map(e => parseInt(e[0]));
+                    let hits = 0;
+                    for (const n of layerTop) {
+                        if (actualResult.has(n)) hits++;
+                    }
+                    // Boost proporcional aos acertos
+                    const hitRate = hits / drawSize;
+                    dynamicBoosts[L] += hitRate * 0.5;
+                }
+            }
+
+            // Normalizar boosts
+            const avgBoost = dynamicBoosts.reduce((a, b) => a + b, 0) / 12;
+            for (let L = 0; L < 12; L++) {
+                dynamicBoosts[L] /= avgBoost;
+            }
+
+            const boostStr = dynamicBoosts.map((b, i) => ['freq','trend','delay','zone','markov','phase','clair','next','bayes','posit','seq','mom'][i] + '=' + b.toFixed(2)).join(' ');
+            console.log('[NE-V1] ★ CALIBRAÇÃO DINÂMICA: ' + boostStr);
+        }
+
+        // ━━━ PESOS CALIBRADOS — MODO DEUS + DINÂMICO ━━━
         const weights = this._getGodModeWeights(gameKey);
 
-        // Fusão ponderada com Modo Deus
+        // Fusão com calibração dinâmica + consenso ensemble
         const scores = {};
         const [clampMin, clampMax] = profile.scoreClamp;
 
         for (let n = startNum; n <= endNum; n++) {
-            let raw = (freqScores[n] || 0) * weights.frequency
-                    + (delayScores[n] || 0) * weights.delay
-                    + (trendScores[n] || 0) * weights.trend
-                    + (entropyScores[n] || 0) * weights.zone
-                    + (markovScores[n] || 0) * weights.markov
-                    + (phaseScores[n] || 0) * weights.phase
-                    + (clairScores[n] || 0) * weights.clairvoyance
-                    + (nextDrawScores[n] || 0) * weights.nextDraw
-                    + (bayesianScores[n] || 0) * weights.bayesian
-                    + (positionalScores[n] || 0) * weights.positional
-                    + (sequentialScores[n] || 0) * weights.sequential
-                    + (momentumScores[n] || 0) * weights.momentum;
-            // Noise reduzido no Modo Deus — confiança maior
-            raw += (Math.random() - 0.5) * weights.noise;
+            let raw = (freqScores[n] || 0) * weights.frequency * dynamicBoosts[0]
+                    + (delayScores[n] || 0) * weights.delay * dynamicBoosts[2]
+                    + (trendScores[n] || 0) * weights.trend * dynamicBoosts[1]
+                    + (entropyScores[n] || 0) * weights.zone * dynamicBoosts[3]
+                    + (markovScores[n] || 0) * weights.markov * dynamicBoosts[4]
+                    + (phaseScores[n] || 0) * weights.phase * dynamicBoosts[5]
+                    + (clairScores[n] || 0) * weights.clairvoyance * dynamicBoosts[6]
+                    + (nextDrawScores[n] || 0) * weights.nextDraw * dynamicBoosts[7]
+                    + (bayesianScores[n] || 0) * weights.bayesian * dynamicBoosts[8]
+                    + (positionalScores[n] || 0) * weights.positional * dynamicBoosts[9]
+                    + (sequentialScores[n] || 0) * weights.sequential * dynamicBoosts[10]
+                    + (momentumScores[n] || 0) * weights.momentum * dynamicBoosts[11];
+
+            // ★ CONSENSO ENSEMBLE: boost exponencial para números com alta concordância
+            const votes = voteCount[n] || 0;
+            if (votes >= 10) raw *= 1.35;       // 10-12 camadas concordam: FORTE
+            else if (votes >= 8) raw *= 1.20;   // 8-9 camadas: boost médio
+            else if (votes >= 6) raw *= 1.05;   // 6-7: boost leve
+            else if (votes <= 2) raw *= 0.80;   // 0-2: penalizar (pouca concordância)
+
+            // Noise MÍNIMO — máxima objetividade
+            raw += (Math.random() - 0.5) * 0.03;
 
             scores[n] = Math.max(clampMin, Math.min(clampMax, raw + 1.0));
         }
 
         // Log top/bottom para diagnóstico
         const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-        const top5 = sorted.slice(0, 5).map(e => e[0] + '(' + e[1].toFixed(2) + ')').join(', ');
+        const top5 = sorted.slice(0, 5).map(e => e[0] + '(' + e[1].toFixed(2) + '/v' + voteCount[parseInt(e[0])] + ')').join(', ');
         const bot5 = sorted.slice(-5).map(e => e[0] + '(' + e[1].toFixed(2) + ')').join(', ');
-        console.log('[NE-V1] ★ DEUS Top: ' + top5 + ' | 🔻 Bottom: ' + bot5);
-        console.log('[NE-V1] 📊 Score range: ' + sorted[sorted.length - 1][1].toFixed(3) + ' — ' + sorted[0][1].toFixed(3));
+        console.log('[NE-V1] ★ DEUS+ Top: ' + top5 + ' | 🔻 Bottom: ' + bot5);
 
         return scores;
     }
