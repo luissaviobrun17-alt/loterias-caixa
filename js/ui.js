@@ -642,6 +642,11 @@ class UI {
 
                         const lotteryConfig = onlineLotteries[this.currentGameKey];
                         if (lotteryConfig && result.games.length > 0) {
+                            // Limpar painel anterior se existir
+                            var oldPanel = document.getElementById('caixa-panel');
+                            if (oldPanel) oldPanel.remove();
+                            var oldStatus = document.getElementById('caixa-status');
+                            if (oldStatus) oldStatus.remove();
                             const _script = this._generateCaixaScript_LEGACY(lotteryConfig, result.games);
                             const _url = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + lotteryConfig.url;
                             const _cp = document.createElement('div');
