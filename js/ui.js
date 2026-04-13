@@ -661,9 +661,17 @@ class UI {
                                 navigator.clipboard.writeText(_script).then(function() {
                                     window.open(_url, '_blank');
                                     _st.style.display = 'block';
-                                    _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1rem;margin-bottom:8px;">\u2705 Script copiado e site aberto!</div><div style="color:#E2E8F0;font-size:0.9rem;line-height:1.8;">No site da Caixa:<br><b style="color:#F59E0B;font-size:1.1rem;">Ctrl+Shift+J \u2192 Ctrl+V \u2192 Enter</b></div><div style="color:#94A3B8;font-size:0.72rem;margin-top:8px;">\uD83D\uDCA1 Se pedir allow pasting, digite isso e cole de novo.</div>';
+                                    _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1.1rem;margin-bottom:12px;">\u2705 Script copiado! Site aberto!</div>' +
+                                        '<div style="background:#0F172A;border-radius:10px;padding:14px;text-align:left;">' +
+                                        '<div style="color:#F59E0B;font-weight:800;margin-bottom:10px;font-size:0.95rem;">Agora no site da Caixa, siga 4 passos:</div>' +
+                                        '<div style="color:#60A5FA;font-size:0.88rem;margin-bottom:8px;line-height:1.7;"><b style="background:#0066CC;color:white;padding:2px 8px;border-radius:50%;font-size:0.75rem;">1</b> Aperte <kbd style="background:#334155;padding:3px 8px;border-radius:4px;font-weight:800;">Ctrl + Shift + J</kbd> (abre o Console)</div>' +
+                                        '<div style="color:#F59E0B;font-size:0.88rem;margin-bottom:8px;line-height:1.7;"><b style="background:#D97706;color:white;padding:2px 8px;border-radius:50%;font-size:0.75rem;">2</b> Se aparecer aviso, <b>DIGITE</b>: <code style="background:#F59E0B;color:black;padding:2px 8px;border-radius:4px;font-weight:900;">allow pasting</code> e aperte <kbd style="background:#334155;padding:3px 8px;border-radius:4px;">Enter</kbd></div>' +
+                                        '<div style="color:#A78BFA;font-size:0.88rem;margin-bottom:8px;line-height:1.7;"><b style="background:#7C3AED;color:white;padding:2px 8px;border-radius:50%;font-size:0.75rem;">3</b> Cole com <kbd style="background:#334155;padding:3px 8px;border-radius:4px;font-weight:800;">Ctrl + V</kbd> (vai aparecer texto)</div>' +
+                                        '<div style="color:#22C55E;font-size:0.88rem;margin-bottom:4px;line-height:1.7;"><b style="background:#16A34A;color:white;padding:2px 8px;border-radius:50%;font-size:0.75rem;">4</b> Aperte <kbd style="background:#22C55E;color:black;padding:3px 10px;border-radius:4px;font-weight:900;font-size:0.95rem;">ENTER</kbd> para executar!</div>' +
+                                        '</div>' +
+                                        '<div style="color:#22C55E;font-weight:800;font-size:0.85rem;margin-top:10px;text-align:center;">\uD83C\uDFAF Os n\u00FAmeros ser\u00E3o preenchidos automaticamente!</div>';
                                     _btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-                                    _btn.textContent = '\u2705 SITE ABERTO \u2014 Cole com Ctrl+Shift+J > Ctrl+V > Enter';
+                                    _btn.textContent = '\u2705 SITE ABERTO \u2014 Siga os 4 passos abaixo';
                                 }).catch(function() {
                                     window.open(_url, '_blank');
                                     _st.style.display = 'block';
