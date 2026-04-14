@@ -45,8 +45,8 @@ class NovaEraEngine {
                 maxConsecutive: 2,
                 evenOddRange: [2, 4],
                 sumRange: [100, 260],
-                maxUsagePct: 0.12,
-                maxOverlap: 3,
+                maxUsagePct: 0.30,
+                maxOverlap: 5,
                 weights: {
                     frequency: 0.18,
                     delay: 0.20,
@@ -76,8 +76,8 @@ class NovaEraEngine {
                 maxConsecutive: 10,
                 evenOddRange: [5, 9],
                 sumRange: [155, 235],
-                maxUsagePct: 0.75,
-                maxOverlap: 13,
+                maxUsagePct: 0.95,
+                maxOverlap: 14,
                 weights: {
                     frequency: 0.15,
                     delay: 0.15,
@@ -107,8 +107,8 @@ class NovaEraEngine {
                 maxConsecutive: 2,
                 evenOddRange: [1, 4],
                 sumRange: [90, 280],
-                maxUsagePct: 0.10,
-                maxOverlap: 2,
+                maxUsagePct: 0.25,
+                maxOverlap: 4,
                 weights: {
                     frequency: 0.15,
                     delay: 0.22,
@@ -137,8 +137,8 @@ class NovaEraEngine {
                 maxConsecutive: 2,
                 evenOddRange: [2, 4],
                 sumRange: [70, 220],
-                maxUsagePct: 0.14,
-                maxOverlap: 3,
+                maxUsagePct: 0.30,
+                maxOverlap: 5,
                 weights: {
                     frequency: 0.18,
                     delay: 0.20,
@@ -198,8 +198,8 @@ class NovaEraEngine {
                 maxConsecutive: 2,
                 evenOddRange: [3, 7],
                 sumRange: [200, 560],
-                maxUsagePct: 0.10,
-                maxOverlap: 3,
+                maxUsagePct: 0.25,
+                maxOverlap: 8,
                 weights: {
                     frequency: 0.15,
                     delay: 0.20,
@@ -229,8 +229,8 @@ class NovaEraEngine {
                 maxConsecutive: 3,
                 evenOddRange: [2, 5],
                 sumRange: [60, 155],
-                maxUsagePct: 0.28,
-                maxOverlap: 4,
+                maxUsagePct: 0.45,
+                maxOverlap: 6,
                 weights: {
                     frequency: 0.15,
                     delay: 0.18,
@@ -1353,7 +1353,7 @@ class NovaEraEngine {
             if (usedKeys.has(key)) continue;
 
             // Anti-overlap: verificar contra jogos recentes
-            if (games.length > 0 && attempts < maxAttempts * 0.85) {
+            if (games.length > 0 && attempts < maxAttempts * 0.60) {
                 let tooSimilar = false;
                 const checkFrom = Math.max(0, games.length - 50);
                 for (let g = checkFrom; g < games.length; g++) {
@@ -1380,7 +1380,7 @@ class NovaEraEngine {
 
         // Fallback: completar com jogos aleatórios se necessário
         let fillAtt = 0;
-        while (games.length < numGames && fillAtt < 5000) {
+        while (games.length < numGames && fillAtt < 500000) {
             fillAtt++;
             const ticket = [...fixedNumbers.filter(f => pool.includes(f))];
             const remaining = pool.filter(n => !ticket.includes(n)).sort(() => Math.random() - 0.5);
@@ -1507,12 +1507,14 @@ class NovaEraEngine {
         ticket.sort((a, b) => a - b);
 
         // Par/ímpar
+        // Para lotes grandes, relaxar validacoes
+        const isLargeBatch = totalGames > 1000;
         const evens = ticket.filter(n => n % 2 === 0).length;
-        if (evens < profile.evenOddRange[0] || evens > profile.evenOddRange[1]) return null;
+        if (!isLargeBatch && (evens < profile.evenOddRange[0] || evens > profile.evenOddRange[1])) return null;
 
         // Soma
         const sum = ticket.reduce((a, b) => a + b, 0);
-        if (sum < profile.sumRange[0] || sum > profile.sumRange[1]) return null;
+        if (!isLargeBatch && (sum < profile.sumRange[0] || sum > profile.sumRange[1])) return null;
 
         return ticket;
     }
