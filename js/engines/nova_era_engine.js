@@ -1,3 +1,4 @@
+console.log('%c[NE-V1] ===== VERSAO BULK 10K+ CARREGADA =====', 'color: lime; font-size: 20px; background: black;');
 /**
  * ╔══════════════════════════════════════════════════════════════════════╗
  * ║  NOVA ERA ENGINE V1 (NE-V1) — Motor de Projeção Futura             ║
