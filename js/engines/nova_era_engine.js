@@ -1327,85 +1327,73 @@ class NovaEraEngine {
         const usedKeys = new Set();
         const usedCount = {};
         for (const n of pool) usedCount[n] = 0;
-
         const numZones = profile.zones;
         const zoneSize = profile.zoneSize;
-        const maxUsage = Math.max(3, Math.ceil(numGames * profile.maxUsagePct));
-        const maxOverlap = profile.maxOverlap;
-
+        const isBulkMode = numGames > 1000;
+        const maxUsage = isBulkMode ? Infinity : Math.max(3, Math.ceil(numGames * profile.maxUsagePct));
+        const maxOverlap = isBulkMode ? drawSize : profile.maxOverlap;
         const maxAttempts = Math.min(numGames * 500, 5000000);
-        const TIMEOUT_MS = 180000; // 3 minutos
+        const TIMEOUT_MS = 300000;
         const startTime = Date.now();
         let attempts = 0;
-
-        while (games.length < numGames && attempts < maxAttempts && (Date.now() - startTime) < TIMEOUT_MS) {
+        console.log('[NE-V1] ' + (isBulkMode ? 'MODO BULK 10K+' : 'Modo normal') + ' | ' + numGames + ' jogos | pool=' + pool.length);
+        const qualityTarget = isBulkMode ? Math.min(500, numGames) : numGames;
+        while (games.length < qualityTarget && attempts < maxAttempts && (Date.now() - startTime) < TIMEOUT_MS) {
             attempts++;
-
-            const ticket = this._generateSingleGame(
-                profile, scores, pool, drawSize, fixedNumbers,
-                usedCount, maxUsage, startNum, endNum, numZones, zoneSize,
-                games.length, numGames
-            );
-
+            const ticket = this._generateSingleGame(profile, scores, pool, drawSize, fixedNumbers, usedCount, maxUsage, startNum, endNum, numZones, zoneSize, games.length, numGames);
             if (!ticket || ticket.length < drawSize) continue;
-
             const key = ticket.join(',');
             if (usedKeys.has(key)) continue;
-
-            // Anti-overlap: verificar contra jogos recentes
-            if (games.length > 0 && attempts < maxAttempts * 0.60) {
+            if (!isBulkMode && games.length > 0 && attempts < maxAttempts * 0.60) {
                 let tooSimilar = false;
-                const checkFrom = Math.max(0, games.length - 50);
+                const checkFrom = Math.max(0, games.length - 30);
                 for (let g = checkFrom; g < games.length; g++) {
                     const existSet = new Set(games[g]);
                     let overlap = 0;
-                    for (const n of ticket) {
-                        if (existSet.has(n)) overlap++;
-                    }
-                    if (overlap > maxOverlap) {
-                        tooSimilar = true;
-                        break;
-                    }
+                    for (const n of ticket) { if (existSet.has(n)) overlap++; }
+                    if (overlap > maxOverlap) { tooSimilar = true; break; }
                 }
                 if (tooSimilar) continue;
             }
-
-            // Aceitar jogo
             games.push(ticket);
             usedKeys.add(key);
-            for (const n of ticket) {
-                usedCount[n] = (usedCount[n] || 0) + 1;
-            }
+            for (const n of ticket) usedCount[n] = (usedCount[n] || 0) + 1;
         }
-
-        // Fallback: completar com jogos aleatórios se necessário
-        let fillAtt = 0;
-        while (games.length < numGames && fillAtt < 500000) {
-            fillAtt++;
-            const ticket = [...fixedNumbers.filter(f => pool.includes(f))];
-            const remaining = pool.filter(n => !ticket.includes(n)).sort(() => Math.random() - 0.5);
-            for (const n of remaining) {
-                if (ticket.length >= drawSize) break;
-                ticket.push(n);
+        console.log('[NE-V1] Fase1: ' + games.length + ' jogos em ' + attempts + ' tent');
+        if (games.length < numGames) {
+            console.log('[NE-V1] FASE2 BULK: gerando ' + (numGames - games.length) + ' jogos...');
+            let bulkAtt = 0;
+            const bulkMax = Math.max(numGames * 100, 2000000);
+            const p1 = games.length;
+            while (games.length < numGames && bulkAtt < bulkMax && (Date.now() - startTime) < 540000) {
+                bulkAtt++;
+                const ticket = [...fixedNumbers.filter(f => pool.includes(f))];
+                const usedSet = new Set(ticket);
+                const shuffled = pool.filter(n => !usedSet.has(n));
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    const tmp = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = tmp;
+                }
+                for (const n of shuffled) {
+                    if (ticket.length >= drawSize) break;
+                    ticket.push(n);
+                }
+                if (ticket.length < drawSize) continue;
+                ticket.sort((a, b) => a - b);
+                const key = ticket.join(',');
+                if (!usedKeys.has(key)) {
+                    games.push(ticket);
+                    usedKeys.add(key);
+                    for (const n of ticket) usedCount[n] = (usedCount[n] || 0) + 1;
+                }
             }
-            if (ticket.length < drawSize) continue;
-            ticket.sort((a, b) => a - b);
-            const key = ticket.join(',');
-            if (!usedKeys.has(key)) {
-                games.push(ticket);
-                usedKeys.add(key);
-                for (const n of ticket) usedCount[n] = (usedCount[n] || 0) + 1;
-            }
+            console.log('[NE-V1] Fase2: +' + (games.length - p1) + ' em ' + bulkAtt + ' tent');
         }
-
-        console.log('[NE-V1] 🎲 ' + games.length + ' jogos em ' + attempts + ' tentativas');
-
-        // Diagnóstico de concentração
+        console.log('[NE-V1] TOTAL: ' + games.length + '/' + numGames);
         const maxUsed = Math.max(0, ...Object.values(usedCount));
         const maxPct = games.length > 0 ? (maxUsed / games.length * 100).toFixed(1) : 0;
         const numsUsed = Object.values(usedCount).filter(v => v > 0).length;
-        console.log('[NE-V1] 📊 Max concentração: ' + maxPct + '% | Números usados: ' + numsUsed + '/' + pool.length);
-
+        console.log('[NE-V1] MaxConc: ' + maxPct + '% | Nums: ' + numsUsed + '/' + pool.length);
         return games;
     }
 
