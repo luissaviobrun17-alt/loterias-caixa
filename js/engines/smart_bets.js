@@ -450,7 +450,7 @@ class SmartBetsEngine {
             if (!isTightPool && games.length > 1) {
                 const isSmallRange = totalRange <= 30;
                 const concLimit = isSmallRange
-                    ? Math.max(4, Math.ceil(games.length * maxConcentration))
+                    ? Math.max(4, Math.ceil(games.length * Math.max(maxConcentration, drawSize / totalRange * 1.5)))
                     : Math.max(3, Math.ceil(games.length * 0.08));
                 let overUsedCount = 0;
                 for (const num of ticket) {
@@ -459,7 +459,7 @@ class SmartBetsEngine {
                     }
                 }
                 const overUsedThreshold = isSmallRange ? Math.max(2, Math.ceil(drawSize * 0.20)) : 2;
-                if (overUsedCount >= overUsedThreshold && attempts < maxAttempts * 0.80) continue;
+                if (overUsedCount >= overUsedThreshold && attempts < maxAttempts * 0.70) continue;
             }
 
             // â”€â”€ ANTI-OVERLAP v3: RELAXAR se pool Ã© tight â”€â”€
@@ -668,7 +668,9 @@ class SmartBetsEngine {
         const usedKeys  = new Set();
         pool.forEach(n => usedCount[n] = 0);
 
-        const maxUsePerNum = Math.max(3, Math.ceil(numGames * 0.22));
+        // maxUse proporcional à razão draw/pool — Lotofácil 15/25=60%, Mega 6/60=10%
+        const drawPoolRatio = drawCount / Math.max(1, pool.length);
+        const maxUsePerNum = Math.max(5, Math.ceil(numGames * Math.max(0.22, drawPoolRatio * 1.3)));
         const maxOverlap   = hasUserSelection
             ? Math.ceil(drawCount * 0.55)
             : Math.ceil(drawCount * 0.35);
@@ -1054,7 +1056,9 @@ class SmartBetsEngine {
         pool.forEach(n => usedCount[n] = 0);
         const usedKeys = new Set();
 
-        const getMaxUse = () => Math.max(3, Math.ceil(numGames * 0.20));
+        // maxUse proporcional ao draw/pool — ajustado para 10K+ jogos
+        const drawPoolRatio = drawSize / Math.max(1, pool.length);
+        const getMaxUse = () => Math.max(5, Math.ceil(numGames * Math.max(0.20, drawPoolRatio * 1.3)));
 
         let attempts = 0;
         // LIMITE SEGURO: max 300 tentativas por jogo (era 2000x — trava browser com 1000 jogos)
