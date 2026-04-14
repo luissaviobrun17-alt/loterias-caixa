@@ -742,10 +742,12 @@ class UI {
             this.gamesContainer.parentNode.insertBefore(_cp, this.gamesContainer);
         }
 
-        // Handler do botão
+        // Handler do botão — SEMPRE usa dados mais recentes
         _btn.addEventListener('click', async function() {
-            var currentGames = _self._lastGeneratedGames;
-            var currentKey = _self._lastGameKey;
+            // Pegar os jogos mais recentes (prioridade: _lastGeneratedGames > currentGeneratedGames)
+            var currentGames = _self._lastGeneratedGames || _self.currentGeneratedGames || games;
+            var currentKey = _self._lastGameKey || gameKey;
+            console.log('[B2B] Enviando ' + currentGames.length + ' jogos para ' + currentKey);
             var cfg = allConfigs[currentKey] || lotteryConfig;
             var freshUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfg.url;
             var freshScript = _self._generateCaixaScript_LEGACY(cfg, currentGames);
