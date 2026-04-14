@@ -1,128 +1,38 @@
-// ╔══════════════════════════════════════════════════════════╗
-// ║  B2B Loterias — Service Worker (PWA Offline)            ║
-// ║  Versão: 10.0                                           ║
-// ╚══════════════════════════════════════════════════════════╝
+// ═══ B2B Loterias — Service Worker AUTO-DESTRUIÇÃO ═══
+// Este SW se auto-desregistra e limpa todos os caches
+// para resolver o problema de cache stale
 
-const CACHE_NAME = 'b2b-loterias-v11';
-const ASSETS_TO_CACHE = [
-    '/loterias-caixa/',
-    '/loterias-caixa/index.html',
-    '/loterias-caixa/styles/main.css',
-    '/loterias-caixa/styles/components.css',
-    '/loterias-caixa/styles/lottery.css',
-    '/loterias-caixa/styles/responsive.css',
-    '/loterias-caixa/js/engines/games.js',
-    '/loterias-caixa/js/data/history_db.js',
-    '/loterias-caixa/js/stats.js',
-    '/loterias-caixa/js/engines/combinations.js',
-    '/loterias-caixa/js/engines/quantum.js',
-    '/loterias-caixa/js/engines/quantum_god_mode.js',
-    '/loterias-caixa/js/engines/nova_era_engine.js',
-    '/loterias-caixa/js/engines/smart_bets.js',
-    '/loterias-caixa/js/ui.js',
-    '/loterias-caixa/js/main.js',
-    '/loterias-caixa/js/license.js',
-    '/loterias-caixa/img/logo_atom.png',
-    '/loterias-caixa/manifest.json'
-];
-
-// Instalar: cachear todos os assets
-self.addEventListener('install', event => {
-    console.log('[SW] Instalando B2B Loterias PWA v10...');
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('[SW] Cacheando assets...');
-                return cache.addAll(ASSETS_TO_CACHE);
-            })
-            .then(() => self.skipWaiting())
-            .catch(err => {
-                console.warn('[SW] Erro ao cachear (continuando):', err);
-                return self.skipWaiting();
-            })
-    );
+self.addEventListener('install', function(event) {
+    console.log('[SW] AUTO-DESTRUIÇÃO: Pulando espera...');
+    self.skipWaiting();
 });
 
-// Ativar: limpar caches antigos
-self.addEventListener('activate', event => {
-    console.log('[SW] Ativando...');
+self.addEventListener('activate', function(event) {
+    console.log('[SW] AUTO-DESTRUIÇÃO: Limpando caches e desregistrando...');
     event.waitUntil(
-        caches.keys().then(cacheNames => {
+        caches.keys().then(function(cacheNames) {
             return Promise.all(
-                cacheNames
-                    .filter(name => name !== CACHE_NAME)
-                    .map(name => {
-                        console.log('[SW] Removendo cache antigo:', name);
-                        return caches.delete(name);
-                    })
+                cacheNames.map(function(cacheName) {
+                    console.log('[SW] Deletando cache: ' + cacheName);
+                    return caches.delete(cacheName);
+                })
             );
-        }).then(() => self.clients.claim())
+        }).then(function() {
+            console.log('[SW] Todos os caches deletados! Desregistrando...');
+            return self.registration.unregister();
+        }).then(function() {
+            console.log('[SW] DESREGISTRADO com sucesso!');
+            return self.clients.matchAll();
+        }).then(function(clients) {
+            // Forçar reload em todos os clientes
+            clients.forEach(function(client) {
+                client.navigate(client.url);
+            });
+        })
     );
 });
 
-// Fetch: Network First para APIs, Cache First para assets
-self.addEventListener('fetch', event => {
-    const url = new URL(event.request.url);
-    
-    // APIs da Caixa — sempre tentar rede primeiro
-    if (url.hostname.includes('caixa.gov.br') || url.hostname.includes('loteriascaixa')) {
-        event.respondWith(
-            fetch(event.request)
-                .then(response => {
-                    // Cachear resposta da API
-                    const responseClone = response.clone();
-                    caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, responseClone);
-                    });
-                    return response;
-                })
-                .catch(() => {
-                    // Sem rede — usar cache
-                    return caches.match(event.request);
-                })
-        );
-        return;
-    }
-    
-    // Assets JS — Network First (para garantir versões novas dos engines)
-    if (url.pathname.endsWith('.js')) {
-        event.respondWith(
-            fetch(event.request)
-                .then(response => {
-                    const responseClone = response.clone();
-                    caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, responseClone);
-                    });
-                    return response;
-                })
-                .catch(() => caches.match(event.request))
-        );
-        return;
-    }
-
-    // Demais assets — Cache First
-    event.respondWith(
-        caches.match(event.request)
-            .then(cachedResponse => {
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
-                return fetch(event.request).then(response => {
-                    // Cachear novos requests
-                    if (response.status === 200) {
-                        const responseClone = response.clone();
-                        caches.open(CACHE_NAME).then(cache => {
-                            cache.put(event.request, responseClone);
-                        });
-                    }
-                    return response;
-                });
-            })
-            .catch(() => {
-                // Fallback para página principal
-                if (event.request.mode === 'navigate') {
-                    return caches.match('/loterias-caixa/');
-                }
-            })
-    );
+// Qualquer fetch vai direto para a rede (sem cache)
+self.addEventListener('fetch', function(event) {
+    event.respondWith(fetch(event.request));
 });
