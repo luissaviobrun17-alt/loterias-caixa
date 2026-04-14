@@ -1333,8 +1333,8 @@ class NovaEraEngine {
         const maxUsage = Math.max(3, Math.ceil(numGames * profile.maxUsagePct));
         const maxOverlap = profile.maxOverlap;
 
-        const maxAttempts = Math.min(numGames * 200, 100000);
-        const TIMEOUT_MS = 25000;
+        const maxAttempts = Math.min(numGames * 500, 5000000);
+        const TIMEOUT_MS = 180000; // 3 minutos
         const startTime = Date.now();
         let attempts = 0;
 

@@ -420,7 +420,7 @@ class SmartBetsEngine {
         const isLargeGame = drawSize >= 15;
         const isVeryLargeGame = drawSize >= 20;
         const isLargeRange = (endNum - startNum + 1) >= 60; // Timemania/Quina: range 80
-        const maxAttempts = isVeryLargeGame ? numGames * 3000 : (isLargeGame ? numGames * 1000 : numGames * 500);
+        const maxAttempts = isVeryLargeGame ? numGames * 5000 : (isLargeGame ? numGames * 2000 : numGames * 1000);
         let attempts = 0;
 
         // â”€â”€ CONTROLE DE CONCENTRAÃ‡ÃƒO GLOBAL â”€â”€
@@ -459,7 +459,7 @@ class SmartBetsEngine {
                     }
                 }
                 const overUsedThreshold = isSmallRange ? Math.max(2, Math.ceil(drawSize * 0.20)) : 2;
-                if (overUsedCount >= overUsedThreshold && attempts < maxAttempts * 0.90) continue;
+                if (overUsedCount >= overUsedThreshold && attempts < maxAttempts * 0.80) continue;
             }
 
             // â”€â”€ ANTI-OVERLAP v3: RELAXAR se pool Ã© tight â”€â”€
@@ -478,7 +478,7 @@ class SmartBetsEngine {
                         break;
                     }
                 }
-                if (tooSimilar && attempts < maxAttempts * 0.95) continue;
+                if (tooSimilar && attempts < maxAttempts * 0.85) continue;
             }
 
             // â”€â”€ VALIDAÃ‡ÃƒO FINAL v3 â”€â”€
@@ -672,10 +672,10 @@ class SmartBetsEngine {
         const maxOverlap   = hasUserSelection
             ? Math.ceil(drawCount * 0.55)
             : Math.ceil(drawCount * 0.35);
-        // LIMITE SEGURO: 300 tentativas por jogo + 20s timeout
-        const maxAttempts  = Math.min(numGames * 300, 200000);
+        // LIMITE EXPANDIDO: suporta 10.000+ jogos
+        const maxAttempts  = Math.min(numGames * 500, 5000000);
         const loopStart    = Date.now();
-        const LOOP_MAX_MS  = 20000;
+        const LOOP_MAX_MS  = 180000; // 3 minutos para lotes grandes
         const maxPerZone   = Math.ceil(drawCount / numZones) + 1;
 
         // Anti-consecutivo: true se num criaria seq de 3+
@@ -775,9 +775,9 @@ class SmartBetsEngine {
             if (usedKeys.has(key)) continue;
 
             // Verificar overlap
-            if (games.length > 0 && attempts < maxAttempts * 0.85) {
+            if (games.length > 0 && attempts < maxAttempts * 0.75) {
                 let tooSimilar = false;
-                const checkFrom = Math.max(0, games.length - 80);
+                const checkFrom = Math.max(0, games.length - 50); // reduzido para performance
                 for (let g = checkFrom; g < games.length; g++) {
                     const existSet = new Set(games[g]);
                     if (ticket.filter(n => existSet.has(n)).length > maxOverlap) { tooSimilar = true; break; }
@@ -1058,9 +1058,9 @@ class SmartBetsEngine {
 
         let attempts = 0;
         // LIMITE SEGURO: max 300 tentativas por jogo (era 2000x — trava browser com 1000 jogos)
-        const maxAttempts = Math.min(numGames * 300, 150000);
+        const maxAttempts = Math.min(numGames * 500, 5000000);
         const tStart = Date.now();
-        const MAX_TIME_MS = 18000; // abortar após 18s para não travar o browser
+        const MAX_TIME_MS = 180000; // 3 minutos para lotes grandes
 
         while (games.length < numGames && attempts < maxAttempts && (Date.now() - tStart) < MAX_TIME_MS) {
             attempts++;

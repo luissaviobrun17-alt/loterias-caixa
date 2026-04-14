@@ -600,10 +600,10 @@ const QuantumCalibration = {
 
         const maxUsePerNum = Math.max(3, Math.ceil(numGames * 0.30));
         let attempts = 0;
-        // LIMITE SEGURO: max 100 tentativas por jogo + timeout de 15s
-        const maxAttempts = Math.min(numGames * 100, 80000);
+        // LIMITE EXPANDIDO: suporta 10.000+ jogos
+        const maxAttempts = Math.min(numGames * 500, 5000000);
         const tStart = Date.now();
-        const MAX_MS  = 15000;
+        const MAX_MS  = 180000; // 3 minutos
 
         while (games.length < numGames && attempts < maxAttempts && (Date.now() - tStart) < MAX_MS) {
             attempts++;
