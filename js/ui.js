@@ -685,13 +685,13 @@ class UI {
     // ╚══════════════════════════════════════════════════════════════╝
     _getCaixaLotteryConfig() {
         return {
-            megasena:   { name: 'Mega-Sena',   url: 'megasena' },
+            megasena:   { name: 'Mega-Sena',   url: 'mega-sena' },
             lotofacil:  { name: 'Lotofácil',    url: 'lotofacil' },
             quina:      { name: 'Quina',        url: 'quina' },
             lotomania:  { name: 'Lotomania',    url: 'lotomania' },
-            duplasena:  { name: 'Dupla Sena',   url: 'duplasena' },
+            duplasena:  { name: 'Dupla Sena',   url: 'dupla-sena' },
             timemania:  { name: 'Timemania',    url: 'timemania' },
-            diadesorte: { name: 'Dia de Sorte', url: 'diadesorte' }
+            diadesorte: { name: 'Dia de Sorte', url: 'dia-de-sorte' }
         };
     }
 
