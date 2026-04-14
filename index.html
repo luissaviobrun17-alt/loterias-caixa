@@ -1000,24 +1000,34 @@
                 </div>
             </div>
 
-            <!-- Core Data & Engines -->
-            <script src="js/engines/games.js?v=3"></script>
-            <script src="js/data/history_db.js?v=4"></script>
-            <script src="js/stats.js?v=4"></script>
-            <script src="js/engines/calibration_quantum.js?v=1"></script>
-            <script src="js/engines/combinations.js?v=5"></script>
-            <script src="js/engines/quantum.js?v=4"></script>
-            <script src="js/engines/quantum_god_mode.js?v=5"></script>
-            <script src="js/engines/nova_era_engine.js?v=3"></script>
-            <script src="js/engines/smart_bets.js?v=7"></script>
-            <script src="js/engines/backtesting.js?v=3"></script>
-            <script src="js/engines/analysis_engine.js?v=3"></script>
-            <script src="js/engines/lotofacil_group_engine.js?v=2"></script>
-            <script src="js/engines/universal_group_engine.js?v=2"></script>
-            <script src="js/engines/decision_engine.js?v=2"></script>
-            <script src="js/engines/lotofacil_dual_strategy.js?v=2"></script>
-            <script src="js/ui.js?v=21"></script>
-            <script src="js/main.js?v=6"></script>
+            <!-- Core Data & Engines — Anti-cache dinâmico -->
+            <script>
+            (function(){
+                var t = Date.now();
+                var scripts = [
+                    'js/engines/games.js',
+                    'js/data/history_db.js',
+                    'js/stats.js',
+                    'js/engines/calibration_quantum.js',
+                    'js/engines/combinations.js',
+                    'js/engines/quantum.js',
+                    'js/engines/quantum_god_mode.js',
+                    'js/engines/nova_era_engine.js',
+                    'js/engines/smart_bets.js',
+                    'js/engines/backtesting.js',
+                    'js/engines/analysis_engine.js',
+                    'js/engines/lotofacil_group_engine.js',
+                    'js/engines/universal_group_engine.js',
+                    'js/engines/decision_engine.js',
+                    'js/engines/lotofacil_dual_strategy.js',
+                    'js/ui.js',
+                    'js/main.js'
+                ];
+                scripts.forEach(function(src){
+                    document.write('<scr'+'ipt src="'+src+'?t='+t+'"><\/scr'+'ipt>');
+                });
+            })();
+            </script>
 
     <!-- SISTEMA DE LICENÇA -->
     <script src="js/license.js"></script>
