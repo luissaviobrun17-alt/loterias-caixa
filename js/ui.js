@@ -626,79 +626,8 @@ class UI {
                         feedback.textContent = `🧠 ${result.games.length} jogos inteligentes gerados com sucesso!`;
                         this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
 
-                        // ── APOSTAR NA CAIXA — EXTENSÃO CHROME ──
-                        this._lastGeneratedGames = result.games;
-                        this._lastGameKey = this.currentGameKey;
-                        
-                        const onlineLotteries = {
-                            lotofacil: { name: 'Lotofácil', url: 'lotofacil' },
-                            megasena: { name: 'Mega-Sena', url: 'megasena' },
-                            quina: { name: 'Quina', url: 'quina' },
-                            lotomania: { name: 'Lotomania', url: 'lotomania' },
-                            duplasena: { name: 'Dupla Sena', url: 'duplasena' },
-                            timemania: { name: 'Timemania', url: 'timemania' },
-                            diadesorte: { name: 'Dia de Sorte', url: 'diadesorte' }
-                        };
-
-                        const lotteryConfig = onlineLotteries[this.currentGameKey];
-                        if (lotteryConfig && result.games.length > 0) {
-                            var oldPanel = document.getElementById('caixa-panel');
-                            if (oldPanel) oldPanel.remove();
-                            var _self = this;
-                            var _cfg = lotteryConfig;
-                            var _cp = document.createElement('div');
-                            _cp.id = 'caixa-panel';
-                            _cp.style.cssText = 'margin:16px 0;text-align:center;';
-                            var _btn = document.createElement('button');
-                            _btn.id = 'btn-aposte-online';
-                            _btn.style.cssText = 'width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:18px 28px;border-radius:14px;font-size:1.1rem;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(0,102,204,0.4);';
-                            _btn.textContent = '\u{1F3E6} APOSTE ONLINE \u{2014} ' + result.games.length + ' jogos de ' + lotteryConfig.name;
-                            var _st = document.createElement('div');
-                            _st.id = 'caixa-status';
-                            _st.style.cssText = 'display:none;margin-top:12px;padding:14px;background:linear-gradient(145deg,rgba(34,197,94,0.15),rgba(0,60,120,0.1));border:1px solid #22C55E50;border-radius:12px;';
-                            _cp.appendChild(_btn);
-                            _cp.appendChild(_st);
-                            this.gamesContainer.parentNode.insertBefore(_cp, this.gamesContainer);
-                            _btn.addEventListener('click', async function() {
-                                var currentGames = _self._lastGeneratedGames;
-                                var currentKey = _self._lastGameKey;
-                                var cfg = onlineLotteries[currentKey] || _cfg;
-                                var freshUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfg.url;
-                                var freshScript = _self._generateCaixaScript_LEGACY(cfg, currentGames);
-                                
-                                // COPIAR PRIMEIRO, ABRIR DEPOIS (resolve o bug do clipboard)
-                                try {
-                                    await navigator.clipboard.writeText(freshScript);
-                                    console.log('[B2B] ✅ ' + currentGames.length + ' jogos copiados com sucesso!');
-                                } catch(e) {
-                                    // Fallback: usar textarea escondido
-                                    var ta = document.createElement('textarea');
-                                    ta.value = freshScript;
-                                    ta.style.cssText = 'position:fixed;left:-9999px;';
-                                    document.body.appendChild(ta);
-                                    ta.select();
-                                    document.execCommand('copy');
-                                    document.body.removeChild(ta);
-                                    console.log('[B2B] ✅ ' + currentGames.length + ' jogos copiados (fallback)');
-                                }
-                                
-                                // Extensão Chrome
-                                document.dispatchEvent(new CustomEvent('b2b-aposte-online', {
-                                    detail: { games: currentGames, config: cfg }
-                                }));
-                                
-                                // AGORA SIM, abrir site da Caixa
-                                setTimeout(function() {
-                                    if (!window._b2bExtensionOpened) window.open(freshUrl, '_blank');
-                                }, 300);
-                                
-                                _st.style.display = 'block';
-                                _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1.1rem;margin-bottom:8px;">\u2705 ' + currentGames.length + ' jogos copiados!</div>' +
-                                    '<div style="color:#E2E8F0;font-size:0.88rem;">Site da Caixa abrindo... cole com Ctrl+V no Console (F12).</div>';
-                                _btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-                                _btn.textContent = '\u2705 ' + currentGames.length + ' JOGOS COPIADOS — Cole no Console (F12)';
-                            });
-                        }
+                        // ── APOSTAR NA CAIXA — PAINEL UNIVERSAL ──
+                        this._insertCaixaPanel(result.games, this.currentGameKey);
 
                         // ── BACKTESTING AUTOMÁTICO V3 ──
                         try {
@@ -748,6 +677,118 @@ class UI {
     _generateCaixaScript_LEGACY(config, games) {
         const gamesJSON = JSON.stringify(games);
         return 'console.clear();console.log("%c B2B Loterias - Apostando...","background:#0066CC;color:white;font-size:18px;padding:8px 16px;border-radius:8px");(async function(){var JOGOS=' + gamesJSON + ';var delay=ms=>new Promise(r=>setTimeout(r,ms));function clicarNumero(num){var id="n"+String(num).padStart(2,"0");var el=document.querySelector("#"+id)||document.querySelector("a#"+id);if(el){el.click();return true}var allNums=document.querySelectorAll(".number,.dezena,.num,[class*=number]");for(var btn of allNums){if(btn.textContent.trim()===String(num).padStart(2,"0")||btn.textContent.trim()===String(num)){btn.click();return true}}console.warn("Numero "+num+" nao encontrado");return false}function colocarNoCarrinho(){var btn=document.querySelector("#colocarnocarrinho")||document.querySelector("[id*=carrinho]");if(btn){btn.click();return true}var allBtns=document.querySelectorAll("button");for(var b of allBtns){if(b.textContent.toLowerCase().includes("carrinho")){b.click();return true}}return false}function limparVolante(){var btn=document.querySelector("#limparvolante")||document.querySelector("[id*=limpar]");if(btn){btn.click();return}var allBtns=document.querySelectorAll("button");for(var b of allBtns){if(b.textContent.toLowerCase().includes("limpar")){b.click();return}}}for(var i=0;i<JOGOS.length;i++){var jogo=JOGOS[i];console.log("%c Jogo "+(i+1)+"/"+JOGOS.length+" ","background:#22C55E;color:white;font-size:14px;padding:4px 12px;border-radius:4px");if(i>0){limparVolante();await delay(500)}for(var num of jogo){clicarNumero(num);await delay(150)}await delay(800);colocarNoCarrinho();if(i<JOGOS.length-1){await delay(3000)}}console.log("%c PRONTO! "+JOGOS.length+" jogos no carrinho! ","background:#F59E0B;color:black;font-size:18px;padding:8px 16px;border-radius:8px");alert("Pronto! "+JOGOS.length+" jogos de ' + config.name + ' no carrinho! Finalize o pagamento.")})()';
+    }
+
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║  PAINEL APOSTE ONLINE — UNIVERSAL (TODAS AS LOTERIAS)       ║
+    // ║  Insere botão de aposta automática após qualquer geração    ║
+    // ╚══════════════════════════════════════════════════════════════╝
+    _getCaixaLotteryConfig() {
+        return {
+            megasena:   { name: 'Mega-Sena',   url: 'megasena' },
+            lotofacil:  { name: 'Lotofácil',    url: 'lotofacil' },
+            quina:      { name: 'Quina',        url: 'quina' },
+            lotomania:  { name: 'Lotomania',    url: 'lotomania' },
+            duplasena:  { name: 'Dupla Sena',   url: 'duplasena' },
+            timemania:  { name: 'Timemania',    url: 'timemania' },
+            diadesorte: { name: 'Dia de Sorte', url: 'diadesorte' }
+        };
+    }
+
+    _insertCaixaPanel(games, gameKey) {
+        if (!games || games.length === 0) return;
+
+        // Salvar referência dos jogos mais recentes
+        this._lastGeneratedGames = games;
+        this._lastGameKey = gameKey;
+
+        const allConfigs = this._getCaixaLotteryConfig();
+        const lotteryConfig = allConfigs[gameKey];
+        if (!lotteryConfig) return;
+
+        // Remover painel anterior
+        var oldPanel = document.getElementById('caixa-panel');
+        if (oldPanel) oldPanel.remove();
+
+        var _self = this;
+        var _cp = document.createElement('div');
+        _cp.id = 'caixa-panel';
+        _cp.style.cssText = 'margin:16px 0;text-align:center;';
+
+        // Botão principal
+        var _btn = document.createElement('button');
+        _btn.id = 'btn-aposte-online';
+        _btn.style.cssText = 'width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:18px 28px;border-radius:14px;font-size:1.1rem;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(0,102,204,0.4);transition:all 0.3s ease;letter-spacing:0.3px;';
+        _btn.textContent = '\u{1F3E6} APOSTE ONLINE \u{2014} ' + games.length + ' jogos de ' + lotteryConfig.name;
+        _btn.onmouseenter = function() { this.style.transform = 'translateY(-2px)'; this.style.boxShadow = '0 8px 28px rgba(0,102,204,0.5)'; };
+        _btn.onmouseleave = function() { this.style.transform = 'translateY(0)'; this.style.boxShadow = '0 6px 20px rgba(0,102,204,0.4)'; };
+
+        // Painel de status
+        var _st = document.createElement('div');
+        _st.id = 'caixa-status';
+        _st.style.cssText = 'display:none;margin-top:12px;padding:14px;background:linear-gradient(145deg,rgba(34,197,94,0.15),rgba(0,60,120,0.1));border:1px solid #22C55E50;border-radius:12px;';
+
+        // Instruções
+        var _info = document.createElement('div');
+        _info.style.cssText = 'margin-top:8px;font-size:0.72rem;color:#94A3B8;line-height:1.5;';
+        _info.innerHTML = '💡 <strong style="color:#60A5FA;">Como funciona:</strong> O script é copiado automaticamente. No site da Caixa, pressione <kbd style="background:#1E293B;padding:2px 6px;border-radius:4px;border:1px solid #475569;color:#E2E8F0;font-size:0.7rem;">F12</kbd> → aba <strong>Console</strong> → cole com <kbd style="background:#1E293B;padding:2px 6px;border-radius:4px;border:1px solid #475569;color:#E2E8F0;font-size:0.7rem;">Ctrl+V</kbd> → pressione <kbd style="background:#1E293B;padding:2px 6px;border-radius:4px;border:1px solid #475569;color:#E2E8F0;font-size:0.7rem;">Enter</kbd>';
+
+        _cp.appendChild(_btn);
+        _cp.appendChild(_st);
+        _cp.appendChild(_info);
+
+        // Inserir antes do container de jogos
+        if (this.gamesContainer && this.gamesContainer.parentNode) {
+            this.gamesContainer.parentNode.insertBefore(_cp, this.gamesContainer);
+        }
+
+        // Handler do botão
+        _btn.addEventListener('click', async function() {
+            var currentGames = _self._lastGeneratedGames;
+            var currentKey = _self._lastGameKey;
+            var cfg = allConfigs[currentKey] || lotteryConfig;
+            var freshUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfg.url;
+            var freshScript = _self._generateCaixaScript_LEGACY(cfg, currentGames);
+
+            // COPIAR PRIMEIRO, ABRIR DEPOIS
+            try {
+                await navigator.clipboard.writeText(freshScript);
+                console.log('[B2B] ✅ ' + currentGames.length + ' jogos de ' + cfg.name + ' copiados com sucesso!');
+            } catch(e) {
+                // Fallback: textarea escondido
+                var ta = document.createElement('textarea');
+                ta.value = freshScript;
+                ta.style.cssText = 'position:fixed;left:-9999px;';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                console.log('[B2B] ✅ ' + currentGames.length + ' jogos copiados (fallback)');
+            }
+
+            // Extensão Chrome (se instalada)
+            document.dispatchEvent(new CustomEvent('b2b-aposte-online', {
+                detail: { games: currentGames, config: cfg }
+            }));
+
+            // Abrir site da Caixa na loteria correta
+            setTimeout(function() {
+                if (!window._b2bExtensionOpened) window.open(freshUrl, '_blank');
+            }, 300);
+
+            // Atualizar status visual
+            _st.style.display = 'block';
+            _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1.1rem;margin-bottom:8px;">\u2705 ' + currentGames.length + ' jogos de ' + cfg.name + ' copiados!</div>' +
+                '<div style="color:#E2E8F0;font-size:0.88rem;">Site da Caixa abrindo em <strong>' + cfg.name + '</strong>... cole com <strong>Ctrl+V</strong> no Console (F12).</div>';
+            _btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+            _btn.textContent = '\u2705 ' + currentGames.length + ' JOGOS DE ' + cfg.name.toUpperCase() + ' COPIADOS — Cole no Console (F12)';
+
+            // Permitir clicar novamente após 3 segundos
+            setTimeout(function() {
+                _btn.style.background = 'linear-gradient(135deg,#0066CC,#003D80)';
+                _btn.textContent = '\u{1F3E6} APOSTE ONLINE \u{2014} ' + currentGames.length + ' jogos de ' + cfg.name;
+            }, 5000);
+        });
     }
 
     // Mantido como fallback — não usado diretamente
@@ -1065,6 +1106,8 @@ class UI {
             if (oldFeedback) oldFeedback.remove();
             const oldAnalysis = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
             if (oldAnalysis) oldAnalysis.remove();
+            const oldCaixaBtn = document.getElementById('caixa-panel');
+            if (oldCaixaBtn) oldCaixaBtn.remove();
 
             // Painel de análise inteligente
             if (result.smartAnalysis) {
@@ -1167,6 +1210,9 @@ class UI {
                 analysisDiv.innerHTML = html;
                 this.gamesContainer.parentNode.insertBefore(analysisDiv.firstElementChild, this.gamesContainer);
             }
+
+            // ── BOTÃO APOSTE ONLINE — TODAS AS LOTERIAS ──
+            this._insertCaixaPanel(result.games, this.currentGameKey);
 
             // Feedback
             const feedback = document.createElement('div');
@@ -2481,22 +2527,48 @@ class UI {
     }
 
     async openCaixa() {
-        // Auto-copy games if they exist
-        const cards = document.querySelectorAll('.game-card');
-        if (cards.length > 0) {
-            const success = await this.copyGames(); // Wait for copy
-            if (success) {
-                alert('Jogos copiados com sucesso!\n\nAgora no site da Caixa:\n1. Escolha o jogo.\n2. Se houver opção de colar/importar, use Ctrl+V.\n3. Caso contrário, use a lista copiada como referência visual.');
+        const allConfigs = this._getCaixaLotteryConfig();
+        const cfg = allConfigs[this.currentGameKey];
+        const caixaUrl = cfg
+            ? 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfg.url
+            : 'https://www.loteriasonline.caixa.gov.br/';
+
+        // Se existem jogos gerados, copiar script e abrir com automação
+        const games = this._lastGeneratedGames || this.currentGeneratedGames || [];
+        if (games.length > 0 && cfg) {
+            const freshScript = this._generateCaixaScript_LEGACY(cfg, games);
+
+            // Copiar script para clipboard
+            try {
+                await navigator.clipboard.writeText(freshScript);
+                console.log('[B2B] ✅ ' + games.length + ' jogos de ' + cfg.name + ' copiados!');
+            } catch(e) {
+                var ta = document.createElement('textarea');
+                ta.value = freshScript;
+                ta.style.cssText = 'position:fixed;left:-9999px;';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
             }
+
+            // Extensão Chrome
+            document.dispatchEvent(new CustomEvent('b2b-aposte-online', {
+                detail: { games: games, config: cfg }
+            }));
+
+            alert('✅ ' + games.length + ' jogos de ' + cfg.name + ' copiados!\n\n' +
+                'O site da Caixa abrirá em ' + cfg.name + '.\n' +
+                'No site: pressione F12 → Console → Ctrl+V → Enter\n\n' +
+                'Os jogos serão preenchidos automaticamente!');
         } else {
-            // Just warn but still open? Or stop? User might just want to go to site.
-            // Let's warn but proceed or let them decide? 
-            // Previous behavior was alert and open.
-            alert('Atenção: Nenhum jogo foi gerado para copiar. O site abrirá mesmo assim.');
+            alert('Atenção: Nenhum jogo foi gerado para copiar.\nO site da Caixa abrirá em ' + (cfg ? cfg.name : 'Loterias Online') + '.');
         }
 
-        // Open the official Loterias Online Caixa website in a new tab
-        window.open('https://www.loteriasonline.caixa.gov.br/', '_blank');
+        // Abrir site da Caixa na loteria correta
+        setTimeout(() => {
+            window.open(caixaUrl, '_blank');
+        }, 200);
     }
 
     getSelectedNumbers() {
