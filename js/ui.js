@@ -1104,6 +1104,17 @@ class UI {
             this.renderGames(result, this.currentGameKey);
             if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
 
+            // Aviso se gerou menos jogos do que solicitado
+            const qtdSolicitada = parseInt(this.gamesQuantityInput.value);
+            if (result.games.length < qtdSolicitada) {
+                const game = GAMES[this.currentGameKey];
+                const minNums = game ? game.drawSize : '?';
+                alert('⚠️ Você solicitou ' + qtdSolicitada + ' jogos mas só foi possível gerar ' + result.games.length + '.\n\n' +
+                    '💡 Motivo: Com ' + this.selectedNumbers.size + ' números selecionados, existem poucas combinações possíveis.\n\n' +
+                    '✅ Solução: Selecione MAIS números (pelo menos ' + (parseInt(minNums) + 3) + '+) para gerar mais jogos.\n' +
+                    'Ou use "Gerar com IA" que seleciona automaticamente os melhores números.');
+            }
+
             // Limpar feedback/análise anterior
             const oldFeedback = this.gamesContainer.parentNode.querySelector('.generation-feedback');
             if (oldFeedback) oldFeedback.remove();
