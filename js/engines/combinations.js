@@ -665,6 +665,40 @@ class CombinationEngine {
             pool = pool.concat(supplement);
         }
 
+        // ══ AUTO-EXPANSÃO INTELIGENTE ══
+        // Se C(pool, minBet) < quantidade solicitada, expandir pool automaticamente
+        // usando números mais frequentes do histórico
+        const possibleCombinations = this.nCr(pool.length, game.minBet);
+        if (possibleCombinations < quantity && pool.length < universe.length) {
+            const history = (typeof StatsService !== 'undefined' && StatsService.historyStore[gameType]) 
+                ? StatsService.historyStore[gameType] 
+                : (typeof REAL_HISTORY_DB !== 'undefined' ? REAL_HISTORY_DB[gameType] || [] : []);
+            
+            // Calcular frequência de todos os números do universo
+            const freqMap = {};
+            history.forEach(draw => {
+                (draw.numbers || []).forEach(n => { freqMap[n] = (freqMap[n] || 0) + 1; });
+            });
+
+            // Números disponíveis para adicionar (não estão no pool), ordenados por frequência
+            const candidates = universe
+                .filter(n => !pool.includes(n))
+                .sort((a, b) => (freqMap[b] || 0) - (freqMap[a] || 0));
+
+            // Adicionar números até ter combinações suficientes (ou esgotar candidatos)
+            let expandCount = 0;
+            while (this.nCr(pool.length, game.minBet) < quantity * 1.5 && candidates.length > 0) {
+                pool.push(candidates.shift());
+                expandCount++;
+                // Limite de segurança — não expandir além de 80% do universo
+                if (pool.length >= universe.length * 0.8) break;
+            }
+
+            if (expandCount > 0) {
+                console.log(`[CombEngine v4] 🔄 Auto-expansão: +${expandCount} números (pool: ${pool.length - expandCount} → ${pool.length}) para gerar ${quantity} jogos`);
+            }
+        }
+
         // Validar fixos
         const validFixed = fixedNumbers.filter(f => pool.includes(f));
         const needed = game.minBet - validFixed.length;
