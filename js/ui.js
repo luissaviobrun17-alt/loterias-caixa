@@ -772,6 +772,7 @@ class UI {
             }));
 
             // Abrir site da Caixa na loteria correta
+            alert('✅ Script v5.0 copiado! ' + currentGames.length + ' jogos de ' + cfg.name + '\n\n⚠️ IMPORTANTE:\n1. Na Caixa, pressione F12\n2. Clique na aba "Console" (NÃO "Sources"!)\n3. DELETE qualquer "Script snippet" antigo\n4. Clique no Console e pressione Ctrl+V\n5. Pressione Enter\n\nO script novo mostrará "[B2B v5.0]" no final.');
             setTimeout(function() {
                 if (!window._b2bExtensionOpened) window.open(freshUrl, '_blank');
             }, 300);

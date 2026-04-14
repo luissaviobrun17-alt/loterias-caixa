@@ -1,48 +1,36 @@
-============================================
-  B2B LOTERIAS - INSTRUÇÕES DE INSTALAÇÃO
-============================================
+════════════════════════════════════════════════════════════
+   PROBLEMA ENCONTRADO!
+   
+   Você tem um "Script snippet #1" ANTIGO salvo
+   no Chrome DevTools (aba Sources).
+   
+   Esse snippet NUNCA se atualiza sozinho.
+   Toda vez que você aperta Ctrl+Enter, ele
+   roda o código VELHO.
+   
+════════════════════════════════════════════════════════════
 
-COMO INSTALAR NO SEU COMPUTADOR:
----------------------------------
-1. Extraia todo o conteúdo do ZIP para uma pasta
-   (ex: C:\B2B_Loterias ou Desktop)
+SOLUÇÃO (30 segundos):
 
-2. Execute o arquivo "INSTALAR.bat"
-   (clique com botão direito > "Executar como administrador" se necessário)
+1. No Chrome, abra o DevTools (F12)
 
-3. Um atalho "B2B Loterias" será criado na sua Área de Trabalho
+2. Clique com BOTÃO DIREITO em "Script snippet #1"
+   (está no painel esquerdo da aba Sources)
 
-4. Pronto! Dê duplo clique no atalho para abrir o programa
+3. Clique "Remove" para DELETAR o snippet antigo
 
+4. Volte para o B2B (aba B2B Loterias)
 
-COMO USAR O PROGRAMA:
-----------------------
-1. Escolha a loteria desejada no menu superior
-2. Selecione seus números no grid ou use "Aleatório"
-3. Defina a garantia de fechamento e quantidade de jogos
-4. Clique em "Gerar Jogos"
-5. Use os botões Salvar/Copiar/Imprimir para seus jogos
+5. Gere jogos → Clique "APOSTE ONLINE" (botão azul)
 
+6. Na Caixa, clique na aba "Console" (NÃO Sources!)
 
-COMO COMPARTILHAR ONLINE (NETLIFY):
-------------------------------------
-1. Acesse https://app.netlify.com
-2. Crie uma conta gratuita (ou faça login)
-3. Na página inicial, arraste a pasta do programa
-   para a área "Drag and drop your site output folder here"
-4. Aguarde o upload (alguns segundos)
-5. O Netlify gerará um link como: https://seu-site.netlify.app
-6. Compartilhe este link com seus clientes!
+7. Clique na linha de entrada e pressione Ctrl+V
 
-DICA: Você pode personalizar o nome do link em:
-  Site Settings > Domain Management > Custom domains
+8. Pressione Enter
 
+PRONTO! O script novo (v5.0) vai funcionar com
+fechamento automático de modais.
 
-SUPORTE:
----------
-Em caso de dúvidas, consulte o botão "Aprenda a Navegar"
-dentro do programa.
-
-============================================
-  B2B Loterias © 2026 - Todos os direitos reservados
-============================================
+O alert vai mostrar: "[B2B v5.0] XX/YY jogos..."
+(se mostrar "Pronto!" = ainda é o snippet antigo)
