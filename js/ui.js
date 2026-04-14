@@ -2328,6 +2328,16 @@ class UI {
 
         const gameName = GAMES[gameKey] ? GAMES[gameKey].name : 'Loteria';
 
+        // OTIMIZACAO BULK: Para >100 jogos, usar innerHTML em bloco
+        if (result.games.length > 100) {
+            const chunks = [];
+            result.games.forEach((gameNumbers, index) => {
+                const nums = gameNumbers.map(n => `<div class="ball">${n.toString().padStart(2, '0')}</div>`).join('');
+                chunks.push(`<div class="game-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div class="game-index-badge" style="position:static">Jogo ${index + 1}</div></div><div class="game-numbers-wrapper">${nums}</div></div>`);
+            });
+            this.gamesContainer.innerHTML = chunks.join('');
+            return;
+        }
         result.games.forEach((gameNumbers, index) => {
             const card = document.createElement('div');
             card.className = 'game-card';
