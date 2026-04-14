@@ -10,9 +10,30 @@
     <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data: blob:; connect-src *; font-src * data:;">
     <title>B2B Loterias</title>
 
-    <!-- PWA -->
-    <link rel="manifest" href="manifest.json">
+    <!-- PWA DESABILITADO — Causa cache stale -->
+    <!-- <link rel="manifest" href="manifest.json"> -->
     <meta name="theme-color" content="#10B981">
+    <script>
+    // Desregistrar Service Worker para eliminar cache stale
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            registrations.forEach(function(registration) {
+                registration.unregister().then(function() {
+                    console.log('[B2B] Service Worker desregistrado!');
+                });
+            });
+        });
+        // Limpar todos os caches do SW
+        if (caches) {
+            caches.keys().then(function(names) {
+                names.forEach(function(name) {
+                    caches.delete(name);
+                    console.log('[B2B] Cache removido: ' + name);
+                });
+            });
+        }
+    }
+    </script>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="B2B Loterias">
@@ -27,7 +48,8 @@
     <link rel="stylesheet" href="styles/lottery.css?v=5">
     <link rel="stylesheet" href="styles/responsive.css?v=3">
 
-    <!-- Service Worker Registration -->
+    <!-- Service Worker DESABILITADO — Causava cache stale dos scripts -->
+    <!--
     <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
@@ -37,6 +59,7 @@
         });
     }
     </script>
+    -->
 </head>
 
 <body>
@@ -1000,34 +1023,24 @@
                 </div>
             </div>
 
-            <!-- Core Data & Engines — Anti-cache dinâmico -->
-            <script>
-            (function(){
-                var t = Date.now();
-                var scripts = [
-                    'js/engines/games.js',
-                    'js/data/history_db.js',
-                    'js/stats.js',
-                    'js/engines/calibration_quantum.js',
-                    'js/engines/combinations.js',
-                    'js/engines/quantum.js',
-                    'js/engines/quantum_god_mode.js',
-                    'js/engines/nova_era_engine.js',
-                    'js/engines/smart_bets.js',
-                    'js/engines/backtesting.js',
-                    'js/engines/analysis_engine.js',
-                    'js/engines/lotofacil_group_engine.js',
-                    'js/engines/universal_group_engine.js',
-                    'js/engines/decision_engine.js',
-                    'js/engines/lotofacil_dual_strategy.js',
-                    'js/ui.js',
-                    'js/main.js'
-                ];
-                scripts.forEach(function(src){
-                    document.write('<scr'+'ipt src="'+src+'?t='+t+'"><\/scr'+'ipt>');
-                });
-            })();
-            </script>
+            <!-- Core Data & Engines -->
+            <script src="js/engines/games.js?v=50"></script>
+            <script src="js/data/history_db.js?v=50"></script>
+            <script src="js/stats.js?v=50"></script>
+            <script src="js/engines/calibration_quantum.js?v=50"></script>
+            <script src="js/engines/combinations.js?v=50"></script>
+            <script src="js/engines/quantum.js?v=50"></script>
+            <script src="js/engines/quantum_god_mode.js?v=50"></script>
+            <script src="js/engines/nova_era_engine.js?v=50"></script>
+            <script src="js/engines/smart_bets.js?v=50"></script>
+            <script src="js/engines/backtesting.js?v=50"></script>
+            <script src="js/engines/analysis_engine.js?v=50"></script>
+            <script src="js/engines/lotofacil_group_engine.js?v=50"></script>
+            <script src="js/engines/universal_group_engine.js?v=50"></script>
+            <script src="js/engines/decision_engine.js?v=50"></script>
+            <script src="js/engines/lotofacil_dual_strategy.js?v=50"></script>
+            <script src="js/ui.js?v=50"></script>
+            <script src="js/main.js?v=50"></script>
 
     <!-- SISTEMA DE LICENÇA -->
     <script src="js/license.js"></script>
