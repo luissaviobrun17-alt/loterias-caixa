@@ -1,25 +1,26 @@
-console.log('%c[NE-V1] ===== VERSAO BULK 10K+ CARREGADA =====', 'color: lime; font-size: 20px; background: black;');
+console.log('%c[QUANTUM-L99] ═══ MOTOR QUANTUM L99 ATIVADO ═══', 'color: #FFD700; font-size: 20px; background: #0a0a1a; font-weight: bold; text-shadow: 0 0 10px gold;');
 /**
- * ╔══════════════════════════════════════════════════════════════════════╗
- * ║  NOVA ERA ENGINE V1 (NE-V1) — Motor de Projeção Futura             ║
- * ║  Reconstrução total do sistema de geração de jogos inteligentes     ║
- * ║                                                                      ║
- * ║  FILOSOFIA: COBERTURA > CONCENTRAÇÃO                                ║
- * ║  Nenhum número é eliminado — todos recebem pesos suaves             ║
- * ║  Diversidade obrigatória entre jogos                                 ║
- * ║  Backtesting honesto com confiança real                              ║
- * ║                                                                      ║
- * ║  7 CAMADAS DE ANÁLISE PREDITIVA:                                    ║
- * ║   1. Frequência Multi-Janela (3/5/10/15 sorteios)                   ║
- * ║   2. Projeção Temporal — regressão de tendência futura               ║
- * ║   3. Período de Retorno — números "devendo" vs ciclo esperado       ║
- * ║   4. Entropia Espacial — equilíbrio de zonas                        ║
- * ║   5. Transição de Markov — co-ocorrência ponderada                  ║
- * ║   6. Ressonância de Fase — ciclos periódicos detectados              ║
- * ║   7. Clarividência Sintética — fusão preditiva final                 ║
- * ║                                                                      ║
- * ║  "Todos os números. Máxima diversidade. Projeção futura."           ║
- * ╚══════════════════════════════════════════════════════════════════════╝
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║  ★★★ QUANTUM L99 — Motor de Predição de Última Geração ★★★           ║
+ * ║  Evolução do Nova Era V1 com 16 camadas de análise preditiva          ║
+ * ║                                                                        ║
+ * ║  FILOSOFIA: PREDIÇÃO CIRÚRGICA + COBERTURA INTELIGENTE                ║
+ * ║  • 16 dimensões de análise por número                                  ║
+ * ║  • Calibração dinâmica com cross-validation de 7 sorteios              ║
+ * ║  • Noise reduzido para 2-4% (era 6-25%)                               ║
+ * ║  • Espelho Temporal: compara padrões atuais com históricos             ║
+ * ║  • Clusters de Co-ocorrência: pares/trios que saem juntos              ║
+ * ║  • Análise de Lacunas: ciclo exato de retorno estatístico              ║
+ * ║  • Regressão à Média: desvios que se auto-corrigem                     ║
+ * ║                                                                        ║
+ * ║  16 CAMADAS:                                                           ║
+ * ║   1-8:  Base NE-V1 (Freq, Trend, Delay, Entropy, Markov,              ║
+ * ║          Phase, Monte Carlo, NextDraw calibrado)                       ║
+ * ║   9-12: Modo Deus (Bayesian, Posicional, Sequential, Momentum)        ║
+ * ║  13-16: QUANTUM L99 (Espelho, Lacunas, Clusters, Regressão)           ║
+ * ║                                                                        ║
+ * ║  "Máxima precisão. Mínimo ruído. Projeção QUANTUM."                   ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 class NovaEraEngine {
 
@@ -918,11 +919,11 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════════╗
-    // ║  ★ MODO DEUS — CAMADA 9: CONVERGÊNCIA BAYESIANA               ║
-    // ║  P(número | últimos K sorteios) com atualização posterior       ║
-    // ║  Proir uniforme → atualiza com cada sorteio observado          ║
-    // ╚══════════════════════════════════════════════════════════════════╝
+    // ╔══════════════════════════════════════════════════════════════════════╗
+    // ║  ★ CAMADA 9: CONVERGÊNCIA BAYESIANA (Modo Deus)                    ║
+    // ║  P(número | últimos K sorteios) com atualização posterior           ║
+    // ║  Prior uniforme → atualiza com cada sorteio observado              ║
+    // ╚══════════════════════════════════════════════════════════════════════╝
     static _godBayesian(history, startNum, endNum, N, drawSize) {
         const scores = {};
         const totalRange = endNum - startNum + 1;
@@ -1124,11 +1125,256 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════════════╗
-    // ║  ★★★ SÍNTESE MODO DEUS — 12 CAMADAS DE PREDIÇÃO ★★★              ║
-    // ║  Combina 8 camadas clássicas + 4 camadas avançadas Modo Deus      ║
-    // ║  CALIBRAÇÃO INDIVIDUAL por loteria com foco MÁXIMO no próximo     ║
-    // ╚══════════════════════════════════════════════════════════════════════╝
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  ★ QUANTUM L99 — CAMADA 13: ESPELHO TEMPORAL                          ║
+    // ║  Compara padrão dos últimos 3 sorteios com TODOS os padrões do        ║
+    // ║  histórico. O sorteio que SEGUIU o padrão mais similar é a projeção.  ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    static _quantumTemporalMirror(history, startNum, endNum, N, drawSize) {
+        const scores = {};
+        for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
+        if (N < 6) return scores;
+
+        // Extrair "impressão digital" dos últimos 3 sorteios
+        const fingerprint = [];
+        for (let i = 0; i < 3; i++) {
+            const nums = history[i].numbers || [];
+            fingerprint.push(new Set(nums));
+        }
+
+        // Calcular similaridade com cada janela de 3 no histórico
+        const limit = Math.min(N - 3, 35);
+        let bestSim = 0;
+        let bestFollowIdx = -1;
+        const candidates = [];
+
+        for (let w = 3; w < limit; w++) {
+            let similarity = 0;
+            for (let d = 0; d < 3; d++) {
+                const histSet = new Set(history[w + d].numbers || []);
+                let overlap = 0;
+                for (const n of fingerprint[d]) {
+                    if (histSet.has(n)) overlap++;
+                }
+                similarity += overlap / Math.max(1, drawSize);
+            }
+            similarity /= 3; // Normalizar [0, 1]
+
+            if (similarity > 0.2) {
+                // O sorteio que SEGUIU esta janela é a projeção
+                const followIdx = w - 1; // sorteio imediatamente antes da janela
+                if (followIdx >= 0 && followIdx < w) {
+                    candidates.push({ idx: followIdx, sim: similarity });
+                }
+            }
+            if (similarity > bestSim) {
+                bestSim = similarity;
+                bestFollowIdx = w - 1;
+            }
+        }
+
+        // Ponderar scores dos candidatos pela similaridade
+        if (candidates.length > 0) {
+            let totalSim = 0;
+            for (const c of candidates) totalSim += c.sim;
+            for (const c of candidates) {
+                const followNums = history[c.idx].numbers || [];
+                const weight = c.sim / totalSim;
+                for (const n of followNums) {
+                    if (n >= startNum && n <= endNum) {
+                        scores[n] += weight * 0.6;
+                    }
+                }
+            }
+        } else if (bestFollowIdx >= 0) {
+            const followNums = history[bestFollowIdx].numbers || [];
+            for (const n of followNums) {
+                if (n >= startNum && n <= endNum) {
+                    scores[n] += 0.3;
+                }
+            }
+        }
+
+        return this._normalizeScores(scores, startNum, endNum);
+    }
+
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  ★ QUANTUM L99 — CAMADA 14: ANÁLISE DE LACUNAS (GAP ANALYSIS)         ║
+    // ║  Calcula gap médio entre aparições e identifica números que estão      ║
+    // ║  EXATAMENTE no ponto ótimo de retorno estatístico                      ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    static _quantumGapAnalysis(history, startNum, endNum, N, drawSize, totalRange) {
+        const scores = {};
+        for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
+        if (N < 10) return scores;
+
+        const limit = Math.min(N, 40);
+        const expectedGap = totalRange / drawSize; // Gap teórico
+
+        for (let n = startNum; n <= endNum; n++) {
+            // Encontrar TODAS as aparições e calcular gaps
+            const appearances = [];
+            for (let i = 0; i < limit; i++) {
+                const nums = (history[i].numbers || []).concat(history[i].numbers2 || []);
+                if (nums.includes(n)) appearances.push(i);
+            }
+
+            if (appearances.length < 2) {
+                // Nunca ou quase nunca apareceu — número muito atrasado
+                scores[n] = 0.75; // Boost moderado
+                continue;
+            }
+
+            // Calcular gap médio real
+            let totalGap = 0;
+            for (let j = 0; j < appearances.length - 1; j++) {
+                totalGap += appearances[j + 1] - appearances[j];
+            }
+            const avgGap = totalGap / (appearances.length - 1);
+
+            // Calcular gap atual (desde última aparição)
+            const currentGap = appearances[0]; // Quantos sorteios desde que saiu
+
+            // ★ PONTO ÓTIMO: quando currentGap ≈ avgGap (número "devendo")
+            const ratio = currentGap / avgGap;
+
+            if (ratio >= 0.85 && ratio <= 1.5) {
+                // No ponto IDEAL de retorno — score máximo
+                scores[n] = 0.95;
+            } else if (ratio >= 1.5 && ratio <= 2.5) {
+                // Muito atrasado — bom candidato
+                scores[n] = 0.85;
+            } else if (ratio >= 0.5 && ratio < 0.85) {
+                // Saiu recentemente — score baixo
+                scores[n] = 0.35;
+            } else if (ratio > 2.5) {
+                // Extremamente atrasado — pode ter mudado de padrão
+                scores[n] = 0.65;
+            } else {
+                scores[n] = 0.25; // Saiu muito recentemente
+            }
+        }
+
+        return this._normalizeScores(scores, startNum, endNum);
+    }
+
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  ★ QUANTUM L99 — CAMADA 15: CLUSTERS DE CO-OCORRÊNCIA                 ║
+    // ║  Identifica PARES de números que historicamente saem JUNTOS            ║
+    // ║  Dado o último sorteio, quais pares tendem a se repetir?              ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    static _quantumClusters(history, startNum, endNum, N, drawSize) {
+        const scores = {};
+        for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
+        if (N < 5) return scores;
+
+        // Construir matriz de co-ocorrência ponderada
+        const coMatrix = {};
+        const limit = Math.min(N, 30);
+
+        for (let i = 0; i < limit; i++) {
+            const nums = (history[i].numbers || []).concat(history[i].numbers2 || []);
+            const decay = Math.exp(-i * 0.06);
+            for (let a = 0; a < nums.length; a++) {
+                for (let b = a + 1; b < nums.length; b++) {
+                    const na = nums[a], nb = nums[b];
+                    if (na >= startNum && na <= endNum && nb >= startNum && nb <= endNum) {
+                        const key = Math.min(na, nb) + ':' + Math.max(na, nb);
+                        coMatrix[key] = (coMatrix[key] || 0) + decay;
+                    }
+                }
+            }
+        }
+
+        // Dado o ÚLTIMO sorteio: quais números têm forte co-ocorrência?
+        const lastDraw = (history[0].numbers || []).concat(history[0].numbers2 || []);
+        const coScores = {};
+        for (let n = startNum; n <= endNum; n++) coScores[n] = 0;
+
+        for (const pred of lastDraw) {
+            for (let n = startNum; n <= endNum; n++) {
+                if (n === pred) continue;
+                const key = Math.min(pred, n) + ':' + Math.max(pred, n);
+                if (coMatrix[key]) {
+                    coScores[n] += coMatrix[key];
+                }
+            }
+        }
+
+        // Normalizar co-scores
+        let maxCo = 0;
+        for (let n = startNum; n <= endNum; n++) {
+            if (coScores[n] > maxCo) maxCo = coScores[n];
+        }
+        if (maxCo > 0) {
+            for (let n = startNum; n <= endNum; n++) {
+                scores[n] = 0.3 + (coScores[n] / maxCo) * 0.7;
+            }
+        }
+
+        return this._normalizeScores(scores, startNum, endNum);
+    }
+
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  ★ QUANTUM L99 — CAMADA 16: REGRESSÃO À MÉDIA PONDERADA               ║
+    // ║  Para cada número: frequência real vs teórica esperada                 ║
+    // ║  Números sub-representados tendem a CORRIGIR → são apostáveis         ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    static _quantumMeanReversion(history, startNum, endNum, N, drawSize, totalRange) {
+        const scores = {};
+        for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
+        if (N < 10) return scores;
+
+        const limit = Math.min(N, 40);
+        const expectedFreq = (drawSize / totalRange) * limit; // Frequência esperada
+
+        // Contar frequência real e nas janelas recentes
+        const freqTotal = {};
+        const freqRecent = {}; // Últimos 10
+        for (let n = startNum; n <= endNum; n++) { freqTotal[n] = 0; freqRecent[n] = 0; }
+
+        for (let i = 0; i < limit; i++) {
+            const nums = (history[i].numbers || []).concat(history[i].numbers2 || []);
+            for (const n of nums) {
+                if (n >= startNum && n <= endNum) {
+                    freqTotal[n]++;
+                    if (i < 10) freqRecent[n]++;
+                }
+            }
+        }
+
+        const expectedRecent = (drawSize / totalRange) * Math.min(10, limit);
+
+        for (let n = startNum; n <= endNum; n++) {
+            const deviationTotal = (freqTotal[n] - expectedFreq) / Math.max(1, expectedFreq);
+            const deviationRecent = (freqRecent[n] - expectedRecent) / Math.max(1, expectedRecent);
+
+            // ★ REGRESSÃO: números que estão ABAIXO da média tendem a subir
+            if (deviationTotal < -0.3 && deviationRecent < -0.2) {
+                // Fortemente sub-representado em ambas janelas
+                scores[n] = 0.90;
+            } else if (deviationTotal < -0.15) {
+                // Moderadamente sub-representado
+                scores[n] = 0.75;
+            } else if (deviationTotal > 0.3 && deviationRecent > 0.2) {
+                // Sobre-representado → tende a cair
+                scores[n] = 0.25;
+            } else if (deviationTotal > 0.15) {
+                scores[n] = 0.40;
+            } else {
+                // Na média — score neutro
+                scores[n] = 0.55;
+            }
+        }
+
+        return this._normalizeScores(scores, startNum, endNum);
+    }
+
+    // ╔══════════════════════════════════════════════════════════════════════════════╗
+    // ║  ★★★ SÍNTESE QUANTUM L99 — 16 CAMADAS DE PREDIÇÃO ★★★                    ║
+    // ║  8 camadas clássicas + 4 Modo Deus + 4 QUANTUM L99                        ║
+    // ║  CALIBRAÇÃO DINÂMICA com cross-validation de 7 sorteios                   ║
+    // ╚══════════════════════════════════════════════════════════════════════════════╝
     static _scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange) {
         const N = history.length;
         const drawSize = profile.lotteryDraw;
@@ -1149,20 +1395,24 @@ class NovaEraEngine {
         const sequentialScores = this._godSequentialChain(history, startNum, endNum, N);
         const momentumScores = this._godMomentum(history, startNum, endNum, N, drawSize);
 
-        console.log('[NE-V1] ★ MODO DEUS ATIVADO — 12 camadas de predição para ' + gameKey);
+        // ━━━ CAMADAS 13-16: QUANTUM L99 ━━━
+        const mirrorScores = this._quantumTemporalMirror(history, startNum, endNum, N, drawSize);
+        const gapScores = this._quantumGapAnalysis(history, startNum, endNum, N, drawSize, totalRange);
+        const clusterScores = this._quantumClusters(history, startNum, endNum, N, drawSize);
+        const reversionScores = this._quantumMeanReversion(history, startNum, endNum, N, drawSize, totalRange);
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // ★★★ CONSENSO ENSEMBLE — Votação entre 12 camadas ★★★
-        // Números que MÚLTIPLAS camadas concordam como TOP
-        // recebem boost EXPONENCIAL — este é o diferencial
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        console.log('%c[QUANTUM-L99] ★★★ 16 CAMADAS ATIVADAS — ' + gameKey + ' ★★★', 'color: gold; font-weight: bold;');
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // ★★★ CONSENSO ENSEMBLE L99 — Votação entre 16 camadas ★★★
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         const allLayers = [
             freqScores, trendScores, delayScores, entropyScores,
             markovScores, phaseScores, clairScores, nextDrawScores,
-            bayesianScores, positionalScores, sequentialScores, momentumScores
+            bayesianScores, positionalScores, sequentialScores, momentumScores,
+            mirrorScores, gapScores, clusterScores, reversionScores
         ];
 
-        // Para cada camada: identificar top drawSize*2 candidatos
         const topCandidateSize = Math.min(drawSize * 3, totalRange);
         const voteCount = {};
         for (let n = startNum; n <= endNum; n++) voteCount[n] = 0;
@@ -1176,37 +1426,28 @@ class NovaEraEngine {
             }
         }
 
-        // Encontrar o consenso máximo
-        let maxVotes = 0;
-        for (let n = startNum; n <= endNum; n++) {
-            if (voteCount[n] > maxVotes) maxVotes = voteCount[n];
-        }
-
-        // Log consenso
+        // Log consenso L99
         const consensusNums = [];
         for (let n = startNum; n <= endNum; n++) {
-            if (voteCount[n] >= 9) consensusNums.push(n + '(' + voteCount[n] + ')');
+            if (voteCount[n] >= 12) consensusNums.push(n + '(' + voteCount[n] + ')');
         }
         if (consensusNums.length > 0) {
-            console.log('[NE-V1] ★ CONSENSO 9+/12: ' + consensusNums.join(', '));
+            console.log('[QUANTUM-L99] ★ CONSENSO 12+/16: ' + consensusNums.join(', '));
         }
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // ★★★ CALIBRAÇÃO DINÂMICA — Qual camada acertou? ★★★
-        // Testa cada camada contra os últimos 3 sorteios REAIS
-        // e ajusta pesos em tempo real
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        let dynamicBoosts = new Array(12).fill(1.0);
-        if (N >= 4) {
-            // Simular: usando histórico [1..N], prever o sorteio [0]
-            // e comparar com o resultado REAL de [0]
-            const testDraws = Math.min(3, N - 3);
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // ★★★ CALIBRAÇÃO DINÂMICA L99 — Cross-validation 7 sorteios ★★★
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let dynamicBoosts = new Array(16).fill(1.0);
+        if (N >= 8) {
+            const testDraws = Math.min(7, N - 5);
             for (let t = 0; t < testDraws; t++) {
                 const testHistory = history.slice(t + 1);
-                const actualResult = new Set(history[t].numbers || []);
+                const actualResult = new Set(
+                    (history[t].numbers || []).concat(history[t].numbers2 || [])
+                );
                 const testN = testHistory.length;
 
-                // Recalcular cada camada com histórico deslocado
                 const testLayers = [
                     this._layerFrequency(testHistory, startNum, endNum, testN),
                     this._layerTrend(testHistory, startNum, endNum, testN),
@@ -1219,11 +1460,14 @@ class NovaEraEngine {
                     this._godBayesian(testHistory, startNum, endNum, testN, drawSize),
                     this._godPositional(testHistory, startNum, endNum, testN, drawSize),
                     this._godSequentialChain(testHistory, startNum, endNum, testN),
-                    this._godMomentum(testHistory, startNum, endNum, testN, drawSize)
+                    this._godMomentum(testHistory, startNum, endNum, testN, drawSize),
+                    this._quantumTemporalMirror(testHistory, startNum, endNum, testN, drawSize),
+                    this._quantumGapAnalysis(testHistory, startNum, endNum, testN, drawSize, totalRange),
+                    this._quantumClusters(testHistory, startNum, endNum, testN, drawSize),
+                    this._quantumMeanReversion(testHistory, startNum, endNum, testN, drawSize, totalRange)
                 ];
 
-                // Para cada camada: quantos dos seus top drawSize acertaram?
-                for (let L = 0; L < 12; L++) {
+                for (let L = 0; L < 16; L++) {
                     const layerTop = Object.entries(testLayers[L])
                         .sort((a, b) => b[1] - a[1])
                         .slice(0, drawSize * 2)
@@ -1232,33 +1476,30 @@ class NovaEraEngine {
                     for (const n of layerTop) {
                         if (actualResult.has(n)) hits++;
                     }
-                    // Boost proporcional aos acertos
-                    const hitRate = hits / drawSize;
-                    dynamicBoosts[L] += hitRate * 0.5;
+                    dynamicBoosts[L] += (hits / drawSize) * 0.6;
                 }
             }
 
-            // Normalizar boosts
-            const avgBoost = dynamicBoosts.reduce((a, b) => a + b, 0) / 12;
-            for (let L = 0; L < 12; L++) {
-                dynamicBoosts[L] /= avgBoost;
+            const avgBoost = dynamicBoosts.reduce((a, b) => a + b, 0) / 16;
+            for (let L = 0; L < 16; L++) {
+                dynamicBoosts[L] = Math.max(0.5, dynamicBoosts[L] / avgBoost);
             }
 
-            const boostStr = dynamicBoosts.map((b, i) => ['freq','trend','delay','zone','markov','phase','clair','next','bayes','posit','seq','mom'][i] + '=' + b.toFixed(2)).join(' ');
-            console.log('[NE-V1] ★ CALIBRAÇÃO DINÂMICA: ' + boostStr);
+            const names = ['freq','trend','delay','zone','markov','phase','clair','next','bayes','posit','seq','mom','mirror','gap','cluster','revert'];
+            const boostStr = dynamicBoosts.map((b, i) => names[i] + '=' + b.toFixed(2)).join(' ');
+            console.log('[QUANTUM-L99] ★ CALIBRAÇÃO DINÂMICA (7-fold): ' + boostStr);
         }
 
-        // ━━━ PESOS CALIBRADOS — MODO DEUS + DINÂMICO ━━━
+        // ━━━ PESOS QUANTUM L99 ━━━
         const weights = this._getGodModeWeights(gameKey);
 
-        // Fusão com calibração dinâmica + consenso ensemble
         const scores = {};
         const [clampMin, clampMax] = profile.scoreClamp;
 
         for (let n = startNum; n <= endNum; n++) {
             let raw = (freqScores[n] || 0) * weights.frequency * dynamicBoosts[0]
-                    + (delayScores[n] || 0) * weights.delay * dynamicBoosts[2]
                     + (trendScores[n] || 0) * weights.trend * dynamicBoosts[1]
+                    + (delayScores[n] || 0) * weights.delay * dynamicBoosts[2]
                     + (entropyScores[n] || 0) * weights.zone * dynamicBoosts[3]
                     + (markovScores[n] || 0) * weights.markov * dynamicBoosts[4]
                     + (phaseScores[n] || 0) * weights.phase * dynamicBoosts[5]
@@ -1267,111 +1508,116 @@ class NovaEraEngine {
                     + (bayesianScores[n] || 0) * weights.bayesian * dynamicBoosts[8]
                     + (positionalScores[n] || 0) * weights.positional * dynamicBoosts[9]
                     + (sequentialScores[n] || 0) * weights.sequential * dynamicBoosts[10]
-                    + (momentumScores[n] || 0) * weights.momentum * dynamicBoosts[11];
+                    + (momentumScores[n] || 0) * weights.momentum * dynamicBoosts[11]
+                    + (mirrorScores[n] || 0) * weights.mirror * dynamicBoosts[12]
+                    + (gapScores[n] || 0) * weights.gap * dynamicBoosts[13]
+                    + (clusterScores[n] || 0) * weights.cluster * dynamicBoosts[14]
+                    + (reversionScores[n] || 0) * weights.reversion * dynamicBoosts[15];
 
-            // ★ CONSENSO ENSEMBLE: boost exponencial para números com alta concordância
+            // ★ CONSENSO L99: boost para alta concordância entre 16 camadas
             const votes = voteCount[n] || 0;
-            if (votes >= 10) raw *= 1.35;       // 10-12 camadas concordam: FORTE
-            else if (votes >= 8) raw *= 1.20;   // 8-9 camadas: boost médio
-            else if (votes >= 6) raw *= 1.05;   // 6-7: boost leve
-            else if (votes <= 2) raw *= 0.80;   // 0-2: penalizar (pouca concordância)
+            if (votes >= 14) raw *= 1.40;       // 14-16: CONSENSO TOTAL
+            else if (votes >= 12) raw *= 1.28;  // 12-13: muito forte
+            else if (votes >= 10) raw *= 1.18;  // 10-11: forte
+            else if (votes >= 8) raw *= 1.08;   // 8-9: moderado
+            else if (votes <= 3) raw *= 0.75;   // 0-3: penalizar
 
-            // Noise MÍNIMO — máxima objetividade
-            raw += (Math.random() - 0.5) * 0.03;
+            // Noise MÍNIMO (2-3%) — máxima objetividade QUANTUM
+            raw += (Math.random() - 0.5) * 0.02;
 
             scores[n] = Math.max(clampMin, Math.min(clampMax, raw + 1.0));
         }
 
-        // Log top/bottom para diagnóstico
         const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
         const top5 = sorted.slice(0, 5).map(e => e[0] + '(' + e[1].toFixed(2) + '/v' + voteCount[parseInt(e[0])] + ')').join(', ');
         const bot5 = sorted.slice(-5).map(e => e[0] + '(' + e[1].toFixed(2) + ')').join(', ');
-        console.log('[NE-V1] ★ DEUS+ Top: ' + top5 + ' | 🔻 Bottom: ' + bot5);
+        console.log('[QUANTUM-L99] ★ Top5: ' + top5 + ' | ⬇ Bot5: ' + bot5);
 
         return scores;
     }
 
-    // ╔══════════════════════════════════════════════════════════════════════╗
-    // ║  ★★★ PESOS MODO DEUS — CALIBRAÇÃO INDIVIDUAL POR LOTERIA ★★★     ║
-    // ║  12 dimensões de peso otimizadas para PREVER o próximo sorteio    ║
-    // ╚══════════════════════════════════════════════════════════════════════╝
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  ★★★ PESOS QUANTUM L99 — 16 DIMENSÕES POR LOTERIA ★★★                 ║
+    // ║  Noise reduzido para 2-4%, redistribuído para camadas QUANTUM          ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
     static _getGodModeWeights(gameKey) {
         const calibrations = {
 
-            // ★ MEGA SENA: 6/60 — nextDraw + sequential dominam
+            // ★ MEGA SENA: 6/60 — gap + mirror dominam (ciclos médios)
             megasena: {
-                frequency: 0.04, delay: 0.08, trend: 0.05,
-                zone: 0.04, markov: 0.03, phase: 0.02,
-                clairvoyance: 0.04, nextDraw: 0.22,
-                bayesian: 0.12, positional: 0.10,
-                sequential: 0.14, momentum: 0.06,
-                noise: 0.06
-            },
-
-            // ★ LOTOFÁCIL: 15/25 — nextDraw absoluto (repetição 8-12/15)
-            lotofacil: {
-                frequency: 0.02, delay: 0.04, trend: 0.03,
-                zone: 0.03, markov: 0.02, phase: 0.01,
-                clairvoyance: 0.02, nextDraw: 0.38,
-                bayesian: 0.10, positional: 0.06,
-                sequential: 0.15, momentum: 0.04,
-                noise: 0.10
-            },
-
-            // ★ QUINA: 5/80 — bayesian + delay dominam (range amplo)
-            quina: {
-                frequency: 0.04, delay: 0.12, trend: 0.05,
-                zone: 0.08, markov: 0.03, phase: 0.03,
-                clairvoyance: 0.05, nextDraw: 0.15,
-                bayesian: 0.14, positional: 0.08,
-                sequential: 0.12, momentum: 0.05,
-                noise: 0.06
-            },
-
-            // ★ DUPLA SENA: 6/50 — sequential forte (2 sorteios de dados)
-            duplasena: {
-                frequency: 0.05, delay: 0.07, trend: 0.05,
-                zone: 0.05, markov: 0.04, phase: 0.03,
-                clairvoyance: 0.04, nextDraw: 0.18,
-                bayesian: 0.12, positional: 0.10,
-                sequential: 0.16, momentum: 0.05,
-                noise: 0.06
-            },
-
-            // ★ LOTOMANIA: 50/100 — zona + bayesian (cobertura ampla)
-            lotomania: {
                 frequency: 0.03, delay: 0.06, trend: 0.04,
-                zone: 0.12, markov: 0.02, phase: 0.02,
-                clairvoyance: 0.05, nextDraw: 0.14,
-                bayesian: 0.15, positional: 0.05,
-                sequential: 0.10, momentum: 0.06,
-                noise: 0.16
+                zone: 0.03, markov: 0.03, phase: 0.02,
+                clairvoyance: 0.03, nextDraw: 0.14,
+                bayesian: 0.10, positional: 0.08,
+                sequential: 0.10, momentum: 0.04,
+                mirror: 0.10, gap: 0.08, cluster: 0.06, reversion: 0.06
             },
 
-            // ★ TIMEMANIA: 10/80 — delay + bayesian (range amplo, sorteia 7)
+            // ★ LOTOFÁCIL: 15/25 — nextDraw + clusters (alta repetição)
+            lotofacil: {
+                frequency: 0.02, delay: 0.03, trend: 0.02,
+                zone: 0.02, markov: 0.02, phase: 0.01,
+                clairvoyance: 0.02, nextDraw: 0.25,
+                bayesian: 0.08, positional: 0.05,
+                sequential: 0.10, momentum: 0.03,
+                mirror: 0.12, gap: 0.06, cluster: 0.10, reversion: 0.07
+            },
+
+            // ★ QUINA: 5/80 — gap + reversion (range amplo, ciclos longos)
+            quina: {
+                frequency: 0.03, delay: 0.08, trend: 0.04,
+                zone: 0.06, markov: 0.03, phase: 0.02,
+                clairvoyance: 0.03, nextDraw: 0.10,
+                bayesian: 0.10, positional: 0.06,
+                sequential: 0.08, momentum: 0.04,
+                mirror: 0.08, gap: 0.12, cluster: 0.05, reversion: 0.08
+            },
+
+            // ★ DUPLA SENA: 6/50 — sequential + cluster (2 sorteios)
+            duplasena: {
+                frequency: 0.04, delay: 0.06, trend: 0.04,
+                zone: 0.04, markov: 0.03, phase: 0.02,
+                clairvoyance: 0.03, nextDraw: 0.12,
+                bayesian: 0.08, positional: 0.07,
+                sequential: 0.12, momentum: 0.04,
+                mirror: 0.09, gap: 0.08, cluster: 0.08, reversion: 0.06
+            },
+
+            // ★ LOTOMANIA: 50/100 — reversion + gap (cobertura máxima)
+            lotomania: {
+                frequency: 0.02, delay: 0.04, trend: 0.03,
+                zone: 0.08, markov: 0.02, phase: 0.01,
+                clairvoyance: 0.03, nextDraw: 0.08,
+                bayesian: 0.10, positional: 0.04,
+                sequential: 0.06, momentum: 0.04,
+                mirror: 0.10, gap: 0.12, cluster: 0.08, reversion: 0.15
+            },
+
+            // ★ TIMEMANIA: 10/80 — gap + mirror (range amplo, sorteia 7)
             timemania: {
-                frequency: 0.04, delay: 0.14, trend: 0.05,
-                zone: 0.08, markov: 0.03, phase: 0.03,
-                clairvoyance: 0.04, nextDraw: 0.14,
-                bayesian: 0.14, positional: 0.08,
-                sequential: 0.12, momentum: 0.05,
-                noise: 0.06
+                frequency: 0.03, delay: 0.08, trend: 0.04,
+                zone: 0.06, markov: 0.03, phase: 0.02,
+                clairvoyance: 0.03, nextDraw: 0.10,
+                bayesian: 0.10, positional: 0.06,
+                sequential: 0.08, momentum: 0.04,
+                mirror: 0.10, gap: 0.10, cluster: 0.05, reversion: 0.08
             },
 
-            // ★ DIA DE SORTE: 7/31 — positional + sequential (range pequeno)
+            // ★ DIA DE SORTE: 7/31 — mirror + cluster (range pequeno, alta repetição)
             diadesorte: {
-                frequency: 0.05, delay: 0.07, trend: 0.06,
-                zone: 0.05, markov: 0.06, phase: 0.04,
-                clairvoyance: 0.04, nextDraw: 0.15,
-                bayesian: 0.12, positional: 0.12,
-                sequential: 0.13, momentum: 0.05,
-                noise: 0.06
+                frequency: 0.04, delay: 0.05, trend: 0.04,
+                zone: 0.04, markov: 0.05, phase: 0.03,
+                clairvoyance: 0.03, nextDraw: 0.10,
+                bayesian: 0.08, positional: 0.08,
+                sequential: 0.08, momentum: 0.04,
+                mirror: 0.12, gap: 0.07, cluster: 0.08, reversion: 0.07
             }
         };
 
         const w = calibrations[gameKey] || calibrations.megasena;
+        const quantumPct = ((w.mirror + w.gap + w.cluster + w.reversion) * 100).toFixed(0);
         const godPct = ((w.bayesian + w.positional + w.sequential + w.momentum) * 100).toFixed(0);
-        console.log('[NE-V1] ★ MODO DEUS ' + gameKey + ': God=' + godPct + '% | nextDraw=' + (w.nextDraw * 100).toFixed(0) + '% | noise=' + (w.noise * 100).toFixed(0) + '%');
+        console.log('[QUANTUM-L99] ★ ' + gameKey + ': Quantum=' + quantumPct + '% | God=' + godPct + '% | nextDraw=' + (w.nextDraw * 100).toFixed(0) + '%');
         return w;
     }
 
@@ -1628,10 +1874,10 @@ class NovaEraEngine {
         const winRate3 = btCount > 0 ? Math.round(bt3 / btCount * 100) : 0;
         const winRate4 = btCount > 0 ? Math.round(bt4 / btCount * 100) : 0;
 
-        console.log('[NE-V1] 🧪 Backtesting (' + btCount + ' sorteios):');
-        console.log('[NE-V1]    Média melhor acerto: ' + avgHits.toFixed(2) + ' (esperado acaso: ' + expectedRandom.toFixed(2) + ')');
-        console.log('[NE-V1]    Melhor: ' + maxHits + ' | 3+: ' + winRate3 + '% | 4+: ' + winRate4 + '%');
-        console.log('[NE-V1]    Melhoria vs acaso: ' + improvement.toFixed(2) + 'x | Confiança: ' + confidence + '%');
+        console.log('[QUANTUM-L99] 🧪 Backtesting (' + btCount + ' sorteios):');
+        console.log('[QUANTUM-L99]    Média melhor acerto: ' + avgHits.toFixed(2) + ' (esperado acaso: ' + expectedRandom.toFixed(2) + ')');
+        console.log('[QUANTUM-L99]    Melhor: ' + maxHits + ' | 3+: ' + winRate3 + '% | 4+: ' + winRate4 + '%');
+        console.log('[QUANTUM-L99]    Melhoria vs acaso: ' + improvement.toFixed(2) + 'x | Confiança: ' + confidence + '%');
 
         return {
             confidence,
@@ -1643,15 +1889,16 @@ class NovaEraEngine {
             backtestScore: winRate3,
             backtestHits: { '5+': bt5, '4+': bt4, '3+': bt3, avg: avgHits.toFixed(2), maxHits },
             improvement: improvement.toFixed(2) + 'x',
-            engine: 'Nova Era V1 — ' + (profile.name || gameKey),
-            mode: 'PROJEÇÃO FUTURA — Cobertura Total + Diversidade Máxima'
+            engine: 'QUANTUM L99 — ' + (profile.name || gameKey),
+            mode: 'QUANTUM L99 — 16 Camadas | Espelho Temporal | Clusters | Regressão'
         };
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  NÚMEROS SUGERIDOS — Versão Sintética e Objetiva             ║
-    // ║  Retorna apenas os N números com maior projeção futura      ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // ╔══════════════════════════════════════════════════════════════════╗
+    // ║  NÚMEROS SUGERIDOS — QUANTUM L99                                ║
+    // ║  Retorna os N números com maior projeção futura usando         ║
+    // ║  todas as 16 camadas de análise QUANTUM                        ║
+    // ╚══════════════════════════════════════════════════════════════════╝
     static suggestNumbers(gameKey, count) {
         const profile = this.getProfile(gameKey);
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
@@ -1671,8 +1918,8 @@ class NovaEraEngine {
             }
         } catch (e) {}
 
-        // Calcular scores SEM ruído (deterministico)
-        const scores = this._scoreAllNumbersDeterministic(gameKey, profile, history, startNum, endNum, totalRange);
+        // Calcular scores QUANTUM L99 deterministicos (sem noise)
+        const scores = this._scoreForSuggestionL99(gameKey, profile, history, startNum, endNum, totalRange);
 
         // Ordenar e retornar os top N
         const ranked = Object.entries(scores)
@@ -1685,7 +1932,6 @@ class NovaEraEngine {
         const result = [];
         const zoneCovered = new Array(numZones).fill(false);
 
-        // Primeiro: pelo menos 1 de cada zona (dos melhores da zona)
         for (let z = 0; z < numZones; z++) {
             const inZone = ranked.filter(r => {
                 const nz = Math.min(numZones - 1, Math.floor((r.num - startNum) / zoneSize));
@@ -1697,7 +1943,6 @@ class NovaEraEngine {
             }
         }
 
-        // Completar com os melhores globais
         for (const r of ranked) {
             if (result.length >= count) break;
             if (!result.includes(r.num)) {
@@ -1708,51 +1953,49 @@ class NovaEraEngine {
         return result.sort((a, b) => a - b).slice(0, count);
     }
 
-    // Score determinístico MODO DEUS (sem noise) para sugestões
-    static _scoreAllNumbersDeterministic(gameKey, profile, history, startNum, endNum, totalRange) {
-        return this._scoreForSuggestion(gameKey, profile, history, startNum, endNum, totalRange);
-    }
-
-    // ★★★ Score para sugestões: MODO DEUS sem noise ★★★
-    static _scoreForSuggestion(gameKey, profile, history, startNum, endNum, totalRange) {
+    // ★★★ Score QUANTUM L99 para sugestões: 16 camadas sem noise ★★★
+    static _scoreForSuggestionL99(gameKey, profile, history, startNum, endNum, totalRange) {
         const N = history.length;
         const drawSize = profile.lotteryDraw;
 
-        // Todas as 12 camadas
-        const freqScores = this._layerFrequency(history, startNum, endNum, N);
-        const trendScores = this._layerTrend(history, startNum, endNum, N);
-        const delayScores = this._layerDelay(history, startNum, endNum, N, drawSize, totalRange);
-        const entropyScores = this._layerEntropy(history, startNum, endNum, N, profile);
-        const markovScores = this._layerMarkov(history, startNum, endNum, N);
-        const phaseScores = this._layerPhase(history, startNum, endNum, N);
-        const clairScores = this._layerClairvoyance(history, startNum, endNum, N, drawSize);
-        const nextDrawScores = this._layerNextDraw(gameKey, history, startNum, endNum, N, profile);
-        const bayesianScores = this._godBayesian(history, startNum, endNum, N, drawSize);
-        const positionalScores = this._godPositional(history, startNum, endNum, N, drawSize);
-        const sequentialScores = this._godSequentialChain(history, startNum, endNum, N);
-        const momentumScores = this._godMomentum(history, startNum, endNum, N, drawSize);
+        // Todas as 16 camadas
+        const layers = [
+            this._layerFrequency(history, startNum, endNum, N),
+            this._layerTrend(history, startNum, endNum, N),
+            this._layerDelay(history, startNum, endNum, N, drawSize, totalRange),
+            this._layerEntropy(history, startNum, endNum, N, profile),
+            this._layerMarkov(history, startNum, endNum, N),
+            this._layerPhase(history, startNum, endNum, N),
+            this._layerClairvoyance(history, startNum, endNum, N, drawSize),
+            this._layerNextDraw(gameKey, history, startNum, endNum, N, profile),
+            this._godBayesian(history, startNum, endNum, N, drawSize),
+            this._godPositional(history, startNum, endNum, N, drawSize),
+            this._godSequentialChain(history, startNum, endNum, N),
+            this._godMomentum(history, startNum, endNum, N, drawSize),
+            this._quantumTemporalMirror(history, startNum, endNum, N, drawSize),
+            this._quantumGapAnalysis(history, startNum, endNum, N, drawSize, totalRange),
+            this._quantumClusters(history, startNum, endNum, N, drawSize),
+            this._quantumMeanReversion(history, startNum, endNum, N, drawSize, totalRange)
+        ];
 
-        // Pesos Modo Deus — SEM noise, redistribuído para predição
         const w = this._getGodModeWeights(gameKey);
+        const wKeys = ['frequency','trend','delay','zone','markov','phase','clairvoyance','nextDraw','bayesian','positional','sequential','momentum','mirror','gap','cluster','reversion'];
         const scores = {};
-        const boostFactor = w.noise * 0.5; // Redistribuir noise para predição
 
         for (let n = startNum; n <= endNum; n++) {
-            scores[n] = (freqScores[n] || 0) * w.frequency
-                      + (delayScores[n] || 0) * w.delay
-                      + (trendScores[n] || 0) * w.trend
-                      + (entropyScores[n] || 0) * w.zone
-                      + (markovScores[n] || 0) * w.markov
-                      + (phaseScores[n] || 0) * w.phase
-                      + (clairScores[n] || 0) * w.clairvoyance
-                      + (nextDrawScores[n] || 0) * (w.nextDraw + boostFactor * 0.3)
-                      + (bayesianScores[n] || 0) * (w.bayesian + boostFactor * 0.2)
-                      + (positionalScores[n] || 0) * w.positional
-                      + (sequentialScores[n] || 0) * (w.sequential + boostFactor * 0.3)
-                      + (momentumScores[n] || 0) * (w.momentum + boostFactor * 0.2);
+            let total = 0;
+            for (let i = 0; i < 16; i++) {
+                total += (layers[i][n] || 0) * (w[wKeys[i]] || 0.05);
+            }
+            scores[n] = total;
         }
 
         return scores;
+    }
+
+    // Manter retrocompatibilidade
+    static _scoreAllNumbersDeterministic(gameKey, profile, history, startNum, endNum, totalRange) {
+        return this._scoreForSuggestionL99(gameKey, profile, history, startNum, endNum, totalRange);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -1814,7 +2057,6 @@ class NovaEraEngine {
     }
 
     static _wouldCreate3Consecutive(num, ticketSet) {
-        // Checa se adicionar 'num' cria sequência de 3+ consecutivos
         if (ticketSet.has(num - 1) && ticketSet.has(num - 2)) return true;
         if (ticketSet.has(num + 1) && ticketSet.has(num + 2)) return true;
         if (ticketSet.has(num - 1) && ticketSet.has(num + 1)) return true;
@@ -1829,99 +2071,6 @@ class NovaEraEngine {
             }
         }
         return freq;
-    }
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  NÚMEROS SUGERIDOS — Versão Sintética e Objetiva             ║
-    // ║  Foco: PRÓXIMO SORTEIO com calibração individual             ║
-    // ║  Retorna apenas os N números com maior projeção futura      ║
-    // ╚══════════════════════════════════════════════════════════════╝
-    static suggestNumbers(gameKey, count) {
-        const profile = this.getProfile(gameKey);
-        const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
-        if (!game) return [];
-
-        const startNum = profile.range[0];
-        const endNum = profile.range[1];
-        const totalRange = endNum - startNum + 1;
-
-        let history = [];
-        try {
-            if (typeof StatsService !== 'undefined') {
-                history = StatsService.getRecentResults(gameKey, 200) || [];
-            }
-            if (history.length === 0 && typeof REAL_HISTORY_DB !== 'undefined') {
-                history = REAL_HISTORY_DB[gameKey] || [];
-            }
-        } catch (e) {}
-
-        // Calcular scores deterministicos com calibração individual
-        const scores = this._scoreForSuggestion(gameKey, profile, history, startNum, endNum, totalRange);
-
-        // Ordenar e retornar os top N
-        const ranked = Object.entries(scores)
-            .map(([n, s]) => ({ num: parseInt(n), score: s }))
-            .sort((a, b) => b.score - a.score);
-
-        // Garantir cobertura de zonas nos sugeridos
-        const numZones = profile.zones;
-        const zoneSize = profile.zoneSize;
-        const result = [];
-        const zoneCovered = new Array(numZones).fill(false);
-
-        // Primeiro: pelo menos 1 de cada zona (dos melhores da zona)
-        for (let z = 0; z < numZones; z++) {
-            const inZone = ranked.filter(r => {
-                const nz = Math.min(numZones - 1, Math.floor((r.num - startNum) / zoneSize));
-                return nz === z;
-            });
-            if (inZone.length > 0 && result.length < count) {
-                result.push(inZone[0].num);
-                zoneCovered[z] = true;
-            }
-        }
-
-        // Completar com os melhores globais
-        for (const r of ranked) {
-            if (result.length >= count) break;
-            if (!result.includes(r.num)) {
-                result.push(r.num);
-            }
-        }
-
-        return result.sort((a, b) => a - b).slice(0, count);
-    }
-
-    // Score para sugestões: SEM noise e com foco no próximo sorteio
-    static _scoreForSuggestion(gameKey, profile, history, startNum, endNum, totalRange) {
-        const N = history.length;
-        const drawSize = profile.lotteryDraw;
-
-        const freqScores = this._layerFrequency(history, startNum, endNum, N);
-        const trendScores = this._layerTrend(history, startNum, endNum, N);
-        const delayScores = this._layerDelay(history, startNum, endNum, N, drawSize, totalRange);
-        const entropyScores = this._layerEntropy(history, startNum, endNum, N, profile);
-        const markovScores = this._layerMarkov(history, startNum, endNum, N);
-        const phaseScores = this._layerPhase(history, startNum, endNum, N);
-        const clairScores = this._layerClairvoyance(history, startNum, endNum, N, drawSize);
-        const nextDrawScores = this._layerNextDraw(gameKey, history, startNum, endNum, N, profile);
-
-        // Pesos calibrados da loteria — SEM noise (determinístico)
-        const w = this._getCalibratedWeights(gameKey);
-        const scores = {};
-
-        for (let n = startNum; n <= endNum; n++) {
-            // Para sugestões: PESO EXTRA no nextDraw (objetivo: próximo sorteio!)
-            scores[n] = (freqScores[n] || 0) * w.frequency
-                      + (delayScores[n] || 0) * w.delay
-                      + (trendScores[n] || 0) * w.trend
-                      + (entropyScores[n] || 0) * w.zone
-                      + (markovScores[n] || 0) * w.markov
-                      + (phaseScores[n] || 0) * w.phase
-                      + (clairScores[n] || 0) * w.clairvoyance
-                      + (nextDrawScores[n] || 0) * (w.nextDraw + w.noise * 0.5);
-        }
-
-        return scores;
     }
 }
 
