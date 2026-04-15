@@ -722,7 +722,24 @@
                     <div class="share-menu-item" data-share="email">
                         <span class="share-icon email">📧</span> Enviar por E-mail
                     </div>
+                    <div class="share-menu-item" data-share="sms">
+                        <span class="share-icon" style="background:linear-gradient(135deg,#10B981,#047857);">📱</span> Enviar por SMS
+                    </div>
                     <div class="share-menu-divider"></div>
+                    <div style="padding:0.4rem 0.8rem;">
+                        <div style="color:#10B981;font-size:0.7rem;font-weight:700;margin-bottom:6px;">📱 Abrir no Celular</div>
+                        <div style="display:flex;gap:6px;margin-bottom:6px;">
+                            <span style="background:rgba(16,185,129,0.1);border:1px solid #10B98130;border-radius:6px;padding:3px 8px;font-size:0.65rem;color:#34D399;">🍎 iOS</span>
+                            <span style="background:rgba(16,185,129,0.1);border:1px solid #10B98130;border-radius:6px;padding:3px 8px;font-size:0.65rem;color:#34D399;">🤖 Android</span>
+                            <span style="background:rgba(16,185,129,0.1);border:1px solid #10B98130;border-radius:6px;padding:3px 8px;font-size:0.65rem;color:#34D399;">💻 PC</span>
+                        </div>
+                        <div style="background:#0F172A;border:1px solid #334155;border-radius:6px;padding:6px 8px;font-size:0.62rem;color:#60A5FA;word-break:break-all;cursor:pointer;user-select:all;" onclick="navigator.clipboard.writeText('https://luissaviobrun17-alt.github.io/loterias-caixa/');this.style.borderColor='#22C55E';this.innerHTML='✅ Link copiado!';setTimeout(()=>{this.innerHTML='https://luissaviobrun17-alt.github.io/loterias-caixa/';this.style.borderColor='#334155'},2000)">https://luissaviobrun17-alt.github.io/loterias-caixa/</div>
+                        <div style="color:#94A3B8;font-size:0.58rem;margin-top:4px;text-align:center;">Clique no link acima para copiar • Funciona em qualquer celular</div>
+                    </div>
+                    <div class="share-menu-divider"></div>
+                    <div class="share-menu-item" data-share="qrcode">
+                        <span class="share-icon" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9);">📷</span> Gerar QR Code
+                    </div>
                     <div class="share-menu-item" data-share="copy">
                         <span class="share-icon copy-link">📋</span> Copiar Link
                     </div>
@@ -732,9 +749,9 @@
                 (function() {
                     const shareBtn = document.getElementById('btn-share-link');
                     const shareMenu = document.getElementById('share-context-menu');
-                    const shareUrl = window.location.href;
-                    const shareTitle = 'B2B Loterias - Gerador de Apostas Inteligente';
-                    const shareText = '🍀 Confira este gerador inteligente de apostas para Loterias da Caixa! Mega Sena, Lotofácil, Quina e mais. Números sugeridos por IA!';
+                    const shareUrl = 'https://luissaviobrun17-alt.github.io/loterias-caixa/';
+                    const shareTitle = 'B2B Loterias QUANTUM L99 - Motor de Predição Inteligente';
+                    const shareText = '🍀 B2B Loterias QUANTUM L99 — Motor de 16 camadas de predição para Loterias da Caixa! Mega Sena, Lotofácil, Quina, Dupla Sena, Lotomania, Timemania e Dia de Sorte. Funciona no celular! 📱';
 
                     // Clique esquerdo - abre o menu também
                     shareBtn.addEventListener('click', function(e) {
@@ -810,6 +827,29 @@
                                 case 'email':
                                     url = 'mailto:?subject=' + encodedTitle + '&body=' + encodedText + '%0A%0A' + encodedUrl;
                                     break;
+                                case 'sms':
+                                    url = 'sms:?body=' + encodedText + '%20' + encodedUrl;
+                                    break;
+                                case 'qrcode':
+                                    var qrModal = document.createElement('div');
+                                    qrModal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+                                    qrModal.innerHTML = '<div style="background:linear-gradient(145deg,#0F172A,#1E293B);border-radius:16px;border:1px solid #10B98140;padding:24px;text-align:center;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5);">' +
+                                        '<div style="color:#10B981;font-weight:800;font-size:1.1rem;margin-bottom:4px;">📱 QR Code — B2B Loterias</div>' +
+                                        '<div style="color:#94A3B8;font-size:0.75rem;margin-bottom:16px;">Escaneie com a câmera do celular (iOS / Android)</div>' +
+                                        '<div style="background:white;padding:16px;border-radius:12px;display:inline-block;margin-bottom:16px;">' +
+                                        '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodedUrl + '" alt="QR Code B2B Loterias" style="width:200px;height:200px;display:block;" />' +
+                                        '</div>' +
+                                        '<div style="display:flex;gap:6px;justify-content:center;margin-bottom:12px;">' +
+                                        '<span style="background:rgba(16,185,129,0.15);border:1px solid #10B98130;border-radius:6px;padding:4px 10px;font-size:0.7rem;color:#34D399;">🍎 iPhone</span>' +
+                                        '<span style="background:rgba(16,185,129,0.15);border:1px solid #10B98130;border-radius:6px;padding:4px 10px;font-size:0.7rem;color:#34D399;">🤖 Android</span>' +
+                                        '</div>' +
+                                        '<div style="color:#60A5FA;font-size:0.68rem;word-break:break-all;margin-bottom:12px;padding:6px;background:#0F172A;border-radius:6px;border:1px solid #334155;">' + shareUrl + '</div>' +
+                                        '<button onclick="this.parentElement.parentElement.remove()" style="background:linear-gradient(135deg,#EF4444,#DC2626);color:white;border:none;padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.85rem;">Fechar</button>' +
+                                        '</div>';
+                                    document.body.appendChild(qrModal);
+                                    qrModal.addEventListener('click', function(e) { if (e.target === qrModal) qrModal.remove(); });
+                                    shareMenu.style.display = 'none';
+                                    return;
                                 case 'copy':
                                     navigator.clipboard.writeText(shareUrl).then(function() {
                                         const original = item.innerHTML;
