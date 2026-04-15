@@ -576,14 +576,55 @@
                         <span class="sidebar-btn-arrow">›</span>
                     </a>
                     <div class="sidebar-divider"></div>
-                    <a id="btn-mobile-download" class="sidebar-modern-btn" href="B2B_Loterias_Mobile.zip" download="B2B_Loterias_Mobile.zip" style="text-decoration: none;">
+                    <div id="btn-mobile-download" class="sidebar-modern-btn" onclick="document.getElementById('mobile-links-panel').style.display = document.getElementById('mobile-links-panel').style.display === 'none' ? 'block' : 'none'" style="cursor:pointer;">
                         <div class="sidebar-btn-icon" style="background: linear-gradient(135deg, #10B981, #047857);">📱</div>
                         <div class="sidebar-btn-text">
                             <h3 class="sidebar-btn-title">Versão Mobile</h3>
-                            <p class="sidebar-btn-desc">Baixar ZIP para iOS / Android</p>
+                            <p class="sidebar-btn-desc">Jogar no celular iOS / Android</p>
                         </div>
                         <span class="sidebar-btn-arrow">›</span>
-                    </a>
+                    </div>
+                    <!-- PAINEL MOBILE EXPANDÍVEL -->
+                    <div id="mobile-links-panel" style="display:none;padding:12px;background:linear-gradient(145deg,rgba(16,185,129,0.08),rgba(15,23,42,0.95));border:1px solid #10B98130;border-radius:12px;margin-top:8px;">
+                        <div style="color:#10B981;font-weight:800;font-size:0.85rem;margin-bottom:10px;text-align:center;">📱 Jogar no Celular</div>
+                        
+                        <!-- APP STORES -->
+                        <div style="display:flex;gap:8px;margin-bottom:12px;">
+                            <a href="https://apps.apple.com/br/app/loterias-caixa/id1560707893" target="_blank" rel="noopener" style="flex:1;display:flex;align-items:center;gap:6px;padding:10px;background:linear-gradient(135deg,#334155,#1E293B);border:1px solid #47556940;border-radius:10px;text-decoration:none;transition:all 0.3s;">
+                                <span style="font-size:1.4rem;">🍎</span>
+                                <div>
+                                    <div style="color:#94A3B8;font-size:0.6rem;">Baixar na</div>
+                                    <div style="color:#E2E8F0;font-weight:700;font-size:0.78rem;">App Store</div>
+                                </div>
+                            </a>
+                            <a href="https://play.google.com/store/apps/details?id=br.com.caixa.loterias" target="_blank" rel="noopener" style="flex:1;display:flex;align-items:center;gap:6px;padding:10px;background:linear-gradient(135deg,#334155,#1E293B);border:1px solid #47556940;border-radius:10px;text-decoration:none;transition:all 0.3s;">
+                                <span style="font-size:1.4rem;">🤖</span>
+                                <div>
+                                    <div style="color:#94A3B8;font-size:0.6rem;">Disponível no</div>
+                                    <div style="color:#E2E8F0;font-weight:700;font-size:0.78rem;">Google Play</div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- LINKS DIRETOS POR LOTERIA -->
+                        <div style="color:#94A3B8;font-size:0.68rem;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">🎯 Apostar direto no celular:</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+                            <a href="https://www.loteriasonline.caixa.gov.br/silce-web/#/mega-sena" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:5px;padding:7px 10px;background:rgba(32,130,70,0.15);border:1px solid #20824620;border-radius:8px;text-decoration:none;color:#22C55E;font-size:0.72rem;font-weight:600;transition:all 0.2s;" onmouseenter="this.style.background='rgba(32,130,70,0.3)'" onmouseleave="this.style.background='rgba(32,130,70,0.15)'">🟢 Mega-Sena</a>
+                            <a href="https://www.loteriasonline.caixa.gov.br/silce-web/#/lotofacil" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:5px;padding:7px 10px;background:rgba(128,0,128,0.12);border:1px solid #80008020;border-radius:8px;text-decoration:none;color:#C084FC;font-size:0.72rem;font-weight:600;transition:all 0.2s;" onmouseenter="this.style.background='rgba(128,0,128,0.25)'" onmouseleave="this.style.background='rgba(128,0,128,0.12)'">🟣 Lotofácil</a>
+                            <a href="https://www.loteriasonline.caixa.gov.br/silce-web/#/quina" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:5px;padding:7px 10px;background:rgba(0,76,153,0.15);border:1px solid #004C9920;border-radius:8px;text-decoration:none;color:#60A5FA;font-size:0.72rem;font-weight:600;transition:all 0.2s;" onmouseenter="this.style.background='rgba(0,76,153,0.3)'" onmouseleave="this.style.background='rgba(0,76,153,0.15)'">🔵 Quina</a>
+                            <a href="https://www.loteriasonline.caixa.gov.br/silce-web/#/lotomania" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:5px;padding:7px 10px;background:rgba(255,140,0,0.12);border:1px solid #FF8C0020;border-radius:8px;text-decoration:none;color:#FB923C;font-size:0.72rem;font-weight:600;transition:all 0.2s;" onmouseenter="this.style.background='rgba(255,140,0,0.25)'" onmouseleave="this.style.background='rgba(255,140,0,0.12)'">🟠 Lotomania</a>
+                            <a href="https://www.loteriasonline.caixa.gov.br/silce-web/#/dupla-sena" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:5px;padding:7px 10px;background:rgba(220,38,38,0.12);border:1px solid #DC262620;border-radius:8px;text-decoration:none;color:#F87171;font-size:0.72rem;font-weight:600;transition:all 0.2s;" onmouseenter="this.style.background='rgba(220,38,38,0.25)'" onmouseleave="this.style.background='rgba(220,38,38,0.12)'">🔴 Dupla Sena</a>
+                            <a href="https://www.loteriasonline.caixa.gov.br/silce-web/#/timemania" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:5px;padding:7px 10px;background:rgba(234,179,8,0.12);border:1px solid #EAB30820;border-radius:8px;text-decoration:none;color:#FACC15;font-size:0.72rem;font-weight:600;transition:all 0.2s;" onmouseenter="this.style.background='rgba(234,179,8,0.25)'" onmouseleave="this.style.background='rgba(234,179,8,0.12)'">🟡 Timemania</a>
+                            <a href="https://www.loteriasonline.caixa.gov.br/silce-web/#/dia-de-sorte" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:5px;padding:7px 10px;background:rgba(16,185,129,0.12);border:1px solid #10B98120;border-radius:8px;text-decoration:none;color:#34D399;font-size:0.72rem;font-weight:600;transition:all 0.2s;grid-column:span 2;justify-content:center;" onmouseenter="this.style.background='rgba(16,185,129,0.25)'" onmouseleave="this.style.background='rgba(16,185,129,0.12)'">🍀 Dia de Sorte</a>
+                        </div>
+
+                        <!-- DOWNLOAD ZIP MOBILE -->
+                        <div style="margin-top:10px;border-top:1px solid #334155;padding-top:8px;">
+                            <a href="B2B_Loterias_Mobile.zip" download="B2B_Loterias_Mobile.zip" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:linear-gradient(135deg,#1E293B,#0F172A);border:1px solid #33415530;border-radius:8px;text-decoration:none;color:#94A3B8;font-size:0.7rem;transition:all 0.2s;" onmouseenter="this.style.borderColor='#10B98150'" onmouseleave="this.style.borderColor='#33415530'">
+                                📦 Baixar B2B Mobile (ZIP offline)
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Menu de Compartilhamento -->
