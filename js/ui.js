@@ -1185,7 +1185,7 @@ class UI {
                     const banner = document.createElement('div');
                     banner.className = 'smart-gen-analysis';
                     banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(234,179,8,0.12),rgba(15,23,42,0.95));border:1px solid #EAB30840;';
-                    const guaranteeLabels = { 6: 'SENA', 5: 'QUINA', 4: 'QUADRA', 3: 'TERNO' };
+                    const guaranteeLabels = { 20: '20 PONTOS', 19: '19 PONTOS', 18: '18 PONTOS', 17: '17 PONTOS', 15: '15 PONTOS', 14: '14 PONTOS', 13: '13 PONTOS', 7: '7 PONTOS', 6: 'SENA', 5: 'QUINA', 4: 'QUADRA', 3: 'TERNO' };
                     const guaranteeIcons = { 6: '🎯', 5: '⭐', 4: '🔥', 3: '✅' };
                     banner.innerHTML = '<div style="font-size:1.1em;font-weight:700;color:#EAB308;margin-bottom:6px;">' + (guaranteeIcons[guarantee] || '') + ' FECHAMENTO OBJETIVO — ' + (guaranteeLabels[guarantee] || guarantee) + '</div>' +
                         '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:0.85em;">' +

@@ -45,6 +45,11 @@ const GAMES = {
             { id: "12pts", label: "12 Pontos",  match: 12, prize: 12,      paid: true  },
             { id: "11pts", label: "11 Pontos",  match: 11, prize: 6,       paid: true  }
         ],
+        closingLevels: [
+            { id: "close15", label: "Fechamento 15 Pontos",  guarantee: 15, icon: "🎯" },
+            { id: "close14", label: "Fechamento 14 Pontos",  guarantee: 14, icon: "⭐" },
+            { id: "close13", label: "Fechamento 13 Pontos",  guarantee: 13, icon: "🔥" }
+        ],
         minBet: 15,
         maxBet: 25,
         maxFixed: 10,
@@ -64,6 +69,11 @@ const GAMES = {
             { id: "quadra", label: "Quadra (4 acertos)",   match: 4, prize: 7000,    paid: true  },
             { id: "terno",  label: "Terno (3 acertos)",    match: 3, prize: 3.50,    paid: true  }
         ],
+        closingLevels: [
+            { id: "close5", label: "Fechamento Quina (5)",  guarantee: 5, icon: "🎯" },
+            { id: "close4", label: "Fechamento Quadra (4)", guarantee: 4, icon: "⭐" },
+            { id: "close3", label: "Fechamento Terno (3)",  guarantee: 3, icon: "🔥" }
+        ],
         minBet: 5,
         maxBet: 80,
         statsCount: 30
@@ -82,6 +92,11 @@ const GAMES = {
             { id: "sena",   label: "Sena (6 acertos)",   match: 6, prize: 500000,  paid: true  },
             { id: "quina",  label: "Quina (5 acertos)",   match: 5, prize: 5000,    paid: true  },
             { id: "quadra", label: "Quadra (4 acertos)",  match: 4, prize: 120,     paid: true  }
+        ],
+        closingLevels: [
+            { id: "close6", label: "Fechamento Sena (6)",   guarantee: 6, icon: "🎯" },
+            { id: "close5", label: "Fechamento Quina (5)",  guarantee: 5, icon: "⭐" },
+            { id: "close4", label: "Fechamento Quadra (4)", guarantee: 4, icon: "🔥" }
         ],
         minBet: 6,
         maxBet: 50,
@@ -105,6 +120,12 @@ const GAMES = {
             { id: "15pts",  label: "15 Pontos",  match: 15, prize: 3,       paid: true  },
             { id: "0pts",   label: "0 Pontos (Mania de Milionário)", match: 0, prize: 250, paid: true }
         ],
+        closingLevels: [
+            { id: "close20", label: "Fechamento 20 Pontos",  guarantee: 20, icon: "🎯" },
+            { id: "close19", label: "Fechamento 19 Pontos",  guarantee: 19, icon: "⭐" },
+            { id: "close18", label: "Fechamento 18 Pontos",  guarantee: 18, icon: "🔥" },
+            { id: "close17", label: "Fechamento 17 Pontos",  guarantee: 17, icon: "✅" }
+        ],
         minBet: 50,
         maxBet: 100,
         maxFixed: 30,
@@ -127,6 +148,11 @@ const GAMES = {
             { id: "4pts",  label: "4 Pontos",               match: 4, prize: 5,       paid: true  },
             { id: "3pts",  label: "3 Pontos",               match: 3, prize: 3.50,    paid: true  }
         ],
+        closingLevels: [
+            { id: "close7", label: "Fechamento 7 Pontos",  guarantee: 7, icon: "🎯" },
+            { id: "close6", label: "Fechamento 6 Pontos",  guarantee: 6, icon: "⭐" },
+            { id: "close5", label: "Fechamento 5 Pontos",  guarantee: 5, icon: "🔥" }
+        ],
         minBet: 10,
         maxBet: 80,
         statsCount: 20
@@ -145,6 +171,11 @@ const GAMES = {
             { id: "6pts",  label: "6 Pontos",                  match: 6, prize: 2500,    paid: true  },
             { id: "5pts",  label: "5 Pontos",                  match: 5, prize: 30,      paid: true  },
             { id: "4pts",  label: "4 Pontos",                  match: 4, prize: 3,       paid: true  }
+        ],
+        closingLevels: [
+            { id: "close7", label: "Fechamento 7 Pontos",  guarantee: 7, icon: "🎯" },
+            { id: "close6", label: "Fechamento 6 Pontos",  guarantee: 6, icon: "⭐" },
+            { id: "close5", label: "Fechamento 5 Pontos",  guarantee: 5, icon: "🔥" }
         ],
         minBet: 7,
         maxBet: 31,

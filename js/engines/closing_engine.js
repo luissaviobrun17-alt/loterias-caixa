@@ -304,7 +304,7 @@ class ClosingEngine {
         }
 
         const cost = estimatedGames * price;
-        const guaranteeLabels = { 6: 'Sena', 5: 'Quina', 4: 'Quadra', 3: 'Terno' };
+        const guaranteeLabels = { 20: '20 Pontos', 19: '19 Pontos', 18: '18 Pontos', 17: '17 Pontos', 15: '15 Pontos', 14: '14 Pontos', 13: '13 Pontos', 7: '7 Pontos', 6: 'Sena/6 Pts', 5: 'Quina/5 Pts', 4: 'Quadra/4 Pts', 3: 'Terno/3 Pts' };
         const label = guaranteeLabels[guarantee] || guarantee + ' acertos';
 
         return {
