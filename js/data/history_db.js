@@ -1,6 +1,6 @@
 // ==================================================================
 // BASE DE DADOS REAL - Resultados Oficiais das Loterias da Caixa
-// Atualizado em: 15/04/2026
+// Atualizado em: 16/04/2026
 // Fonte: API Oficial Caixa (servicebus2.caixa.gov.br)
 // DADOS 100% REAIS — VERIFICADOS VIA API OFICIAL
 // QUANTUM L99: Quina com dados REAIS (substituiu dados sintéticos)
@@ -58,6 +58,7 @@ const REAL_HISTORY_DB = {
     ],
     lotofacil: [
         // ━━━ DADOS NOVOS (abril 2026 — API OFICIAL CAIXA) ━━━
+        { drawNumber: 3662, numbers: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 18, 20, 23, 25] },
         { drawNumber: 3661, numbers: [2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 19, 21, 23, 24] },
         { drawNumber: 3660, numbers: [1, 2, 5, 6, 7, 8, 10, 11, 12, 14, 17, 18, 22, 23, 24] },
         { drawNumber: 3659, numbers: [3, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 23, 25] },
@@ -107,6 +108,7 @@ const REAL_HISTORY_DB = {
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     quina: [
         // ━━━ VERIFICADOS VIA API OFICIAL (abril 2026) ━━━
+        { drawNumber: 7002, numbers: [4, 15, 34, 49, 55] },
         { drawNumber: 7001, numbers: [25, 39, 49, 50, 53] },
         { drawNumber: 7000, numbers: [20, 30, 53, 56, 64] },
         { drawNumber: 6999, numbers: [2, 3, 24, 29, 77] },
@@ -150,6 +152,7 @@ const REAL_HISTORY_DB = {
     ],
     duplasena: [
         // ━━━ DADOS NOVOS (abril 2026 — API OFICIAL) ━━━
+        { drawNumber: 2945, numbers: [6, 8, 9, 17, 42, 46], numbers2: [7, 8, 27, 40, 42, 50] },
         { drawNumber: 2944, numbers: [11, 13, 17, 29, 30, 33], numbers2: [1, 4, 14, 29, 32, 43] },
         { drawNumber: 2943, numbers: [9, 16, 18, 20, 23, 28], numbers2: [2, 10, 11, 16, 23, 42] },
         { drawNumber: 2942, numbers: [5, 12, 19, 25, 34, 41], numbers2: [3, 8, 15, 22, 37, 48] },
@@ -195,6 +198,7 @@ const REAL_HISTORY_DB = {
     ],
     lotomania: [
         // ━━━ DADOS NOVOS (abril 2026 — API OFICIAL) ━━━
+        { drawNumber: 2912, numbers: [2, 4, 5, 22, 35, 41, 47, 53, 56, 60, 63, 68, 69, 81, 83, 84, 88, 91, 93, 95] },
         { drawNumber: 2911, numbers: [1, 8, 10, 13, 17, 20, 27, 29, 31, 33, 36, 39, 42, 47, 49, 55, 61, 68, 79, 98] },
         { drawNumber: 2910, numbers: [3, 7, 11, 16, 22, 28, 34, 38, 44, 50, 53, 58, 63, 67, 71, 76, 80, 85, 90, 95] },
         { drawNumber: 2909, numbers: [2, 9, 14, 19, 25, 30, 37, 41, 48, 52, 56, 62, 66, 72, 77, 81, 87, 92, 96, 99] },
