@@ -19,6 +19,12 @@ const GAMES = {
             { id: "quina",  label: "Quina (5 acertos)",   match: 5, prize: 60000,   paid: true  },
             { id: "quadra", label: "Quadra (4 acertos)",  match: 4, prize: 1400,    paid: true  }
         ],
+        closingLevels: [
+            { id: "close6", label: "Fechamento Sena (6)",   guarantee: 6, icon: "🎯" },
+            { id: "close5", label: "Fechamento Quina (5)",  guarantee: 5, icon: "⭐" },
+            { id: "close4", label: "Fechamento Quadra (4)", guarantee: 4, icon: "🔥" },
+            { id: "close3", label: "Fechamento Terno (3)",  guarantee: 3, icon: "✅" }
+        ],
         minBet: 6,
         maxBet: 60,
         statsCount: 20
