@@ -252,7 +252,101 @@ class NovaEraEngine {
     // ╔══════════════════════════════════════════════════════════════╗
     // ║  MÉTODO PRINCIPAL — GERAR JOGOS COM PROJEÇÃO FUTURA         ║
     // ╚══════════════════════════════════════════════════════════════╝
+    // ╔══════════════════════════════════════════════════════════════════════╗
+    // ║  LIMITES MÁXIMOS POR LOTERIA — Evita travamento e overflow         ║
+    // ║  Lotofácil 15/25 → C(25,15) = 3.268.760 (cap prático: 1600)       ║
+    // ╚══════════════════════════════════════════════════════════════════════╝
+    static getMaxGames(gameKey) {
+        const limits = {
+            lotofacil:  1600,    // C(25,15) é grande, mas 1600 já é fechamento completo útil
+            megasena:   50000,   // C(60,6) = 50.063.860
+            quina:      50000,   // C(80,5) = 24.040.016
+            duplasena:  50000,   // C(50,6) = 15.890.700
+            lotomania:  10000,   // C(100,50) astronômico, mas limite prático
+            timemania:  50000,   // C(80,10) = 1.646.492.110
+            diadesorte: 50000    // C(31,7) = 2.629.575
+        };
+        return limits[gameKey] || 50000;
+    }
+
+    // ╔══════════════════════════════════════════════════════════════════════╗
+    // ║  CALIBRAÇÃO ADAPTATIVA — Ajusta diversidade por quantidade         ║
+    // ║  10 jogos → MÁXIMA diversidade (aberto, exploratório)              ║
+    // ║  100 jogos → Moderado (equilíbrio IA + cobertura)                  ║
+    // ║  1000 jogos → Focado (convergência, menos noise)                   ║
+    // ╚══════════════════════════════════════════════════════════════════════╝
+    static _getAdaptiveParams(numGames, profile) {
+        const drawSize = profile.drawSize;
+        const totalRange = profile.range[1] - profile.range[0] + 1;
+        const baseOverlap = profile.maxOverlap;
+        const baseUsage = profile.maxUsagePct;
+
+        // Fator de escala logarítmica: 10→0.0, 100→1.0, 1000→2.0
+        const scaleFactor = Math.max(0, Math.log10(Math.max(10, numGames)) - 1);
+
+        // ━━ maxOverlap: mais jogos → permite mais sobreposição ━━
+        // 10 jogos: overlap reduzido (forçar diversidade)
+        // 1000 jogos: overlap alto (permitir convergência)
+        let overlapAdj;
+        if (numGames <= 10) {
+            overlapAdj = Math.max(Math.floor(drawSize * 0.35), 1); // ULTRA diverso
+        } else if (numGames <= 50) {
+            overlapAdj = Math.max(Math.floor(drawSize * 0.50), 2);
+        } else if (numGames <= 200) {
+            overlapAdj = baseOverlap; // Padrão do perfil
+        } else if (numGames <= 500) {
+            overlapAdj = Math.min(drawSize - 1, Math.ceil(baseOverlap * 1.3));
+        } else {
+            overlapAdj = Math.min(drawSize, Math.ceil(baseOverlap * 1.6)); // Muito focado
+        }
+
+        // ━━ maxUsagePct: mais jogos → cada número pode aparecer mais ━━
+        let usageAdj;
+        if (numGames <= 10) {
+            usageAdj = Math.min(0.20, baseUsage * 0.5); // 1 num max em 20% dos jogos
+        } else if (numGames <= 50) {
+            usageAdj = Math.min(0.35, baseUsage * 0.7);
+        } else if (numGames <= 200) {
+            usageAdj = baseUsage; // Padrão
+        } else {
+            usageAdj = Math.min(0.95, baseUsage * 1.5); // Relaxado
+        }
+
+        // ━━ noiseWeight: mais jogos → menos noise (mais preditivo) ━━
+        const baseNoise = profile.weights.noise || 0.25;
+        let noiseAdj;
+        if (numGames <= 10) {
+            noiseAdj = Math.min(0.45, baseNoise * 1.5); // MUITO exploratório
+        } else if (numGames <= 50) {
+            noiseAdj = baseNoise * 1.2;
+        } else if (numGames <= 200) {
+            noiseAdj = baseNoise; // Normal
+        } else {
+            noiseAdj = baseNoise * 0.6; // Mais focado na IA
+        }
+
+        // ━━ checkRadius: quantos jogos anteriores verificar overlap ━━
+        const checkRadius = numGames <= 50 ? numGames : Math.min(50, Math.ceil(numGames * 0.1));
+
+        console.log('[NE-L99] 🎚️ Calibração Adaptativa: ' + numGames + ' jogos');
+        console.log('[NE-L99]    overlap=' + overlapAdj + '/' + drawSize + ' | usage=' + (usageAdj*100).toFixed(0) + '% | noise=' + (noiseAdj*100).toFixed(0) + '% | check=' + checkRadius);
+
+        return {
+            maxOverlap: overlapAdj,
+            maxUsagePct: usageAdj,
+            noiseWeight: noiseAdj,
+            checkRadius: checkRadius
+        };
+    }
+
     static generate(gameKey, numGames, selectedNumbers, fixedNumbers, customDrawSize) {
+        // ━━ APLICAR LIMITE MÁXIMO POR LOTERIA ━━
+        const maxGames = this.getMaxGames(gameKey);
+        if (numGames > maxGames) {
+            console.warn('[NE-L99] ⚠️ ' + gameKey + ': solicitado ' + numGames + ' jogos, limitado a ' + maxGames);
+            numGames = maxGames;
+        }
+
         // ╔══════════════════════════════════════════════════════════════╗
         // ║  ATALHO BULK 10K+ — Pula IA pesada para lotes grandes     ║
         // ╚══════════════════════════════════════════════════════════════╝
@@ -307,11 +401,11 @@ class NovaEraEngine {
                     uniqueNumbers: uniqueNums.size,
                     uniqueCount: uniqueNums.size,
                     maxConcentration: '60%',
-                    engine: 'Nova Era V1 — BULK RAPIDO',
-                    mode: 'MODO BULK — Geração rápida sem IA'
+                    engine: 'QUANTUM L99 — BULK RAPIDO',
+                    mode: 'MODO BULK — Geração rápida'
                 },
                 pool: [...uniqueNums].sort((a, b) => a - b),
-                engine: 'Nova Era V1 — BULK'
+                engine: 'QUANTUM L99 — BULK'
             };
         }
 
@@ -363,11 +457,13 @@ class NovaEraEngine {
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // FASE 3: GERAÇÃO COM DIVERSIDADE OBRIGATÓRIA
+        // FASE 3: CALIBRAÇÃO ADAPTATIVA + GERAÇÃO
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const adaptiveParams = this._getAdaptiveParams(numGames, profile);
         const games = this._generateDiverseGames(
             profile, scores, pool, numGames, drawSize,
-            fixedNumbers || [], startNum, endNum, hasUserSelection
+            fixedNumbers || [], startNum, endNum, hasUserSelection,
+            adaptiveParams
         );
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1631,7 +1727,7 @@ class NovaEraEngine {
     // ║  Cada jogo é maximamente diferente dos anteriores            ║
     // ║  Anti-concentração: nenhum número aparece em > X% dos jogos ║
     // ╚══════════════════════════════════════════════════════════════╝
-    static _generateDiverseGames(profile, scores, pool, numGames, drawSize, fixedNumbers, startNum, endNum, hasUserSelection) {
+    static _generateDiverseGames(profile, scores, pool, numGames, drawSize, fixedNumbers, startNum, endNum, hasUserSelection, adaptiveParams) {
         const games = [];
         const usedKeys = new Set();
         const usedCount = {};
@@ -1639,13 +1735,17 @@ class NovaEraEngine {
         const numZones = profile.zones;
         const zoneSize = profile.zoneSize;
         const isBulkMode = numGames > 1000;
-        const maxUsage = isBulkMode ? Infinity : Math.max(3, Math.ceil(numGames * profile.maxUsagePct));
-        const maxOverlap = isBulkMode ? drawSize : profile.maxOverlap;
+
+        // ━━ CALIBRAÇÃO ADAPTATIVA L99 ━━
+        const ap = adaptiveParams || {};
+        const maxUsage = isBulkMode ? Infinity : Math.max(3, Math.ceil(numGames * (ap.maxUsagePct || profile.maxUsagePct)));
+        const maxOverlap = isBulkMode ? drawSize : (ap.maxOverlap !== undefined ? ap.maxOverlap : profile.maxOverlap);
+        const checkRadius = ap.checkRadius || 30;
         const maxAttempts = Math.min(numGames * 500, 5000000);
         const TIMEOUT_MS = 300000;
         const startTime = Date.now();
         let attempts = 0;
-        console.log('[NE-V1] ' + (isBulkMode ? 'MODO BULK 10K+' : 'Modo normal') + ' | ' + numGames + ' jogos | pool=' + pool.length);
+        console.log('[NE-L99] ' + (isBulkMode ? 'MODO BULK 10K+' : '🎚️ Modo Adaptativo') + ' | ' + numGames + ' jogos | pool=' + pool.length + ' | overlap=' + maxOverlap + '/' + drawSize + ' | maxUso=' + maxUsage);
         const qualityTarget = isBulkMode ? Math.min(500, numGames) : numGames;
         while (games.length < qualityTarget && attempts < maxAttempts && (Date.now() - startTime) < TIMEOUT_MS) {
             attempts++;
@@ -1655,7 +1755,7 @@ class NovaEraEngine {
             if (usedKeys.has(key)) continue;
             if (!isBulkMode && games.length > 0 && attempts < maxAttempts * 0.60) {
                 let tooSimilar = false;
-                const checkFrom = Math.max(0, games.length - 30);
+                const checkFrom = Math.max(0, games.length - checkRadius);
                 for (let g = checkFrom; g < games.length; g++) {
                     const existSet = new Set(games[g]);
                     let overlap = 0;
