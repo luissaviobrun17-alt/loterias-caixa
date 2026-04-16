@@ -452,17 +452,7 @@ class UI {
         const precisionCheckbox = document.getElementById('precision-mode-toggle');
         const isPrecisionMode = precisionCheckbox && precisionCheckbox.checked;
 
-        let quantity = parseInt(this.gamesQuantityInput.value) || 10;
-
-        // L99: APLICAR LIMITE MAXIMO POR LOTERIA
-        if (typeof NovaEraEngine !== 'undefined' && typeof NovaEraEngine.getMaxGames === 'function') {
-            const maxAllowed = NovaEraEngine.getMaxGames(this.currentGameKey);
-            if (quantity > maxAllowed) {
-                quantity = maxAllowed;
-                this.gamesQuantityInput.value = maxAllowed;
-                console.warn('[UI-L99] ' + this.currentGameKey + ': limitado a ' + maxAllowed + ' jogos');
-            }
-        }
+        const quantity = parseInt(this.gamesQuantityInput.value) || 10;
         let selectedArr = Array.from(this.selectedNumbers);
         const fixedArr = Array.from(this.fixedNumbers);
 

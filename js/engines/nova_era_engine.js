@@ -252,22 +252,7 @@ class NovaEraEngine {
     // ╔══════════════════════════════════════════════════════════════╗
     // ║  MÉTODO PRINCIPAL — GERAR JOGOS COM PROJEÇÃO FUTURA         ║
     // ╚══════════════════════════════════════════════════════════════╝
-    // ╔══════════════════════════════════════════════════════════════════════╗
-    // ║  LIMITES MÁXIMOS POR LOTERIA — Evita travamento e overflow         ║
-    // ║  Lotofácil 15/25 → C(25,15) = 3.268.760 (cap prático: 1600)       ║
-    // ╚══════════════════════════════════════════════════════════════════════╝
-    static getMaxGames(gameKey) {
-        const limits = {
-            lotofacil:  1600,    // C(25,15) é grande, mas 1600 já é fechamento completo útil
-            megasena:   50000,   // C(60,6) = 50.063.860
-            quina:      50000,   // C(80,5) = 24.040.016
-            duplasena:  50000,   // C(50,6) = 15.890.700
-            lotomania:  10000,   // C(100,50) astronômico, mas limite prático
-            timemania:  50000,   // C(80,10) = 1.646.492.110
-            diadesorte: 50000    // C(31,7) = 2.629.575
-        };
-        return limits[gameKey] || 50000;
-    }
+
 
     // ╔══════════════════════════════════════════════════════════════════════╗
     // ║  CALIBRAÇÃO ADAPTATIVA — Ajusta diversidade por quantidade         ║
@@ -340,12 +325,6 @@ class NovaEraEngine {
     }
 
     static generate(gameKey, numGames, selectedNumbers, fixedNumbers, customDrawSize) {
-        // ━━ APLICAR LIMITE MÁXIMO POR LOTERIA ━━
-        const maxGames = this.getMaxGames(gameKey);
-        if (numGames > maxGames) {
-            console.warn('[NE-L99] ⚠️ ' + gameKey + ': solicitado ' + numGames + ' jogos, limitado a ' + maxGames);
-            numGames = maxGames;
-        }
 
         // ╔══════════════════════════════════════════════════════════════╗
         // ║  ATALHO BULK 10K+ — Pula IA pesada para lotes grandes     ║
@@ -1734,26 +1713,32 @@ class NovaEraEngine {
         for (const n of pool) usedCount[n] = 0;
         const numZones = profile.zones;
         const zoneSize = profile.zoneSize;
-        const isBulkMode = numGames > 1000;
 
         // ━━ CALIBRAÇÃO ADAPTATIVA L99 ━━
         const ap = adaptiveParams || {};
-        const maxUsage = isBulkMode ? Infinity : Math.max(3, Math.ceil(numGames * (ap.maxUsagePct || profile.maxUsagePct)));
-        const maxOverlap = isBulkMode ? drawSize : (ap.maxOverlap !== undefined ? ap.maxOverlap : profile.maxOverlap);
+        const maxUsage = Math.max(3, Math.ceil(numGames * (ap.maxUsagePct || profile.maxUsagePct)));
+        const maxOverlap = ap.maxOverlap !== undefined ? ap.maxOverlap : profile.maxOverlap;
         const checkRadius = ap.checkRadius || 30;
-        const maxAttempts = Math.min(numGames * 500, 5000000);
-        const TIMEOUT_MS = 300000;
+
+        // ━━ FASE 1: Jogos de QUALIDADE com IA (até esgotar overlap) ━━
+        // Para pools pequenos (Lotofácil 25), a Fase 1 naturalmente esgota rápido.
+        // Não limitar artificialmente — gerar o máximo possível na Fase 1.
+        const fase1MaxAttempts = Math.min(numGames * 300, 3000000);
+        const fase1Timeout = Math.min(120000, numGames * 100); // 100ms per game max, 2min cap
         const startTime = Date.now();
         let attempts = 0;
-        console.log('[NE-L99] ' + (isBulkMode ? 'MODO BULK 10K+' : '🎚️ Modo Adaptativo') + ' | ' + numGames + ' jogos | pool=' + pool.length + ' | overlap=' + maxOverlap + '/' + drawSize + ' | maxUso=' + maxUsage);
-        const qualityTarget = isBulkMode ? Math.min(500, numGames) : numGames;
-        while (games.length < qualityTarget && attempts < maxAttempts && (Date.now() - startTime) < TIMEOUT_MS) {
+
+        console.log('[NE-L99] 🎚️ Modo Adaptativo | ' + numGames + ' jogos | pool=' + pool.length + ' | overlap=' + maxOverlap + '/' + drawSize);
+
+        while (games.length < numGames && attempts < fase1MaxAttempts && (Date.now() - startTime) < fase1Timeout) {
             attempts++;
             const ticket = this._generateSingleGame(profile, scores, pool, drawSize, fixedNumbers, usedCount, maxUsage, startNum, endNum, numZones, zoneSize, games.length, numGames);
             if (!ticket || ticket.length < drawSize) continue;
             const key = ticket.join(',');
             if (usedKeys.has(key)) continue;
-            if (!isBulkMode && games.length > 0 && attempts < maxAttempts * 0.60) {
+
+            // Anti-overlap: verificar apenas os últimos checkRadius jogos
+            if (games.length > 0 && attempts < fase1MaxAttempts * 0.60) {
                 let tooSimilar = false;
                 const checkFrom = Math.max(0, games.length - checkRadius);
                 for (let g = checkFrom; g < games.length; g++) {
@@ -1764,21 +1749,30 @@ class NovaEraEngine {
                 }
                 if (tooSimilar) continue;
             }
+
             games.push(ticket);
             usedKeys.add(key);
             for (const n of ticket) usedCount[n] = (usedCount[n] || 0) + 1;
         }
-        console.log('[NE-V1] Fase1: ' + games.length + ' jogos em ' + attempts + ' tent');
+        const fase1Count = games.length;
+        console.log('[NE-L99] Fase1 (IA): ' + fase1Count + '/' + numGames + ' em ' + attempts + ' tentativas (' + (Date.now() - startTime) + 'ms)');
+
+        // ━━ FASE 2: COMPLETAR com geração rápida (sem overlap rigoroso) ━━
+        // Preenche os jogos restantes com shuffle aleatório ponderado.
+        // Garante unicidade mas sem filtro de overlap — gera TODOS os jogos pedidos.
         if (games.length < numGames) {
-            console.log('[NE-V1] FASE2 BULK: gerando ' + (numGames - games.length) + ' jogos...');
+            const remaining = numGames - games.length;
+            console.log('[NE-L99] Fase2 (BULK): gerando ' + remaining + ' jogos restantes...');
             let bulkAtt = 0;
-            const bulkMax = Math.max(numGames * 100, 2000000);
-            const p1 = games.length;
-            while (games.length < numGames && bulkAtt < bulkMax && (Date.now() - startTime) < 540000) {
+            const bulkMax = Math.max(remaining * 200, 2000000);
+            const bulkTimeout = 540000; // 9 min max
+
+            while (games.length < numGames && bulkAtt < bulkMax && (Date.now() - startTime) < bulkTimeout) {
                 bulkAtt++;
                 const ticket = [...fixedNumbers.filter(f => pool.includes(f))];
                 const usedSet = new Set(ticket);
                 const shuffled = pool.filter(n => !usedSet.has(n));
+                // Fisher-Yates shuffle
                 for (let i = shuffled.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     const tmp = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = tmp;
@@ -1796,13 +1790,14 @@ class NovaEraEngine {
                     for (const n of ticket) usedCount[n] = (usedCount[n] || 0) + 1;
                 }
             }
-            console.log('[NE-V1] Fase2: +' + (games.length - p1) + ' em ' + bulkAtt + ' tent');
+            console.log('[NE-L99] Fase2: +' + (games.length - fase1Count) + ' em ' + bulkAtt + ' tentativas');
         }
-        console.log('[NE-V1] TOTAL: ' + games.length + '/' + numGames);
+
+        console.log('[NE-L99] ✅ TOTAL: ' + games.length + '/' + numGames + ' jogos gerados');
         const maxUsed = Math.max(0, ...Object.values(usedCount));
         const maxPct = games.length > 0 ? (maxUsed / games.length * 100).toFixed(1) : 0;
         const numsUsed = Object.values(usedCount).filter(v => v > 0).length;
-        console.log('[NE-V1] MaxConc: ' + maxPct + '% | Nums: ' + numsUsed + '/' + pool.length);
+        console.log('[NE-L99] MaxConc: ' + maxPct + '% | Nums: ' + numsUsed + '/' + pool.length);
         return games;
     }
 
