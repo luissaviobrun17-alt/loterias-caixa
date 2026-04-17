@@ -298,24 +298,35 @@ select:focus {
 }
 
 .grid-num.selected {
-    background: var(--primary-accent);
-    color: #000;
-    border-color: var(--primary-accent);
-    transform: scale(1.05);
+    background: linear-gradient(135deg, #C026D3, #A855F7);
+    color: #fff;
+    border-color: #C026D3;
+    transform: scale(1.08);
+    box-shadow: 0 0 8px rgba(192, 38, 211, 0.4);
+    font-weight: 800;
 }
 
-/* Fixed Mode Styles */
+/* Fixed Mode Styles — OURO sólido, muito distinto */
 .grid-num.fixed {
-    border-color: #F59E0B;
-    /* Amber/Gold */
+    border: 2.5px solid #F59E0B !important;
     color: #F59E0B;
-    box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.35), 0 0 3px rgba(245, 158, 11, 0.2);
+    position: relative;
 }
 
 .grid-num.fixed.selected {
-    background: #F59E0B;
-    color: #000;
-    border-color: #F59E0B;
+    background: linear-gradient(135deg, #F59E0B, #D97706) !important;
+    color: #000 !important;
+    border-color: #FBBF24 !important;
+    transform: scale(1.15);
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.6), 0 0 4px rgba(251, 191, 36, 0.4);
+    font-weight: 900;
+    animation: fixedPulse 2s ease-in-out infinite;
+}
+
+@keyframes fixedPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+    50% { box-shadow: 0 0 18px rgba(245, 158, 11, 0.8), 0 0 6px rgba(251, 191, 36, 0.5); }
 }
 
 /* Results */

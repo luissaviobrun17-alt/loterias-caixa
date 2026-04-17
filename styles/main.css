@@ -537,17 +537,25 @@ input:focus {
 }
 
 .grid-num.selected {
-    background: var(--primary-accent);
-    color: white;
-    border-color: var(--primary-accent);
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, #C026D3, #A855F7);
+    color: #fff;
+    border-color: #C026D3;
+    box-shadow: 0 0 12px rgba(192, 38, 211, 0.5);
+    font-weight: 800;
 }
 
 .grid-num.fixed {
-    border: 2px solid #F59E0B;
-    /* Amber/Gold */
-    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
-    background: rgba(245, 158, 11, 0.1);
+    border: 2.5px solid #F59E0B !important;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+    background: linear-gradient(135deg, #F59E0B, #D97706) !important;
+    color: #000 !important;
+    font-weight: 900;
+    animation: fixedGlow 2s ease-in-out infinite;
+}
+
+@keyframes fixedGlow {
+    0%, 100% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8), 0 0 6px rgba(251, 191, 36, 0.5); }
 }
 
 /* Stats */
