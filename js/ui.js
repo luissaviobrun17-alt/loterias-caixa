@@ -1148,27 +1148,42 @@ class UI {
         this.generateBtn.onclick = () => {
             const closingVal = this.closingSelect.value;
 
-            // ━━ FECHAMENTO OBJETIVO (ClosingEngine) ━━
+            // ━━ FECHAMENTO OBJETIVO (ClosingEngine v3.0) ━━
             if (closingVal && closingVal.startsWith('close_')) {
                 const guarantee = parseInt(closingVal.replace('close_', ''));
                 const selectedArr = Array.from(this.selectedNumbers);
+                const fixedArr = Array.from(this.fixedNumbers);
                 const game = GAMES[this.currentGameKey];
+                const closingBetSize = typeof ClosingEngine !== 'undefined' ? ClosingEngine.getBetSize(this.currentGameKey) : game.draw;
 
-                if (selectedArr.length < game.minBet) {
-                    alert('Selecione pelo menos ' + game.minBet + ' numeros para o fechamento objetivo.');
+                if (selectedArr.length < closingBetSize) {
+                    alert('Selecione pelo menos ' + closingBetSize + ' números para o fechamento objetivo de ' + game.name + '.');
                     return;
                 }
 
+                // Limpar painéis anteriores
+                const oldFeedback = this.gamesContainer.parentNode.querySelector('.generation-feedback');
+                if (oldFeedback) oldFeedback.remove();
+                const oldAnalysis = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                if (oldAnalysis) oldAnalysis.remove();
+                const oldCaixaBtn = document.getElementById('caixa-panel');
+                if (oldCaixaBtn) oldCaixaBtn.remove();
+
                 // Mostrar loading
-                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">🎯 Calculando Fechamento Objetivo...<br><small>Garantia de ' + guarantee + ' acertos | ' + selectedArr.length + ' numeros</small></div></div>';
+                const fixedInfo = fixedArr.length > 0 ? '<br><small style="color:#F59E0B;">📌 ' + fixedArr.length + ' números fixos: ' + fixedArr.sort((a,b)=>a-b).join(', ') + '</small>' : '';
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">🎯 Calculando Fechamento Objetivo v3.0...<br><small>Garantia de ' + guarantee + ' acertos | ' + selectedArr.length + ' números | ' + game.name + '</small>' + fixedInfo + '</div></div>';
 
                 setTimeout(() => {
+                    // v3.0: Passar fixedNumbers ao ClosingEngine
                     const closingResult = ClosingEngine.generateClosure(
-                        selectedArr, guarantee, game.minBet, this.currentGameKey
+                        selectedArr, guarantee, closingBetSize, this.currentGameKey, fixedArr
                     );
 
                     if (closingResult.error) {
-                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">❌ ' + closingResult.error + '</div>';
+                        const errorStyle = closingResult.impossible
+                            ? 'background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:12px;padding:20px;color:#F87171;text-align:center;'
+                            : '';
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="' + errorStyle + 'color:#EF4444;">❌ ' + closingResult.error + '</div>';
                         return;
                     }
 
@@ -1185,17 +1200,35 @@ class UI {
                     const banner = document.createElement('div');
                     banner.className = 'smart-gen-analysis';
                     banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(234,179,8,0.12),rgba(15,23,42,0.95));border:1px solid #EAB30840;';
-                    const guaranteeLabels = { 20: '20 PONTOS', 19: '19 PONTOS', 18: '18 PONTOS', 17: '17 PONTOS', 15: '15 PONTOS', 14: '14 PONTOS', 13: '13 PONTOS', 7: '7 PONTOS', 6: 'SENA', 5: 'QUINA', 4: 'QUADRA', 3: 'TERNO' };
-                    const guaranteeIcons = { 6: '🎯', 5: '⭐', 4: '🔥', 3: '✅' };
-                    banner.innerHTML = '<div style="font-size:1.1em;font-weight:700;color:#EAB308;margin-bottom:6px;">' + (guaranteeIcons[guarantee] || '') + ' FECHAMENTO OBJETIVO — ' + (guaranteeLabels[guarantee] || guarantee) + '</div>' +
+                    const guaranteeLabels = { 20: '20 PONTOS', 19: '19 PONTOS', 18: '18 PONTOS', 17: '17 PONTOS', 15: '15 PONTOS', 14: '14 PONTOS', 13: '13 PONTOS', 12: '12 PONTOS', 11: '11 PONTOS', 10: '10 PONTOS', 9: '9 PONTOS', 8: '8 PONTOS', 7: '7 PONTOS', 6: 'SENA', 5: 'QUINA', 4: 'QUADRA', 3: 'TERNO' };
+                    const guaranteeIcons = { 20: '🎯', 19: '⭐', 18: '🔥', 17: '✅', 15: '🎯', 14: '⭐', 13: '🔥', 12: '💎', 11: '💎', 10: '👑', 9: '👑', 8: '🔥', 7: '⭐', 6: '🎯', 5: '⭐', 4: '🔥', 3: '✅' };
+                    const modeLabel = closingResult.mode ? ' <span style="font-size:0.7em;color:#94A3B8;">(' + closingResult.mode + ')</span>' : '';
+
+                    // v3.0: Badge de confiança
+                    const confPct = closingResult.confidence || closingResult.coveragePct;
+                    const confColor = confPct >= 99 ? '#10B981' : confPct >= 95 ? '#22C55E' : confPct >= 80 ? '#F59E0B' : '#EF4444';
+                    const confBadge = '<div style="margin-top:8px;padding:6px 10px;background:rgba(16,185,129,0.08);border:1px solid ' + confColor + '30;border-radius:8px;font-size:0.82em;color:' + confColor + ';font-weight:600;">🔒 Confiança: ' + confPct.toFixed(1) + '% | Modo: ' + (closingResult.mode || 'EXATO') + '</div>';
+
+                    // v3.0: Badge de números fixos
+                    const fixedBadge = fixedArr.length > 0 ? '<div style="margin-top:8px;padding:6px 10px;background:rgba(245,158,11,0.12);border:1px solid #F59E0B30;border-radius:8px;font-size:0.8em;color:#F59E0B;">📌 <strong>Números Fixos (' + fixedArr.length + '):</strong> ' + fixedArr.sort((a,b)=>a-b).map(n => '<span style="background:#F59E0B22;padding:1px 6px;border-radius:10px;font-weight:700;">' + String(n).padStart(2,'0') + '</span>').join(' ') + ' — presentes em TODOS os ' + closingResult.totalGames + ' jogos</div>' : '';
+
+                    banner.innerHTML = '<div style="font-size:1.1em;font-weight:700;color:#EAB308;margin-bottom:6px;">' + (guaranteeIcons[guarantee] || '🎯') + ' FECHAMENTO OBJETIVO — ' + (guaranteeLabels[guarantee] || guarantee) + modeLabel + '</div>' +
                         '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:0.85em;">' +
                         '<div style="text-align:center;"><div style="color:#9CA3AF;">Jogos</div><div style="font-weight:700;color:#F59E0B;font-size:1.3em;">' + closingResult.totalGames + '</div></div>' +
                         '<div style="text-align:center;"><div style="color:#9CA3AF;">Cobertura</div><div style="font-weight:700;color:#10B981;font-size:1.3em;">' + closingResult.coveragePct + '%</div></div>' +
                         '<div style="text-align:center;"><div style="color:#9CA3AF;">Custo</div><div style="font-weight:700;color:#F59E0B;font-size:1.3em;">R$ ' + closingResult.cost.toLocaleString('pt-BR', {minimumFractionDigits:2}) + '</div></div>' +
                         '<div style="text-align:center;"><div style="color:#9CA3AF;">Tempo</div><div style="font-weight:700;color:#94A3B8;font-size:1.3em;">' + (closingResult.elapsed / 1000).toFixed(1) + 's</div></div>' +
                         '</div>' +
-                        '<div style="margin-top:8px;padding:6px 10px;background:rgba(234,179,8,0.1);border-radius:8px;font-size:0.8em;color:#D97706;">💡 <strong>Garantia matematica:</strong> Se ' + guarantee + ' dos numeros sorteados estiverem entre os ' + selectedArr.length + ' selecionados, pelo menos 1 jogo tera ' + guarantee + ' acertos.</div>';
+                        confBadge +
+                        fixedBadge +
+                        '<div style="margin-top:8px;padding:6px 10px;background:rgba(234,179,8,0.1);border-radius:8px;font-size:0.8em;color:#D97706;">💡 <strong>Garantia matemática:</strong> Se ' + guarantee + ' dos números sorteados estiverem entre os ' + selectedArr.length + ' selecionados, pelo menos 1 jogo terá ' + guarantee + ' acertos.</div>' +
+                    (closingResult.note ? '<div style="margin-top:6px;padding:6px 10px;background:rgba(148,163,184,0.08);border-radius:8px;font-size:0.75em;color:#94A3B8;">ℹ️ ' + closingResult.note + '</div>' : '');
                     this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
+
+                    // v3.0: Painel Aposte Online
+                    if (typeof this._insertCaixaPanel === 'function') {
+                        this._insertCaixaPanel(closingResult.games, this.currentGameKey);
+                    }
                 }, 50);
 
                 if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
@@ -1765,29 +1798,8 @@ class UI {
             this.recentResultsContainer.innerHTML = '<div class="sync-loader">Sincronizando com a Caixa...</div>';
         }
 
-        this.closingSelect.innerHTML = '';
-        // ━━ FECHAMENTO OBJETIVO (se disponivel) ━━
-        if (game.closingLevels && game.closingLevels.length > 0) {
-            const optGroup1 = document.createElement('optgroup');
-            optGroup1.label = '🎯 Fechamento Objetivo (Garantido)';
-            game.closingLevels.forEach(cl => {
-                const option = document.createElement('option');
-                option.value = 'close_' + cl.guarantee;
-                option.textContent = cl.icon + ' ' + cl.label;
-                option.dataset.closing = 'true';
-                optGroup1.appendChild(option);
-            });
-            this.closingSelect.appendChild(optGroup1);
-        }
-        const optGroup2 = document.createElement('optgroup');
-        optGroup2.label = 'Garantia de Fechamento';
-        game.strategies.forEach(strat => {
-            const option = document.createElement('option');
-            option.value = strat.match;
-            option.textContent = strat.label;
-            optGroup2.appendChild(option);
-        });
-        this.closingSelect.appendChild(optGroup2);
+        // ━━ DROPDOWN DINÂMICO v3.0 ━━
+        this._rebuildClosingDropdown(gameKey);
 
         // ━━ EVENTO: Preview do Fechamento em tempo real ━━
         this.closingSelect.onchange = () => this._updateClosingPreview();
@@ -2066,6 +2078,8 @@ class UI {
         this.fixedNumbersList.textContent = list;
         this.fixedInfoPanel.style.display = this.fixedNumbers.size > 0 ? 'block' : 'none';
         this.updateSelectionInfo(); // Updates cost too
+        // v3.0: Reconstruir dropdown de fechamento com níveis dinâmicos
+        this._rebuildClosingDropdown(this.currentGameKey);
     }
 
     selectRandom() {
@@ -2198,7 +2212,7 @@ class UI {
         return Math.round(result);
     }
 
-    // ━━ PREVIEW DO FECHAMENTO OBJETIVO ━━
+    // ━━ PREVIEW DO FECHAMENTO OBJETIVO v3.0 ━━
     _updateClosingPreview() {
         const closingVal = this.closingSelect ? this.closingSelect.value : '';
         if (!closingVal || !closingVal.startsWith('close_')) return;
@@ -2208,9 +2222,11 @@ class UI {
         if (!game) return;
 
         const numSelected = this.selectedNumbers.size;
+        const fixedCount = this.fixedNumbers ? this.fixedNumbers.size : 0;
         if (typeof ClosingEngine === 'undefined') return;
 
-        const preview = ClosingEngine.getClosurePreview(numSelected, guarantee, game.minBet, this.currentGameKey);
+        // v3.0: Passar fixedCount para preview correto
+        const preview = ClosingEngine.getClosurePreview(numSelected, guarantee, game.minBet, this.currentGameKey, fixedCount);
 
         // Atualizar o campo de quantidade com a estimativa
         if (preview.possible && preview.games > 0) {
@@ -2219,17 +2235,101 @@ class UI {
 
         // Mostrar preview no container de estimativas
         if (this.closingEstimatesContainer) {
-            if (!preview.possible || numSelected < game.minBet) {
+            if (preview.impossible) {
+                // v3.0: Aviso de impossibilidade matemática
+                const betSize = ClosingEngine.getBetSize(this.currentGameKey);
+                const maxG = betSize - fixedCount;
+                this.closingEstimatesContainer.innerHTML =
+                    '<div style="padding:10px 14px;border-radius:10px;background:rgba(239,68,68,0.12);border:1px solid #EF444440;">' +
+                    '<div style="font-weight:700;color:#EF4444;font-size:0.95em;">⛔ IMPOSSIBILIDADE MATEMÁTICA</div>' +
+                    '<div style="font-size:0.82em;color:#F87171;margin-top:4px;">Com ' + fixedCount + ' fixos, garantia máxima = <strong>' + maxG + ' acertos</strong></div>' +
+                    '<div style="font-size:0.75em;color:#94A3B8;margin-top:6px;">Motivo: Cada jogo = ' + fixedCount + ' fixos + ' + (betSize - fixedCount) + ' variáveis. No pior caso 0 fixos são sorteados → máx ' + (betSize - fixedCount) + ' acertos.</div>' +
+                    '<div style="font-size:0.78em;color:#10B981;margin-top:6px;font-weight:600;">💡 Sugestão: Use garantia ≤ ' + maxG + ' ou reduza os fixos.</div>' +
+                    '</div>';
+            } else if (!preview.possible || numSelected < game.minBet) {
                 this.closingEstimatesContainer.innerHTML = '<p class="helper-text" style="color:#F59E0B;">' + preview.msg + '</p>';
             } else {
-                const guaranteeIcons = { 6: '🎯', 5: '⭐', 4: '🔥', 3: '✅' };
+                const guaranteeIcons = { 20: '🎯', 19: '⭐', 18: '🔥', 17: '✅', 15: '🎯', 14: '⭐', 13: '🔥', 12: '💎', 11: '💎', 10: '👑', 9: '👑', 8: '🔥', 7: '🎯', 6: '🎯', 5: '⭐', 4: '🔥', 3: '✅' };
+                const fixedBadge = fixedCount > 0 ? '<div style="font-size:0.75em;color:#F59E0B;margin-top:4px;">📌 ' + fixedCount + ' fixos → máx garantia: ' + (ClosingEngine.getBetSize(this.currentGameKey) - fixedCount) + ' acertos</div>' : '';
                 this.closingEstimatesContainer.innerHTML =
                     '<div style="padding:8px 12px;border-radius:8px;background:rgba(234,179,8,0.1);border:1px solid #EAB30830;">' +
-                    '<div style="font-weight:700;color:#EAB308;">' + (guaranteeIcons[guarantee] || '') + ' ' + preview.msg + '</div>' +
+                    '<div style="font-weight:700;color:#EAB308;">' + (guaranteeIcons[guarantee] || '🎯') + ' ' + preview.msg + '</div>' +
+                    fixedBadge +
                     '<div style="font-size:0.8em;color:#9CA3AF;margin-top:4px;">Subconjuntos: C(' + numSelected + ',' + guarantee + ') = ' + preview.subsets.toLocaleString('pt-BR') + '</div>' +
+                    '<div style="font-size:0.75em;color:' + (preview.possible ? '#10B981' : '#F59E0B') + ';margin-top:3px;">Confiança: ' + (preview.possible ? '✅ Alta' : '⚠️ Muitos jogos') + '</div>' +
                     '</div>';
             }
         }
+    }
+
+    // ━━ RECONSTRUIR DROPDOWN DE FECHAMENTO v3.0 ━━
+    _rebuildClosingDropdown(gameKey) {
+        if (!gameKey) gameKey = this.currentGameKey;
+        const game = GAMES[gameKey];
+        if (!game || !this.closingSelect) return;
+
+        const fixedCount = this.fixedNumbers ? this.fixedNumbers.size : 0;
+        const savedValue = this.closingSelect.value;
+
+        this.closingSelect.innerHTML = '';
+
+        if (typeof ClosingEngine !== 'undefined' && game.closingLevels && game.closingLevels.length > 0) {
+            const dynamicLevels = ClosingEngine.getDynamicClosingLevels(gameKey, fixedCount);
+            const feasibleLevels = dynamicLevels.filter(cl => cl.feasible);
+            if (feasibleLevels.length > 0) {
+                const optGroup1 = document.createElement('optgroup');
+                optGroup1.label = fixedCount > 0
+                    ? '🎯 Fechamento (' + fixedCount + ' fixos → máx ' + (ClosingEngine.getBetSize(gameKey) - fixedCount) + ' pts)'
+                    : '🎯 Fechamento Objetivo (Garantido)';
+                feasibleLevels.forEach(cl => {
+                    const option = document.createElement('option');
+                    option.value = 'close_' + cl.guarantee;
+                    option.textContent = cl.icon + ' ' + cl.label;
+                    option.dataset.closing = 'true';
+                    optGroup1.appendChild(option);
+                });
+                this.closingSelect.appendChild(optGroup1);
+            }
+            const impossibleLevels = dynamicLevels.filter(cl => !cl.feasible);
+            if (impossibleLevels.length > 0) {
+                const optGroup3 = document.createElement('optgroup');
+                optGroup3.label = '⛔ Impossível com ' + fixedCount + ' fixos';
+                impossibleLevels.forEach(cl => {
+                    const option = document.createElement('option');
+                    option.value = 'close_' + cl.guarantee;
+                    option.textContent = '⛔ ' + cl.label.replace(' ⛔', '');
+                    option.dataset.closing = 'true';
+                    option.dataset.impossible = 'true';
+                    optGroup3.appendChild(option);
+                });
+                this.closingSelect.appendChild(optGroup3);
+            }
+        } else if (game.closingLevels && game.closingLevels.length > 0) {
+            const optGroup1 = document.createElement('optgroup');
+            optGroup1.label = '🎯 Fechamento Objetivo (Garantido)';
+            game.closingLevels.forEach(cl => {
+                const option = document.createElement('option');
+                option.value = 'close_' + cl.guarantee;
+                option.textContent = cl.icon + ' ' + cl.label;
+                option.dataset.closing = 'true';
+                optGroup1.appendChild(option);
+            });
+            this.closingSelect.appendChild(optGroup1);
+        }
+
+        const optGroup2 = document.createElement('optgroup');
+        optGroup2.label = 'Garantia de Fechamento';
+        game.strategies.forEach(strat => {
+            const option = document.createElement('option');
+            option.value = strat.match;
+            option.textContent = strat.label;
+            optGroup2.appendChild(option);
+        });
+        this.closingSelect.appendChild(optGroup2);
+
+        const savedOption = Array.from(this.closingSelect.options).find(o => o.value === savedValue);
+        if (savedOption) this.closingSelect.value = savedValue;
+        this._updateClosingPreview();
     }
 
     updateInvestmentPanel() {
