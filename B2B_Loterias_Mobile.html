@@ -9185,22 +9185,38 @@ class UI {
     }
 
     async openCaixa() {
-        // Auto-copy games if they exist
         const cards = document.querySelectorAll('.game-card');
-        if (cards.length > 0) {
-            const success = await this.copyGames(); // Wait for copy
-            if (success) {
-                alert('Jogos copiados com sucesso!\n\nAgora no site da Caixa:\n1. Escolha o jogo.\n2. Se houver opção de colar/importar, use Ctrl+V.\n3. Caso contrário, use a lista copiada como referência visual.');
-            }
-        } else {
-            // Just warn but still open? Or stop? User might just want to go to site.
-            // Let's warn but proceed or let them decide? 
-            // Previous behavior was alert and open.
-            alert('Atenção: Nenhum jogo foi gerado para copiar. O site abrirá mesmo assim.');
-        }
-
-        // Open the official Loterias Online Caixa website in a new tab
-        window.open('https://www.loteriasonline.caixa.gov.br/', '_blank');
+        if (cards.length === 0) { alert('Nenhum jogo gerado. Gere jogos primeiro!'); return; }
+        const games = [];
+        cards.forEach(card => { const balls = card.querySelectorAll('.ball'); if (balls.length > 0) games.push(Array.from(balls).map(b => parseInt(b.textContent))); });
+        if (games.length === 0) { alert('Nenhum jogo encontrado.'); return; }
+        const caixaCfg = { megasena:{name:'Mega-Sena',url:'mega-sena'}, lotofacil:{name:'Lotofácil',url:'lotofacil'}, quina:{name:'Quina',url:'quina'}, lotomania:{name:'Lotomania',url:'lotomania'}, duplasena:{name:'Dupla Sena',url:'dupla-sena'}, timemania:{name:'Timemania',url:'timemania'}, diadesorte:{name:'Dia de Sorte',url:'dia-de-sorte'} };
+        const cfg = caixaCfg[this.currentGameKey] || {name:'Loteria',url:''};
+        const caixaUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfg.url;
+        const old = document.getElementById('mobile-bet-modal'); if (old) old.remove();
+        let jogosHTML = '';
+        games.forEach((g,i) => { const nums = g.map(n=>String(n).padStart(2,'0')).join('  '); const csv = g.map(n=>String(n).padStart(2,'0')).join(', '); jogosHTML += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.06);"><div style="flex:1;"><div style="color:#60A5FA;font-weight:700;font-size:0.72rem;margin-bottom:3px;">Jogo '+(i+1)+'</div><div style="color:#E2E8F0;font-size:1rem;font-weight:600;font-family:monospace;letter-spacing:1px;">'+nums+'</div></div><button class="mobile-copy-game-btn" data-nums="'+csv+'" style="background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;padding:10px 14px;border-radius:10px;font-size:0.8rem;font-weight:800;cursor:pointer;white-space:nowrap;min-width:70px;">📋 Copiar</button></div>'; });
+        const allFmt = games.map((g,i)=>'Jogo '+(i+1)+': '+g.map(n=>String(n).padStart(2,'0')).join(' - ')).join('\n');
+        const modal = document.createElement('div'); modal.id = 'mobile-bet-modal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding:10px;box-sizing:border-box;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+        modal.innerHTML = '<div style="background:linear-gradient(145deg,#0F172A,#1E293B);border-radius:16px;border:1px solid #0066CC40;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:18px;color:#E2E8F0;box-shadow:0 20px 60px rgba(0,0,0,0.6);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><h2 style="margin:0;font-size:1.1rem;color:#0066CC;">📱 Apostar no Celular</h2><button id="close-mobile-bet-modal" style="background:none;border:none;color:#94A3B8;font-size:1.8rem;cursor:pointer;padding:4px 8px;">✕</button></div><div style="background:linear-gradient(135deg,rgba(0,102,204,0.15),rgba(0,60,120,0.1));border:1px solid #0066CC30;border-radius:12px;padding:12px;margin-bottom:14px;"><div style="font-weight:800;color:#60A5FA;font-size:0.95rem;margin-bottom:6px;">🎰 '+games.length+' jogos de '+cfg.name+'</div><div style="font-size:0.78rem;color:#94A3B8;line-height:1.5;">Copie cada jogo e preencha no site da Caixa, ou copie todos de uma vez.</div></div><div style="margin-bottom:12px;">'+jogosHTML+'</div><button id="mobile-copy-all-btn" style="width:100%;background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:white;border:none;padding:14px;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 15px rgba(139,92,246,0.4);">📋 COPIAR TODOS OS '+games.length+' JOGOS</button><a href="'+caixaUrl+'" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:14px;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 4px 15px rgba(0,102,204,0.4);box-sizing:border-box;">🌐 ABRIR SITE DA CAIXA — '+cfg.name+'</a><div style="margin-top:12px;padding:10px;background:rgba(245,158,11,0.08);border:1px solid #F59E0B30;border-radius:10px;"><div style="color:#F59E0B;font-weight:700;font-size:0.82rem;margin-bottom:6px;">📝 Como apostar:</div><div style="font-size:0.75rem;color:#CBD5E1;line-height:1.7;"><div>① Copie os números de um jogo acima</div><div>② Toque em "Abrir Site da Caixa"</div><div>③ Faça login na sua conta</div><div>④ Selecione os números manualmente</div><div>⑤ Toque em "Colocar no Carrinho"</div><div>⑥ Repita para cada jogo</div></div></div><div style="margin-top:10px;text-align:center;"><div style="font-size:0.68rem;color:#475569;">💡 Dica: Use o app Loterias Caixa para apostar mais rápido</div></div></div>';
+        document.body.appendChild(modal);
+        document.getElementById('close-mobile-bet-modal').addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+        modal.querySelectorAll('.mobile-copy-game-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const nums = btn.getAttribute('data-nums');
+                try { await navigator.clipboard.writeText(nums); } catch(e) { const ta=document.createElement('textarea');ta.value=nums;ta.style.cssText='position:fixed;left:-9999px;';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta); }
+                btn.textContent='✅ Copiado!'; btn.style.background='linear-gradient(135deg,#059669,#047857)';
+                setTimeout(()=>{btn.textContent='📋 Copiar';btn.style.background='linear-gradient(135deg,#22C55E,#16A34A)';},2000);
+            });
+        });
+        document.getElementById('mobile-copy-all-btn').addEventListener('click', async () => {
+            const btn=document.getElementById('mobile-copy-all-btn');
+            try { await navigator.clipboard.writeText(allFmt); } catch(e) { const ta=document.createElement('textarea');ta.value=allFmt;ta.style.cssText='position:fixed;left:-9999px;';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta); }
+            btn.textContent='✅ TODOS COPIADOS!'; btn.style.background='linear-gradient(135deg,#059669,#047857)';
+            setTimeout(()=>{btn.textContent='📋 COPIAR TODOS OS '+games.length+' JOGOS';btn.style.background='linear-gradient(135deg,#8B5CF6,#7C3AED)';},3000);
+        });
     }
 
     getSelectedNumbers() {
