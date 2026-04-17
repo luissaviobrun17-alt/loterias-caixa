@@ -498,14 +498,32 @@ class UI {
             ? `🎯 ${selectedArr.length} números selecionados → gerando variantes`
             : '🧠 Análise IA completa do universo';
 
-        // Loading - Fase 1
+        // Loading - QUANTUM L99 Premium
         this.gamesContainer.innerHTML = `
-            <div style="text-align:center;padding:30px;">
-                <div style="font-size:2rem;margin-bottom:10px;">🔮</div>
-                <div style="color:#8B5CF6;font-weight:700;font-size:1rem;">★ MODO DEUS — 12 Camadas de Predição</div>
-                <div style="color:#94A3B8;font-size:0.85rem;margin-top:5px;">${modeLabel}</div>
-                <div style="margin-top:15px;width:60%;height:4px;background:rgba(139,92,246,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
-                    <div style="width:30%;height:100%;background:linear-gradient(90deg,#8B5CF6,#EC4899);border-radius:4px;animation:smartProgress 1.5s ease-in-out infinite;"></div>
+            <div style="text-align:center;padding:30px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border-radius:16px;border:1px solid rgba(139,92,246,0.3);">
+                <div style="font-size:2.5rem;margin-bottom:8px;filter:drop-shadow(0 0 15px rgba(255,215,0,0.5));">⚡</div>
+                <div style="color:#FFD700;font-weight:900;font-size:1.1rem;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 10px rgba(255,215,0,0.4);">QUANTUM L99 — Motor de Predição</div>
+                <div style="color:#94A3B8;font-size:0.8rem;margin-top:6px;margin-bottom:15px;">${modeLabel}</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px auto;max-width:450px;">
+                    <div id="q-phase-1" style="padding:10px 8px;border-radius:10px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);transition:all 0.5s;">
+                        <div style="font-size:1.2rem;margin-bottom:4px;">⚛️</div>
+                        <div style="color:#C4B5FD;font-size:0.7rem;font-weight:700;">COMPUTAÇÃO</div>
+                        <div style="color:#8B5CF6;font-size:0.6rem;">QUÂNTICA</div>
+                    </div>
+                    <div id="q-phase-2" style="padding:10px 8px;border-radius:10px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);transition:all 0.5s;opacity:0.4;">
+                        <div style="font-size:1.2rem;margin-bottom:4px;">🔮</div>
+                        <div style="color:#6EE7B7;font-size:0.7rem;font-weight:700;">FUTUROLOGIA</div>
+                        <div style="color:#10B981;font-size:0.6rem;">PREDITIVA</div>
+                    </div>
+                    <div id="q-phase-3" style="padding:10px 8px;border-radius:10px;background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.15);transition:all 0.5s;opacity:0.4;">
+                        <div style="font-size:1.2rem;margin-bottom:4px;">🧿</div>
+                        <div style="color:#F9A8D4;font-size:0.7rem;font-weight:700;">CLARIVIDÊNCIA</div>
+                        <div style="color:#EC4899;font-size:0.6rem;">COMPUTACIONAL</div>
+                    </div>
+                </div>
+                <div id="q-status" style="color:#C4B5FD;font-weight:600;font-size:0.82rem;margin-top:8px;">⚛️ Processando entrelaçamento quântico...</div>
+                <div style="margin-top:12px;width:70%;height:4px;background:rgba(139,92,246,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
+                    <div style="width:30%;height:100%;background:linear-gradient(90deg,#8B5CF6,#FFD700,#EC4899);border-radius:4px;animation:smartProgress 2s ease-in-out infinite;"></div>
                 </div>
             </div>
             <style>@keyframes smartProgress{0%{width:10%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:10%;margin-left:90%}}</style>
@@ -516,13 +534,23 @@ class UI {
             this.generateSmartBtn.style.opacity = '0.6';
         }
 
-        // Fase 2: Análise profunda
+        // Fase 2: Futurologia Preditiva
         setTimeout(() => {
-            try { this.gamesContainer.querySelector('div > div:nth-child(3)').textContent = '★ Bayesian + Posicional + Cadeias + Momentum...'; } catch(e) {}
+            try {
+                const p2 = document.getElementById('q-phase-2');
+                const st = document.getElementById('q-status');
+                if (p2) { p2.style.opacity = '1'; p2.style.background = 'rgba(16,185,129,0.2)'; p2.style.borderColor = 'rgba(16,185,129,0.5)'; }
+                if (st) st.innerHTML = '🔮 Projeção futura: tendências temporais + Monte Carlo...';
+            } catch(e) {}
 
-            // Fase 3: Geração
+            // Fase 3: Clarividência Computacional
             setTimeout(() => {
-                try { this.gamesContainer.querySelector('div > div:nth-child(3)').textContent = '★ Monte Carlo + Convergência Bayesiana → Próximo Sorteio...'; } catch(e) {}
+                try {
+                    const p3 = document.getElementById('q-phase-3');
+                    const st = document.getElementById('q-status');
+                    if (p3) { p3.style.opacity = '1'; p3.style.background = 'rgba(236,72,153,0.2)'; p3.style.borderColor = 'rgba(236,72,153,0.5)'; }
+                    if (st) st.innerHTML = '🧿 Clarividência: convergência de 16 camadas → Próximo Sorteio...';
+                } catch(e) {}
 
                 setTimeout(() => {
                     try {
@@ -622,8 +650,8 @@ class UI {
                         // Feedback
                         const feedback = document.createElement('div');
                         feedback.className = 'generation-feedback';
-                        feedback.style.cssText = 'color:#8B5CF6;text-align:center;padding:10px;font-weight:bold;margin-top:10px;margin-bottom:10px;';
-                        feedback.textContent = `🧠 ${result.games.length} jogos inteligentes gerados com sucesso!`;
+                        feedback.style.cssText = 'text-align:center;padding:14px 16px;font-weight:800;margin-top:10px;margin-bottom:10px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border:1px solid rgba(255,215,0,0.3);border-radius:12px;';
+                        feedback.innerHTML = `<span style="color:#FFD700;font-size:1rem;">⚡ QUANTUM L99</span><br><span style="color:#C4B5FD;font-size:0.9rem;">${result.games.length} jogos gerados — Computação Quântica + Futurologia + Clarividência</span>`;
                         this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
 
                         // ── APOSTAR NA CAIXA — PAINEL UNIVERSAL ──

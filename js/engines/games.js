@@ -50,15 +50,7 @@ const GAMES = {
             { id: "close14", label: "Fechamento 14 Pontos",  guarantee: 14, icon: "⭐" },
             { id: "close13", label: "Fechamento 13 Pontos",  guarantee: 13, icon: "🔥" },
             { id: "close12", label: "Fechamento 12 Pontos",  guarantee: 12, icon: "💎" },
-            { id: "close11", label: "Fechamento 11 Pontos",  guarantee: 11, icon: "💎" },
-            { id: "close10", label: "Fechamento 10 Pontos",  guarantee: 10, icon: "👑" },
-            { id: "close9",  label: "Fechamento 9 Pontos",   guarantee: 9,  icon: "👑" },
-            { id: "close8",  label: "Fechamento 8 Pontos",   guarantee: 8,  icon: "🔥" },
-            { id: "close7",  label: "Fechamento 7 Pontos",   guarantee: 7,  icon: "⭐" },
-            { id: "close6",  label: "Fechamento 6 Pontos",   guarantee: 6,  icon: "✅" },
-            { id: "close5",  label: "Fechamento 5 Pontos",   guarantee: 5,  icon: "✅" },
-            { id: "close4",  label: "Fechamento 4 Pontos",   guarantee: 4,  icon: "✅" },
-            { id: "close3",  label: "Fechamento 3 Pontos",   guarantee: 3,  icon: "✅" }
+            { id: "close11", label: "Fechamento 11 Pontos",  guarantee: 11, icon: "👑" }
         ],
         minBet: 15,
         maxBet: 25,
