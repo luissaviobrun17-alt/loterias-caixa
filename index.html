@@ -713,10 +713,13 @@
                         <span class="share-icon facebook">👤</span> Facebook
                     </div>
                     <div class="share-menu-item" data-share="twitter">
-                        <span class="share-icon twitter">🐦</span> Twitter / X
+                        <span class="share-icon twitter">𝕏</span> X (Twitter)
                     </div>
                     <div class="share-menu-item" data-share="linkedin">
                         <span class="share-icon linkedin">💼</span> LinkedIn
+                    </div>
+                    <div class="share-menu-item" data-share="instagram">
+                        <span class="share-icon" style="background:linear-gradient(135deg,#E1306C,#833AB4,#F77737);">📸</span> Instagram
                     </div>
                     <div class="share-menu-divider"></div>
                     <div class="share-menu-item" data-share="email">
@@ -819,7 +822,7 @@
                                     url = 'https://www.facebook.com/sharer/sharer.php?u=' + encodedUrl;
                                     break;
                                 case 'twitter':
-                                    url = 'https://twitter.com/intent/tweet?text=' + encodedText + '&url=' + encodedUrl;
+                                    url = 'https://x.com/intent/tweet?text=' + encodedText + '&url=' + encodedUrl;
                                     break;
                                 case 'linkedin':
                                     url = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodedUrl;
@@ -830,6 +833,15 @@
                                 case 'sms':
                                     url = 'sms:?body=' + encodedText + '%20' + encodedUrl;
                                     break;
+                                case 'instagram':
+                                    navigator.clipboard.writeText(shareUrl + '\n\n' + shareText).then(function() {
+                                        alert('📸 Link copiado!\n\nO Instagram não permite compartilhar links diretamente.\n\n✅ O link já está copiado!\n\nCole nos Stories ou na Bio do seu perfil.');
+                                    }).catch(function() {
+                                        prompt('📸 Copie o link para compartilhar no Instagram:', shareUrl);
+                                    });
+                                    window.open('https://www.instagram.com/', '_blank');
+                                    shareMenu.style.display = 'none';
+                                    return;
                                 case 'qrcode':
                                     var qrModal = document.createElement('div');
                                     qrModal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
