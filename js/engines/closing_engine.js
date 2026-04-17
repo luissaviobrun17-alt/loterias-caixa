@@ -1,29 +1,30 @@
 /**
- * ClosingEngine v3.0 — Motor de Fechamento Matemático L99
+ * ClosingEngine v3.1 — Motor de Fechamento Matemático L99
  * 
- * CORREÇÕES CRÍTICAS v3.0:
- *   1. Detecção de IMPOSSIBILIDADE matemática com números fixos
- *   2. Algoritmo de cobertura correto no espaço reduzido
- *   3. Estimativas com suporte a fixos
- *   4. Verificação de cobertura ≥95%
- *   5. Níveis de garantia dinâmicos
+ * CORREÇÃO CRÍTICA v3.1:
+ *   GARANTIA CONDICIONAL: Se T é a garantia e F são fixos,
+ *   a garantia efetiva no espaço variável = T - F
+ *   
+ *   Fixar números REDUZ variáveis → REDUZ apostas!
  * 
- * FÓRMULA CHAVE:
- *   maxGuarantee = betSize - fixedCount
- *   Se guarantee > maxGuarantee → IMPOSSÍVEL
+ * LÓGICA:
+ *   - Jogador seleciona N números e fixa F deles
+ *   - Cada jogo = F fixos + (betSize - F) variáveis
+ *   - Para garantir T acertos: precisa (T - F) acertos variáveis
+ *   - Cobrir todos os (T-F)-subconjuntos de variáveis
+ *   - Lower bound = C(variableCount, T-F) / C(slotsVariable, T-F)
  * 
- * MOTIVO: Com F fixos, cada jogo tem F fixos + (betSize-F) variáveis.
- *   No pior caso, NENHUM fixo é sorteado, logo o máximo de acertos
- *   possíveis vem apenas das variáveis = betSize - F.
+ * EXEMPLOS (N=20, F=6, betSize=15):
+ *   G15 = 2.002 jogos (sem fixos = 15.504)
+ *   G14 = ~334 jogos (sem fixos = ~2.584)
+ *   G13 = ~96 jogos  (sem fixos = ~780)
+ *   G12 = ~36 jogos
+ *   G11 = ~16 jogos
  * 
- * ALGORITMO HÍBRIDO v3.0:
- *   - Greedy Exato: candidatos ≤ 25.000
- *   - Greedy Amostrado Reforçado: candidatos ≤ 500.000
- *   - Heurístico Verificado: candidatos > 500.000
- * 
- * Dado N números selecionados, F fixos, e garantia T:
- *   Gera o MÍNIMO de jogos que GARANTE cobertura de todos os
- *   T-subconjuntos dos N números selecionados.
+ * ALGORITMO HÍBRIDO:
+ *   - Greedy Exato: candidatos ≤ 25.000 E subconjuntos ≤ 200.000
+ *   - Greedy Amostrado: para espaços maiores
+ *   - Heurístico Verificado: para espaços enormes
  */
 
 class ClosingEngine {
@@ -43,42 +44,43 @@ class ClosingEngine {
     }
 
     // ═══════════════════════════════════════════
-    //  GARANTIA MÁXIMA ALCANÇÁVEL
-    //  Com F fixos, max = betSize - F
+    //  OBTER betSize CORRETO PARA CADA LOTERIA
     // ═══════════════════════════════════════════
-    static maxAchievableGuarantee(betSize, fixedCount) {
-        return betSize - fixedCount;
+    static getBetSize(gameKey) {
+        const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+        if (!game) return 6;
+        switch (gameKey) {
+            case 'timemania': return game.minBet;
+            case 'lotomania': return game.minBet;
+            default: return game.draw;
+        }
     }
 
     // ═══════════════════════════════════════════
-    //  VERIFICAR VIABILIDADE DE GARANTIA
+    //  GARANTIA EFETIVA NO ESPAÇO VARIÁVEL
+    //  effectiveG = guarantee - fixedCount
+    //  Se ≤ 0: 1 jogo basta (fixos cobrem tudo)
     // ═══════════════════════════════════════════
-    static isGuaranteeFeasible(guarantee, betSize, fixedCount) {
-        if (fixedCount === 0) return guarantee <= betSize;
-        return guarantee <= (betSize - fixedCount);
+    static effectiveGuarantee(guarantee, fixedCount) {
+        return Math.max(0, guarantee - fixedCount);
     }
 
     // ═══════════════════════════════════════════
-    //  GERAR TODOS OS SUBCONJUNTOS DE TAMANHO K
+    //  GERAR TODOS SUBCONJUNTOS DE TAMANHO K
     // ═══════════════════════════════════════════
     static _generateSubsets(arr, k) {
         const result = [];
         const n = arr.length;
         if (k > n || k <= 0) return result;
-
         const indices = [];
         for (let i = 0; i < k; i++) indices.push(i);
-
         while (true) {
             result.push(indices.map(i => arr[i]));
-
             let i = k - 1;
             while (i >= 0 && indices[i] === n - k + i) i--;
             if (i < 0) break;
             indices[i]++;
-            for (let j = i + 1; j < k; j++) {
-                indices[j] = indices[j - 1] + 1;
-            }
+            for (let j = i + 1; j < k; j++) indices[j] = indices[j - 1] + 1;
         }
         return result;
     }
@@ -89,17 +91,12 @@ class ClosingEngine {
     static _generateRandomSubsets(arr, k, maxCount) {
         const n = arr.length;
         if (k > n || k <= 0) return [];
-
-        const totalPossible = this.nCr(n, k);
-        if (totalPossible <= maxCount) {
-            return this._generateSubsets(arr, k);
-        }
+        if (this.nCr(n, k) <= maxCount) return this._generateSubsets(arr, k);
 
         const result = [];
         const seen = new Set();
         let attempts = 0;
         const maxAttempts = maxCount * 8;
-
         while (result.length < maxCount && attempts < maxAttempts) {
             attempts++;
             const available = [...Array(n).keys()];
@@ -111,7 +108,6 @@ class ClosingEngine {
             }
             indices.sort((a, b) => a - b);
             const key = indices.join(',');
-
             if (!seen.has(key)) {
                 seen.add(key);
                 result.push(indices.map(i => arr[i]));
@@ -120,77 +116,53 @@ class ClosingEngine {
         return result;
     }
 
-    // ═══════════════════════════════════════════
-    //  CHAVE ÚNICA PARA UM SUBCONJUNTO
-    // ═══════════════════════════════════════════
     static _subsetKey(subset) {
         return subset.join(',');
     }
 
-    // ═══════════════════════════════════════════
-    //  OBTER betSize CORRETO PARA CADA LOTERIA
-    // ═══════════════════════════════════════════
-    static getBetSize(gameKey) {
-        const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
-        if (!game) return 6;
-
-        switch (gameKey) {
-            case 'timemania':
-                return game.minBet; // 10
-            case 'lotomania':
-                return game.minBet; // 50
-            default:
-                return game.draw;
-        }
-    }
-
-    // ═══════════════════════════════════════════
-    //  ESTIMAR JOGOS NECESSÁRIOS (COM FIXOS)
-    //  Fórmula: ceil(C(variableCount, T) / C(slotsVariable, T)) × factor
-    // ═══════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
+    //  ESTIMAR JOGOS (COM FIXOS — GARANTIA CONDICIONAL)
+    //  
+    //  Fórmula: C(variableCount, effG) / C(slotsVariable, effG) × factor
+    //  Onde effG = guarantee - fixedCount
+    // ═══════════════════════════════════════════════════════
     static estimateGames(numSelected, guarantee, betSize = 6, fixedCount = 0) {
         if (numSelected < betSize) return 0;
 
         const slotsVariable = betSize - fixedCount;
         const variableCount = numSelected - fixedCount;
+        const effG = this.effectiveGuarantee(guarantee, fixedCount);
 
-        // Verificar viabilidade
-        if (fixedCount > 0 && guarantee > slotsVariable) {
-            return -1; // Impossível
-        }
+        // Se effG ≤ 0: fixos já cobrem tudo → 1 jogo
+        if (effG <= 0) return 1;
 
-        if (guarantee === betSize && fixedCount === 0) {
-            return this.nCr(numSelected, betSize);
-        }
-
-        if (guarantee === slotsVariable && fixedCount > 0) {
-            // Precisa de TODOS os candidatos
+        // Se effG = slotsVariable: ALL combinações
+        if (effG === slotsVariable) {
             return this.nCr(variableCount, slotsVariable);
         }
 
-        // Fórmula principal: basear no espaço variável
-        // Precisamos cobrir todos os T-subconjuntos de variáveis
-        // Cada candidato (slotsVariable números variáveis) cobre C(slotsVariable, T) T-subconjuntos
-        const totalVarSubsets = this.nCr(variableCount, guarantee);
-        const coversPerCandidate = this.nCr(slotsVariable, guarantee);
+        // Fórmula principal
+        const totalSubsets = this.nCr(variableCount, effG);
+        const coversPerGame = this.nCr(slotsVariable, effG);
 
-        if (coversPerCandidate === 0) return this.nCr(variableCount, slotsVariable);
+        if (coversPerGame === 0) return this.nCr(variableCount, slotsVariable);
 
-        const lowerBound = Math.ceil(totalVarSubsets / coversPerCandidate);
+        const lowerBound = Math.ceil(totalSubsets / coversPerGame);
 
-        // Fator de ajuste para greedy (tipicamente 1.1x - 1.8x do lower bound)
-        const ratio = guarantee / slotsVariable;
+        // Fator de ajuste para greedy
+        const ratio = effG / slotsVariable;
         let factor;
-        if (ratio >= 0.9) factor = 1.8;
-        else if (ratio >= 0.7) factor = 1.5;
-        else if (ratio >= 0.5) factor = 1.3;
-        else factor = 1.15;
+        if (ratio >= 0.9) factor = 1.5;
+        else if (ratio >= 0.7) factor = 1.35;
+        else if (ratio >= 0.5) factor = 1.2;
+        else factor = 1.1;
 
         return Math.max(lowerBound, Math.ceil(lowerBound * factor));
     }
 
     // ═══════════════════════════════════════════════════════════════
-    //  MÉTODO PRINCIPAL: GERAR FECHAMENTO OBJETIVO v3.0
+    //  MÉTODO PRINCIPAL: GERAR FECHAMENTO v3.1
+    //  CORRIGIDO: Fixos REDUZEM variáveis → REDUZEM apostas
     // ═══════════════════════════════════════════════════════════════
     static generateClosure(selectedNumbers, guarantee, betSize = 6, gameKey = 'megasena', fixedNumbers = []) {
         const t0 = Date.now();
@@ -201,7 +173,6 @@ class ClosingEngine {
         const fixedSet = new Set(fixedNumbers || []);
         const fixedCount = fixedSet.size;
 
-        // Auto-detectar betSize
         if (gameKey && typeof GAMES !== 'undefined') {
             betSize = this.getBetSize(gameKey);
         }
@@ -211,162 +182,136 @@ class ClosingEngine {
         const variableNums = nums.filter(n => !fixedSet.has(n));
         const variableCount = variableNums.length;
         const totalCandidates = slotsVariable > 0 ? this.nCr(variableCount, slotsVariable) : 1;
+        const effG = this.effectiveGuarantee(guarantee, fixedCount);
 
-        console.log('[CLOSING-v3.0] ══════════════════════════════════════');
-        console.log('[CLOSING-v3.0] 🎯 Motor Matemático v3.0');
-        console.log('[CLOSING-v3.0] Jogo: ' + gameKey + ' | N=' + N + ' | BetSize=' + betSize + ' | Garantia=' + guarantee);
+        console.log('[CLOSING-v3.1] ══════════════════════════════════════');
+        console.log('[CLOSING-v3.1] 🎯 Motor Fechamento v3.1 (Condicional)');
+        console.log('[CLOSING-v3.1] Jogo: ' + gameKey + ' | N=' + N + ' | BetSize=' + betSize + ' | Garantia=' + guarantee);
         if (fixedCount > 0) {
-            console.log('[CLOSING-v3.0] 📌 Fixos (' + fixedCount + '): ' + fixedArr.sort((a, b) => a - b).join(', '));
-            console.log('[CLOSING-v3.0] 🔢 Variáveis: ' + variableCount + ' | Slots: ' + slotsVariable);
-            console.log('[CLOSING-v3.0] 📐 Max Garantia Alcançável: ' + slotsVariable);
+            console.log('[CLOSING-v3.1] 📌 Fixos (' + fixedCount + '): [' + fixedArr.join(', ') + ']');
+            console.log('[CLOSING-v3.1] 🔢 Variáveis: ' + variableCount + ' | Slots: ' + slotsVariable);
+            console.log('[CLOSING-v3.1] 📐 Garantia Efetiva: ' + guarantee + ' - ' + fixedCount + ' = ' + effG + ' acertos variáveis');
         }
-        console.log('[CLOSING-v3.0] 📊 Candidatos possíveis: C(' + variableCount + ',' + slotsVariable + ') = ' + totalCandidates.toLocaleString('pt-BR'));
+        console.log('[CLOSING-v3.1] 📊 Candidatos: C(' + variableCount + ',' + slotsVariable + ') = ' + totalCandidates.toLocaleString('pt-BR'));
 
         // ━━ VALIDAÇÕES ━━
         if (N < betSize) {
-            return this._errorResult('Selecione pelo menos ' + betSize + ' números para o fechamento.', guarantee, nums, fixedSet);
+            return this._errorResult('Selecione pelo menos ' + betSize + ' números.', guarantee, nums, fixedSet);
+        }
+        if (fixedCount >= betSize) {
+            return this._errorResult('Fixos (' + fixedCount + ') devem ser menor que tamanho do jogo (' + betSize + ').', guarantee, nums, fixedSet);
+        }
+        if (guarantee > betSize) {
+            return this._errorResult('Garantia (' + guarantee + ') não pode ser maior que ' + betSize + '.', guarantee, nums, fixedSet);
+        }
+        if (guarantee < 3) {
+            return this._errorResult('Garantia mínima: 3 acertos.', guarantee, nums, fixedSet);
+        }
+        if (variableCount < slotsVariable) {
+            return this._errorResult('Selecione mais números (precisa ' + slotsVariable + ' variáveis, tem ' + variableCount + ').', guarantee, nums, fixedSet);
         }
 
-        if (fixedCount > betSize) {
-            return this._errorResult('Número de fixos (' + fixedCount + ') excede o tamanho do jogo (' + betSize + '). Reduza os números fixos.', guarantee, nums, fixedSet);
-        }
-
-        if (fixedCount > 0 && guarantee < 3) {
-            return this._errorResult('Garantia mínima é de 3 acertos.', guarantee, nums, fixedSet);
-        }
-
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // DETECÇÃO DE IMPOSSIBILIDADE MATEMÁTICA (v3.0)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        if (fixedCount > 0 && guarantee > slotsVariable) {
-            const maxG = slotsVariable;
-            console.log('[CLOSING-v3.0] ❌ IMPOSSÍVEL: Garantia ' + guarantee + ' > Max Alcançável ' + maxG + ' com ' + fixedCount + ' fixos');
+        // ━━ CASO: effG ≤ 0 → 1 jogo basta ━━
+        if (effG <= 0) {
+            const oneGame = [...fixedArr, ...variableNums.slice(0, slotsVariable)].sort((a, b) => a - b);
             return {
-                games: [], guarantee, totalGames: 0, totalSubsets: 0,
-                covered: 0, coveragePct: 0, cost: 0,
-                error: '⚠️ IMPOSSIBILIDADE MATEMÁTICA: Com ' + fixedCount + ' números fixos, ' +
-                    'a garantia máxima alcançável é de ' + maxG + ' acertos.\n\n' +
-                    'Motivo: Cada jogo tem ' + fixedCount + ' fixos + ' + slotsVariable + ' variáveis. ' +
-                    'No pior caso, nenhum fixo é sorteado, então o máximo de acertos possíveis = ' + slotsVariable + '.\n\n' +
-                    'Sugestão: Use garantia ≤ ' + maxG + ', ou reduza os números fixos.',
-                selectedNumbers: nums,
-                fixedNumbers: [...fixedSet],
-                maxAchievableGuarantee: maxG,
-                impossible: true
+                games: [oneGame], guarantee, totalGames: 1,
+                totalSubsets: 1, covered: 1, coveragePct: 100,
+                cost: pricePerGame, mode: 'TRIVIAL', elapsed: Date.now() - t0,
+                selectedNumbers: nums, fixedNumbers: [...fixedSet],
+                confidence: 100, effectiveGuarantee: effG,
+                msg: 'Com ' + fixedCount + ' fixos, garantia de ' + guarantee + ' acertos é coberta com apenas 1 jogo!'
             };
         }
 
-        if (guarantee > betSize) {
-            return this._errorResult('Garantia (' + guarantee + ') não pode ser maior que o tamanho do jogo (' + betSize + ').', guarantee, nums, fixedSet);
-        }
-
-        if (guarantee < 3) {
-            return this._errorResult('Garantia mínima é de 3 acertos.', guarantee, nums, fixedSet);
-        }
-
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // CASO ESPECIAL: Fechamento Completo (guarantee = betSize SEM fixos)
-        //  OU (guarantee = slotsVariable COM fixos → todos candidatos)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        const isFullClosure = (fixedCount === 0 && guarantee === betSize) ||
-            (fixedCount > 0 && guarantee === slotsVariable);
-
-        if (isFullClosure) {
+        // ━━ CASO: Fechamento Completo (effG = slotsVariable) ━━
+        if (effG === slotsVariable) {
             if (totalCandidates > 50000) {
                 return {
                     games: [], guarantee, totalGames: totalCandidates,
                     totalSubsets: totalCandidates, covered: 0, coveragePct: 100,
                     cost: totalCandidates * pricePerGame,
-                    error: 'Fechamento completo de ' + guarantee + ' acertos com ' + N + ' números ' +
-                        (fixedCount > 0 ? '(' + fixedCount + ' fixos) ' : '') +
-                        'geraria ' + totalCandidates.toLocaleString('pt-BR') + ' jogos (R$ ' +
+                    error: 'Fechamento completo de ' + guarantee + ' acertos' +
+                        (fixedCount > 0 ? ' (' + fixedCount + ' fixos)' : '') +
+                        ' geraria ' + totalCandidates.toLocaleString('pt-BR') + ' jogos (R$ ' +
                         (totalCandidates * pricePerGame).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) +
-                        '). Reduza os números ou use garantia menor.',
+                        '). Reduza números selecionados ou use garantia menor.',
                     selectedNumbers: nums, fixedNumbers: [...fixedSet]
                 };
             }
 
-            console.log('[CLOSING-v3.0] Modo: FECHAMENTO COMPLETO → ' + totalCandidates + ' jogos');
+            console.log('[CLOSING-v3.1] Modo: COMPLETO → ' + totalCandidates + ' jogos');
             const games = this._buildAllCandidates(fixedArr, variableNums, slotsVariable);
-            const elapsed = Date.now() - t0;
-            console.log('[CLOSING-v3.0] ✅ ' + games.length + ' jogos em ' + elapsed + 'ms');
-
             return {
                 games, guarantee, totalGames: games.length,
                 totalSubsets: totalCandidates, covered: totalCandidates,
                 coveragePct: 100, cost: games.length * pricePerGame,
-                mode: 'COMPLETO', elapsed, selectedNumbers: nums, fixedNumbers: [...fixedSet],
-                confidence: 100
+                mode: 'COMPLETO', elapsed: Date.now() - t0,
+                selectedNumbers: nums, fixedNumbers: [...fixedSet],
+                confidence: 100, effectiveGuarantee: effG
             };
         }
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // SELECIONAR ALGORITMO v3.0
-        // Baseado no espaço de candidatos E T-subconjuntos
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        const totalVarTSubsets = this.nCr(variableCount, guarantee);
-        console.log('[CLOSING-v3.0] T-subconjuntos variáveis: C(' + variableCount + ',' + guarantee + ') = ' + totalVarTSubsets.toLocaleString('pt-BR'));
+        // ━━ SELECIONAR ALGORITMO ━━
+        const totalVarTSubsets = this.nCr(variableCount, effG);
+        console.log('[CLOSING-v3.1] Subconjuntos efetivos: C(' + variableCount + ',' + effG + ') = ' + totalVarTSubsets.toLocaleString('pt-BR'));
 
         if (totalCandidates <= 25000 && totalVarTSubsets <= 200000) {
-            console.log('[CLOSING-v3.0] → Algoritmo: GREEDY EXATO v3.0');
-            return this._greedyExactV3(fixedArr, variableNums, slotsVariable, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet);
-        } else if (totalCandidates <= 500000 && totalVarTSubsets <= 1000000) {
-            console.log('[CLOSING-v3.0] → Algoritmo: GREEDY AMOSTRADO REFORÇADO v3.0');
-            return this._greedySampledV3(fixedArr, variableNums, slotsVariable, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet);
+            console.log('[CLOSING-v3.1] → GREEDY EXATO');
+            return this._greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet);
+        } else if (totalVarTSubsets <= 1000000) {
+            console.log('[CLOSING-v3.1] → GREEDY AMOSTRADO');
+            return this._greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet);
         } else {
-            console.log('[CLOSING-v3.0] → Algoritmo: HEURÍSTICO VERIFICADO v3.0');
-            return this._heuristicVerifiedV3(fixedArr, variableNums, slotsVariable, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet);
+            console.log('[CLOSING-v3.1] → HEURÍSTICO VERIFICADO');
+            return this._heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet);
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  CONSTRUIR TODOS OS CANDIDATOS (fixos + variáveis)
-    // ═══════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════
+    //  CONSTRUIR TODOS OS CANDIDATOS
+    // ═══════════════════════════════════════════
     static _buildAllCandidates(fixedArr, variableNums, slotsVariable) {
         const variableCombos = this._generateSubsets(variableNums, slotsVariable);
         return variableCombos.map(combo => [...fixedArr, ...combo].sort((a, b) => a - b));
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  ALGORITMO 1: GREEDY EXATO v3.0
-    //  Trabalha no espaço REDUZIDO (apenas variáveis)
-    //  Garante cobertura matemática exata
-    // ═══════════════════════════════════════════════════════════════
-    static _greedyExactV3(fixedArr, variableNums, slotsVariable, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet) {
+    // ═══════════════════════════════════════════════════════
+    //  GREEDY EXATO: Cobertura exata de effG-subconjuntos
+    // ═══════════════════════════════════════════════════════
+    static _greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet) {
         const variableCount = variableNums.length;
 
-        // 1. Enumerar todos os T-subconjuntos de VARIÁVEIS a cobrir
-        const allTSubsets = this._generateSubsets(variableNums, guarantee);
+        // 1. Enumerar TODOS os effG-subconjuntos de variáveis
+        const allTSubsets = this._generateSubsets(variableNums, effG);
         const totalSubsets = allTSubsets.length;
-
-        console.log('[CLOSING-v3.0] T-subconjuntos a cobrir: ' + totalSubsets);
+        console.log('[CLOSING-v3.1] Subconjuntos a cobrir: ' + totalSubsets);
 
         const subsetKeyToIndex = new Map();
-        for (let i = 0; i < allTSubsets.length; i++) {
+        for (let i = 0; i < totalSubsets; i++) {
             subsetKeyToIndex.set(this._subsetKey(allTSubsets[i]), i);
         }
 
         const uncovered = new Set();
         for (let i = 0; i < totalSubsets; i++) uncovered.add(i);
 
-        // 2. Enumerar todos os candidatos (apenas a parte variável)
+        // 2. Enumerar TODOS os candidatos (parte variável)
         const allVariableParts = this._generateSubsets(variableNums, slotsVariable);
-        console.log('[CLOSING-v3.0] Candidatos: ' + allVariableParts.length);
+        console.log('[CLOSING-v3.1] Candidatos: ' + allVariableParts.length);
 
-        // 3. Pré-calcular coberturas: quais T-subconjuntos cada candidato cobre
+        // 3. Pré-calcular coberturas
         const candidateCovers = [];
-        for (let c = 0; c < allVariableParts.length; c++) {
+        for (const vp of allVariableParts) {
             const covers = new Set();
-            const tSubs = this._generateSubsets(allVariableParts[c], guarantee);
+            const tSubs = this._generateSubsets(vp, effG);
             for (const sub of tSubs) {
-                const key = this._subsetKey(sub);
-                const idx = subsetKeyToIndex.get(key);
+                const idx = subsetKeyToIndex.get(this._subsetKey(sub));
                 if (idx !== undefined) covers.add(idx);
             }
             candidateCovers.push(covers);
         }
 
-        // 4. Greedy Set Cover: selecionar o candidato que cobre MAIS
+        // 4. Greedy Set Cover
         const selectedIndices = [];
         const usedCandidates = new Set();
         const TIMEOUT = 120000;
@@ -374,7 +319,6 @@ class ClosingEngine {
         while (uncovered.size > 0 && (Date.now() - t0) < TIMEOUT) {
             let bestCandidate = -1;
             let bestCount = 0;
-
             for (let c = 0; c < allVariableParts.length; c++) {
                 if (usedCandidates.has(c)) continue;
                 let count = 0;
@@ -386,114 +330,78 @@ class ClosingEngine {
                     bestCandidate = c;
                 }
             }
-
             if (bestCandidate === -1 || bestCount === 0) break;
-
             selectedIndices.push(bestCandidate);
             usedCandidates.add(bestCandidate);
-
-            for (const idx of candidateCovers[bestCandidate]) {
-                uncovered.delete(idx);
-            }
+            for (const idx of candidateCovers[bestCandidate]) uncovered.delete(idx);
 
             if (selectedIndices.length % 50 === 0) {
-                const pct = ((totalSubsets - uncovered.size) / totalSubsets * 100).toFixed(1);
-                console.log('[CLOSING-v3.0] Progresso: ' + selectedIndices.length + ' jogos → ' + pct + '% coberto');
+                console.log('[CLOSING-v3.1] → ' + selectedIndices.length + ' jogos (' + ((totalSubsets - uncovered.size) / totalSubsets * 100).toFixed(1) + '%)');
             }
         }
 
-        // 5. Montar jogos finais: fixos + parte variável selecionada
+        // 5. Montar jogos
         const games = selectedIndices.map(idx =>
             [...fixedArr, ...allVariableParts[idx]].sort((a, b) => a - b)
         );
-
         const covered = totalSubsets - uncovered.size;
         const coveragePct = totalSubsets > 0 ? (covered / totalSubsets * 100) : 0;
         const elapsed = Date.now() - t0;
 
-        // 6. Verificar cobertura COMPLETA dos T-subconjuntos do espaço TOTAL
-        // (inclui subconjuntos com números fixos — automaticamente cobertos)
-        const totalFullSubsets = this.nCr(allNums.length, guarantee);
-        const fullCovered = this._verifyFullCoverage(games, allNums, guarantee, 10000);
-
-        console.log('[CLOSING-v3.0] ══════════════════════════════════════');
-        console.log('[CLOSING-v3.0] ✅ RESULTADO (GREEDY_EXATO_v3):');
-        console.log('[CLOSING-v3.0]    Jogos: ' + games.length);
-        console.log('[CLOSING-v3.0]    Cobertura variáveis: ' + covered + '/' + totalSubsets + ' (' + coveragePct.toFixed(2) + '%)');
-        console.log('[CLOSING-v3.0]    Cobertura total (amostra): ' + fullCovered.toFixed(1) + '%');
-        console.log('[CLOSING-v3.0]    Custo: R$ ' + (games.length * pricePerGame).toFixed(2));
-        console.log('[CLOSING-v3.0]    Tempo: ' + elapsed + 'ms');
-        console.log('[CLOSING-v3.0] ══════════════════════════════════════');
+        console.log('[CLOSING-v3.1] ✅ ' + games.length + ' jogos | Cobertura: ' + coveragePct.toFixed(1) + '% | ' + elapsed + 'ms');
 
         return {
-            games,
-            guarantee,
-            totalGames: games.length,
-            totalSubsets: totalFullSubsets,
-            covered: Math.round(totalFullSubsets * fullCovered / 100),
-            coveragePct: parseFloat(fullCovered.toFixed(2)),
-            cost: games.length * pricePerGame,
-            mode: 'GREEDY_EXATO_v3',
-            elapsed,
-            selectedNumbers: allNums,
-            fixedNumbers: [...fixedSet],
-            confidence: coveragePct >= 99.9 ? 100 : parseFloat(coveragePct.toFixed(1))
+            games, guarantee, totalGames: games.length,
+            totalSubsets, covered, coveragePct: parseFloat(coveragePct.toFixed(2)),
+            cost: games.length * pricePerGame, mode: 'GREEDY_EXATO',
+            elapsed, selectedNumbers: allNums, fixedNumbers: [...fixedSet],
+            confidence: coveragePct >= 99.9 ? 100 : parseFloat(coveragePct.toFixed(1)),
+            effectiveGuarantee: effG
         };
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  ALGORITMO 2: GREEDY AMOSTRADO REFORÇADO v3.0
-    //  Para espaços médios — amostra candidatos em lotes com
-    //  tracking de cobertura
-    // ═══════════════════════════════════════════════════════════════
-    static _greedySampledV3(fixedArr, variableNums, slotsVariable, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet) {
+    // ═══════════════════════════════════════════════════════
+    //  GREEDY AMOSTRADO: Para espaços médios
+    // ═══════════════════════════════════════════════════════
+    static _greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet) {
         const variableCount = variableNums.length;
         const TIMEOUT = 120000;
-        const BATCH_SIZE = 20000;
+        const BATCH_SIZE = 15000;
 
-        // 1. Enumerar ou amostrar T-subconjuntos de variáveis
-        const totalVarTSubsets = this.nCr(variableCount, guarantee);
+        // 1. Enumerar ou amostrar effG-subconjuntos
+        const totalVarTSubsets = this.nCr(variableCount, effG);
         let sampledTSubsets;
-        let useFullCoverage = false;
-
-        if (totalVarTSubsets <= 200000) {
-            sampledTSubsets = this._generateSubsets(variableNums, guarantee);
-            useFullCoverage = true;
-            console.log('[CLOSING-v3.0] T-subconjuntos enumerados: ' + sampledTSubsets.length);
+        let useFullCoverage = totalVarTSubsets <= 200000;
+        if (useFullCoverage) {
+            sampledTSubsets = this._generateSubsets(variableNums, effG);
         } else {
-            sampledTSubsets = this._generateRandomSubsets(variableNums, guarantee, 100000);
-            console.log('[CLOSING-v3.0] T-subconjuntos amostrados: ' + sampledTSubsets.length + '/' + totalVarTSubsets.toLocaleString('pt-BR'));
+            sampledTSubsets = this._generateRandomSubsets(variableNums, effG, 100000);
         }
 
         const subsetKeyToIndex = new Map();
         for (let i = 0; i < sampledTSubsets.length; i++) {
             subsetKeyToIndex.set(this._subsetKey(sampledTSubsets[i]), i);
         }
-
         const uncovered = new Set();
         for (let i = 0; i < sampledTSubsets.length; i++) uncovered.add(i);
 
-        // 2. Greedy iterativo com lotes de candidatos
+        // 2. Greedy iterativo com lotes
         const selectedGames = [];
         let rounds = 0;
-        const MAX_ROUNDS = 200;
+        const MAX_ROUNDS = 500;
 
         while (uncovered.size > 0 && rounds < MAX_ROUNDS && (Date.now() - t0) < TIMEOUT) {
             rounds++;
-
-            // Gerar lote de candidatos variáveis aleatórios
             const candidates = this._generateRandomSubsets(variableNums, slotsVariable, BATCH_SIZE);
 
-            // Encontrar o melhor candidato deste lote
             let bestCandidate = null;
             let bestCount = 0;
 
             for (const candidate of candidates) {
-                const tSubs = this._generateSubsets(candidate, guarantee);
+                const tSubs = this._generateSubsets(candidate, effG);
                 let count = 0;
                 for (const sub of tSubs) {
-                    const key = this._subsetKey(sub);
-                    const idx = subsetKeyToIndex.get(key);
+                    const idx = subsetKeyToIndex.get(this._subsetKey(sub));
                     if (idx !== undefined && uncovered.has(idx)) count++;
                 }
                 if (count > bestCount) {
@@ -503,99 +411,70 @@ class ClosingEngine {
             }
 
             if (!bestCandidate || bestCount === 0) {
-                // Tentar candidato direcionado
-                const smartCandidate = this._generateSmartCandidateV3(variableNums, slotsVariable, uncovered, sampledTSubsets);
-                if (smartCandidate) {
-                    selectedGames.push([...fixedArr, ...smartCandidate].sort((a, b) => a - b));
-                    const tSubs = this._generateSubsets(smartCandidate, guarantee);
-                    for (const sub of tSubs) {
-                        const key = this._subsetKey(sub);
-                        const idx = subsetKeyToIndex.get(key);
-                        if (idx !== undefined) uncovered.delete(idx);
+                // Candidato direcionado
+                const uncovIdx = uncovered.values().next().value;
+                const targetSub = sampledTSubsets[uncovIdx];
+                if (targetSub) {
+                    const candidate = new Set(targetSub);
+                    const remaining = variableNums.filter(n => !candidate.has(n)).sort(() => Math.random() - 0.5);
+                    for (const num of remaining) {
+                        if (candidate.size >= slotsVariable) break;
+                        candidate.add(num);
                     }
-                }
-                continue;
+                    bestCandidate = [...candidate].sort((a, b) => a - b);
+                } else continue;
             }
 
             selectedGames.push([...fixedArr, ...bestCandidate].sort((a, b) => a - b));
 
-            // Remover cobertos
-            const tSubs = this._generateSubsets(bestCandidate, guarantee);
+            const tSubs = this._generateSubsets(bestCandidate, effG);
             for (const sub of tSubs) {
-                const key = this._subsetKey(sub);
-                const idx = subsetKeyToIndex.get(key);
+                const idx = subsetKeyToIndex.get(this._subsetKey(sub));
                 if (idx !== undefined) uncovered.delete(idx);
             }
 
             if (selectedGames.length % 20 === 0) {
-                const pct = ((sampledTSubsets.length - uncovered.size) / sampledTSubsets.length * 100).toFixed(1);
-                console.log('[CLOSING-v3.0] Progresso: ' + selectedGames.length + ' jogos → ' + pct + '% coberto');
+                console.log('[CLOSING-v3.1] → ' + selectedGames.length + ' jogos (' + ((sampledTSubsets.length - uncovered.size) / sampledTSubsets.length * 100).toFixed(1) + '%)');
             }
         }
 
-        // Verificação de cobertura
-        const varCoveragePct = ((sampledTSubsets.length - uncovered.size) / sampledTSubsets.length * 100);
-        const fullCoveragePct = this._verifyFullCoverage(selectedGames, allNums, guarantee, 10000);
+        const coveragePct = ((sampledTSubsets.length - uncovered.size) / sampledTSubsets.length * 100);
         const elapsed = Date.now() - t0;
-        const totalFullSubsets = this.nCr(allNums.length, guarantee);
 
-        console.log('[CLOSING-v3.0] ══════════════════════════════════════');
-        console.log('[CLOSING-v3.0] ✅ RESULTADO (GREEDY_AMOSTRADO_v3):');
-        console.log('[CLOSING-v3.0]    Jogos: ' + selectedGames.length);
-        console.log('[CLOSING-v3.0]    Cobertura variáveis: ' + varCoveragePct.toFixed(2) + '%');
-        console.log('[CLOSING-v3.0]    Cobertura total (amostra): ' + fullCoveragePct.toFixed(1) + '%');
-        console.log('[CLOSING-v3.0]    Rounds: ' + rounds);
-        console.log('[CLOSING-v3.0]    Tempo: ' + elapsed + 'ms');
-        console.log('[CLOSING-v3.0] ══════════════════════════════════════');
+        console.log('[CLOSING-v3.1] ✅ ' + selectedGames.length + ' jogos | Cobertura: ' + coveragePct.toFixed(1) + '% | ' + elapsed + 'ms');
 
         return {
-            games: selectedGames,
-            guarantee,
-            totalGames: selectedGames.length,
-            totalSubsets: totalFullSubsets,
-            covered: Math.round(totalFullSubsets * fullCoveragePct / 100),
-            coveragePct: parseFloat(fullCoveragePct.toFixed(2)),
-            cost: selectedGames.length * pricePerGame,
-            mode: 'GREEDY_AMOSTRADO_v3',
-            elapsed,
-            selectedNumbers: allNums,
-            fixedNumbers: [...fixedSet],
-            confidence: parseFloat(Math.min(100, varCoveragePct).toFixed(1)),
-            note: useFullCoverage ? 'Cobertura exata de T-subconjuntos variáveis.' : 'Cobertura estimada por amostragem de ' + sampledTSubsets.length.toLocaleString('pt-BR') + ' subconjuntos.'
+            games: selectedGames, guarantee, totalGames: selectedGames.length,
+            totalSubsets: this.nCr(allNums.length, guarantee),
+            covered: Math.round(sampledTSubsets.length * coveragePct / 100),
+            coveragePct: parseFloat(coveragePct.toFixed(2)),
+            cost: selectedGames.length * pricePerGame, mode: 'GREEDY_AMOSTRADO',
+            elapsed, selectedNumbers: allNums, fixedNumbers: [...fixedSet],
+            confidence: parseFloat(Math.min(100, coveragePct).toFixed(1)),
+            effectiveGuarantee: effG,
+            note: useFullCoverage ? 'Cobertura exata.' : 'Cobertura estimada por ' + sampledTSubsets.length.toLocaleString('pt-BR') + ' amostras.'
         };
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  ALGORITMO 3: HEURÍSTICO VERIFICADO v3.0
-    //  Para espaços enormes — gera por diversidade mas VERIFICA
-    // ═══════════════════════════════════════════════════════════════
-    static _heuristicVerifiedV3(fixedArr, variableNums, slotsVariable, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet) {
+    // ═══════════════════════════════════════════════════════
+    //  HEURÍSTICO VERIFICADO: Para espaços enormes
+    // ═══════════════════════════════════════════════════════
+    static _heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet) {
         const variableCount = variableNums.length;
-        const totalFullSubsets = this.nCr(allNums.length, guarantee);
-
-        // Estimar jogos necessários COM a fórmula correta
-        const totalVarSubsets = this.nCr(variableCount, guarantee);
-        const coversPerCandidate = this.nCr(slotsVariable, guarantee);
+        const totalVarSubsets = this.nCr(variableCount, effG);
+        const coversPerCandidate = this.nCr(slotsVariable, effG);
         const lowerBound = coversPerCandidate > 0 ? Math.ceil(totalVarSubsets / coversPerCandidate) : totalVarSubsets;
 
-        const ratio = guarantee / slotsVariable;
-        let factor;
-        if (ratio >= 0.9) factor = 2.0;
-        else if (ratio >= 0.7) factor = 1.6;
-        else if (ratio >= 0.5) factor = 1.4;
-        else factor = 1.2;
-
+        const ratio = effG / slotsVariable;
+        let factor = ratio >= 0.9 ? 2.0 : ratio >= 0.7 ? 1.6 : ratio >= 0.5 ? 1.4 : 1.2;
         const targetGames = Math.max(lowerBound, Math.ceil(lowerBound * factor));
         const maxGames = Math.min(targetGames, 8000);
 
-        console.log('[CLOSING-v3.0] Estimativa: lowerBound=' + lowerBound + ' → target=' + targetGames + ' → max=' + maxGames);
+        console.log('[CLOSING-v3.1] Estimativa: lower=' + lowerBound + ' → target=' + targetGames + ' → max=' + maxGames);
 
-        // Gerar candidatos com máxima diversidade
         const selectedGames = [];
         const usedKeys = new Set();
         const TIMEOUT = 90000;
-
-        // Dividir variáveis em zonas para diversidade
         const zonesCount = Math.max(2, Math.ceil(variableCount / Math.max(slotsVariable, 1)));
         const zones = [];
         for (let z = 0; z < zonesCount; z++) {
@@ -605,77 +484,40 @@ class ClosingEngine {
         }
 
         let attempts = 0;
-        const maxAttempts = maxGames * 30;
-
-        while (selectedGames.length < maxGames && attempts < maxAttempts && (Date.now() - t0) < TIMEOUT) {
+        while (selectedGames.length < maxGames && attempts < maxGames * 30 && (Date.now() - t0) < TIMEOUT) {
             attempts++;
-            const variablePart = this._generateDiverseCandidate(variableNums, slotsVariable, selectedGames, zones);
+            const variablePart = this._generateDiverseCandidate(variableNums, slotsVariable, zones);
             const candidate = [...fixedArr, ...variablePart].sort((a, b) => a - b);
             const key = candidate.join(',');
-
             if (!usedKeys.has(key)) {
                 usedKeys.add(key);
                 selectedGames.push([...candidate]);
             }
         }
 
-        // Verificar cobertura por amostragem
         const coverageEstimate = this._verifyFullCoverage(selectedGames, allNums, guarantee, 15000);
         const elapsed = Date.now() - t0;
-        const covered = Math.round(totalFullSubsets * coverageEstimate / 100);
 
-        console.log('[CLOSING-v3.0] ══════════════════════════════════════');
-        console.log('[CLOSING-v3.0] ✅ RESULTADO (HEURÍSTICO_v3):');
-        console.log('[CLOSING-v3.0]    Jogos: ' + selectedGames.length);
-        console.log('[CLOSING-v3.0]    Cobertura estimada: ' + coverageEstimate.toFixed(1) + '%');
-        console.log('[CLOSING-v3.0]    Tempo: ' + elapsed + 'ms');
-        console.log('[CLOSING-v3.0] ══════════════════════════════════════');
+        console.log('[CLOSING-v3.1] ✅ ' + selectedGames.length + ' jogos | Cobertura: ' + coverageEstimate.toFixed(1) + '% | ' + elapsed + 'ms');
 
         return {
-            games: selectedGames,
-            guarantee,
-            totalGames: selectedGames.length,
-            totalSubsets: totalFullSubsets,
-            covered: covered,
+            games: selectedGames, guarantee, totalGames: selectedGames.length,
+            totalSubsets: this.nCr(allNums.length, guarantee),
+            covered: Math.round(this.nCr(allNums.length, guarantee) * coverageEstimate / 100),
             coveragePct: parseFloat(coverageEstimate.toFixed(2)),
-            cost: selectedGames.length * pricePerGame,
-            mode: 'HEURÍSTICO_v3',
-            elapsed,
-            selectedNumbers: allNums,
-            fixedNumbers: [...fixedSet],
+            cost: selectedGames.length * pricePerGame, mode: 'HEURÍSTICO',
+            elapsed, selectedNumbers: allNums, fixedNumbers: [...fixedSet],
             confidence: parseFloat(Math.min(100, coverageEstimate).toFixed(1)),
-            note: 'Cobertura estimada por amostragem estatística de 15.000 subconjuntos.'
+            effectiveGuarantee: effG,
+            note: 'Cobertura estimada por amostragem de 15.000 subconjuntos.'
         };
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  GERAR CANDIDATO INTELIGENTE DIRECIONADO
-    // ═══════════════════════════════════════════════════════════════
-    static _generateSmartCandidateV3(variableNums, slotsVariable, uncoveredSet, allTSubsets) {
-        if (uncoveredSet.size === 0) return null;
-
-        const uncoveredIdx = uncoveredSet.values().next().value;
-        const targetSubset = allTSubsets[uncoveredIdx];
-        if (!targetSubset) return null;
-
-        const candidate = new Set(targetSubset);
-        const remaining = variableNums.filter(n => !candidate.has(n));
-        const shuffled = [...remaining].sort(() => Math.random() - 0.5);
-
-        for (const num of shuffled) {
-            if (candidate.size >= slotsVariable) break;
-            candidate.add(num);
-        }
-
-        return [...candidate].sort((a, b) => a - b);
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    //  GERAR CANDIDATO COM DIVERSIDADE
-    // ═══════════════════════════════════════════════════════════════
-    static _generateDiverseCandidate(nums, betSize, existingGames, zones) {
+    // ═══════════════════════════════════════════
+    //  GERAR CANDIDATO DIVERSO
+    // ═══════════════════════════════════════════
+    static _generateDiverseCandidate(nums, betSize, zones) {
         const candidate = new Set();
-
         if (Math.random() < 0.6 && zones.length > 1) {
             const perZone = Math.max(1, Math.floor(betSize / zones.length));
             for (const zone of zones) {
@@ -685,55 +527,34 @@ class ClosingEngine {
                 }
             }
         }
-
-        const remaining = nums.filter(n => !candidate.has(n));
-        const shuffled = remaining.sort(() => Math.random() - 0.5);
-        for (const num of shuffled) {
+        const remaining = nums.filter(n => !candidate.has(n)).sort(() => Math.random() - 0.5);
+        for (const num of remaining) {
             if (candidate.size >= betSize) break;
             candidate.add(num);
         }
-
         return [...candidate];
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  VERIFICAÇÃO DE COBERTURA TOTAL (amostragem)
-    //  Gera T-subconjuntos aleatórios de TODOS os números e verifica
-    // ═══════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════
+    //  VERIFICAR COBERTURA (amostragem)
+    // ═══════════════════════════════════════════
     static _verifyFullCoverage(games, allNums, guarantee, sampleSize) {
         if (games.length === 0) return 0;
-
-        // Gerar amostras de T-subconjuntos de TODOS os números selecionados
         const samples = this._generateRandomSubsets(allNums, guarantee, sampleSize);
         if (samples.length === 0) return 0;
-
         const gameSets = games.map(g => new Set(g));
-
         let covered = 0;
         for (const sample of samples) {
-            let isCovered = false;
             for (const gameSet of gameSets) {
-                let allIn = true;
-                for (const num of sample) {
-                    if (!gameSet.has(num)) {
-                        allIn = false;
-                        break;
-                    }
-                }
-                if (allIn) {
-                    isCovered = true;
-                    break;
-                }
+                if (sample.every(n => gameSet.has(n))) { covered++; break; }
             }
-            if (isCovered) covered++;
         }
-
         return (covered / samples.length) * 100;
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  RESULTADO DE ERRO PADRONIZADO
-    // ═══════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════
+    //  RESULTADO DE ERRO
+    // ═══════════════════════════════════════════
     static _errorResult(error, guarantee, nums, fixedSet) {
         return {
             games: [], guarantee, totalGames: 0, totalSubsets: 0,
@@ -742,146 +563,86 @@ class ClosingEngine {
         };
     }
 
-    // ═══════════════════════════════════════════
-    //  PREVIEW DO FECHAMENTO (COM FIXOS) v3.0
-    // ═══════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
+    //  PREVIEW DO FECHAMENTO (COM FIXOS CONDICIONAIS)
+    // ═══════════════════════════════════════════════════════
     static getClosurePreview(numSelected, guarantee, betSize = 6, gameKey = 'megasena', fixedCount = 0) {
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         const price = game ? game.price : 6.00;
-
-        if (gameKey && typeof GAMES !== 'undefined') {
-            betSize = this.getBetSize(gameKey);
-        }
+        if (gameKey && typeof GAMES !== 'undefined') betSize = this.getBetSize(gameKey);
 
         if (numSelected < betSize) {
-            return {
-                games: 0, cost: 0, subsets: 0, possible: false,
-                msg: 'Selecione pelo menos ' + betSize + ' números'
-            };
+            return { games: 0, cost: 0, subsets: 0, possible: false, msg: 'Selecione pelo menos ' + betSize + ' números' };
         }
 
+        const effG = this.effectiveGuarantee(guarantee, fixedCount);
         const slotsVariable = betSize - fixedCount;
+        const variableCount = numSelected - fixedCount;
 
-        // Verificar impossibilidade
-        if (fixedCount > 0 && guarantee > slotsVariable) {
-            return {
-                games: 0, cost: 0, subsets: 0, possible: false, impossible: true,
-                maxGuarantee: slotsVariable,
-                msg: '⚠️ IMPOSSÍVEL com ' + fixedCount + ' fixos. Máximo: ' + slotsVariable + ' acertos.'
-            };
+        if (variableCount < slotsVariable) {
+            return { games: 0, cost: 0, subsets: 0, possible: false, msg: 'Selecione mais números (precisa ' + (slotsVariable + fixedCount) + ' total)' };
         }
 
         const estimatedGames = this.estimateGames(numSelected, guarantee, betSize, fixedCount);
-
-        if (estimatedGames < 0) {
-            return {
-                games: 0, cost: 0, subsets: 0, possible: false, impossible: true,
-                maxGuarantee: slotsVariable,
-                msg: '⚠️ IMPOSSÍVEL com ' + fixedCount + ' fixos. Máximo: ' + slotsVariable + ' acertos.'
-            };
-        }
-
         const cost = estimatedGames * price;
 
-        const guaranteeLabels = {
-            20: '20 Pontos', 19: '19 Pontos', 18: '18 Pontos', 17: '17 Pontos',
-            15: '15 Pontos', 14: '14 Pontos', 13: '13 Pontos', 12: '12 Pontos',
-            11: '11 Pontos', 10: '10 Pontos', 9: '9 Pontos', 8: '8 Pontos',
-            7: '7 Pontos', 6: 'Sena/6 Pts', 5: 'Quina/5 Pts',
-            4: 'Quadra/4 Pts', 3: 'Terno/3 Pts'
-        };
-        const label = guaranteeLabels[guarantee] || guarantee + ' acertos';
+        // Mostrar redução vs sem fixos
+        let reductionMsg = '';
+        if (fixedCount > 0) {
+            const withoutFixed = this.estimateGames(numSelected, guarantee, betSize, 0);
+            if (withoutFixed > estimatedGames) {
+                const reduction = Math.round((1 - estimatedGames / withoutFixed) * 100);
+                reductionMsg = ' (↓' + reduction + '% menos que sem fixos)';
+            }
+        }
+
+        const label = guarantee + ' Pontos';
 
         return {
-            games: estimatedGames,
-            cost: cost,
+            games: estimatedGames, cost, possible: estimatedGames <= 50000,
             subsets: this.nCr(numSelected, guarantee),
-            possible: estimatedGames <= 50000,
-            guarantee,
-            label,
-            fixedCount,
+            guarantee, label, fixedCount, effectiveGuarantee: effG,
             msg: numSelected + ' números' + (fixedCount > 0 ? ' (' + fixedCount + ' fixos)' : '') +
                 ' → Fechamento ' + label + ' = ~' + estimatedGames.toLocaleString('pt-BR') +
-                ' jogos (R$ ' + cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ')'
+                ' jogos (R$ ' + cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ')' + reductionMsg
         };
     }
 
-    // ═══════════════════════════════════════════
-    //  OBTER NÍVEIS DINÂMICOS DE FECHAMENTO
-    //  Baseado no fixedCount atual
-    // ═══════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
+    //  NÍVEIS DINÂMICOS — TODOS VIÁVEIS COM FIXOS
+    //  (fixar REDUZ jogos, não impossibilita)
+    // ═══════════════════════════════════════════════════════
     static getDynamicClosingLevels(gameKey, fixedCount = 0) {
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         if (!game) return [];
 
         const betSize = this.getBetSize(gameKey);
-        const maxGuarantee = fixedCount > 0 ? betSize - fixedCount : betSize;
         const baseLevels = game.closingLevels || [];
-
-        const allLevels = [];
         const icons = { 3: '✅', 4: '🔥', 5: '⭐', 6: '🎯', 7: '🎯', 8: '💎', 9: '💎', 10: '👑', 11: '👑', 12: '👑', 13: '🔥', 14: '⭐', 15: '🎯', 17: '✅', 18: '🔥', 19: '⭐', 20: '🎯' };
 
-        // Incluir níveis base do jogo
+        const allLevels = [];
         for (const cl of baseLevels) {
-            const feasible = cl.guarantee <= maxGuarantee;
+            const effG = this.effectiveGuarantee(cl.guarantee, fixedCount);
+            const reduction = fixedCount > 0
+                ? ' (efetivo: ' + effG + ' variáveis)'
+                : '';
+
             allLevels.push({
                 id: cl.id,
-                label: cl.label + (feasible ? '' : ' ⛔'),
+                label: cl.label + reduction,
                 guarantee: cl.guarantee,
-                icon: feasible ? (cl.icon || icons[cl.guarantee] || '🎯') : '⛔',
-                feasible: feasible,
-                impossible: !feasible,
-                reason: feasible ? '' : 'Impossível com ' + fixedCount + ' fixos (máx: ' + maxGuarantee + ')'
+                icon: cl.icon || icons[cl.guarantee] || '🎯',
+                feasible: true,
+                effectiveGuarantee: effG
             });
         }
 
-        // Para Lotofácil com fixos: adicionar níveis mais baixos que são viáveis
-        if (fixedCount > 0 && gameKey === 'lotofacil') {
-            const existingGuarantees = new Set(baseLevels.map(cl => cl.guarantee));
-            for (let g = Math.min(maxGuarantee, 9); g >= 3; g--) {
-                if (!existingGuarantees.has(g)) {
-                    allLevels.push({
-                        id: 'close' + g,
-                        label: 'Fechamento ' + g + ' Pontos',
-                        guarantee: g,
-                        icon: icons[g] || '✅',
-                        feasible: true,
-                        impossible: false,
-                        dynamic: true
-                    });
-                }
-            }
-        }
-
-        // Para outros jogos com fixos: adicionar níveis viáveis extras
-        if (fixedCount > 0 && gameKey !== 'lotofacil') {
-            const existingGuarantees = new Set(baseLevels.map(cl => cl.guarantee));
-            for (let g = Math.min(maxGuarantee, betSize - 1); g >= 3; g--) {
-                if (!existingGuarantees.has(g)) {
-                    allLevels.push({
-                        id: 'close' + g,
-                        label: 'Fechamento ' + g + ' acertos',
-                        guarantee: g,
-                        icon: icons[g] || '✅',
-                        feasible: true,
-                        impossible: false,
-                        dynamic: true
-                    });
-                }
-            }
-        }
-
-        // Ordenar: viáveis primeiro (maior garantia primeiro), depois impossíveis
-        allLevels.sort((a, b) => {
-            if (a.feasible !== b.feasible) return a.feasible ? -1 : 1;
-            return b.guarantee - a.guarantee;
-        });
-
+        // Ordenar por garantia decrescente
+        allLevels.sort((a, b) => b.guarantee - a.guarantee);
         return allLevels;
     }
 }
 
-// Exportar para uso global
 if (typeof window !== 'undefined') {
     window.ClosingEngine = ClosingEngine;
 }

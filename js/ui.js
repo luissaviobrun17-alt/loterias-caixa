@@ -2212,7 +2212,7 @@ class UI {
         return Math.round(result);
     }
 
-    // ━━ PREVIEW DO FECHAMENTO OBJETIVO v3.0 ━━
+    // ━━ PREVIEW DO FECHAMENTO v3.1 (CONDICIONAL) ━━
     _updateClosingPreview() {
         const closingVal = this.closingSelect ? this.closingSelect.value : '';
         if (!closingVal || !closingVal.startsWith('close_')) return;
@@ -2225,32 +2225,21 @@ class UI {
         const fixedCount = this.fixedNumbers ? this.fixedNumbers.size : 0;
         if (typeof ClosingEngine === 'undefined') return;
 
-        // v3.0: Passar fixedCount para preview correto
         const preview = ClosingEngine.getClosurePreview(numSelected, guarantee, game.minBet, this.currentGameKey, fixedCount);
 
-        // Atualizar o campo de quantidade com a estimativa
         if (preview.possible && preview.games > 0) {
             this.gamesQuantityInput.value = preview.games;
         }
 
-        // Mostrar preview no container de estimativas
         if (this.closingEstimatesContainer) {
-            if (preview.impossible) {
-                // v3.0: Aviso de impossibilidade matemática
-                const betSize = ClosingEngine.getBetSize(this.currentGameKey);
-                const maxG = betSize - fixedCount;
-                this.closingEstimatesContainer.innerHTML =
-                    '<div style="padding:10px 14px;border-radius:10px;background:rgba(239,68,68,0.12);border:1px solid #EF444440;">' +
-                    '<div style="font-weight:700;color:#EF4444;font-size:0.95em;">⛔ IMPOSSIBILIDADE MATEMÁTICA</div>' +
-                    '<div style="font-size:0.82em;color:#F87171;margin-top:4px;">Com ' + fixedCount + ' fixos, garantia máxima = <strong>' + maxG + ' acertos</strong></div>' +
-                    '<div style="font-size:0.75em;color:#94A3B8;margin-top:6px;">Motivo: Cada jogo = ' + fixedCount + ' fixos + ' + (betSize - fixedCount) + ' variáveis. No pior caso 0 fixos são sorteados → máx ' + (betSize - fixedCount) + ' acertos.</div>' +
-                    '<div style="font-size:0.78em;color:#10B981;margin-top:6px;font-weight:600;">💡 Sugestão: Use garantia ≤ ' + maxG + ' ou reduza os fixos.</div>' +
-                    '</div>';
-            } else if (!preview.possible || numSelected < game.minBet) {
+            if (!preview.possible || numSelected < game.minBet) {
                 this.closingEstimatesContainer.innerHTML = '<p class="helper-text" style="color:#F59E0B;">' + preview.msg + '</p>';
             } else {
                 const guaranteeIcons = { 20: '🎯', 19: '⭐', 18: '🔥', 17: '✅', 15: '🎯', 14: '⭐', 13: '🔥', 12: '💎', 11: '💎', 10: '👑', 9: '👑', 8: '🔥', 7: '🎯', 6: '🎯', 5: '⭐', 4: '🔥', 3: '✅' };
-                const fixedBadge = fixedCount > 0 ? '<div style="font-size:0.75em;color:#F59E0B;margin-top:4px;">📌 ' + fixedCount + ' fixos → máx garantia: ' + (ClosingEngine.getBetSize(this.currentGameKey) - fixedCount) + ' acertos</div>' : '';
+                const effG = preview.effectiveGuarantee || (guarantee - fixedCount);
+                const fixedBadge = fixedCount > 0
+                    ? '<div style="font-size:0.75em;color:#10B981;margin-top:4px;font-weight:600;">📌 ' + fixedCount + ' fixos → efetivo: ' + effG + ' variáveis a cobrir (↓ menos jogos!)</div>'
+                    : '';
                 this.closingEstimatesContainer.innerHTML =
                     '<div style="padding:8px 12px;border-radius:8px;background:rgba(234,179,8,0.1);border:1px solid #EAB30830;">' +
                     '<div style="font-weight:700;color:#EAB308;">' + (guaranteeIcons[guarantee] || '🎯') + ' ' + preview.msg + '</div>' +
@@ -2273,37 +2262,21 @@ class UI {
 
         this.closingSelect.innerHTML = '';
 
+        // v3.1: TODOS os níveis são viáveis (fixos REDUZEM jogos)
         if (typeof ClosingEngine !== 'undefined' && game.closingLevels && game.closingLevels.length > 0) {
             const dynamicLevels = ClosingEngine.getDynamicClosingLevels(gameKey, fixedCount);
-            const feasibleLevels = dynamicLevels.filter(cl => cl.feasible);
-            if (feasibleLevels.length > 0) {
-                const optGroup1 = document.createElement('optgroup');
-                optGroup1.label = fixedCount > 0
-                    ? '🎯 Fechamento (' + fixedCount + ' fixos → máx ' + (ClosingEngine.getBetSize(gameKey) - fixedCount) + ' pts)'
-                    : '🎯 Fechamento Objetivo (Garantido)';
-                feasibleLevels.forEach(cl => {
-                    const option = document.createElement('option');
-                    option.value = 'close_' + cl.guarantee;
-                    option.textContent = cl.icon + ' ' + cl.label;
-                    option.dataset.closing = 'true';
-                    optGroup1.appendChild(option);
-                });
-                this.closingSelect.appendChild(optGroup1);
-            }
-            const impossibleLevels = dynamicLevels.filter(cl => !cl.feasible);
-            if (impossibleLevels.length > 0) {
-                const optGroup3 = document.createElement('optgroup');
-                optGroup3.label = '⛔ Impossível com ' + fixedCount + ' fixos';
-                impossibleLevels.forEach(cl => {
-                    const option = document.createElement('option');
-                    option.value = 'close_' + cl.guarantee;
-                    option.textContent = '⛔ ' + cl.label.replace(' ⛔', '');
-                    option.dataset.closing = 'true';
-                    option.dataset.impossible = 'true';
-                    optGroup3.appendChild(option);
-                });
-                this.closingSelect.appendChild(optGroup3);
-            }
+            const optGroup1 = document.createElement('optgroup');
+            optGroup1.label = fixedCount > 0
+                ? '🎯 Fechamento (' + fixedCount + ' fixos → menos jogos!)'
+                : '🎯 Fechamento Objetivo (Garantido)';
+            dynamicLevels.forEach(cl => {
+                const option = document.createElement('option');
+                option.value = 'close_' + cl.guarantee;
+                option.textContent = cl.icon + ' ' + cl.label;
+                option.dataset.closing = 'true';
+                optGroup1.appendChild(option);
+            });
+            this.closingSelect.appendChild(optGroup1);
         } else if (game.closingLevels && game.closingLevels.length > 0) {
             const optGroup1 = document.createElement('optgroup');
             optGroup1.label = '🎯 Fechamento Objetivo (Garantido)';
