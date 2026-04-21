@@ -579,6 +579,14 @@ class UI {
                             return;
                         }
 
+                        // ── LIMPEZA COMPLETA antes de renderizar (FIX: painéis do fechamento anterior) ──
+                        const _parent = this.gamesContainer.parentNode;
+                        if (_parent) {
+                            _parent.querySelectorAll('.generation-feedback, .smart-analysis-panel, .smart-gen-analysis').forEach(el => el.remove());
+                            const _oldCaixa = document.getElementById('caixa-panel');
+                            if (_oldCaixa) _oldCaixa.remove();
+                        }
+
                         // Renderizar jogos (mesmo visual do CombinationEngine)
                         this.renderGames(result, this.currentGameKey);
                         if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
@@ -696,13 +704,106 @@ class UI {
     // ╚══════════════════════════════════════════════════════════════╝
     // [REMOVIDO] _generateBookmarklet — obsoleto, usava alert('Pronto!') que conflitava com v5.0
 
-
-
-    // Gera script de automacao para o site da Caixa - v8.0 TURBO (Angular Events + Blocos de 10 + Pagamento)
     _generateCaixaScript_LEGACY(config, games) {
         const gamesJSON = JSON.stringify(games);
         const lName = config.name;
-        return '(async function(){var JOGOS=' + gamesJSON + ';var TOTAL=JOGOS.length;var OK=0;var ERROS=0;var BLOCO=10;console.clear();console.log("%c[B2B v8.0 TURBO] "+TOTAL+" jogos de ' + lName + '","color:#22C55E;font-size:14px;font-weight:bold");console.log("%cProcessando em blocos de "+BLOCO+"...","color:#60A5FA");var t0=Date.now();var delay=function(ms){return new Promise(function(r){setTimeout(r,ms)})};function realClick(el){if(!el)return false;try{el.scrollIntoView({block:"center",behavior:"instant"});var r=el.getBoundingClientRect();var cx=r.left+r.width/2;var cy=r.top+r.height/2;var evts=["pointerdown","mousedown","pointerup","mouseup","click"];for(var i=0;i<evts.length;i++){el.dispatchEvent(new MouseEvent(evts[i],{view:window,bubbles:true,cancelable:true,clientX:cx,clientY:cy,button:0}))}return true}catch(e){try{el.click();return true}catch(e2){return false}}}function fecharModais(){var ids=["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","botaosim","btnFecharModal","btnOk","btnConfirmar"];for(var k=0;k<ids.length;k++){var el=document.getElementById(ids[k]);if(el&&el.offsetParent!==null&&el.offsetWidth>0){try{realClick(el)}catch(e){}}}var bts=document.querySelectorAll("button,a");for(var j=0;j<bts.length;j++){var t=bts[j].textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="sim"||t==="continuar")&&bts[j].offsetParent!==null&&bts[j].offsetWidth>0){var isCart=bts[j].id&&(bts[j].id.toLowerCase().indexOf("carrinho")>=0||bts[j].id.toLowerCase().indexOf("pagamento")>=0);if(!isCart){try{realClick(bts[j])}catch(e){}}}}}function clicarNumero(num){var p=String(num).padStart(2,"0");var el=document.getElementById("n"+p);if(el)return realClick(el);el=document.querySelector("a#n"+p)||document.querySelector("#n"+p);if(el)return realClick(el);var todos=document.querySelectorAll("a[role=button],a.dezena,a.numero,a[id^=n]");for(var i=0;i<todos.length;i++){if(todos[i].textContent.trim()===p)return realClick(todos[i])}var allN=document.querySelectorAll(".number,.dezena,.num,[class*=number],[class*=dezena]");for(var k=0;k<allN.length;k++){var txt=allN[k].textContent.trim();if(txt===p||txt===String(num))return realClick(allN[k])}return false}function limpar(){fecharModais();var btn=document.getElementById("limparvolante");if(btn)return realClick(btn);btn=document.querySelector("[id*=limpar]");if(btn)return realClick(btn);var bts=document.querySelectorAll("button");for(var k=0;k<bts.length;k++){if(bts[k].textContent.toLowerCase().indexOf("limpar")>=0)return realClick(bts[k])}return false}async function carrinho(){fecharModais();await delay(300);for(var t=0;t<8;t++){var btn=document.getElementById("colocarnocarrinho");if(btn&&btn.offsetParent!==null){realClick(btn);await delay(1500);fecharModais();await delay(600);fecharModais();return true}var allB=document.querySelectorAll("button,a");for(var k=0;k<allB.length;k++){var tx=allB[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar no carrinho")>=0||(tx.indexOf("carrinho")>=0&&tx.indexOf("ir para")<0&&tx.indexOf("ver")<0))&&allB[k].offsetParent!==null&&allB[k].offsetWidth>0){realClick(allB[k]);await delay(1500);fecharModais();await delay(600);fecharModais();return true}}fecharModais();await delay(800)}return false}fecharModais();await delay(800);for(var i=0;i<TOTAL;i++){var jogo=JOGOS[i];var blocoN=Math.floor(i/BLOCO)+1;var blocoT=Math.ceil(TOTAL/BLOCO);if(i%BLOCO===0)console.log("%c=== BLOCO "+blocoN+"/"+blocoT+" ===","color:#F59E0B;font-weight:bold;font-size:12px");console.log("[B2B] "+(i+1)+"/"+TOTAL+" ["+jogo.join(",")+"]");fecharModais();if(i>0){limpar();await delay(1200);fecharModais();await delay(400)}var ac=0;for(var n=0;n<jogo.length;n++){if(clicarNumero(jogo[n])){ac++}else{await delay(200);if(clicarNumero(jogo[n]))ac++}await delay(200)}if(ac<jogo.length)console.warn("[B2B] Jogo "+(i+1)+": "+ac+"/"+jogo.length+" nums");await delay(1200);fecharModais();await delay(400);var ok=await carrinho();if(ok){OK++;console.log("[B2B] ✅ "+(i+1)+" ("+OK+"/"+TOTAL+")")}else{ERROS++;console.error("[B2B] ❌ "+(i+1))}if(i<TOTAL-1){await delay(1500);fecharModais()}if((i+1)%BLOCO===0){var el=((Date.now()-t0)/1000).toFixed(0);var sp=((i+1)/el*60).toFixed(0);console.log("%c[B2B] Bloco "+blocoN+" OK! "+OK+"/"+TOTAL+" | "+el+"s | ~"+sp+" jogos/min","color:#22C55E;font-weight:bold");if(i+1<TOTAL){console.log("[B2B] Proximo bloco em 2s...");await delay(2000)}}}var tt=((Date.now()-t0)/1000).toFixed(1);console.log("%c[B2B v8.0] ✅ PRONTO! "+OK+"/"+TOTAL+" de ' + lName + ' em "+tt+"s","color:#22C55E;font-size:16px;font-weight:bold");console.log("%c[B2B] 💳 Clique no carrinho (🛒) no topo da pagina para finalizar.","color:#F59E0B;font-size:13px");alert("[B2B v8.0 TURBO] ✅ "+OK+"/"+TOTAL+" jogos de ' + lName + ' em "+tt+"s!"+(ERROS>0?"\\n"+ERROS+" erro(s).":"")+"\\n\\n💳 PRÓXIMO PASSO:\\nClique no ícone do carrinho (🛒) no topo da página\\ne finalize o pagamento.")})()';
+        const isTimemania = config.url === 'timemania';
+        const isDiaDeSorte = config.url === 'dia-de-sorte';
+
+        // ═══════════════════════════════════════════════════════════════
+        // B2B v9.0 TURBO — Script de Automação COMPLETO
+        // Suporta: Mega Sena, Lotofácil, Quina, Dupla Sena, Lotomania,
+        //          Timemania (com Time do Coração), Dia de Sorte (com Mês)
+        // ═══════════════════════════════════════════════════════════════
+        let script = '(async function(){';
+        script += 'var JOGOS=' + gamesJSON + ';';
+        script += 'var TOTAL=JOGOS.length;var OK=0;var ERROS=0;var BLOCO=10;';
+        script += 'var IS_TIMEMANIA=' + (isTimemania ? 'true' : 'false') + ';';
+        script += 'var IS_DIADESORTE=' + (isDiaDeSorte ? 'true' : 'false') + ';';
+        script += 'console.clear();';
+        script += 'console.log("%c[B2B v9.0 TURBO] "+TOTAL+" jogos de ' + lName + '","color:#22C55E;font-size:14px;font-weight:bold");';
+        script += 'if(IS_TIMEMANIA)console.log("%c⚽ Modo TIMEMANIA: Seleção automática de time ativada","color:#F59E0B;font-weight:bold");';
+        script += 'if(IS_DIADESORTE)console.log("%c📅 Modo DIA DE SORTE: Seleção de mês ativada","color:#F59E0B;font-weight:bold");';
+        script += 'console.log("%cProcessando em blocos de "+BLOCO+"...","color:#60A5FA");';
+        script += 'var t0=Date.now();';
+        script += 'var delay=function(ms){return new Promise(function(r){setTimeout(r,ms)})};';
+
+        // ── realClick: simula clique real com todos os eventos ──
+        script += 'function realClick(el){if(!el)return false;try{el.scrollIntoView({block:"center",behavior:"instant"});var r=el.getBoundingClientRect();var cx=r.left+r.width/2;var cy=r.top+r.height/2;var evts=["pointerdown","mousedown","pointerup","mouseup","click"];for(var i=0;i<evts.length;i++){el.dispatchEvent(new MouseEvent(evts[i],{view:window,bubbles:true,cancelable:true,clientX:cx,clientY:cy,button:0}))}return true}catch(e){try{el.click();return true}catch(e2){return false}}}';
+
+        // ── fecharModais: fecha alertas/modais do site ──
+        script += 'function fecharModais(){var ids=["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","botaosim","btnFecharModal","btnOk","btnConfirmar"];for(var k=0;k<ids.length;k++){var el=document.getElementById(ids[k]);if(el&&el.offsetParent!==null&&el.offsetWidth>0){try{realClick(el)}catch(e){}}}var bts=document.querySelectorAll("button,a");for(var j=0;j<bts.length;j++){var t=bts[j].textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="sim"||t==="continuar")&&bts[j].offsetParent!==null&&bts[j].offsetWidth>0){var isCart=bts[j].id&&(bts[j].id.toLowerCase().indexOf("carrinho")>=0||bts[j].id.toLowerCase().indexOf("pagamento")>=0);if(!isCart){try{realClick(bts[j])}catch(e){}}}}}';
+
+        // ── clicarNumero: seleciona um número no volante ──
+        script += 'function clicarNumero(num){var p=String(num).padStart(2,"0");var el=document.getElementById("n"+p);if(el)return realClick(el);el=document.querySelector("a#n"+p)||document.querySelector("#n"+p);if(el)return realClick(el);var todos=document.querySelectorAll("a[role=button],a.dezena,a.numero,a[id^=n]");for(var i=0;i<todos.length;i++){if(todos[i].textContent.trim()===p)return realClick(todos[i])}var allN=document.querySelectorAll(".number,.dezena,.num,[class*=number],[class*=dezena]");for(var k=0;k<allN.length;k++){var txt=allN[k].textContent.trim();if(txt===p||txt===String(num))return realClick(allN[k])}return false}';
+
+        // ── limpar: limpa a seleção atual ──
+        script += 'function limpar(){fecharModais();var btn=document.getElementById("limparvolante");if(btn)return realClick(btn);btn=document.querySelector("[id*=limpar]");if(btn)return realClick(btn);var bts=document.querySelectorAll("button");for(var k=0;k<bts.length;k++){if(bts[k].textContent.toLowerCase().indexOf("limpar")>=0)return realClick(bts[k])}return false}';
+
+        // ═══════════════════════════════════════════════════════
+        // ⚽ TIMEMANIA: Selecionar Time do Coração (OBRIGATÓRIO)
+        // ═══════════════════════════════════════════════════════
+        script += 'async function selecionarTime(){if(!IS_TIMEMANIA)return true;';
+        script += 'console.log("[B2B] ⚽ Selecionando Time do Coração...");';
+        script += 'await delay(500);';
+        script += 'var times=document.querySelectorAll("[data-selecionar-time-do-coracao],img[name=btnTime],.time-coracao img,li img[src*=time],.times-list img,.team-item img");';
+        script += 'if(times.length===0){var allLi=document.querySelectorAll("li");for(var k=0;k<allLi.length;k++){var imgs=allLi[k].querySelectorAll("img");if(imgs.length>0&&allLi[k].querySelector("span")){times=imgs;break}}}';
+        script += 'if(times.length===0){var timeBtns=document.querySelectorAll("a[class*=time],button[class*=time],div[class*=time]");if(timeBtns.length>0)times=timeBtns;}';
+        script += 'if(times.length>0){var idx=Math.floor(Math.random()*times.length);var chosen=times[idx];realClick(chosen);await delay(800);';
+        script += 'if(chosen.parentElement&&chosen.parentElement.tagName==="LI"&&!chosen.parentElement.classList.contains("active")){realClick(chosen.parentElement);await delay(500)}';
+        script += 'var nome=chosen.alt||chosen.title||(chosen.parentElement?chosen.parentElement.textContent.trim().substring(0,30):"Time #"+(idx+1));';
+        script += 'console.log("[B2B] ⚽ Time selecionado: "+nome);return true}';
+        script += 'console.warn("[B2B] ⚠️ Nenhum time encontrado! Tentando sem time...");return false}';
+
+        // ═══════════════════════════════════════════════════════
+        // 📅 DIA DE SORTE: Selecionar Mês da Sorte (OBRIGATÓRIO)
+        // ═══════════════════════════════════════════════════════
+        script += 'async function selecionarMes(){if(!IS_DIADESORTE)return true;';
+        script += 'console.log("[B2B] 📅 Selecionando Mês da Sorte...");';
+        script += 'await delay(500);';
+        script += 'var meses=document.querySelectorAll("[data-selecionar-mes],select#mes option,.mes-sorte,.month-item");';
+        script += 'if(meses.length===0){var sel=document.querySelector("select");if(sel&&sel.options.length>1){sel.selectedIndex=Math.floor(Math.random()*(sel.options.length-1))+1;sel.dispatchEvent(new Event("change",{bubbles:true}));console.log("[B2B] 📅 Mês: "+sel.options[sel.selectedIndex].text);return true}}';
+        script += 'if(meses.length>0){var idx=Math.floor(Math.random()*meses.length);realClick(meses[idx]);await delay(500);console.log("[B2B] 📅 Mês selecionado");return true}';
+        script += 'console.warn("[B2B] ⚠️ Seleção de mês não encontrada");return false}';
+
+        // ── carrinho: coloca no carrinho com retry ──
+        script += 'async function carrinho(){fecharModais();await delay(300);';
+        script += 'if(IS_TIMEMANIA){await selecionarTime();await delay(600)}';
+        script += 'if(IS_DIADESORTE){await selecionarMes();await delay(600)}';
+        script += 'for(var t=0;t<8;t++){var btn=document.getElementById("colocarnocarrinho");if(btn&&btn.offsetParent!==null){';
+        script += 'if(btn.disabled||btn.classList.contains("disabled")){console.log("[B2B] ⏳ Carrinho desabilitado, aguardando...");await delay(1500);';
+        script += 'if(IS_TIMEMANIA){await selecionarTime();await delay(800)}';
+        script += 'if(IS_DIADESORTE){await selecionarMes();await delay(800)}';
+        script += 'continue}';
+        script += 'realClick(btn);await delay(1500);fecharModais();await delay(600);fecharModais();return true}';
+        script += 'var allB=document.querySelectorAll("button,a");for(var k=0;k<allB.length;k++){var tx=allB[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar no carrinho")>=0||(tx.indexOf("carrinho")>=0&&tx.indexOf("ir para")<0&&tx.indexOf("ver")<0))&&allB[k].offsetParent!==null&&allB[k].offsetWidth>0){realClick(allB[k]);await delay(1500);fecharModais();await delay(600);fecharModais();return true}}';
+        script += 'fecharModais();await delay(800)}return false}';
+
+        // ── LOOP PRINCIPAL: processar todos os jogos ──
+        script += 'fecharModais();await delay(800);';
+        script += 'for(var i=0;i<TOTAL;i++){';
+        script += 'var jogo=JOGOS[i];var blocoN=Math.floor(i/BLOCO)+1;var blocoT=Math.ceil(TOTAL/BLOCO);';
+        script += 'if(i%BLOCO===0)console.log("%c=== BLOCO "+blocoN+"/"+blocoT+" ===","color:#F59E0B;font-weight:bold;font-size:12px");';
+        script += 'console.log("[B2B] "+(i+1)+"/"+TOTAL+" ["+jogo.join(",")+"]");';
+        script += 'fecharModais();';
+        script += 'if(i>0){limpar();await delay(1200);fecharModais();await delay(400)}';
+        script += 'var ac=0;for(var n=0;n<jogo.length;n++){if(clicarNumero(jogo[n])){ac++}else{await delay(200);if(clicarNumero(jogo[n]))ac++}await delay(200)}';
+        script += 'if(ac<jogo.length)console.warn("[B2B] Jogo "+(i+1)+": "+ac+"/"+jogo.length+" nums");';
+        script += 'await delay(1200);fecharModais();await delay(400);';
+        script += 'var ok=await carrinho();';
+        script += 'if(ok){OK++;console.log("[B2B] ✅ "+(i+1)+" ("+OK+"/"+TOTAL+")")}else{ERROS++;console.error("[B2B] ❌ "+(i+1)+"'+(isTimemania ? ' — Verifique se o Time do Coração foi selecionado' : '')+'")}';
+        script += 'if(i<TOTAL-1){await delay(1500);fecharModais()}';
+        script += 'if((i+1)%BLOCO===0){var el=((Date.now()-t0)/1000).toFixed(0);var sp=((i+1)/el*60).toFixed(0);console.log("%c[B2B] Bloco "+blocoN+" OK! "+OK+"/"+TOTAL+" | "+el+"s | ~"+sp+" jogos/min","color:#22C55E;font-weight:bold");if(i+1<TOTAL){console.log("[B2B] Proximo bloco em 2s...");await delay(2000)}}';
+        script += '}';
+
+        // ── RESULTADO FINAL ──
+        script += 'var tt=((Date.now()-t0)/1000).toFixed(1);';
+        script += 'console.log("%c[B2B v9.0] ✅ PRONTO! "+OK+"/"+TOTAL+" de ' + lName + ' em "+tt+"s","color:#22C55E;font-size:16px;font-weight:bold");';
+        script += 'console.log("%c[B2B] 💳 Clique no carrinho (🛒) no topo da pagina para finalizar.","color:#F59E0B;font-size:13px");';
+        script += 'alert("[B2B v9.0 TURBO] ✅ "+OK+"/"+TOTAL+" jogos de ' + lName + ' em "+tt+"s!"+(ERROS>0?"\\n"+ERROS+" erro(s).":"")+"\\n\\n💳 PRÓXIMO PASSO:\\nClique no ícone do carrinho (🛒) no topo da página\\ne finalize o pagamento.")';
+        script += '})()';
+
+        return script;
     }
 
     // ╔══════════════════════════════════════════════════════════════╗
@@ -728,7 +829,23 @@ class UI {
             || ('ontouchstart' in window);
     }
 
-    // ── Modal MOBILE: mostra jogos formatados para copiar manualmente ──
+    // ══════════════════════════════════════════════════════════════════
+    // ║  MODAL MOBILE v2.0 — COM AUTOMAÇÃO VIA BOOKMARKLET            ║
+    // ║  Resolve o problema de não ter F12 no celular                  ║
+    // ║  Duas abas: ⚡ Automático (bookmarklet) e 📋 Manual (copiar)  ║
+    // ══════════════════════════════════════════════════════════════════
+
+    // ── Gerar o bookmarklet de automação (minificado, cabe num bookmark) ──
+    _generateMobileBookmarklet(games, config) {
+        const gamesJSON = JSON.stringify(games);
+        const isTimemania = config.url === 'timemania';
+        const isDiaDeSorte = config.url === 'dia-de-sorte';
+        // Minified automation script embedded in bookmarklet
+        const script = `javascript:void((async function(){var J=${gamesJSON};var T=J.length;var OK=0;var ER=0;var TM=${isTimemania};var DS=${isDiaDeSorte};function d(ms){return new Promise(function(r){setTimeout(r,ms)})}function rc(e){if(!e)return!1;try{e.scrollIntoView({block:"center",behavior:"instant"});var r=e.getBoundingClientRect();var x=r.left+r.width/2;var y=r.top+r.height/2;["pointerdown","mousedown","pointerup","mouseup","click"].forEach(function(ev){e.dispatchEvent(new MouseEvent(ev,{view:window,bubbles:!0,cancelable:!0,clientX:x,clientY:y,button:0}))});return!0}catch(x){try{e.click();return!0}catch(x2){return!1}}}function fm(){["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","botaosim","btnFecharModal","btnOk","btnConfirmar"].forEach(function(id){var e=document.getElementById(id);if(e&&e.offsetParent!==null)try{rc(e)}catch(x){}});document.querySelectorAll("button,a").forEach(function(b){var t=b.textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="sim"||t==="continuar")&&b.offsetParent!==null&&b.offsetWidth>0){var ic=b.id&&(b.id.toLowerCase().indexOf("carrinho")>=0||b.id.toLowerCase().indexOf("pagamento")>=0);if(!ic)try{rc(b)}catch(x){}}})}function cn(n){var p=String(n).padStart(2,"0");var e=document.getElementById("n"+p);if(e)return rc(e);e=document.querySelector("a#n"+p)||document.querySelector("#n"+p);if(e)return rc(e);var all=document.querySelectorAll("a[role=button],a.dezena,a.numero,a[id^=n]");for(var i=0;i<all.length;i++)if(all[i].textContent.trim()===p)return rc(all[i]);var allN=document.querySelectorAll(".number,.dezena,.num,[class*=number],[class*=dezena]");for(var k=0;k<allN.length;k++){var t=allN[k].textContent.trim();if(t===p||t===String(n))return rc(allN[k])}return!1}function lmp(){fm();var b=document.getElementById("limparvolante");if(b)return rc(b);b=document.querySelector("[id*=limpar]");if(b)return rc(b);var bs=document.querySelectorAll("button");for(var k=0;k<bs.length;k++)if(bs[k].textContent.toLowerCase().indexOf("limpar")>=0)return rc(bs[k]);return!1}async function selTime(){if(!TM)return!0;await d(500);var ts=document.querySelectorAll("[data-selecionar-time-do-coracao],img[name=btnTime],.time-coracao img,li img[src*=time],.times-list img,.team-item img");if(ts.length===0){var al=document.querySelectorAll("li");for(var k=0;k<al.length;k++){var im=al[k].querySelectorAll("img");if(im.length>0&&al[k].querySelector("span")){ts=im;break}}}if(ts.length===0){var tb=document.querySelectorAll("a[class*=time],button[class*=time],div[class*=time]");if(tb.length>0)ts=tb}if(ts.length>0){var idx=Math.floor(Math.random()*ts.length);rc(ts[idx]);await d(800);if(ts[idx].parentElement&&ts[idx].parentElement.tagName==="LI"&&!ts[idx].parentElement.classList.contains("active")){rc(ts[idx].parentElement);await d(500)}return!0}return!1}async function selMes(){if(!DS)return!0;await d(500);var ms=document.querySelectorAll("[data-selecionar-mes],select#mes option,.mes-sorte,.month-item");if(ms.length===0){var s=document.querySelector("select");if(s&&s.options.length>1){s.selectedIndex=Math.floor(Math.random()*(s.options.length-1))+1;s.dispatchEvent(new Event("change",{bubbles:!0}));return!0}}if(ms.length>0){var idx=Math.floor(Math.random()*ms.length);rc(ms[idx]);await d(500);return!0}return!1}async function car(){fm();await d(300);if(TM){await selTime();await d(600)}if(DS){await selMes();await d(600)}for(var t=0;t<8;t++){var b=document.getElementById("colocarnocarrinho");if(b&&b.offsetParent!==null){if(b.disabled||b.classList.contains("disabled")){await d(1500);if(TM){await selTime();await d(800)}if(DS){await selMes();await d(800)}continue}rc(b);await d(1500);fm();await d(600);fm();return!0}var ab=document.querySelectorAll("button,a");for(var k=0;k<ab.length;k++){var tx=ab[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar no carrinho")>=0||(tx.indexOf("carrinho")>=0&&tx.indexOf("ir para")<0&&tx.indexOf("ver")<0))&&ab[k].offsetParent!==null&&ab[k].offsetWidth>0){rc(ab[k]);await d(1500);fm();await d(600);fm();return!0}}fm();await d(800)}return!1}var pg=document.createElement("div");pg.id="b2b-mob-progress";pg.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(145deg,#0F172A,#1E293B);border-bottom:2px solid #FFD700;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.6);font-family:Inter,sans-serif;";pg.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#FFD700;font-weight:800;font-size:0.85rem;">⚡ B2B TURBO</span><span id="b2b-pg-txt" style="color:#E2E8F0;font-size:0.8rem;font-weight:600;">0/'+T+'</span><button onclick="this.parentNode.parentNode.remove()" style="background:none;border:none;color:#94A3B8;font-size:1.2rem;cursor:pointer;">✕</button></div><div style="margin-top:6px;background:rgba(255,255,255,0.1);border-radius:4px;height:6px;overflow:hidden;"><div id="b2b-pg-bar" style="width:0%;height:100%;background:linear-gradient(90deg,#FFD700,#22C55E);border-radius:4px;transition:width 0.3s;"></div></div>';document.body.appendChild(pg);fm();await d(800);for(var i=0;i<T;i++){var j=J[i];var pt=document.getElementById("b2b-pg-txt");var pb=document.getElementById("b2b-pg-bar");if(pt)pt.textContent=(i+1)+"/"+T+" ["+j.join(",")+"]";if(pb)pb.style.width=((i+1)/T*100).toFixed(0)+"%";fm();if(i>0){lmp();await d(1200);fm();await d(400)}var ac=0;for(var n=0;n<j.length;n++){if(cn(j[n]))ac++;else{await d(200);if(cn(j[n]))ac++}await d(200)}await d(1200);fm();await d(400);var ok=await car();if(ok){OK++}else{ER++}if(i<T-1){await d(1500);fm()}}var pp=document.getElementById("b2b-mob-progress");if(pp){pp.style.borderColor="#22C55E";pp.innerHTML='<div style="text-align:center;padding:8px;"><div style="color:#22C55E;font-weight:800;font-size:1rem;">✅ PRONTO! '+OK+'/'+T+' jogos no carrinho!</div><div style="color:#E2E8F0;font-size:0.8rem;margin-top:4px;">💳 Toque no carrinho (🛒) para finalizar o pagamento.</div><button onclick="this.parentNode.parentNode.remove()" style="margin-top:8px;background:#22C55E;color:white;border:none;padding:8px 20px;border-radius:8px;font-weight:700;cursor:pointer;">OK</button></div>'}alert("✅ "+OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\n\\n💳 Toque no carrinho (🛒) para finalizar.")})())`;
+        return script;
+    }
+
+    // ── Modal MOBILE v2.0: Abas Automático + Manual ──
     _openMobileBetModal(games, gameKey) {
         const allConfigs = this._getCaixaLotteryConfig();
         const cfg = allConfigs[gameKey];
@@ -739,11 +856,17 @@ class UI {
         const old = document.getElementById('mobile-bet-modal');
         if (old) old.remove();
 
-        const modal = document.createElement('div');
-        modal.id = 'mobile-bet-modal';
-        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding:10px;box-sizing:border-box;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+        // ═══ SALVAR JOGOS NO LOCALSTORAGE ═══
+        try {
+            localStorage.setItem('b2b_mobile_games', JSON.stringify(games));
+            localStorage.setItem('b2b_mobile_config', JSON.stringify(cfg));
+            localStorage.setItem('b2b_mobile_timestamp', Date.now().toString());
+        } catch(e) { console.warn('[B2B] localStorage indisponível:', e); }
 
-        // Gerar HTML dos jogos
+        // ═══ GERAR BOOKMARKLET ═══
+        const bookmarkletCode = this._generateMobileBookmarklet(games, cfg);
+
+        // ═══ GERAR HTML DOS JOGOS (aba manual) ═══
         let jogosHTML = '';
         games.forEach((g, i) => {
             const nums = g.map(n => String(n).padStart(2, '0')).join('  ');
@@ -751,20 +874,221 @@ class UI {
             jogosHTML += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.06);"><div style="flex:1;"><div style="color:#60A5FA;font-weight:700;font-size:0.72rem;margin-bottom:3px;">Jogo ' + (i+1) + '</div><div style="color:#E2E8F0;font-size:1rem;font-weight:600;font-family:monospace;letter-spacing:1px;">' + nums + '</div></div><button class="mobile-copy-game-btn" data-nums="' + numsCSV + '" style="background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;padding:10px 14px;border-radius:10px;font-size:0.8rem;font-weight:800;cursor:pointer;white-space:nowrap;min-width:70px;">📋 Copiar</button></div>';
         });
 
-        // Copiar TODOS formatados
         const allFormatted = games.map((g, i) =>
             'Jogo ' + (i+1) + ': ' + g.map(n => String(n).padStart(2,'0')).join(' - ')
         ).join('\n');
 
-        modal.innerHTML = '<div style="background:linear-gradient(145deg,#0F172A,#1E293B);border-radius:16px;border:1px solid #0066CC40;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:18px;color:#E2E8F0;box-shadow:0 20px 60px rgba(0,0,0,0.6);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><h2 style="margin:0;font-size:1.1rem;color:#0066CC;">📱 Apostar no Celular</h2><button id="close-mobile-bet-modal" style="background:none;border:none;color:#94A3B8;font-size:1.8rem;cursor:pointer;padding:4px 8px;">✕</button></div><div style="background:linear-gradient(135deg,rgba(0,102,204,0.15),rgba(0,60,120,0.1));border:1px solid #0066CC30;border-radius:12px;padding:12px;margin-bottom:14px;"><div style="font-weight:800;color:#60A5FA;font-size:0.95rem;margin-bottom:6px;">🎰 ' + games.length + ' jogos de ' + cfg.name + '</div><div style="font-size:0.78rem;color:#94A3B8;line-height:1.5;">Copie cada jogo e preencha manualmente no site da Caixa, ou copie todos de uma vez.</div></div><div style="margin-bottom:12px;">' + jogosHTML + '</div><button id="mobile-copy-all-btn" style="width:100%;background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:white;border:none;padding:14px;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 15px rgba(139,92,246,0.4);">📋 COPIAR TODOS OS ' + games.length + ' JOGOS</button><a href="' + caixaUrl + '" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:14px;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 4px 15px rgba(0,102,204,0.4);box-sizing:border-box;">🌐 ABRIR SITE DA CAIXA — ' + cfg.name + '</a><div style="margin-top:12px;padding:10px;background:rgba(245,158,11,0.08);border:1px solid #F59E0B30;border-radius:10px;"><div style="color:#F59E0B;font-weight:700;font-size:0.82rem;margin-bottom:6px;">📝 Como apostar pelo celular:</div><div style="font-size:0.75rem;color:#CBD5E1;line-height:1.7;"><div>① Copie os números de um jogo acima</div><div>② Toque em "Abrir Site da Caixa"</div><div>③ Faça login na sua conta</div><div>④ Selecione os números manualmente</div><div>⑤ Toque em "Colocar no Carrinho"</div><div>⑥ Repita para cada jogo</div></div></div><div style="margin-top:10px;text-align:center;"><div style="font-size:0.68rem;color:#475569;">💡 Dica: Use o app Loterias Caixa para apostar mais rápido</div></div></div>';
+        const modal = document.createElement('div');
+        modal.id = 'mobile-bet-modal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding:10px;box-sizing:border-box;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+
+        modal.innerHTML = `
+        <div style="background:linear-gradient(145deg,#0F172A,#1E293B);border-radius:16px;border:1px solid #FFD70040;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;padding:18px;color:#E2E8F0;box-shadow:0 20px 60px rgba(0,0,0,0.6);">
+            <!-- HEADER -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                <h2 style="margin:0;font-size:1.1rem;color:#FFD700;">📱 Apostar no Celular</h2>
+                <button id="close-mobile-bet-modal" style="background:none;border:none;color:#94A3B8;font-size:1.8rem;cursor:pointer;padding:4px 8px;">✕</button>
+            </div>
+
+            <!-- INFO BAR -->
+            <div style="background:linear-gradient(135deg,rgba(255,215,0,0.12),rgba(0,60,120,0.1));border:1px solid #FFD70030;border-radius:12px;padding:12px;margin-bottom:14px;">
+                <div style="font-weight:800;color:#FFD700;font-size:0.95rem;margin-bottom:4px;">🎰 ${games.length} jogos de ${cfg.name}</div>
+                <div style="font-size:0.75rem;color:#94A3B8;line-height:1.4;">Escolha como apostar: automático (recomendado) ou copiar manualmente.</div>
+            </div>
+
+            <!-- TABS -->
+            <div style="display:flex;gap:4px;margin-bottom:14px;">
+                <button id="tab-auto-btn" style="flex:1;padding:12px 8px;border-radius:10px;border:2px solid #FFD700;background:linear-gradient(135deg,#FFD70020,#FFD70008);color:#FFD700;font-weight:800;font-size:0.82rem;cursor:pointer;transition:all 0.2s;">⚡ AUTOMÁTICO</button>
+                <button id="tab-manual-btn" style="flex:1;padding:12px 8px;border-radius:10px;border:1px solid #47556940;background:transparent;color:#94A3B8;font-weight:700;font-size:0.82rem;cursor:pointer;transition:all 0.2s;">📋 Manual</button>
+            </div>
+
+            <!-- ═══════════ ABA AUTOMÁTICO ═══════════ -->
+            <div id="tab-auto-content">
+                <div style="background:linear-gradient(145deg,rgba(34,197,94,0.1),rgba(0,60,120,0.08));border:1px solid #22C55E30;border-radius:12px;padding:14px;margin-bottom:12px;">
+                    <div style="color:#22C55E;font-weight:800;font-size:0.9rem;margin-bottom:8px;">⚡ Preenchimento Automático — Sem F12!</div>
+                    <div style="font-size:0.78rem;color:#CBD5E1;line-height:1.6;">
+                        O sistema preenche seus jogos automaticamente no site da Caixa.<br>
+                        <strong style="color:#FFD700;">Nenhum conhecimento técnico necessário.</strong>
+                    </div>
+                </div>
+
+                <!-- PASSO A PASSO -->
+                <div style="margin-bottom:14px;">
+                    <div style="color:#FFD700;font-weight:800;font-size:0.82rem;margin-bottom:10px;">📝 Passo a Passo (uma vez só!):</div>
+
+                    <!-- PASSO 1: Copiar o Bookmarklet -->
+                    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
+                        <span style="background:#FFD700;color:#000;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">1</span>
+                        <div style="flex:1;">
+                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:6px;">Copie o link de automação:</div>
+                            <button id="btn-copy-bookmarklet" style="width:100%;background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;padding:12px;border-radius:10px;font-size:0.88rem;font-weight:800;cursor:pointer;box-shadow:0 4px 15px rgba(34,197,94,0.35);">📋 COPIAR LINK DE AUTOMAÇÃO</button>
+                        </div>
+                    </div>
+
+                    <!-- PASSO 2: Abrir Site da Caixa -->
+                    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
+                        <span style="background:#0066CC;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">2</span>
+                        <div style="flex:1;">
+                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:6px;">Abra o site da Caixa e faça login:</div>
+                            <a href="${caixaUrl}" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:12px;border-radius:10px;font-size:0.85rem;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;box-sizing:border-box;">🌐 ABRIR ${cfg.name.toUpperCase()}</a>
+                        </div>
+                    </div>
+
+                    <!-- PASSO 3: Criar o Bookmark -->
+                    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
+                        <span style="background:#8B5CF6;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">3</span>
+                        <div style="flex:1;">
+                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:4px;">No site da Caixa, crie um favorito:</div>
+                            <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;">
+                                <div style="margin-bottom:4px;"><strong style="color:#60A5FA;">Chrome:</strong> ⋮ → ☆ (Adicionar favorito) → OK</div>
+                                <div><strong style="color:#60A5FA;">Safari:</strong> 📤 Compartilhar → "Adicionar Favorito"</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PASSO 4: Editar o Favorito -->
+                    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,215,0,0.06);border-radius:10px;border:1px solid rgba(255,215,0,0.15);">
+                        <span style="background:#F59E0B;color:#000;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">4</span>
+                        <div style="flex:1;">
+                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:4px;">Edite o favorito recém-criado:</div>
+                            <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;">
+                                <div>• Abra os favoritos do navegador</div>
+                                <div>• Toque e segure no favorito recém-criado</div>
+                                <div>• Toque em <strong style="color:#FFD700;">"Editar"</strong></div>
+                                <div>• No campo <strong style="color:#FFD700;">URL / Endereço</strong>:</div>
+                                <div style="padding:4px 0;">  → Apague tudo que estiver lá</div>
+                                <div style="padding:4px 0;">  → <strong style="color:#22C55E;">Cole</strong> o link copiado no passo 1</div>
+                                <div>• Renomeie para <strong style="color:#FFD700;">"⚡ B2B Apostar"</strong></div>
+                                <div>• Salve</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PASSO 5: Executar -->
+                    <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:rgba(34,197,94,0.08);border-radius:10px;border:1px solid rgba(34,197,94,0.2);">
+                        <span style="background:#22C55E;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">5</span>
+                        <div style="flex:1;">
+                            <div style="font-size:0.8rem;font-weight:700;color:#22C55E;margin-bottom:4px;">Execute! 🚀</div>
+                            <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;">
+                                <div>Na página do jogo da Caixa (já logado):</div>
+                                <div style="margin-top:3px;"><strong style="color:#FFD700;">Abra seus favoritos e toque em "⚡ B2B Apostar"</strong></div>
+                                <div style="margin-top:3px;color:#22C55E;font-weight:600;">✅ Os ${games.length} jogos serão preenchidos automaticamente!</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ALTERNATIVA RÁPIDA: Cole na barra de endereço -->
+                <div style="background:rgba(139,92,246,0.08);border:1px solid #8B5CF640;border-radius:12px;padding:12px;margin-bottom:12px;">
+                    <div style="color:#C4B5FD;font-weight:800;font-size:0.82rem;margin-bottom:8px;">🚀 Alternativa Rápida (Sem criar favorito):</div>
+                    <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;margin-bottom:8px;">
+                        <div>① Copie o link acima (passo 1)</div>
+                        <div>② No site da Caixa, toque na <strong style="color:#C4B5FD;">barra de endereço</strong></div>
+                        <div>③ Apague o endereço atual</div>
+                        <div>④ Cole o link e toque <strong style="color:#C4B5FD;">Ir / Enter</strong></div>
+                    </div>
+                    <div style="font-size:0.68rem;color:#F59E0B;line-height:1.4;">
+                        ⚠️ <strong>Importante:</strong> Alguns navegadores removem o "javascript:" do início ao colar. Se não funcionar, digite <strong style="color:#FFD700;">javascript:</strong> manualmente antes de colar.
+                    </div>
+                </div>
+
+                <!-- LISTA RESUMIDA DOS JOGOS -->
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px;margin-bottom:12px;">
+                    <div style="color:#94A3B8;font-size:0.72rem;font-weight:700;margin-bottom:6px;">🎰 Jogos que serão apostados:</div>
+                    <div style="font-size:0.7rem;color:#CBD5E1;font-family:monospace;line-height:1.8;max-height:120px;overflow-y:auto;">
+                        ${games.map((g, i) => '<div><span style="color:#60A5FA;">' + (i+1) + '.</span> ' + g.map(n => String(n).padStart(2,'0')).join(' ') + '</div>').join('')}
+                    </div>
+                </div>
+
+                <div style="text-align:center;font-size:0.65rem;color:#475569;line-height:1.4;">
+                    💡 O script seleciona números e coloca no carrinho automaticamente.<br>
+                    O pagamento é feito manualmente por você.
+                </div>
+            </div>
+
+            <!-- ═══════════ ABA MANUAL ═══════════ -->
+            <div id="tab-manual-content" style="display:none;">
+                <div style="background:linear-gradient(135deg,rgba(0,102,204,0.1),rgba(0,60,120,0.08));border:1px solid #0066CC20;border-radius:12px;padding:10px;margin-bottom:12px;">
+                    <div style="font-size:0.78rem;color:#94A3B8;line-height:1.5;">Copie cada jogo e preencha manualmente no site da Caixa.</div>
+                </div>
+                <div style="margin-bottom:12px;">${jogosHTML}</div>
+                <button id="mobile-copy-all-btn" style="width:100%;background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:white;border:none;padding:14px;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 15px rgba(139,92,246,0.4);">📋 COPIAR TODOS OS ${games.length} JOGOS</button>
+                <a href="${caixaUrl}" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:14px;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 4px 15px rgba(0,102,204,0.4);box-sizing:border-box;">🌐 ABRIR SITE DA CAIXA — ${cfg.name}</a>
+                <div style="margin-top:12px;padding:10px;background:rgba(245,158,11,0.08);border:1px solid #F59E0B30;border-radius:10px;">
+                    <div style="color:#F59E0B;font-weight:700;font-size:0.82rem;margin-bottom:6px;">📝 Como apostar manualmente:</div>
+                    <div style="font-size:0.75rem;color:#CBD5E1;line-height:1.7;">
+                        <div>① Copie os números de um jogo acima</div>
+                        <div>② Toque em "Abrir Site da Caixa"</div>
+                        <div>③ Faça login na sua conta</div>
+                        <div>④ Selecione os números manualmente</div>
+                        <div>⑤ Toque em "Colocar no Carrinho"</div>
+                        <div>⑥ Repita para cada jogo</div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
 
         document.body.appendChild(modal);
+
+        // ═══ EVENT HANDLERS ═══
 
         // Fechar modal
         document.getElementById('close-mobile-bet-modal').addEventListener('click', () => modal.remove());
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
 
-        // Copiar jogo individual
+        // ── Abas ──
+        const tabAutoBtn = document.getElementById('tab-auto-btn');
+        const tabManualBtn = document.getElementById('tab-manual-btn');
+        const tabAutoContent = document.getElementById('tab-auto-content');
+        const tabManualContent = document.getElementById('tab-manual-content');
+
+        tabAutoBtn.addEventListener('click', () => {
+            tabAutoContent.style.display = 'block';
+            tabManualContent.style.display = 'none';
+            tabAutoBtn.style.border = '2px solid #FFD700';
+            tabAutoBtn.style.background = 'linear-gradient(135deg,#FFD70020,#FFD70008)';
+            tabAutoBtn.style.color = '#FFD700';
+            tabManualBtn.style.border = '1px solid #47556940';
+            tabManualBtn.style.background = 'transparent';
+            tabManualBtn.style.color = '#94A3B8';
+        });
+
+        tabManualBtn.addEventListener('click', () => {
+            tabAutoContent.style.display = 'none';
+            tabManualContent.style.display = 'block';
+            tabManualBtn.style.border = '2px solid #0066CC';
+            tabManualBtn.style.background = 'linear-gradient(135deg,#0066CC20,#0066CC08)';
+            tabManualBtn.style.color = '#60A5FA';
+            tabAutoBtn.style.border = '1px solid #47556940';
+            tabAutoBtn.style.background = 'transparent';
+            tabAutoBtn.style.color = '#94A3B8';
+        });
+
+        // ── Copiar Bookmarklet ──
+        const bookmarkletBtn = document.getElementById('btn-copy-bookmarklet');
+        if (bookmarkletBtn) {
+            bookmarkletBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(bookmarkletCode);
+                } catch(e) {
+                    const ta = document.createElement('textarea');
+                    ta.value = bookmarkletCode;
+                    ta.style.cssText = 'position:fixed;left:-9999px;';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                }
+                bookmarkletBtn.textContent = '✅ LINK COPIADO!';
+                bookmarkletBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+                setTimeout(() => {
+                    bookmarkletBtn.textContent = '📋 COPIAR LINK DE AUTOMAÇÃO';
+                    bookmarkletBtn.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)';
+                }, 3000);
+            });
+        }
+
+        // ── Copiar jogo individual ──
         modal.querySelectorAll('.mobile-copy-game-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const nums = btn.getAttribute('data-nums');
@@ -777,16 +1101,18 @@ class UI {
             });
         });
 
-        // Copiar todos
-        document.getElementById('mobile-copy-all-btn').addEventListener('click', async () => {
-            const btn = document.getElementById('mobile-copy-all-btn');
-            try { await navigator.clipboard.writeText(allFormatted); } catch(e) {
-                const ta = document.createElement('textarea'); ta.value = allFormatted; ta.style.cssText = 'position:fixed;left:-9999px;';
-                document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-            }
-            btn.textContent = '✅ TODOS COPIADOS!'; btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-            setTimeout(() => { btn.textContent = '📋 COPIAR TODOS OS ' + games.length + ' JOGOS'; btn.style.background = 'linear-gradient(135deg,#8B5CF6,#7C3AED)'; }, 3000);
-        });
+        // ── Copiar todos ──
+        const copyAllBtn = document.getElementById('mobile-copy-all-btn');
+        if (copyAllBtn) {
+            copyAllBtn.addEventListener('click', async () => {
+                try { await navigator.clipboard.writeText(allFormatted); } catch(e) {
+                    const ta = document.createElement('textarea'); ta.value = allFormatted; ta.style.cssText = 'position:fixed;left:-9999px;';
+                    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+                }
+                copyAllBtn.textContent = '✅ TODOS COPIADOS!'; copyAllBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+                setTimeout(() => { copyAllBtn.textContent = '📋 COPIAR TODOS OS ' + games.length + ' JOGOS'; copyAllBtn.style.background = 'linear-gradient(135deg,#8B5CF6,#7C3AED)'; }, 3000);
+            });
+        }
     }
 
     _insertCaixaPanel(games, gameKey) {
@@ -1189,20 +1515,26 @@ class UI {
                     return;
                 }
 
-                // Limpar painéis anteriores
-                const oldFeedback = this.gamesContainer.parentNode.querySelector('.generation-feedback');
-                if (oldFeedback) oldFeedback.remove();
-                const oldAnalysis = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
-                if (oldAnalysis) oldAnalysis.remove();
-                const oldCaixaBtn = document.getElementById('caixa-panel');
-                if (oldCaixaBtn) oldCaixaBtn.remove();
+                // Limpar painéis anteriores (incluindo painéis do QUANTUM L99)
+                const _clParent = this.gamesContainer.parentNode;
+                if (_clParent) {
+                    _clParent.querySelectorAll('.generation-feedback, .smart-analysis-panel, .smart-gen-analysis').forEach(el => el.remove());
+                    const _oldCaixaCl = document.getElementById('caixa-panel');
+                    if (_oldCaixaCl) _oldCaixaCl.remove();
+                }
 
                 // Mostrar loading
                 const fixedInfo = fixedArr.length > 0 ? '<br><small style="color:#F59E0B;">📌 ' + fixedArr.length + ' números fixos: ' + fixedArr.sort((a,b)=>a-b).join(', ') + '</small>' : '';
                 this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">🎯 Calculando Fechamento Objetivo v3.0...<br><small>Garantia de ' + guarantee + ' acertos | ' + selectedArr.length + ' números | ' + game.name + '</small>' + fixedInfo + '</div></div>';
 
                 setTimeout(() => {
+                  try {
                     // v3.0: Passar fixedNumbers ao ClosingEngine
+                    if (typeof ClosingEngine === 'undefined') {
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">❌ Motor de Fechamento (ClosingEngine) não carregado.<br><small>Recarregue a página com Ctrl+Shift+R</small></div>';
+                        return;
+                    }
+
                     const closingResult = ClosingEngine.generateClosure(
                         selectedArr, guarantee, closingBetSize, this.currentGameKey, fixedArr
                     );
@@ -1257,6 +1589,10 @@ class UI {
                     if (typeof this._insertCaixaPanel === 'function') {
                         this._insertCaixaPanel(closingResult.games, this.currentGameKey);
                     }
+                  } catch (closingErr) {
+                    console.error('[ClosingEngine] ERRO FATAL:', closingErr);
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:12px;padding:20px;">❌ Erro no Fechamento: ' + closingErr.message + '<br><small>Verifique o console (F12) para detalhes.<br>Tente recarregar com Ctrl+Shift+R</small></div>';
+                  }
                 }, 50);
 
                 if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
@@ -1264,14 +1600,27 @@ class UI {
             }
 
             // ━━ MODO PADRÃO (CombinationEngine) ━━
-            const result = CombinationEngine.generate(
-                this.currentGameKey,
-                closingVal,
-                parseInt(this.gamesQuantityInput.value),
-                Array.from(this.selectedNumbers),
-                Array.from(this.fixedNumbers)
-            );
-            this.renderGames(result, this.currentGameKey);
+            // ── LIMPEZA COMPLETA antes de renderizar (FIX: painéis do QUANTUM anterior) ──
+            const _cgParent = this.gamesContainer.parentNode;
+            if (_cgParent) {
+                _cgParent.querySelectorAll('.generation-feedback, .smart-analysis-panel, .smart-gen-analysis').forEach(el => el.remove());
+                const _oldCaixaP = document.getElementById('caixa-panel');
+                if (_oldCaixaP) _oldCaixaP.remove();
+            }
+
+            try {
+                if (typeof CombinationEngine === 'undefined') {
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">❌ Motor de Combinação (CombinationEngine) não carregado.<br><small>Recarregue a página com Ctrl+Shift+R</small></div>';
+                    return;
+                }
+                const result = CombinationEngine.generate(
+                    this.currentGameKey,
+                    closingVal,
+                    parseInt(this.gamesQuantityInput.value),
+                    Array.from(this.selectedNumbers),
+                    Array.from(this.fixedNumbers)
+                );
+                this.renderGames(result, this.currentGameKey);
             if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
 
             // Info se o motor expandiu automaticamente o pool
@@ -1279,14 +1628,6 @@ class UI {
             if (result.games.length < qtdSolicitada) {
                 console.log(`[B2B] ℹ️ Gerados ${result.games.length}/${qtdSolicitada} jogos (pool auto-expandido)`);
             }
-
-            // Limpar feedback/análise anterior
-            const oldFeedback = this.gamesContainer.parentNode.querySelector('.generation-feedback');
-            if (oldFeedback) oldFeedback.remove();
-            const oldAnalysis = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
-            if (oldAnalysis) oldAnalysis.remove();
-            const oldCaixaBtn = document.getElementById('caixa-panel');
-            if (oldCaixaBtn) oldCaixaBtn.remove();
 
             // Painel de análise inteligente
             if (result.smartAnalysis) {
@@ -1407,6 +1748,10 @@ class UI {
                 this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
             }
             feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch (combErr) {
+                console.error('[CombEngine] ERRO:', combErr);
+                this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:12px;padding:20px;">❌ Erro na Geração: ' + combErr.message + '<br><small>Verifique o console (F12) para detalhes.<br>Tente recarregar com Ctrl+Shift+R</small></div>';
+            }
         };
 
         // Generate (IA Smart Bets)
