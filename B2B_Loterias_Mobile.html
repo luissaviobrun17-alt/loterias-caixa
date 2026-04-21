@@ -9268,41 +9268,35 @@ class UI {
             </div>
             <div id="tab-auto-content">
                 <div style="background:linear-gradient(145deg,rgba(34,197,94,0.1),rgba(0,60,120,0.08));border:1px solid #22C55E30;border-radius:12px;padding:14px;margin-bottom:12px;">
-                    <div style="color:#22C55E;font-weight:800;font-size:0.9rem;margin-bottom:8px;">⚡ Preenchimento Automático — Sem F12!</div>
-                    <div style="font-size:0.78rem;color:#CBD5E1;line-height:1.6;">Preenche seus jogos no site da Caixa automaticamente.<br><strong style="color:#FFD700;">Nenhum conhecimento técnico necessário.</strong></div>
+                    <div style="color:#22C55E;font-weight:800;font-size:0.9rem;margin-bottom:8px;">⚡ Preenchimento Automático</div>
+                    <div style="font-size:0.78rem;color:#CBD5E1;line-height:1.6;">Preenche seus jogos no site da Caixa automaticamente.<br><strong style="color:#FFD700;">3 passos simples no PC!</strong></div>
                 </div>
                 <div style="margin-bottom:14px;">
-                    <div style="color:#FFD700;font-weight:800;font-size:0.82rem;margin-bottom:10px;">📝 Passo a Passo:</div>
+                    <div style="color:#FFD700;font-weight:800;font-size:0.82rem;margin-bottom:10px;">📝 Como usar:</div>
                     <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
                         <span style="background:#FFD700;color:#000;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">1</span>
-                        <div style="flex:1;"><div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:6px;">Copie o link de automação:</div>
-                            <button id="btn-copy-bookmarklet" style="width:100%;background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;padding:12px;border-radius:10px;font-size:0.88rem;font-weight:800;cursor:pointer;">📋 COPIAR LINK DE AUTOMAÇÃO</button></div>
+                        <div style="flex:1;"><div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:6px;">Copie o script:</div>
+                            <button id="btn-copy-bookmarklet" style="width:100%;background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;padding:12px;border-radius:10px;font-size:0.88rem;font-weight:800;cursor:pointer;">📋 COPIAR SCRIPT DE AUTOMAÇÃO</button></div>
                     </div>
                     <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
                         <span style="background:#0066CC;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">2</span>
-                        <div style="flex:1;"><div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:6px;">Abra o site da Caixa e faça login:</div>
+                        <div style="flex:1;"><div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:6px;">Abra o site da Caixa → pressione F12 → aba Console:</div>
                             <a href="${caixaUrl}" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;padding:12px;border-radius:10px;font-size:0.85rem;font-weight:800;text-align:center;text-decoration:none;box-sizing:border-box;">🌐 ABRIR ${cfg.name.toUpperCase()}</a></div>
                     </div>
                     <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,215,0,0.06);border-radius:10px;border:1px solid rgba(255,215,0,0.15);">
                         <span style="background:#F59E0B;color:#000;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">3</span>
-                        <div style="flex:1;"><div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:4px;">Crie um favorito e edite a URL:</div>
+                        <div style="flex:1;"><div style="font-size:0.8rem;font-weight:700;color:#22C55E;margin-bottom:4px;">Cole no Console e pressione Enter! 🚀</div>
                             <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;">
-                                <div>• No site da Caixa, adicione aos favoritos</div>
-                                <div>• Edite o favorito → apague a URL</div>
-                                <div>• <strong style="color:#22C55E;">Cole</strong> o link do passo 1</div>
-                                <div>• Renomeie para <strong style="color:#FFD700;">"⚡ B2B Apostar"</strong></div>
+                                <div>• Na aba <strong style="color:#FFD700;">Console</strong> do F12, clique na área de texto</div>
+                                <div>• Pressione <strong style="color:#FFD700;">Ctrl+V</strong> para colar o script</div>
+                                <div>• Pressione <strong style="color:#FFD700;">Enter</strong></div>
+                                <div style="margin-top:4px;"><span style="color:#22C55E;font-weight:600;">✅ Os ${games.length} jogos serão preenchidos automaticamente!</span></div>
                             </div></div>
-                    </div>
-                    <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:rgba(34,197,94,0.08);border-radius:10px;border:1px solid rgba(34,197,94,0.2);">
-                        <span style="background:#22C55E;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">4</span>
-                        <div style="flex:1;"><div style="font-size:0.8rem;font-weight:700;color:#22C55E;margin-bottom:4px;">Execute! 🚀</div>
-                            <div style="font-size:0.72rem;color:#CBD5E1;">Na página do jogo, abra favoritos e toque em <strong style="color:#FFD700;">"⚡ B2B Apostar"</strong><br><span style="color:#22C55E;font-weight:600;">✅ Os ${games.length} jogos serão preenchidos!</span></div></div>
                     </div>
                 </div>
                 <div style="background:rgba(139,92,246,0.08);border:1px solid #8B5CF640;border-radius:12px;padding:12px;margin-bottom:12px;">
-                    <div style="color:#C4B5FD;font-weight:800;font-size:0.82rem;margin-bottom:8px;">🚀 Alternativa Rápida:</div>
-                    <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;">① Copie o link → ② Na Caixa, toque na barra de endereço → ③ Cole e toque Ir</div>
-                    <div style="font-size:0.68rem;color:#F59E0B;margin-top:6px;">⚠️ Se não funcionar, digite <strong>javascript:</strong> antes de colar.</div>
+                    <div style="color:#C4B5FD;font-weight:800;font-size:0.82rem;margin-bottom:8px;">📱 No Celular?</div>
+                    <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;">Use a aba <strong style="color:#60A5FA;">Manual</strong> para copiar os jogos e preencher manualmente no site da Caixa.</div>
                 </div>
                 <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px;">
                     <div style="color:#94A3B8;font-size:0.72rem;font-weight:700;margin-bottom:6px;">🎰 Jogos que serão apostados:</div>
@@ -9334,11 +9328,14 @@ class UI {
         tabAutoBtn.addEventListener('click', () => { tabAutoContent.style.display='block'; tabManualContent.style.display='none'; tabAutoBtn.style.cssText='flex:1;padding:12px 8px;border-radius:10px;border:2px solid #FFD700;background:linear-gradient(135deg,#FFD70020,#FFD70008);color:#FFD700;font-weight:800;font-size:0.82rem;cursor:pointer;'; tabManualBtn.style.cssText='flex:1;padding:12px 8px;border-radius:10px;border:1px solid #47556940;background:transparent;color:#94A3B8;font-weight:700;font-size:0.82rem;cursor:pointer;'; });
         tabManualBtn.addEventListener('click', () => { tabAutoContent.style.display='none'; tabManualContent.style.display='block'; tabManualBtn.style.cssText='flex:1;padding:12px 8px;border-radius:10px;border:2px solid #0066CC;background:linear-gradient(135deg,#0066CC20,#0066CC08);color:#60A5FA;font-weight:800;font-size:0.82rem;cursor:pointer;'; tabAutoBtn.style.cssText='flex:1;padding:12px 8px;border-radius:10px;border:1px solid #47556940;background:transparent;color:#94A3B8;font-weight:700;font-size:0.82rem;cursor:pointer;'; });
 
+        // Script puro para F12 Console (sem wrapper javascript:void)
+        const consoleScript = bookmarkletCode.replace(/^javascript:void\(\(/, '(').replace(/\)\)$/, ')');
+
         document.getElementById('btn-copy-bookmarklet').addEventListener('click', async () => {
             const btn = document.getElementById('btn-copy-bookmarklet');
-            try { await navigator.clipboard.writeText(bookmarkletCode); } catch(e) { const ta=document.createElement('textarea');ta.value=bookmarkletCode;ta.style.cssText='position:fixed;left:-9999px;';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta); }
-            btn.textContent='✅ LINK COPIADO!'; btn.style.background='linear-gradient(135deg,#059669,#047857)';
-            setTimeout(()=>{btn.textContent='📋 COPIAR LINK DE AUTOMAÇÃO';btn.style.background='linear-gradient(135deg,#22C55E,#16A34A)';},3000);
+            try { await navigator.clipboard.writeText(consoleScript); } catch(e) { const ta=document.createElement('textarea');ta.value=consoleScript;ta.style.cssText='position:fixed;left:-9999px;';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta); }
+            btn.textContent='✅ SCRIPT COPIADO!'; btn.style.background='linear-gradient(135deg,#059669,#047857)';
+            setTimeout(()=>{btn.textContent='📋 COPIAR SCRIPT DE AUTOMAÇÃO';btn.style.background='linear-gradient(135deg,#22C55E,#16A34A)';},3000);
         });
 
         modal.querySelectorAll('.mobile-copy-game-btn').forEach(btn => {
