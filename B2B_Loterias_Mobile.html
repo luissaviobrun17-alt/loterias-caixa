@@ -9255,16 +9255,39 @@ class UI {
 
         modal.innerHTML = `<div style="background:linear-gradient(145deg,#0F172A,#1E293B);border-radius:16px;border:1px solid #FFD70040;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;padding:18px;color:#E2E8F0;box-shadow:0 20px 60px rgba(0,0,0,0.6);">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-                <h2 style="margin:0;font-size:1.1rem;color:#FFD700;">📱 Apostar no Celular</h2>
+                <h2 style="margin:0;font-size:1.1rem;color:#FFD700;">🎰 Apostar Online</h2>
                 <button id="close-mobile-bet-modal" style="background:none;border:none;color:#94A3B8;font-size:1.8rem;cursor:pointer;padding:4px 8px;">✕</button>
             </div>
             <div style="background:linear-gradient(135deg,rgba(255,215,0,0.12),rgba(0,60,120,0.1));border:1px solid #FFD70030;border-radius:12px;padding:12px;margin-bottom:14px;">
                 <div style="font-weight:800;color:#FFD700;font-size:0.95rem;margin-bottom:4px;">🎰 ${games.length} jogos de ${cfg.name}</div>
-                <div style="font-size:0.75rem;color:#94A3B8;">Escolha: automático (recomendado) ou manual.</div>
+                <div style="font-size:0.75rem;color:#94A3B8;">Escolha o método de aposta.</div>
             </div>
             <div style="display:flex;gap:4px;margin-bottom:14px;">
-                <button id="tab-auto-btn" style="flex:1;padding:12px 8px;border-radius:10px;border:2px solid #FFD700;background:linear-gradient(135deg,#FFD70020,#FFD70008);color:#FFD700;font-weight:800;font-size:0.82rem;cursor:pointer;">⚡ AUTOMÁTICO</button>
-                <button id="tab-manual-btn" style="flex:1;padding:12px 8px;border-radius:10px;border:1px solid #47556940;background:transparent;color:#94A3B8;font-weight:700;font-size:0.82rem;cursor:pointer;">📋 Manual</button>
+                <button id="tab-ext-btn" style="flex:1;padding:12px 6px;border-radius:10px;border:2px solid #22C55E;background:linear-gradient(135deg,#22C55E20,#22C55E08);color:#22C55E;font-weight:800;font-size:0.78rem;cursor:pointer;">🚀 1-CLIQUE</button>
+                <button id="tab-auto-btn" style="flex:1;padding:12px 6px;border-radius:10px;border:1px solid #47556940;background:transparent;color:#94A3B8;font-weight:700;font-size:0.78rem;cursor:pointer;">⚡ F12 Console</button>
+                <button id="tab-manual-btn" style="flex:1;padding:12px 6px;border-radius:10px;border:1px solid #47556940;background:transparent;color:#94A3B8;font-weight:700;font-size:0.78rem;cursor:pointer;">📋 Manual</button>
+            </div>
+            <div id="tab-ext-content">
+                <div style="background:linear-gradient(145deg,rgba(34,197,94,0.12),rgba(0,60,120,0.08));border:1px solid #22C55E40;border-radius:12px;padding:14px;margin-bottom:14px;">
+                    <div style="color:#22C55E;font-weight:800;font-size:0.95rem;margin-bottom:6px;">🚀 Automação com 1 Clique!</div>
+                    <div style="font-size:0.78rem;color:#CBD5E1;line-height:1.5;">Clique no botão abaixo → o site da Caixa abre e <strong style="color:#FFD700;">os jogos são preenchidos automaticamente</strong>.</div>
+                </div>
+                <button id="btn-one-click-bet" style="width:100%;background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;padding:16px;border-radius:12px;font-size:1.05rem;font-weight:900;cursor:pointer;margin-bottom:12px;box-shadow:0 4px 15px rgba(34,197,94,0.3);letter-spacing:0.5px;">🚀 ABRIR CAIXA E APOSTAR AUTOMATICAMENTE</button>
+                <div style="background:rgba(255,215,0,0.06);border:1px solid #FFD70020;border-radius:10px;padding:12px;margin-bottom:12px;">
+                    <div style="color:#FFD700;font-weight:800;font-size:0.8rem;margin-bottom:8px;">⚙️ Pré-requisito (apenas 1ª vez):</div>
+                    <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;margin-bottom:8px;">Instale a extensão <strong style="color:#FFD700;">B2B Loterias</strong> no Chrome:</div>
+                    <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;">
+                        <div style="margin-bottom:4px;">① Baixe a <a href="https://luissaviobrun17-alt.github.io/loterias-caixa/extensao/" target="_blank" rel="noopener" style="color:#60A5FA;font-weight:700;">pasta da extensão</a></div>
+                        <div style="margin-bottom:4px;">② Chrome → <strong style="color:#FFD700;">chrome://extensions</strong></div>
+                        <div style="margin-bottom:4px;">③ Ative <strong style="color:#22C55E;">Modo do desenvolvedor</strong> (canto superior direito)</div>
+                        <div>④ Clique <strong style="color:#FFD700;">"Carregar sem compactação"</strong> → selecione a pasta</div>
+                    </div>
+                </div>
+                <div style="background:rgba(139,92,246,0.06);border:1px solid #8B5CF620;border-radius:10px;padding:10px;">
+                    <div style="color:#C4B5FD;font-weight:700;font-size:0.72rem;margin-bottom:4px;">📱 No celular Android?</div>
+                    <div style="font-size:0.68rem;color:#94A3B8;line-height:1.5;">Use o <a href="https://play.google.com/store/apps/details?id=com.nicekiwi.nicekiwibrowser" target="_blank" rel="noopener" style="color:#60A5FA;">Kiwi Browser</a> — suporta extensões Chrome no celular!</div>
+                </div>
+            </div>
             </div>
             <div id="tab-auto-content">
                 <div style="background:linear-gradient(145deg,rgba(34,197,94,0.1),rgba(0,60,120,0.08));border:1px solid #22C55E30;border-radius:12px;padding:14px;margin-bottom:12px;">
@@ -9322,12 +9345,42 @@ class UI {
         document.getElementById('close-mobile-bet-modal').addEventListener('click', () => modal.remove());
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
 
+        const tabExtBtn = document.getElementById('tab-ext-btn');
         const tabAutoBtn = document.getElementById('tab-auto-btn');
         const tabManualBtn = document.getElementById('tab-manual-btn');
+        const tabExtContent = document.getElementById('tab-ext-content');
         const tabAutoContent = document.getElementById('tab-auto-content');
         const tabManualContent = document.getElementById('tab-manual-content');
-        tabAutoBtn.addEventListener('click', () => { tabAutoContent.style.display='block'; tabManualContent.style.display='none'; tabAutoBtn.style.cssText='flex:1;padding:12px 8px;border-radius:10px;border:2px solid #FFD700;background:linear-gradient(135deg,#FFD70020,#FFD70008);color:#FFD700;font-weight:800;font-size:0.82rem;cursor:pointer;'; tabManualBtn.style.cssText='flex:1;padding:12px 8px;border-radius:10px;border:1px solid #47556940;background:transparent;color:#94A3B8;font-weight:700;font-size:0.82rem;cursor:pointer;'; });
-        tabManualBtn.addEventListener('click', () => { tabAutoContent.style.display='none'; tabManualContent.style.display='block'; tabManualBtn.style.cssText='flex:1;padding:12px 8px;border-radius:10px;border:2px solid #0066CC;background:linear-gradient(135deg,#0066CC20,#0066CC08);color:#60A5FA;font-weight:800;font-size:0.82rem;cursor:pointer;'; tabAutoBtn.style.cssText='flex:1;padding:12px 8px;border-radius:10px;border:1px solid #47556940;background:transparent;color:#94A3B8;font-weight:700;font-size:0.82rem;cursor:pointer;'; });
+        const inactiveTab = 'flex:1;padding:12px 6px;border-radius:10px;border:1px solid #47556940;background:transparent;color:#94A3B8;font-weight:700;font-size:0.78rem;cursor:pointer;';
+
+        function showTab(tab) {
+            tabExtContent.style.display = tab==='ext' ? 'block' : 'none';
+            tabAutoContent.style.display = tab==='auto' ? 'block' : 'none';
+            tabManualContent.style.display = tab==='manual' ? 'block' : 'none';
+            tabExtBtn.style.cssText = tab==='ext' ? 'flex:1;padding:12px 6px;border-radius:10px;border:2px solid #22C55E;background:linear-gradient(135deg,#22C55E20,#22C55E08);color:#22C55E;font-weight:800;font-size:0.78rem;cursor:pointer;' : inactiveTab;
+            tabAutoBtn.style.cssText = tab==='auto' ? 'flex:1;padding:12px 6px;border-radius:10px;border:2px solid #FFD700;background:linear-gradient(135deg,#FFD70020,#FFD70008);color:#FFD700;font-weight:800;font-size:0.78rem;cursor:pointer;' : inactiveTab;
+            tabManualBtn.style.cssText = tab==='manual' ? 'flex:1;padding:12px 6px;border-radius:10px;border:2px solid #0066CC;background:linear-gradient(135deg,#0066CC20,#0066CC08);color:#60A5FA;font-weight:800;font-size:0.78rem;cursor:pointer;' : inactiveTab;
+        }
+        tabExtBtn.addEventListener('click', () => showTab('ext'));
+        tabAutoBtn.addEventListener('click', () => showTab('auto'));
+        tabManualBtn.addEventListener('click', () => showTab('manual'));
+        // Aba Extensão visível por padrão
+        tabAutoContent.style.display = 'none';
+
+        // Handler do botão 1-CLIQUE
+        document.getElementById('btn-one-click-bet').addEventListener('click', () => {
+            const data = { games: games, config: cfg };
+            const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+            const targetUrl = caixaUrl + '?b2b=' + encoded;
+            const btn = document.getElementById('btn-one-click-bet');
+            btn.textContent = '⏳ Abrindo site da Caixa...';
+            btn.style.background = 'linear-gradient(135deg,#F59E0B,#D97706)';
+            window.open(targetUrl, '_blank');
+            setTimeout(() => {
+                btn.textContent = '🚀 ABRIR CAIXA E APOSTAR AUTOMATICAMENTE';
+                btn.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)';
+            }, 3000);
+        });
 
         // Script puro para F12 Console (sem wrapper javascript:void)
         const consoleScript = bookmarkletCode.replace(/^javascript:void\(\(/, '(').replace(/\)\)$/, ')');

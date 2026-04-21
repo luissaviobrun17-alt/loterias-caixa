@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { width:320px; min-height:200px; background:linear-gradient(145deg,#0F172A,#1E293B); color:#E2E8F0; font-family:'Segoe UI',system-ui,sans-serif; padding:16px; }
+        .header { display:flex; align-items:center; gap:10px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid #334155; }
+        .header h1 { font-size:0.95rem; color:#FFD700; font-weight:800; }
+        .status { background:rgba(255,255,255,0.04); border:1px solid #334155; border-radius:10px; padding:12px; margin-bottom:12px; }
+        .status-label { font-size:0.72rem; color:#94A3B8; margin-bottom:6px; }
+        .status-value { font-size:0.9rem; font-weight:700; }
+        .status-value.active { color:#22C55E; }
+        .status-value.empty { color:#F59E0B; }
+        .btn { width:100%; padding:12px; border:none; border-radius:10px; font-size:0.85rem; font-weight:800; cursor:pointer; margin-bottom:8px; }
+        .btn-clear { background:linear-gradient(135deg,#EF4444,#DC2626); color:white; }
+        .btn-site { background:linear-gradient(135deg,#0066CC,#003D80); color:white; text-decoration:none; display:block; text-align:center; }
+        .info { font-size:0.68rem; color:#64748B; text-align:center; margin-top:8px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span style="font-size:1.4rem;">🎰</span>
+        <h1>B2B Loterias</h1>
+    </div>
+    <div class="status">
+        <div class="status-label">Status:</div>
+        <div id="status-text" class="status-value empty">Verificando...</div>
+    </div>
+    <div id="games-info" style="display:none;">
+        <div class="status">
+            <div class="status-label">Jogos pendentes:</div>
+            <div id="games-detail" class="status-value active"></div>
+        </div>
+        <button id="btn-clear" class="btn btn-clear">🗑️ Limpar Jogos Pendentes</button>
+    </div>
+    <a href="https://www.loteriasonline.caixa.gov.br/silce-web/" target="_blank" class="btn btn-site">🌐 Abrir Site da Caixa</a>
+    <div class="info">Extensão B2B Loterias v1.0 — Automação de apostas</div>
+
+    <script>
+        chrome.storage.local.get(['b2b_pending_games'], (result) => {
+            const st = document.getElementById('status-text');
+            const gi = document.getElementById('games-info');
+            const gd = document.getElementById('games-detail');
+            if (result.b2b_pending_games && result.b2b_pending_games.games) {
+                const data = result.b2b_pending_games;
+                st.textContent = '✅ Jogos prontos para apostar!';
+                st.className = 'status-value active';
+                gi.style.display = 'block';
+                gd.textContent = data.games.length + ' jogos de ' + (data.config ? data.config.name : 'Loteria');
+            } else {
+                st.textContent = '⏳ Nenhum jogo pendente';
+                st.className = 'status-value empty';
+                gi.style.display = 'none';
+            }
+        });
+        document.getElementById('btn-clear').addEventListener('click', () => {
+            chrome.storage.local.remove(['b2b_pending_games'], () => {
+                document.getElementById('status-text').textContent = '⏳ Nenhum jogo pendente';
+                document.getElementById('status-text').className = 'status-value empty';
+                document.getElementById('games-info').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
