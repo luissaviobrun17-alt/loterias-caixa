@@ -227,31 +227,34 @@ class SmartBetsEngine {
             diadesorte: {
                 name: 'Dia de Sorte',
                 draw: 7, range: [1, 31],
-                maxConsecutive: 3,                           // v2.3: 4â†’3
+                // ★ DDS V2.0: Anti-sequência rigoroso
+                maxConsecutive: 2,                           // v2.3: 4â†’3
                 evenOddIdeal: [3, 4], evenOddTolerance: 2,
                 faixaSize: 8, faixaMin: 1, faixaMax: 3,     // v2.3: faixaMax 4â†’3
-                sumMin: 60, sumMax: 155,                     // v2.3: ajustado
+                sumMin: 70, sumMax: 155,                     // v2.3: ajustado
                 gapMin: 1, gapMax: 7,                        // v2.3: gapMax 5â†’7
                 repeatFromLast: [0, 3],                      // v2.3: 0-4â†’0-3
                 primeRatio: [0.0, 0.60],
                 maxSameEnding: 2,                            // v2.3: 3â†’2
-                fibWeight: 0.06,                             // v2.3: 0.3â†’0.06
-                markovWeight: 0.12,                          // v2.3: 0.55â†’0.12 â€” CAUSA RAIZ
-                trendWeight: 0.12,                           // v2.3: 0.50â†’0.12
-                pairBoost: 0.06,                             // v2.3: 0.45â†’0.06
-                trioBoost: 0.03,                             // v2.3: 0.35â†’0.03
+                fibWeight: 0.04,                             // v2.3: 0.3â†’0.06
+                markovWeight: 0.08,                          // v2.3: 0.55â†’0.12 â€” CAUSA RAIZ
+                trendWeight: 0.10,                           // v2.3: 0.50â†’0.12
+                // ★ DDS V2.0: PARES reforçados
+                pairBoost: 0.12,                             // v2.3: 0.45â†’0.06
+                trioBoost: 0.04,                             // v2.3: 0.35â†’0.03
                 multiWindow: true,
                 hotNumbers: [],
                 coldNumbers: [],
-                diversityPenalty: 0.88,                      // v2.3: 0.25â†’0.88 â€” MUITO agressivo (range 31!)
-                maxConcentration: 0.28,                      // v2.3: 0.45â†’0.28 (7/31=22.5%, +5.5%)
+                diversityPenalty: 0.90,                      // v2.3: 0.25â†’0.88 â€” MUITO agressivo (range 31!)
+                maxConcentration: 0.26,                      // v2.3: 0.45â†’0.28 (7/31=22.5%, +5.5%)
                 forceNewEvery: 2,                            // v2.3: 4â†’2
                 maxOverlapBetweenGames: 3,                   // NOVO: max 3/7 overlap
-                maxSeedRatio: 0.15,                          // NOVO
-                noiseLevel: 0.35,                            // NOVO
-                hotRatio: 0.40,
-                warmRatio: 0.35,
-                coldRatio: 0.25
+                maxSeedRatio: 0.12,                          // NOVO
+                noiseLevel: 0.25,                            // NOVO
+                // ★ DDS V2.0: Mix hot/cold balanceado
+                hotRatio: 0.38,
+                warmRatio: 0.32,
+                coldRatio: 0.30
             }
         };
         return profiles[gameKey] || profiles.megasena;
@@ -287,19 +290,11 @@ class SmartBetsEngine {
             }
         }
 
-        // V9: Motor Timemania Quantum — Respeita números selecionados pelo usuário
-        if (gameKey === 'timemania') {
-            const hasUserSelection = selectedNumbers && selectedNumbers.length >= drawSize;
-            if (hasUserSelection) {
-                // ✅ Usuário selecionou números: usar pool do usuário no motor Quantum
-                console.log('[SmartBets] 🎯 TIMEMANIA V9 — Gerando a partir de ' + selectedNumbers.length + ' números escolhidos pelo usuário');
-                return this._generateTimemaniaQuantum(numGames, fixedNumbers, drawSize, profile, game, selectedNumbers);
-            } else {
-                // ✅ Sem seleção: motor Quantum com análise completa de 1-80
-                console.log('[SmartBets] 🔮 TIMEMANIA V9 — Motor Quantum completo (sem seleção manual)');
-                return this._generateTimemaniaQuantum(numGames, fixedNumbers, drawSize, profile, game, []);
-            }
-        }
+        // ═══════════════════════════════════════════════════════════════
+        // NOTA: O bloco acima (NovaEraEngine) intercepta TODAS as 7 loterias.
+        // O código legado abaixo serve apenas como fallback se NovaEraEngine
+        // não estiver carregado (via _generateQuantumUniversal).
+        // ═══════════════════════════════════════════════════════════════
 
         // Pool de nÃºmeros: usar selecionados ou universo completo
         // V9: Se usuário selecionou números (mesmo menos que drawSize), usar como pool preferencial

@@ -229,11 +229,15 @@ class NovaEraEngine {
                 zoneSize: 8,
                 zones: 4,
                 minZonesCovered: 3,
+                // ★ DDS V2.0: Anti-sequência RIGOROSO
+                // Dados reais: max 2 consecutivos é comum, 3+ é raro (<8%)
                 maxConsecutive: 2,
                 evenOddRange: [2, 5],
-                sumRange: [75, 145],
-                maxUsagePct: 0.40,
-                maxOverlap: 5,
+                // ★ DDS V2.0: Soma recalibrada (dados P5-P95 reais)
+                sumRange: [70, 155],
+                maxUsagePct: 0.38,
+                // ★ DDS V2.0: Overlap mais restrito para variações entre jogos
+                maxOverlap: 4,
                 weights: {
                     frequency: 0.18,
                     delay: 0.22,
@@ -988,52 +992,112 @@ class NovaEraEngine {
             }
 
             // ──────────────────────────────────────────────────────
-            // DIA DE SORTE: 7 de 31 — range pequeno
-            // Repetição moderada (~1.5/7)
-            // Foco: equilíbrio entre repetição e renovação
+            // DIA DE SORTE V2.0: 7 de 31 — RECONSTRUÇÃO TOTAL
+            // ★ Foco nos ÚLTIMOS 3 sorteios
+            // ★ Pares que saem juntos (co-ocorrência)
+            // ★ Anti-sequência rigoroso
+            // ★ Mix hot/cold balanceado
             // ──────────────────────────────────────────────────────
             case 'diadesorte': {
-                // OTIMIZADO: Análise profunda de ciclos + tendência para 7/31
                 const ddsExpCycle = 31 / 7; // ~4.4 concursos de ciclo
+                const last3Limit = Math.min(3, N);
+                const last5Limit = Math.min(5, N);
+
+                // ━━ PASSO 1: Contagem nos últimos 3 sorteios (PRIORIDADE MÁXIMA) ━━
+                const freq3 = {};
+                for (let n = startNum; n <= endNum; n++) freq3[n] = 0;
+                for (let i = 0; i < last3Limit; i++) {
+                    for (const n of (history[i].numbers || [])) {
+                        if (n >= startNum && n <= endNum) freq3[n]++;
+                    }
+                }
+
+                // ━━ PASSO 2: Pares co-ocorrentes nos últimos 10 sorteios ━━
+                const pairScore = {};
+                const pairLimit = Math.min(10, N);
+                for (let i = 0; i < pairLimit; i++) {
+                    const nums = history[i].numbers || [];
+                    const decay = Math.pow(0.85, i); // Sorteios recentes pesam mais
+                    for (let a = 0; a < nums.length; a++) {
+                        for (let b = a + 1; b < nums.length; b++) {
+                            if (nums[a] >= startNum && nums[a] <= endNum && nums[b] >= startNum && nums[b] <= endNum) {
+                                const key = Math.min(nums[a], nums[b]) + ':' + Math.max(nums[a], nums[b]);
+                                pairScore[key] = (pairScore[key] || 0) + decay;
+                            }
+                        }
+                    }
+                }
+
+                // ━━ PASSO 3: Para cada número, calcular score composto ━━
                 for (let n = startNum; n <= endNum; n++) {
                     let totalAppearances = 0;
                     let lastSeen = N;
-                    let recentHits = 0; // aparições nos últimos 5
+                    let recentHits = 0;
                     for (let i = 0; i < N; i++) {
                         if ((history[i].numbers || []).includes(n)) {
                             totalAppearances++;
                             if (lastSeen === N) lastSeen = i;
-                            if (i < 5) recentHits++;
+                            if (i < last5Limit) recentHits++;
                         }
                     }
                     const freq = totalAppearances / Math.max(1, N);
-                    const expectedFreq = 7 / 31; // ~0.226
-                    const freqRatio = freq / expectedFreq; // >1 = quente, <1 = frio
+                    const expectedFreq = 7 / 31;
+                    const freqRatio = freq / expectedFreq;
                     const delayRatio = lastSeen / ddsExpCycle;
 
+                    // ━━ BASE: Score por ciclo de atraso ━━
+                    let baseScore;
                     if (lastDraw.has(n)) {
-                        // Saiu no último: chance moderada de repetir (22.6% natural)
-                        scores[n] = recentHits >= 3 ? 0.30 : 0.40;
+                        // Saiu no último: penalizar mais (evitar repetição excessiva)
+                        baseScore = recentHits >= 3 ? 0.20 : 0.35;
                     } else if (delayRatio >= 1.5 && delayRatio <= 3.0) {
-                        // ZONA DE OURO: atrasado 1.5x-3x o ciclo esperado
-                        scores[n] = 0.95;
+                        baseScore = 0.95; // ZONA DE OURO
                     } else if (delayRatio >= 1.0 && delayRatio < 1.5) {
-                        // Atrasado mas perto do ciclo
-                        scores[n] = 0.80;
+                        baseScore = 0.80;
                     } else if (delayRatio > 3.0) {
-                        // Muito atrasado: pode estar em tendência fria
-                        scores[n] = freqRatio > 0.8 ? 0.70 : 0.50;
+                        baseScore = freqRatio > 0.8 ? 0.70 : 0.50;
                     } else if (delayRatio >= 0.5 && delayRatio < 1.0) {
-                        // Saiu recentemente mas não no último
-                        scores[n] = freqRatio > 1.0 ? 0.55 : 0.45;
+                        baseScore = freqRatio > 1.0 ? 0.55 : 0.45;
                     } else {
-                        // Saiu muito recente (delay < 0.5 ciclo)
-                        scores[n] = 0.30;
+                        baseScore = 0.25;
                     }
-                    // Boost para números com frequência equilibrada
+
+                    // ━━ BOOST: Números que mais saíram nos últimos 3 (HOT) ━━
+                    if (freq3[n] >= 3) baseScore = Math.min(1.0, baseScore + 0.35); // Saiu nos 3 últimos!
+                    else if (freq3[n] === 2) baseScore = Math.min(1.0, baseScore + 0.20);
+                    else if (freq3[n] === 1) baseScore = Math.min(1.0, baseScore + 0.08);
+
+                    // ━━ BOOST: Números que MENOS saíram (COLD com potencial) ━━
+                    // Números frios com boa frequência histórica = candidatos a retornar
+                    if (freq3[n] === 0 && freqRatio >= 0.9 && delayRatio >= 1.2) {
+                        baseScore = Math.min(1.0, baseScore + 0.15); // Frio prestes a esquentar
+                    }
+
+                    // ━━ BOOST: Pares — número que co-ocorre com os últimos sorteados ━━
+                    let pairBonus = 0;
+                    for (const lastNum of lastDraw) {
+                        if (lastNum === n) continue;
+                        const key = Math.min(n, lastNum) + ':' + Math.max(n, lastNum);
+                        if (pairScore[key]) {
+                            pairBonus += pairScore[key] * 0.08;
+                        }
+                    }
+                    baseScore = Math.min(1.0, baseScore + Math.min(0.25, pairBonus));
+
+                    // ━━ PENALIDADE: Anti-sequência (números consecutivos ao último sorteio) ━━
+                    // Se o número está a distância 1 de DOIS ou mais números do último sorteio
+                    let adjCount = 0;
+                    for (const lastNum of lastDraw) {
+                        if (Math.abs(n - lastNum) === 1) adjCount++;
+                    }
+                    if (adjCount >= 2) baseScore *= 0.60; // Penalizar forte se seria sequência
+
+                    // Frequência equilibrada = ritmo saudável
                     if (freqRatio >= 0.85 && freqRatio <= 1.15) {
-                        scores[n] *= 1.15; // números "no ritmo"
+                        baseScore *= 1.12;
                     }
+
+                    scores[n] = baseScore;
                 }
                 break;
             }
@@ -1781,15 +1845,17 @@ class NovaEraEngine {
                 precision: 0.12
             },
 
-            // ★ DIA DE SORTE: 7/31 — precision ALTA (range pequeno, padrões fortes)
+            // ★ DIA DE SORTE V2.0: 7/31 — PARES + ÚLTIMOS 3 + ANTI-SEQUÊNCIA
+            // Cluster (pares) = 14%, Precision (últimos 3) = 15%, NextDraw = 12%
+            // Total preditivo baseado nos últimos sorteios = 41%
             diadesorte: {
-                frequency: 0.05, delay: 0.06, trend: 0.05,
-                zone: 0.04, markov: 0.06, phase: 0.03,
-                clairvoyance: 0.02, nextDraw: 0.06,
-                bayesian: 0.10, positional: 0.05,
-                sequential: 0.04, momentum: 0.04,
-                mirror: 0.08, gap: 0.10, cluster: 0.08, reversion: 0.04,
-                precision: 0.10
+                frequency: 0.04, delay: 0.05, trend: 0.04,
+                zone: 0.03, markov: 0.04, phase: 0.02,
+                clairvoyance: 0.02, nextDraw: 0.12,
+                bayesian: 0.06, positional: 0.04,
+                sequential: 0.03, momentum: 0.03,
+                mirror: 0.06, gap: 0.05, cluster: 0.14, reversion: 0.03,
+                precision: 0.15
             }
         };
 
@@ -1826,7 +1892,7 @@ class NovaEraEngine {
         const checkRadius = ap.checkRadius || 30;
 
         // ━━ FASE 1: Jogos de QUALIDADE com IA ━━
-        // ★ PRECISION v2.0: Timeouts e tentativas ESCALÁVEIS por quantidade
+        // ★ PRECISION v3.0: Timeouts e tentativas ESCALÁVEIS por quantidade
         const fase1MaxAttempts = numGames <= 100
             ? numGames * 500
             : numGames <= 1000
@@ -1844,18 +1910,22 @@ class NovaEraEngine {
 
         console.log('[NE-L99] 🎚️ Modo Adaptativo | ' + numGames + ' jogos | pool=' + pool.length + ' | overlap=' + maxOverlap + '/' + drawSize + ' | timeout=' + (fase1Timeout/1000) + 's');
 
-        // ★ PRECISION v2.0: Relaxamento progressivo do overlap
-        // Quando tentativas excedem 60% sem completar → relaxar overlap gradualmente
+        // ★ PRECISION v3.0: Relaxamento progressivo do overlap
         let currentOverlap = maxOverlap;
         let lastLog = 0;
+
+        // ★ PERFORMANCE FIX v3.0: Cache de Sets para anti-overlap
+        // Em vez de criar new Set() a cada verificação de overlap (O(n) por ticket),
+        // manter uma lista fixa de Sets que é atualizada incrementalmente
+        const gameSetsCache = [];
 
         while (games.length < numGames && attempts < fase1MaxAttempts && (Date.now() - startTime) < fase1Timeout) {
             attempts++;
 
-            // Relaxamento progressivo: se travou, relaxar overlap
+            // Relaxamento progressivo: se travou, relaxar overlap MAIS RÁPIDO
             const progressRatio = attempts / fase1MaxAttempts;
-            if (progressRatio > 0.40 && currentOverlap < drawSize) {
-                currentOverlap = Math.min(drawSize, maxOverlap + Math.floor((progressRatio - 0.40) * drawSize));
+            if (progressRatio > 0.30 && currentOverlap < drawSize) {
+                currentOverlap = Math.min(drawSize, maxOverlap + Math.floor((progressRatio - 0.30) * drawSize * 1.5));
             }
 
             const ticket = this._generateSingleGame(profile, scores, pool, drawSize, fixedNumbers, usedCount, maxUsage, startNum, endNum, numZones, zoneSize, games.length, numGames);
@@ -1864,13 +1934,13 @@ class NovaEraEngine {
             if (usedKeys.has(key)) continue;
 
             // Anti-overlap: verificar apenas os últimos checkRadius jogos
-            if (games.length > 0 && progressRatio < 0.80) {
+            // ★ PERFORMANCE FIX v3.0: Usar Sets pré-computados do cache
+            if (games.length > 0 && progressRatio < 0.75) {
                 let tooSimilar = false;
-                const checkFrom = Math.max(0, games.length - checkRadius);
-                for (let g = checkFrom; g < games.length; g++) {
-                    const existSet = new Set(games[g]);
+                const checkFrom = Math.max(0, gameSetsCache.length - checkRadius);
+                for (let g = checkFrom; g < gameSetsCache.length; g++) {
                     let overlap = 0;
-                    for (const n of ticket) { if (existSet.has(n)) overlap++; }
+                    for (const n of ticket) { if (gameSetsCache[g].has(n)) overlap++; }
                     if (overlap > currentOverlap) { tooSimilar = true; break; }
                 }
                 if (tooSimilar) continue;
@@ -1878,13 +1948,20 @@ class NovaEraEngine {
 
             games.push(ticket);
             usedKeys.add(key);
+            gameSetsCache.push(new Set(ticket));
             for (const n of ticket) usedCount[n] = (usedCount[n] || 0) + 1;
+
+            // ★ PERFORMANCE FIX v3.0: Limitar tamanho do cache de Sets
+            // Para lotes enormes, manter apenas os últimos checkRadius*2 Sets no cache
+            if (gameSetsCache.length > checkRadius * 2 + 50) {
+                gameSetsCache.splice(0, gameSetsCache.length - checkRadius * 2);
+            }
 
             // Log progresso a cada 10%
             const pct = Math.floor(games.length / numGames * 10);
             if (pct > lastLog) {
                 lastLog = pct;
-                console.log('[NE-L99] Fase1: ' + games.length + '/' + numGames + ' (' + (pct*10) + '%) overlap=' + currentOverlap);
+                console.log('[NE-L99] Fase1: ' + games.length + '/' + numGames + ' (' + (pct*10) + '%) overlap=' + currentOverlap + ' [' + (Date.now() - startTime) + 'ms]');
             }
         }
         const fase1Count = games.length;
@@ -1895,13 +1972,15 @@ class NovaEraEngine {
             const remaining = numGames - games.length;
             console.log('[NE-L99] Fase2 (BULK): gerando ' + remaining + ' jogos restantes...');
             let bulkAtt = 0;
-            // ★ PRECISION v2.0: tentativas e timeout ESCALÁVEIS
+            // ★ PRECISION v3.0: tentativas e timeout ESCALÁVEIS
             const bulkMax = Math.max(remaining * 500, 5000000);
             const bulkTimeout = Math.max(300000, Math.min(900000, remaining * 50)); // 5min-15min
+            // ★ PERFORMANCE FIX v3.0: Pré-computar fixos como Set para reutilizar
+            const fixedInPool = fixedNumbers.filter(f => pool.includes(f));
 
             while (games.length < numGames && bulkAtt < bulkMax && (Date.now() - startTime) < bulkTimeout) {
                 bulkAtt++;
-                const ticket = [...fixedNumbers.filter(f => pool.includes(f))];
+                const ticket = [...fixedInPool];
                 const usedSet = new Set(ticket);
                 const shuffled = pool.filter(n => !usedSet.has(n));
                 // Fisher-Yates shuffle
@@ -1922,10 +2001,10 @@ class NovaEraEngine {
                     for (const n of ticket) usedCount[n] = (usedCount[n] || 0) + 1;
                 }
             }
-            console.log('[NE-L99] Fase2: +' + (games.length - fase1Count) + ' em ' + bulkAtt + ' tentativas');
+            console.log('[NE-L99] Fase2: +' + (games.length - fase1Count) + ' em ' + bulkAtt + ' tentativas (' + (Date.now() - startTime) + 'ms)');
         }
 
-        console.log('[NE-L99] ✅ TOTAL: ' + games.length + '/' + numGames + ' jogos gerados');
+        console.log('[NE-L99] ✅ TOTAL: ' + games.length + '/' + numGames + ' jogos gerados em ' + (Date.now() - startTime) + 'ms');
         const maxUsed = Math.max(0, ...Object.values(usedCount));
         const maxPct = games.length > 0 ? (maxUsed / games.length * 100).toFixed(1) : 0;
         const numsUsed = Object.values(usedCount).filter(v => v > 0).length;
@@ -1974,26 +2053,42 @@ class NovaEraEngine {
                 w *= 1.5;
             }
 
-            // ★ PRECISION v2.0: Penalidade de consecutivos RESPEITA o perfil da loteria
+            // ★ DDS V2.0: Penalidade de consecutivos RESPEITA o perfil da loteria
             // Lotofácil (maxConsecutive=10): runs de 3 são NORMAIS — sem penalidade
             // Mega Sena (maxConsecutive=2): runs de 3 são RAROS — penalidade forte
-            if (profile.maxConsecutive <= 3) {
-                // Loterias de range grande: penalizar runs de 3+
+            // Dia de Sorte: max 1 par consecutivo por jogo, NUNCA 3+ seguidos
+            if (profile.maxConsecutive <= 2) {
+                // ★ DDS V2.0: ANTI-SEQUÊNCIA RIGOROSO
+                // BLOQUEAR: 3 ou mais consecutivos (nunca permitir)
+                if (this._wouldCreate3Consecutive(n, ticketSet)) {
+                    w *= 0.001; // Praticamente bloqueia
+                }
+                // PENALIZAR: Pares consecutivos — permitir no máximo 1 par por jogo
+                if (ticketSet.has(n - 1) || ticketSet.has(n + 1)) {
+                    // Contar quantos pares consecutivos já existem no ticket
+                    let existingConsecPairs = 0;
+                    const sortedTicket = [...ticketSet].sort((a, b) => a - b);
+                    for (let i = 1; i < sortedTicket.length; i++) {
+                        if (sortedTicket[i] - sortedTicket[i-1] === 1) existingConsecPairs++;
+                    }
+                    if (existingConsecPairs >= 1) {
+                        w *= 0.08; // Já tem 1 par: penalizar MUITO o segundo
+                    } else {
+                        w *= 0.45; // Primeiro par: penalidade moderada
+                    }
+                }
+            } else if (profile.maxConsecutive <= 3) {
+                // Loterias de range grande (Mega Sena, Quina, etc.)
                 if (this._wouldCreate3Consecutive(n, ticketSet)) {
                     w *= 0.005;
                 }
             } else if (profile.maxConsecutive <= 5) {
-                // Loterias moderadas (Dia de Sorte): penalidade leve para runs de 3+
+                // Loterias moderadas
                 if (this._wouldCreate3Consecutive(n, ticketSet)) {
                     w *= 0.50;
                 }
             }
             // Lotofácil/Lotomania (maxConsecutive >= 6): ZERO penalidade por consecutivos
-
-            // Para Dia de Sorte: penalizar forte pares consecutivos
-            if (profile.maxConsecutive <= 2 && (ticketSet.has(n - 1) || ticketSet.has(n + 1))) {
-                w *= 0.35;
-            }
 
             weights[n] = Math.max(0.001, w);
         }
