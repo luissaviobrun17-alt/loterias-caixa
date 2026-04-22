@@ -2561,10 +2561,11 @@ class SmartBetsEngine {
         const allCombinations = [];
         const analysis = this._deepAnalysis(gameKey, precisionPool, history, profile, startNum, endNum);
 
-        // Para pools grandes (C(22,15)=170K), usar amostragem inteligente
-        const maxCombinations = 8000;
+        // ★ PRECISION v2.0: maxCombinations ESCALÁVEL com numGames
+        const maxCombinations = Math.max(8000, numGames * 3);
+        const t0 = Date.now();
         if (poolSize <= 18) {
-            // Pool pequeno: gerar TODAS as combinaÃ§Ãµes
+            // Pool pequeno: gerar TODAS as combinações
             const generateCombinations = (arr, size, start, current) => {
                 if (current.length === size) {
                     allCombinations.push([...current]);
@@ -2581,11 +2582,11 @@ class SmartBetsEngine {
         } else {
             // Pool grande: amostragem Monte Carlo ponderada por score
             const poolScores = precisionPool.map(n => scores[n] || 0);
-            const totalPoolScore = poolScores.reduce((a, b) => a + b, 0);
             const usedKeys = new Set();
+            const maxAttempts = Math.max(maxCombinations * 10, numGames * 50);
+            const maxTime = Math.max(60000, numGames * 20); // 1min-5min
 
-            for (let attempt = 0; attempt < maxCombinations * 5 && allCombinations.length < maxCombinations; attempt++) {
-                // Selecionar 15 nÃºmeros ponderados pelo score
+            for (let attempt = 0; attempt < maxAttempts && allCombinations.length < maxCombinations && (Date.now() - t0) < maxTime; attempt++) {
                 const combo = [];
                 const available = [...precisionPool];
                 const availScores = [...poolScores];
@@ -2612,6 +2613,7 @@ class SmartBetsEngine {
                 }
             }
         }
+        console.log(`[Precisão] ⏱️ ${allCombinations.length} combinações geradas em ${Date.now() - t0}ms`);
 
         console.log(`[PrecisÃ£o] ðŸ“Š CombinaÃ§Ãµes possÃ­veis: ${allCombinations.length}`);
 
@@ -2652,36 +2654,73 @@ class SmartBetsEngine {
         // Com controle de diversidade mÃ­nima
         // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         const games = [];
-        const maxOverlap = drawSize - 2; // Max N-2 overlap entre jogos
+        const usedGameKeys = new Set();
 
-        for (const sc of scoredCombinations) {
-            if (games.length >= numGames) break;
-
-            // Verificar overlap com jogos jÃ¡ selecionados
-            let tooSimilar = false;
-            for (const existing of games) {
-                let overlap = 0;
-                const existSet = new Set(existing);
-                for (const n of sc.combo) {
-                    if (existSet.has(n)) overlap++;
-                }
-                if (overlap > maxOverlap) {
-                    tooSimilar = true;
-                    break;
-                }
-            }
-            if (tooSimilar) continue;
-
-            games.push(sc.combo);
+        // ★ PRECISION v2.0: Overlap ESCALÁVEL por quantidade
+        let maxOverlap;
+        if (numGames <= 50) {
+            maxOverlap = drawSize - 2; // Diversidade alta
+        } else if (numGames <= 500) {
+            maxOverlap = drawSize - 1; // Diversidade moderada
+        } else {
+            maxOverlap = drawSize; // Sem filtro de overlap — unicidade basta
         }
 
-        // Se nÃ£o temos jogos suficientes, relaxar o overlap
+        // Fase 1: Selecionar jogos com filtro de overlap
+        const checkRadius = numGames <= 100 ? numGames : Math.min(30, Math.ceil(numGames * 0.05));
+        for (const sc of scoredCombinations) {
+            if (games.length >= numGames) break;
+            const key = sc.combo.join(',');
+            if (usedGameKeys.has(key)) continue;
+
+            if (maxOverlap < drawSize && games.length > 0) {
+                let tooSimilar = false;
+                const checkFrom = Math.max(0, games.length - checkRadius);
+                for (let g = checkFrom; g < games.length; g++) {
+                    let overlap = 0;
+                    const existSet = new Set(games[g]);
+                    for (const n of sc.combo) {
+                        if (existSet.has(n)) overlap++;
+                    }
+                    if (overlap > maxOverlap) { tooSimilar = true; break; }
+                }
+                if (tooSimilar) continue;
+            }
+
+            games.push(sc.combo);
+            usedGameKeys.add(key);
+        }
+
+        // Fase 2: Se não temos jogos suficientes, adicionar sem filtro de overlap
         if (games.length < numGames) {
+            console.log(`[Precisão] Fase2: relaxando overlap para completar ${numGames - games.length} jogos`);
             for (const sc of scoredCombinations) {
                 if (games.length >= numGames) break;
                 const key = sc.combo.join(',');
-                if (games.some(g => g.join(',') === key)) continue;
+                if (usedGameKeys.has(key)) continue;
                 games.push(sc.combo);
+                usedGameKeys.add(key);
+            }
+        }
+
+        // Fase 3: Se AINDA faltam, gerar por shuffle do pool
+        if (games.length < numGames) {
+            console.log(`[Precisão] Fase3: gerando ${numGames - games.length} jogos por shuffle`);
+            let shuffleAtt = 0;
+            const maxShuffleAtt = Math.max((numGames - games.length) * 200, 500000);
+            while (games.length < numGames && shuffleAtt < maxShuffleAtt) {
+                shuffleAtt++;
+                const shuffled = [...precisionPool];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                const ticket = shuffled.slice(0, drawSize).sort((a, b) => a - b);
+                const key = ticket.join(',');
+                if (!usedGameKeys.has(key)) {
+                    games.push(ticket);
+                    usedGameKeys.add(key);
+                }
             }
         }
 
