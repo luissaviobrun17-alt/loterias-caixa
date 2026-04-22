@@ -742,29 +742,66 @@ class UI {
 
         // ═══════════════════════════════════════════════════════
         // ⚽ TIMEMANIA: Selecionar Time do Coração (OBRIGATÓRIO)
+        // Site da Caixa usa AngularJS: li[ng-repeat="equipe in listaEquipe"]
+        // e img[name="btnTime"] com classe .data-selecionar-time-do-coracao
         // ═══════════════════════════════════════════════════════
         script += 'async function selecionarTime(){if(!IS_TIMEMANIA)return true;';
         script += 'console.log("[B2B] ⚽ Selecionando Time do Coração...");';
+        script += 'await delay(600);';
+        // Seletores REAIS do site da Caixa (AngularJS)
+        script += 'var times=document.querySelectorAll("img[name=btnTime],.data-selecionar-time-do-coracao,li[ng-repeat*=listaEquipe] img,li[ng-click*=Time] img,li[ng-click*=time] img");';
+        // Fallback: procurar LIs com ng-repeat de equipes
+        script += 'if(times.length===0){var tLis=document.querySelectorAll("li[ng-repeat*=listaEquipe],li[ng-repeat*=equipe]");if(tLis.length>0){var tImgs=[];for(var q=0;q<tLis.length;q++){var tImg=tLis[q].querySelector("img");if(tImg)tImgs.push(tImg)}if(tImgs.length>0)times=tImgs}}';
+        // Fallback 2: UL com muitas imagens (>20 = lista de times)
+        script += 'if(times.length===0){var allUls=document.querySelectorAll("ul");for(var u=0;u<allUls.length;u++){var uImgs=allUls[u].querySelectorAll("img");if(uImgs.length>20){times=uImgs;console.log("[B2B] ⚽ Encontrada lista de "+uImgs.length+" times");break}}}';
+        // Clicar no time
+        script += 'if(times.length>0){';
+        script += 'var idx=Math.floor(Math.random()*times.length);';
+        script += 'var chosen=times[idx];';
+        // Garantir visibilidade e clique Angular
+        script += 'chosen.scrollIntoView({block:"center",behavior:"instant"});';
+        script += 'await delay(300);';
+        script += 'realClick(chosen);';
         script += 'await delay(500);';
-        script += 'var times=document.querySelectorAll("[data-selecionar-time-do-coracao],img[name=btnTime],.time-coracao img,li img[src*=time],.times-list img,.team-item img");';
-        script += 'if(times.length===0){var allLi=document.querySelectorAll("li");for(var k=0;k<allLi.length;k++){var imgs=allLi[k].querySelectorAll("img");if(imgs.length>0&&allLi[k].querySelector("span")){times=imgs;break}}}';
-        script += 'if(times.length===0){var timeBtns=document.querySelectorAll("a[class*=time],button[class*=time],div[class*=time]");if(timeBtns.length>0)times=timeBtns;}';
-        script += 'if(times.length>0){var idx=Math.floor(Math.random()*times.length);var chosen=times[idx];realClick(chosen);await delay(800);';
-        script += 'if(chosen.parentElement&&chosen.parentElement.tagName==="LI"&&!chosen.parentElement.classList.contains("active")){realClick(chosen.parentElement);await delay(500)}';
+        // Também clica no LI pai para garantir trigger Angular
+        script += 'if(chosen.parentElement&&chosen.parentElement.tagName==="LI"){realClick(chosen.parentElement);await delay(400)}';
+        // Forçar digest cycle do AngularJS se disponível
+        script += 'try{var scope=angular.element(chosen).scope();if(scope&&scope.$apply)scope.$apply()}catch(e){}';
+        script += 'await delay(500);';
         script += 'var nome=chosen.alt||chosen.title||(chosen.parentElement?chosen.parentElement.textContent.trim().substring(0,30):"Time #"+(idx+1));';
         script += 'console.log("[B2B] ⚽ Time selecionado: "+nome);return true}';
-        script += 'console.warn("[B2B] ⚠️ Nenhum time encontrado! Tentando sem time...");return false}';
+        script += 'console.warn("[B2B] ⚠️ Nenhum time encontrado!");return false}';
 
         // ═══════════════════════════════════════════════════════
         // 📅 DIA DE SORTE: Selecionar Mês da Sorte (OBRIGATÓRIO)
+        // Site da Caixa usa AngularJS: li[ng-repeat*="listaMeses"]
+        // e ng-click="configurarMes(mes)" para cada mês
         // ═══════════════════════════════════════════════════════
         script += 'async function selecionarMes(){if(!IS_DIADESORTE)return true;';
         script += 'console.log("[B2B] 📅 Selecionando Mês da Sorte...");';
-        script += 'await delay(500);';
-        script += 'var meses=document.querySelectorAll("[data-selecionar-mes],select#mes option,.mes-sorte,.month-item");';
-        script += 'if(meses.length===0){var sel=document.querySelector("select");if(sel&&sel.options.length>1){sel.selectedIndex=Math.floor(Math.random()*(sel.options.length-1))+1;sel.dispatchEvent(new Event("change",{bubbles:true}));console.log("[B2B] 📅 Mês: "+sel.options[sel.selectedIndex].text);return true}}';
-        script += 'if(meses.length>0){var idx=Math.floor(Math.random()*meses.length);realClick(meses[idx]);await delay(500);console.log("[B2B] 📅 Mês selecionado");return true}';
-        script += 'console.warn("[B2B] ⚠️ Seleção de mês não encontrada");return false}';
+        script += 'await delay(600);';
+        // Seletores REAIS do site da Caixa (AngularJS)
+        script += 'var meses=document.querySelectorAll("li[ng-repeat*=listaMeses],li[ng-click*=configurarMes],[id=mes] li,ul.meses li,.meses-list li");';
+        // Fallback: procurar meses por nome em português
+        script += 'if(meses.length===0){var nomesMeses=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];var allLi=document.querySelectorAll("li,a,span,div");var found=[];for(var q=0;q<allLi.length;q++){var tx=allLi[q].textContent.trim().toLowerCase();for(var m=0;m<nomesMeses.length;m++){if(tx===nomesMeses[m]&&allLi[q].children.length<=1){found.push(allLi[q]);break}}}if(found.length>0)meses=found}';
+        // Fallback 2: select/option
+        script += 'if(meses.length===0){var sel=document.querySelector("select");if(sel&&sel.options.length>1){sel.selectedIndex=Math.floor(Math.random()*(sel.options.length-1))+1;sel.dispatchEvent(new Event("change",{bubbles:true}));console.log("[B2B] 📅 Mês (select): "+sel.options[sel.selectedIndex].text);return true}}';
+        // Clicar no mês
+        script += 'if(meses.length>0){';
+        script += 'var idx=Math.floor(Math.random()*meses.length);';
+        script += 'var mesEl=meses[idx];';
+        script += 'realClick(mesEl);';
+        script += 'await delay(800);';
+        // Se clicou em um filho, também clica no LI pai
+        script += 'if(mesEl.tagName!=="LI"&&mesEl.parentElement&&mesEl.parentElement.tagName==="LI"){realClick(mesEl.parentElement);await delay(500)}';
+        // Forçar digest cycle do AngularJS
+        script += 'try{var scope=angular.element(mesEl).scope();if(scope&&scope.$apply)scope.$apply()}catch(e){}';
+        script += 'await delay(400);';
+        // Verificar se o mês ficou selecionado
+        script += 'var mesNome=mesEl.textContent.trim()||"Mês #"+(idx+1);';
+        script += 'console.log("[B2B] 📅 Mês selecionado: "+mesNome);';
+        script += 'return true}';
+        script += 'console.warn("[B2B] ⚠️ Nenhum mês encontrado na página!");return false}';
 
         // ── carrinho: coloca no carrinho com retry ──
         script += 'async function carrinho(){fecharModais();await delay(300);';

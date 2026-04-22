@@ -219,6 +219,7 @@ class NovaEraEngine {
             // DIA DE SORTE — 7 de 31
             // Fechamento: 7, 6, 5 acertos
             // Range pequeno: cada número tem ~22.6% de chance
+            // OTIMIZADO: anti-sequência, máxima inteligência
             // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             diadesorte: {
                 name: 'Dia de Sorte',
@@ -228,22 +229,22 @@ class NovaEraEngine {
                 zoneSize: 8,
                 zones: 4,
                 minZonesCovered: 3,
-                maxConsecutive: 3,
+                maxConsecutive: 2,
                 evenOddRange: [2, 5],
-                sumRange: [60, 155],
-                maxUsagePct: 0.45,
-                maxOverlap: 6,
+                sumRange: [75, 145],
+                maxUsagePct: 0.40,
+                maxOverlap: 5,
                 weights: {
-                    frequency: 0.15,
-                    delay: 0.18,
-                    trend: 0.12,
-                    zone: 0.10,
-                    markov: 0.08,
-                    phase: 0.05,
+                    frequency: 0.18,
+                    delay: 0.22,
+                    trend: 0.15,
+                    zone: 0.12,
+                    markov: 0.10,
+                    phase: 0.06,
                     entropy: 0.07,
-                    noise: 0.25
+                    noise: 0.10
                 },
-                scoreClamp: [0.5, 2.0]
+                scoreClamp: [0.4, 2.2]
             }
         };
         return profiles[gameKey] || profiles.megasena;
@@ -964,20 +965,46 @@ class NovaEraEngine {
             // Foco: equilíbrio entre repetição e renovação
             // ──────────────────────────────────────────────────────
             case 'diadesorte': {
+                // OTIMIZADO: Análise profunda de ciclos + tendência para 7/31
+                const ddsExpCycle = 31 / 7; // ~4.4 concursos de ciclo
                 for (let n = startNum; n <= endNum; n++) {
-                    if (lastDraw.has(n)) {
-                        // Range pequeno = repetição moderada
-                        scores[n] = 0.45;
-                    } else {
-                        let lastSeen = N;
-                        for (let i = 0; i < N; i++) {
-                            if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
+                    let totalAppearances = 0;
+                    let lastSeen = N;
+                    let recentHits = 0; // aparições nos últimos 5
+                    for (let i = 0; i < N; i++) {
+                        if ((history[i].numbers || []).includes(n)) {
+                            totalAppearances++;
+                            if (lastSeen === N) lastSeen = i;
+                            if (i < 5) recentHits++;
                         }
-                        const expectedCycle = 31 / 7; // ~4.4
-                        const ratio = lastSeen / expectedCycle;
-                        if (ratio >= 1.0 && ratio <= 2.5) scores[n] = 0.90;
-                        else if (ratio >= 0.5) scores[n] = 0.60;
-                        else scores[n] = 0.30;
+                    }
+                    const freq = totalAppearances / Math.max(1, N);
+                    const expectedFreq = 7 / 31; // ~0.226
+                    const freqRatio = freq / expectedFreq; // >1 = quente, <1 = frio
+                    const delayRatio = lastSeen / ddsExpCycle;
+
+                    if (lastDraw.has(n)) {
+                        // Saiu no último: chance moderada de repetir (22.6% natural)
+                        scores[n] = recentHits >= 3 ? 0.30 : 0.40;
+                    } else if (delayRatio >= 1.5 && delayRatio <= 3.0) {
+                        // ZONA DE OURO: atrasado 1.5x-3x o ciclo esperado
+                        scores[n] = 0.95;
+                    } else if (delayRatio >= 1.0 && delayRatio < 1.5) {
+                        // Atrasado mas perto do ciclo
+                        scores[n] = 0.80;
+                    } else if (delayRatio > 3.0) {
+                        // Muito atrasado: pode estar em tendência fria
+                        scores[n] = freqRatio > 0.8 ? 0.70 : 0.50;
+                    } else if (delayRatio >= 0.5 && delayRatio < 1.0) {
+                        // Saiu recentemente mas não no último
+                        scores[n] = freqRatio > 1.0 ? 0.55 : 0.45;
+                    } else {
+                        // Saiu muito recente (delay < 0.5 ciclo)
+                        scores[n] = 0.30;
+                    }
+                    // Boost para números com frequência equilibrada
+                    if (freqRatio >= 0.85 && freqRatio <= 1.15) {
+                        scores[n] *= 1.15; // números "no ritmo"
                     }
                 }
                 break;
@@ -1678,14 +1705,16 @@ class NovaEraEngine {
                 mirror: 0.10, gap: 0.10, cluster: 0.05, reversion: 0.08
             },
 
-            // ★ DIA DE SORTE: 7/31 — mirror + cluster (range pequeno, alta repetição)
+            // ★ DIA DE SORTE: 7/31 — OTIMIZADO para máxima predição
+            // Prioridade: Gap Analysis + Bayesian + Mirror + Cluster
+            // Range pequeno = cada camada tem mais impacto
             diadesorte: {
-                frequency: 0.04, delay: 0.05, trend: 0.04,
-                zone: 0.04, markov: 0.05, phase: 0.03,
-                clairvoyance: 0.03, nextDraw: 0.10,
-                bayesian: 0.08, positional: 0.08,
-                sequential: 0.08, momentum: 0.04,
-                mirror: 0.12, gap: 0.07, cluster: 0.08, reversion: 0.07
+                frequency: 0.06, delay: 0.08, trend: 0.06,
+                zone: 0.05, markov: 0.07, phase: 0.04,
+                clairvoyance: 0.02, nextDraw: 0.08,
+                bayesian: 0.12, positional: 0.06,
+                sequential: 0.04, momentum: 0.05,
+                mirror: 0.10, gap: 0.12, cluster: 0.10, reversion: 0.05
             }
         };
 
@@ -1844,7 +1873,11 @@ class NovaEraEngine {
 
             // Verificar se criaria sequência de 3+ consecutivos
             if (this._wouldCreate3Consecutive(n, ticketSet)) {
-                w *= 0.1;
+                w *= 0.005; // Praticamente elimina sequências de 3+
+            }
+            // Para Dia de Sorte: penalizar forte pares consecutivos
+            if (profile.maxConsecutive <= 2 && (ticketSet.has(n - 1) || ticketSet.has(n + 1))) {
+                w *= 0.35; // Reduz chance de pares adjacentes
             }
 
             weights[n] = Math.max(0.001, w);

@@ -2,7 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     try {
-        // Garantir prêmios visíveis IMEDIATAMENTE na inicialização
+        // Garantir prêmios visíveis IMEDIATAMENTE na inicialização (fallback offline)
         var gameKeys = ['megasena', 'lotofacil', 'quina', 'duplasena', 'lotomania', 'timemania', 'diadesorte'];
         gameKeys.forEach(function(key) {
             var game = typeof GAMES !== 'undefined' ? GAMES[key] : null;
@@ -32,6 +32,28 @@ document.addEventListener('DOMContentLoaded', function() {
         ui.initEvents();
         ui.updateGameInfo('megasena');
         ui.addInstallButton();
+
+        // ══════════════════════════════════════════════
+        // AUTO UPDATER — Atualizar dados automaticamente
+        // ══════════════════════════════════════════════
+        if (typeof AutoUpdater !== 'undefined') {
+            // Delay de 500ms para garantir que UI está pronta
+            setTimeout(function() {
+                AutoUpdater.init();
+
+                // Ao receber dados atualizados, recalcular stats do jogo ativo
+                window.addEventListener('b2b-data-updated', function() {
+                    try {
+                        if (ui && ui.currentGameKey) {
+                            ui.updateGameInfo(ui.currentGameKey);
+                        }
+                    } catch(e) {
+                        console.warn('[Main] Erro ao atualizar UI pós-update:', e);
+                    }
+                });
+            }, 500);
+        }
+
     } catch(e) {
         alert('ERRO B2B: ' + e.message + '\n\nLinha: ' + (e.stack || ''));
     }
