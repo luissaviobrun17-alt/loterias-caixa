@@ -346,7 +346,7 @@ class NovaEraEngine {
         // ╔══════════════════════════════════════════════════════════════╗
         // ║  ATALHO BULK 10K+ — Pula IA pesada para lotes grandes     ║
         // ╚══════════════════════════════════════════════════════════════╝
-        if (numGames > 5000) {
+        if (numGames >= 5000) {
             console.log('[NE-V1] ⚡ MODO BULK TURBO — ' + numGames + ' jogos');
             const profile = this.getProfile(gameKey);
             const startNum = profile.range[0];
@@ -1974,13 +1974,25 @@ class NovaEraEngine {
                 w *= 1.5;
             }
 
-            // Verificar se criaria sequência de 3+ consecutivos
-            if (this._wouldCreate3Consecutive(n, ticketSet)) {
-                w *= 0.005; // Praticamente elimina sequências de 3+
+            // ★ PRECISION v2.0: Penalidade de consecutivos RESPEITA o perfil da loteria
+            // Lotofácil (maxConsecutive=10): runs de 3 são NORMAIS — sem penalidade
+            // Mega Sena (maxConsecutive=2): runs de 3 são RAROS — penalidade forte
+            if (profile.maxConsecutive <= 3) {
+                // Loterias de range grande: penalizar runs de 3+
+                if (this._wouldCreate3Consecutive(n, ticketSet)) {
+                    w *= 0.005;
+                }
+            } else if (profile.maxConsecutive <= 5) {
+                // Loterias moderadas (Dia de Sorte): penalidade leve para runs de 3+
+                if (this._wouldCreate3Consecutive(n, ticketSet)) {
+                    w *= 0.50;
+                }
             }
+            // Lotofácil/Lotomania (maxConsecutive >= 6): ZERO penalidade por consecutivos
+
             // Para Dia de Sorte: penalizar forte pares consecutivos
             if (profile.maxConsecutive <= 2 && (ticketSet.has(n - 1) || ticketSet.has(n + 1))) {
-                w *= 0.35; // Reduz chance de pares adjacentes
+                w *= 0.35;
             }
 
             weights[n] = Math.max(0.001, w);
@@ -2034,9 +2046,8 @@ class NovaEraEngine {
         // 5. Validações estruturais
         ticket.sort((a, b) => a - b);
 
-        // Par/ímpar
-        // Para lotes grandes, relaxar validacoes
-        const isLargeBatch = totalGames > 1000;
+        // ★ PRECISION v2.0: Relaxar validações para lotes > 500
+        const isLargeBatch = totalGames > 500;
         const evens = ticket.filter(n => n % 2 === 0).length;
         if (!isLargeBatch && (evens < profile.evenOddRange[0] || evens > profile.evenOddRange[1])) return null;
 
