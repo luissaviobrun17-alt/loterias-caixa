@@ -540,10 +540,11 @@ class SmartBetsEngine {
 
         // ── CALIBRAÇÃO QUÂNTICA META-HEURÍSTICA (QCAL-V3) ─────────────────────
         // Integra Entropia Temporal + Clarividência Computacional + Filtros Atômicos
+        // ★ PRECISION v2.0: Corrigido bug — drawCount era usado antes da definição
         let qCalibScores = null;
         if (typeof QuantumCalibration !== 'undefined' && N >= 3) {
             try {
-                qCalibScores = QuantumCalibration.calibrate(gameKey, history, drawCount);
+                qCalibScores = QuantumCalibration.calibrate(gameKey, history, drawSize);
             } catch(e) {
                 console.warn('[QU-QCALV3] Calibração quântica ignorada:', e.message);
             }

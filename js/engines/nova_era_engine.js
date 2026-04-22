@@ -470,11 +470,13 @@ class NovaEraEngine {
         for (let n = startNum; n <= endNum; n++) scores[n] = 0;
         if (N === 0) return scores;
 
+        // ★ PRECISION v2.0: Janela de 3 com peso DOMINANTE (50%)
+        // Foco máximo nos últimos 3 resultados para capturar tendência imediata
         const windows = [
-            { size: Math.min(3, N),  weight: 0.35 },
-            { size: Math.min(5, N),  weight: 0.25 },
-            { size: Math.min(10, N), weight: 0.20 },
-            { size: Math.min(15, N), weight: 0.20 }
+            { size: Math.min(3, N),  weight: 0.50 },
+            { size: Math.min(5, N),  weight: 0.20 },
+            { size: Math.min(10, N), weight: 0.15 },
+            { size: Math.min(15, N), weight: 0.15 }
         ];
 
         for (const w of windows) {
@@ -1503,7 +1505,25 @@ class NovaEraEngine {
         const clusterScores = this._quantumClusters(history, startNum, endNum, N, drawSize);
         const reversionScores = this._quantumMeanReversion(history, startNum, endNum, N, drawSize, totalRange);
 
-        console.log('%c[QUANTUM-L99] ★★★ 16 CAMADAS ATIVADAS — ' + gameKey + ' ★★★', 'color: gold; font-weight: bold;');
+        // ━━━ CAMADA 17: PRECISION CALIBRATOR — Futurologia dos Últimos 3 ━━━
+        let precisionScores = {};
+        for (let n = startNum; n <= endNum; n++) precisionScores[n] = 0.5;
+        if (typeof PrecisionCalibrator !== 'undefined' && N >= 4) {
+            try {
+                const last3Scores = PrecisionCalibrator.analyzeLast3Trends(gameKey, history, startNum, endNum);
+                const condScores = PrecisionCalibrator.buildConditionalProbMatrix(gameKey, history, startNum, endNum, drawSize);
+                // Fusão: 60% últimos 3 + 40% probabilidade condicional
+                for (let n = startNum; n <= endNum; n++) {
+                    precisionScores[n] = (last3Scores[n] || 0) * 0.60 + (condScores[n] || 0) * 0.40;
+                }
+                precisionScores = this._normalizeScores(precisionScores, startNum, endNum);
+                console.log('[QUANTUM-L99] ★ CAMADA 17 (Precision) ativada — Futurologia dos últimos 3');
+            } catch(e) {
+                console.warn('[QUANTUM-L99] Precision Calibrator não disponível:', e.message);
+            }
+        }
+
+        console.log('%c[QUANTUM-L99] ★★★ 17 CAMADAS ATIVADAS — ' + gameKey + ' ★★★', 'color: gold; font-weight: bold;');
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // ★★★ CONSENSO ENSEMBLE L99 — Votação entre 16 camadas ★★★
@@ -1512,7 +1532,8 @@ class NovaEraEngine {
             freqScores, trendScores, delayScores, entropyScores,
             markovScores, phaseScores, clairScores, nextDrawScores,
             bayesianScores, positionalScores, sequentialScores, momentumScores,
-            mirrorScores, gapScores, clusterScores, reversionScores
+            mirrorScores, gapScores, clusterScores, reversionScores,
+            precisionScores
         ];
 
         const topCandidateSize = Math.min(drawSize * 3, totalRange);
@@ -1540,7 +1561,8 @@ class NovaEraEngine {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // ★★★ CALIBRAÇÃO DINÂMICA L99 — Cross-validation 7 sorteios ★★★
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        let dynamicBoosts = new Array(16).fill(1.0);
+        const NUM_LAYERS = 17; // 16 originais + 1 precision
+        let dynamicBoosts = new Array(NUM_LAYERS).fill(1.0);
         if (N >= 8) {
             const testDraws = Math.min(7, N - 5);
             for (let t = 0; t < testDraws; t++) {
@@ -1562,15 +1584,32 @@ class NovaEraEngine {
                     this._godBayesian(testHistory, startNum, endNum, testN, drawSize),
                     this._godPositional(testHistory, startNum, endNum, testN, drawSize),
                     this._godSequentialChain(testHistory, startNum, endNum, testN),
-                    this._godMomentum(testHistory, startNum, endNum, testN, drawSize),
-                    this._quantumTemporalMirror(testHistory, startNum, endNum, testN, drawSize),
-                    this._quantumGapAnalysis(testHistory, startNum, endNum, testN, drawSize, totalRange),
-                    this._quantumClusters(testHistory, startNum, endNum, testN, drawSize),
-                    this._quantumMeanReversion(testHistory, startNum, endNum, testN, drawSize, totalRange)
+                    this._godMomentum(testHistory, startNum, endNum, testN, drawSize)
                 ];
 
-                for (let L = 0; L < 16; L++) {
-                    const layerTop = Object.entries(testLayers[L])
+                // Camadas QUANTUM (13-16)
+                testLayers.push(this._quantumTemporalMirror(testHistory, startNum, endNum, testN, drawSize));
+                testLayers.push(this._quantumGapAnalysis(testHistory, startNum, endNum, testN, drawSize, totalRange));
+                testLayers.push(this._quantumClusters(testHistory, startNum, endNum, testN, drawSize));
+                testLayers.push(this._quantumMeanReversion(testHistory, startNum, endNum, testN, drawSize, totalRange));
+
+                // Camada 17: Precision
+                if (typeof PrecisionCalibrator !== 'undefined' && testN >= 4) {
+                    try {
+                        const tLast3 = PrecisionCalibrator.analyzeLast3Trends(gameKey, testHistory, startNum, endNum);
+                        const tCond = PrecisionCalibrator.buildConditionalProbMatrix(gameKey, testHistory, startNum, endNum, drawSize);
+                        const tPrec = {};
+                        for (let n = startNum; n <= endNum; n++) tPrec[n] = (tLast3[n] || 0) * 0.6 + (tCond[n] || 0) * 0.4;
+                        testLayers.push(this._normalizeScores(tPrec, startNum, endNum));
+                    } catch(e) {
+                        testLayers.push({});
+                    }
+                } else {
+                    testLayers.push({});
+                }
+
+                for (let L = 0; L < NUM_LAYERS; L++) {
+                    const layerTop = Object.entries(testLayers[L] || {})
                         .sort((a, b) => b[1] - a[1])
                         .slice(0, drawSize * 2)
                         .map(e => parseInt(e[0]));
@@ -1582,14 +1621,14 @@ class NovaEraEngine {
                 }
             }
 
-            const avgBoost = dynamicBoosts.reduce((a, b) => a + b, 0) / 16;
-            for (let L = 0; L < 16; L++) {
+            const avgBoost = dynamicBoosts.reduce((a, b) => a + b, 0) / NUM_LAYERS;
+            for (let L = 0; L < NUM_LAYERS; L++) {
                 dynamicBoosts[L] = Math.max(0.5, dynamicBoosts[L] / avgBoost);
             }
 
-            const names = ['freq','trend','delay','zone','markov','phase','clair','next','bayes','posit','seq','mom','mirror','gap','cluster','revert'];
+            const names = ['freq','trend','delay','zone','markov','phase','clair','next','bayes','posit','seq','mom','mirror','gap','cluster','revert','prec'];
             const boostStr = dynamicBoosts.map((b, i) => names[i] + '=' + b.toFixed(2)).join(' ');
-            console.log('[QUANTUM-L99] ★ CALIBRAÇÃO DINÂMICA (7-fold): ' + boostStr);
+            console.log('[QUANTUM-L99] ★ CALIBRAÇÃO DINÂMICA (7-fold, 17 camadas): ' + boostStr);
         }
 
         // ━━━ PESOS QUANTUM L99 ━━━
@@ -1597,6 +1636,9 @@ class NovaEraEngine {
 
         const scores = {};
         const [clampMin, clampMax] = profile.scoreClamp;
+
+        // ★ PRECISION v2.0: peso da camada 17 (precision)
+        const precisionWeight = weights.precision || 0.12;
 
         for (let n = startNum; n <= endNum; n++) {
             let raw = (freqScores[n] || 0) * weights.frequency * dynamicBoosts[0]
@@ -1614,18 +1656,19 @@ class NovaEraEngine {
                     + (mirrorScores[n] || 0) * weights.mirror * dynamicBoosts[12]
                     + (gapScores[n] || 0) * weights.gap * dynamicBoosts[13]
                     + (clusterScores[n] || 0) * weights.cluster * dynamicBoosts[14]
-                    + (reversionScores[n] || 0) * weights.reversion * dynamicBoosts[15];
+                    + (reversionScores[n] || 0) * weights.reversion * dynamicBoosts[15]
+                    + (precisionScores[n] || 0) * precisionWeight * dynamicBoosts[16];
 
-            // ★ CONSENSO L99: boost para alta concordância entre 16 camadas
+            // ★ CONSENSO L99: boost para alta concordância entre 17 camadas
             const votes = voteCount[n] || 0;
-            if (votes >= 14) raw *= 1.40;       // 14-16: CONSENSO TOTAL
-            else if (votes >= 12) raw *= 1.28;  // 12-13: muito forte
-            else if (votes >= 10) raw *= 1.18;  // 10-11: forte
-            else if (votes >= 8) raw *= 1.08;   // 8-9: moderado
-            else if (votes <= 3) raw *= 0.75;   // 0-3: penalizar
+            if (votes >= 15) raw *= 1.45;       // 15-17: CONSENSO ABSOLUTO
+            else if (votes >= 13) raw *= 1.32;  // 13-14: muito forte
+            else if (votes >= 11) raw *= 1.20;  // 11-12: forte
+            else if (votes >= 9) raw *= 1.10;   // 9-10: moderado
+            else if (votes <= 3) raw *= 0.72;   // 0-3: penalizar
 
-            // Noise MÍNIMO (2-3%) — máxima objetividade QUANTUM
-            raw += (Math.random() - 0.5) * 0.02;
+            // ★ PRECISION v2.0: Noise ZERO — máxima objetividade
+            // (ruído eliminado para foco total na análise preditiva)
 
             scores[n] = Math.max(clampMin, Math.min(clampMax, raw + 1.0));
         }
@@ -1639,89 +1682,96 @@ class NovaEraEngine {
     }
 
     // ╔══════════════════════════════════════════════════════════════════════════╗
-    // ║  ★★★ PESOS QUANTUM L99 — 16 DIMENSÕES POR LOTERIA ★★★                 ║
-    // ║  Noise reduzido para 2-4%, redistribuído para camadas QUANTUM          ║
+    // ║  ★★★ PESOS QUANTUM L99 v2.0 — 17 DIMENSÕES POR LOTERIA ★★★            ║
+    // ║  + Camada 17: PRECISION (Futurologia dos últimos 3) = 12%              ║
+    // ║  Noise ZERO — redistribuído para precision e camadas preditivas        ║
     // ╚══════════════════════════════════════════════════════════════════════════╝
     static _getGodModeWeights(gameKey) {
         const calibrations = {
 
-            // ★ MEGA SENA: 6/60 — gap + mirror dominam (ciclos médios)
+            // ★ MEGA SENA: 6/60 — precision + gap + mirror (ciclos médios)
             megasena: {
-                frequency: 0.03, delay: 0.06, trend: 0.04,
+                frequency: 0.03, delay: 0.05, trend: 0.03,
                 zone: 0.03, markov: 0.03, phase: 0.02,
-                clairvoyance: 0.03, nextDraw: 0.14,
-                bayesian: 0.10, positional: 0.08,
-                sequential: 0.10, momentum: 0.04,
-                mirror: 0.10, gap: 0.08, cluster: 0.06, reversion: 0.06
+                clairvoyance: 0.02, nextDraw: 0.12,
+                bayesian: 0.09, positional: 0.07,
+                sequential: 0.09, momentum: 0.03,
+                mirror: 0.10, gap: 0.08, cluster: 0.06, reversion: 0.05,
+                precision: 0.10
             },
 
-            // ★ LOTOFÁCIL: 15/25 — nextDraw + clusters (alta repetição)
+            // ★ LOTOFÁCIL: 15/25 — precision alta (padrão forte nos últimos 3)
             lotofacil: {
-                frequency: 0.02, delay: 0.03, trend: 0.02,
-                zone: 0.02, markov: 0.02, phase: 0.01,
-                clairvoyance: 0.02, nextDraw: 0.25,
-                bayesian: 0.08, positional: 0.05,
-                sequential: 0.10, momentum: 0.03,
-                mirror: 0.12, gap: 0.06, cluster: 0.10, reversion: 0.07
+                frequency: 0.02, delay: 0.02, trend: 0.02,
+                zone: 0.02, markov: 0.01, phase: 0.01,
+                clairvoyance: 0.01, nextDraw: 0.20,
+                bayesian: 0.07, positional: 0.04,
+                sequential: 0.08, momentum: 0.02,
+                mirror: 0.10, gap: 0.06, cluster: 0.08, reversion: 0.06,
+                precision: 0.18
             },
 
-            // ★ QUINA: 5/80 — gap + reversion (range amplo, ciclos longos)
+            // ★ QUINA: 5/80 — gap + precision (range amplo, ciclos longos)
             quina: {
-                frequency: 0.03, delay: 0.08, trend: 0.04,
-                zone: 0.06, markov: 0.03, phase: 0.02,
-                clairvoyance: 0.03, nextDraw: 0.10,
-                bayesian: 0.10, positional: 0.06,
-                sequential: 0.08, momentum: 0.04,
-                mirror: 0.08, gap: 0.12, cluster: 0.05, reversion: 0.08
-            },
-
-            // ★ DUPLA SENA: 6/50 — sequential + cluster (2 sorteios)
-            duplasena: {
-                frequency: 0.04, delay: 0.06, trend: 0.04,
-                zone: 0.04, markov: 0.03, phase: 0.02,
-                clairvoyance: 0.03, nextDraw: 0.12,
-                bayesian: 0.08, positional: 0.07,
-                sequential: 0.12, momentum: 0.04,
-                mirror: 0.09, gap: 0.08, cluster: 0.08, reversion: 0.06
-            },
-
-            // ★ LOTOMANIA: 50/100 — reversion + gap (cobertura máxima)
-            lotomania: {
-                frequency: 0.02, delay: 0.04, trend: 0.03,
-                zone: 0.08, markov: 0.02, phase: 0.01,
-                clairvoyance: 0.03, nextDraw: 0.08,
-                bayesian: 0.10, positional: 0.04,
-                sequential: 0.06, momentum: 0.04,
-                mirror: 0.10, gap: 0.12, cluster: 0.08, reversion: 0.15
-            },
-
-            // ★ TIMEMANIA: 10/80 — gap + mirror (range amplo, sorteia 7)
-            timemania: {
-                frequency: 0.03, delay: 0.08, trend: 0.04,
-                zone: 0.06, markov: 0.03, phase: 0.02,
-                clairvoyance: 0.03, nextDraw: 0.10,
-                bayesian: 0.10, positional: 0.06,
-                sequential: 0.08, momentum: 0.04,
-                mirror: 0.10, gap: 0.10, cluster: 0.05, reversion: 0.08
-            },
-
-            // ★ DIA DE SORTE: 7/31 — OTIMIZADO para máxima predição
-            // Prioridade: Gap Analysis + Bayesian + Mirror + Cluster
-            // Range pequeno = cada camada tem mais impacto
-            diadesorte: {
-                frequency: 0.06, delay: 0.08, trend: 0.06,
-                zone: 0.05, markov: 0.07, phase: 0.04,
+                frequency: 0.03, delay: 0.07, trend: 0.03,
+                zone: 0.05, markov: 0.03, phase: 0.02,
                 clairvoyance: 0.02, nextDraw: 0.08,
-                bayesian: 0.12, positional: 0.06,
-                sequential: 0.04, momentum: 0.05,
-                mirror: 0.10, gap: 0.12, cluster: 0.10, reversion: 0.05
+                bayesian: 0.09, positional: 0.05,
+                sequential: 0.07, momentum: 0.03,
+                mirror: 0.08, gap: 0.12, cluster: 0.05, reversion: 0.07,
+                precision: 0.11
+            },
+
+            // ★ DUPLA SENA: 6/50 — precision + sequential (2 sorteios)
+            duplasena: {
+                frequency: 0.03, delay: 0.05, trend: 0.03,
+                zone: 0.03, markov: 0.03, phase: 0.02,
+                clairvoyance: 0.02, nextDraw: 0.10,
+                bayesian: 0.07, positional: 0.06,
+                sequential: 0.10, momentum: 0.03,
+                mirror: 0.09, gap: 0.08, cluster: 0.07, reversion: 0.06,
+                precision: 0.13
+            },
+
+            // ★ LOTOMANIA: 50/100 — reversion + gap + precision
+            lotomania: {
+                frequency: 0.02, delay: 0.03, trend: 0.02,
+                zone: 0.07, markov: 0.02, phase: 0.01,
+                clairvoyance: 0.02, nextDraw: 0.06,
+                bayesian: 0.08, positional: 0.03,
+                sequential: 0.05, momentum: 0.03,
+                mirror: 0.09, gap: 0.12, cluster: 0.07, reversion: 0.14,
+                precision: 0.14
+            },
+
+            // ★ TIMEMANIA: 10/80 — gap + precision + mirror (range amplo)
+            timemania: {
+                frequency: 0.03, delay: 0.07, trend: 0.03,
+                zone: 0.05, markov: 0.03, phase: 0.02,
+                clairvoyance: 0.02, nextDraw: 0.08,
+                bayesian: 0.09, positional: 0.05,
+                sequential: 0.07, momentum: 0.03,
+                mirror: 0.10, gap: 0.10, cluster: 0.05, reversion: 0.06,
+                precision: 0.12
+            },
+
+            // ★ DIA DE SORTE: 7/31 — precision ALTA (range pequeno, padrões fortes)
+            diadesorte: {
+                frequency: 0.05, delay: 0.06, trend: 0.05,
+                zone: 0.04, markov: 0.06, phase: 0.03,
+                clairvoyance: 0.02, nextDraw: 0.06,
+                bayesian: 0.10, positional: 0.05,
+                sequential: 0.04, momentum: 0.04,
+                mirror: 0.08, gap: 0.10, cluster: 0.08, reversion: 0.04,
+                precision: 0.10
             }
         };
 
         const w = calibrations[gameKey] || calibrations.megasena;
         const quantumPct = ((w.mirror + w.gap + w.cluster + w.reversion) * 100).toFixed(0);
         const godPct = ((w.bayesian + w.positional + w.sequential + w.momentum) * 100).toFixed(0);
-        console.log('[QUANTUM-L99] ★ ' + gameKey + ': Quantum=' + quantumPct + '% | God=' + godPct + '% | nextDraw=' + (w.nextDraw * 100).toFixed(0) + '%');
+        const precPct = ((w.precision || 0) * 100).toFixed(0);
+        console.log('[QUANTUM-L99] ★ ' + gameKey + ': Quantum=' + quantumPct + '% | God=' + godPct + '% | Precision=' + precPct + '% | nextDraw=' + (w.nextDraw * 100).toFixed(0) + '%');
         return w;
     }
 
