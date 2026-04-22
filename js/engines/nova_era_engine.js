@@ -266,53 +266,69 @@ class NovaEraEngine {
         const totalRange = profile.range[1] - profile.range[0] + 1;
         const baseOverlap = profile.maxOverlap;
         const baseUsage = profile.maxUsagePct;
+        const combSpace = totalRange / drawSize; // Espaço combinatório relativo
 
-        // Fator de escala logarítmica: 10→0.0, 100→1.0, 1000→2.0
-        const scaleFactor = Math.max(0, Math.log10(Math.max(10, numGames)) - 1);
-
-        // ━━ maxOverlap: mais jogos → permite mais sobreposição ━━
-        // 10 jogos: overlap reduzido (forçar diversidade)
-        // 1000 jogos: overlap alto (permitir convergência)
+        // ━━ maxOverlap: ESCALA PROGRESSIVA por quantidade ━━
+        // Fórmula: quanto mais jogos, mais overlap permitido
+        // Pool pequeno (Lotofácil 25) → precisa de mais overlap
         let overlapAdj;
         if (numGames <= 10) {
-            overlapAdj = Math.max(Math.floor(drawSize * 0.35), 1); // ULTRA diverso
+            overlapAdj = Math.max(Math.floor(drawSize * 0.35), 1);
         } else if (numGames <= 50) {
             overlapAdj = Math.max(Math.floor(drawSize * 0.50), 2);
         } else if (numGames <= 200) {
-            overlapAdj = baseOverlap; // Padrão do perfil
+            overlapAdj = baseOverlap;
         } else if (numGames <= 500) {
             overlapAdj = Math.min(drawSize - 1, Math.ceil(baseOverlap * 1.3));
+        } else if (numGames <= 1000) {
+            overlapAdj = Math.min(drawSize - 1, Math.ceil(baseOverlap * 1.5));
+        } else if (numGames <= 5000) {
+            // ★ PRECISION v2.0: para 1K-5K, overlap quase total
+            overlapAdj = drawSize - 1;
         } else {
-            overlapAdj = Math.min(drawSize, Math.ceil(baseOverlap * 1.6)); // Muito focado
+            // ★ 5K-30K+: overlap TOTAL — unicidade garante diversidade
+            overlapAdj = drawSize;
         }
 
-        // ━━ maxUsagePct: mais jogos → cada número pode aparecer mais ━━
+        // ━━ maxUsagePct: ESCALA para lotes grandes ━━
         let usageAdj;
         if (numGames <= 10) {
-            usageAdj = Math.min(0.20, baseUsage * 0.5); // 1 num max em 20% dos jogos
+            usageAdj = Math.min(0.20, baseUsage * 0.5);
         } else if (numGames <= 50) {
             usageAdj = Math.min(0.35, baseUsage * 0.7);
         } else if (numGames <= 200) {
-            usageAdj = baseUsage; // Padrão
+            usageAdj = baseUsage;
+        } else if (numGames <= 1000) {
+            usageAdj = Math.min(0.95, baseUsage * 1.5);
         } else {
-            usageAdj = Math.min(0.95, baseUsage * 1.5); // Relaxado
+            // ★ 1K+: sem limite de uso — cada número pode aparecer livremente
+            usageAdj = 1.0;
         }
 
-        // ━━ noiseWeight: mais jogos → menos noise (mais preditivo) ━━
+        // ━━ noiseWeight ━━
         const baseNoise = profile.weights.noise || 0.25;
         let noiseAdj;
         if (numGames <= 10) {
-            noiseAdj = Math.min(0.45, baseNoise * 1.5); // MUITO exploratório
+            noiseAdj = Math.min(0.45, baseNoise * 1.5);
         } else if (numGames <= 50) {
             noiseAdj = baseNoise * 1.2;
         } else if (numGames <= 200) {
-            noiseAdj = baseNoise; // Normal
+            noiseAdj = baseNoise;
         } else {
-            noiseAdj = baseNoise * 0.6; // Mais focado na IA
+            noiseAdj = baseNoise * 0.6;
         }
 
-        // ━━ checkRadius: quantos jogos anteriores verificar overlap ━━
-        const checkRadius = numGames <= 50 ? numGames : Math.min(50, Math.ceil(numGames * 0.1));
+        // ━━ checkRadius: ESCALÁVEL — lotes grandes verificam menos vizinhos ━━
+        let checkRadius;
+        if (numGames <= 50) {
+            checkRadius = numGames;
+        } else if (numGames <= 500) {
+            checkRadius = Math.min(50, Math.ceil(numGames * 0.1));
+        } else if (numGames <= 5000) {
+            checkRadius = 20; // Verificar apenas 20 vizinhos
+        } else {
+            checkRadius = 10; // 10K+: verificar apenas 10
+        }
 
         console.log('[NE-L99] 🎚️ Calibração Adaptativa: ' + numGames + ' jogos');
         console.log('[NE-L99]    overlap=' + overlapAdj + '/' + drawSize + ' | usage=' + (usageAdj*100).toFixed(0) + '% | noise=' + (noiseAdj*100).toFixed(0) + '% | check=' + checkRadius);
@@ -330,8 +346,8 @@ class NovaEraEngine {
         // ╔══════════════════════════════════════════════════════════════╗
         // ║  ATALHO BULK 10K+ — Pula IA pesada para lotes grandes     ║
         // ╚══════════════════════════════════════════════════════════════╝
-        if (numGames > 1000) {
-            console.log('[NE-V1] MODO BULK RAPIDO — ' + numGames + ' jogos (sem IA pesada)');
+        if (numGames > 5000) {
+            console.log('[NE-V1] ⚡ MODO BULK TURBO — ' + numGames + ' jogos');
             const profile = this.getProfile(gameKey);
             const startNum = profile.range[0];
             const endNum = profile.range[1];
@@ -345,13 +361,17 @@ class NovaEraEngine {
             const usedKeys = new Set();
             const t0 = Date.now();
             let att = 0;
+            // ★ PRECISION v2.0: Timeout e tentativas ESCALÁVEIS
+            const maxAttempts = Math.max(numGames * 100, 5000000);
+            const maxTime = Math.max(120000, Math.min(600000, numGames * 20)); // 2min-10min
             
-            while (games.length < numGames && att < numGames * 50 && (Date.now() - t0) < 60000) {
+            // Progresso visual
+            let lastLog = 0;
+            while (games.length < numGames && att < maxAttempts && (Date.now() - t0) < maxTime) {
                 att++;
                 const ticket = [...fixed];
                 const usedSet = new Set(ticket);
                 const shuffled = pool.filter(n => !usedSet.has(n));
-                // Fisher-Yates shuffle
                 for (let i = shuffled.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     const tmp = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = tmp;
@@ -366,10 +386,16 @@ class NovaEraEngine {
                 if (!usedKeys.has(key)) {
                     games.push(ticket);
                     usedKeys.add(key);
+                    // Log progresso a cada 10%
+                    const pct = Math.floor(games.length / numGames * 10);
+                    if (pct > lastLog) {
+                        lastLog = pct;
+                        console.log('[NE-V1] BULK: ' + games.length + '/' + numGames + ' (' + (pct*10) + '%)');
+                    }
                 }
             }
             
-            console.log('[NE-V1] BULK RAPIDO: ' + games.length + '/' + numGames + ' em ' + (Date.now() - t0) + 'ms (' + att + ' tentativas)');
+            console.log('[NE-V1] ⚡ BULK TURBO: ' + games.length + '/' + numGames + ' em ' + (Date.now() - t0) + 'ms (' + att + ' tentativas)');
             
             const uniqueNums = new Set(games.flat());
             return {
@@ -381,11 +407,11 @@ class NovaEraEngine {
                     uniqueNumbers: uniqueNums.size,
                     uniqueCount: uniqueNums.size,
                     maxConcentration: '60%',
-                    engine: 'QUANTUM L99 — BULK RAPIDO',
-                    mode: 'MODO BULK — Geração rápida'
+                    engine: 'QUANTUM L99 — BULK TURBO',
+                    mode: 'MODO BULK TURBO — ' + games.length + ' jogos'
                 },
                 pool: [...uniqueNums].sort((a, b) => a - b),
-                engine: 'QUANTUM L99 — BULK'
+                engine: 'QUANTUM L99 — BULK TURBO'
             };
         }
 
@@ -1799,32 +1825,53 @@ class NovaEraEngine {
         const maxOverlap = ap.maxOverlap !== undefined ? ap.maxOverlap : profile.maxOverlap;
         const checkRadius = ap.checkRadius || 30;
 
-        // ━━ FASE 1: Jogos de QUALIDADE com IA (até esgotar overlap) ━━
-        // Para pools pequenos (Lotofácil 25), a Fase 1 naturalmente esgota rápido.
-        // Não limitar artificialmente — gerar o máximo possível na Fase 1.
-        const fase1MaxAttempts = Math.min(numGames * 300, 3000000);
-        const fase1Timeout = Math.min(120000, numGames * 100); // 100ms per game max, 2min cap
+        // ━━ FASE 1: Jogos de QUALIDADE com IA ━━
+        // ★ PRECISION v2.0: Timeouts e tentativas ESCALÁVEIS por quantidade
+        const fase1MaxAttempts = numGames <= 100
+            ? numGames * 500
+            : numGames <= 1000
+                ? Math.min(numGames * 300, 3000000)
+                : Math.min(numGames * 150, 8000000);
+        const fase1Timeout = numGames <= 100
+            ? 30000   // 30s para poucos jogos
+            : numGames <= 1000
+                ? 120000  // 2min para lotes médios
+                : numGames <= 5000
+                    ? 300000  // 5min para lotes grandes
+                    : 600000; // 10min para lotes massivos
         const startTime = Date.now();
         let attempts = 0;
 
-        console.log('[NE-L99] 🎚️ Modo Adaptativo | ' + numGames + ' jogos | pool=' + pool.length + ' | overlap=' + maxOverlap + '/' + drawSize);
+        console.log('[NE-L99] 🎚️ Modo Adaptativo | ' + numGames + ' jogos | pool=' + pool.length + ' | overlap=' + maxOverlap + '/' + drawSize + ' | timeout=' + (fase1Timeout/1000) + 's');
+
+        // ★ PRECISION v2.0: Relaxamento progressivo do overlap
+        // Quando tentativas excedem 60% sem completar → relaxar overlap gradualmente
+        let currentOverlap = maxOverlap;
+        let lastLog = 0;
 
         while (games.length < numGames && attempts < fase1MaxAttempts && (Date.now() - startTime) < fase1Timeout) {
             attempts++;
+
+            // Relaxamento progressivo: se travou, relaxar overlap
+            const progressRatio = attempts / fase1MaxAttempts;
+            if (progressRatio > 0.40 && currentOverlap < drawSize) {
+                currentOverlap = Math.min(drawSize, maxOverlap + Math.floor((progressRatio - 0.40) * drawSize));
+            }
+
             const ticket = this._generateSingleGame(profile, scores, pool, drawSize, fixedNumbers, usedCount, maxUsage, startNum, endNum, numZones, zoneSize, games.length, numGames);
             if (!ticket || ticket.length < drawSize) continue;
             const key = ticket.join(',');
             if (usedKeys.has(key)) continue;
 
             // Anti-overlap: verificar apenas os últimos checkRadius jogos
-            if (games.length > 0 && attempts < fase1MaxAttempts * 0.60) {
+            if (games.length > 0 && progressRatio < 0.80) {
                 let tooSimilar = false;
                 const checkFrom = Math.max(0, games.length - checkRadius);
                 for (let g = checkFrom; g < games.length; g++) {
                     const existSet = new Set(games[g]);
                     let overlap = 0;
                     for (const n of ticket) { if (existSet.has(n)) overlap++; }
-                    if (overlap > maxOverlap) { tooSimilar = true; break; }
+                    if (overlap > currentOverlap) { tooSimilar = true; break; }
                 }
                 if (tooSimilar) continue;
             }
@@ -1832,19 +1879,25 @@ class NovaEraEngine {
             games.push(ticket);
             usedKeys.add(key);
             for (const n of ticket) usedCount[n] = (usedCount[n] || 0) + 1;
+
+            // Log progresso a cada 10%
+            const pct = Math.floor(games.length / numGames * 10);
+            if (pct > lastLog) {
+                lastLog = pct;
+                console.log('[NE-L99] Fase1: ' + games.length + '/' + numGames + ' (' + (pct*10) + '%) overlap=' + currentOverlap);
+            }
         }
         const fase1Count = games.length;
         console.log('[NE-L99] Fase1 (IA): ' + fase1Count + '/' + numGames + ' em ' + attempts + ' tentativas (' + (Date.now() - startTime) + 'ms)');
 
-        // ━━ FASE 2: COMPLETAR com geração rápida (sem overlap rigoroso) ━━
-        // Preenche os jogos restantes com shuffle aleatório ponderado.
-        // Garante unicidade mas sem filtro de overlap — gera TODOS os jogos pedidos.
+        // ━━ FASE 2: COMPLETAR com geração rápida (unicidade apenas) ━━
         if (games.length < numGames) {
             const remaining = numGames - games.length;
             console.log('[NE-L99] Fase2 (BULK): gerando ' + remaining + ' jogos restantes...');
             let bulkAtt = 0;
-            const bulkMax = Math.max(remaining * 200, 2000000);
-            const bulkTimeout = 540000; // 9 min max
+            // ★ PRECISION v2.0: tentativas e timeout ESCALÁVEIS
+            const bulkMax = Math.max(remaining * 500, 5000000);
+            const bulkTimeout = Math.max(300000, Math.min(900000, remaining * 50)); // 5min-15min
 
             while (games.length < numGames && bulkAtt < bulkMax && (Date.now() - startTime) < bulkTimeout) {
                 bulkAtt++;
