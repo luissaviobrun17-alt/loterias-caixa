@@ -2765,13 +2765,17 @@ class UI {
         const cards = document.querySelectorAll('.game-card');
         const game = GAMES[this.currentGameKey];
 
-        // Inicializar contadores apenas para faixas com prêmio pago
+        // ═══ V10: Conferência Completa ═══
         const paidStrategies = game.strategies.filter(s => s.paid !== false);
         const awardCounts = {};
         paidStrategies.forEach(s => awardCounts[s.id] = 0);
+        const hitDistribution = {};
+        let maxPossibleHits = 0;
+        const winningGames = [];
 
         cards.forEach((card, index) => {
             const gameNumbers = this.currentGeneratedGames[index];
+            if (!gameNumbers) return;
             let hits = 0;
             const balls = card.querySelectorAll('.ball');
 
@@ -2782,80 +2786,151 @@ class UI {
                     ball.style.backgroundColor = '#22C55E';
                     ball.style.color = '#fff';
                     ball.style.borderColor = '#22C55E';
+                    ball.style.boxShadow = '0 0 8px rgba(34,197,94,0.5)';
                     hits++;
                 } else {
                     if (!ball.classList.contains('fixed')) {
                         ball.style.backgroundColor = '';
                         ball.style.color = '';
                         ball.style.borderColor = '';
+                        ball.style.boxShadow = '';
                         ball.classList.remove('hit');
                     }
                 }
             });
 
-            // Lotomania: 0 acertos também é premiado
-            const hitsToCheck = (this.currentGameKey === 'lotomania' && hits === 0) ? 0 : hits;
+            if (hits > maxPossibleHits) maxPossibleHits = hits;
+            hitDistribution[hits] = (hitDistribution[hits] || 0) + 1;
 
-            // Encontrar a faixa premiada correspondente
-            const matchedStrat = game.strategies.find(s => s.match === hitsToCheck && s.paid !== false);
+            const hitsToCheck = (this.currentGameKey === 'lotomania' && hits === 0) ? 0 : hits;
+            const matchedStrat = paidStrategies.find(s => s.match === hitsToCheck);
 
             if (matchedStrat) {
                 awardCounts[matchedStrat.id]++;
+                winningGames.push({ index, numbers: gameNumbers, hits, strat: matchedStrat, prize: matchedStrat.prize || 0 });
             }
 
-            // Indicador visual em cada card
             let summary = card.querySelector('.hit-summary');
             if (!summary) {
                 summary = document.createElement('div');
                 summary.className = 'hit-summary';
-                summary.style.cssText = 'width:100%;text-align:right;font-size:0.8rem;font-weight:bold;margin-top:5px;padding:3px 0;';
+                summary.style.cssText = 'width:100%;text-align:right;font-size:0.8rem;font-weight:bold;margin-top:5px;padding:4px 6px;border-radius:6px;';
                 card.appendChild(summary);
             }
-
             summary.innerHTML = '';
-
-            // Lotomania: mostrar 0 hits como ganho especial
             const displayHits = (this.currentGameKey === 'lotomania' && hits === 0) ? '0 (Mania!)' : hits;
 
             if (matchedStrat) {
-                // É uma faixa premiada
                 const isJackpot = matchedStrat.match === game.draw;
                 summary.style.color = isJackpot ? '#FFD700' : '#22C55E';
+                summary.style.background = isJackpot ? 'rgba(255,215,0,0.08)' : 'rgba(34,197,94,0.08)';
                 const prizeHint = matchedStrat.prize > 100
-                    ? ` — aprox. ${matchedStrat.prize.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
-                    : (matchedStrat.prize > 0 ? ` — R$ ${matchedStrat.prize.toFixed(2).replace('.', ',')}` : '');
+                    ? ` ≈ ${matchedStrat.prize.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+                    : (matchedStrat.prize > 0 ? ` ≈ R$ ${matchedStrat.prize.toFixed(2).replace('.', ',')}` : '');
                 summary.innerHTML = `🏆 ${displayHits} acertos — <strong>${matchedStrat.label}</strong>${prizeHint}`;
             } else if (hits > 0) {
-                // Acertou alguns, mas não é faixa premiada
                 summary.style.color = '#94A3B8';
-                summary.textContent = `${hits} acerto${hits > 1 ? 's' : ''} — sem premiação`;
+                summary.style.background = 'rgba(255,255,255,0.03)';
+                summary.textContent = `${hits} acerto${hits > 1 ? 's' : ''} — sem premiação nesta faixa`;
             } else {
                 summary.style.color = '#475569';
-                summary.textContent = 'Sem acertos';
+                summary.style.background = '';
+                summary.textContent = 'Nenhum acerto';
             }
         });
 
-        // ── RESUMO DA CONFERÊNCIA ────────────────────────────────────────────
+        // ═══ RESUMO V10 ═══
         const currency = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
         const totalJogos = this.currentGeneratedGames.length;
         const totalGanhos = Object.values(awardCounts).reduce((s, v) => s + v, 0);
+        const minStrat = paidStrategies.length > 0 ? Math.min(...paidStrategies.map(s => s.match)) : 0;
+        const maxStrat = paidStrategies.length > 0 ? Math.max(...paidStrategies.map(s => s.match)) : 0;
 
         let summaryHTML = `<div style="font-family:'Outfit','Inter',sans-serif;">`;
-        summaryHTML += `<h4 style="margin:0 0 10px;color:var(--primary-accent);font-size:0.95rem;">📋 Conferência${drawInfo ? ' — ' + drawInfo : ''}</h4>`;
+        summaryHTML += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">`;
+        summaryHTML += `<div style="font-size:1.8rem;">🔍</div><div>`;
+        summaryHTML += `<h4 style="margin:0;color:${game.color};font-size:1rem;font-weight:800;">CONFERÊNCIA — ${game.name.toUpperCase()}</h4>`;
+        summaryHTML += `<div style="font-size:0.72rem;color:#94A3B8;">${drawInfo || 'Resultado manual'} · Faixas: ${minStrat} a ${maxStrat} acertos</div>`;
+        summaryHTML += `</div></div>`;
 
-        // Linha de resumo geral
-        summaryHTML += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">`;
-        summaryHTML += `<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;font-size:0.82rem;"><strong>${totalJogos}</strong> jogo${totalJogos > 1 ? 's' : ''} conferidos</div>`;
+        const sortedDrawn = [...drawnNumbers].sort((a, b) => a - b);
+        summaryHTML += `<div style="margin-bottom:12px;padding:10px 14px;background:linear-gradient(145deg,rgba(0,0,0,0.4),rgba(0,0,0,0.2));border:1px solid ${game.color}50;border-radius:10px;">`;
+        summaryHTML += `<div style="font-size:0.68rem;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Resultado Oficial</div>`;
+        summaryHTML += `<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">`;
+        sortedDrawn.forEach(n => {
+            summaryHTML += `<span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:${game.color};color:#fff;font-weight:800;font-size:0.88rem;box-shadow:0 2px 8px ${game.color}60;">${String(n).padStart(2,'0')}</span>`;
+        });
+        summaryHTML += `</div></div>`;
+
+        // ── V11: JOGOS GANHADORES ──
+        if (winningGames.length > 0) {
+            winningGames.sort((a, b) => b.hits - a.hits || b.prize - a.prize);
+            summaryHTML += `<div style="margin-bottom:12px;padding:12px 14px;background:linear-gradient(145deg,rgba(34,197,94,0.06),rgba(0,0,0,0.2));border:2px solid #22C55E40;border-radius:12px;">`;
+            summaryHTML += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:1.2rem;">🏆</span>`;
+            summaryHTML += `<div style="font-size:0.78rem;color:#22C55E;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Jogos Ganhadores (${winningGames.length})</div></div>`;
+            let currentTier = null;
+            winningGames.forEach(wg => {
+                if (currentTier !== wg.strat.id) {
+                    currentTier = wg.strat.id;
+                    const isJP = wg.strat.match === game.draw;
+                    const tierColor = isJP ? '#FFD700' : '#22C55E';
+                    summaryHTML += `<div style="display:flex;align-items:center;gap:6px;margin:${currentTier === winningGames[0].strat.id ? '0' : '8px'} 0 6px 0;">`;
+                    summaryHTML += `<span style="font-size:0.7rem;">${isJP ? '🥇' : '✅'}</span>`;
+                    summaryHTML += `<span style="font-size:0.72rem;font-weight:700;color:${tierColor};">${wg.strat.label}</span>`;
+                    summaryHTML += `<div style="flex:1;height:1px;background:${tierColor}30;"></div>`;
+                    const tierPrize = wg.prize > 100 ? ` ≈ ${currency(wg.prize)}` : (wg.prize > 0 ? ` ≈ R$ ${wg.prize.toFixed(2).replace('.',',')}` : '');
+                    summaryHTML += `<span style="font-size:0.62rem;color:${tierColor};opacity:0.8;">${tierPrize}/jogo</span></div>`;
+                }
+                const isJP = wg.strat.match === game.draw;
+                const cardBorder = isJP ? '#FFD70050' : '#22C55E40';
+                const cardBg = isJP ? 'rgba(255,215,0,0.06)' : 'rgba(34,197,94,0.04)';
+                summaryHTML += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:4px;background:${cardBg};border:1px solid ${cardBorder};border-radius:8px;">`;
+                summaryHTML += `<span style="font-size:0.68rem;color:#94A3B8;font-weight:600;min-width:42px;">Jogo ${wg.index + 1}</span>`;
+                summaryHTML += `<div style="display:flex;flex-wrap:wrap;gap:3px;flex:1;">`;
+                wg.numbers.forEach(n => {
+                    const isHit = drawnSet.has(n);
+                    const bg = isHit ? '#22C55E' : 'rgba(255,255,255,0.06)';
+                    const col = isHit ? '#fff' : '#64748b';
+                    const shadow = isHit ? 'box-shadow:0 0 6px rgba(34,197,94,0.4);' : '';
+                    summaryHTML += `<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:${bg};color:${col};font-weight:700;font-size:0.7rem;border:1px solid ${isHit ? '#22C55E' : 'rgba(255,255,255,0.1)'};${shadow}">${String(n).padStart(2,'0')}</span>`;
+                });
+                summaryHTML += `</div>`;
+                summaryHTML += `<span style="font-size:0.68rem;font-weight:700;color:${isJP ? '#FFD700' : '#22C55E'};min-width:28px;text-align:right;">${wg.hits}/${game.draw}</span></div>`;
+            });
+            summaryHTML += `</div>`;
+        }
+
+        summaryHTML += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">`;
+        summaryHTML += `<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;font-size:0.82rem;"><strong>${totalJogos}</strong> jogos conferidos</div>`;
         if (totalGanhos > 0) {
-            summaryHTML += `<div style="background:rgba(34,197,94,0.15);border:1px solid #22C55E50;border-radius:8px;padding:6px 12px;color:#22C55E;font-size:0.82rem;font-weight:700;">🏆 ${totalGanhos} prêmio${totalGanhos > 1 ? 's' : ''} ganho${totalGanhos > 1 ? 's' : ''}!</div>`;
+            summaryHTML += `<div style="background:rgba(34,197,94,0.15);border:1px solid #22C55E50;border-radius:8px;padding:6px 12px;color:#22C55E;font-size:0.82rem;font-weight:700;">🏆 ${totalGanhos} prêmio${totalGanhos > 1 ? 's' : ''}!</div>`;
         } else {
-            summaryHTML += `<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:6px 12px;color:#94A3B8;font-size:0.82rem;">Nenhuma faixa premiada desta vez</div>`;
+            summaryHTML += `<div style="background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:8px;padding:6px 12px;color:#EF4444;font-size:0.82rem;">Nenhuma faixa premiada</div>`;
         }
         summaryHTML += `</div>`;
 
-        // Tabela de faixas premiadas
-        summaryHTML += `<div style="font-size:0.75rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Faixas de premiação — ${game.name}</div>`;
+        summaryHTML += `<div style="margin-bottom:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;">`;
+        summaryHTML += `<div style="font-size:0.68rem;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Distribuição de Acertos</div>`;
+        const maxHitCount = Math.max(...Object.values(hitDistribution), 1);
+        for (let h = maxPossibleHits; h >= 0; h--) {
+            const count = hitDistribution[h] || 0;
+            const pct = totalJogos > 0 ? (count / totalJogos * 100) : 0;
+            const barW = maxHitCount > 0 ? (count / maxHitCount * 100) : 0;
+            const isPrized = paidStrategies.some(s => s.match === h);
+            const barColor = isPrized ? (h === game.draw ? '#FFD700' : '#22C55E') : '#334155';
+            const textColor = isPrized ? '#f1f5f9' : '#64748b';
+            if (count > 0 || isPrized) {
+                summaryHTML += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">`;
+                summaryHTML += `<span style="min-width:55px;font-size:0.72rem;color:${textColor};font-weight:${isPrized?'700':'400'};text-align:right;">${h} acerto${h !== 1 ? 's' : ''}</span>`;
+                summaryHTML += `<div style="flex:1;height:14px;background:rgba(255,255,255,0.04);border-radius:4px;overflow:hidden;"><div style="height:100%;width:${barW}%;background:${barColor};border-radius:4px;min-width:${count>0?'2px':'0'};"></div></div>`;
+                summaryHTML += `<span style="min-width:50px;font-size:0.72rem;color:${textColor};font-weight:600;">${count}x (${pct.toFixed(0)}%)</span>`;
+                summaryHTML += `${isPrized ? '<span style="font-size:0.65rem;">💰</span>' : ''}`;
+                summaryHTML += `</div>`;
+            }
+        }
+        summaryHTML += `</div>`;
+
+        summaryHTML += `<div style="font-size:0.72rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">💎 Faixas de Premiação — ${game.name}</div>`;
         summaryHTML += `<div style="display:flex;flex-direction:column;gap:4px;">`;
 
         let estimatedTotal = 0;
@@ -2865,55 +2940,33 @@ class UI {
             const prizeValue = strat.prize || 0;
             const subtotal = count * prizeValue;
             if (count > 0) estimatedTotal += subtotal;
-
-            const rowBg = count > 0
-                ? (isJackpot ? 'rgba(255,215,0,0.15)' : 'rgba(34,197,94,0.12)')
-                : 'rgba(255,255,255,0.03)';
-            const borderCol = count > 0
-                ? (isJackpot ? '#FFD70060' : '#22C55E50')
-                : 'rgba(255,255,255,0.05)';
-            const textCol = count > 0
-                ? (isJackpot ? '#FFD700' : '#22C55E')
-                : '#475569';
-
-            // Formatar prêmio
+            const rowBg = count > 0 ? (isJackpot ? 'rgba(255,215,0,0.15)' : 'rgba(34,197,94,0.12)') : 'rgba(255,255,255,0.03)';
+            const borderCol = count > 0 ? (isJackpot ? '#FFD70060' : '#22C55E50') : 'rgba(255,255,255,0.06)';
+            const textCol = count > 0 ? (isJackpot ? '#FFD700' : '#22C55E') : '#475569';
             let prizeStr;
-            if (isJackpot) {
-                prizeStr = `~${currency(prizeValue)} (acumulado)`;
-            } else if (prizeValue >= 1) {
-                prizeStr = currency(prizeValue);
-            } else if (prizeValue > 0) {
-                prizeStr = `R$ ${prizeValue.toFixed(2).replace('.', ',')}`;
-            } else {
-                prizeStr = 'Simulado';
-            }
+            if (isJackpot) { prizeStr = `~${currency(prizeValue)} (acumulado)`; }
+            else if (prizeValue >= 1) { prizeStr = `~${currency(prizeValue)} (rateio)`; }
+            else if (prizeValue > 0) { prizeStr = `~R$ ${prizeValue.toFixed(2).replace('.', ',')} (rateio)`; }
+            else { prizeStr = 'Valor por rateio'; }
 
-            summaryHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 12px;background:${rowBg};border:1px solid ${borderCol};border-radius:8px;">`;
-            summaryHTML += `<div style="display:flex;align-items:center;gap:8px;">`;
-            summaryHTML += `<span style="font-size:0.85rem;">${count > 0 ? (isJackpot ? '🥇' : '✅') : '◻️'}</span>`;
-            summaryHTML += `<div>`;
-            summaryHTML += `<div style="font-size:0.82rem;font-weight:${count > 0 ? '700' : '400'};color:${count > 0 ? '#f1f5f9' : '#475569'};">${strat.label}</div>`;
-            summaryHTML += `<div style="font-size:0.68rem;color:#64748b;">${strat.match === 0 ? 'Acertar NENHUM número' : strat.match + ' acertos necessários'} · ${prizeStr}/jogo</div>`;
-            summaryHTML += `</div></div>`;
-            summaryHTML += `<div style="text-align:right;">`;
-            summaryHTML += `<div style="font-size:0.88rem;font-weight:800;color:${textCol};">${count > 0 ? count + 'x' : '—'}</div>`;
-            if (count > 0 && prizeValue > 0) {
-                summaryHTML += `<div style="font-size:0.68rem;color:${textCol};opacity:0.8;">≈ ${currency(subtotal)}</div>`;
-            }
+            summaryHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:${rowBg};border:1px solid ${borderCol};border-radius:8px;">`;
+            summaryHTML += `<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.9rem;">${count > 0 ? (isJackpot ? '🥇' : '✅') : '◻️'}</span>`;
+            summaryHTML += `<div><div style="font-size:0.82rem;font-weight:${count > 0 ? '700' : '400'};color:${count > 0 ? '#f1f5f9' : '#64748b'};">${strat.label}</div>`;
+            summaryHTML += `<div style="font-size:0.66rem;color:#64748b;">${strat.match === 0 ? 'Nenhum acertado' : strat.match + ' acertos'} · ${prizeStr}</div></div></div>`;
+            summaryHTML += `<div style="text-align:right;"><div style="font-size:0.9rem;font-weight:800;color:${textCol};">${count > 0 ? count + 'x' : '—'}</div>`;
+            if (count > 0 && prizeValue > 0) { summaryHTML += `<div style="font-size:0.68rem;color:${textCol};opacity:0.85;">≈ ${currency(subtotal)}</div>`; }
             summaryHTML += `</div></div>`;
         });
-
         summaryHTML += `</div>`;
 
-        // Total estimado
         if (estimatedTotal > 0) {
-            summaryHTML += `<div style="margin-top:10px;padding:10px 14px;background:linear-gradient(135deg,rgba(34,197,94,0.2),rgba(16,185,129,0.1));border:2px solid #22C55E80;border-radius:10px;display:flex;justify-content:space-between;align-items:center;">`;
-            summaryHTML += `<span style="color:#86efac;font-weight:700;font-size:0.85rem;">💰 Prêmio Estimado Total</span>`;
-            summaryHTML += `<span style="color:#22C55E;font-weight:800;font-size:1rem;">${currency(estimatedTotal)}</span>`;
-            summaryHTML += `</div>`;
+            summaryHTML += `<div style="margin-top:12px;padding:12px 16px;background:linear-gradient(135deg,rgba(34,197,94,0.2),rgba(16,185,129,0.1));border:2px solid #22C55E80;border-radius:12px;display:flex;justify-content:space-between;align-items:center;">`;
+            summaryHTML += `<span style="color:#86efac;font-weight:700;font-size:0.88rem;">💰 Prêmio Estimado Total</span>`;
+            summaryHTML += `<span style="color:#22C55E;font-weight:900;font-size:1.1rem;">${currency(estimatedTotal)}</span></div>`;
         }
 
-        summaryHTML += `<div style="margin-top:8px;font-size:0.62rem;color:#475569;">⚠️ Valores são estimativas baseadas nas faixas fixas/referência. O prêmio real pode variar pelo rateio oficial da Caixa.</div>`;
+        summaryHTML += `<div style="margin-top:10px;padding:8px 12px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.2);border-radius:8px;font-size:0.65rem;color:#EAB308;">`;
+        summaryHTML += `⚠️ <strong>Importante:</strong> Valores são estimativas médias. O prêmio real depende do rateio oficial. Confira em <strong>loterias.caixa.gov.br</strong></div>`;
         summaryHTML += `</div>`;
 
         if (this.checkSummaryContainer) {

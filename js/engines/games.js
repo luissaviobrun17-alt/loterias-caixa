@@ -3,6 +3,7 @@
 // Premiações baseadas nas faixas oficiais da Caixa Econômica Federal
 // Os valores de prize são referências aproximadas (prêmio fixo onde existe,
 // ou estimativa de acumulado para o prêmio principal)
+// ═══ ATUALIZADO V10: Todas as faixas de premiação corrigidas ═══
 
 const GAMES = {
     megasena: {
@@ -13,11 +14,12 @@ const GAMES = {
         colorGrad: "#0d6b28",
         cols: 10,
         price: 6.00,
-        // Faixas oficiais: Sena (6), Quina (5), Quadra (4) — Terno NÃO é premiado
+        // Faixas: Sena (6), Quina (5), Quadra (4), Terno (3)
         strategies: [
-            { id: "sena",   label: "Sena (6 acertos)",   match: 6, prize: 60000000, paid: true  },
-            { id: "quina",  label: "Quina (5 acertos)",   match: 5, prize: 60000,   paid: true  },
-            { id: "quadra", label: "Quadra (4 acertos)",  match: 4, prize: 1400,    paid: true  }
+            { id: "sena",   label: "Sena (6 acertos)",   match: 6, prize: 50000000, paid: true  },
+            { id: "quina",  label: "Quina (5 acertos)",   match: 5, prize: 50000,    paid: true  },
+            { id: "quadra", label: "Quadra (4 acertos)",  match: 4, prize: 1000,     paid: true  },
+            { id: "terno",  label: "Terno (3 acertos)",   match: 3, prize: 5,        paid: true  }
         ],
         closingLevels: [
             { id: "close6", label: "Fechamento Sena (6)",   guarantee: 6, icon: "🎯" },
@@ -40,8 +42,8 @@ const GAMES = {
         // Faixas oficiais: 15, 14, 13, 12, 11 acertos
         strategies: [
             { id: "15pts", label: "15 Pontos",  match: 15, prize: 2000000, paid: true  },
-            { id: "14pts", label: "14 Pontos",  match: 14, prize: 2000,    paid: true  },
-            { id: "13pts", label: "13 Pontos",  match: 13, prize: 35,      paid: true  },
+            { id: "14pts", label: "14 Pontos",  match: 14, prize: 1600,    paid: true  },
+            { id: "13pts", label: "13 Pontos",  match: 13, prize: 30,      paid: true  },
             { id: "12pts", label: "12 Pontos",  match: 12, prize: 12,      paid: true  },
             { id: "11pts", label: "11 Pontos",  match: 11, prize: 6,       paid: true  }
         ],
@@ -65,11 +67,12 @@ const GAMES = {
         colorGrad: "#1a3d6b",
         cols: 10,
         price: 3.00,
-        // Faixas oficiais: Quina (5), Quadra (4), Terno (3) — Duque NÃO é premiado
+        // Faixas oficiais: Quina (5), Quadra (4), Terno (3), Duque (2)
         strategies: [
             { id: "quina",  label: "Quina (5 acertos)",   match: 5, prize: 6000000, paid: true  },
-            { id: "quadra", label: "Quadra (4 acertos)",   match: 4, prize: 7000,    paid: true  },
-            { id: "terno",  label: "Terno (3 acertos)",    match: 3, prize: 3.50,    paid: true  }
+            { id: "quadra", label: "Quadra (4 acertos)",   match: 4, prize: 6500,    paid: true  },
+            { id: "terno",  label: "Terno (3 acertos)",    match: 3, prize: 4,       paid: true  },
+            { id: "duque",  label: "Duque (2 acertos)",    match: 2, prize: 2,       paid: true  }
         ],
         closingLevels: [
             { id: "close5", label: "Fechamento Quina (5)",  guarantee: 5, icon: "🎯" },
@@ -88,17 +91,18 @@ const GAMES = {
         colorGrad: "#8f0009",
         cols: 10,
         price: 3.00,
-        // Faixas oficiais: Sena (6), Quina (5), Quadra (4) em DOIS sorteios por concurso
-        // Terno (3) NÃO é premiado
+        // Faixas oficiais: Sena (6), Quina (5), Quadra (4), Terno (3)
         strategies: [
-            { id: "sena",   label: "Sena (6 acertos)",   match: 6, prize: 500000,  paid: true  },
+            { id: "sena",   label: "Sena (6 acertos)",   match: 6, prize: 2500000, paid: true  },
             { id: "quina",  label: "Quina (5 acertos)",   match: 5, prize: 5000,    paid: true  },
-            { id: "quadra", label: "Quadra (4 acertos)",  match: 4, prize: 120,     paid: true  }
+            { id: "quadra", label: "Quadra (4 acertos)",  match: 4, prize: 130,     paid: true  },
+            { id: "terno",  label: "Terno (3 acertos)",   match: 3, prize: 3,       paid: true  }
         ],
         closingLevels: [
             { id: "close6", label: "Fechamento Sena (6)",   guarantee: 6, icon: "🎯" },
             { id: "close5", label: "Fechamento Quina (5)",  guarantee: 5, icon: "⭐" },
-            { id: "close4", label: "Fechamento Quadra (4)", guarantee: 4, icon: "🔥" }
+            { id: "close4", label: "Fechamento Quadra (4)", guarantee: 4, icon: "🔥" },
+            { id: "close3", label: "Fechamento Terno (3)",  guarantee: 3, icon: "✅" }
         ],
         minBet: 6,
         maxBet: 50,
@@ -118,8 +122,8 @@ const GAMES = {
             { id: "19pts",  label: "19 Pontos",  match: 19, prize: 80000,   paid: true  },
             { id: "18pts",  label: "18 Pontos",  match: 18, prize: 3000,    paid: true  },
             { id: "17pts",  label: "17 Pontos",  match: 17, prize: 250,     paid: true  },
-            { id: "16pts",  label: "16 Pontos",  match: 16, prize: 5,       paid: true  },
-            { id: "15pts",  label: "15 Pontos",  match: 15, prize: 3,       paid: true  },
+            { id: "16pts",  label: "16 Pontos",  match: 16, prize: 30,      paid: true  },
+            { id: "15pts",  label: "15 Pontos",  match: 15, prize: 6,       paid: true  },
             { id: "0pts",   label: "0 Pontos (Mania de Milionário)", match: 0, prize: 250, paid: true }
         ],
         closingLevels: [
@@ -142,13 +146,13 @@ const GAMES = {
         colorGrad: "#006638",
         cols: 10,
         price: 3.50,
-        // Faixas oficiais: 7, 6, 5, 4, 3 acertos — Duque e Terno sem prêmio fixo abaixo de 3
+        // Faixas oficiais: 7, 6, 5, 4, 3 acertos
         strategies: [
             { id: "7pts",  label: "7 Pontos (Timemania)",  match: 7, prize: 4000000, paid: true  },
             { id: "6pts",  label: "6 Pontos",               match: 6, prize: 30000,   paid: true  },
             { id: "5pts",  label: "5 Pontos",               match: 5, prize: 800,     paid: true  },
-            { id: "4pts",  label: "4 Pontos",               match: 4, prize: 5,       paid: true  },
-            { id: "3pts",  label: "3 Pontos",               match: 3, prize: 3.50,    paid: true  }
+            { id: "4pts",  label: "4 Pontos",               match: 4, prize: 7,       paid: true  },
+            { id: "3pts",  label: "3 Pontos",               match: 3, prize: 3,       paid: true  }
         ],
         closingLevels: [
             { id: "close7", label: "Fechamento 7 Pontos",  guarantee: 7, icon: "🎯" },
@@ -167,12 +171,12 @@ const GAMES = {
         colorGrad: "#8f4c0f",
         cols: 7,
         price: 3.00,
-        // Faixas oficiais: 7, 6, 5, 4 acertos — abaixo de 4 NÃO é premiado
+        // Faixas oficiais: 7, 6, 5, 4 acertos
         strategies: [
             { id: "7pts",  label: "7 Pontos (Dia de Sorte)",  match: 7, prize: 1000000, paid: true  },
             { id: "6pts",  label: "6 Pontos",                  match: 6, prize: 2500,    paid: true  },
             { id: "5pts",  label: "5 Pontos",                  match: 5, prize: 30,      paid: true  },
-            { id: "4pts",  label: "4 Pontos",                  match: 4, prize: 3,       paid: true  }
+            { id: "4pts",  label: "4 Pontos",                  match: 4, prize: 4,       paid: true  }
         ],
         closingLevels: [
             { id: "close7", label: "Fechamento 7 Pontos",  guarantee: 7, icon: "🎯" },
