@@ -424,8 +424,6 @@ class NovaEraEngine {
             pool = selectedNumbers.slice().sort((a, b) => a - b);
             console.log('[NE-V1] 🎯 Pool do usuário: ' + pool.length + ' números');
         } else if (hasPartialSelection) {
-            // ★ V4.0: SELEÇÃO PARCIAL — usar selecionados como ÂNCORAS FIXAS
-            // Adicionar ao fixedNumbers para garantir presença em todos os jogos
             const partialFixed = selectedNumbers.filter(n => n >= startNum && n <= endNum);
             const existingFixed = new Set(fixedNumbers || []);
             for (const n of partialFixed) {
@@ -437,14 +435,62 @@ class NovaEraEngine {
             for (let n = startNum; n <= endNum; n++) pool.push(n);
             console.log('[NE-V1] 📌 Seleção PARCIAL: ' + partialFixed.length + ' âncoras fixas + pool IA completo (' + pool.length + ')');
         } else {
-            // Sem seleção: usar TODOS os números
+            // ★ v5.1: POOL INTELIGENTE POR TIER
+            // SNIPER/CIRÚRGICO: filtrar para top números (foco máximo)
+            // INTELIGENTE/COBERTURA: pool completo
             pool = [];
             for (let n = startNum; n <= endNum; n++) pool.push(n);
-            console.log('[NE-V1] 🌐 Pool COMPLETO: ' + pool.length + ' números (ZERO eliminações)');
+
+            if (numGames <= 500) {
+                // ★ v5.1: FILTRAR POOL — manter apenas os melhores números
+                const poolTarget = numGames <= 50
+                    ? Math.max(drawSize + 5, Math.ceil(drawSize * 2.5))   // SNIPER: pool mínimo
+                    : numGames <= 100
+                        ? Math.max(drawSize + 8, Math.ceil(drawSize * 3)) // CIRÚRGICO-100
+                        : Math.max(drawSize + 12, Math.ceil(drawSize * 4)); // CIRÚRGICO-500
+
+                if (poolTarget < totalRange) {
+                    // Rankear por score e manter top
+                    const ranked = pool
+                        .map(n => ({ num: n, score: scores[n] || 0 }))
+                        .sort((a, b) => b.score - a.score);
+
+                    // Garantir cobertura de zonas: pelo menos 1 num por zona
+                    const zonesCount = Math.ceil(totalRange / 10);
+                    const selectedPool = new Set();
+                    const zoneHits = {};
+
+                    // Fase 1: Top números diretos
+                    for (let i = 0; i < Math.min(poolTarget, ranked.length); i++) {
+                        selectedPool.add(ranked[i].num);
+                        const z = Math.floor((ranked[i].num - startNum) / 10);
+                        zoneHits[z] = (zoneHits[z] || 0) + 1;
+                    }
+
+                    // Fase 2: Garantir cobertura zonal
+                    for (let z = 0; z < zonesCount; z++) {
+                        if (!zoneHits[z] || zoneHits[z] === 0) {
+                            // Pegar o melhor desta zona
+                            const zoneNums = ranked.filter(r =>
+                                Math.floor((r.num - startNum) / 10) === z && !selectedPool.has(r.num)
+                            );
+                            if (zoneNums.length > 0) {
+                                selectedPool.add(zoneNums[0].num);
+                            }
+                        }
+                    }
+
+                    pool = [...selectedPool].sort((a, b) => a - b);
+                    console.log('[NE-V1] ★ v5.1 POOL FILTRADO: ' + pool.length + '/' + totalRange + ' nums (top scorers)');
+                } else {
+                    console.log('[NE-V1] 🌐 Pool COMPLETO: ' + pool.length + ' números');
+                }
+            } else {
+                console.log('[NE-V1] 🌐 Pool COMPLETO: ' + pool.length + ' números (COBERTURA)');
+            }
         }
 
         // ★ FIX V4.1: GARANTIR que TODOS os fixedNumbers estão no pool
-        // Bug: se fixedNumbers continha números fora do pool, eram ignorados silenciosamente
         if (fixedNumbers && fixedNumbers.length > 0) {
             const poolSet = new Set(pool);
             for (const f of fixedNumbers) {
@@ -1903,16 +1949,16 @@ class NovaEraEngine {
                 for (let L = 0; L < NUM_LAYERS; L++) {
                     const layerTop = Object.entries(testLayers[L] || {})
                         .sort((a, b) => b[1] - a[1])
-                        .slice(0, Math.ceil(drawSize * 1.5)) // v5.0: mais restritivo (era 2x)
+                        .slice(0, Math.ceil(drawSize * 2.0)) // v5.1: drawSize*2 para capturar mais hits
                         .map(e => parseInt(e[0]));
-                    // v5.0: NDCG-inspired — hits em posições altas valem mais
+                    // v5.1: NDCG-inspired com peso MAIOR — hits no top valem MUITO
                     let ndcgScore = 0;
                     for (let r = 0; r < layerTop.length; r++) {
                         if (actualResult.has(layerTop[r])) {
                             ndcgScore += 1.0 / Math.log2(r + 2); // DCG: 1/log2(rank+2)
                         }
                     }
-                    dynamicBoosts[L] += ndcgScore * 0.8;
+                    dynamicBoosts[L] += ndcgScore * 1.2; // v5.1: peso 0.8→1.2 (mais impacto)
                 }
             }
 
@@ -1957,20 +2003,17 @@ class NovaEraEngine {
                     + (precisionScores[n] || 0) * precisionWeight * dynamicBoosts[16]
                     + (patternDnaScores[n] || 0) * dnaWeight * dynamicBoosts[17];
 
-            // ★ CONSENSO L99 V4.0: ASSERTIVIDADE MÁXIMA
-            // Números onde 17 camadas CONCORDAM = FOCO TOTAL
-            // Penalização severa para números sem consenso
+            // ★ v5.1: CONSENSO ADAPTATIVO — multiplicadores MAIS AGRESSIVOS
+            // Amplifica diferenças entre bons e maus números
             const votes = voteCount[n] || 0;
-            if (votes >= 16) raw *= 1.80;       // 16-17: CONSENSO ABSOLUTO → dominância
-            else if (votes >= 14) raw *= 1.55;  // 14-15: muito forte → prioridade alta
-            else if (votes >= 12) raw *= 1.35;  // 12-13: forte → boost significativo
-            else if (votes >= 10) raw *= 1.15;  // 10-11: moderado
-            else if (votes >= 7) raw *= 0.90;   // 7-9: neutro-baixo
-            else if (votes >= 4) raw *= 0.65;   // 4-6: penalizar
-            else raw *= 0.40;                    // 0-3: penalizar SEVERAMENTE
-
-            // ★ V4.0: Noise ZERO — máxima objetividade e assertividade
-            // Toda a diversidade vem do tournament selection, não de ruído
+            if (votes >= 17) raw *= 2.50;       // 17-18: CONSENSO ABSOLUTO → dominância extrema
+            else if (votes >= 15) raw *= 2.00;  // 15-16: quase unânime → muito forte
+            else if (votes >= 13) raw *= 1.65;  // 13-14: forte → boost grande
+            else if (votes >= 11) raw *= 1.35;  // 11-12: bom consenso
+            else if (votes >= 9) raw *= 1.10;   // 9-10: moderado
+            else if (votes >= 7) raw *= 0.80;   // 7-8: neutro-baixo → penalizar levemente
+            else if (votes >= 4) raw *= 0.50;   // 4-6: penalizar FORTE
+            else raw *= 0.25;                    // 0-3: penalizar SEVERAMENTE
 
             scores[n] = Math.max(clampMin, Math.min(clampMax, raw + 1.0));
         }
@@ -2249,16 +2292,18 @@ class NovaEraEngine {
         // CIRÚRGICO: score^4
         // INTELIGENTE: score^3
         // COBERTURA: score^2
-        const exponent = totalGames <= 50 ? 5.0 : totalGames <= 500 ? 4.0 : totalGames <= 1000 ? 3.5 : totalGames <= 5000 ? 3.0 : 2.0;
+        // ★ v5.1: Expoentes MAIS agressivos + novo tier ≤10 com score^6
+        const exponent = totalGames <= 10 ? 6.0 : totalGames <= 50 ? 5.0 : totalGames <= 100 ? 4.5 : totalGames <= 500 ? 4.0 : totalGames <= 1000 ? 3.5 : totalGames <= 5000 ? 3.0 : 2.0;
 
         const weights = {};
         for (const n of available) {
             let w = scores[n] || 1.0;
 
-            // Penalizar uso excessivo
+            // ★ v5.1: Penalizar uso excessivo mais agressivamente em lotes pequenos
             const usage = (usedCount[n] || 0) / Math.max(1, maxUsage);
-            w *= Math.pow(1 - usage, 2);
-            if (usedCount[n] === 0 || usedCount[n] === undefined) w *= 1.5;
+            const usagePenalty = totalGames <= 100 ? 3 : 2;
+            w *= Math.pow(1 - usage, usagePenalty);
+            if (usedCount[n] === 0 || usedCount[n] === undefined) w *= (totalGames <= 50 ? 2.0 : 1.5);
 
             // Anti-consecutivo por perfil
             if (profile.maxConsecutive <= 2) {
