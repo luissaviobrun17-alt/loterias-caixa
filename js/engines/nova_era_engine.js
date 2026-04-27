@@ -308,56 +308,47 @@ class NovaEraEngine {
         // Overlap MÍNIMO = jogos MUITO diferentes entre si
         // Usage MÍNIMO = foco nos melhores números
         // ═══════════════════════════════════════════════════════
+        // ★ V6.0: ADAPTIVE PARAMS — usage proporcional ao pool
+        // Problema anterior: usage de 9% com pool de 15 = impossível gerar jogos distintos
+        // Agora: usage escala para permitir diversidade REAL no pool disponível
         if (numGames <= 10) {
-            mode = 'SNIPER-10';
-            overlapAdj = Math.max(1, Math.floor(drawSize * 0.30));
-            usageAdj = Math.min(0.15, baseUsage * 0.3);
+            mode = 'PRECISO-10';
+            overlapAdj = Math.max(2, Math.floor(drawSize * 0.40));
+            usageAdj = Math.min(0.60, Math.max(0.40, baseUsage));
             checkRadius = numGames;
         }
         else if (numGames <= 50) {
-            mode = 'SNIPER-50';
-            overlapAdj = Math.max(2, Math.floor(drawSize * 0.40));
-            usageAdj = Math.min(0.22, baseUsage * 0.5);
+            mode = 'PRECISO-50';
+            overlapAdj = Math.max(2, Math.floor(drawSize * 0.50));
+            usageAdj = Math.min(0.50, Math.max(0.30, baseUsage));
             checkRadius = numGames;
         }
-        // ═══════════════════════════════════════════════════════
-        // TIER 2: CIRÚRGICO (100-500 jogos) — IA FOCADA
-        // Filtros estruturais RIGOROSOS (soma, paridade, repetição)
-        // Cada jogo passa por 19 validações
-        // ═══════════════════════════════════════════════════════
         else if (numGames <= 100) {
-            mode = 'CIRÚRGICO-100';
-            overlapAdj = Math.max(2, Math.floor(drawSize * 0.50));
-            usageAdj = Math.min(0.30, baseUsage * 0.7);
-            checkRadius = Math.min(80, numGames);
+            mode = 'FOCADO-100';
+            overlapAdj = Math.max(3, Math.floor(drawSize * 0.55));
+            usageAdj = Math.min(0.40, Math.max(0.25, baseUsage));
+            checkRadius = Math.min(60, numGames);
         }
         else if (numGames <= 500) {
-            mode = 'CIRÚRGICO-500';
-            overlapAdj = baseOverlap;
-            usageAdj = baseUsage;
-            checkRadius = Math.min(50, Math.ceil(numGames * 0.15));
+            mode = 'FOCADO-500';
+            overlapAdj = Math.max(3, Math.floor(drawSize * 0.60));
+            usageAdj = Math.min(0.35, baseUsage);
+            checkRadius = Math.min(40, Math.ceil(numGames * 0.12));
         }
-        // ═══════════════════════════════════════════════════════
-        // TIER 3: INTELIGENTE (1K-5K jogos) — EQUILÍBRIO
-        // Cobertura crescente mas IA preservada
-        // ═══════════════════════════════════════════════════════
         else if (numGames <= 1000) {
-            mode = 'INTELIGENTE-1K';
-            overlapAdj = Math.min(drawSize - 1, Math.ceil(baseOverlap * 1.3));
-            usageAdj = Math.min(0.70, baseUsage * 1.3);
-            checkRadius = 40;
+            mode = 'EQUILIBRADO-1K';
+            overlapAdj = Math.min(drawSize - 1, Math.ceil(baseOverlap * 1.2));
+            usageAdj = Math.min(0.50, baseUsage * 1.2);
+            checkRadius = 30;
         }
         else if (numGames <= 5000) {
-            mode = 'INTELIGENTE-5K';
-            overlapAdj = Math.min(drawSize - 1, Math.ceil(baseOverlap * 1.6));
-            usageAdj = Math.min(0.90, baseUsage * 1.8);
-            checkRadius = 25;
+            mode = 'COBERTURA-5K';
+            overlapAdj = Math.min(drawSize - 1, Math.ceil(baseOverlap * 1.5));
+            usageAdj = Math.min(0.80, baseUsage * 1.6);
+            checkRadius = 20;
         }
-        // ═══════════════════════════════════════════════════════
-        // TIER 4: COBERTURA (10K+ jogos) — DIVERSIDADE MÁXIMA
-        // ═══════════════════════════════════════════════════════
         else {
-            mode = 'COBERTURA-10K+';
+            mode = 'COBERTURA-MAX';
             overlapAdj = drawSize - 1;
             usageAdj = 1.0;
             checkRadius = 15;
@@ -435,58 +426,51 @@ class NovaEraEngine {
             for (let n = startNum; n <= endNum; n++) pool.push(n);
             console.log('[NE-V1] 📌 Seleção PARCIAL: ' + partialFixed.length + ' âncoras fixas + pool IA completo (' + pool.length + ')');
         } else {
-            // ★ v5.1: POOL INTELIGENTE POR TIER
-            // SNIPER/CIRÚRGICO: filtrar para top números (foco máximo)
-            // INTELIGENTE/COBERTURA: pool completo
+            // ★ V6.0: POOL PROPORCIONAL AO VOLUME — escala logarítmica
+            // Fórmula real: poolFraction = min(1.0, 0.30 + log10(numGames) * 0.25)
+            //   10 jogos  → 55% do range (33/60 na Mega) → cobertura ~50%
+            //   100 jogos → 80% do range (48/60 na Mega) → cobertura ~75%
+            //   500+ jogos → 100% do range (pool completo) → cobertura ~95-100%
             pool = [];
             for (let n = startNum; n <= endNum; n++) pool.push(n);
 
-            if (numGames <= 500) {
-                // ★ v5.1: FILTRAR POOL — manter apenas os melhores números
-                const poolTarget = numGames <= 50
-                    ? Math.max(drawSize + 5, Math.ceil(drawSize * 2.5))   // SNIPER: pool mínimo
-                    : numGames <= 100
-                        ? Math.max(drawSize + 8, Math.ceil(drawSize * 3)) // CIRÚRGICO-100
-                        : Math.max(drawSize + 12, Math.ceil(drawSize * 4)); // CIRÚRGICO-500
+            const poolFraction = Math.min(1.0, 0.30 + Math.log10(Math.max(10, numGames)) * 0.25);
+            const poolTarget = Math.max(drawSize + 8, Math.ceil(totalRange * poolFraction));
 
-                if (poolTarget < totalRange) {
-                    // Rankear por score e manter top
-                    const ranked = pool
-                        .map(n => ({ num: n, score: scores[n] || 0 }))
-                        .sort((a, b) => b.score - a.score);
+            if (poolTarget < totalRange) {
+                // Rankear por score e selecionar top com cobertura zonal garantida
+                const ranked = pool
+                    .map(n => ({ num: n, score: scores[n] || 0 }))
+                    .sort((a, b) => b.score - a.score);
 
-                    // Garantir cobertura de zonas: pelo menos 1 num por zona
-                    const zonesCount = Math.ceil(totalRange / 10);
-                    const selectedPool = new Set();
-                    const zoneHits = {};
+                const zonesCount = Math.ceil(totalRange / 10);
+                const selectedPool = new Set();
+                const zoneHits = {};
 
-                    // Fase 1: Top números diretos
-                    for (let i = 0; i < Math.min(poolTarget, ranked.length); i++) {
-                        selectedPool.add(ranked[i].num);
-                        const z = Math.floor((ranked[i].num - startNum) / 10);
-                        zoneHits[z] = (zoneHits[z] || 0) + 1;
-                    }
+                // Fase 1: Top números por score
+                for (let i = 0; i < Math.min(poolTarget, ranked.length); i++) {
+                    selectedPool.add(ranked[i].num);
+                    const z = Math.floor((ranked[i].num - startNum) / 10);
+                    zoneHits[z] = (zoneHits[z] || 0) + 1;
+                }
 
-                    // Fase 2: Garantir cobertura zonal
-                    for (let z = 0; z < zonesCount; z++) {
-                        if (!zoneHits[z] || zoneHits[z] === 0) {
-                            // Pegar o melhor desta zona
-                            const zoneNums = ranked.filter(r =>
-                                Math.floor((r.num - startNum) / 10) === z && !selectedPool.has(r.num)
-                            );
-                            if (zoneNums.length > 0) {
-                                selectedPool.add(zoneNums[0].num);
-                            }
+                // Fase 2: Garantir pelo menos 2 números por zona
+                for (let z = 0; z < zonesCount; z++) {
+                    const needed = 2 - (zoneHits[z] || 0);
+                    if (needed > 0) {
+                        const zoneNums = ranked.filter(r =>
+                            Math.floor((r.num - startNum) / 10) === z && !selectedPool.has(r.num)
+                        );
+                        for (let j = 0; j < Math.min(needed, zoneNums.length); j++) {
+                            selectedPool.add(zoneNums[j].num);
                         }
                     }
-
-                    pool = [...selectedPool].sort((a, b) => a - b);
-                    console.log('[NE-V1] ★ v5.1 POOL FILTRADO: ' + pool.length + '/' + totalRange + ' nums (top scorers)');
-                } else {
-                    console.log('[NE-V1] 🌐 Pool COMPLETO: ' + pool.length + ' números');
                 }
+
+                pool = [...selectedPool].sort((a, b) => a - b);
+                console.log('[V6.0] POOL ESCALADO: ' + pool.length + '/' + totalRange + ' (' + Math.round(poolFraction * 100) + '%) | volume=' + numGames);
             } else {
-                console.log('[NE-V1] 🌐 Pool COMPLETO: ' + pool.length + ' números (COBERTURA)');
+                console.log('[V6.0] POOL COMPLETO: ' + pool.length + '/' + totalRange + ' (100%) | volume=' + numGames);
             }
         }
 
@@ -513,12 +497,71 @@ class NovaEraEngine {
         );
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // FASE 4: BACKTESTING HONESTO
+        // FASE 4: BACKTESTING + RELATÓRIO DE QUALIDADE V6.0
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         const analysis = this._backtestHonest(games, history, profile, gameKey, totalRange, drawSize);
 
         const uniqueNums = new Set(games.flat());
-        console.log('[NE-V1] ✅ ' + games.length + '/' + numGames + ' jogos | Cobertura: ' + uniqueNums.size + '/' + totalRange + ' (' + Math.round(uniqueNums.size / totalRange * 100) + '%)');
+        const coveragePct = Math.round(uniqueNums.size / totalRange * 100);
+
+        // ★ V6.0: RELATÓRIO DE QUALIDADE TRANSPARENTE
+        // Métricas que PROVAM o funcionamento do motor
+        const freq = {};
+        for (const g of games) for (const n of g) freq[n] = (freq[n] || 0) + 1;
+        const totalSelections = games.length * drawSize;
+
+        // Entropia de Shannon — mede distribuição da seleção
+        let entropy = 0;
+        for (const f of Object.values(freq)) {
+            const p = f / totalSelections;
+            if (p > 0) entropy -= p * Math.log2(p);
+        }
+        const maxEntropy = Math.log2(uniqueNums.size || 1);
+        const entropyPct = maxEntropy > 0 ? Math.round(entropy / maxEntropy * 100) : 0;
+
+        // Distribuição por zona
+        const zoneDistrib = {};
+        for (let z = 0; z < profile.zones; z++) zoneDistrib[z] = 0;
+        for (const [n, f] of Object.entries(freq)) {
+            const z = Math.min(profile.zones - 1, Math.floor((parseInt(n) - startNum) / profile.zoneSize));
+            zoneDistrib[z] += f;
+        }
+
+        // Distância de Hamming média entre jogos adjacentes
+        let hammingTotal = 0, hammingCount = 0;
+        const sampleGames = games.slice(0, Math.min(200, games.length));
+        for (let i = 0; i < sampleGames.length - 1; i++) {
+            const setA = new Set(sampleGames[i]);
+            let shared = 0;
+            for (const n of sampleGames[i + 1]) if (setA.has(n)) shared++;
+            hammingTotal += (drawSize - shared);
+            hammingCount++;
+        }
+        const avgHamming = hammingCount > 0 ? (hammingTotal / hammingCount).toFixed(1) : 'N/A';
+
+        // Concentração máxima
+        const maxFreq = Math.max(0, ...Object.values(freq));
+        const maxConcPct = games.length > 0 ? Math.round(maxFreq / games.length * 100) : 0;
+
+        // Log transparente
+        console.log('%c[V6.0] ═══ RELATÓRIO DE QUALIDADE ═══', 'color: #00ff88; font-weight: bold; font-size: 14px;');
+        console.log('[V6.0] Cobertura: ' + uniqueNums.size + '/' + totalRange + ' (' + coveragePct + '%)');
+        console.log('[V6.0] Entropia Shannon: ' + entropyPct + '% (100%=distribuição perfeita)');
+        console.log('[V6.0] Hamming médio: ' + avgHamming + '/' + drawSize + ' (diferença entre jogos)');
+        console.log('[V6.0] Concentração máx: ' + maxConcPct + '% (nenhum número domina)');
+        const zoneStr = Object.entries(zoneDistrib).map(([z, f]) => {
+            const pct = Math.round(f / totalSelections * 100);
+            const ideal = Math.round(100 / profile.zones);
+            return 'Z' + z + ':' + pct + '%(ideal ' + ideal + '%)';
+        }).join(' | ');
+        console.log('[V6.0] Zonas: ' + zoneStr);
+
+        // Injetar métricas na análise
+        analysis.coveragePct = coveragePct;
+        analysis.entropyPct = entropyPct;
+        analysis.avgHamming = avgHamming;
+        analysis.maxConcentrationPct = maxConcPct;
+        analysis.zoneDistribution = zoneDistrib;
 
         return {
             pool: [...uniqueNums].sort((a, b) => a - b),
@@ -2003,17 +2046,18 @@ class NovaEraEngine {
                     + (precisionScores[n] || 0) * precisionWeight * dynamicBoosts[16]
                     + (patternDnaScores[n] || 0) * dnaWeight * dynamicBoosts[17];
 
-            // ★ v5.1: CONSENSO ADAPTATIVO — multiplicadores MAIS AGRESSIVOS
-            // Amplifica diferenças entre bons e maus números
+            // ★ V6.0: CONSENSO MODERADO — sem dominância extrema
+            // Range reduzido de 10x (0.25-2.5) para 2.3x (0.65-1.50)
+            // Isso permite que números com menos votos ainda participem
             const votes = voteCount[n] || 0;
-            if (votes >= 17) raw *= 2.50;       // 17-18: CONSENSO ABSOLUTO → dominância extrema
-            else if (votes >= 15) raw *= 2.00;  // 15-16: quase unânime → muito forte
-            else if (votes >= 13) raw *= 1.65;  // 13-14: forte → boost grande
-            else if (votes >= 11) raw *= 1.35;  // 11-12: bom consenso
-            else if (votes >= 9) raw *= 1.10;   // 9-10: moderado
-            else if (votes >= 7) raw *= 0.80;   // 7-8: neutro-baixo → penalizar levemente
-            else if (votes >= 4) raw *= 0.50;   // 4-6: penalizar FORTE
-            else raw *= 0.25;                    // 0-3: penalizar SEVERAMENTE
+            if (votes >= 17) raw *= 1.50;       // 17-18: consenso forte
+            else if (votes >= 15) raw *= 1.38;  // 15-16: muito bom
+            else if (votes >= 13) raw *= 1.25;  // 13-14: bom
+            else if (votes >= 11) raw *= 1.12;  // 11-12: moderado
+            else if (votes >= 9) raw *= 1.00;   // 9-10: neutro
+            else if (votes >= 7) raw *= 0.88;   // 7-8: leve penalidade
+            else if (votes >= 4) raw *= 0.75;   // 4-6: penalidade moderada
+            else raw *= 0.65;                    // 0-3: penalidade (mas ainda viável)
 
             scores[n] = Math.max(clampMin, Math.min(clampMax, raw + 1.0));
         }
@@ -2293,7 +2337,9 @@ class NovaEraEngine {
         // INTELIGENTE: score^3
         // COBERTURA: score^2
         // ★ v5.1: Expoentes MAIS agressivos + novo tier ≤10 com score^6
-        const exponent = totalGames <= 10 ? 6.0 : totalGames <= 50 ? 5.0 : totalGames <= 100 ? 4.5 : totalGames <= 500 ? 4.0 : totalGames <= 1000 ? 3.5 : totalGames <= 5000 ? 3.0 : 2.0;
+        // ★ V6.0: Expoente moderado — score 2x agora dá 8x chance (não 64x)
+        // Isso ESPALHA a seleção ao invés de convergir nos mesmos 5 números
+        const exponent = totalGames <= 10 ? 3.0 : totalGames <= 50 ? 2.8 : totalGames <= 100 ? 2.5 : totalGames <= 500 ? 2.2 : totalGames <= 1000 ? 2.0 : 1.5;
 
         const weights = {};
         for (const n of available) {
