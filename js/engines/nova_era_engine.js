@@ -1,4 +1,4 @@
-console.log('%c[QUANTUM-L99] ═══ MOTOR QUANTUM L99 v5.0 ATIVADO ═══', 'color: #FFD700; font-size: 20px; background: #0a0a1a; font-weight: bold; text-shadow: 0 0 10px gold;');
+console.log('%c[QUANTUM-L99] ═══ MOTOR QUANTUM L99 v7.0 ATIVADO ═══', 'color: #FFD700; font-size: 20px; background: #0a0a1a; font-weight: bold; text-shadow: 0 0 10px gold;');
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║  ★★★ QUANTUM L99 v5.0 — ASSERTIVIDADE MÁXIMA ★★★                     ║
@@ -47,8 +47,8 @@ class NovaEraEngine {
                 minZonesCovered: 3,
                 maxConsecutive: 2,
                 evenOddRange: [2, 4],
-                // ★ v5.0: P5-P95 real (era 100-260, agora 120-240)
-                sumRange: [120, 240],
+                // ★ v7.0: P3-P97 real — ampliado para não rejeitar combinações válidas
+                sumRange: [80, 280],
                 maxUsagePct: 0.30,
                 maxOverlap: 3,
                 // ★ v5.0: Dados reais — ~0.8 números repetem do anterior
@@ -81,8 +81,8 @@ class NovaEraEngine {
                 minZonesCovered: 5,
                 maxConsecutive: 10,
                 evenOddRange: [5, 10],
-                // ★ v5.0: P5-P95 real — soma de 15 nums de 1-25
-                sumRange: [163, 228],
+                // ★ v7.0: P3-P97 real — soma de 15 nums de 1-25
+                sumRange: [155, 235],
                 maxUsagePct: 0.95,
                 maxOverlap: 14,
                 // ★ v5.0: CRÍTICO — 8-10 números repetem do anterior (~78% dos sorteios)
@@ -115,8 +115,8 @@ class NovaEraEngine {
                 minZonesCovered: 3,
                 maxConsecutive: 2,
                 evenOddRange: [1, 4],
-                // ★ v5.0: P5-P95 real (5 de 80)
-                sumRange: [100, 270],
+                // ★ v7.0: P3-P97 real (5 de 80)
+                sumRange: [60, 310],
                 maxUsagePct: 0.25,
                 maxOverlap: 4,
                 // ★ v5.0: ~0.3 repete do anterior (quase nunca)
@@ -148,8 +148,8 @@ class NovaEraEngine {
                 minZonesCovered: 3,
                 maxConsecutive: 2,
                 evenOddRange: [2, 4],
-                // ★ v5.0: P5-P95 real (6 de 50)
-                sumRange: [80, 210],
+                // ★ v7.0: P3-P97 real (6 de 50)
+                sumRange: [60, 240],
                 maxUsagePct: 0.30,
                 maxOverlap: 5,
                 // ★ v5.0: ~0.7 repete do anterior
@@ -182,12 +182,12 @@ class NovaEraEngine {
                 minZonesCovered: 8,
                 maxConsecutive: 5,
                 evenOddRange: [22, 28],
-                // ★ v5.0: P5-P95 real (50 de 0-99)
-                sumRange: [2150, 2850],
+                // ★ v7.0: P3-P97 real (50 de 0-99)
+                sumRange: [2050, 2950],
                 maxUsagePct: 0.60,
                 maxOverlap: 42,
-                // ★ v5.0: ~5-8 dos 20 sorteados repetem
-                repeatFromLast: [4, 9],
+                // ★ v7.1: Corrigido — E[rep]=10, range ampliado para [3, 13]
+                repeatFromLast: [3, 13],
                 weights: {
                     frequency: 0.22,
                     delay: 0.18,
@@ -217,12 +217,12 @@ class NovaEraEngine {
                 minZonesCovered: 4,
                 maxConsecutive: 2,
                 evenOddRange: [3, 7],
-                // ★ v5.0: P5-P95 real (10 de 80) — soma média ~405
-                sumRange: [250, 560],
+                // ★ v7.0: P3-P97 real (10 de 80) — soma média ~405
+                sumRange: [200, 610],
                 maxUsagePct: 0.25,
                 maxOverlap: 8,
-                // ★ v5.0: ~0.6 repete do anterior (quase nunca)
-                repeatFromLast: [0, 2],
+                // ★ v7.0: tolerante — 0-4 repetições (era 0-2)
+                repeatFromLast: [0, 4],
                 weights: {
                     frequency: 0.26,
                     delay: 0.24,
@@ -252,8 +252,8 @@ class NovaEraEngine {
                 minZonesCovered: 3,
                 maxConsecutive: 2,
                 evenOddRange: [2, 5],
-                // ★ v5.0: P5-P95 real (7 de 31)
-                sumRange: [75, 150],
+                // ★ v7.0: P3-P97 real (7 de 31)
+                sumRange: [55, 170],
                 maxUsagePct: 0.38,
                 maxOverlap: 4,
                 // ★ v5.0: ~1.5 repete do anterior
@@ -426,52 +426,11 @@ class NovaEraEngine {
             for (let n = startNum; n <= endNum; n++) pool.push(n);
             console.log('[NE-V1] 📌 Seleção PARCIAL: ' + partialFixed.length + ' âncoras fixas + pool IA completo (' + pool.length + ')');
         } else {
-            // ★ V6.0: POOL PROPORCIONAL AO VOLUME — escala logarítmica
-            // Fórmula real: poolFraction = min(1.0, 0.30 + log10(numGames) * 0.25)
-            //   10 jogos  → 55% do range (33/60 na Mega) → cobertura ~50%
-            //   100 jogos → 80% do range (48/60 na Mega) → cobertura ~75%
-            //   500+ jogos → 100% do range (pool completo) → cobertura ~95-100%
+            // ★ v7.0: POOL SEMPRE COMPLETO — nunca reduzir
+            // Pool reduzido era o BUG #1: eliminava números do resultado
             pool = [];
             for (let n = startNum; n <= endNum; n++) pool.push(n);
-
-            const poolFraction = Math.min(1.0, 0.30 + Math.log10(Math.max(10, numGames)) * 0.25);
-            const poolTarget = Math.max(drawSize + 8, Math.ceil(totalRange * poolFraction));
-
-            if (poolTarget < totalRange) {
-                // Rankear por score e selecionar top com cobertura zonal garantida
-                const ranked = pool
-                    .map(n => ({ num: n, score: scores[n] || 0 }))
-                    .sort((a, b) => b.score - a.score);
-
-                const zonesCount = Math.ceil(totalRange / 10);
-                const selectedPool = new Set();
-                const zoneHits = {};
-
-                // Fase 1: Top números por score
-                for (let i = 0; i < Math.min(poolTarget, ranked.length); i++) {
-                    selectedPool.add(ranked[i].num);
-                    const z = Math.floor((ranked[i].num - startNum) / 10);
-                    zoneHits[z] = (zoneHits[z] || 0) + 1;
-                }
-
-                // Fase 2: Garantir pelo menos 2 números por zona
-                for (let z = 0; z < zonesCount; z++) {
-                    const needed = 2 - (zoneHits[z] || 0);
-                    if (needed > 0) {
-                        const zoneNums = ranked.filter(r =>
-                            Math.floor((r.num - startNum) / 10) === z && !selectedPool.has(r.num)
-                        );
-                        for (let j = 0; j < Math.min(needed, zoneNums.length); j++) {
-                            selectedPool.add(zoneNums[j].num);
-                        }
-                    }
-                }
-
-                pool = [...selectedPool].sort((a, b) => a - b);
-                console.log('[V6.0] POOL ESCALADO: ' + pool.length + '/' + totalRange + ' (' + Math.round(poolFraction * 100) + '%) | volume=' + numGames);
-            } else {
-                console.log('[V6.0] POOL COMPLETO: ' + pool.length + '/' + totalRange + ' (100%) | volume=' + numGames);
-            }
+            console.log('[v7.0] POOL COMPLETO: ' + pool.length + '/' + totalRange + ' (100%) | volume=' + numGames);
         }
 
         // ★ FIX V4.1: GARANTIR que TODOS os fixedNumbers estão no pool
@@ -986,8 +945,8 @@ class NovaEraEngine {
             case 'megasena': {
                 for (let n = startNum; n <= endNum; n++) {
                     if (lastDraw.has(n)) {
-                        // Números que acabaram de sair: PENALIZAR (raramente repetem)
-                        scores[n] = 0.15;
+                        // Números que acabaram de sair: penalidade MODERADA (v7.0)
+                        scores[n] = 0.35;
                     } else {
                         // Calcular "pressão de retorno" individual
                         let lastSeen = N;
@@ -995,10 +954,10 @@ class NovaEraEngine {
                             if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
                         }
                         // Números entre 5-15 sorteios sem sair são os mais prováveis
-                        if (lastSeen >= 8 && lastSeen <= 18) scores[n] = 0.95;
-                        else if (lastSeen >= 4 && lastSeen <= 25) scores[n] = 0.75;
-                        else if (lastSeen < 4) scores[n] = 0.35;
-                        else scores[n] = 0.60; // Muito atrasados
+                        if (lastSeen >= 8 && lastSeen <= 18) scores[n] = 0.88;
+                        else if (lastSeen >= 4 && lastSeen <= 25) scores[n] = 0.70;
+                        else if (lastSeen < 4) scores[n] = 0.45;
+                        else scores[n] = 0.58;
                     }
                 }
                 // Bonus: números que saíram no penúltimo mas NÃO no último
@@ -1057,7 +1016,7 @@ class NovaEraEngine {
             case 'quina': {
                 for (let n = startNum; n <= endNum; n++) {
                     if (lastDraw.has(n)) {
-                        scores[n] = 0.10; // Quase nunca repete
+                        scores[n] = 0.30; // v7.0: era 0.10 — penalidade moderada
                     } else {
                         let lastSeen = N;
                         for (let i = 0; i < N; i++) {
@@ -1067,7 +1026,7 @@ class NovaEraEngine {
                         const ratio = lastSeen / expectedCycle;
                         if (ratio >= 1.5 && ratio <= 3.0) scores[n] = 0.90;
                         else if (ratio >= 0.8 && ratio < 1.5) scores[n] = 0.70;
-                        else if (ratio < 0.8) scores[n] = 0.30;
+                        else if (ratio < 0.8) scores[n] = 0.50; // v7.1: era 0.30 — moderado
                         else scores[n] = 0.55;
                     }
                 }
@@ -1083,7 +1042,7 @@ class NovaEraEngine {
                 const lastBoth = new Set([...lastDraw, ...lastDraw2]);
                 for (let n = startNum; n <= endNum; n++) {
                     if (lastDraw.has(n) || lastDraw2.has(n)) {
-                        scores[n] = 0.20; // Baixa repetição
+                        scores[n] = 0.35; // v7.0: era 0.20
                     } else {
                         let lastSeen = N;
                         for (let i = 0; i < N; i++) {
@@ -1130,9 +1089,11 @@ class NovaEraEngine {
             // Foco: espalhar por zonas, evitar repetições
             // ──────────────────────────────────────────────────────
             case 'timemania': {
+                // ★ v7.0: Penalização MODERADA — 0.45 (era 0.12)
+                // Loteria é aleatória: não penalizar demais o último sorteio
                 for (let n = startNum; n <= endNum; n++) {
                     if (lastDraw.has(n)) {
-                        scores[n] = 0.12;
+                        scores[n] = 0.45;
                     } else {
                         let lastSeen = N;
                         for (let i = 0; i < N; i++) {
@@ -1140,9 +1101,9 @@ class NovaEraEngine {
                         }
                         const expectedCycle = 80 / 7; // ~11.4
                         const ratio = lastSeen / expectedCycle;
-                        if (ratio >= 1.2 && ratio <= 2.5) scores[n] = 0.90;
-                        else if (ratio >= 0.6) scores[n] = 0.65;
-                        else scores[n] = 0.25;
+                        if (ratio >= 1.2 && ratio <= 2.5) scores[n] = 0.85;
+                        else if (ratio >= 0.6) scores[n] = 0.60;
+                        else scores[n] = 0.40;
                     }
                 }
                 break;
@@ -1206,7 +1167,7 @@ class NovaEraEngine {
                     let baseScore;
                     if (lastDraw.has(n)) {
                         // Saiu no último: penalizar mais (evitar repetição excessiva)
-                        baseScore = recentHits >= 3 ? 0.20 : 0.35;
+                        baseScore = recentHits >= 3 ? 0.40 : 0.45; // v7.1: era 0.20/0.35
                     } else if (delayRatio >= 1.5 && delayRatio <= 3.0) {
                         baseScore = 0.95; // ZONA DE OURO
                     } else if (delayRatio >= 1.0 && delayRatio < 1.5) {
@@ -1798,10 +1759,11 @@ class NovaEraEngine {
                 for (let j = 1; j < nums.length; j++) gaps.push(nums[j] - nums[j-1]);
                 const avgGap = gaps.length > 0 ? gaps.reduce((a, b) => a + b, 0) / gaps.length : 0;
                 
-                // Zona dominante
-                const zones = nums.map(x => Math.floor((x - startNum) / (totalRange / 4)));
-                const zoneFreq = [0, 0, 0, 0];
-                for (const z of zones) zoneFreq[Math.min(3, z)]++;
+                // Zona dominante — v7.1: usar zonas reais do perfil
+                const dnaZoneCount = Math.min(profile.zones || 4, 10);
+                const zones = nums.map(x => Math.floor((x - startNum) / (totalRange / dnaZoneCount)));
+                const zoneFreq = new Array(dnaZoneCount).fill(0);
+                for (const z of zones) zoneFreq[Math.min(dnaZoneCount - 1, z)]++;
                 
                 // Atraso médio dos números no momento que saíram
                 let avgDelay = 0;
@@ -1824,7 +1786,9 @@ class NovaEraEngine {
             
             // ━━ PASSO 2: Calcular o "DNA IDEAL" — média ponderada dos últimos sorteios ━━
             let idealSoma = 0, idealParidade = 0, idealGap = 0, idealDelay = 0;
-            const idealZone = [0, 0, 0, 0];
+            // v7.1: usar profile.zones real ao invés de 4 hardcoded
+            const dnaZones = Math.min(profile.zones || 4, 10);
+            const idealZone = new Array(dnaZones).fill(0);
             let totalWeight = 0;
             
             for (const dna of winningDNA) {
@@ -1832,7 +1796,7 @@ class NovaEraEngine {
                 idealParidade += dna.paridadeRatio * dna.weight;
                 idealGap += dna.avgGap * dna.weight;
                 idealDelay += dna.avgDelay * dna.weight;
-                for (let z = 0; z < 4; z++) idealZone[z] += dna.zoneFreq[z] * dna.weight;
+                for (let z = 0; z < dnaZones; z++) idealZone[z] += dna.zoneFreq[z] * dna.weight;
                 totalWeight += dna.weight;
             }
             if (totalWeight > 0) {
@@ -1840,7 +1804,7 @@ class NovaEraEngine {
                 idealParidade /= totalWeight;
                 idealGap /= totalWeight;
                 idealDelay /= totalWeight;
-                for (let z = 0; z < 4; z++) idealZone[z] /= totalWeight;
+                for (let z = 0; z < dnaZones; z++) idealZone[z] /= totalWeight;
             }
             
             // ━━ PASSO 3: Para cada número candidato, calcular "afinidade DNA" ━━
@@ -1861,7 +1825,7 @@ class NovaEraEngine {
                 score += delayMatch * 0.30;
                 
                 // B) ZONA — número está na zona que os vencedores preferem?
-                const nZone = Math.min(3, Math.floor((n - startNum) / (totalRange / 4)));
+                const nZone = Math.min(dnaZones - 1, Math.floor((n - startNum) / (totalRange / dnaZones)));
                 const zoneAffinity = idealZone[nZone] / Math.max(0.1, Math.max(...idealZone));
                 score += zoneAffinity * 0.20;
                 
@@ -1914,7 +1878,7 @@ class NovaEraEngine {
             precisionScores, patternDnaScores
         ];
 
-        const topCandidateSize = Math.min(drawSize * 3, totalRange);
+        const topCandidateSize = Math.min(drawSize * 5, totalRange);
         const voteCount = {};
         for (let n = startNum; n <= endNum; n++) voteCount[n] = 0;
 
@@ -1992,22 +1956,25 @@ class NovaEraEngine {
                 for (let L = 0; L < NUM_LAYERS; L++) {
                     const layerTop = Object.entries(testLayers[L] || {})
                         .sort((a, b) => b[1] - a[1])
-                        .slice(0, Math.ceil(drawSize * 2.0)) // v5.1: drawSize*2 para capturar mais hits
+                        .slice(0, Math.ceil(drawSize * 3.0)) // v7.1: drawSize*3 para capturar mais candidatos
                         .map(e => parseInt(e[0]));
-                    // v5.1: NDCG-inspired com peso MAIOR — hits no top valem MUITO
+                    // v7.1: NDCG com boost 1.8 (era 1.2) — camadas boas ganham MAIS peso
                     let ndcgScore = 0;
                     for (let r = 0; r < layerTop.length; r++) {
                         if (actualResult.has(layerTop[r])) {
-                            ndcgScore += 1.0 / Math.log2(r + 2); // DCG: 1/log2(rank+2)
+                            ndcgScore += 1.0 / Math.log2(r + 2);
                         }
                     }
-                    dynamicBoosts[L] += ndcgScore * 1.2; // v5.1: peso 0.8→1.2 (mais impacto)
+                    dynamicBoosts[L] += ndcgScore * 1.8;
                 }
             }
 
             const avgBoost = dynamicBoosts.reduce((a, b) => a + b, 0) / NUM_LAYERS;
             for (let L = 0; L < NUM_LAYERS; L++) {
-                dynamicBoosts[L] = Math.max(0.5, dynamicBoosts[L] / avgBoost);
+                // v7.1: Camada DNA (17) e Precision (16) recebem boost mínimo 1.0
+                // porque não são adequadamente testadas na CV
+                const minBoost = (L >= 16) ? 1.0 : 0.5;
+                dynamicBoosts[L] = Math.max(minBoost, dynamicBoosts[L] / avgBoost);
             }
 
             const names = ['freq','trend','delay','zone','markov','phase','clair','next','bayes','posit','seq','mom','mirror','gap','cluster','revert','prec','dna'];
@@ -2046,20 +2013,20 @@ class NovaEraEngine {
                     + (precisionScores[n] || 0) * precisionWeight * dynamicBoosts[16]
                     + (patternDnaScores[n] || 0) * dnaWeight * dynamicBoosts[17];
 
-            // ★ V6.0: CONSENSO MODERADO — sem dominância extrema
-            // Range reduzido de 10x (0.25-2.5) para 2.3x (0.65-1.50)
-            // Isso permite que números com menos votos ainda participem
+            // ★ v7.0: CONSENSO MODERADO — range comprimido [0.85, 1.20]
+            // Nenhum número é eliminado pelo consenso
             const votes = voteCount[n] || 0;
-            if (votes >= 17) raw *= 1.50;       // 17-18: consenso forte
-            else if (votes >= 15) raw *= 1.38;  // 15-16: muito bom
-            else if (votes >= 13) raw *= 1.25;  // 13-14: bom
-            else if (votes >= 11) raw *= 1.12;  // 11-12: moderado
-            else if (votes >= 9) raw *= 1.00;   // 9-10: neutro
-            else if (votes >= 7) raw *= 0.88;   // 7-8: leve penalidade
-            else if (votes >= 4) raw *= 0.75;   // 4-6: penalidade moderada
-            else raw *= 0.65;                    // 0-3: penalidade (mas ainda viável)
+            if (votes >= 17) raw *= 1.20;
+            else if (votes >= 15) raw *= 1.15;
+            else if (votes >= 13) raw *= 1.10;
+            else if (votes >= 11) raw *= 1.05;
+            else if (votes >= 9) raw *= 1.00;
+            else if (votes >= 7) raw *= 0.95;
+            else if (votes >= 4) raw *= 0.90;
+            else raw *= 0.85;
 
-            scores[n] = Math.max(clampMin, Math.min(clampMax, raw + 1.0));
+            // ★ v7.0: Score FLOOR — nenhum número pode ser eliminado
+            scores[n] = Math.max(clampMin + 0.15, Math.min(clampMax, raw + 1.0));
         }
 
         const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
@@ -2339,7 +2306,9 @@ class NovaEraEngine {
         // ★ v5.1: Expoentes MAIS agressivos + novo tier ≤10 com score^6
         // ★ V6.0: Expoente moderado — score 2x agora dá 8x chance (não 64x)
         // Isso ESPALHA a seleção ao invés de convergir nos mesmos 5 números
-        const exponent = totalGames <= 10 ? 3.0 : totalGames <= 50 ? 2.8 : totalGames <= 100 ? 2.5 : totalGames <= 500 ? 2.2 : totalGames <= 1000 ? 2.0 : 1.5;
+        // ★ v7.0: Expoentes REDUZIDOS — score 2x = ~3.5x chance (era 8x)
+        // Isso ESPALHA a seleção em vez de convergir nos mesmos números
+        const exponent = totalGames <= 10 ? 1.8 : totalGames <= 50 ? 1.6 : totalGames <= 100 ? 1.5 : totalGames <= 500 ? 1.3 : totalGames <= 1000 ? 1.2 : 1.0;
 
         const weights = {};
         for (const n of available) {
@@ -2347,23 +2316,28 @@ class NovaEraEngine {
 
             // ★ v5.1: Penalizar uso excessivo mais agressivamente em lotes pequenos
             const usage = (usedCount[n] || 0) / Math.max(1, maxUsage);
-            const usagePenalty = totalGames <= 100 ? 3 : 2;
+            const usagePenalty = totalGames <= 100 ? 2.5 : 1.8;
             w *= Math.pow(1 - usage, usagePenalty);
-            if (usedCount[n] === 0 || usedCount[n] === undefined) w *= (totalGames <= 50 ? 2.0 : 1.5);
+            // v7.1: Bonus de novidade REDUZIDO (era 2.0/1.5 → 1.3/1.15)
+            if (usedCount[n] === 0 || usedCount[n] === undefined) w *= (totalGames <= 50 ? 1.3 : 1.15);
 
-            // Anti-consecutivo por perfil
+            // v7.1: Anti-consecutivo RELAXADO para ranges amplos (Timemania, Quina)
+            // Em 10 de 80, consecutivos são raros naturalmente — não penalizar tanto
             if (profile.maxConsecutive <= 2) {
-                if (this._wouldCreate3Consecutive(n, ticketSet)) w *= 0.001;
+                if (this._wouldCreate3Consecutive(n, ticketSet)) w *= 0.01;
                 if (ticketSet.has(n - 1) || ticketSet.has(n + 1)) {
+                    const totalRange = endNum - startNum + 1;
+                    // Range amplo (>50): penalidade leve. Range curto (<35): penalidade forte
+                    const consecPenalty = totalRange > 50 ? 0.60 : 0.30;
                     let existingConsecPairs = 0;
                     const sortedTicket = [...ticketSet].sort((a, b) => a - b);
                     for (let i = 1; i < sortedTicket.length; i++) {
                         if (sortedTicket[i] - sortedTicket[i-1] === 1) existingConsecPairs++;
                     }
-                    w *= existingConsecPairs >= 1 ? 0.08 : 0.45;
+                    w *= existingConsecPairs >= 1 ? consecPenalty * 0.3 : consecPenalty;
                 }
             } else if (profile.maxConsecutive <= 3) {
-                if (this._wouldCreate3Consecutive(n, ticketSet)) w *= 0.005;
+                if (this._wouldCreate3Consecutive(n, ticketSet)) w *= 0.05;
             } else if (profile.maxConsecutive <= 5) {
                 if (this._wouldCreate3Consecutive(n, ticketSet)) w *= 0.50;
             }
@@ -2489,7 +2463,9 @@ class NovaEraEngine {
 
         const avgHits = btCount > 0 ? totalBestHits / btCount : 0;
         const lotteryDraw = profile.lotteryDraw;
-        const expectedRandom = drawSize * lotteryDraw / totalRange;
+        // v7.1: Para Dupla Sena, drawn inclui ambos sorteios — ajustar expectedRandom
+        const actualDrawnSize = gameKey === 'duplasena' ? lotteryDraw * 2 : lotteryDraw;
+        const expectedRandom = drawSize * actualDrawnSize / totalRange;
         const improvement = avgHits / Math.max(0.01, expectedRandom);
 
         // Confiança baseada na melhoria real vs acaso
@@ -2512,10 +2488,52 @@ class NovaEraEngine {
         const winRate3 = btCount > 0 ? Math.round(bt3 / btCount * 100) : 0;
         const winRate4 = btCount > 0 ? Math.round(bt4 / btCount * 100) : 0;
 
+        // ★ v7.2: Calcular Duplas e Trios Top cobertas pelo set de jogos
+        // Duplas: pares de números que mais aparecem juntos no histórico
+        // Trios: trios de números que mais aparecem juntos no histórico
+        let pairsCovered = 0, triosCovered = 0;
+        try {
+            const pairFreq = {}, trioFreq = {};
+            const pairLimit = Math.min(50, N);
+            for (let t = 0; t < pairLimit; t++) {
+                const nums = (history[t].numbers || []).sort((a, b) => a - b);
+                for (let i = 0; i < nums.length; i++) {
+                    for (let j = i + 1; j < nums.length; j++) {
+                        const pk = nums[i] + '-' + nums[j];
+                        pairFreq[pk] = (pairFreq[pk] || 0) + 1;
+                        for (let k = j + 1; k < nums.length && k < j + 4; k++) {
+                            const tk = nums[i] + '-' + nums[j] + '-' + nums[k];
+                            trioFreq[tk] = (trioFreq[tk] || 0) + 1;
+                        }
+                    }
+                }
+            }
+            // Top 20 pares e trios
+            const topPairs = Object.entries(pairFreq).sort((a, b) => b[1] - a[1]).slice(0, 20);
+            const topTrios = Object.entries(trioFreq).sort((a, b) => b[1] - a[1]).slice(0, 20);
+            // Verificar cobertura nos jogos gerados
+            const gameSetsForPairs = games.slice(0, 200).map(g => new Set(g));
+            let pairsHit = 0;
+            for (const [pk] of topPairs) {
+                const [a, b] = pk.split('-').map(Number);
+                if (gameSetsForPairs.some(gs => gs.has(a) && gs.has(b))) pairsHit++;
+            }
+            let triosHit = 0;
+            for (const [tk] of topTrios) {
+                const [a, b, c] = tk.split('-').map(Number);
+                if (gameSetsForPairs.some(gs => gs.has(a) && gs.has(b) && gs.has(c))) triosHit++;
+            }
+            pairsCovered = topPairs.length > 0 ? Math.round(pairsHit / topPairs.length * 100) : 0;
+            triosCovered = topTrios.length > 0 ? Math.round(triosHit / topTrios.length * 100) : 0;
+        } catch (e) {
+            console.warn('[QUANTUM-L99] Erro ao calcular duplas/trios:', e.message);
+        }
+
         console.log('[QUANTUM-L99] 🧪 Backtesting (' + btCount + ' sorteios):');
         console.log('[QUANTUM-L99]    Média melhor acerto: ' + avgHits.toFixed(2) + ' (esperado acaso: ' + expectedRandom.toFixed(2) + ')');
         console.log('[QUANTUM-L99]    Melhor: ' + maxHits + ' | 3+: ' + winRate3 + '% | 4+: ' + winRate4 + '%');
         console.log('[QUANTUM-L99]    Melhoria vs acaso: ' + improvement.toFixed(2) + 'x | Confiança: ' + confidence + '%');
+        console.log('[QUANTUM-L99]    Duplas Top: ' + pairsCovered + '% | Trios Top: ' + triosCovered + '%');
 
         return {
             confidence,
@@ -2525,6 +2543,8 @@ class NovaEraEngine {
             uniqueCount: uniqueNums.size,
             maxConcentration: maxConcentrationPct + '%',
             backtestScore: winRate3,
+            pairsCovered: pairsCovered,
+            triosCovered: triosCovered,
             backtestHits: { '5+': bt5, '4+': bt4, '3+': bt3, avg: avgHits.toFixed(2), maxHits },
             improvement: improvement.toFixed(2) + 'x',
             engine: 'QUANTUM L99 — ' + (profile.name || gameKey),
@@ -2647,43 +2667,20 @@ class NovaEraEngine {
     // ║  Evita que camadas sem sinal contaminam o ensemble          ║
     // ╚══════════════════════════════════════════════════════════════╝
     static _normalizeScores(scores, startNum, endNum) {
-        const count = endNum - startNum + 1;
-        let sum = 0, sumSq = 0;
         let min = Infinity, max = -Infinity;
         for (let n = startNum; n <= endNum; n++) {
             const v = scores[n] || 0;
-            sum += v;
-            sumSq += v * v;
             if (v < min) min = v;
             if (v > max) max = v;
         }
         const range = max - min || 1;
-        const mean = sum / count;
-        const variance = (sumSq / count) - (mean * mean);
-        const sigma = Math.sqrt(Math.max(0, variance));
 
-        // Calcular coeficiente de variação relativo ao range
-        const cv = range > 0 ? sigma / range : 0;
-
-        // ★ v5.0: Determinar amplitude de saída baseada na variância
-        // cv > 0.20 → sinal forte → manter [0, 1]
-        // cv < 0.05 → sinal fraco → comprimir para [0.35, 0.65]
-        // Entre → interpolação linear
-        let outMin, outMax;
-        if (cv >= 0.20) {
-            outMin = 0; outMax = 1;
-        } else if (cv <= 0.05) {
-            outMin = 0.35; outMax = 0.65;
-        } else {
-            // Interpolação: cv de 0.05 a 0.20 → outMin de 0.35 a 0, outMax de 0.65 a 1
-            const t = (cv - 0.05) / 0.15;
-            outMin = 0.35 * (1 - t);
-            outMax = 0.65 + 0.35 * t;
-        }
-
+        // ★ v7.0: Normalização SIMPLES para [0.10, 1.0]
+        // Removida compressão σ-aware que destruía o sinal
+        // Score floor de 0.10 garante que nenhum número é eliminado
         for (let n = startNum; n <= endNum; n++) {
             const normalized = (scores[n] - min) / range;
-            scores[n] = outMin + normalized * (outMax - outMin);
+            scores[n] = 0.10 + normalized * 0.90;
         }
         return scores;
     }

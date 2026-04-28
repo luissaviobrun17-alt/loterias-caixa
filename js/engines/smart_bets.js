@@ -2723,7 +2723,13 @@ class SmartBetsEngine {
         // PASSO 6: ANÃLISE DE CONFIANÃ‡A
         // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         // Backtesting: quantos dos Ãºltimos sorteios teriam sido cobertos
-        let bt14plus = 0, bt13plus = 0, bt12plus = 0;
+        // v7.1: Thresholds ADAPTATIVOS por loteria
+        const btThresholds = drawSize >= 15 ? [14, 13, 12]
+            : drawSize >= 10 ? [7, 6, 5]
+            : drawSize >= 7 ? [6, 5, 4]
+            : [5, 4, 3];
+        const [th1, th2, th3] = btThresholds;
+        let btHigh = 0, btMid = 0, btLow = 0;
         const btCount = Math.min(10, history.length);
         for (let t = 0; t < btCount; t++) {
             const drawn = new Set(history[t].numbers);
@@ -2733,9 +2739,9 @@ class SmartBetsEngine {
                 for (const n of g) { if (drawn.has(n)) hits++; }
                 if (hits > bestHits) bestHits = hits;
             }
-            if (bestHits >= 14) bt14plus++;
-            if (bestHits >= 13) bt13plus++;
-            if (bestHits >= 12) bt12plus++;
+            if (bestHits >= th1) btHigh++;
+            if (bestHits >= th2) btMid++;
+            if (bestHits >= th3) btLow++;
         }
 
         // Verificar se o pool contÃ©m os nÃºmeros sorteados
@@ -2751,23 +2757,23 @@ class SmartBetsEngine {
 
         const setAnalysis = {
             confidence: Math.min(95, Math.round(
-                (bt14plus / btCount) * 30 +
-                (bt13plus / btCount) * 25 +
-                (bt12plus / btCount) * 15 +
+                (btHigh / btCount) * 30 +
+                (btMid / btCount) * 25 +
+                (btLow / btCount) * 15 +
                 (avgPoolMatch / drawSize) * 25 + 5
             )),
             coverage: Math.round(precisionPool.length / totalRange * 100),
             diversity: Math.round((1 - (maxOverlap / drawSize)) * 100),
             poolSize: precisionPool.length,
             precisionPool: precisionPool,
-            backtestHits: { '14+': bt14plus, '13+': bt13plus, '12+': bt12plus },
+            backtestHits: { [th1+'+']: btHigh, [th2+'+']: btMid, [th3+'+']: btLow },
             avgPoolMatch: avgPoolMatch.toFixed(1),
             totalGames: games.length,
             mode: 'PRECISÃƒO'
         };
 
         console.log(`[PrecisÃ£o] ðŸŽ¯ Pool cobre mÃ©dia de ${avgPoolMatch.toFixed(1)}/${drawSize} nÃºmeros por sorteio`);
-        console.log(`[PrecisÃ£o] ðŸ“Š Backtesting: 14+=${bt14plus}/${btCount}, 13+=${bt13plus}/${btCount}, 12+=${bt12plus}/${btCount}`);
+        console.log(`[PrecisÃ£o] ðŸ“Š Backtesting: ${th1}+=${btHigh}/${btCount}, ${th2}+=${btMid}/${btCount}, ${th3}+=${btLow}/${btCount}`);
         console.log(`[PrecisÃ£o] âœ… ${games.length} jogos gerados | ConfianÃ§a: ${setAnalysis.confidence}%`);
 
         return {

@@ -616,19 +616,19 @@ class UI {
                                         </div>
                                         <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
                                             <div style="color:#94A3B8;">Duplas Top</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.pairsCovered || '-'}</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.pairsCovered != null ? analysis.pairsCovered + '%' : '-'}</div>
                                         </div>
                                         <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
                                             <div style="color:#94A3B8;">Trios Top</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.triosCovered || '-'}</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.triosCovered != null ? analysis.triosCovered + '%' : '-'}</div>
                                         </div>
                                         <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
                                             <div style="color:#94A3B8;">Backtest</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.backtestScore || '-'}%</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.backtestScore != null ? analysis.backtestScore : '-'}%</div>
                                         </div>
                                         <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
                                             <div style="color:#94A3B8;">Nº Únicos</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.uniqueNumbers || '-'}</div>
+                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.uniqueNumbers != null ? analysis.uniqueNumbers : '-'}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -2228,7 +2228,8 @@ class UI {
         // Mostrar toggle Modo Precisão APENAS para Lotofácil
         const precisionEl = document.getElementById('precision-mode-label');
         if (precisionEl) {
-            precisionEl.style.display = gameKey === 'lotofacil' ? 'flex' : 'none';
+            // ★ v7.0: Botão Precisão visível para TODAS as loterias
+            precisionEl.style.display = 'flex';
         }
 
         if (this.quantumCountInput) {

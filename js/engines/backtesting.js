@@ -188,7 +188,10 @@ class BacktestingEngine {
         const game = GAMES[gameKey];
         const totalRange = game ? (game.range[1] - game.range[0] + 1) : 25;
         const drawnPerGame = game ? game.draw : 15;
-        const expectedRandom = drawSize * drawnPerGame / totalRange;
+        // v7.1: Para Lotomania, betSize (50) != drawSize (20)
+        // expectedRandom = quantos acertos um jogo de betSize números teria ao acaso
+        const actualBetSize = game ? (game.minBet || drawSize) : drawSize;
+        const expectedRandom = actualBetSize * drawnPerGame / totalRange;
         const improvement = expectedRandom > 0 ? ((avgHits - expectedRandom) / expectedRandom) * 100 : 0;
 
         // Determinar nível de confiança — com nota de significância estatística
