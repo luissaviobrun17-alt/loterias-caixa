@@ -477,6 +477,12 @@ class UI {
             poolInput.value = defaultPool;
         }
         poolInput.title = `Mín: ${minPool} | Máx: ${maxPool} | Padrão: ${defaultPool}`;
+
+        // Atualizar texto info
+        const infoSpan = document.getElementById('precision-pool-info');
+        if (infoSpan) {
+            infoSpan.textContent = `Mín: ${minPool} | Máx: ${maxPool} | Padrão: ${defaultPool}`;
+        }
     }
 
     // ╔══════════════════════════════════════════════════════════╗
@@ -1867,48 +1873,52 @@ class UI {
         if (this.generateSmartBtn) {
             this.generateSmartBtn.onclick = () => this.runSmartGeneration();
 
-            // ── ADICIONAR TOGGLE MODO PRECISÃO + INPUT POOL SIZE ──
+            // ── ADICIONAR TOGGLE MODO PRECISÃO ──
             const actionRow = document.getElementById('action-buttons-row');
             const precisionLabel = document.createElement('label');
             precisionLabel.id = 'precision-mode-label';
             precisionLabel.className = 'action-btn';
-            precisionLabel.style.cssText = 'cursor:pointer; background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); white-space: nowrap; flex: 1; min-width: 0; display: none; flex-direction: column; align-items: center; gap: 4px;';
-            precisionLabel.innerHTML = `
-                <div style="display:flex;align-items:center;gap:4px;">
-                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:16px;height:16px;cursor:pointer;">
-                    <span>🎯 Precisão</span>
-                </div>
-                <div id="precision-pool-container" style="display:none;margin-top:2px;">
-                    <label style="font-size:0.65rem;color:inherit;font-weight:600;display:flex;align-items:center;gap:4px;">
-                        Pool: <input type="number" id="precision-pool-size" min="7" max="60" value="20" 
-                            style="width:48px;padding:2px 4px;border-radius:6px;border:1px solid rgba(255,215,0,0.5);background:rgba(0,0,0,0.3);color:#FFD700;font-weight:800;font-size:0.75rem;text-align:center;cursor:text;"
-                            onclick="event.stopPropagation();"
-                        > núm.
-                    </label>
-                </div>
-            `;
+            precisionLabel.style.cssText = 'cursor:pointer; background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); white-space: nowrap; flex: 1; min-width: 0; display: none;';
+            precisionLabel.innerHTML = `<input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:16px;height:16px;cursor:pointer;"> 🎯 Precisão`;
             if (actionRow) {
                 actionRow.appendChild(precisionLabel);
             } else {
                 this.generateSmartBtn.parentNode.appendChild(precisionLabel);
             }
 
-            // Lógica para toggle visual (classe active) + mostrar/esconder pool input
+            // ── LINHA SEPARADA: Pool de Precisão (aparece ABAIXO dos botões) ──
+            const precisionPoolRow = document.createElement('div');
+            precisionPoolRow.id = 'precision-pool-row';
+            precisionPoolRow.style.cssText = 'display:none; align-items:center; gap:10px; margin-top:8px; padding:10px 14px; background:linear-gradient(145deg,rgba(245,158,11,0.08),rgba(15,23,42,0.95)); border:1px solid rgba(245,158,11,0.3); border-radius:10px;';
+            precisionPoolRow.innerHTML = `
+                <span style="color:#F59E0B;font-size:0.85rem;font-weight:700;white-space:nowrap;">🎯 Pool de Precisão:</span>
+                <input type="number" id="precision-pool-size" min="7" max="60" value="20" 
+                    style="width:60px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,215,0,0.5);background:rgba(0,0,0,0.4);color:#FFD700;font-weight:800;font-size:0.95rem;text-align:center;outline:none;"
+                >
+                <span id="precision-pool-info" style="color:#94A3B8;font-size:0.75rem;flex:1;">números no pool</span>
+            `;
+            // Inserir abaixo do action-buttons-row (dentro do mesmo container)
+            if (actionRow && actionRow.parentNode) {
+                actionRow.parentNode.insertBefore(precisionPoolRow, actionRow.nextSibling);
+            } else if (this.generateSmartBtn && this.generateSmartBtn.parentNode) {
+                this.generateSmartBtn.parentNode.appendChild(precisionPoolRow);
+            }
+
+            // Lógica para toggle visual + mostrar/esconder pool row
             const toggle = precisionLabel.querySelector('#precision-mode-toggle');
-            const poolContainer = precisionLabel.querySelector('#precision-pool-container');
             toggle.onchange = () => {
                 if (toggle.checked) {
                     precisionLabel.style.background = 'linear-gradient(135deg, #FFD700, #F59E0B)';
                     precisionLabel.style.color = '#000';
                     precisionLabel.style.boxShadow = '0 6px 25px rgba(255, 215, 0, 0.5)';
-                    poolContainer.style.display = 'block';
+                    precisionPoolRow.style.display = 'flex';
                     // Atualizar min/max baseado na loteria atual
                     this._updatePrecisionPoolLimits();
                 } else {
                     precisionLabel.style.background = 'linear-gradient(135deg, #F59E0B, #D97706)';
                     precisionLabel.style.color = '#fff';
                     precisionLabel.style.boxShadow = '0 4px 15px rgba(245, 158, 11, 0.35)';
-                    poolContainer.style.display = 'none';
+                    precisionPoolRow.style.display = 'none';
                 }
             };
         }
