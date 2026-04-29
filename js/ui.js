@@ -466,7 +466,7 @@ class UI {
         const drawSize = game.minBet;
         const totalRange = game.range[1] - game.range[0] + 1;
         const minPool = drawSize + 1; // Mínimo: drawSize + 1 (ex: Mega Sena = 7)
-        const maxPool = Math.min(totalRange, 60); // Máximo: total de números da loteria
+        const maxPool = totalRange; // Máximo: total de números da loteria (ex: Timemania = 80)
         const defaultPool = Math.min(totalRange, Math.max(20, drawSize + Math.ceil(drawSize * 0.45)));
 
         poolInput.min = minPool;
