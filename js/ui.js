@@ -557,10 +557,37 @@ class UI {
                         let result;
                         if (isPrecisionMode && typeof SmartBetsEngine.generatePrecisionMode === 'function') {
                             // ── MODO PRECISÃO: Pool reduzido + geração sistemática ──
-                            result = SmartBetsEngine.generatePrecisionMode(
-                                this.currentGameKey,
-                                quantity
-                            );
+                            try {
+                                result = SmartBetsEngine.generatePrecisionMode(
+                                    this.currentGameKey,
+                                    quantity
+                                );
+                                // Se o resultado veio sem métricas completas, recalcular via NovaEraEngine
+                                if (result && result.analysis && (result.analysis.pairsCovered == null || result.analysis.pairsCovered === '-')) {
+                                    if (typeof NovaEraEngine !== 'undefined' && result.games && result.games.length > 0) {
+                                        try {
+                                            const profile = NovaEraEngine._getProfile(this.currentGameKey);
+                                            const history = (typeof REAL_HISTORY_DB !== 'undefined' ? REAL_HISTORY_DB[this.currentGameKey] : null) || StatsService.getHistory(this.currentGameKey);
+                                            const neAnalysis = NovaEraEngine._backtestHonest(result.games, history, profile, this.currentGameKey, profile.range[1] - profile.range[0] + 1, result.games[0].length);
+                                            // Mesclar análise do NovaEraEngine com a do Precisão
+                                            result.analysis.confidence = Math.max(result.analysis.confidence, neAnalysis.confidence);
+                                            result.analysis.pairsCovered = neAnalysis.pairsCovered;
+                                            result.analysis.triosCovered = neAnalysis.triosCovered;
+                                            result.analysis.backtestScore = neAnalysis.backtestScore;
+                                            result.analysis.uniqueNumbers = neAnalysis.uniqueNumbers || result.analysis.uniqueNumbers;
+                                            console.log('[Precisão] ✅ Métricas enriquecidas via NovaEraEngine');
+                                        } catch(neErr) {
+                                            console.warn('[Precisão] NovaEraEngine backtest falhou:', neErr.message);
+                                        }
+                                    }
+                                }
+                            } catch(precErr) {
+                                console.error('[Precisão] Erro:', precErr.message);
+                                // Fallback para modo padrão
+                                result = SmartBetsEngine.generate(
+                                    this.currentGameKey, quantity, selectedArr, fixedArr, customDrawSize
+                                );
+                            }
                         } else {
                             // ── MODO PADRÃO: Geração com diversidade V9 ──
                             // V9 BUG FIX: sempre passa selectedArr ao motor
