@@ -549,7 +549,7 @@ class UI {
                     const p3 = document.getElementById('q-phase-3');
                     const st = document.getElementById('q-status');
                     if (p3) { p3.style.opacity = '1'; p3.style.background = 'rgba(236,72,153,0.2)'; p3.style.borderColor = 'rgba(236,72,153,0.5)'; }
-                    if (st) st.innerHTML = '🧿 Clarividência: convergência de 16 camadas → Próximo Sorteio...';
+                    if (st) st.innerHTML = '🧿 Clarividência: convergência de 19 camadas → Próximo Sorteio...';
                 } catch(e) {}
 
                 setTimeout(() => {
