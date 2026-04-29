@@ -48,18 +48,19 @@
     <link rel="stylesheet" href="styles/lottery.css?v=1777481412">
     <link rel="stylesheet" href="styles/responsive.css?v=1777481412">
 
-    <!-- Service Worker DESABILITADO — Causava cache stale dos scripts -->
-    <!--
+    <!-- Service Worker NUCLEAR RESET — Limpa cache e auto-destrói -->
     <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('sw.js')
-                .then(function(reg) { console.log('[PWA] Service Worker registrado:', reg.scope); })
-                .catch(function(err) { console.log('[PWA] SW falhou (ok):', err); });
+                .then(function(reg) {
+                    console.log('[B2B-NUCLEAR] SW registrado! Vai limpar cache...');
+                    reg.update(); // Forçar atualização imediata
+                })
+                .catch(function(err) { console.log('[B2B] SW falhou:', err); });
         });
     }
     </script>
-    -->
 </head>
 
 <body>
