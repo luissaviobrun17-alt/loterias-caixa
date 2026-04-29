@@ -1164,6 +1164,36 @@
             <script src="js/ui.js?v=1777481412"></script>
             <script src="js/main.js?v=1777481412"></script>
 
+    <!-- DIAGNÓSTICO INLINE v8.0 — NÃO DEPENDE DE CACHE -->
+    <script>
+    (function() {
+        console.log('%c[L99-DIAG] === DIAGNÓSTICO v8.0 INLINE ===', 'color: #FFD700; font-size: 18px; font-weight: bold; background: #1a1a2e; padding: 8px;');
+        console.log('[L99-DIAG] NovaEraEngine: ' + (typeof NovaEraEngine));
+        console.log('[L99-DIAG] SmartBetsEngine: ' + (typeof SmartBetsEngine));
+        console.log('[L99-DIAG] GAMES: ' + (typeof GAMES));
+        console.log('[L99-DIAG] StatsService: ' + (typeof StatsService));
+        
+        // Interceptar SmartBetsEngine.generate para garantir que funciona
+        if (typeof SmartBetsEngine !== 'undefined' && SmartBetsEngine.generate) {
+            var _originalGenerate = SmartBetsEngine.generate.bind(SmartBetsEngine);
+            SmartBetsEngine.generate = function(gameKey, numGames, sel, fixed, drawSize) {
+                console.log('%c[L99-DIAG] SmartBetsEngine.generate() INTERCEPTADO! gameKey=' + gameKey + ' numGames=' + numGames, 'color: #FF0000; font-size: 16px; font-weight: bold;');
+                console.log('[L99-DIAG] NovaEraEngine disponível: ' + (typeof NovaEraEngine !== 'undefined'));
+                
+                var result = _originalGenerate(gameKey, numGames, sel, fixed, drawSize);
+                
+                if (result && result.analysis) {
+                    console.log('%c[L99-DIAG] RESULTADO: confidence=' + result.analysis.confidence + '% | coverage=' + result.analysis.coverage + '% | diversity=' + result.analysis.diversity + '%', 'color: #00FF00; font-size: 14px;');
+                }
+                return result;
+            };
+            console.log('[L99-DIAG] ✅ SmartBetsEngine.generate() INTERCEPTADO com sucesso');
+        } else {
+            console.error('[L99-DIAG] ❌ SmartBetsEngine NÃO ENCONTRADO!');
+        }
+    })();
+    </script>
+
     <!-- SISTEMA DE LICENÇA -->
     <script src="js/license.js"></script>
     <script>
