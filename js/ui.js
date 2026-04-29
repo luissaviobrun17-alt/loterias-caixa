@@ -566,7 +566,7 @@ class UI {
                                 if (result && result.analysis && (result.analysis.pairsCovered == null || result.analysis.pairsCovered === '-')) {
                                     if (typeof NovaEraEngine !== 'undefined' && result.games && result.games.length > 0) {
                                         try {
-                                            const profile = NovaEraEngine._getProfile(this.currentGameKey);
+                                            const profile = NovaEraEngine.getProfile(this.currentGameKey);
                                             const history = (typeof REAL_HISTORY_DB !== 'undefined' ? REAL_HISTORY_DB[this.currentGameKey] : null) || StatsService.getHistory(this.currentGameKey);
                                             const neAnalysis = NovaEraEngine._backtestHonest(result.games, history, profile, this.currentGameKey, profile.range[1] - profile.range[0] + 1, result.games[0].length);
                                             // Mesclar análise do NovaEraEngine com a do Precisão
