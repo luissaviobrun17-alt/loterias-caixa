@@ -208,13 +208,25 @@ class UI {
                 setTimeout(() => {
                     try {
                         let suggestion;
+                        const history = StatsService.getRecentResults(this.currentGameKey, 100) || [];
                         if (typeof NovaEraEngine !== 'undefined') {
                             // NOVA ERA V1: Sugestão sintética e objetiva
                             console.log('[UI] Usando NovaEraEngine.suggestNumbers para ' + this.currentGameKey);
                             suggestion = NovaEraEngine.suggestNumbers(this.currentGameKey, count);
+                            // Calcular confiança via backtest do QuantumGodEngine
+                            if (suggestion && suggestion.length > 0 && history.length >= 3) {
+                                try {
+                                    const bt = QuantumGodEngine._backtestResult(suggestion, history, this.currentGameKey);
+                                    QuantumGodEngine._lastConfidence = bt.confidence;
+                                    QuantumGodEngine._lastBacktest = bt;
+                                    console.log('[UI] Confiança calculada via backtest: ' + bt.confidence + '%');
+                                } catch(btErr) {
+                                    console.warn('[UI] Backtest falhou:', btErr.message);
+                                    QuantumGodEngine._lastConfidence = 65;
+                                }
+                            }
                         } else {
                             // Fallback: motor legado
-                            const history = StatsService.getRecentResults(this.currentGameKey, 100);
                             suggestion = QuantumGodEngine.runSimulation(this.currentGameKey, count, history);
                         }
                         console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + ' números');
