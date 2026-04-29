@@ -1,4 +1,4 @@
-﻿/**
+/**
  * SMART BETS ENGINE Ã¢â‚¬â€ Motor IA para Apostas Reduzidas
  * ====================================================
  * Gera jogos INTELIGENTES quando o apostador quer poucos jogos
@@ -2501,7 +2501,7 @@ class SmartBetsEngine {
     // Ã¢â€¢â€˜  MODO PRECISÃƒÆ’O Ã¢â‚¬â€ Maximizar 14-15 acertos (LotofÃƒÂ¡cil)       Ã¢â€¢â€˜
     // Ã¢â€¢â€˜  EstratÃƒÂ©gia: Pool reduzido de ~17 nÃƒÂºmeros + variaÃƒÂ§ÃƒÂµes      Ã¢â€¢â€˜
     // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-    static generatePrecisionMode(gameKey, numGames) {
+    static generatePrecisionMode(gameKey, numGames, customPoolSize = null) {
         const profile = this.getProfile(gameKey);
         const game = GAMES[gameKey];
         if (!game) return { games: [], analysis: null };
@@ -2608,8 +2608,15 @@ class SmartBetsEngine {
             .map(([n, s]) => ({ num: parseInt(n), score: s }))
             .sort((a, b) => b.score - a.score);
 
-        // Pool size: 20 a 22 nÃƒÂºmeros (AMPLIADO para maior cobertura)
-        const poolSize = Math.min(totalRange, Math.max(20, drawSize + Math.ceil(drawSize * 0.45)));
+        // Pool size: definido pelo apostador ou calculado automaticamente
+        let poolSize;
+        if (customPoolSize && customPoolSize >= drawSize + 1 && customPoolSize <= totalRange) {
+            poolSize = customPoolSize;
+            console.log(`[Precisão] 🎯 Pool PERSONALIZADO pelo apostador: ${poolSize} números`);
+        } else {
+            poolSize = Math.min(totalRange, Math.max(20, drawSize + Math.ceil(drawSize * 0.45)));
+            console.log(`[Precisão] Pool automático: ${poolSize} números`);
+        }
         const precisionPool = ranked.slice(0, poolSize).map(r => r.num).sort((a, b) => a - b);
 
         console.log(`[PrecisÃƒÂ£o] Ã°Å¸Å½Â¯ Pool de PrecisÃƒÂ£o: [${precisionPool.join(', ')}] (${precisionPool.length} nÃƒÂºmeros)`);

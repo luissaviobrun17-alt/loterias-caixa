@@ -454,6 +454,32 @@ class UI {
     }
 
     // ╔══════════════════════════════════════════════════════════╗
+    // ║  POOL PRECISÃO — LIMITES DINÂMICOS POR LOTERIA           ║
+    // ╚══════════════════════════════════════════════════════════╝
+    _updatePrecisionPoolLimits() {
+        const poolInput = document.getElementById('precision-pool-size');
+        if (!poolInput) return;
+
+        const game = GAMES[this.currentGameKey];
+        if (!game) return;
+
+        const drawSize = game.minBet;
+        const totalRange = game.range[1] - game.range[0] + 1;
+        const minPool = drawSize + 1; // Mínimo: drawSize + 1 (ex: Mega Sena = 7)
+        const maxPool = Math.min(totalRange, 60); // Máximo: total de números da loteria
+        const defaultPool = Math.min(totalRange, Math.max(20, drawSize + Math.ceil(drawSize * 0.45)));
+
+        poolInput.min = minPool;
+        poolInput.max = maxPool;
+        // Só atualiza o valor se estiver fora dos limites
+        const current = parseInt(poolInput.value) || defaultPool;
+        if (current < minPool || current > maxPool) {
+            poolInput.value = defaultPool;
+        }
+        poolInput.title = `Mín: ${minPool} | Máx: ${maxPool} | Padrão: ${defaultPool}`;
+    }
+
+    // ╔══════════════════════════════════════════════════════════╗
     // ║  GERAR JOGOS COM IA (SMART BETS + MODO PRECISÃO)        ║
     // ╚══════════════════════════════════════════════════════════╝
     runSmartGeneration() {
@@ -570,9 +596,13 @@ class UI {
                         if (isPrecisionMode && typeof SmartBetsEngine.generatePrecisionMode === 'function') {
                             // ── MODO PRECISÃO: Pool reduzido + geração sistemática ──
                             try {
+                                // Ler tamanho do pool personalizado pelo apostador
+                                const poolSizeInput = document.getElementById('precision-pool-size');
+                                const customPool = poolSizeInput ? parseInt(poolSizeInput.value) || null : null;
                                 result = SmartBetsEngine.generatePrecisionMode(
                                     this.currentGameKey,
-                                    quantity
+                                    quantity,
+                                    customPool
                                 );
                                 // Se o resultado veio sem métricas completas, recalcular via NovaEraEngine
                                 if (result && result.analysis && (result.analysis.pairsCovered == null || result.analysis.pairsCovered === '-')) {
@@ -1837,30 +1867,48 @@ class UI {
         if (this.generateSmartBtn) {
             this.generateSmartBtn.onclick = () => this.runSmartGeneration();
 
-            // ── ADICIONAR TOGGLE MODO PRECISÃO (só Lotofácil) ──
+            // ── ADICIONAR TOGGLE MODO PRECISÃO + INPUT POOL SIZE ──
             const actionRow = document.getElementById('action-buttons-row');
             const precisionLabel = document.createElement('label');
             precisionLabel.id = 'precision-mode-label';
             precisionLabel.className = 'action-btn';
-            precisionLabel.style.cssText = 'cursor:pointer; background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); white-space: nowrap; flex: 1; min-width: 0; display: none;';
-            precisionLabel.innerHTML = `<input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:16px;height:16px;cursor:pointer;"> 🎯 Precisão`;
+            precisionLabel.style.cssText = 'cursor:pointer; background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); white-space: nowrap; flex: 1; min-width: 0; display: none; flex-direction: column; align-items: center; gap: 4px;';
+            precisionLabel.innerHTML = `
+                <div style="display:flex;align-items:center;gap:4px;">
+                    <input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:16px;height:16px;cursor:pointer;">
+                    <span>🎯 Precisão</span>
+                </div>
+                <div id="precision-pool-container" style="display:none;margin-top:2px;">
+                    <label style="font-size:0.65rem;color:inherit;font-weight:600;display:flex;align-items:center;gap:4px;">
+                        Pool: <input type="number" id="precision-pool-size" min="7" max="60" value="20" 
+                            style="width:48px;padding:2px 4px;border-radius:6px;border:1px solid rgba(255,215,0,0.5);background:rgba(0,0,0,0.3);color:#FFD700;font-weight:800;font-size:0.75rem;text-align:center;cursor:text;"
+                            onclick="event.stopPropagation();"
+                        > núm.
+                    </label>
+                </div>
+            `;
             if (actionRow) {
                 actionRow.appendChild(precisionLabel);
             } else {
                 this.generateSmartBtn.parentNode.appendChild(precisionLabel);
             }
 
-            // Lógica para toggle visual (classe active)
+            // Lógica para toggle visual (classe active) + mostrar/esconder pool input
             const toggle = precisionLabel.querySelector('#precision-mode-toggle');
+            const poolContainer = precisionLabel.querySelector('#precision-pool-container');
             toggle.onchange = () => {
                 if (toggle.checked) {
                     precisionLabel.style.background = 'linear-gradient(135deg, #FFD700, #F59E0B)';
                     precisionLabel.style.color = '#000';
                     precisionLabel.style.boxShadow = '0 6px 25px rgba(255, 215, 0, 0.5)';
+                    poolContainer.style.display = 'block';
+                    // Atualizar min/max baseado na loteria atual
+                    this._updatePrecisionPoolLimits();
                 } else {
                     precisionLabel.style.background = 'linear-gradient(135deg, #F59E0B, #D97706)';
                     precisionLabel.style.color = '#fff';
                     precisionLabel.style.boxShadow = '0 4px 15px rgba(245, 158, 11, 0.35)';
+                    poolContainer.style.display = 'none';
                 }
             };
         }
@@ -2269,6 +2317,8 @@ class UI {
         if (precisionEl) {
             // ★ v7.0: Botão Precisão visível para TODAS as loterias
             precisionEl.style.display = 'flex';
+            // ★ v9.0: Atualizar limites do pool para a loteria selecionada
+            this._updatePrecisionPoolLimits();
         }
 
         if (this.quantumCountInput) {
