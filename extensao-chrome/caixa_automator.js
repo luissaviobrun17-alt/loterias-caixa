@@ -12,10 +12,10 @@
 
     // ═══ CONFIGURAÇÕES ═══
     var BATCH_SIZE = 10;         // Processar 10 jogos por vez
-    var DELAY_CLICK = 350;       // ms entre cliques de números
-    var DELAY_CART = 1800;       // ms após clicar no carrinho
-    var DELAY_BETWEEN = 2500;    // ms entre jogos
-    var DELAY_MODAL = 600;       // ms para fechar modais
+    var DELAY_CLICK = 120;       // ms entre cliques de números
+    var DELAY_CART = 800;        // ms após clicar no carrinho
+    var DELAY_BETWEEN = 600;     // ms entre jogos
+    var DELAY_MODAL = 200;       // ms para fechar modais
     var MAX_CART_RETRY = 10;     // tentativas de colocar no carrinho
 
     // ═══ 1. FECHAR MODAL DE IDADE ═══
@@ -275,7 +275,7 @@
             if (i > 0) {
                 var limped = await limparVolanteComRetry();
                 addLog('🧹 Limpar: ' + (limped ? 'OK' : 'SKIP'));
-                await delay(1500);
+                await delay(500);
                 fecharModais();
                 await delay(DELAY_MODAL);
             }
@@ -322,7 +322,7 @@
                 var isEndOfBatch = (i + 1) % BATCH_SIZE === 0;
                 if (isEndOfBatch) {
                     addLog('⏸️ Pausa após lote ' + Math.ceil((i+1)/BATCH_SIZE) + '...');
-                    await delay(4000); // Pausa maior entre lotes
+                    await delay(1500); // Pausa maior entre lotes
                 } else {
                     await delay(DELAY_BETWEEN);
                 }
@@ -400,9 +400,9 @@
             if (btn && btn.offsetParent !== null) {
                 dispatchRealClick(btn);
                 addLog('🛒 Carrinho OK (ID, tent ' + (t+1) + ')');
-                await delay(DELAY_CART);
+                await delay(800);
                 fecharModais();
-                await delay(DELAY_MODAL);
+                await delay(200);
                 fecharModais();
                 return true;
             }
@@ -415,9 +415,9 @@
             if (btn) {
                 dispatchRealClick(btn);
                 addLog('🛒 Carrinho OK (query, tent ' + (t+1) + ')');
-                await delay(DELAY_CART);
+                await delay(800);
                 fecharModais();
-                await delay(DELAY_MODAL);
+                await delay(200);
                 fecharModais();
                 return true;
             }
@@ -430,9 +430,9 @@
                     allBtns[k].offsetParent !== null && allBtns[k].offsetWidth > 0) {
                     dispatchRealClick(allBtns[k]);
                     addLog('🛒 Carrinho OK (texto, tent ' + (t+1) + ')');
-                    await delay(DELAY_CART);
+                    await delay(800);
                     fecharModais();
-                    await delay(DELAY_MODAL);
+                    await delay(200);
                     fecharModais();
                     return true;
                 }
@@ -442,7 +442,7 @@
                 addLog('⏳ Carrinho: tentativa ' + (t+1) + '/' + MAX_CART_RETRY);
             }
             fecharModais();
-            await delay(1200);
+            await delay(500);
         }
 
         addLog('❌ Carrinho não encontrado após ' + MAX_CART_RETRY + ' tentativas');
@@ -460,9 +460,9 @@
             var btn = document.getElementById('limparvolante');
             if (btn) {
                 dispatchRealClick(btn);
-                await delay(800);
+                await delay(400);
                 fecharModais();
-                await delay(500);
+                await delay(200);
                 return true;
             }
 
@@ -472,9 +472,9 @@
                   document.querySelector('[id*="limpar"]');
             if (btn) {
                 dispatchRealClick(btn);
-                await delay(800);
+                await delay(400);
                 fecharModais();
-                await delay(500);
+                await delay(200);
                 return true;
             }
 
@@ -485,9 +485,9 @@
                 if ((txt.indexOf('limpar') >= 0 || txt.indexOf('apagar') >= 0) &&
                     allBtns[k].offsetParent !== null) {
                     dispatchRealClick(allBtns[k]);
-                    await delay(800);
+                    await delay(400);
                     fecharModais();
-                    await delay(500);
+                    await delay(200);
                     return true;
                 }
             }

@@ -112,7 +112,7 @@
             if (!isTM) return true;
             await d(500);
             const ts = document.querySelectorAll('[data-selecionar-time-do-coracao],img[name=btnTime],.time-coracao img');
-            if (ts.length > 0) { rc(ts[Math.floor(Math.random() * ts.length)]); await d(800); return true; }
+            if (ts.length > 0) { rc(ts[Math.floor(Math.random() * ts.length)]); await d(400); return true; }
             return false;
         }
 
@@ -129,23 +129,23 @@
         }
 
         async function car() {
-            fm(); await d(300);
-            if (isTM) { await selTime(); await d(600); }
-            if (isDS) { await selMes(); await d(600); }
+            fm(); await d(100);
+            if (isTM) { await selTime(); await d(300); }
+            if (isDS) { await selMes(); await d(300); }
             for (let t = 0; t < 8; t++) {
                 let b = document.getElementById('colocarnocarrinho');
                 if (b && b.offsetParent !== null) {
-                    if (b.disabled || b.classList.contains('disabled')) { await d(1500); continue; }
-                    rc(b); await d(1500); fm(); await d(600); fm(); return true;
+                    if (b.disabled || b.classList.contains('disabled')) { await d(800); continue; }
+                    rc(b); await d(800); fm(); await d(300); fm(); return true;
                 }
                 const ab = document.querySelectorAll('button,a');
                 for (let k = 0; k < ab.length; k++) {
                     const tx = ab[k].textContent.toLowerCase().trim();
                     if ((tx.indexOf('colocar no carrinho') >= 0 || (tx.indexOf('carrinho') >= 0 && tx.indexOf('ir para') < 0 && tx.indexOf('ver') < 0)) && ab[k].offsetParent !== null && ab[k].offsetWidth > 0) {
-                        rc(ab[k]); await d(1500); fm(); await d(600); fm(); return true;
+                        rc(ab[k]); await d(800); fm(); await d(300); fm(); return true;
                     }
                 }
-                fm(); await d(800);
+                fm(); await d(400);
             }
             return false;
         }
@@ -170,18 +170,18 @@
             if (pb) pb.style.width = ((i+1)/T*100).toFixed(0) + '%';
 
             fm();
-            if (i > 0) { lmp(); await d(1200); fm(); await d(400); }
+            if (i > 0) { lmp(); await d(500); fm(); await d(200); }
 
             for (let n = 0; n < j.length; n++) {
-                if (!cn(j[n])) { await d(350); cn(j[n]); }
-                await d(350);
+                if (!cn(j[n])) { await d(150); cn(j[n]); }
+                await d(120);
             }
 
             try { var rs = angular.element(document.body).scope(); if (rs && rs.$apply) rs.$apply(); } catch(ae) {}
-            await d(1500); fm(); await d(600);
+            await d(400); fm(); await d(200);
             const ok = await car();
             if (ok) OK++; else ER++;
-            if (i < T - 1) { await d(1500); fm(); }
+            if (i < T - 1) { await d(600); fm(); }
         }
 
         // Resultado final
