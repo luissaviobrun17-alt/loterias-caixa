@@ -110,21 +110,80 @@
 
         async function selTime() {
             if (!isTM) return true;
-            await d(500);
-            const ts = document.querySelectorAll('[data-selecionar-time-do-coracao],img[name=btnTime],.time-coracao img');
-            if (ts.length > 0) { rc(ts[Math.floor(Math.random() * ts.length)]); await d(400); return true; }
+            await d(300);
+            // Seletores REAIS do site da Caixa (AngularJS)
+            let ts = document.querySelectorAll('img[name=btnTime],.data-selecionar-time-do-coracao,li[ng-repeat*=listaEquipe] img,li[ng-click*=Time] img,li[ng-click*=time] img');
+            // Fallback: LIs com ng-repeat de equipes
+            if (ts.length === 0) {
+                const tLis = document.querySelectorAll('li[ng-repeat*=listaEquipe],li[ng-repeat*=equipe]');
+                if (tLis.length > 0) {
+                    const tImgs = [];
+                    tLis.forEach(li => { const img = li.querySelector('img'); if (img) tImgs.push(img); });
+                    if (tImgs.length > 0) ts = tImgs;
+                }
+            }
+            // Fallback 2: UL com muitas imagens (>20 = lista de times)
+            if (ts.length === 0) {
+                document.querySelectorAll('ul').forEach(ul => {
+                    if (ts.length > 0) return;
+                    const uImgs = ul.querySelectorAll('img');
+                    if (uImgs.length > 20) ts = uImgs;
+                });
+            }
+            if (ts.length > 0) {
+                const idx = Math.floor(Math.random() * ts.length);
+                const chosen = ts[idx];
+                chosen.scrollIntoView({ block: 'center', behavior: 'instant' });
+                await d(150);
+                rc(chosen);
+                await d(250);
+                if (chosen.parentElement && chosen.parentElement.tagName === 'LI') { rc(chosen.parentElement); await d(200); }
+                try { const scope = angular.element(chosen).scope(); if (scope && scope.$apply) scope.$apply(); } catch(e) {}
+                console.log('[B2B] ⚽ Time selecionado: ' + (chosen.alt || chosen.title || 'Time #' + (idx+1)));
+                return true;
+            }
+            console.warn('[B2B] ⚠️ Nenhum time encontrado');
             return false;
         }
 
         async function selMes() {
             if (!isDS) return true;
-            await d(500);
-            const s = document.querySelector('select');
-            if (s && s.options.length > 1) {
-                s.selectedIndex = Math.floor(Math.random() * (s.options.length - 1)) + 1;
-                s.dispatchEvent(new Event('change', { bubbles: true }));
+            await d(300);
+            // Seletores REAIS do site da Caixa (AngularJS)
+            let meses = document.querySelectorAll('li[ng-repeat*=listaMeses],li[ng-click*=configurarMes],[id=mes] li,ul.meses li,.meses-list li');
+            // Fallback: meses por nome em português
+            if (meses.length === 0) {
+                const nomesMeses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+                const found = [];
+                document.querySelectorAll('li,a,span,div').forEach(el => {
+                    const tx = el.textContent.trim().toLowerCase();
+                    for (let m = 0; m < nomesMeses.length; m++) {
+                        if (tx === nomesMeses[m] && el.children.length <= 1) { found.push(el); break; }
+                    }
+                });
+                if (found.length > 0) meses = found;
+            }
+            // Fallback 2: select/option
+            if (meses.length === 0) {
+                const s = document.querySelector('select');
+                if (s && s.options.length > 1) {
+                    s.selectedIndex = Math.floor(Math.random() * (s.options.length - 1)) + 1;
+                    s.dispatchEvent(new Event('change', { bubbles: true }));
+                    console.log('[B2B] 📅 Mês (select): ' + s.options[s.selectedIndex].text);
+                    return true;
+                }
+            }
+            if (meses.length > 0) {
+                const idx = Math.floor(Math.random() * meses.length);
+                const mesEl = meses[idx];
+                rc(mesEl);
+                await d(400);
+                if (mesEl.tagName !== 'LI' && mesEl.parentElement && mesEl.parentElement.tagName === 'LI') { rc(mesEl.parentElement); await d(200); }
+                try { const scope = angular.element(mesEl).scope(); if (scope && scope.$apply) scope.$apply(); } catch(e) {}
+                console.log('[B2B] 📅 Mês selecionado: ' + (mesEl.textContent.trim() || 'Mês #' + (idx+1)));
                 return true;
             }
+            console.warn('[B2B] ⚠️ Nenhum mês encontrado');
             return false;
         }
 
@@ -135,13 +194,26 @@
             for (let t = 0; t < 8; t++) {
                 let b = document.getElementById('colocarnocarrinho');
                 if (b && b.offsetParent !== null) {
-                    if (b.disabled || b.classList.contains('disabled')) { await d(800); continue; }
+                    if (b.disabled || b.classList.contains('disabled')) {
+                        // Forçar Angular digest
+                        try { const rs = angular.element(document.body).scope(); if (rs && rs.$apply) rs.$apply(); } catch(ae) {}
+                        await d(800);
+                        // Re-selecionar Time/Mês se necessário
+                        if (isTM) { await selTime(); await d(400); }
+                        if (isDS) { await selMes(); await d(400); }
+                        continue;
+                    }
                     rc(b); await d(800); fm(); await d(300); fm(); return true;
                 }
                 const ab = document.querySelectorAll('button,a');
                 for (let k = 0; k < ab.length; k++) {
                     const tx = ab[k].textContent.toLowerCase().trim();
                     if ((tx.indexOf('colocar no carrinho') >= 0 || (tx.indexOf('carrinho') >= 0 && tx.indexOf('ir para') < 0 && tx.indexOf('ver') < 0)) && ab[k].offsetParent !== null && ab[k].offsetWidth > 0) {
+                        if (ab[k].disabled || ab[k].classList.contains('disabled')) {
+                            try { const rs2 = angular.element(document.body).scope(); if (rs2 && rs2.$apply) rs2.$apply(); } catch(ae2) {}
+                            await d(800);
+                            break;
+                        }
                         rc(ab[k]); await d(800); fm(); await d(300); fm(); return true;
                     }
                 }

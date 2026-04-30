@@ -93,8 +93,12 @@
 
         var games = data.b2b_games;
         var config = data.b2b_config;
+        var IS_TIMEMANIA = (config.url === 'timemania');
+        var IS_DIADESORTE = (config.url === 'dia-de-sorte');
 
         console.log('[B2B v' + VERSION + '] 🎯 ' + games.length + ' jogos de ' + config.name);
+        if (IS_TIMEMANIA) console.log('[B2B v' + VERSION + '] ⚽ Modo TIMEMANIA ativado');
+        if (IS_DIADESORTE) console.log('[B2B v' + VERSION + '] 📅 Modo DIA DE SORTE ativado');
 
         showStatusPanel(games.length, config.name);
 
@@ -102,7 +106,7 @@
             console.log('[B2B v' + VERSION + '] ✅ Grid detectado!');
             updateStatus('Grid encontrado! Iniciando em 3s...', 'running');
             setTimeout(function() {
-                fillGamesInBatches(games, config);
+                fillGamesInBatches(games, config, IS_TIMEMANIA, IS_DIADESORTE);
             }, 3000);
         });
     });
@@ -248,7 +252,7 @@
     }
 
     // ═══ 7. PREENCHER JOGOS EM LOTES ═══
-    async function fillGamesInBatches(games, config) {
+    async function fillGamesInBatches(games, config, IS_TIMEMANIA, IS_DIADESORTE) {
         var delay = function(ms) { return new Promise(function(r) { setTimeout(r, ms); }); };
         var total = games.length;
         var ok = 0;
@@ -257,6 +261,8 @@
 
         addLog('🎬 Iniciando ' + total + ' jogos de ' + config.name);
         addLog('⚡ Modo TURBO: lotes de ' + BATCH_SIZE);
+        if (IS_TIMEMANIA) addLog('⚽ Time do Coração será selecionado automaticamente');
+        if (IS_DIADESORTE) addLog('📅 Mês da Sorte será selecionado automaticamente');
 
         for (var i = 0; i < total; i++) {
             var jogo = games[i];
@@ -300,14 +306,25 @@
 
             addLog('🔢 Jogo ' + (i+1) + ': ' + acertos + '/' + nums.length + ' [' + nums.join(',') + ']');
 
-            await delay(1500);
+            // Force Angular digest IMMEDIATELY after number selection (BEFORE delay)
+            try { var rs = angular.element(document.body).scope(); if (rs && rs.$apply) rs.$apply(); } catch(ae) {}
+            await delay(400);
             fecharModais();
             await delay(DELAY_MODAL);
-            // Force Angular digest after number selection
-            try { var rs = angular.element(document.body).scope(); if (rs && rs.$apply) rs.$apply(); } catch(ae) {}
-            await delay(600);
 
-            var cartOk = await colocarNoCarrinhoComRetry();
+            // Selecionar Time/Mês antes de colocar no carrinho
+            if (IS_TIMEMANIA) {
+                var timeOk = await selecionarTimeDoCoracao();
+                addLog('⚽ Time: ' + (timeOk ? 'OK' : 'FALHOU'));
+                await delay(300);
+            }
+            if (IS_DIADESORTE) {
+                var mesOk = await selecionarMesDaSorte();
+                addLog('📅 Mês: ' + (mesOk ? 'OK' : 'FALHOU'));
+                await delay(300);
+            }
+
+            var cartOk = await colocarNoCarrinhoComRetry(IS_TIMEMANIA, IS_DIADESORTE);
 
             if (cartOk) {
                 ok++;
@@ -388,7 +405,7 @@
     }
 
     // ═══ 9. COLOCAR NO CARRINHO COM RETRY ROBUSTO ═══
-    async function colocarNoCarrinhoComRetry() {
+    async function colocarNoCarrinhoComRetry(IS_TIMEMANIA, IS_DIADESORTE) {
         var delay = function(ms) { return new Promise(function(r) { setTimeout(r, ms); }); };
 
         fecharModais();
@@ -398,11 +415,22 @@
             // Tentativa 1: ID exato "colocarnocarrinho"
             var btn = document.getElementById('colocarnocarrinho');
             if (btn && btn.offsetParent !== null) {
+                // FIX CRÍTICO: Verificar se o botão está HABILITADO antes de clicar
+                if (btn.disabled || btn.classList.contains('disabled')) {
+                    addLog('⏳ Carrinho desabilitado, tentativa ' + (t+1) + '/' + MAX_CART_RETRY);
+                    // Forçar Angular digest - pode ser que os cliques não foram processados
+                    try { var rs = angular.element(document.body).scope(); if (rs && rs.$apply) rs.$apply(); } catch(ae) {}
+                    await delay(800);
+                    // Re-selecionar Time/Mês se necessário
+                    if (IS_TIMEMANIA) { await selecionarTimeDoCoracao(); await delay(400); }
+                    if (IS_DIADESORTE) { await selecionarMesDaSorte(); await delay(400); }
+                    continue;
+                }
                 dispatchRealClick(btn);
                 addLog('🛒 Carrinho OK (ID, tent ' + (t+1) + ')');
-                await delay(800);
+                await delay(DELAY_CART);
                 fecharModais();
-                await delay(200);
+                await delay(300);
                 fecharModais();
                 return true;
             }
@@ -413,26 +441,40 @@
                   document.querySelector('[id="colocarnocarrinho"]') ||
                   document.querySelector('button[id*="colocar"]');
             if (btn) {
+                if (btn.disabled || btn.classList.contains('disabled')) {
+                    try { var rs2 = angular.element(document.body).scope(); if (rs2 && rs2.$apply) rs2.$apply(); } catch(ae2) {}
+                    await delay(800);
+                    if (IS_TIMEMANIA) { await selecionarTimeDoCoracao(); await delay(400); }
+                    if (IS_DIADESORTE) { await selecionarMesDaSorte(); await delay(400); }
+                    continue;
+                }
                 dispatchRealClick(btn);
                 addLog('🛒 Carrinho OK (query, tent ' + (t+1) + ')');
-                await delay(800);
+                await delay(DELAY_CART);
                 fecharModais();
-                await delay(200);
+                await delay(300);
                 fecharModais();
                 return true;
             }
 
             // Tentativa 3: botões com texto que contém "carrinho"
             var allBtns = document.querySelectorAll('button, a');
+            var foundCart = false;
             for (var k = 0; k < allBtns.length; k++) {
                 var txt = allBtns[k].textContent.toLowerCase().trim();
                 if ((txt.indexOf('colocar no carrinho') >= 0 || txt.indexOf('colocar no carr') >= 0) &&
                     allBtns[k].offsetParent !== null && allBtns[k].offsetWidth > 0) {
+                    if (allBtns[k].disabled || allBtns[k].classList.contains('disabled')) {
+                        try { var rs3 = angular.element(document.body).scope(); if (rs3 && rs3.$apply) rs3.$apply(); } catch(ae3) {}
+                        await delay(800);
+                        foundCart = true;
+                        break;
+                    }
                     dispatchRealClick(allBtns[k]);
                     addLog('🛒 Carrinho OK (texto, tent ' + (t+1) + ')');
-                    await delay(800);
+                    await delay(DELAY_CART);
                     fecharModais();
-                    await delay(200);
+                    await delay(300);
                     fecharModais();
                     return true;
                 }
@@ -445,7 +487,112 @@
             await delay(500);
         }
 
-        addLog('❌ Carrinho não encontrado após ' + MAX_CART_RETRY + ' tentativas');
+        addLog('❌ Carrinho não encontrado/habilitado após ' + MAX_CART_RETRY + ' tentativas');
+        return false;
+    }
+
+    // ═══ 9B. SELECIONAR TIME DO CORAÇÃO (TIMEMANIA) ═══
+    async function selecionarTimeDoCoracao() {
+        var delay = function(ms) { return new Promise(function(r) { setTimeout(r, ms); }); };
+        await delay(300);
+
+        // Seletores REAIS do site da Caixa (AngularJS)
+        var times = document.querySelectorAll('img[name=btnTime],.data-selecionar-time-do-coracao,li[ng-repeat*=listaEquipe] img,li[ng-click*=Time] img,li[ng-click*=time] img');
+
+        // Fallback: procurar LIs com ng-repeat de equipes
+        if (times.length === 0) {
+            var tLis = document.querySelectorAll('li[ng-repeat*=listaEquipe],li[ng-repeat*=equipe]');
+            if (tLis.length > 0) {
+                var tImgs = [];
+                for (var q = 0; q < tLis.length; q++) {
+                    var tImg = tLis[q].querySelector('img');
+                    if (tImg) tImgs.push(tImg);
+                }
+                if (tImgs.length > 0) times = tImgs;
+            }
+        }
+
+        // Fallback 2: UL com muitas imagens (>20 = lista de times)
+        if (times.length === 0) {
+            var allUls = document.querySelectorAll('ul');
+            for (var u = 0; u < allUls.length; u++) {
+                var uImgs = allUls[u].querySelectorAll('img');
+                if (uImgs.length > 20) { times = uImgs; break; }
+            }
+        }
+
+        if (times.length > 0) {
+            var idx = Math.floor(Math.random() * times.length);
+            var chosen = times[idx];
+            chosen.scrollIntoView({ block: 'center', behavior: 'instant' });
+            await delay(150);
+            dispatchRealClick(chosen);
+            await delay(250);
+            // Clicar no LI pai para garantir trigger Angular
+            if (chosen.parentElement && chosen.parentElement.tagName === 'LI') {
+                dispatchRealClick(chosen.parentElement);
+                await delay(200);
+            }
+            try { var scope = angular.element(chosen).scope(); if (scope && scope.$apply) scope.$apply(); } catch(e) {}
+            var nome = chosen.alt || chosen.title || (chosen.parentElement ? chosen.parentElement.textContent.trim().substring(0, 30) : 'Time #' + (idx+1));
+            addLog('⚽ Time selecionado: ' + nome);
+            return true;
+        }
+        addLog('⚠️ Nenhum time encontrado na página');
+        return false;
+    }
+
+    // ═══ 9C. SELECIONAR MÊS DA SORTE (DIA DE SORTE) ═══
+    async function selecionarMesDaSorte() {
+        var delay = function(ms) { return new Promise(function(r) { setTimeout(r, ms); }); };
+        await delay(300);
+
+        // Seletores REAIS do site da Caixa (AngularJS)
+        var meses = document.querySelectorAll('li[ng-repeat*=listaMeses],li[ng-click*=configurarMes],[id=mes] li,ul.meses li,.meses-list li');
+
+        // Fallback: procurar meses por nome em português
+        if (meses.length === 0) {
+            var nomesMeses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+            var allLi = document.querySelectorAll('li,a,span,div');
+            var found = [];
+            for (var q = 0; q < allLi.length; q++) {
+                var tx = allLi[q].textContent.trim().toLowerCase();
+                for (var m = 0; m < nomesMeses.length; m++) {
+                    if (tx === nomesMeses[m] && allLi[q].children.length <= 1) {
+                        found.push(allLi[q]);
+                        break;
+                    }
+                }
+            }
+            if (found.length > 0) meses = found;
+        }
+
+        // Fallback 2: select/option
+        if (meses.length === 0) {
+            var sel = document.querySelector('select');
+            if (sel && sel.options.length > 1) {
+                sel.selectedIndex = Math.floor(Math.random() * (sel.options.length - 1)) + 1;
+                sel.dispatchEvent(new Event('change', { bubbles: true }));
+                addLog('📅 Mês (select): ' + sel.options[sel.selectedIndex].text);
+                return true;
+            }
+        }
+
+        if (meses.length > 0) {
+            var idx = Math.floor(Math.random() * meses.length);
+            var mesEl = meses[idx];
+            dispatchRealClick(mesEl);
+            await delay(400);
+            if (mesEl.tagName !== 'LI' && mesEl.parentElement && mesEl.parentElement.tagName === 'LI') {
+                dispatchRealClick(mesEl.parentElement);
+                await delay(200);
+            }
+            try { var scope = angular.element(mesEl).scope(); if (scope && scope.$apply) scope.$apply(); } catch(e) {}
+            var mesNome = mesEl.textContent.trim() || 'Mês #' + (idx+1);
+            addLog('📅 Mês selecionado: ' + mesNome);
+            return true;
+        }
+        addLog('⚠️ Nenhum mês encontrado na página');
         return false;
     }
 
