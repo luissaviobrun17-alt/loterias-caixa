@@ -1683,9 +1683,10 @@ class NovaEraEngine {
     }
 
     // ╔══════════════════════════════════════════════════════════════════════════════╗
-    // ║  ★★★ SÍNTESE QUANTUM L99 — 18 CAMADAS DE PREDIÇÃO ★★★                    ║
+    // ║  ★★★ SÍNTESE QUANTUM L99 — 19 CAMADAS DE PREDIÇÃO ★★★                    ║
     // ║  8 camadas clássicas + 4 Modo Deus + 4 QUANTUM L99                        ║
     // ║  + Precision Calibrator + Pattern DNA                                      ║
+    // ║  + Filtro Combinatório Final (validação estrutural = Camada 19)            ║
     // ║  CALIBRAÇÃO DINÂMICA com cross-validation de 12 sorteios                   ║
     // ╚══════════════════════════════════════════════════════════════════════════════╝
     static _scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange) {
@@ -1866,7 +1867,7 @@ class NovaEraEngine {
             console.log('[QUANTUM-L99]    DNA Ideal: soma=' + idealSoma.toFixed(2) + ' | paridade=' + idealParidade.toFixed(2) + ' | gap=' + idealGap.toFixed(1) + ' | delay=' + idealDelay.toFixed(1));
         }
 
-        console.log('%c[QUANTUM-L99] ★★★ 18 CAMADAS ATIVADAS — ' + gameKey + ' ★★★', 'color: gold; font-weight: bold;');
+        console.log('%c[QUANTUM-L99] ★★★ 19 CAMADAS ATIVADAS — ' + gameKey + ' ★★★', 'color: gold; font-weight: bold;');
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // ★★★ CONSENSO ENSEMBLE L99 — Votação entre 18 camadas ★★★
@@ -1980,7 +1981,7 @@ class NovaEraEngine {
 
             const names = ['freq','trend','delay','zone','markov','phase','clair','next','bayes','posit','seq','mom','mirror','gap','cluster','revert','prec','dna'];
             const boostStr = dynamicBoosts.map((b, i) => names[i] + '=' + b.toFixed(2)).join(' ');
-            console.log('[QUANTUM-L99] ★ v5.0 CALIBRAÇÃO (12-fold NDCG, 18 camadas): ' + boostStr);
+            console.log('[QUANTUM-L99] ★ v5.0 CALIBRAÇÃO (12-fold NDCG, 19 camadas): ' + boostStr);
         }
 
         // ━━━ PESOS QUANTUM L99 ━━━
@@ -2039,7 +2040,7 @@ class NovaEraEngine {
     }
 
     // ╔══════════════════════════════════════════════════════════════════════════╗
-    // ║  ★★★ PESOS QUANTUM L99 v4.0 — 18 DIMENSÕES POR LOTERIA ★★★            ║
+    // ║  ★★★ PESOS QUANTUM L99 v4.0 — 19 DIMENSÕES POR LOTERIA ★★★            ║
     // ║  + Camada 17: PRECISION (Futurologia dos últimos 3)                    ║
     // ║  + Camada 18: PATTERN DNA (Aprender com o passado)                     ║
     // ║  Noise ZERO — foco total na assertividade preditiva                    ║
@@ -2599,7 +2600,7 @@ class NovaEraEngine {
             backtestHits: { '5+': bt5, '4+': bt4, '3+': bt3, avg: avgHits.toFixed(2), maxHits },
             improvement: improvement.toFixed(2) + 'x',
             engine: 'QUANTUM L99 — ' + (profile.name || gameKey),
-            mode: 'QUANTUM L99 — 18 Camadas | Espelho Temporal | Clusters | Pattern DNA'
+            mode: 'QUANTUM L99 — 19 Camadas | Espelho Temporal | Clusters | Pattern DNA'
         };
     }
 

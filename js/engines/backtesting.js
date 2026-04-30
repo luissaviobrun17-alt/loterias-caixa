@@ -97,9 +97,9 @@ class BacktestingEngine {
                 avgHit: 0
             };
 
-            for (const game of games) {
+            for (const ticket of games) {
                 let hits = 0;
-                for (const num of game) {
+                for (const num of ticket) {
                     if (targetSet.has(num)) hits++;
                 }
                 drawResults.hits.push(hits);
