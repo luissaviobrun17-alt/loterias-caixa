@@ -803,8 +803,8 @@ class UI {
         script += 'var t0=Date.now();';
         script += 'var delay=function(ms){return new Promise(function(r){setTimeout(r,ms)})};';
 
-        // ── realClick: simula clique real com todos os eventos ──
-        script += 'function realClick(el){if(!el)return false;try{el.scrollIntoView({block:"center",behavior:"instant"});var r=el.getBoundingClientRect();var cx=r.left+r.width/2;var cy=r.top+r.height/2;var evts=["pointerdown","mousedown","pointerup","mouseup","click"];for(var i=0;i<evts.length;i++){el.dispatchEvent(new MouseEvent(evts[i],{view:window,bubbles:true,cancelable:true,clientX:cx,clientY:cy,button:0}))}return true}catch(e){try{el.click();return true}catch(e2){return false}}}';
+        // ── realClick: simula clique real com todos os eventos + Angular ──
+        script += 'function realClick(el){if(!el)return false;try{el.scrollIntoView({block:"center",behavior:"instant"});var r=el.getBoundingClientRect();var cx=r.left+r.width/2;var cy=r.top+r.height/2;var evts=["pointerdown","mousedown","pointerup","mouseup","click"];for(var i=0;i<evts.length;i++){el.dispatchEvent(new MouseEvent(evts[i],{view:window,bubbles:true,cancelable:true,clientX:cx,clientY:cy,button:0}))}try{var scope=angular.element(el).scope();if(scope&&scope.$apply)scope.$apply()}catch(ae){}return true}catch(e){try{el.click();return true}catch(e2){return false}}}';
 
         // ── fecharModais: fecha alertas/modais do site ──
         script += 'function fecharModais(){var ids=["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","botaosim","btnFecharModal","btnOk","btnConfirmar"];for(var k=0;k<ids.length;k++){var el=document.getElementById(ids[k]);if(el&&el.offsetParent!==null&&el.offsetWidth>0){try{realClick(el)}catch(e){}}}var bts=document.querySelectorAll("button,a");for(var j=0;j<bts.length;j++){var t=bts[j].textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="sim"||t==="continuar")&&bts[j].offsetParent!==null&&bts[j].offsetWidth>0){var isCart=bts[j].id&&(bts[j].id.toLowerCase().indexOf("carrinho")>=0||bts[j].id.toLowerCase().indexOf("pagamento")>=0);if(!isCart){try{realClick(bts[j])}catch(e){}}}}}';
@@ -899,9 +899,9 @@ class UI {
         script += 'console.log("[B2B] "+(i+1)+"/"+TOTAL+" ["+jogo.join(",")+"]");';
         script += 'fecharModais();';
         script += 'if(i>0){limpar();await delay(1200);fecharModais();await delay(400)}';
-        script += 'var ac=0;for(var n=0;n<jogo.length;n++){if(clicarNumero(jogo[n])){ac++}else{await delay(200);if(clicarNumero(jogo[n]))ac++}await delay(200)}';
+        script += 'var ac=0;for(var n=0;n<jogo.length;n++){if(clicarNumero(jogo[n])){ac++}else{await delay(350);if(clicarNumero(jogo[n]))ac++}await delay(350)}';
         script += 'if(ac<jogo.length)console.warn("[B2B] Jogo "+(i+1)+": "+ac+"/"+jogo.length+" nums");';
-        script += 'await delay(1200);fecharModais();await delay(400);';
+        script += 'try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}await delay(1500);fecharModais();await delay(600);';
         script += 'var ok=await carrinho();';
         script += 'if(ok){OK++;console.log("[B2B] ✅ "+(i+1)+" ("+OK+"/"+TOTAL+")")}else{ERROS++;console.error("[B2B] ❌ "+(i+1)+"'+(isTimemania ? ' — Verifique se o Time do Coração foi selecionado' : '')+'")}';
         script += 'if(i<TOTAL-1){await delay(1500);fecharModais()}';
@@ -953,7 +953,7 @@ class UI {
         const isTimemania = config.url === 'timemania';
         const isDiaDeSorte = config.url === 'dia-de-sorte';
         // Minified automation script embedded in bookmarklet
-        const script = `javascript:void((async function(){var J=${gamesJSON};var T=J.length;var OK=0;var ER=0;var TM=${isTimemania};var DS=${isDiaDeSorte};function d(ms){return new Promise(function(r){setTimeout(r,ms)})}function rc(e){if(!e)return!1;try{e.scrollIntoView({block:"center",behavior:"instant"});var r=e.getBoundingClientRect();var x=r.left+r.width/2;var y=r.top+r.height/2;["pointerdown","mousedown","pointerup","mouseup","click"].forEach(function(ev){e.dispatchEvent(new MouseEvent(ev,{view:window,bubbles:!0,cancelable:!0,clientX:x,clientY:y,button:0}))});return!0}catch(x){try{e.click();return!0}catch(x2){return!1}}}function fm(){["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","botaosim","btnFecharModal","btnOk","btnConfirmar"].forEach(function(id){var e=document.getElementById(id);if(e&&e.offsetParent!==null)try{rc(e)}catch(x){}});document.querySelectorAll("button,a").forEach(function(b){var t=b.textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="sim"||t==="continuar")&&b.offsetParent!==null&&b.offsetWidth>0){var ic=b.id&&(b.id.toLowerCase().indexOf("carrinho")>=0||b.id.toLowerCase().indexOf("pagamento")>=0);if(!ic)try{rc(b)}catch(x){}}})}function cn(n){var p=String(n).padStart(2,"0");var e=document.getElementById("n"+p);if(e)return rc(e);e=document.querySelector("a#n"+p)||document.querySelector("#n"+p);if(e)return rc(e);var all=document.querySelectorAll("a[role=button],a.dezena,a.numero,a[id^=n]");for(var i=0;i<all.length;i++)if(all[i].textContent.trim()===p)return rc(all[i]);var allN=document.querySelectorAll(".number,.dezena,.num,[class*=number],[class*=dezena]");for(var k=0;k<allN.length;k++){var t=allN[k].textContent.trim();if(t===p||t===String(n))return rc(allN[k])}return!1}function lmp(){fm();var b=document.getElementById("limparvolante");if(b)return rc(b);b=document.querySelector("[id*=limpar]");if(b)return rc(b);var bs=document.querySelectorAll("button");for(var k=0;k<bs.length;k++)if(bs[k].textContent.toLowerCase().indexOf("limpar")>=0)return rc(bs[k]);return!1}async function selTime(){if(!TM)return!0;await d(500);var ts=document.querySelectorAll("[data-selecionar-time-do-coracao],img[name=btnTime],.time-coracao img,li img[src*=time],.times-list img,.team-item img");if(ts.length===0){var al=document.querySelectorAll("li");for(var k=0;k<al.length;k++){var im=al[k].querySelectorAll("img");if(im.length>0&&al[k].querySelector("span")){ts=im;break}}}if(ts.length===0){var tb=document.querySelectorAll("a[class*=time],button[class*=time],div[class*=time]");if(tb.length>0)ts=tb}if(ts.length>0){var idx=Math.floor(Math.random()*ts.length);rc(ts[idx]);await d(800);if(ts[idx].parentElement&&ts[idx].parentElement.tagName==="LI"&&!ts[idx].parentElement.classList.contains("active")){rc(ts[idx].parentElement);await d(500)}return!0}return!1}async function selMes(){if(!DS)return!0;await d(500);var ms=document.querySelectorAll("[data-selecionar-mes],select#mes option,.mes-sorte,.month-item");if(ms.length===0){var s=document.querySelector("select");if(s&&s.options.length>1){s.selectedIndex=Math.floor(Math.random()*(s.options.length-1))+1;s.dispatchEvent(new Event("change",{bubbles:!0}));return!0}}if(ms.length>0){var idx=Math.floor(Math.random()*ms.length);rc(ms[idx]);await d(500);return!0}return!1}async function car(){fm();await d(300);if(TM){await selTime();await d(600)}if(DS){await selMes();await d(600)}for(var t=0;t<8;t++){var b=document.getElementById("colocarnocarrinho");if(b&&b.offsetParent!==null){if(b.disabled||b.classList.contains("disabled")){await d(1500);if(TM){await selTime();await d(800)}if(DS){await selMes();await d(800)}continue}rc(b);await d(1500);fm();await d(600);fm();return!0}var ab=document.querySelectorAll("button,a");for(var k=0;k<ab.length;k++){var tx=ab[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar no carrinho")>=0||(tx.indexOf("carrinho")>=0&&tx.indexOf("ir para")<0&&tx.indexOf("ver")<0))&&ab[k].offsetParent!==null&&ab[k].offsetWidth>0){rc(ab[k]);await d(1500);fm();await d(600);fm();return!0}}fm();await d(800)}return!1}var pg=document.createElement("div");pg.id="b2b-mob-progress";pg.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(145deg,#0F172A,#1E293B);border-bottom:2px solid #FFD700;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.6);font-family:Inter,sans-serif;";pg.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#FFD700;font-weight:800;font-size:0.85rem;">⚡ B2B TURBO</span><span id="b2b-pg-txt" style="color:#E2E8F0;font-size:0.8rem;font-weight:600;">0/'+T+'</span><button onclick="this.parentNode.parentNode.remove()" style="background:none;border:none;color:#94A3B8;font-size:1.2rem;cursor:pointer;">✕</button></div><div style="margin-top:6px;background:rgba(255,255,255,0.1);border-radius:4px;height:6px;overflow:hidden;"><div id="b2b-pg-bar" style="width:0%;height:100%;background:linear-gradient(90deg,#FFD700,#22C55E);border-radius:4px;transition:width 0.3s;"></div></div>';document.body.appendChild(pg);fm();await d(800);for(var i=0;i<T;i++){var j=J[i];var pt=document.getElementById("b2b-pg-txt");var pb=document.getElementById("b2b-pg-bar");if(pt)pt.textContent=(i+1)+"/"+T+" ["+j.join(",")+"]";if(pb)pb.style.width=((i+1)/T*100).toFixed(0)+"%";fm();if(i>0){lmp();await d(1200);fm();await d(400)}var ac=0;for(var n=0;n<j.length;n++){if(cn(j[n]))ac++;else{await d(200);if(cn(j[n]))ac++}await d(200)}await d(1200);fm();await d(400);var ok=await car();if(ok){OK++}else{ER++}if(i<T-1){await d(1500);fm()}}var pp=document.getElementById("b2b-mob-progress");if(pp){pp.style.borderColor="#22C55E";pp.innerHTML='<div style="text-align:center;padding:8px;"><div style="color:#22C55E;font-weight:800;font-size:1rem;">✅ PRONTO! '+OK+'/'+T+' jogos no carrinho!</div><div style="color:#E2E8F0;font-size:0.8rem;margin-top:4px;">💳 Toque no carrinho (🛒) para finalizar o pagamento.</div><button onclick="this.parentNode.parentNode.remove()" style="margin-top:8px;background:#22C55E;color:white;border:none;padding:8px 20px;border-radius:8px;font-weight:700;cursor:pointer;">OK</button></div>'}alert("✅ "+OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\n\\n💳 Toque no carrinho (🛒) para finalizar.")})())`;
+        const script = `javascript:void((async function(){var J=${gamesJSON};var T=J.length;var OK=0;var ER=0;var TM=${isTimemania};var DS=${isDiaDeSorte};function d(ms){return new Promise(function(r){setTimeout(r,ms)})}function rc(e){if(!e)return!1;try{e.scrollIntoView({block:"center",behavior:"instant"});var r=e.getBoundingClientRect();var x=r.left+r.width/2;var y=r.top+r.height/2;["pointerdown","mousedown","pointerup","mouseup","click"].forEach(function(ev){e.dispatchEvent(new MouseEvent(ev,{view:window,bubbles:!0,cancelable:!0,clientX:x,clientY:y,button:0}))});try{var sc=angular.element(e).scope();if(sc&&sc.$apply)sc.$apply()}catch(ae){}return!0}catch(x){try{e.click();return!0}catch(x2){return!1}}}function fm(){["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","botaosim","btnFecharModal","btnOk","btnConfirmar"].forEach(function(id){var e=document.getElementById(id);if(e&&e.offsetParent!==null)try{rc(e)}catch(x){}});document.querySelectorAll("button,a").forEach(function(b){var t=b.textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="sim"||t==="continuar")&&b.offsetParent!==null&&b.offsetWidth>0){var ic=b.id&&(b.id.toLowerCase().indexOf("carrinho")>=0||b.id.toLowerCase().indexOf("pagamento")>=0);if(!ic)try{rc(b)}catch(x){}}})}function cn(n){var p=String(n).padStart(2,"0");var e=document.getElementById("n"+p);if(e)return rc(e);e=document.querySelector("a#n"+p)||document.querySelector("#n"+p);if(e)return rc(e);var all=document.querySelectorAll("a[role=button],a.dezena,a.numero,a[id^=n]");for(var i=0;i<all.length;i++)if(all[i].textContent.trim()===p)return rc(all[i]);var allN=document.querySelectorAll(".number,.dezena,.num,[class*=number],[class*=dezena]");for(var k=0;k<allN.length;k++){var t=allN[k].textContent.trim();if(t===p||t===String(n))return rc(allN[k])}return!1}function lmp(){fm();var b=document.getElementById("limparvolante");if(b)return rc(b);b=document.querySelector("[id*=limpar]");if(b)return rc(b);var bs=document.querySelectorAll("button");for(var k=0;k<bs.length;k++)if(bs[k].textContent.toLowerCase().indexOf("limpar")>=0)return rc(bs[k]);return!1}async function selTime(){if(!TM)return!0;await d(500);var ts=document.querySelectorAll("[data-selecionar-time-do-coracao],img[name=btnTime],.time-coracao img,li img[src*=time],.times-list img,.team-item img");if(ts.length===0){var al=document.querySelectorAll("li");for(var k=0;k<al.length;k++){var im=al[k].querySelectorAll("img");if(im.length>0&&al[k].querySelector("span")){ts=im;break}}}if(ts.length===0){var tb=document.querySelectorAll("a[class*=time],button[class*=time],div[class*=time]");if(tb.length>0)ts=tb}if(ts.length>0){var idx=Math.floor(Math.random()*ts.length);rc(ts[idx]);await d(800);if(ts[idx].parentElement&&ts[idx].parentElement.tagName==="LI"&&!ts[idx].parentElement.classList.contains("active")){rc(ts[idx].parentElement);await d(500)}return!0}return!1}async function selMes(){if(!DS)return!0;await d(500);var ms=document.querySelectorAll("[data-selecionar-mes],select#mes option,.mes-sorte,.month-item");if(ms.length===0){var s=document.querySelector("select");if(s&&s.options.length>1){s.selectedIndex=Math.floor(Math.random()*(s.options.length-1))+1;s.dispatchEvent(new Event("change",{bubbles:!0}));return!0}}if(ms.length>0){var idx=Math.floor(Math.random()*ms.length);rc(ms[idx]);await d(500);return!0}return!1}async function car(){fm();await d(300);if(TM){await selTime();await d(600)}if(DS){await selMes();await d(600)}for(var t=0;t<8;t++){var b=document.getElementById("colocarnocarrinho");if(b&&b.offsetParent!==null){if(b.disabled||b.classList.contains("disabled")){await d(1500);if(TM){await selTime();await d(800)}if(DS){await selMes();await d(800)}continue}rc(b);await d(1500);fm();await d(600);fm();return!0}var ab=document.querySelectorAll("button,a");for(var k=0;k<ab.length;k++){var tx=ab[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar no carrinho")>=0||(tx.indexOf("carrinho")>=0&&tx.indexOf("ir para")<0&&tx.indexOf("ver")<0))&&ab[k].offsetParent!==null&&ab[k].offsetWidth>0){rc(ab[k]);await d(1500);fm();await d(600);fm();return!0}}fm();await d(800)}return!1}var pg=document.createElement("div");pg.id="b2b-mob-progress";pg.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(145deg,#0F172A,#1E293B);border-bottom:2px solid #FFD700;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.6);font-family:Inter,sans-serif;";pg.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#FFD700;font-weight:800;font-size:0.85rem;">⚡ B2B TURBO</span><span id="b2b-pg-txt" style="color:#E2E8F0;font-size:0.8rem;font-weight:600;">0/'+T+'</span><button onclick="this.parentNode.parentNode.remove()" style="background:none;border:none;color:#94A3B8;font-size:1.2rem;cursor:pointer;">✕</button></div><div style="margin-top:6px;background:rgba(255,255,255,0.1);border-radius:4px;height:6px;overflow:hidden;"><div id="b2b-pg-bar" style="width:0%;height:100%;background:linear-gradient(90deg,#FFD700,#22C55E);border-radius:4px;transition:width 0.3s;"></div></div>';document.body.appendChild(pg);fm();await d(800);for(var i=0;i<T;i++){var j=J[i];var pt=document.getElementById("b2b-pg-txt");var pb=document.getElementById("b2b-pg-bar");if(pt)pt.textContent=(i+1)+"/"+T+" ["+j.join(",")+"]";if(pb)pb.style.width=((i+1)/T*100).toFixed(0)+"%";fm();if(i>0){lmp();await d(1200);fm();await d(400)}var ac=0;for(var n=0;n<j.length;n++){if(cn(j[n]))ac++;else{await d(350);if(cn(j[n]))ac++}await d(350)}try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}await d(1500);fm();await d(600);var ok=await car();if(ok){OK++}else{ER++}if(i<T-1){await d(1500);fm()}}var pp=document.getElementById("b2b-mob-progress");if(pp){pp.style.borderColor="#22C55E";pp.innerHTML='<div style="text-align:center;padding:8px;"><div style="color:#22C55E;font-weight:800;font-size:1rem;">✅ PRONTO! '+OK+'/'+T+' jogos no carrinho!</div><div style="color:#E2E8F0;font-size:0.8rem;margin-top:4px;">💳 Toque no carrinho (🛒) para finalizar o pagamento.</div><button onclick="this.parentNode.parentNode.remove()" style="margin-top:8px;background:#22C55E;color:white;border:none;padding:8px 20px;border-radius:8px;font-weight:700;cursor:pointer;">OK</button></div>'}alert("✅ "+OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\n\\n💳 Toque no carrinho (🛒) para finalizar.")})())`;
         return script;
     }
 
@@ -1453,129 +1453,9 @@ class UI {
     }
 
     // Gerar o script JavaScript para automação no site da Caixa
+    // Redireciona para o script TURBO que funciona com AngularJS
     _generateCaixaScript(config, games) {
-        const gamesJSON = JSON.stringify(games);
-        return `
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  B2B Loterias — Script de Aposta Automática                  ║
-// ║  ${config.name}: ${games.length} jogos                                     ║
-// ║  Gerado pelo MODO DEUS+ — 12 Camadas de Predição            ║
-// ╚══════════════════════════════════════════════════════════════╝
-(async function() {
-    const JOGOS = ${gamesJSON};
-    const DELAY_ENTRE_JOGOS = 3000; // 3 segundos entre jogos
-    const DELAY_ENTRE_CLIQUES = 150; // 150ms entre cliques de números
-
-    console.log('🏦 B2B Loterias — Iniciando ${games.length} jogos de ${config.name}...');
-
-    // Função para aguardar
-    const delay = ms => new Promise(r => setTimeout(r, ms));
-
-    // Função para clicar em um número
-    function clicarNumero(num) {
-        const id = 'n' + String(num).padStart(2, '0');
-        const el = document.querySelector('#' + id) || document.querySelector('a#' + id);
-        if (el) {
-            el.click();
-            return true;
-        }
-        // Tentativa alternativa: buscar por texto
-        const allNums = document.querySelectorAll('.number, .dezena, .num, [class*="number"]');
-        for (const btn of allNums) {
-            if (btn.textContent.trim() === String(num).padStart(2, '0') || btn.textContent.trim() === String(num)) {
-                btn.click();
-                return true;
-            }
-        }
-        console.warn('⚠️ Número ' + num + ' não encontrado (id: ' + id + ')');
-        return false;
-    }
-
-    // Função para clicar no botão "Colocar no Carrinho"
-    function colocarNoCarrinho() {
-        const btn = document.querySelector('#colocarnocarrinho') || 
-                    document.querySelector('button#colocarnocarrinho') ||
-                    document.querySelector('[id*="carrinho"]') ||
-                    document.querySelector('button[class*="carrinho"]');
-        if (btn) {
-            btn.click();
-            return true;
-        }
-        // Buscar por texto
-        const allBtns = document.querySelectorAll('button');
-        for (const b of allBtns) {
-            const txt = b.textContent.toLowerCase();
-            if (txt.includes('carrinho') || txt.includes('adicionar') || txt.includes('colocar')) {
-                b.click();
-                return true;
-            }
-        }
-        console.warn('⚠️ Botão "Colocar no Carrinho" não encontrado');
-        return false;
-    }
-
-    // Função para limpar o volante
-    function limparVolante() {
-        const btn = document.querySelector('#limparvolante') || 
-                    document.querySelector('button#limparvolante') ||
-                    document.querySelector('[id*="limpar"]');
-        if (btn) {
-            btn.click();
-            return true;
-        }
-        const allBtns = document.querySelectorAll('button');
-        for (const b of allBtns) {
-            if (b.textContent.toLowerCase().includes('limpar')) {
-                b.click();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Processar cada jogo
-    for (let i = 0; i < JOGOS.length; i++) {
-        const jogo = JOGOS[i];
-        console.log('🎯 Jogo ' + (i + 1) + '/' + JOGOS.length + ': [' + jogo.join(', ') + ']');
-
-        // Limpar seleção anterior (exceto no primeiro jogo)
-        if (i > 0) {
-            limparVolante();
-            await delay(500);
-        }
-
-        // Clicar em cada número do jogo
-        for (const num of jogo) {
-            clicarNumero(num);
-            await delay(DELAY_ENTRE_CLIQUES);
-        }
-
-        // Aguardar um pouco para a seleção ser processada
-        await delay(800);
-
-        // Colocar no carrinho
-        const ok = colocarNoCarrinho();
-        if (ok) {
-            console.log('✅ Jogo ' + (i + 1) + ' adicionado ao carrinho!');
-        } else {
-            console.error('❌ Falha ao adicionar jogo ' + (i + 1) + ' ao carrinho. Adicione manualmente.');
-        }
-
-        // Aguardar entre jogos
-        if (i < JOGOS.length - 1) {
-            console.log('⏳ Aguardando ' + (DELAY_ENTRE_JOGOS/1000) + 's para o próximo jogo...');
-            await delay(DELAY_ENTRE_JOGOS);
-        }
-    }
-
-    console.log('');
-    console.log('🏆 ═══════════════════════════════════════════════════');
-    console.log('🏆  CONCLUÍDO! ' + JOGOS.length + ' jogos de ${config.name} no carrinho!');
-    console.log('🏆  Agora finalize o pagamento manualmente.');
-    console.log('🏆 ═══════════════════════════════════════════════════');
-    alert('✅ ' + JOGOS.length + ' jogos de ${config.name} foram adicionados ao carrinho!\\n\\nFinalize o pagamento manualmente.');
-})();
-`.trim();
+        return this._generateCaixaScript_LEGACY(config, games);
     }
 
     initHeaderAnimations() {

@@ -65,6 +65,7 @@
                 ['pointerdown','mousedown','pointerup','mouseup','click'].forEach(ev => {
                     el.dispatchEvent(new MouseEvent(ev, { view: window, bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0 }));
                 });
+                try { var scope = angular.element(el).scope(); if (scope && scope.$apply) scope.$apply(); } catch(ae) {}
                 return true;
             } catch(e) {
                 try { el.click(); return true; } catch(e2) { return false; }
@@ -172,11 +173,12 @@
             if (i > 0) { lmp(); await d(1200); fm(); await d(400); }
 
             for (let n = 0; n < j.length; n++) {
-                if (!cn(j[n])) { await d(200); cn(j[n]); }
-                await d(200);
+                if (!cn(j[n])) { await d(350); cn(j[n]); }
+                await d(350);
             }
 
-            await d(1200); fm(); await d(400);
+            try { var rs = angular.element(document.body).scope(); if (rs && rs.$apply) rs.$apply(); } catch(ae) {}
+            await d(1500); fm(); await d(600);
             const ok = await car();
             if (ok) OK++; else ER++;
             if (i < T - 1) { await d(1500); fm(); }

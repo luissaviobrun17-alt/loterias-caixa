@@ -12,7 +12,7 @@
 
     // ═══ CONFIGURAÇÕES ═══
     var BATCH_SIZE = 10;         // Processar 10 jogos por vez
-    var DELAY_CLICK = 250;       // ms entre cliques de números
+    var DELAY_CLICK = 350;       // ms entre cliques de números
     var DELAY_CART = 1800;       // ms após clicar no carrinho
     var DELAY_BETWEEN = 2500;    // ms entre jogos
     var DELAY_MODAL = 600;       // ms para fechar modais
@@ -69,6 +69,7 @@
                 });
                 el.dispatchEvent(evt);
             }
+            try { var scope = angular.element(el).scope(); if (scope && scope.$apply) scope.$apply(); } catch(ae) {}
             return true;
         } catch(e) {
             // Fallback: simple click
@@ -299,10 +300,12 @@
 
             addLog('🔢 Jogo ' + (i+1) + ': ' + acertos + '/' + nums.length + ' [' + nums.join(',') + ']');
 
-            // Esperar e colocar no carrinho
-            await delay(1200);
+            await delay(1500);
             fecharModais();
             await delay(DELAY_MODAL);
+            // Force Angular digest after number selection
+            try { var rs = angular.element(document.body).scope(); if (rs && rs.$apply) rs.$apply(); } catch(ae) {}
+            await delay(600);
 
             var cartOk = await colocarNoCarrinhoComRetry();
 
