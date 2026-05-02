@@ -64,6 +64,12 @@ class UI {
         this.selectedNumbers = new Set();
         this.currentGameKey = 'megasena';
 
+        // ── Rastreamento de Modo de Geração (para Estatísticas) ──
+        this._lastGenerationMode = 'manual';   // quantum_l99 | gerar_jogos | dual_2g | fechamento | manual
+        this._lastPrecisionMode = false;
+        this._lastDrawSize = 6;
+        this._lastCheckDrawInfo = '';
+
         // Quantum/IA Elements
         this.quantumFormula = document.getElementById('quantum-formula');
         this.quantumCountInput = document.getElementById('quantum-count');
@@ -495,6 +501,11 @@ class UI {
         // Verificar se Modo Precisão está ativo
         const precisionCheckbox = document.getElementById('precision-mode-toggle');
         const isPrecisionMode = precisionCheckbox && precisionCheckbox.checked;
+
+        // ── RASTREAMENTO DE MODO ──
+        this._lastGenerationMode = 'quantum_l99';
+        this._lastPrecisionMode = isPrecisionMode;
+        this._lastDrawSize = this.smartDrawSizeSelect ? parseInt(this.smartDrawSizeSelect.value) || game.minBet : game.minBet;
 
         const quantity = parseInt(this.gamesQuantityInput.value) || 10;
         let selectedArr = Array.from(this.selectedNumbers);
@@ -1492,7 +1503,15 @@ class UI {
 
         // Generate (Fechamento) — Motor Inteligente v3 + Fechamento Objetivo L99
         this.generateBtn.onclick = () => {
+            // ── RASTREAMENTO DE MODO ──
+            this._lastPrecisionMode = false;
             const closingVal = this.closingSelect.value;
+            if (closingVal && closingVal.startsWith('close_')) {
+                this._lastGenerationMode = 'fechamento';
+            } else {
+                this._lastGenerationMode = 'gerar_jogos';
+            }
+            this._lastDrawSize = parseInt(this.smartDrawSizeSelect?.value) || GAMES[this.currentGameKey]?.minBet || 6;
 
             // ━━ FECHAMENTO OBJETIVO (ClosingEngine v3.0) ━━
             if (closingVal && closingVal.startsWith('close_')) {
@@ -1867,6 +1886,7 @@ class UI {
         this.initQuantum();
         this.initCopyEvents();
         this.initShareEvents();
+        this.initStatisticsPanel();
     }
 
     initQuantum() {
@@ -3608,12 +3628,46 @@ class UI {
         summaryHTML += `<div style="font-size:0.72rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">💎 Faixas de Premiação — ${game.name}</div>`;
         summaryHTML += `<div style="display:flex;flex-direction:column;gap:4px;">`;
 
+        // ── Buscar prêmios REAIS da API (se disponíveis) ──
+        let realPrizes = {};
+        try {
+            const prizeInfo = StatsService.getPrizeInfo(this.currentGameKey);
+            if (prizeInfo && prizeInfo.prizes && prizeInfo.prizes.length > 0) {
+                prizeInfo.prizes.forEach(p => {
+                    // API da Caixa: { descricaoFaixa, faixa, numeroDeGanhadores, valorPremio }
+                    const faixa = parseInt(p.faixa);
+                    if (p.valorPremio !== undefined) {
+                        realPrizes[faixa] = {
+                            valor: parseFloat(p.valorPremio) || 0,
+                            ganhadores: parseInt(p.numeroDeGanhadores) || 0,
+                            descricao: p.descricaoFaixa || ''
+                        };
+                    }
+                });
+            }
+        } catch(e) { /* fallback para valores estáticos */ }
+
         let estimatedTotal = 0;
+        let faixaIndex = 0;
         paidStrategies.forEach(strat => {
+            faixaIndex++;
             const count = awardCounts[strat.id] || 0;
             const isJackpot = strat.match === game.draw;
-            const prizeValue = strat.prize || 0;
-            const subtotal = count * prizeValue;
+
+            // Usar prêmio real da API se disponível, senão fallback estático
+            const realPrize = realPrizes[faixaIndex];
+            const prizeValue = realPrize ? realPrize.valor : (strat.prize || 0);
+
+            // Para prêmio principal: NÃO multiplicar por count (é o valor total do rateio)
+            // Para faixas menores: prêmio é por volante
+            let subtotal;
+            if (isJackpot) {
+                // Jackpot: se temos count ganhadores nossos, o valor é prizeValue dividido
+                // entre TODOS os ganhadores (nossos + outros). Usamos como estimativa.
+                subtotal = count > 0 ? prizeValue : 0;
+            } else {
+                subtotal = count * prizeValue;
+            }
             if (count > 0) estimatedTotal += subtotal;
 
             const rowBg = count > 0
@@ -3676,6 +3730,77 @@ class UI {
             this.checkSummaryContainer.style.display = 'block';
             this.checkSummaryContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+
+        // ═══════════════════════════════════════════════════════
+        // AUTO-SALVAR ESTATÍSTICAS (StatisticsTracker)
+        // ═══════════════════════════════════════════════════════
+        try {
+            if (typeof StatisticsTracker !== 'undefined') {
+                // Detectar drawSize real dos jogos gerados
+                const actualDrawSize = (this.currentGeneratedGames && this.currentGeneratedGames[0])
+                    ? this.currentGeneratedGames[0].length
+                    : (this._lastDrawSize || game.minBet);
+                const pricePerGame = game.price || 3.00;
+
+                // Calcular fator de combinação para jogos com mais números
+                let priceFactor = 1;
+                if (actualDrawSize > game.minBet) {
+                    const _comb = (n, k) => { let r = 1; for (let i = 0; i < k; i++) r *= (n - i) / (i + 1); return r; };
+                    priceFactor = _comb(actualDrawSize, game.minBet);
+                }
+                const valorInvestido = totalJogos * pricePerGame * priceFactor;
+
+                // Construir faixas detalhadas com prêmios reais
+                const faixasDetail = {};
+                let fIdx = 0;
+                paidStrategies.forEach(s => {
+                    fIdx++;
+                    const real = realPrizes[fIdx];
+                    faixasDetail[s.id] = {
+                        label: s.label,
+                        match: s.match,
+                        count: awardCounts[s.id] || 0,
+                        prizeUnit: real ? real.valor : (s.prize || 0)
+                    };
+                });
+
+                // Extrair número do concurso do drawInfo
+                let concursoNum = 0;
+                const concursoMatch = drawInfo.match(/(\d+)/);
+                if (concursoMatch) concursoNum = parseInt(concursoMatch[1]);
+
+                // Precisão: ler rastreamento + fallback do checkbox
+                let isPrecisao = this._lastPrecisionMode === true;
+                if (!isPrecisao) {
+                    const pc = document.getElementById('precision-mode-toggle');
+                    if (pc && pc.checked && this._lastGenerationMode === 'quantum_l99') {
+                        isPrecisao = true;
+                    }
+                }
+
+                const record = {
+                    lotteryKey: this.currentGameKey,
+                    lotteryName: game.name,
+                    concurso: concursoNum,
+                    drawInfo: drawInfo,
+                    data: new Date().toISOString(),
+                    qtdJogos: totalJogos,
+                    modoGeracao: this._lastGenerationMode || 'manual',
+                    precisao: isPrecisao,
+                    numPorJogo: actualDrawSize,
+                    faixas: faixasDetail,
+                    volantesPremiados: totalGanhos,
+                    valorPremio: estimatedTotal,
+                    valorInvestido: valorInvestido,
+                    drawnNumbers: [...drawnNumbers]
+                };
+                record.pctRetorno = valorInvestido > 0 ? ((estimatedTotal - valorInvestido) / valorInvestido * 100) : 0;
+
+                StatisticsTracker.save(record);
+            }
+        } catch(statsErr) {
+            console.warn('[Stats] Erro ao salvar estatística:', statsErr);
+        }
     }
     exportBackup() {
         if (this.currentGeneratedGames.length === 0) {
@@ -3736,6 +3861,310 @@ class UI {
                 h3.style.color = '';
             }, 2500);
         }
+    }
+
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║  PAINEL ESTATÍSTICAS — Conferência de Resultados & ROI     ║
+    // ║  Rastreia performance de apostas para calibrar o motor      ║
+    // ╚══════════════════════════════════════════════════════════════╝
+
+    initStatisticsPanel() {
+        const statsBtn = document.getElementById('btn-statistics');
+        const overlay = document.getElementById('stats-modal-overlay');
+        const closeBtn = document.getElementById('stats-modal-close');
+        if (!statsBtn || !overlay) return;
+
+        const _self = this;
+        this._statsActiveLottery = null;
+
+        // ── Abrir Modal ──
+        statsBtn.addEventListener('click', () => {
+            overlay.classList.add('active');
+            this._buildStatsLotteryGrid();
+        });
+
+        // ── Fechar Modal ──
+        if (closeBtn) closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
+
+        // ── Filtros ──
+        ['stats-filter-modo', 'stats-filter-precisao', 'stats-filter-qtd', 'stats-filter-numjogo'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('change', () => _self._applyStatsFilters());
+        });
+
+        // ── Exportar CSV ──
+        const exportBtn = document.getElementById('stats-export-csv');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                try {
+                    const csv = StatisticsTracker.exportCSV(this._statsActiveLottery);
+                    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    const lName = this._statsActiveLottery || 'todas';
+                    a.href = url;
+                    a.download = `b2b_estatisticas_${lName}_${new Date().toISOString().slice(0,10)}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    exportBtn.textContent = '✅ Exportado!';
+                    setTimeout(() => exportBtn.textContent = '📥 Exportar CSV', 2000);
+                } catch(e) {
+                    alert('Erro ao exportar: ' + e.message);
+                }
+            });
+        }
+
+        // ── Importar CSV ──
+        const importBtn = document.getElementById('stats-import-csv');
+        const importInput = document.getElementById('stats-import-input');
+        if (importBtn && importInput) {
+            importBtn.addEventListener('click', () => importInput.click());
+            importInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        const count = StatisticsTracker.importCSV(ev.target.result);
+                        alert(`✅ ${count} registros importados com sucesso!`);
+                        this._buildStatsLotteryGrid();
+                        if (this._statsActiveLottery) this.renderStatisticsTable(this._statsActiveLottery);
+                    } catch(err) {
+                        alert('Erro ao importar: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+                importInput.value = '';
+            });
+        }
+
+        // ── Limpar Dados ──
+        const clearBtn = document.getElementById('stats-clear');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                const lName = this._statsActiveLottery
+                    ? (GAMES[this._statsActiveLottery]?.name || this._statsActiveLottery)
+                    : 'TODAS AS LOTERIAS';
+                if (confirm(`⚠️ Tem certeza que deseja limpar TODOS os dados de estatísticas de ${lName}?\n\nEsta ação não pode ser desfeita.`)) {
+                    StatisticsTracker.clear(this._statsActiveLottery);
+                    this._buildStatsLotteryGrid();
+                    if (this._statsActiveLottery) this.renderStatisticsTable(this._statsActiveLottery);
+                }
+            });
+        }
+    }
+
+    // ── Construir Grid de Loterias ──
+    _buildStatsLotteryGrid() {
+        const grid = document.getElementById('stats-lottery-grid');
+        if (!grid) return;
+
+        const counts = typeof StatisticsTracker !== 'undefined' ? StatisticsTracker.getCounts() : {};
+        const gameKeys = ['megasena', 'lotofacil', 'quina', 'duplasena', 'lotomania', 'timemania', 'diadesorte'];
+
+        grid.innerHTML = '';
+        gameKeys.forEach(key => {
+            const game = GAMES[key];
+            if (!game) return;
+            const count = counts[key] || 0;
+            const btn = document.createElement('button');
+            btn.className = 'stats-lottery-btn' + (this._statsActiveLottery === key ? ' active' : '');
+            btn.style.setProperty('--stats-lottery-color', game.color);
+            btn.innerHTML = `
+                <div class="stats-lot-dot" style="background:${game.color};"></div>
+                <div class="stats-lot-name">${game.name}</div>
+                <div class="stats-lot-count">${count} registro${count !== 1 ? 's' : ''}</div>
+            `;
+            btn.addEventListener('click', () => {
+                this._statsActiveLottery = key;
+                grid.querySelectorAll('.stats-lottery-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.renderStatisticsTable(key);
+            });
+            grid.appendChild(btn);
+        });
+    }
+
+    // ── Aplicar Filtros ──
+    _applyStatsFilters() {
+        if (!this._statsActiveLottery) return;
+        this.renderStatisticsTable(this._statsActiveLottery);
+    }
+
+    // ── Renderizar Tabela de Estatísticas ──
+    renderStatisticsTable(lotteryKey) {
+        const tableArea = document.getElementById('stats-table-area');
+        const filterBar = document.getElementById('stats-filter-bar');
+        const totalsBar = document.getElementById('stats-totals');
+        const actionsBar = document.getElementById('stats-actions');
+        if (!tableArea) return;
+
+        const game = GAMES[lotteryKey];
+        if (!game) return;
+
+        // Mostrar controles
+        if (filterBar) filterBar.style.display = 'flex';
+        if (actionsBar) actionsBar.style.display = 'flex';
+
+        // Ler filtros
+        const filters = {
+            modoGeracao: document.getElementById('stats-filter-modo')?.value || 'todos',
+            precisao: document.getElementById('stats-filter-precisao')?.value || 'todos',
+            qtdJogos: document.getElementById('stats-filter-qtd')?.value || 'todos',
+            numPorJogo: document.getElementById('stats-filter-numjogo')?.value || 'todos'
+        };
+
+        // Ajustar filtro de precisão
+        if (filters.precisao === 'sim') filters.precisao = true;
+        else if (filters.precisao === 'nao') filters.precisao = false;
+        else filters.precisao = 'todos';
+
+        const records = StatisticsTracker.filter(lotteryKey, filters);
+
+        // Popular filtros dinâmicos
+        const allRecords = StatisticsTracker.getAll(lotteryKey);
+        this._populateStatsFilter('stats-filter-qtd', 'Qtd Jogos', allRecords.map(r => r.qtdJogos), filters.qtdJogos);
+        this._populateStatsFilter('stats-filter-numjogo', 'Nº/Jogo', allRecords.map(r => r.numPorJogo), filters.numPorJogo);
+
+        // ── Sem dados ──
+        if (records.length === 0) {
+            tableArea.innerHTML = `
+                <div class="stats-empty">
+                    <div class="stats-empty-icon">📭</div>
+                    <div class="stats-empty-title">Nenhum registro encontrado</div>
+                    <div class="stats-empty-desc">
+                        ${allRecords.length > 0
+                            ? 'Nenhum resultado corresponde aos filtros selecionados. Tente alterar os filtros.'
+                            : `Ainda não há conferências registradas para <strong>${game.name}</strong>.<br>Gere jogos, depois use o botão <strong>"Conferir"</strong> para verificar os resultados.`}
+                    </div>
+                </div>`;
+            if (totalsBar) { totalsBar.style.display = 'none'; totalsBar.innerHTML = ''; }
+            return;
+        }
+
+        // ── Aggregates ──
+        const agg = StatisticsTracker.aggregate(records);
+        if (totalsBar) {
+            totalsBar.style.display = 'grid';
+            const currency = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
+            const retClass = agg.pctRetornoMedio >= 0 ? 'positive' : 'negative';
+            totalsBar.innerHTML = `
+                <div class="stats-total-card"><div class="stats-total-label">Conferências</div><div class="stats-total-value">${agg.total}</div></div>
+                <div class="stats-total-card"><div class="stats-total-label">Total Jogos</div><div class="stats-total-value">${agg.totalJogos}</div></div>
+                <div class="stats-total-card"><div class="stats-total-label">Investido</div><div class="stats-total-value">${currency(agg.totalInvestido)}</div></div>
+                <div class="stats-total-card"><div class="stats-total-label">Premiado</div><div class="stats-total-value stats-cell-prize">${currency(agg.totalPremio)}</div></div>
+                <div class="stats-total-card"><div class="stats-total-label">Volantes Premiados</div><div class="stats-total-value">${agg.totalVolantesPremiados}</div></div>
+                <div class="stats-total-card"><div class="stats-total-label">Retorno Médio</div><div class="stats-total-value ${retClass}">${agg.pctRetornoMedio >= 0 ? '+' : ''}${agg.pctRetornoMedio.toFixed(1)}%</div></div>
+            `;
+        }
+
+        // ── Tabela ──
+        const paidStrats = game.strategies.filter(s => s.paid !== false);
+        const currency = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
+
+        let html = '<div class="stats-table-wrapper"><table class="stats-table"><thead><tr>';
+        html += '<th>Data</th>';
+        html += '<th>Concurso</th>';
+        html += '<th>Jogos</th>';
+        html += '<th>Modo</th>';
+        html += '<th>Precisão</th>';
+        html += '<th>Nº/Jogo</th>';
+
+        paidStrats.forEach(s => {
+            html += `<th>${s.label.replace(/\(.+?\)/, '').trim()}</th>`;
+        });
+
+        html += '<th>Premiados</th>';
+        html += '<th>Valor Prêmio</th>';
+        html += '<th>Investido</th>';
+        html += '<th>% Retorno</th>';
+        html += '<th></th>';
+        html += '</tr></thead><tbody>';
+
+        records.forEach(r => {
+            const data = r.data ? new Date(r.data).toLocaleDateString('pt-BR') : '—';
+
+            // Badge de modo
+            const modoBadgeClass = {
+                'quantum_l99': 'quantum',
+                'gerar_jogos': 'gerar',
+                'dual_2g': 'dual',
+                'fechamento': 'fech',
+                'manual': 'manual'
+            }[r.modoGeracao] || 'manual';
+            const modoLabel = StatisticsTracker.getModoLabel(r.modoGeracao);
+
+            // Badge de precisão
+            const precBadge = r.precisao
+                ? '<span class="stats-badge sim">Sim</span>'
+                : '<span class="stats-badge nao">Não</span>';
+
+            // Retorno
+            const retorno = r.pctRetorno || 0;
+            const retClass = retorno > 0 ? 'stats-cell-positive' : (retorno < 0 ? 'stats-cell-negative' : 'stats-cell-neutral');
+            const retStr = (retorno >= 0 ? '+' : '') + retorno.toFixed(1) + '%';
+
+            // Valor prêmio
+            const premioStr = r.valorPremio > 0 ? currency(r.valorPremio) : '—';
+            const premioClass = r.valorPremio > 0 ? 'stats-cell-prize' : 'stats-cell-neutral';
+
+            html += '<tr>';
+            html += `<td>${data}</td>`;
+            html += `<td>${r.concurso || '—'}</td>`;
+            html += `<td>${r.qtdJogos || 0}</td>`;
+            html += `<td><span class="stats-badge ${modoBadgeClass}">${modoLabel}</span></td>`;
+            html += `<td>${precBadge}</td>`;
+            html += `<td>${r.numPorJogo || '—'}</td>`;
+
+            // Faixas de premiação
+            paidStrats.forEach(s => {
+                const faixa = r.faixas && r.faixas[s.id];
+                const count = faixa ? faixa.count : 0;
+                if (count > 0) {
+                    html += `<td><strong style="color:#22C55E;">${count}x</strong></td>`;
+                } else {
+                    html += `<td style="color:#334155;">—</td>`;
+                }
+            });
+
+            html += `<td>${r.volantesPremiados > 0 ? '<strong style="color:#22C55E;">' + r.volantesPremiados + '</strong>' : '0'}</td>`;
+            html += `<td class="${premioClass}">${premioStr}</td>`;
+            html += `<td>${currency(r.valorInvestido || 0)}</td>`;
+            html += `<td class="${retClass}">${retStr}</td>`;
+            html += `<td><button class="stats-delete-btn" data-id="${r.id}" data-lottery="${lotteryKey}" title="Excluir registro">🗑️</button></td>`;
+            html += '</tr>';
+        });
+
+        html += '</tbody></table></div>';
+        tableArea.innerHTML = html;
+
+        // ── Delete handlers ──
+        tableArea.querySelectorAll('.stats-delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const lk = btn.dataset.lottery;
+                if (confirm('Excluir este registro?')) {
+                    StatisticsTracker.remove(lk, id);
+                    this._buildStatsLotteryGrid();
+                    this.renderStatisticsTable(lk);
+                }
+            });
+        });
+    }
+
+    // ── Popular filtro dinâmico ──
+    _populateStatsFilter(selectId, label, values, currentValue) {
+        const sel = document.getElementById(selectId);
+        if (!sel) return;
+        const unique = [...new Set(values.filter(v => v != null))].sort((a, b) => a - b);
+        const oldVal = currentValue || sel.value;
+        sel.innerHTML = `<option value="todos">${label}: Todos</option>`;
+        unique.forEach(v => {
+            sel.innerHTML += `<option value="${v}" ${String(v) === String(oldVal) ? 'selected' : ''}>${v}</option>`;
+        });
     }
 }
 
