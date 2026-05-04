@@ -92,22 +92,66 @@ If liberado Then
         End If
 
         If senha = "130767" Then
-            Dim caminhoApp
-            caminhoApp = objFSO.GetParentFolderName(WScript.ScriptFullName) & "\index.html"
+            Dim caminhoApp, caminhoServer, caminhoNode
+            caminhoApp = objFSO.GetParentFolderName(WScript.ScriptFullName)
+            caminhoServer = caminhoApp & "\server.js"
             
-            On Error Resume Next
-            objShell.Run """C:\Program Files\Google\Chrome\Application\chrome.exe"" --app=""file:///" & Replace(caminhoApp, "\", "/") & """", 1, False
-            
-            If Err.Number <> 0 Then
+            ' Iniciar servidor HTTP local (Node.js) em background
+            If objFSO.FileExists(caminhoServer) Then
+                ' Verificar se o servidor já está rodando
+                Dim xmlHttp, serverRunning
+                serverRunning = False
+                On Error Resume Next
+                Set xmlHttp = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+                xmlHttp.setTimeouts 500, 500, 500, 500
+                xmlHttp.Open "GET", "http://localhost:8777/", False
+                xmlHttp.Send
+                If Err.Number = 0 And xmlHttp.status = 200 Then
+                    serverRunning = True
+                End If
+                Set xmlHttp = Nothing
                 Err.Clear
-                objShell.Run """C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"" --app=""file:///" & Replace(caminhoApp, "\", "/") & """", 1, False
+                On Error GoTo 0
+                
+                If Not serverRunning Then
+                    ' Encontrar node.exe
+                    caminhoNode = "node"
+                    objShell.Run "cmd /c start /min /b node """ & caminhoServer & """", 0, False
+                    WScript.Sleep 1500
+                End If
+                
+                ' Abrir Chrome no localhost
+                On Error Resume Next
+                objShell.Run """C:\Program Files\Google\Chrome\Application\chrome.exe"" --app=""http://localhost:8777""", 1, False
                 
                 If Err.Number <> 0 Then
                     Err.Clear
-                    objShell.Run caminhoApp, 1, False
+                    objShell.Run """C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"" --app=""http://localhost:8777""", 1, False
+                    
+                    If Err.Number <> 0 Then
+                        Err.Clear
+                        objShell.Run "http://localhost:8777", 1, False
+                    End If
                 End If
+                On Error GoTo 0
+            Else
+                ' Fallback: abrir direto se server.js não existir
+                On Error Resume Next
+                Dim caminhoHTML
+                caminhoHTML = caminhoApp & "\index.html"
+                objShell.Run """C:\Program Files\Google\Chrome\Application\chrome.exe"" --app=""file:///" & Replace(caminhoHTML, "\", "/") & """", 1, False
+                
+                If Err.Number <> 0 Then
+                    Err.Clear
+                    objShell.Run """C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"" --app=""file:///" & Replace(caminhoHTML, "\", "/") & """", 1, False
+                    
+                    If Err.Number <> 0 Then
+                        Err.Clear
+                        objShell.Run caminhoHTML, 1, False
+                    End If
+                End If
+                On Error GoTo 0
             End If
-            On Error GoTo 0
             
             Set objShell = Nothing
             WScript.Quit
