@@ -3356,46 +3356,135 @@ class UI {
         return Array.from(this.selectedNumbers);
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // 💾 SALVAR JOGOS — Direto na Área de Trabalho
+    //    Pasta: Desktop/loterias jogos salvos/<Nome da Loteria>/
+    //    Handle persistido em IndexedDB para salvar sem diálogo
+    // ═══════════════════════════════════════════════════════════════
+
+    async _openSaveDB() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open('B2B_SaveDir', 1);
+            req.onupgradeneeded = () => req.result.createObjectStore('handles');
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async _getSavedDirHandle() {
+        try {
+            const db = await this._openSaveDB();
+            return new Promise((resolve) => {
+                const tx = db.transaction('handles', 'readonly');
+                const store = tx.objectStore('handles');
+                const req = store.get('rootDir');
+                req.onsuccess = () => resolve(req.result || null);
+                req.onerror = () => resolve(null);
+            });
+        } catch { return null; }
+    }
+
+    async _persistDirHandle(handle) {
+        try {
+            const db = await this._openSaveDB();
+            const tx = db.transaction('handles', 'readwrite');
+            tx.objectStore('handles').put(handle, 'rootDir');
+        } catch (e) {
+            console.warn('[Save] Não foi possível persistir o handle:', e);
+        }
+    }
+
     async saveGames() {
         if (!this.currentGeneratedGames || this.currentGeneratedGames.length === 0) {
             alert('Gere jogos primeiro antes de salvar.');
             return;
         }
 
-        let content = `JOGOS - ${GAMES[this.currentGameKey].name.toUpperCase()}\n`;
-        content += `Data: ${new Date().toLocaleString()}\n`;
-        content += `Total de Jogos: ${this.currentGeneratedGames.length}\n\n`;
+        const gameName = GAMES[this.currentGameKey]?.name || 'Loteria';
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('pt-BR').replace(/\//g, '-');
+        const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
+        const fileName = `${gameName}_${dateStr}_${timeStr}.txt`;
+
+        let content = `═══════════════════════════════════════\n`;
+        content += `  JOGOS — ${gameName.toUpperCase()}\n`;
+        content += `  Data: ${now.toLocaleString('pt-BR')}\n`;
+        content += `  Total de Jogos: ${this.currentGeneratedGames.length}\n`;
+        content += `═══════════════════════════════════════\n\n`;
 
         this.currentGeneratedGames.forEach((game, index) => {
-            content += `Jogo ${index + 1}: ${game.map(n => n.toString().padStart(2, '0')).join(' - ')}\n`;
+            content += `Jogo ${String(index + 1).padStart(3, '0')}: ${game.map(n => n.toString().padStart(2, '0')).join(' - ')}\n`;
         });
 
-        const fileName = `jogos_${this.currentGameKey}_${new Date().getTime()}.txt`;
+        content += `\n═══════════════════════════════════════\n`;
+        content += `  B2B Loterias — Boa Sorte! 🍀\n`;
+        content += `═══════════════════════════════════════\n`;
 
-        // Modern File System Access API
-        if ('showSaveFilePicker' in window) {
+        // ══════ MÉTODO 1: File System Access API (Chrome/Edge) ══════
+        if ('showDirectoryPicker' in window) {
             try {
-                const handle = await window.showSaveFilePicker({
-                    suggestedName: fileName,
-                    types: [{
-                        description: 'Arquivo de Texto',
-                        accept: { 'text/plain': ['.txt'] },
-                    }],
-                });
-                const writable = await handle.createWritable();
+                let rootHandle = await this._getSavedDirHandle();
+
+                // Verificar se o handle salvo ainda tem permissão
+                if (rootHandle) {
+                    const perm = await rootHandle.queryPermission({ mode: 'readwrite' });
+                    if (perm !== 'granted') {
+                        const reqPerm = await rootHandle.requestPermission({ mode: 'readwrite' });
+                        if (reqPerm !== 'granted') rootHandle = null;
+                    }
+                }
+
+                // Se não tem handle, pedir ao usuário para escolher a pasta
+                if (!rootHandle) {
+                    alert(
+                        '📁 PRIMEIRA VEZ — Selecione a pasta de destino\n\n' +
+                        'Recomendado: Área de Trabalho → "loterias jogos salvos"\n\n' +
+                        'Se a pasta não existir, crie-a antes.\n' +
+                        'Nas próximas vezes, o salvamento será automático!'
+                    );
+                    rootHandle = await window.showDirectoryPicker({
+                        id: 'b2b-loterias-save',
+                        mode: 'readwrite',
+                        startIn: 'desktop'
+                    });
+                    // Persistir para próximas vezes
+                    await this._persistDirHandle(rootHandle);
+                }
+
+                // Criar/acessar subpasta com o nome da loteria
+                const subFolderName = gameName;
+                const subDir = await rootHandle.getDirectoryHandle(subFolderName, { create: true });
+
+                // Criar o arquivo na subpasta
+                const fileHandle = await subDir.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
                 await writable.write(content);
                 await writable.close();
-                alert('Arquivo salvo com sucesso!');
+
+                // Feedback visual no botão
+                const btn = this.saveBtn;
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '✅ Salvo!';
+                btn.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
+                btn.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                    btn.style.transform = '';
+                }, 2500);
+
+                console.log(`[B2B] ✅ Salvo: ${subFolderName}/${fileName}`);
                 return;
+
             } catch (err) {
-                if (err.name === 'AbortError') return; // User cancelled
-                console.error('Erro ao usar showSaveFilePicker:', err);
-                // Fallback to classic download
+                if (err.name === 'AbortError') return; // Usuário cancelou
+                console.error('[Save] Erro File System API:', err);
+                // Fallback para download clássico
             }
         }
 
-        // Classic Fallback
-        const blob = new Blob([content], { type: 'text/plain' });
+        // ══════ MÉTODO 2: Download Clássico (fallback) ══════
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -3405,7 +3494,15 @@ class UI {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
 
-        alert(`Arquivo salvo em Downloads!\n\nSalvo como: ${fileName}`);
+        // Feedback visual
+        const btn = this.saveBtn;
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '✅ Baixado!';
+        btn.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.style.background = '';
+        }, 2500);
     }
 
     openCheckModal() {
