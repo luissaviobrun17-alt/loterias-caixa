@@ -40,17 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Delay de 500ms para garantir que UI está pronta
             setTimeout(function() {
                 AutoUpdater.init();
-
-                // Ao receber dados atualizados, recalcular stats do jogo ativo
-                window.addEventListener('b2b-data-updated', function() {
-                    try {
-                        if (ui && ui.currentGameKey) {
-                            ui.updateGameInfo(ui.currentGameKey);
-                        }
-                    } catch(e) {
-                        console.warn('[Main] Erro ao atualizar UI pós-update:', e);
-                    }
-                });
+                // Nota: O AutoUpdater já atualiza prêmios e countdown diretamente.
+                // NÃO chamar updateGameInfo() no evento pois ele reseta seleções e jogos.
             }, 500);
         }
 

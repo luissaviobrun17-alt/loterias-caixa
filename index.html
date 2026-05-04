@@ -4,9 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <!-- Cache controlado pelo servidor (server.js) -->
     <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data: blob:; connect-src *; font-src * data:;">
     <title>B2B Loterias</title>
 
@@ -14,8 +12,8 @@
     <!-- <link rel="manifest" href="manifest.json"> -->
     <meta name="theme-color" content="#10B981">
     <script>
-    // Desregistrar Service Worker para eliminar cache stale
-    if ('serviceWorker' in navigator) {
+    // Desregistrar Service Worker UMA VEZ (não repetir a cada load)
+    if ('serviceWorker' in navigator && !localStorage.getItem('b2b_sw_cleaned_v2')) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
             registrations.forEach(function(registration) {
                 registration.unregister().then(function() {
@@ -23,7 +21,6 @@
                 });
             });
         });
-        // Limpar todos os caches do SW
         if (caches) {
             caches.keys().then(function(names) {
                 names.forEach(function(name) {
@@ -32,6 +29,7 @@
                 });
             });
         }
+        localStorage.setItem('b2b_sw_cleaned_v2', '1');
     }
     </script>
     <meta name="apple-mobile-web-app-capable" content="yes">
