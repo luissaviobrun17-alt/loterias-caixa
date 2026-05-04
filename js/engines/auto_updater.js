@@ -29,12 +29,13 @@ var AutoUpdater = (function () {
     };
 
     var ALL_GAMES = ['megasena', 'lotofacil', 'quina', 'duplasena', 'lotomania', 'timemania', 'diadesorte'];
-    var CACHE_TTL = 30 * 60 * 1000; // 30 minutos
-    var REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutos
+    var CACHE_TTL = 2 * 60 * 60 * 1000; // 2 horas
+    var REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutos
     var API_TIMEOUT = 6000; // 6 segundos
     var _lastFullUpdate = 0;
     var _updateTimer = null;
     var _isUpdating = false;
+    var _isFirstUpdate = true;
 
     // ── Buscar dados de uma loteria com fallback multi-API ──
     function _fetchGame(gameKey) {
@@ -457,11 +458,11 @@ var AutoUpdater = (function () {
     // ══════════════════════════════════════════════
     // ATUALIZAR TODAS AS LOTERIAS
     // ══════════════════════════════════════════════
-    function updateAll() {
+    function updateAll(silent) {
         if (_isUpdating) return Promise.resolve();
         _isUpdating = true;
 
-        _showBanner('Atualizando dados de todas as loterias...', 'loading');
+        if (!silent) _showBanner('Atualizando dados de todas as loterias...', 'loading');
 
         var promises = ALL_GAMES.map(function (key) {
             return updateSingleGame(key).catch(function () { return false; });
@@ -474,12 +475,14 @@ var AutoUpdater = (function () {
             var ok = results.filter(function (r) { return r === true; }).length;
             var fail = results.length - ok;
 
-            if (ok > 0) {
-                var now = new Date();
-                var timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-                _showBanner('Dados atualizados — ' + ok + '/7 loterias (' + timeStr + ')', 'success');
-            } else {
-                _showBanner('Modo offline — usando dados locais', 'error');
+            if (!silent) {
+                if (ok > 0) {
+                    var now = new Date();
+                    var timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+                    _showBanner('Dados atualizados — ' + ok + '/7 loterias (' + timeStr + ')', 'success');
+                } else {
+                    _showBanner('Modo offline — usando dados locais', 'error');
+                }
             }
 
             // Disparar evento para a UI reagir
@@ -497,24 +500,18 @@ var AutoUpdater = (function () {
     function init() {
         console.log('[AutoUpdater] 🚀 Iniciando atualização automática...');
 
-        // Primeira atualização: imediata
-        updateAll().then(function () {
-            // Agendar atualizações periódicas
+        // Primeira atualização: imediata (com banner)
+        updateAll(false).then(function () {
+            _isFirstUpdate = false;
+            // Agendar atualizações periódicas (silenciosas — sem banner)
             if (_updateTimer) clearInterval(_updateTimer);
             _updateTimer = setInterval(function () {
-                updateAll();
+                updateAll(true); // silencioso
             }, REFRESH_INTERVAL);
         });
 
         // Countdown ticker a cada segundo
         setInterval(_tickCountdown, 1000);
-
-        // Atualizar ao voltar para a aba
-        document.addEventListener('visibilitychange', function () {
-            if (!document.hidden && (Date.now() - _lastFullUpdate) > CACHE_TTL) {
-                updateAll();
-            }
-        });
     }
 
     // ══════════════════════════════════════════════

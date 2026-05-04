@@ -159,11 +159,21 @@ const server = http.createServer((req, res) => {
         const ext = path.extname(filePath).toLowerCase();
         const mime = MIME_TYPES[ext] || 'application/octet-stream';
 
+        // HTML = sem cache (sempre busca versão nova)
+        // JS/CSS = cache curto de 5 min (evita re-download constante)
+        // Imagens = cache de 1 hora
+        let cacheControl;
+        if (ext === '.html') {
+            cacheControl = 'no-cache, no-store, must-revalidate';
+        } else if (ext === '.js' || ext === '.css') {
+            cacheControl = 'public, max-age=300'; // 5 minutos
+        } else {
+            cacheControl = 'public, max-age=3600'; // 1 hora
+        }
+
         res.writeHead(200, {
             'Content-Type': mime,
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0',
+            'Cache-Control': cacheControl,
             'Access-Control-Allow-Origin': '*'
         });
         res.end(data);
