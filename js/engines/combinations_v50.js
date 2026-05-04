@@ -750,11 +750,13 @@ class CombinationEngine {
         //  GERAÇÃO MASSIVA DE CANDIDATOS + SCORING
         // ═══════════════════════════════════════
         const games = [];
-        const safeQuantity = Math.min(quantity, 5000);
+        const safeQuantity = Math.min(quantity, 50000);
         const usedCombinations = new Set();
         
         // Gerar MUITOS candidatos para selecionar os melhores
-        const candidatesTarget = Math.max(200, safeQuantity * 20);
+        // Para volumes altos (>5000), reduzir multiplicador para evitar travamento
+        const candidatesMult = safeQuantity <= 5000 ? 20 : (safeQuantity <= 15000 ? 8 : 4);
+        const candidatesTarget = Math.max(200, safeQuantity * candidatesMult);
         let bestCandidates = [];
 
         // Construir tabela de pesos para seleção ponderada
