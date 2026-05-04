@@ -1,15 +1,37 @@
 // ═══════════════════════════════════════════════════════════════
 // B2B Loterias — Mini Servidor HTTP Local
 // Serve os arquivos via localhost para habilitar APIs modernas
-// (File System Access, Service Workers, Clipboard, etc.)
+// + Endpoint POST /salvar para gravar direto na pasta da loteria
 // ═══════════════════════════════════════════════════════════════
 
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const PORT = 8777;
 const ROOT = __dirname;
+
+// ── Descobrir Área de Trabalho real (funciona com OneDrive) ──
+function getDesktopPath() {
+    // Tentar caminhos comuns do OneDrive primeiro
+    const userProfile = os.homedir();
+    const candidates = [
+        path.join(userProfile, 'OneDrive', 'Documents', 'OneDrive', 'Desktop'),
+        path.join(userProfile, 'OneDrive', 'Desktop'),
+        path.join(userProfile, 'OneDrive', 'Área de Trabalho'),
+        path.join(userProfile, 'Desktop'),
+        path.join(userProfile, 'Área de Trabalho'),
+    ];
+    for (const p of candidates) {
+        if (fs.existsSync(p)) return p;
+    }
+    return path.join(userProfile, 'Desktop');
+}
+
+const DESKTOP = getDesktopPath();
+const SAVE_ROOT = path.join(DESKTOP, 'LOTERIAS JOGOS SALVOS');
+console.log(`[B2B] Pasta de salvamento: ${SAVE_ROOT}`);
 
 const MIME_TYPES = {
     '.html': 'text/html; charset=utf-8',
@@ -30,7 +52,86 @@ const MIME_TYPES = {
     '.ttf':  'font/ttf',
 };
 
+// Mapeamento de gameKey → nome da pasta
+const FOLDER_MAP = {
+    'megasena':   'Mega Sena',
+    'lotofacil':  'LOTOFACIL',
+    'quina':      'QUINA',
+    'duplasena':  'Dupla Sena',
+    'lotomania':  'LOTOMANIA',
+    'timemania':  'TIMEMANIA',
+    'diadesorte': 'DIA DE SORTE',
+};
+
 const server = http.createServer((req, res) => {
+
+    // ═══════════════════════════════════════
+    // POST /salvar — Salvar arquivo direto
+    // ═══════════════════════════════════════
+    if (req.method === 'POST' && req.url === '/salvar') {
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                const { gameKey, fileName, content } = data;
+
+                if (!gameKey || !fileName || !content) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ ok: false, error: 'Dados incompletos' }));
+                    return;
+                }
+
+                // Determinar a pasta
+                const folderName = FOLDER_MAP[gameKey] || gameKey;
+                const folderPath = path.join(SAVE_ROOT, folderName);
+
+                // Criar a pasta se não existir
+                if (!fs.existsSync(folderPath)) {
+                    fs.mkdirSync(folderPath, { recursive: true });
+                }
+
+                // Salvar o arquivo
+                const filePath = path.join(folderPath, fileName);
+                fs.writeFileSync(filePath, content, 'utf-8');
+
+                console.log(`[B2B] ✅ Salvo: ${filePath}`);
+
+                res.writeHead(200, {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                });
+                res.end(JSON.stringify({
+                    ok: true,
+                    path: filePath,
+                    folder: folderPath,
+                }));
+
+            } catch (err) {
+                console.error('[B2B] Erro ao salvar:', err);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: false, error: err.message }));
+            }
+        });
+        return;
+    }
+
+    // ═══════════════════════════════════════
+    // OPTIONS (CORS preflight)
+    // ═══════════════════════════════════════
+    if (req.method === 'OPTIONS') {
+        res.writeHead(200, {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+        });
+        res.end();
+        return;
+    }
+
+    // ═══════════════════════════════════════
+    // GET — Servir arquivos estáticos
+    // ═══════════════════════════════════════
     let urlPath = decodeURIComponent(req.url.split('?')[0]);
     if (urlPath === '/') urlPath = '/index.html';
 
@@ -60,7 +161,9 @@ const server = http.createServer((req, res) => {
 
         res.writeHead(200, {
             'Content-Type': mime,
-            'Cache-Control': 'no-cache',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
             'Access-Control-Allow-Origin': '*'
         });
         res.end(data);
@@ -69,13 +172,13 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, '127.0.0.1', () => {
     console.log(`[B2B] Servidor rodando em http://localhost:${PORT}`);
+    console.log(`[B2B] Salvando em: ${SAVE_ROOT}`);
 });
 
 // Manter o processo rodando silenciosamente
 process.on('SIGINT', () => process.exit(0));
 process.on('uncaughtException', (e) => {
     if (e.code === 'EADDRINUSE') {
-        // Porta já em uso — outro servidor já está rodando, OK
         console.log('[B2B] Porta ' + PORT + ' já em uso — servidor já está rodando.');
         process.exit(0);
     }

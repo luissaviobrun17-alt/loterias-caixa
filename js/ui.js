@@ -3357,9 +3357,9 @@ class UI {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // 💾 SALVAR JOGOS — Diálogo "Salvar Como" do Windows
-    //    Abre na Área de Trabalho → navegar até a pasta da loteria
-    //    Chrome lembra a última pasta usada para cada loteria
+    // 💾 SALVAR JOGOS — DIRETO na pasta da loteria (sem diálogo)
+    //    POST /salvar → server.js grava em:
+    //    Desktop/LOTERIAS JOGOS SALVOS/<Loteria>/arquivo.txt
     // ═══════════════════════════════════════════════════════════════
 
     async saveGames() {
@@ -3388,24 +3388,22 @@ class UI {
         content += `  B2B Loterias — Boa Sorte! 🍀\n`;
         content += `═══════════════════════════════════════\n`;
 
-        // ══════ SALVAR COM DIÁLOGO — Abre na Área de Trabalho ══════
-        if ('showSaveFilePicker' in window) {
-            try {
-                // ID único por loteria = Chrome lembra a pasta de cada uma
-                const handle = await window.showSaveFilePicker({
-                    id: 'b2b-save-' + this.currentGameKey,
-                    suggestedName: fileName,
-                    startIn: 'desktop',
-                    types: [{
-                        description: 'Arquivo de Texto',
-                        accept: { 'text/plain': ['.txt'] },
-                    }],
-                });
-                const writable = await handle.createWritable();
-                await writable.write(content);
-                await writable.close();
+        // ══════ SALVAR DIRETO VIA SERVIDOR LOCAL ══════
+        try {
+            const response = await fetch('/salvar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    gameKey: this.currentGameKey,
+                    fileName: fileName,
+                    content: content,
+                }),
+            });
 
-                // Feedback visual no botão
+            const result = await response.json();
+
+            if (result.ok) {
+                // ✅ Feedback visual — salvou direto na pasta!
                 const btn = this.saveBtn;
                 const originalHTML = btn.innerHTML;
                 btn.innerHTML = '✅ Salvo!';
@@ -3417,16 +3415,16 @@ class UI {
                     btn.style.transform = '';
                 }, 2500);
 
-                console.log(`[B2B] ✅ Salvo: ${fileName}`);
+                console.log(`[B2B] ✅ Salvo direto: ${result.path}`);
                 return;
-
-            } catch (err) {
-                if (err.name === 'AbortError') return;
-                console.error('[Save] Erro:', err);
+            } else {
+                console.error('[Save] Servidor retornou erro:', result.error);
             }
+        } catch (err) {
+            console.warn('[Save] Servidor local indisponível, usando fallback:', err.message);
         }
 
-        // ══════ FALLBACK: Download direto ══════
+        // ══════ FALLBACK: Download direto (se servidor não estiver rodando) ══════
         const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
