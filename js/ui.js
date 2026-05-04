@@ -2675,6 +2675,13 @@ class UI {
 
         this.closingSelect.innerHTML = '';
 
+        // v3.2 FIX: Opção padrão "Gerar Jogos" — respeita a quantidade solicitada
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = 'generate';
+        defaultOpt.textContent = '🎲 Gerar Jogos (Quantidade)';
+        defaultOpt.style.fontWeight = '700';
+        this.closingSelect.appendChild(defaultOpt);
+
         // v3.1: TODOS os níveis são viáveis (fixos REDUZEM jogos)
         if (typeof ClosingEngine !== 'undefined' && game.closingLevels && game.closingLevels.length > 0) {
             const dynamicLevels = ClosingEngine.getDynamicClosingLevels(gameKey, fixedCount);
@@ -2713,8 +2720,13 @@ class UI {
         });
         this.closingSelect.appendChild(optGroup2);
 
+        // v3.2 FIX: Se não há valor salvo ou o salvo não existe, usar 'generate' como padrão
         const savedOption = Array.from(this.closingSelect.options).find(o => o.value === savedValue);
-        if (savedOption) this.closingSelect.value = savedValue;
+        if (savedOption && savedValue !== '') {
+            this.closingSelect.value = savedValue;
+        } else {
+            this.closingSelect.value = 'generate';
+        }
         this._updateClosingPreview();
     }
 
