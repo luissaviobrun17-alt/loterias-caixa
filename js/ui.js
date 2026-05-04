@@ -2209,7 +2209,7 @@ class UI {
         }
 
         // ━━ DROPDOWN DINÂMICO v3.0 ━━
-        this._rebuildClosingDropdown(gameKey);
+        this._rebuildClosingDropdown(gameKey, true); // true = forçar 'generate'
 
         // ━━ EVENTO: Preview do Fechamento em tempo real ━━
         this.closingSelect.onchange = () => this._updateClosingPreview();
@@ -2221,6 +2221,12 @@ class UI {
         this.btnFixedMode.classList.remove('active');
         this.btnFixedMode.textContent = '📌 Fixar';
         this.fixedInfoPanel.style.display = 'none';
+
+        // ━━ MÊS DA SORTE — visível apenas para Dia de Sorte ━━
+        const mesSorteRow = document.getElementById('mes-sorte-row');
+        if (mesSorteRow) {
+            mesSorteRow.style.display = gameKey === 'diadesorte' ? 'grid' : 'none';
+        }
 
         // Mostrar toggle Modo Precisão APENAS para Lotofácil
         const precisionEl = document.getElementById('precision-mode-label');
@@ -2665,13 +2671,13 @@ class UI {
     }
 
     // ━━ RECONSTRUIR DROPDOWN DE FECHAMENTO v3.0 ━━
-    _rebuildClosingDropdown(gameKey) {
+    _rebuildClosingDropdown(gameKey, forceGenerate = false) {
         if (!gameKey) gameKey = this.currentGameKey;
         const game = GAMES[gameKey];
         if (!game || !this.closingSelect) return;
 
         const fixedCount = this.fixedNumbers ? this.fixedNumbers.size : 0;
-        const savedValue = this.closingSelect.value;
+        const savedValue = forceGenerate ? '' : this.closingSelect.value;
 
         this.closingSelect.innerHTML = '';
 
@@ -2720,12 +2726,17 @@ class UI {
         });
         this.closingSelect.appendChild(optGroup2);
 
-        // v3.2 FIX: Se não há valor salvo ou o salvo não existe, usar 'generate' como padrão
-        const savedOption = Array.from(this.closingSelect.options).find(o => o.value === savedValue);
-        if (savedOption && savedValue !== '') {
-            this.closingSelect.value = savedValue;
-        } else {
+        // v3.3 FIX: Ao trocar de loteria, SEMPRE resetar para 'generate'
+        // para evitar que close_7 de outra loteria persista e gere 80k jogos
+        if (forceGenerate) {
             this.closingSelect.value = 'generate';
+        } else {
+            const savedOption = Array.from(this.closingSelect.options).find(o => o.value === savedValue);
+            if (savedOption && savedValue !== '') {
+                this.closingSelect.value = savedValue;
+            } else {
+                this.closingSelect.value = 'generate';
+            }
         }
         this._updateClosingPreview();
     }
@@ -3090,8 +3101,30 @@ class UI {
                 }).join('');
                 chunks.push(`<div class="game-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div class="game-index-badge" style="position:static">Jogo ${index + 1}</div></div><div class="game-numbers-wrapper">${nums}</div></div>`);
             });
+
+            // Mês da Sorte: badge visual acima dos jogos
+            if (gameKey === 'diadesorte') {
+                const mesSel = document.getElementById('mes-sorte-select');
+                const mesVal = mesSel ? mesSel.value : '';
+                if (mesVal) {
+                    this.gamesContainer.innerHTML = `<div style="text-align:center;padding:8px 14px;margin-bottom:8px;background:linear-gradient(145deg,rgba(226,120,32,0.15),rgba(15,23,42,0.9));border:1px solid rgba(226,120,32,0.4);border-radius:10px;color:#F59E0B;font-weight:700;font-size:0.95rem;">🌙 Mês da Sorte: ${mesVal}</div>` + chunks.join('');
+                    return;
+                }
+            }
+
             this.gamesContainer.innerHTML = chunks.join('');
             return;
+        }
+        // Mês da Sorte: badge visual (render normal ≤100 jogos)
+        if (gameKey === 'diadesorte') {
+            const mesSel = document.getElementById('mes-sorte-select');
+            const mesVal = mesSel ? mesSel.value : '';
+            if (mesVal) {
+                const mesBadge = document.createElement('div');
+                mesBadge.style.cssText = 'text-align:center;padding:8px 14px;margin-bottom:8px;background:linear-gradient(145deg,rgba(226,120,32,0.15),rgba(15,23,42,0.9));border:1px solid rgba(226,120,32,0.4);border-radius:10px;color:#F59E0B;font-weight:700;font-size:0.95rem;';
+                mesBadge.textContent = '🌙 Mês da Sorte: ' + mesVal;
+                this.gamesContainer.appendChild(mesBadge);
+            }
         }
         result.games.forEach((gameNumbers, index) => {
             const card = document.createElement('div');
@@ -3374,8 +3407,13 @@ class UI {
         const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
         const fileName = `${gameName}_${dateStr}_${timeStr}.txt`;
 
+        // Mês da Sorte (apenas para Dia de Sorte)
+        const mesSorteSelect = document.getElementById('mes-sorte-select');
+        const mesSorte = (this.currentGameKey === 'diadesorte' && mesSorteSelect) ? mesSorteSelect.value : null;
+
         let content = `═══════════════════════════════════════\n`;
         content += `  JOGOS — ${gameName.toUpperCase()}\n`;
+        if (mesSorte) content += `  Mês da Sorte: ${mesSorte}\n`;
         content += `  Data: ${now.toLocaleString('pt-BR')}\n`;
         content += `  Total de Jogos: ${this.currentGeneratedGames.length}\n`;
         content += `═══════════════════════════════════════\n\n`;
