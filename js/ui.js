@@ -1505,7 +1505,30 @@ class UI {
         this.generateBtn.onclick = () => {
             // ── RASTREAMENTO DE MODO ──
             this._lastPrecisionMode = false;
-            const closingVal = this.closingSelect.value;
+            let closingVal = this.closingSelect.value;
+
+            // ═══ PROTEÇÃO v3.4: Quantidade solicitada tem PRIORIDADE ═══
+            // Se a quantidade solicitada é ≤50000 e o dropdown está em close_,
+            // o usuário pode ter o dropdown errado (cache antigo, troca de loteria).
+            // Verificar e redirecionar para CombinationEngine.
+            const requestedQty = parseInt(this.gamesQuantityInput.value) || 10;
+            if (closingVal && closingVal.startsWith('close_') && requestedQty <= 50000) {
+                const game = GAMES[this.currentGameKey];
+                const selectedCount = this.selectedNumbers.size;
+                const betSize = typeof ClosingEngine !== 'undefined' ? ClosingEngine.getBetSize(this.currentGameKey) : (game ? game.minBet : 6);
+                // Estimar quantos jogos o fechamento geraria
+                const estClosureGames = this._nCrSafe(selectedCount, betSize);
+                
+                // Se o fechamento geraria MUITO mais do que o solicitado, avisar
+                if (estClosureGames > requestedQty * 2 && requestedQty < estClosureGames) {
+                    const confirmMsg = `⚠️ ATENÇÃO: O Fechamento Objetivo vai gerar ~${estClosureGames.toLocaleString('pt-BR')} jogos.\n\nVocê solicitou apenas ${requestedQty} jogos.\n\n▶ OK = Gerar ${requestedQty} jogos (modo inteligente)\n▶ Cancelar = Gerar fechamento completo (${estClosureGames.toLocaleString('pt-BR')} jogos)`;
+                    if (confirm(confirmMsg)) {
+                        closingVal = 'generate'; // Forçar CombinationEngine
+                        this.closingSelect.value = 'generate';
+                    }
+                }
+            }
+
             if (closingVal && closingVal.startsWith('close_')) {
                 this._lastGenerationMode = 'fechamento';
             } else {
@@ -2632,6 +2655,19 @@ class UI {
     }
 
     // ━━ PREVIEW DO FECHAMENTO v3.1 (CONDICIONAL) ━━
+    // ━━ CÁLCULO SEGURO C(n,k) ━━
+    _nCrSafe(n, k) {
+        if (k > n || k < 0) return 0;
+        if (k === 0 || k === n) return 1;
+        if (k > n - k) k = n - k;
+        let result = 1;
+        for (let i = 0; i < k; i++) {
+            result = result * (n - i) / (i + 1);
+            if (result > 1e9) return result; // Evitar overflow
+        }
+        return Math.round(result);
+    }
+
     _updateClosingPreview() {
         const closingVal = this.closingSelect ? this.closingSelect.value : '';
         if (!closingVal || !closingVal.startsWith('close_')) return;
