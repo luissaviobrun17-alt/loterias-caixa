@@ -2782,6 +2782,9 @@ class UI {
 
         const recents = StatsService.getRecentResults(this.currentGameKey, 5);
         this.renderRecentResults(recents);
+
+        // ── Painel de Frequência Multi-Faixa ──
+        this.renderFrequencyPanel();
     }
 
     renderRecentResults(recents) {
@@ -2963,6 +2966,86 @@ class UI {
         stats.cold.forEach(stat => {
             this.coldNumbersContainer.appendChild(createStatItem(stat, false));
         });
+    }
+
+    // ╔══════════════════════════════════════════════════════════════════╗
+    // ║  PAINEL DE FREQUÊNCIA MULTI-FAIXA — 3, 5, 10 e 15 Sorteios   ║
+    // ║  Mostra os números mais e menos sorteados em 4 faixas         ║
+    // ╚══════════════════════════════════════════════════════════════════╝
+    renderFrequencyPanel() {
+        const container = document.getElementById('freq-content');
+        if (!container) return;
+
+        const game = GAMES[this.currentGameKey];
+        if (!game) return;
+
+        const ranges = [3, 5, 10, 15];
+        const topN = Math.min(10, Math.ceil((game.range[1] - game.range[0] + 1) * 0.15));
+        const topNDisplay = Math.max(5, topN);
+
+        // Verificar se temos dados
+        const history = StatsService.historyStore[this.currentGameKey];
+        if (!history || history.length === 0) {
+            container.innerHTML = '<div class="freq-loading"><span class="freq-spinner"></span>Aguardando dados da API da Caixa...</div>';
+            // Tentar novamente em 2s
+            setTimeout(() => this.renderFrequencyPanel(), 2000);
+            return;
+        }
+
+        let html = '<div class="freq-grid">';
+
+        ranges.forEach(range => {
+            const stats = StatsService.getStats(this.currentGameKey, range);
+            const actualDraws = stats.totalDraws || 0;
+            const hotSlice = stats.hot.slice(0, topNDisplay);
+            const coldSlice = stats.cold.slice(0, topNDisplay);
+
+            html += '<div class="freq-column">';
+            html += '<div class="freq-col-header">';
+            html += `<span class="freq-range-label">${range} Sorteios</span>`;
+            html += `<span class="freq-range-sub">${actualDraws} analisados</span>`;
+            html += '</div>';
+
+            // ── HOT ──
+            html += '<div class="freq-section">';
+            html += '<div class="freq-section-title hot">🔥 Mais Sorteados</div>';
+            html += '<div class="freq-nums">';
+            hotSlice.forEach((stat, idx) => {
+                const tier = idx < 3 ? 'hot-1' : idx < 6 ? 'hot-2' : 'hot-3';
+                const num = String(stat.number).padStart(2, '0');
+                html += `<div class="freq-ball ${tier}" title="${stat.number}: ${stat.count}x em ${actualDraws} sorteios">`;
+                html += `${num}`;
+                html += `<span class="freq-tooltip">${stat.number}: ${stat.count}× (atraso: ${stat.delay})</span>`;
+                html += '</div>';
+            });
+            html += '</div></div>';
+
+            // ── COLD ──
+            html += '<div class="freq-section">';
+            html += '<div class="freq-section-title cold">❄️ Menos Sorteados</div>';
+            html += '<div class="freq-nums">';
+            coldSlice.forEach((stat, idx) => {
+                const tier = idx < 3 ? 'cold-1' : idx < 6 ? 'cold-2' : 'cold-3';
+                const num = String(stat.number).padStart(2, '0');
+                html += `<div class="freq-ball ${tier}" title="${stat.number}: ${stat.count}x em ${actualDraws} sorteios">`;
+                html += `${num}`;
+                html += `<span class="freq-tooltip">${stat.number}: ${stat.count}× (atraso: ${stat.delay})</span>`;
+                html += '</div>';
+            });
+            html += '</div></div>';
+
+            html += '</div>'; // freq-column
+        });
+
+        html += '</div>'; // freq-grid
+
+        // ── LEGENDA ──
+        html += '<div style="margin-top:10px;display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:0.6rem;color:#64748B;">';
+        html += '<span>🔥 <span style="color:#FACC15;">■</span> Top 3 | <span style="color:#FCD34D;">■</span> Top 6 | <span style="color:#F59E0B;">■</span> Top 10</span>';
+        html += '<span>❄️ <span style="color:#60A5FA;">■</span> Top 3 | <span style="color:#93C5FD;">■</span> Top 6 | <span style="color:#BFDBFE;">■</span> Top 10</span>';
+        html += '</div>';
+
+        container.innerHTML = html;
     }
 
     renderGames(result, gameKey, updateHash = true) {

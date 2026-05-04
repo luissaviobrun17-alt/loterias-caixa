@@ -918,3 +918,243 @@ select:focus {
     .stats-totals { grid-template-columns: repeat(3, 1fr); }
     .stats-table { min-width: 700px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   PAINEL DE FREQUÊNCIA MULTI-FAIXA — 3, 5, 10 e 15 Sorteios
+   ═══════════════════════════════════════════════════════════════════ */
+
+.freq-panel {
+    margin-top: 1.2rem;
+    padding: 16px;
+    background: linear-gradient(165deg, rgba(10, 14, 26, 0.97) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.freq-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+}
+
+.freq-panel-header h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #8B5CF6, #C4B5FD);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.5px;
+}
+
+.freq-panel-header .freq-badge {
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: #A78BFA;
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.freq-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.freq-column {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 10px 8px;
+    transition: all 0.3s ease;
+}
+.freq-column:hover {
+    border-color: rgba(139, 92, 246, 0.25);
+    background: rgba(139, 92, 246, 0.03);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.freq-col-header {
+    text-align: center;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.freq-col-header .freq-range-label {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: #E2E8F0;
+    display: block;
+    line-height: 1;
+}
+.freq-col-header .freq-range-sub {
+    font-size: 0.58rem;
+    color: #64748B;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+    display: block;
+}
+
+.freq-section {
+    margin-bottom: 8px;
+}
+.freq-section:last-child {
+    margin-bottom: 0;
+}
+.freq-section-title {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+}
+.freq-section-title.hot {
+    color: #FACC15;
+    background: rgba(250, 204, 21, 0.08);
+}
+.freq-section-title.cold {
+    color: #60A5FA;
+    background: rgba(96, 165, 250, 0.08);
+}
+
+.freq-nums {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+}
+
+.freq-ball {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.68rem;
+    font-weight: 800;
+    border: 1.5px solid;
+    transition: all 0.2s ease;
+    cursor: default;
+    position: relative;
+}
+.freq-ball:hover {
+    transform: scale(1.15);
+    z-index: 2;
+}
+.freq-ball .freq-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1E293B;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #E2E8F0;
+    font-size: 0.58rem;
+    padding: 3px 6px;
+    border-radius: 5px;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.freq-ball:hover .freq-tooltip {
+    display: block;
+}
+
+/* Hot balls — yellow/orange gradient */
+.freq-ball.hot-1 {
+    background: rgba(250, 204, 21, 0.2);
+    color: #FACC15;
+    border-color: rgba(250, 204, 21, 0.5);
+    box-shadow: 0 0 6px rgba(250, 204, 21, 0.15);
+}
+.freq-ball.hot-2 {
+    background: rgba(251, 191, 36, 0.15);
+    color: #FCD34D;
+    border-color: rgba(251, 191, 36, 0.35);
+}
+.freq-ball.hot-3 {
+    background: rgba(245, 158, 11, 0.12);
+    color: #F59E0B;
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+/* Cold balls — blue gradient */
+.freq-ball.cold-1 {
+    background: rgba(96, 165, 250, 0.2);
+    color: #60A5FA;
+    border-color: rgba(96, 165, 250, 0.5);
+    box-shadow: 0 0 6px rgba(96, 165, 250, 0.15);
+}
+.freq-ball.cold-2 {
+    background: rgba(59, 130, 246, 0.15);
+    color: #93C5FD;
+    border-color: rgba(59, 130, 246, 0.3);
+}
+.freq-ball.cold-3 {
+    background: rgba(30, 64, 175, 0.15);
+    color: #BFDBFE;
+    border-color: rgba(30, 64, 175, 0.3);
+}
+
+/* Loading state */
+.freq-loading {
+    text-align: center;
+    padding: 20px;
+    color: #8B5CF6;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+.freq-loading .freq-spinner {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(139, 92, 246, 0.2);
+    border-top-color: #8B5CF6;
+    border-radius: 50%;
+    animation: freqSpin 0.8s linear infinite;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+@keyframes freqSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* No-data state */
+.freq-no-data {
+    text-align: center;
+    padding: 16px;
+    color: #475569;
+    font-size: 0.75rem;
+    font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .freq-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 500px) {
+    .freq-grid {
+        grid-template-columns: 1fr;
+    }
+    .freq-panel {
+        padding: 12px 10px;
+    }
+}
