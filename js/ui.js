@@ -3075,10 +3075,19 @@ class UI {
         const gameName = GAMES[gameKey] ? GAMES[gameKey].name : 'Loteria';
 
         // OTIMIZACAO BULK: Para >100 jogos, usar innerHTML em bloco
+        // v3.2 FIX: Destacar números fixos em amarelo/dourado no modo bulk
         if (result.games.length > 100) {
+            const fixedSet = this.fixedNumbers || new Set();
+            const hasFixed = fixedSet.size > 0;
             const chunks = [];
             result.games.forEach((gameNumbers, index) => {
-                const nums = gameNumbers.map(n => `<div class="ball">${n.toString().padStart(2, '0')}</div>`).join('');
+                const nums = gameNumbers.map(n => {
+                    const padded = n.toString().padStart(2, '0');
+                    if (hasFixed && fixedSet.has(n)) {
+                        return `<div class="ball fixed" style="border-color:#F59E0B;color:#F59E0B;text-shadow:0 0 6px rgba(245,158,11,0.4);font-weight:900">${padded}</div>`;
+                    }
+                    return `<div class="ball">${padded}</div>`;
+                }).join('');
                 chunks.push(`<div class="game-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div class="game-index-badge" style="position:static">Jogo ${index + 1}</div></div><div class="game-numbers-wrapper">${nums}</div></div>`);
             });
             this.gamesContainer.innerHTML = chunks.join('');
