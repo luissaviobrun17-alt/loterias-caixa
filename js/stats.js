@@ -50,7 +50,9 @@ class StatsService {
                     console.log('[StatsService] 💾 Prêmio restaurado do cache local: ' + gameType + ' = R$ ' + (parsed.estimatedPrize || 0).toLocaleString('pt-BR'));
                 }
             }
-        } catch(e) { /* localStorage indisponível */ }
+        } catch(e) {
+            console.warn('[StatsService] localStorage indisponível para ' + gameType + ':', e.message);
+        }
 
         // 2. CARREGAR HISTÓRICO DA BASE ESTÁTICA
         if (typeof REAL_HISTORY_DB !== 'undefined' && REAL_HISTORY_DB[gameType]) {
@@ -108,9 +110,11 @@ class StatsService {
         ];
 
         for (var a = 0; a < apis.length; a++) {
+            var controller = null;
+            var timeoutId = null;
             try {
-                var controller = new AbortController();
-                var timeoutId = setTimeout(function() { controller.abort(); }, 8000);
+                controller = new AbortController();
+                timeoutId = setTimeout(function() { try { controller.abort(); } catch(ae) {} }, 8000);
 
                 var response = await fetch(apis[a], {
                     signal: controller.signal,
@@ -118,6 +122,7 @@ class StatsService {
                     headers: { 'Accept': 'application/json' }
                 });
                 clearTimeout(timeoutId);
+                timeoutId = null;
 
                 if (!response.ok) continue;
 
@@ -134,8 +139,10 @@ class StatsService {
                     return result;
                 }
             } catch (e) {
-                console.warn('[StatsService] API #' + (a+1) + ' falhou para ' + gameType);
+                console.warn('[StatsService] API #' + (a+1) + ' falhou para ' + gameType + ': ' + (e.name === 'AbortError' ? 'timeout' : e.message));
                 continue;
+            } finally {
+                if (timeoutId) clearTimeout(timeoutId);
             }
         }
         return null;
@@ -303,8 +310,9 @@ class StatsService {
 
     static getRecentResults(gameType, count) {
         if (!count) count = 5;
-        if (!this.historyStore[gameType]) {
-            this.ensureHistory(gameType);
+        if (!this.historyStore[gameType] || this.historyStore[gameType].length === 0) {
+            // Tenta carregar sem bloquear (async fire-and-forget)
+            try { this.ensureHistory(gameType); } catch(e) {}
         }
         return (this.historyStore[gameType] || []).slice(0, count);
     }

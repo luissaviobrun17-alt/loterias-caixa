@@ -1,63 +1,66 @@
 class UI {
     constructor() {
-        this.navButtons = document.querySelectorAll('.nav-btn');
-        this.currentGameTitle = document.getElementById('current-game-title');
-        this.closingSelect = document.getElementById('closing-type');
-        this.gamesQuantityInput = document.getElementById('games-quantity');
-        this.generateBtn = document.getElementById('generate-btn');
-        this.generateSmartBtn = document.getElementById('generate-smart-btn');
-        this.smartDrawSizeSelect = document.getElementById('smart-draw-size');
-        this.smartDrawInfo = document.getElementById('smart-draw-info');
-        this.copyBtn = document.getElementById('copy-btn');
-        this.gamesContainer = document.getElementById('games-container');
-        this.currentBetCostElem = document.getElementById('current-bet-cost');
+        // ══ Helper para getElementById seguro ══
+        const _el = (id) => document.getElementById(id);
+
+        this.navButtons = document.querySelectorAll('.nav-btn') || [];
+        this.currentGameTitle = _el('current-game-title');
+        this.closingSelect = _el('closing-type');
+        this.gamesQuantityInput = _el('games-quantity');
+        this.generateBtn = _el('generate-btn');
+        this.generateSmartBtn = _el('generate-smart-btn');
+        this.smartDrawSizeSelect = _el('smart-draw-size');
+        this.smartDrawInfo = _el('smart-draw-info');
+        this.copyBtn = _el('copy-btn');
+        this.gamesContainer = _el('games-container');
+        this.currentBetCostElem = _el('current-bet-cost');
 
         // Action Buttons
-        this.saveBtn = document.getElementById('save-btn');
-        this.checkBtn = document.getElementById('check-btn');
-        this.playCaixaBtn = document.getElementById('btn-play-caixa');
+        this.saveBtn = _el('save-btn');
+        this.checkBtn = _el('check-btn');
+        this.playCaixaBtn = _el('btn-play-caixa');
 
         // Modal Elements
-        this.checkModal = document.getElementById('check-modal');
+        this.checkModal = _el('check-modal');
         this.closeCheckModalBtn = document.querySelector('.close-check-modal');
-        this.inputCheckNumbers = document.getElementById('check-input-numbers');
-        this.confirmCheckBtn = document.getElementById('confirm-check-btn');
+        this.inputCheckNumbers = _el('check-input-numbers');
+        this.confirmCheckBtn = _el('confirm-check-btn');
 
-        this.copyModal = document.getElementById('copy-modal');
-        this.closeCopyModalBtns = document.querySelectorAll('.close-copy-modal');
-        this.copyTextarea = document.getElementById('copy-textarea');
+        this.copyModal = _el('copy-modal');
+        this.closeCopyModalBtns = document.querySelectorAll('.close-copy-modal') || [];
+        this.copyTextarea = _el('copy-textarea');
 
-        this.currentGeneratedGames = []; // Store generated games
+        this.currentGeneratedGames = []; // Store generated games — FONTE ÚNICA DE VERDADE
 
-        this.hotNumbersContainer = document.getElementById('hot-numbers');
-        this.coldNumbersContainer = document.getElementById('cold-numbers');
-        this.gridContainer = document.getElementById('number-selection-grid');
-        this.selectedCountElem = document.getElementById('selected-count');
-        this.maxSelectionElem = document.getElementById('max-selection');
-        this.timerElem = document.getElementById('timer');
+        this.hotNumbersContainer = _el('hot-numbers');
+        this.coldNumbersContainer = _el('cold-numbers');
+        this.gridContainer = _el('number-selection-grid');
+        this.selectedCountElem = _el('selected-count');
+        this.maxSelectionElem = _el('max-selection');
+        this.timerElem = _el('timer');
 
-        this.recentResultsContainer = document.getElementById('recent-results-list');
-        this.loadGamesInput = document.getElementById('load-games-input');
-        this.checkSummaryContainer = document.getElementById('check-summary');
+        this.recentResultsContainer = _el('recent-results-list');
+        this.loadGamesInput = _el('load-games-input');
+        this.checkSummaryContainer = _el('check-summary');
 
         // Fixed Mode Elements
-        this.btnFixedMode = document.getElementById('btn-fixed-mode');
-        this.fixedInfoPanel = document.getElementById('fixed-info-panel');
-        this.fixedNumbersList = document.getElementById('fixed-numbers-list');
+        this.btnFixedMode = _el('btn-fixed-mode');
+        this.fixedInfoPanel = _el('fixed-info-panel');
+        this.fixedNumbersList = _el('fixed-numbers-list');
         this.isFixedMode = false;
         this.fixedNumbers = new Set();
 
         // Stats Controls
-        this.statsButtons = document.querySelectorAll('.stat-toggle');
+        this.statsButtons = document.querySelectorAll('.stat-toggle') || [];
         this.currentStatsRange = 10;
 
         // Investment Panel Elements
-        this.costSelectedCount = document.getElementById('cost-selected-count');
-        this.costTotalCombinations = document.getElementById('cost-total-combinations');
-        this.costTotalValue = document.getElementById('cost-total-value');
-        this.costUserGames = document.getElementById('cost-user-games');
-        this.costUserGamesDetail = document.getElementById('cost-user-games-detail');
-        this.closingEstimatesContainer = document.getElementById('closing-estimates');
+        this.costSelectedCount = _el('cost-selected-count');
+        this.costTotalCombinations = _el('cost-total-combinations');
+        this.costTotalValue = _el('cost-total-value');
+        this.costUserGames = _el('cost-user-games');
+        this.costUserGamesDetail = _el('cost-user-games-detail');
+        this.closingEstimatesContainer = _el('closing-estimates');
 
         this.root = document.documentElement;
 
@@ -70,33 +73,36 @@ class UI {
         this._lastDrawSize = 6;
         this._lastCheckDrawInfo = '';
 
+        // ── Flag de geração em andamento (previne double-click) ──
+        this._isGenerating = false;
+
         // Quantum/IA Elements
-        this.quantumFormula = document.getElementById('quantum-formula');
-        this.quantumCountInput = document.getElementById('quantum-count');
-        this.btnQuantumCalculate = document.getElementById('btn-quantum-calculate');
-        this.quantumResults = document.getElementById('quantum-results');
-        this.btnUseQuantum = document.getElementById('btn-use-quantum');
+        this.quantumFormula = _el('quantum-formula');
+        this.quantumCountInput = _el('quantum-count');
+        this.btnQuantumCalculate = _el('btn-quantum-calculate');
+        this.quantumResults = _el('quantum-results');
+        this.btnUseQuantum = _el('btn-use-quantum');
 
         // Tutorial Elements
-        this.btnTutorial = document.getElementById('btn-tutorial');
-        this.tutorialModal = document.getElementById('tutorial-modal');
-        this.closeTutorialModalBtns = document.querySelectorAll('.close-tutorial-modal');
-        this.btnPrintTutorial = document.getElementById('print-tutorial');
+        this.btnTutorial = _el('btn-tutorial');
+        this.tutorialModal = _el('tutorial-modal');
+        this.closeTutorialModalBtns = document.querySelectorAll('.close-tutorial-modal') || [];
+        this.btnPrintTutorial = _el('print-tutorial');
 
         // Install Elements
-        this.btnInstall = document.getElementById('btn-install');
-        this.installModal = document.getElementById('install-modal');
-        this.closeInstallModalBtns = document.querySelectorAll('.close-install-modal');
-        this.btnCopyPath = document.getElementById('btn-copy-path');
-        this.folderPathElem = document.getElementById('folder-path');
+        this.btnInstall = _el('btn-install');
+        this.installModal = _el('install-modal');
+        this.closeInstallModalBtns = document.querySelectorAll('.close-install-modal') || [];
+        this.btnCopyPath = _el('btn-copy-path');
+        this.folderPathElem = _el('folder-path');
 
         // Backup Button
-        this.btnBackup = document.getElementById('btn-backup');
+        this.btnBackup = _el('btn-backup');
 
         // Prize Display Elements
-        this.prizeDisplay = document.getElementById('prize-display');
-        this.prizeValue = document.getElementById('prize-value');
-        this.prizeBadge = document.getElementById('prize-badge');
+        this.prizeDisplay = _el('prize-display');
+        this.prizeValue = _el('prize-value');
+        this.prizeBadge = _el('prize-badge');
     }
 
     debounce(func, wait) {
@@ -498,6 +504,13 @@ class UI {
         const game = GAMES[this.currentGameKey];
         if (!game) return;
 
+        // ── PROTEÇÃO DOUBLE-CLICK ──
+        if (this._isGenerating) {
+            console.warn('[SmartBets] Geração já em andamento, ignorando clique duplo');
+            return;
+        }
+        this._isGenerating = true;
+
         // Verificar se Modo Precisão está ativo
         const precisionCheckbox = document.getElementById('precision-mode-toggle');
         const isPrecisionMode = precisionCheckbox && precisionCheckbox.checked;
@@ -773,6 +786,7 @@ class UI {
                         console.error('[SmartBets] ERRO:', err);
                         this.gamesContainer.innerHTML = `<div class="empty-state" style="color:#EF4444;">❌ Erro: ${err.message}<br><small>Verifique o console (F12)</small></div>`;
                     } finally {
+                        this._isGenerating = false;
                         if (this.generateSmartBtn) {
                             this.generateSmartBtn.disabled = false;
                             this.generateSmartBtn.style.opacity = '1';
@@ -2173,9 +2187,9 @@ class UI {
 
     updateGameInfo(gameKey) {
         this.currentGameKey = gameKey;
-        const game = GAMES[gameKey];
+        const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         if (!game) {
-            console.error(`Game data not found for key: ${gameKey}`);
+            console.error('[UI] Dados da loteria não encontrados para: ' + gameKey);
             return;
         }
 
@@ -2561,15 +2575,19 @@ class UI {
         this.selectedNumbers.clear();
         this.fixedNumbers.clear();
         this.isFixedMode = false;
-        this.btnFixedMode.classList.remove('active');
-        this.btnFixedMode.textContent = '📌 Fixar';
-        this.fixedInfoPanel.style.display = 'none';
+        if (this.btnFixedMode) {
+            this.btnFixedMode.classList.remove('active');
+            this.btnFixedMode.textContent = '📌 Fixar';
+        }
+        if (this.fixedInfoPanel) this.fixedInfoPanel.style.display = 'none';
 
-        const selected = this.gridContainer.querySelectorAll('.selected, .fixed');
-        selected.forEach(el => {
-            el.classList.remove('selected');
-            el.classList.remove('fixed');
-        });
+        if (this.gridContainer) {
+            const selected = this.gridContainer.querySelectorAll('.selected, .fixed');
+            selected.forEach(el => {
+                el.classList.remove('selected');
+                el.classList.remove('fixed');
+            });
+        }
         this.updateSelectionInfo();
 
         // Clear generated games
@@ -2778,7 +2796,8 @@ class UI {
     }
 
     updateInvestmentPanel() {
-        const count = this.selectedNumbers.size;
+        const count = this.selectedNumbers ? this.selectedNumbers.size : 0;
+        if (typeof CombinationEngine === 'undefined') return;
         const result = CombinationEngine.calculateInvestment(this.currentGameKey, count);
 
         if (!result) return;
@@ -2836,17 +2855,23 @@ class UI {
     }
 
     updateStats() {
-        const stats = StatsService.getStats(this.currentGameKey, this.currentStatsRange);
-        this.renderStats(stats);
+        if (typeof StatsService === 'undefined') return;
+        try {
+            const stats = StatsService.getStats(this.currentGameKey, this.currentStatsRange);
+            this.renderStats(stats);
 
-        const recents = StatsService.getRecentResults(this.currentGameKey, 5);
-        this.renderRecentResults(recents);
+            const recents = StatsService.getRecentResults(this.currentGameKey, 5);
+            this.renderRecentResults(recents);
 
-        // ── Painel de Frequência Multi-Faixa ──
-        this.renderFrequencyPanel();
+            // ── Painel de Frequência Multi-Faixa ──
+            this.renderFrequencyPanel();
+        } catch(e) {
+            console.warn('[UI] Erro ao atualizar estatísticas:', e.message);
+        }
     }
 
     renderRecentResults(recents) {
+        if (!this.recentResultsContainer) return;
         this.recentResultsContainer.innerHTML = '';
 
         if (!recents || recents.length === 0) {
@@ -2925,6 +2950,8 @@ class UI {
     }
 
     renderStats(stats) {
+        if (!this.hotNumbersContainer || !this.coldNumbersContainer) return;
+        if (!stats || !stats.hot || !stats.cold) return;
         this.hotNumbersContainer.innerHTML = '';
         this.coldNumbersContainer.innerHTML = '';
 
@@ -3043,13 +3070,20 @@ class UI {
         const topNDisplay = Math.max(5, topN);
 
         // Verificar se temos dados
-        const history = StatsService.historyStore[this.currentGameKey];
+        const history = StatsService.historyStore ? StatsService.historyStore[this.currentGameKey] : null;
         if (!history || history.length === 0) {
             container.innerHTML = '<div class="freq-loading"><span class="freq-spinner"></span>Aguardando dados da API da Caixa...</div>';
-            // Tentar novamente em 2s
-            setTimeout(() => this.renderFrequencyPanel(), 2000);
+            // Tentar novamente em 2s — COM LIMITE de 3 retries
+            const retryKey = 'freqPanel_' + this.currentGameKey;
+            if (typeof Guardian !== 'undefined' && Guardian.canRetry(retryKey, 3)) {
+                Guardian.setTimeout(retryKey, () => this.renderFrequencyPanel(), 2000);
+            } else {
+                container.innerHTML = '<div class="freq-loading" style="color:#94A3B8;">Dados indisponíveis — usando modo offline</div>';
+            }
             return;
         }
+        // Reset retry counter quando dados chegam
+        if (typeof Guardian !== 'undefined') Guardian.resetRetry('freqPanel_' + this.currentGameKey);
 
         let html = '<div class="freq-grid">';
 
@@ -3108,9 +3142,13 @@ class UI {
     }
 
     renderGames(result, gameKey, updateHash = true) {
-        this.currentGeneratedGames = result.games || [];
+        // Validação defensiva de dados de entrada
+        if (!result) result = { games: [] };
+        if (!result.games) result.games = [];
+        this.currentGeneratedGames = result.games;
+        if (!this.gamesContainer) return;
         this.gamesContainer.innerHTML = '';
-        this.gamesContainer.dataset.gameKey = gameKey;
+        this.gamesContainer.dataset.gameKey = gameKey || this.currentGameKey;
 
         if (updateHash) this.updateUrlHash();
 
@@ -3433,11 +3471,16 @@ class UI {
 
     async saveGames() {
         if (!this.currentGeneratedGames || this.currentGeneratedGames.length === 0) {
-            alert('Gere jogos primeiro antes de salvar.');
+            if (typeof Guardian !== 'undefined') {
+                Guardian.toast('Gere jogos primeiro antes de salvar.', 'warning');
+            } else {
+                alert('Gere jogos primeiro antes de salvar.');
+            }
             return;
         }
 
-        const gameName = GAMES[this.currentGameKey]?.name || 'Loteria';
+        const game = typeof GAMES !== 'undefined' ? GAMES[this.currentGameKey] : null;
+        const gameName = game ? game.name : 'Loteria';
         const now = new Date();
         const dateStr = now.toLocaleDateString('pt-BR').replace(/\//g, '-');
         const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
