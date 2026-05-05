@@ -3664,35 +3664,79 @@ class UI {
         // Remove highlights on close? Maybe not, user might want to see.
     }
 
-    confirmCheck() {
-        const input = this.inputCheckNumbers.value.trim();
-        const game = GAMES[this.currentGameKey];
+    async confirmCheck() {
+        const input = this.inputCheckNumbers ? this.inputCheckNumbers.value.trim() : '';
+        const game = typeof GAMES !== 'undefined' ? GAMES[this.currentGameKey] : null;
+        if (!game) {
+            alert('Erro: jogo não carregado.');
+            return;
+        }
 
         let targetNumbers = [];
         let drawInfo = "Manual";
 
-        // Check if input is a Draw Number (single integer, reasonable size e.g. > 100) or Manual List
+        // Check if input is a Draw Number (single integer) or Manual List of numbers
         const isDrawNumber = /^\d+$/.test(input) && !input.includes(' ') && !input.includes(',');
 
         if (isDrawNumber) {
             const drawNum = parseInt(input);
-            const result = StatsService.getResultByDrawNumber(this.currentGameKey, drawNum);
+            
+            // 1. Primeiro tenta o cache local (historyStore)
+            let result = StatsService.getResultByDrawNumber(this.currentGameKey, drawNum);
 
-            if (result) {
+            // 2. Se não encontrou, busca da API em tempo real
+            if (!result) {
+                console.log('[CONFERIR] Concurso ' + drawNum + ' não encontrado no cache. Buscando da API...');
+                
+                // Feedback visual: buscando...
+                const confirmBtn = document.getElementById('confirm-check-btn');
+                const originalText = confirmBtn ? confirmBtn.innerHTML : '';
+                if (confirmBtn) {
+                    confirmBtn.innerHTML = '⏳ Buscando resultado do Concurso ' + drawNum + '...';
+                    confirmBtn.disabled = true;
+                }
+
+                try {
+                    const fetched = await StatsService._fetchSingleDraw(this.currentGameKey, drawNum);
+                    if (fetched && fetched.numbers && fetched.numbers.length > 0) {
+                        // Inserir no historyStore para futuras consultas
+                        if (!StatsService.historyStore[this.currentGameKey]) {
+                            StatsService.historyStore[this.currentGameKey] = [];
+                        }
+                        StatsService.historyStore[this.currentGameKey].push(fetched);
+                        result = fetched;
+                        console.log('[CONFERIR] ✅ Resultado obtido da API: Concurso ' + drawNum + ' → [' + fetched.numbers.join(', ') + ']');
+                    }
+                } catch(apiErr) {
+                    console.warn('[CONFERIR] API falhou:', apiErr.message);
+                }
+
+                // Restaurar botão
+                if (confirmBtn) {
+                    confirmBtn.innerHTML = originalText;
+                    confirmBtn.disabled = false;
+                }
+            }
+
+            // 3. Fallback: busca no REAL_HISTORY_DB
+            if (!result && typeof REAL_HISTORY_DB !== 'undefined' && REAL_HISTORY_DB[this.currentGameKey]) {
+                const db = REAL_HISTORY_DB[this.currentGameKey];
+                for (let i = 0; i < db.length; i++) {
+                    if (db[i].drawNumber == drawNum) {
+                        result = db[i];
+                        console.log('[CONFERIR] Encontrado no REAL_HISTORY_DB');
+                        break;
+                    }
+                }
+            }
+
+            if (result && result.numbers && result.numbers.length > 0) {
                 targetNumbers = result.numbers;
                 drawInfo = `Concurso ${result.drawNumber}`;
             } else {
-                // Fallback or Alert? User implies they want to check against "results that have value".
-                // Since we mock, we can generate a consistent random result for this ID if not in history?
-                // For now, let's just use what we have or alert.
-                // Actually, simulating a draw for this ID is better to satisfy user expectation.
-                // (Using simple hash or random for now)
-                // alert(`Concurso ${drawNum} não encontrado na base simulada.`);
-                // return;
-
-                // Simulating for the requested ID if not found (better UX for demo)
-                targetNumbers = StatsService.simulateDraw(game);
-                drawInfo = `Concurso ${drawNum} (Simulado)`;
+                // Concurso realmente não encontrado em nenhuma fonte
+                alert(`❌ Concurso ${drawNum} não encontrado.\n\nVerifique se o número do concurso está correto ou digite os números sorteados manualmente separados por espaço ou vírgula.\n\nExemplo: 08 24 27 37 47 55`);
+                return;
             }
         } else {
             targetNumbers = input.split(/[\s,-]+/).map(n => parseInt(n)).filter(n => !isNaN(n));
@@ -3702,7 +3746,7 @@ class UI {
             }
         }
 
-        const file = this.loadGamesInput.files[0];
+        const file = this.loadGamesInput ? this.loadGamesInput.files[0] : null;
         if (file) {
             // Check from File
             const reader = new FileReader();
@@ -3722,7 +3766,7 @@ class UI {
         } else {
             // Check Current
             if (!this.currentGeneratedGames || this.currentGeneratedGames.length === 0) {
-                alert('Nenhum jogo carregado para conferir.');
+                alert('Nenhum jogo carregado para conferir.\n\nGere jogos primeiro usando "Gerar Jogos" ou "QUANTUM L99".');
                 return;
             }
             this.closeCheckModal();
