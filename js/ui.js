@@ -1588,7 +1588,8 @@ class UI {
         // Generate (Fechamento) — Motor Inteligente v3 + Fechamento Objetivo L99
         this.generateBtn.onclick = () => {
             // ── RASTREAMENTO DE MODO ──
-            this._lastPrecisionMode = false;
+            const precisionCb = document.getElementById('precision-mode-toggle');
+            this._lastPrecisionMode = !!(precisionCb && precisionCb.checked);
             let closingVal = this.closingSelect.value;
 
             // ═══ PROTEÇÃO v3.4: Quantidade solicitada tem PRIORIDADE ═══
@@ -4142,11 +4143,11 @@ class UI {
                 const concursoMatch = drawInfo.match(/(\d+)/);
                 if (concursoMatch) concursoNum = parseInt(concursoMatch[1]);
 
-                // Precisão: ler rastreamento + fallback do checkbox
+                // Precisão: ler rastreamento + fallback do checkbox (para QUALQUER modo)
                 let isPrecisao = this._lastPrecisionMode === true;
                 if (!isPrecisao) {
                     const pc = document.getElementById('precision-mode-toggle');
-                    if (pc && pc.checked && this._lastGenerationMode === 'quantum_l99') {
+                    if (pc && pc.checked) {
                         isPrecisao = true;
                     }
                 }
