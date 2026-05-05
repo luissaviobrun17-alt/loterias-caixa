@@ -187,64 +187,134 @@ class UI {
     }
 
     runQuantumCalculation() {
-        const count = parseInt(this.quantumCountInput.value) || 6;
-        const game = GAMES[this.currentGameKey];
-        const constraints = QuantumGodEngine.getConstraints(this.currentGameKey);
+        const game = typeof GAMES !== 'undefined' ? GAMES[this.currentGameKey] : null;
+        if (!game) {
+            console.error('[UI] GAMES não carregado ou jogo inválido:', this.currentGameKey);
+            if (typeof Guardian !== 'undefined' && Guardian.toast) Guardian.toast('Erro: dados do jogo não carregados. Recarregue a página.', 'error');
+            return;
+        }
+
+        const count = parseInt(this.quantumCountInput ? this.quantumCountInput.value : 6) || game.minBet;
+        const constraints = (typeof QuantumGodEngine !== 'undefined' && QuantumGodEngine.getConstraints) 
+            ? QuantumGodEngine.getConstraints(this.currentGameKey) 
+            : null;
         const totalNumbers = constraints ? constraints.totalNumbers : (game.range[1] - game.range[0] + 1);
 
         // Validação: mínimo é o minBet do jogo
         if (count < game.minBet) {
-            alert(`Mínimo de ${game.minBet} números para ${game.name}.`);
-            this.quantumCountInput.value = game.minBet;
+            if (typeof Guardian !== 'undefined' && Guardian.toast) {
+                Guardian.toast(`Mínimo de ${game.minBet} números para ${game.name}.`, 'warning');
+            } else {
+                alert(`Mínimo de ${game.minBet} números para ${game.name}.`);
+            }
+            if (this.quantumCountInput) this.quantumCountInput.value = game.minBet;
             return;
         }
 
         // Validação: máximo é o total de números da loteria
         if (count > totalNumbers) {
-            alert(`Limite excedido: ${game.name} possui apenas ${totalNumbers} números.`);
+            if (typeof Guardian !== 'undefined' && Guardian.toast) {
+                Guardian.toast(`Limite excedido: ${game.name} possui apenas ${totalNumbers} números.`, 'warning');
+            } else {
+                alert(`Limite excedido: ${game.name} possui apenas ${totalNumbers} números.`);
+            }
             return;
         }
 
         const statusDiv = this.quantumResults;
-        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">★ MODO DEUS — 12 Camadas de Predição Ativadas...</div>';
+        if (!statusDiv) {
+            console.error('[UI] quantum-results não encontrado no DOM');
+            return;
+        }
+
+        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">★ MODO DEUS — 28 Camadas de Predição Ativadas...</div>';
 
         // Phase 1: Analysis
         setTimeout(() => {
+            if (!statusDiv.parentNode) return; // Elemento removido do DOM
             statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #6366f1; font-style: normal;">★ Bayesian + Markov + Posicional + Cadeias Sequenciais...</div>';
 
             // Phase 2: Processing
             setTimeout(() => {
+                if (!statusDiv.parentNode) return;
                 statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #ec4899; font-style: normal;">★ Convergência Bayesiana + Monte Carlo → Próximo Sorteio...</div>';
 
-                // Phase 3: Run Engine (with error handling)
+                // Phase 3: Run Engine (with robust error handling + fallback chain)
                 setTimeout(() => {
                     try {
-                        let suggestion;
-                        const history = StatsService.getRecentResults(this.currentGameKey, 100) || [];
-                        if (typeof NovaEraEngine !== 'undefined') {
-                            // NOVA ERA V1: Sugestão sintética e objetiva
-                            console.log('[UI] Usando NovaEraEngine.suggestNumbers para ' + this.currentGameKey);
-                            suggestion = NovaEraEngine.suggestNumbers(this.currentGameKey, count);
-                            // Calcular confiança via backtest do QuantumGodEngine
-                            if (suggestion && suggestion.length > 0 && history.length >= 3) {
-                                try {
+                        let suggestion = null;
+                        let history = [];
+                        try {
+                            history = (typeof StatsService !== 'undefined') 
+                                ? (StatsService.getRecentResults(this.currentGameKey, 100) || []) 
+                                : [];
+                        } catch(e) { console.warn('[UI] StatsService.getRecentResults falhou:', e.message); }
+
+                        // Fallback 2: REAL_HISTORY_DB
+                        if (history.length < 3 && typeof REAL_HISTORY_DB !== 'undefined' && REAL_HISTORY_DB[this.currentGameKey]) {
+                            history = REAL_HISTORY_DB[this.currentGameKey].slice(0, 100);
+                            console.log('[UI] Fallback para REAL_HISTORY_DB:', history.length, 'registros');
+                        }
+
+                        // Motor 1: NovaEraEngine (preferido)
+                        if (typeof NovaEraEngine !== 'undefined' && typeof NovaEraEngine.suggestNumbers === 'function') {
+                            try {
+                                console.log('[UI] Usando NovaEraEngine.suggestNumbers para ' + this.currentGameKey);
+                                suggestion = NovaEraEngine.suggestNumbers(this.currentGameKey, count);
+                            } catch(neErr) {
+                                console.warn('[UI] NovaEraEngine falhou:', neErr.message);
+                                suggestion = null;
+                            }
+                        }
+
+                        // Motor 2: QuantumGodEngine (fallback)
+                        if ((!suggestion || suggestion.length === 0) && typeof QuantumGodEngine !== 'undefined') {
+                            try {
+                                console.log('[UI] Fallback para QuantumGodEngine.runSimulation');
+                                suggestion = QuantumGodEngine.runSimulation(this.currentGameKey, count, history);
+                            } catch(qgeErr) {
+                                console.warn('[UI] QuantumGodEngine falhou:', qgeErr.message);
+                                suggestion = null;
+                            }
+                        }
+
+                        // Motor 3: Fallback aleatório (último recurso)
+                        if (!suggestion || suggestion.length === 0) {
+                            console.warn('[UI] Todos os motores falharam, usando fallback aleatório');
+                            suggestion = [];
+                            const pool = [];
+                            for (let i = game.range[0]; i <= game.range[1]; i++) pool.push(i);
+                            while (suggestion.length < count && pool.length > 0) {
+                                suggestion.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+                            }
+                            suggestion.sort((a, b) => a - b);
+                        }
+
+                        // Calcular confiança via backtest (se disponível)
+                        if (suggestion && suggestion.length > 0 && history.length >= 3 && typeof QuantumGodEngine !== 'undefined') {
+                            try {
+                                if (typeof QuantumGodEngine._backtestResult === 'function') {
                                     const bt = QuantumGodEngine._backtestResult(suggestion, history, this.currentGameKey);
                                     QuantumGodEngine._lastConfidence = bt.confidence;
                                     QuantumGodEngine._lastBacktest = bt;
                                     console.log('[UI] Confiança calculada via backtest: ' + bt.confidence + '%');
-                                } catch(btErr) {
-                                    console.warn('[UI] Backtest falhou:', btErr.message);
+                                } else if (typeof QuantumGodEngine._evaluateConfidence === 'function') {
+                                    const ev = QuantumGodEngine._evaluateConfidence(suggestion, history, game, count);
+                                    QuantumGodEngine._lastConfidence = ev.confidence;
+                                    QuantumGodEngine._lastBacktest = ev.backtest;
+                                } else {
                                     QuantumGodEngine._lastConfidence = 65;
                                 }
+                            } catch(btErr) {
+                                console.warn('[UI] Backtest falhou:', btErr.message);
+                                if (typeof QuantumGodEngine !== 'undefined') QuantumGodEngine._lastConfidence = 65;
                             }
-                        } else {
-                            // Fallback: motor legado
-                            suggestion = QuantumGodEngine.runSimulation(this.currentGameKey, count, history);
                         }
+
                         console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + ' números');
                         this.renderQuantumResults(suggestion);
                     } catch (err) {
-                        console.error('[UI] ERRO no engine:', err);
+                        console.error('[UI] ERRO CRÍTICO no engine:', err);
                         statusDiv.innerHTML = '<div style="color: #ef4444; text-align: center; padding: 10px;">❌ Erro: ' + err.message + '<br><small>Verifique o console (F12) para detalhes</small></div>';
                     }
                 }, 100);
