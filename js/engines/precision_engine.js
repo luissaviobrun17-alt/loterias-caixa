@@ -176,34 +176,58 @@ class PrecisionEngine {
             }
         }
 
-        // ── FASE B: enumeração lexicográfica — gera QUALQUER quantidade ───
-        // _nthCombo(allNums, drawSize, comboIdx) mapeia índice → combo único
-        // Pula combos já usados e avança o cursor. Garante até C(n,k) jogos únicos.
-        while (games.length < numGames) {
+        // ── FASE B: amostragem ponderada por score — diversidade real ────
+        // Cada jogo amostra números proporcionalmente ao seu consensus score.
+        // Números com score alto aparecem MAIS, mas não em TODOS os jogos.
+        // Garante diversidade genuína sem repetir os mesmos 4-5 âncoras.
+        const scoreArr = allNums.map(n => Math.max(0.05, consensusScores[n] || 0.5));
+
+        // Função: sorteia drawSize números sem reposição, peso = score^exponent
+        const weightedSample = (exponent) => {
+            const game = [];
+            const inGame = new Set();
+            // Fixos primeiro
+            for (const f of fixed) { if (!inGame.has(f) && game.length < drawSize) { game.push(f); inGame.add(f); } }
+            let tries = 0;
+            while (game.length < drawSize && tries < drawSize * 40) {
+                tries++;
+                // Calcular soma total dos pesos dos números não usados
+                let totalW = 0;
+                for (let i = 0; i < allNums.length; i++) {
+                    if (!inGame.has(allNums[i])) totalW += Math.pow(scoreArr[i], exponent);
+                }
+                if (totalW <= 0) break;
+                let r = Math.random() * totalW;
+                for (let i = 0; i < allNums.length; i++) {
+                    if (inGame.has(allNums[i])) continue;
+                    r -= Math.pow(scoreArr[i], exponent);
+                    if (r <= 0) { game.push(allNums[i]); inGame.add(allNums[i]); break; }
+                }
+            }
+            return game.length === drawSize ? game.sort((a,b) => a-b) : null;
+        };
+
+        // Expoente progressivo: começa concentrado (2.0) e vai ficando mais livre (0.5)
+        // — assim os primeiros jogos ainda têm os melhores números mas com variedade
+        let failCount = 0;
+        while (games.length < numGames && failCount < 500) {
+            const progress = (games.length - 1) / Math.max(1, numGames - 1);
+            // Expoente 2.0→0.5: quanto menor, mais uniforme (mais livre)
+            const exp = Math.max(0.5, 2.0 - progress * 1.5);
             let found = false;
-            // Tenta até 50.000 índices antes de desistir (cobre lacunas de usedKeys)
-            for (let t = 0; t < 50000 && !found; t++) {
-                if (comboIdx >= totalCombos) comboIdx = 0; // volta ao início se esgotar
-                const game = this._nthCombo(allNums, drawSize, comboIdx);
-                comboIdx++;
+            for (let t = 0; t < 60 && !found; t++) {
+                const game = weightedSample(exp);
                 if (!game || game.length < drawSize) continue;
                 const key = game.join(',');
                 if (usedKeys.has(key)) continue;
-                // Validação mínima: só soma (máxima liberdade de geração)
                 const sum = game.reduce((a,b) => a+b, 0);
                 if (sum < cfg.sumMin * 0.75 || sum > cfg.sumMax * 1.25) continue;
-                games.push(game); usedKeys.add(key); found = true;
+                games.push(game); usedKeys.add(key); found = true; failCount = 0;
             }
-            // Último recurso: Math.random puro
-            if (!found) {
-                for (let t = 0; t < 2000 && !found; t++) {
-                    const g = [...allNums].sort(() => Math.random()-0.5).slice(0, drawSize).sort((a,b)=>a-b);
-                    const key = g.join(',');
-                    if (!usedKeys.has(key)) { games.push(g); usedKeys.add(key); found = true; }
-                }
-                if (!found) break; // impossível gerar mais (esgotou espaço)
-            }
+            if (!found) failCount++;
         }
+
+
 
         console.log('[PRECISION-L99] ✅ ' + games.length + '/' + numGames + ' jogos em ' + (Date.now()-t0) + 'ms');
         return this._buildResult(games, gameKey, history, totalRange, drawSize, t0);
