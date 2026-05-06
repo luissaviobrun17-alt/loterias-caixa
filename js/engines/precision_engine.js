@@ -133,20 +133,26 @@ class PrecisionEngine {
 
         if (numGames === 1) return this._buildResult([game1], gameKey, history, totalRange, drawSize, t0);
 
-        // ── 9. GERAÇÃO CIENTÍFICA: SCORE PERTURBADO POR JOGO ────────────
-        // Cada jogo tem um ranking único de números baseado em:
-        //   D1 = consensus score (10 dimensões analíticas)
-        //   D2 = cobertura (boost para números sub-representados)
-        //   D3 = perturbação exponencial determinística por (gIdx × número)
-        //        range [exp(-3), exp(+3)] ≈ [0.05, 20x] — garante variedade total
-        // O produto D1×D2×D3 cria um ranking diferente para cada gIdx,
-        // mas cuja MÉDIA sobre todos os jogos converge para o score original.
+        // ── 9. GERAÇÃO CIENTÍFICA — 8 DIMENSÕES + TEMPERATURA ADAPTATIVA ──
+        //
+        //  D1 = Consensus score (NovaEra + QuantumGod + 10 camadas locais)
+        //  D2 = Cobertura — boost p/ números sub-representados nos jogos gerados
+        //  D3 = Co-ocorrência condicional com os já escolhidos neste jogo
+        //  D4 = Equilíbrio de zonas no jogo atual
+        //  D5 = Paridade (equilíbrio par/ímpar)
+        //  D6 = Afinidade de soma histórica
+        //  D7 = Pressão de vácuo (atraso relativo ao ciclo esperado)
+        //  D8 = Momentum recente (tendência últimos 5 sorteios)
+        //
+        //  Temperatura T: alta → concentra em D1 (melhores scores)
+        //                 baixa → distribui mais (mais cobertura)
+
         const games = [game1];
         const usedKeys = new Set([game1.join(',')]);
         const allNums = ranked.map(r => r.n);
         const zoneSize = Math.max(1, Math.ceil((endNum - startNum + 1) / cfg.zones));
 
-        // ─ Matriz de co-ocorrência histórica ──────────────────────────────
+        // ─ Matriz de co-ocorrência histórica (últimos 50 sorteios) ─────────
         const coMx = {};
         for (let n = startNum; n <= endNum; n++) coMx[n] = {};
         for (const draw of history.slice(0, 50)) {
@@ -160,60 +166,111 @@ class PrecisionEngine {
         const maxCo = {};
         for (const n of allNums) maxCo[n] = Math.max(1, ...Object.values(coMx[n]).concat([1]));
 
+        // ─ D7: Pressão de vácuo — última aparição de cada número ─────────
+        const lastSeen = {};
+        for (let n = startNum; n <= endNum; n++) lastSeen[n] = 9999;
+        for (let i = 0; i < Math.min(history.length, 100); i++) {
+            const draw = history[i];
+            const nums = (draw.numbers || []).filter(n => n >= startNum && n <= endNum);
+            for (const n of nums) { if (lastSeen[n] === 9999) lastSeen[n] = i; }
+        }
+        const expectedCycle = Math.ceil(totalRange / drawSize);
+        const vacuumScore = {};
+        for (const n of allNums) {
+            const delay = lastSeen[n] === 9999 ? expectedCycle * 2 : lastSeen[n];
+            vacuumScore[n] = Math.min(2.0, delay / expectedCycle); // 0–2.0
+        }
+
+        // ─ D8: Momentum recente (frequência nos últimos 5 sorteios) ───────
+        const momentum = {};
+        for (const n of allNums) momentum[n] = 0;
+        for (const draw of history.slice(0, 5)) {
+            const nums = (draw.numbers || []).filter(n => n >= startNum && n <= endNum);
+            for (const n of nums) momentum[n] = (momentum[n] || 0) + 1;
+        }
+
+        // ─ D6: Soma histórica média (alvo para manter soma próxima à média) ─
+        let histAvgSum = (cfg.sumMin + cfg.sumMax) / 2;
+        if (history.length > 0) {
+            const sums = history.slice(0, 30).map(d => (d.numbers || []).reduce((a,b) => a+b, 0));
+            histAvgSum = sums.reduce((a,b) => a+b, 0) / Math.max(1, sums.length);
+        }
+
         // ─ Cobertura: quantas vezes cada número foi usado ─────────────────
         const cov = {};
         for (let n = startNum; n <= endNum; n++) cov[n] = 0;
         for (const n of game1) cov[n]++;
 
-        // ─ buildGame: amostragem ponderada determinística por LCG ────────
-        // Math.imul garante aritmética inteira 32-bit correta (sem perda de float)
-        // Cada gIdx → semente única → sequência LCG única → jogo único
-        // Peso = score² × cobertura (D1²×D2): números melhores aparecem mais
-        // mas qualquer número pode aparecer em qualquer jogo
-        const buildGame = (gIdx) => {
-            // Inicializar LCG com semente baseada em gIdx (Math.imul = inteiro 32-bit)
+        // ─ buildGame: amostragem ponderada determinística por LCG ─────────
+        const buildGame = (gIdx, temperature) => {
             let s = (Math.imul(gIdx, 2654435761) + 1013904223) | 0;
-            const rng = () => {
-                s = (Math.imul(s, 1664525) + 1013904223) | 0;
-                return (s >>> 0) / 4294967296; // [0, 1)
-            };
+            const rng = () => { s = (Math.imul(s, 1664525) + 1013904223) | 0; return (s >>> 0) / 4294967296; };
 
             const totalCov = allNums.reduce((a,n) => a + cov[n], 0);
-            const avgCov = totalCov / Math.max(1, allNums.length);
+            const avgCov   = totalCov / Math.max(1, allNums.length);
 
-            // Montar jogo por amostragem ponderada sem reposição
             const chosen = [];
             const inGame = new Set();
-            // Fixos primeiro
             for (const f of fixed) {
                 if (!inGame.has(f) && chosen.length < drawSize) { chosen.push(f); inGame.add(f); }
             }
 
             while (chosen.length < drawSize) {
-                // Candidatos disponíveis
                 const avail = allNums.filter(n => !inGame.has(n));
                 if (!avail.length) break;
 
-                // Peso de cada candidato: score² × cobertura_bonus
+                const sumSoFar  = chosen.reduce((a,b) => a+b, 0);
+                const remaining = drawSize - chosen.length;
+                const evenSoFar = chosen.filter(n => n%2===0).length;
+                const usedZones = new Set(chosen.map(n => Math.min(cfg.zones-1, Math.floor((n-startNum)/zoneSize))));
+
                 let totalW = 0;
                 const ws = avail.map(n => {
+                    // D1: consensus score (base científica multi-camada)
                     const d1 = Math.max(0.01, consensusScores[n] || 0.5);
+
+                    // D2: cobertura — sub-representados recebem boost crescente
                     const d2 = 1.0 + Math.max(0, avgCov - cov[n]) / Math.max(1, avgCov + 1);
-                    // D3: co-ocorrência com já escolhidos
+
+                    // D3: co-ocorrência condicional com os já escolhidos
                     let d3 = 1.0;
                     if (chosen.length > 0) {
                         let coSum = 0;
                         for (const c of chosen) coSum += (coMx[c][n] || 0) / maxCo[c];
                         d3 = 0.7 + (coSum / chosen.length) * 0.6;
                     }
-                    const w = d1 * d1 * d2 * d3; // score² enfatiza diferenças
+
+                    // D4: zona — favorece zonas não usadas neste jogo
+                    const zone = Math.min(cfg.zones-1, Math.floor((n-startNum)/zoneSize));
+                    const d4 = usedZones.has(zone) ? 0.60 : 1.40;
+
+                    // D5: paridade — favorece equilíbrio par/ímpar
+                    const targetEven = Math.round(drawSize / 2);
+                    const isEven = n % 2 === 0;
+                    const d5 = (isEven && evenSoFar < targetEven) ? 1.20
+                              : (!isEven && evenSoFar >= targetEven) ? 1.20 : 0.85;
+
+                    // D6: afinidade de soma — favorece números que mantêm soma próx. à média hist.
+                    const projSum = sumSoFar + n;
+                    const sumDelta = Math.abs(projSum - histAvgSum * (chosen.length + 1) / drawSize);
+                    const d6 = 1.0 / (1.0 + sumDelta / (histAvgSum * 0.3));
+
+                    // D7: pressão de vácuo (números ausentes há mais tempo)
+                    const d7 = 0.8 + vacuumScore[n] * 0.4; // [0.8, 1.6]
+
+                    // D8: momentum suave (números quentes recentemente)
+                    const d8 = 1.0 + (momentum[n] || 0) * 0.08; // max +40% p/ momentum=5
+
+                    // Score com temperatura: T alto → D1 domina; T baixo → mais distribuído
+                    const baseScore = d1 * d2 * d3 * d4 * d5 * d6 * d7 * d8;
+                    const w = Math.pow(baseScore, temperature);
                     totalW += w;
                     return w;
                 });
 
-                // Seleção ponderada usando LCG
+                // Seleção ponderada usando LCG (determinístico por gIdx)
                 let r = rng() * totalW;
-                let sel = avail[avail.length - 1]; // fallback
+                let sel = avail[avail.length - 1];
                 for (let i = 0; i < avail.length; i++) {
                     r -= ws[i];
                     if (r <= 0) { sel = avail[i]; break; }
@@ -224,11 +281,15 @@ class PrecisionEngine {
             return chosen.length === drawSize ? chosen.sort((a,b) => a-b) : null;
         };
 
-        // ─ Loop: gIdx sempre avança, failStreak apenas para colisões extremas ─
+        // ─ Loop com temperatura adaptativa ───────────────────────────────
+        // Temperatura decresce: primeiros jogos mais concentrados (score alto)
+        //                       últimos jogos mais livres (maior cobertura)
         let gIdx = 1;
         let failStreak = 0;
         while (games.length < numGames && failStreak < 500000) {
-            const game = buildGame(gIdx++);
+            const progress  = games.length / numGames;          // 0→1
+            const temp      = Math.max(0.5, 2.5 - progress * 2.0); // 2.5→0.5
+            const game      = buildGame(gIdx++, temp);
             if (!game) continue;
             const key = game.join(',');
             if (usedKeys.has(key)) { failStreak++; continue; }
