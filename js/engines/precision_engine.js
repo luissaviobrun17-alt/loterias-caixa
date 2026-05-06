@@ -165,45 +165,71 @@ class PrecisionEngine {
         for (let n = startNum; n <= endNum; n++) cov[n] = 0;
         for (const n of game1) cov[n]++;
 
-        // ─ buildGame: cria ranking único para gIdx, pega top-drawSize ─────
+        // ─ buildGame: amostragem ponderada determinística por LCG ────────
+        // Math.imul garante aritmética inteira 32-bit correta (sem perda de float)
+        // Cada gIdx → semente única → sequência LCG única → jogo único
+        // Peso = score² × cobertura (D1²×D2): números melhores aparecem mais
+        // mas qualquer número pode aparecer em qualquer jogo
         const buildGame = (gIdx) => {
-            // Calcular cobertura média atual
+            // Inicializar LCG com semente baseada em gIdx (Math.imul = inteiro 32-bit)
+            let s = (Math.imul(gIdx, 2654435761) + 1013904223) | 0;
+            const rng = () => {
+                s = (Math.imul(s, 1664525) + 1013904223) | 0;
+                return (s >>> 0) / 4294967296; // [0, 1)
+            };
+
             const totalCov = allNums.reduce((a,n) => a + cov[n], 0);
             const avgCov = totalCov / Math.max(1, allNums.length);
 
-            // Pontuar e ordenar todos os números para este gIdx
-            const ranked2 = allNums.map(n => {
-                const d1 = consensusScores[n] || 0.5;
-                // D2: bônus para números sub-representados
-                const d2 = 1.0 + Math.max(0, avgCov - cov[n]) / Math.max(1, avgCov + 1);
-                // D3: perturbação exponencial — cada (gIdx,n) → hash único
-                const h = (((gIdx * 2654435761 ^ n * 1234567891) >>> 0) / 4294967295);
-                const d3 = Math.exp((h - 0.5) * 6.0); // [0.05, 20]
-                // D4: co-ocorrência média histórica (tendência do número)
-                const coAvg = Object.values(coMx[n]).reduce((a,b)=>a+b,0) / Math.max(1,Object.values(coMx[n]).length);
-                const d4 = 0.8 + (coAvg / maxCo[n]) * 0.4;
-                return { n, score: d1 * d2 * d3 * d4 };
-            }).sort((a,b) => b.score - a.score);
-
-            // Montar jogo: fixos primeiro, depois top do ranking
+            // Montar jogo por amostragem ponderada sem reposição
             const chosen = [];
             const inGame = new Set();
+            // Fixos primeiro
             for (const f of fixed) {
                 if (!inGame.has(f) && chosen.length < drawSize) { chosen.push(f); inGame.add(f); }
             }
-            for (const { n } of ranked2) {
-                if (chosen.length >= drawSize) break;
-                if (!inGame.has(n)) { chosen.push(n); inGame.add(n); }
+
+            while (chosen.length < drawSize) {
+                // Candidatos disponíveis
+                const avail = allNums.filter(n => !inGame.has(n));
+                if (!avail.length) break;
+
+                // Peso de cada candidato: score² × cobertura_bonus
+                let totalW = 0;
+                const ws = avail.map(n => {
+                    const d1 = Math.max(0.01, consensusScores[n] || 0.5);
+                    const d2 = 1.0 + Math.max(0, avgCov - cov[n]) / Math.max(1, avgCov + 1);
+                    // D3: co-ocorrência com já escolhidos
+                    let d3 = 1.0;
+                    if (chosen.length > 0) {
+                        let coSum = 0;
+                        for (const c of chosen) coSum += (coMx[c][n] || 0) / maxCo[c];
+                        d3 = 0.7 + (coSum / chosen.length) * 0.6;
+                    }
+                    const w = d1 * d1 * d2 * d3; // score² enfatiza diferenças
+                    totalW += w;
+                    return w;
+                });
+
+                // Seleção ponderada usando LCG
+                let r = rng() * totalW;
+                let sel = avail[avail.length - 1]; // fallback
+                for (let i = 0; i < avail.length; i++) {
+                    r -= ws[i];
+                    if (r <= 0) { sel = avail[i]; break; }
+                }
+                chosen.push(sel);
+                inGame.add(sel);
             }
             return chosen.length === drawSize ? chosen.sort((a,b) => a-b) : null;
         };
 
-        // ─ Loop de geração: gIdx independente, sem limite de falhas ───────
+        // ─ Loop: gIdx sempre avança, failStreak apenas para colisões extremas ─
         let gIdx = 1;
         let failStreak = 0;
-        while (games.length < numGames && failStreak < 100000) {
+        while (games.length < numGames && failStreak < 500000) {
             const game = buildGame(gIdx++);
-            if (!game) continue; // nunca deve acontecer
+            if (!game) continue;
             const key = game.join(',');
             if (usedKeys.has(key)) { failStreak++; continue; }
             games.push(game);
@@ -211,6 +237,7 @@ class PrecisionEngine {
             for (const n of game) cov[n]++;
             failStreak = 0;
         }
+
 
 
         console.log('[PRECISION-L99] ✅ ' + games.length + '/' + numGames + ' jogos em ' + (Date.now()-t0) + 'ms');
