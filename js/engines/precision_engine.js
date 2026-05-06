@@ -120,7 +120,7 @@ class PrecisionEngine {
         console.log('[PRECISION-L99] ★ TOP 10: ' + ranked.slice(0, 10).map(r => r.n + '(' + r.score.toFixed(3) + ')').join(', '));
 
         // ── 8. CONSTRUIR JOGO 1 ────────────────────────────────────────────
-        const game1 = this._buildGame1(ranked, fixed, drawSize, cfg, startNum, endNum, consensusScores);
+        const game1 = this._buildGame1(ranked, fixed, drawSize, cfg, startNum, endNum, consensusScores, history);
         if (!game1 || game1.length < drawSize) {
             console.warn('[PRECISION-L99] ⚠ Jogo1 falhou → fallback NovaEra');
             return this._fallback(gameKey, numGames, selectedNumbers, fixedNumbers, drawSize);
@@ -592,24 +592,68 @@ class PrecisionEngine {
     //    G5 = paridade              (equilíbrio par/ímpar)
     //    G6 = afinidade de soma     (projeção de soma próxima da média histórica)
     //
-    static _buildGame1(ranked, fixed, drawSize, cfg, startNum, endNum, scores) {
+    static _buildGame1(ranked, fixed, drawSize, cfg, startNum, endNum, scores, history) {
         const zoneSize  = Math.ceil((endNum - startNum + 1) / cfg.zones);
         const allNums   = ranked.map(r => r.n);
+        const H         = history || [];
 
-        // ── Matriz de afinidade de pares (últimos 30 sorteios) ────────────
-        // pairAff[a][b] = probabilidade normalizada de a e b saírem juntos
+        // ── G2: Matriz de afinidade de pares REAL (histórico) ────────────
+        // P(b|a) = vezes que a e b saíram juntos / vezes que a saiu
+        const pairCount   = {};
+        const numAppears  = {};
+        for (const n of allNums) { pairCount[n] = {}; numAppears[n] = 0; }
+        for (const draw of H.slice(0, 50)) {
+            const nums = (draw.numbers || []).filter(n => n >= startNum && n <= endNum);
+            for (const n of nums) numAppears[n]++;
+            for (let i = 0; i < nums.length; i++)
+                for (let j = i+1; j < nums.length; j++) {
+                    pairCount[nums[i]][nums[j]] = (pairCount[nums[i]][nums[j]] || 0) + 1;
+                    pairCount[nums[j]][nums[i]] = (pairCount[nums[j]][nums[i]] || 0) + 1;
+                }
+        }
         const pairAff = {};
-        for (const n of allNums) pairAff[n] = {};
+        for (const n of allNums) {
+            pairAff[n] = {};
+            const maxCnt = Math.max(1, ...Object.values(pairCount[n]).concat([1]));
+            for (const [m, cnt] of Object.entries(pairCount[n]))
+                pairAff[n][+m] = cnt / maxCnt; // normalizado [0,1]
+        }
 
-        // Construída na seção principal (coMx), mas aqui recalculamos do histórico
-        // passado via closure: usamos scores.history se disponível, senão skip
-        // (É sempre disponível pois _buildGame1 é chamado após histórico carregado)
-
-        // Soma histórica média
+        // ── G6: Soma histórica média real ─────────────────────────────────
         let histAvgSum = (cfg.sumMin + cfg.sumMax) / 2;
+        if (H.length > 0) {
+            const sums = H.slice(0, 30).map(d =>
+                (d.numbers || []).filter(n => n >= startNum && n <= endNum).reduce((a,b) => a+b, 0));
+            histAvgSum = sums.reduce((a,b) => a+b, 0) / Math.max(1, sums.length);
+        }
 
-        // Ideal gap entre números consecutivos no jogo
-        const idealGap = (endNum - startNum) / (drawSize + 1);
+        // ── G3: Padrão Gaussiano de gaps históricos ───────────────────────
+        // Calcula média e desvio-padrão dos gaps reais dos sorteios
+        const gapSamples = [];
+        for (const draw of H.slice(0, 40)) {
+            const nums = (draw.numbers || []).filter(n => n >= startNum && n <= endNum).sort((a,b) => a-b);
+            for (let i = 1; i < nums.length; i++) gapSamples.push(nums[i] - nums[i-1]);
+        }
+        const idealGap    = (endNum - startNum) / (drawSize + 1);
+        const avgGapHist  = gapSamples.length > 5
+            ? gapSamples.reduce((a,b) => a+b, 0) / gapSamples.length : idealGap;
+        const stdGapHist  = gapSamples.length > 5
+            ? Math.sqrt(gapSamples.map(g => (g-avgGapHist)**2).reduce((a,b) => a+b, 0) / gapSamples.length)
+            : Math.max(3, idealGap * 0.4);
+
+        // ── Hot/Cold: classifica números por calor recente ────────────────
+        // Hot  = saiu nos últimos 5 sorteios | Cold = não sai há >2× ciclo
+        const hotSet  = new Set();
+        const coldSet = new Set();
+        const expCycle = Math.ceil((endNum - startNum + 1) / drawSize);
+        for (const draw of H.slice(0, 5))
+            for (const n of (draw.numbers || []).filter(n => n >= startNum && n <= endNum)) hotSet.add(n);
+        const lastSeenMap = {};
+        for (let i = 0; i < Math.min(H.length, 60); i++)
+            for (const n of (H[i].numbers || []).filter(n => n >= startNum && n <= endNum))
+                if (lastSeenMap[n] === undefined) lastSeenMap[n] = i;
+        for (const n of allNums)
+            if ((lastSeenMap[n] ?? 9999) > expCycle * 2) coldSet.add(n);
 
         // ── Seleção greedy com ganho marginal ─────────────────────────────
         for (let attempt = 0; attempt < 60; attempt++) {
@@ -671,21 +715,26 @@ class PrecisionEngine {
                     // G1 — Score de consenso (já normalizado [0.1,1.0])
                     const g1 = scores[n] || 0.5;
 
-                    // G2 — Afinidade de pares com já escolhidos (via pairAff)
-                    let g2 = 0.5;
-                    if (game.length > 0 && Object.keys(pairAff[n]).length > 0) {
+                    // G2 — Afinidade de pares REAL com os já escolhidos
+                    // Usa matriz pairAff construída do histórico dos últimos 50 sorteios
+                    let g2 = 0.50;
+                    if (game.length > 0) {
                         let pSum = 0;
                         for (const c of game) pSum += (pairAff[n][c] || 0);
-                        g2 = 0.3 + (pSum / game.length) * 1.4;
+                        // g2 em [0.30, 1.70]: números que saem junto com os já escolhidos = bônus
+                        g2 = 0.30 + (pSum / game.length) * 1.40;
                     }
 
-                    // G3 — Proximidade ao gap ideal (distribuição proporcional)
-                    const gapDelta = Math.abs(n - idealNext);
-                    const g3 = 1.0 / (1.0 + gapDelta / Math.max(1, idealGap * 0.5));
+                    // G3 — Gaussiana de gaps históricos
+                    // Score máximo quando o gap ao último número ≈ avgGapHist
+                    const lastN    = game.length > 0 ? game[game.length-1] : startNum - avgGapHist;
+                    const gapToLast = Math.abs(n - (game.length > 0 ? Math.max(...game) : startNum - avgGapHist));
+                    const gaussExp  = -((gapToLast - avgGapHist) ** 2) / (2 * Math.max(1, stdGapHist) ** 2);
+                    const g3        = 0.20 + 0.80 * Math.exp(gaussExp); // [0.20, 1.00]
 
                     // G4 — Zona: nova zona = bônus, zona cheia = penalidade
-                    const g4 = zoneCounts[zone] === 0 ? 1.8
-                             : zoneCounts[zone] <  maxPerZone ? 1.0 : 0.2;
+                    const g4 = zoneCounts[zone] === 0 ? 1.80
+                             : zoneCounts[zone] <  maxPerZone ? 1.00 : 0.20;
 
                     // G5 — Paridade balanceada
                     const isEven   = n % 2 === 0;
@@ -700,14 +749,22 @@ class PrecisionEngine {
                     const sumErr = Math.abs(sumSoFar + n - targetPartial) / Math.max(1, histAvgSum * 0.3);
                     const g6 = 1.0 / (1.0 + sumErr * sumErr);
 
+                    // G7 — Balanço quente/frio
+                    // Primeiros 30%: prefer hot | Depois: prefer cold (cobertura)
+                    const hotInGame  = game.filter(c => hotSet.has(c)).length;
+                    const coldInGame = game.filter(c => coldSet.has(c)).length;
+                    const g7 = (hotSet.has(n)  && hotInGame  < Math.ceil(drawSize * 0.4)) ? 1.15
+                             : (coldSet.has(n) && coldInGame < Math.ceil(drawSize * 0.3)) ? 1.10 : 0.90;
+
                     // ── ADJACÊNCIA: penalidade suave (não hard) ───────────
                     const adjPenalty = adjCount === 1 ? 0.55 : 1.0;
 
-                    // Score total do Jogo 1 (pesos calibrados para assertividade máxima)
-                    const total = g1 * 0.30 + (g2 * 0.20) + (g3 * 0.15) + (g4 * 0.15) + (g5 * 0.10) + (g6 * 0.10);
+                    // Score total (pesos calibrados)
+                    const total = g1*0.28 + g2*0.22 + g3*0.15 + g4*0.13 + g5*0.09 + g6*0.08 + g7*0.05;
                     const finalScore = total * adjPenalty;
 
                     if (finalScore > bestScore) { bestScore = finalScore; bestN = n; }
+
                 }
 
                 if (bestN === null) {
