@@ -41,21 +41,21 @@
     <meta name="description" content="Gerador inteligente de apostas para todas as loterias da Caixa com IA">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/main.css?v=1777494564">
-    <link rel="stylesheet" href="styles/components.css?v=1777494564">
-    <link rel="stylesheet" href="styles/lottery.css?v=1777494564">
-    <link rel="stylesheet" href="styles/responsive.css?v=1777494564">
+    <link rel="stylesheet" href="styles/main.css?v=1778034614">
+    <link rel="stylesheet" href="styles/components.css?v=1778034614">
+    <link rel="stylesheet" href="styles/lottery.css?v=1778034614">
+    <link rel="stylesheet" href="styles/responsive.css?v=1778034614">
 
-    <!-- Service Worker NUCLEAR RESET — Limpa cache e auto-destrói -->
+    <!-- Service Worker DESABILITADO — Causava reload infinito + ERR_FAILED -->
     <script>
+    // Limpeza DEFINITIVA: desregistrar qualquer SW residual (NUNCA re-registrar)
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('sw.js')
-                .then(function(reg) {
-                    console.log('[B2B-NUCLEAR] SW registrado! Vai limpar cache...');
-                    reg.update(); // Forçar atualização imediata
-                })
-                .catch(function(err) { console.log('[B2B] SW falhou:', err); });
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+            regs.forEach(function(r) {
+                r.unregister().then(function() {
+                    console.log('[B2B] SW residual removido com sucesso');
+                });
+            });
         });
     }
     </script>

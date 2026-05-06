@@ -114,13 +114,44 @@ If liberado Then
                 On Error GoTo 0
                 
                 If Not serverRunning Then
-                    ' Encontrar node.exe
+                    ' Encontrar node.exe e iniciar servidor
                     caminhoNode = "node"
                     objShell.Run "cmd /c start /min /b node """ & caminhoServer & """", 0, False
-                    WScript.Sleep 1500
+                    
+                    ' Aguardar servidor iniciar (com verificacao, até 6 segundos)
+                    Dim tentativaServer, serverOK
+                    serverOK = False
+                    For tentativaServer = 1 To 4
+                        WScript.Sleep 1500
+                        On Error Resume Next
+                        Set xmlHttp = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+                        xmlHttp.setTimeouts 1000, 1000, 1000, 1000
+                        xmlHttp.Open "GET", "http://localhost:8777/", False
+                        xmlHttp.Send
+                        If Err.Number = 0 And xmlHttp.status = 200 Then
+                            serverOK = True
+                        End If
+                        Set xmlHttp = Nothing
+                        Err.Clear
+                        On Error GoTo 0
+                        If serverOK Then Exit For
+                    Next
+                    
+                    ' Se servidor não subiu, usar GitHub Pages como fallback
+                    If Not serverOK Then
+                        On Error Resume Next
+                        objShell.Run """C:\Program Files\Google\Chrome\Application\chrome.exe"" --app=""https://luissaviobrun17-alt.github.io/loterias-caixa/""", 1, False
+                        If Err.Number <> 0 Then
+                            Err.Clear
+                            objShell.Run "https://luissaviobrun17-alt.github.io/loterias-caixa/", 1, False
+                        End If
+                        On Error GoTo 0
+                        Set objShell = Nothing
+                        WScript.Quit
+                    End If
                 End If
                 
-                ' Abrir Chrome no localhost
+                ' Abrir Chrome no localhost (servidor confirmado rodando)
                 On Error Resume Next
                 objShell.Run """C:\Program Files\Google\Chrome\Application\chrome.exe"" --app=""http://localhost:8777""", 1, False
                 

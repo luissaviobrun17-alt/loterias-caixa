@@ -7,29 +7,29 @@ echo.
 
 set "PASTA=%~dp0"
 set "DESKTOP=%USERPROFILE%\Desktop"
+
+REM Detectar OneDrive Desktop
+if exist "%USERPROFILE%\OneDrive\Desktop" set "DESKTOP=%USERPROFILE%\OneDrive\Desktop"
+if exist "%USERPROFILE%\OneDrive\Área de Trabalho" set "DESKTOP=%USERPROFILE%\OneDrive\Área de Trabalho"
+
 set "ATALHO=%DESKTOP%\B2B Loterias.lnk"
-set "ICONE=%PASTA%img\b2b_loterias.ico"
+set "VBS=%PASTA%AbrirLoterias.vbs"
+set "ICONE=%PASTA%loterias.ico"
 
-REM Detecta Chrome
-set "CHROME="
-if exist "C:\Program Files\Google\Chrome\Application\chrome.exe" set "CHROME=C:\Program Files\Google\Chrome\Application\chrome.exe"
-if exist "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" set "CHROME=C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
-
-if "%CHROME%"=="" (
-    echo  Chrome nao encontrado, usando navegador padrao...
-    powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%ATALHO%'); $s.TargetPath = '%PASTA%index.html'; $s.Description = 'B2B Loterias'; $s.IconLocation = '%ICONE%'; $s.Save()"
-) else (
-    echo  Chrome encontrado!
-    powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%ATALHO%'); $s.TargetPath = '%CHROME%'; $s.Arguments = '\"%PASTA%index.html\"'; $s.Description = 'B2B Loterias'; $s.IconLocation = '%ICONE%'; $s.Save()"
-)
+REM Criar atalho apontando para AbrirLoterias.vbs (inicia servidor + abre Chrome)
+echo  Criando atalho com servidor automatico...
+powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%ATALHO%'); $s.TargetPath = 'wscript.exe'; $s.Arguments = '\"%VBS%\"'; $s.WorkingDirectory = '%PASTA%'; $s.Description = 'B2B Loterias - Gerador Inteligente'; $s.IconLocation = '%ICONE%'; $s.Save()"
 
 if exist "%ATALHO%" (
     echo.
     echo  [OK] Atalho criado no Desktop!
-    echo  [OK] Abrira no Google Chrome!
+    echo  [OK] Inicia servidor + abre no Chrome automaticamente!
+    echo.
+    echo  Para abrir: duplo clique em "B2B Loterias" no Desktop
 ) else (
     echo.
     echo  [ERRO] Falha ao criar atalho.
+    echo  Tente executar como Administrador.
 )
 
 echo.
