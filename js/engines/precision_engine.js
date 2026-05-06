@@ -219,65 +219,95 @@ class PrecisionEngine {
                 const avail = allNums.filter(n => !inGame.has(n));
                 if (!avail.length) break;
 
-                const sumSoFar  = chosen.reduce((a,b) => a+b, 0);
-                const remaining = drawSize - chosen.length;
-                const evenSoFar = chosen.filter(n => n%2===0).length;
-                const usedZones = new Set(chosen.map(n => Math.min(cfg.zones-1, Math.floor((n-startNum)/zoneSize))));
+                const sumSoFar   = chosen.reduce((a,b) => a+b, 0);
+                const remaining  = drawSize - chosen.length;
+                const evenSoFar  = chosen.filter(n => n%2===0).length;
+                const chosenSet  = new Set(chosen);
 
+                // Contagem de números por zona para controle de equilíbrio
+                const zoneCounts = {};
+                for (const c of chosen) {
+                    const z = Math.min(cfg.zones-1, Math.floor((c-startNum)/zoneSize));
+                    zoneCounts[z] = (zoneCounts[z] || 0) + 1;
+                }
+                const maxPerZone = Math.ceil(drawSize / cfg.zones);
+
+                // ─── Filtrar candidatos e calcular pesos ─────────────────
+                const pool = [], ws = [];
                 let totalW = 0;
-                const ws = avail.map(n => {
-                    // D1: consensus score (base científica multi-camada)
+
+                for (const n of avail) {
+                    // ══ FILTRO HARD 1: proibir sequências > maxConsec ══
+                    const testSorted = [...chosen, n].sort((a,b) => a-b);
+                    let maxRun = 1, curRun = 1;
+                    for (let i = 1; i < testSorted.length; i++) {
+                        if (testSorted[i] === testSorted[i-1] + 1) { curRun++; maxRun = Math.max(maxRun, curRun); }
+                        else curRun = 1;
+                    }
+                    if (maxRun > cfg.maxConsec) continue; // descartado
+
+                    // D1: consensus score (NovaEra + QuantumGod + 10 camadas)
                     const d1 = Math.max(0.01, consensusScores[n] || 0.5);
 
-                    // D2: cobertura — sub-representados recebem boost crescente
+                    // D2: cobertura — números menos usados ganham boost
                     const d2 = 1.0 + Math.max(0, avgCov - cov[n]) / Math.max(1, avgCov + 1);
 
-                    // D3: co-ocorrência condicional com os já escolhidos
+                    // D3: co-ocorrência condicional com já escolhidos
                     let d3 = 1.0;
                     if (chosen.length > 0) {
                         let coSum = 0;
                         for (const c of chosen) coSum += (coMx[c][n] || 0) / maxCo[c];
-                        d3 = 0.7 + (coSum / chosen.length) * 0.6;
+                        d3 = 0.65 + (coSum / chosen.length) * 0.70;
                     }
 
-                    // D4: zona — favorece zonas não usadas neste jogo
+                    // D4: zona — 2x boost zona vazia, 0.25x zona lotada
                     const zone = Math.min(cfg.zones-1, Math.floor((n-startNum)/zoneSize));
-                    const d4 = usedZones.has(zone) ? 0.60 : 1.40;
+                    const zc   = zoneCounts[zone] || 0;
+                    const d4   = zc === 0 ? 2.0 : zc < maxPerZone ? 1.0 : 0.25;
 
-                    // D5: paridade — favorece equilíbrio par/ímpar
-                    const targetEven = Math.round(drawSize / 2);
-                    const isEven = n % 2 === 0;
-                    const d5 = (isEven && evenSoFar < targetEven) ? 1.20
-                              : (!isEven && evenSoFar >= targetEven) ? 1.20 : 0.85;
+                    // D5: paridade — considera slots restantes
+                    const targetEven      = Math.round(drawSize / 2);
+                    const evenNeeded      = Math.max(0, targetEven - evenSoFar);
+                    const oddNeeded       = Math.max(0, (drawSize - targetEven) - (chosen.length - evenSoFar));
+                    const isEven          = n % 2 === 0;
+                    const d5 = (isEven && evenNeeded > 0) ? 1.30
+                             : (!isEven && oddNeeded > 0) ? 1.30
+                             : (isEven && evenNeeded <= 0) ? 0.65
+                             : 0.65;
 
-                    // D6: afinidade de soma — favorece números que mantêm soma próx. à média hist.
-                    const projSum = sumSoFar + n;
-                    const sumDelta = Math.abs(projSum - histAvgSum * (chosen.length + 1) / drawSize);
-                    const d6 = 1.0 / (1.0 + sumDelta / (histAvgSum * 0.3));
+                    // D6: afinidade de soma (erro quadrático vs média histórica)
+                    const targetPartial = histAvgSum * (chosen.length + 1) / drawSize;
+                    const sumErr        = Math.abs(sumSoFar + n - targetPartial) / Math.max(1, histAvgSum * 0.25);
+                    const d6            = 1.0 / (1.0 + sumErr * sumErr);
 
-                    // D7: pressão de vácuo (números ausentes há mais tempo)
-                    const d7 = 0.8 + vacuumScore[n] * 0.4; // [0.8, 1.6]
+                    // D7: pressão de vácuo (números com maior atraso ganham prioridade)
+                    const d7 = 0.80 + vacuumScore[n] * 0.40; // [0.80, 1.60]
 
-                    // D8: momentum suave (números quentes recentemente)
-                    const d8 = 1.0 + (momentum[n] || 0) * 0.08; // max +40% p/ momentum=5
+                    // D8: momentum suave (tendência recente)
+                    const d8 = 1.0 + (momentum[n] || 0) * 0.08;
 
-                    // Score com temperatura: T alto → D1 domina; T baixo → mais distribuído
-                    const baseScore = d1 * d2 * d3 * d4 * d5 * d6 * d7 * d8;
-                    const w = Math.pow(baseScore, temperature);
-                    totalW += w;
-                    return w;
-                });
+                    // ══ PENALIDADE ANTI-SEQUÊNCIA: adjacência a já escolhidos ══
+                    const adjCount = [n-1, n+1].filter(adj => chosenSet.has(adj)).length;
+                    const dAdj     = adjCount === 0 ? 1.0 : adjCount === 1 ? 0.30 : 0.05;
 
-                // Seleção ponderada usando LCG (determinístico por gIdx)
-                let r = rng() * totalW;
-                let sel = avail[avail.length - 1];
-                for (let i = 0; i < avail.length; i++) {
-                    r -= ws[i];
-                    if (r <= 0) { sel = avail[i]; break; }
+                    const baseScore = d1 * d2 * d3 * d4 * d5 * d6 * d7 * d8 * dAdj;
+                    const w = Math.pow(Math.max(1e-6, baseScore), temperature);
+                    pool.push(n); ws.push(w); totalW += w;
                 }
-                chosen.push(sel);
-                inGame.add(sel);
+
+                // Se filtro hard eliminou tudo → relaxar e pegar qualquer candidato
+                if (!pool.length) {
+                    for (const n of avail) { if (!inGame.has(n)) { chosen.push(n); inGame.add(n); break; } }
+                    continue;
+                }
+
+                // Seleção ponderada por LCG
+                let r = rng() * totalW;
+                let sel = pool[pool.length - 1];
+                for (let i = 0; i < pool.length; i++) { r -= ws[i]; if (r <= 0) { sel = pool[i]; break; } }
+                chosen.push(sel); inGame.add(sel);
             }
+
             return chosen.length === drawSize ? chosen.sort((a,b) => a-b) : null;
         };
 
