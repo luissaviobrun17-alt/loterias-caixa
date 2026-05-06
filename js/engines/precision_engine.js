@@ -133,68 +133,123 @@ class PrecisionEngine {
 
         if (numGames === 1) return this._buildResult([game1], gameKey, history, totalRange, drawSize, t0);
 
-        // ── 9. EXPANSÃO INCREMENTAL — 4 FASES PROGRESSIVAS ───────────────
+        // ── 9. EXPANSÃO — 5 FASES PROGRESSIVAS SEM LIMITE ────────────────
         const games = [game1];
         const game1Set = new Set(game1);
-        const allNums = ranked.map(r => r.n);
-        // Fila de substitutos: excluindo os do Jogo 1, ordenados por score
+        const allNums = ranked.map(r => r.n); // todos os números ordenados por score
         const substituteQueue = ranked.filter(r => !game1Set.has(r.n)).map(r => r.n);
-        // Jogo1 ordenado do pior para o melhor score (os piores saem primeiro)
         const game1Weak = [...game1].sort((a,b) => (consensusScores[a]||0) - (consensusScores[b]||0));
         const usedKeys = new Set([game1.join(',')]);
-        let consecutiveFails = 0;
+        let seed = 1; // semente determinística para pseudo-aleatoriedade
 
-        while (games.length < numGames && consecutiveFails < 300) {
+        // Pseudo-random determinístico (sem Math.random para reprodutibilidade)
+        const nextRand = () => { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return Math.abs(seed) / 0x7fffffff; };
+
+        while (games.length < numGames) {
             const progress = (games.length - 1) / Math.max(1, numGames - 1); // 0→1
 
-            // FASE 1 (0–25%): trocar 1 número — muito próximo do Jogo1
-            // FASE 2 (25–50%): trocar 2 números
-            // FASE 3 (50–75%): trocar 3 números
-            // FASE 4 (75–100%): jogos amplamente independentes (até drawSize-2 trocas)
+            // ─ FASE 1 (0–20%): 1 troca, overlap total-1
+            // ─ FASE 2 (20–40%): 2 trocas, overlap total-2
+            // ─ FASE 3 (40–60%): 3 trocas, overlap ~40%
+            // ─ FASE 4 (60–80%): 4+ trocas, overlap ~20%
+            // ─ FASE 5 (80–100%): geração livre do pool rankeado sem restrição de overlap
             let swapCount, minOverlap;
-            if (progress < 0.25) {
+            if (progress < 0.20) {
                 swapCount = 1;
-                minOverlap = Math.max(1, drawSize - 1);
-            } else if (progress < 0.50) {
+                minOverlap = drawSize - 1;
+            } else if (progress < 0.40) {
                 swapCount = 2;
                 minOverlap = Math.max(1, drawSize - 2);
-            } else if (progress < 0.75) {
-                swapCount = Math.max(3, Math.floor(drawSize * 0.5));
+            } else if (progress < 0.60) {
+                swapCount = Math.max(3, Math.floor(drawSize * 0.45));
                 minOverlap = Math.max(1, Math.floor(drawSize * 0.35));
+            } else if (progress < 0.80) {
+                swapCount = Math.max(4, Math.floor(drawSize * 0.65));
+                minOverlap = Math.max(0, Math.floor(drawSize * 0.10));
             } else {
-                swapCount = Math.max(4, Math.floor(drawSize * 0.7));
-                minOverlap = Math.max(1, Math.floor(drawSize * 0.15));
+                // Fase 5: completamente livre — gerar do pool rankeado inteiro
+                swapCount = drawSize;
+                minOverlap = 0;
             }
-            // Para fixos: nunca exceder (drawSize - fixed.size)
-            swapCount = Math.min(swapCount, drawSize - fixed.size);
+            swapCount = Math.min(swapCount, Math.max(1, drawSize - fixed.size));
 
             let found = false;
-            for (let attempt = 0; attempt < 120 && !found; attempt++) {
-                // Quais posições do Jogo1 remover (rotacionar para variar)
+
+            // ── Fase 5: geração livre com offset no pool rankeado ──────────
+            if (progress >= 0.80) {
+                for (let attempt = 0; attempt < 400 && !found; attempt++) {
+                    const offset = Math.floor((games.length * 7 + attempt * 3) % Math.max(1, allNums.length - drawSize));
+                    const game = [];
+                    const gameSet = new Set();
+                    for (const f of fixed) { if (!gameSet.has(f) && game.length < drawSize) { game.push(f); gameSet.add(f); } }
+                    // Pegar números a partir do offset no ranking
+                    for (let i = offset; i < allNums.length && game.length < drawSize; i++) {
+                        const n = allNums[i];
+                        if (!gameSet.has(n)) {
+                            const sorted = [...game, n].sort((a,b)=>a-b);
+                            if (this._maxConsecutiveRun(sorted) <= cfg.maxConsec + 1) {
+                                game.push(n); gameSet.add(n);
+                            }
+                        }
+                    }
+                    // Completar com qualquer número se necessário
+                    for (let i = 0; i < allNums.length && game.length < drawSize; i++) {
+                        if (!gameSet.has(allNums[i])) { game.push(allNums[i]); gameSet.add(allNums[i]); }
+                    }
+                    if (game.length < drawSize) continue;
+                    game.sort((a,b)=>a-b);
+                    if (!this._validateGame(game, cfg)) continue;
+                    const key = game.join(',');
+                    if (usedKeys.has(key)) continue;
+                    games.push(game);
+                    usedKeys.add(key);
+                    found = true;
+                }
+                // Se ainda não encontrou, gerar com pseudo-random sobre o pool
+                if (!found) {
+                    for (let attempt = 0; attempt < 500 && !found; attempt++) {
+                        const shuffled = [...allNums].sort(() => nextRand() - 0.5);
+                        const game = [];
+                        const gameSet = new Set();
+                        for (const f of fixed) { if (!gameSet.has(f) && game.length < drawSize) { game.push(f); gameSet.add(f); } }
+                        for (const n of shuffled) {
+                            if (game.length >= drawSize) break;
+                            if (!gameSet.has(n)) { game.push(n); gameSet.add(n); }
+                        }
+                        if (game.length < drawSize) continue;
+                        game.sort((a,b)=>a-b);
+                        if (!this._validateGame(game, cfg)) continue;
+                        const key = game.join(',');
+                        if (usedKeys.has(key)) continue;
+                        games.push(game);
+                        usedKeys.add(key);
+                        found = true;
+                    }
+                }
+                if (!found) break; // esgotou combinações possíveis dentro dos filtros
+                continue;
+            }
+
+            // ── Fases 1–4: expansão baseada no Jogo 1 ─────────────────────
+            for (let attempt = 0; attempt < 200 && !found; attempt++) {
                 const removeStart = (attempt * 3 + games.length) % game1Weak.length;
                 const toRemove = new Set();
                 for (let k = 0; k < swapCount; k++) {
-                    const idx = (removeStart + k) % game1Weak.length;
-                    const n = game1Weak[idx];
+                    const n = game1Weak[(removeStart + k) % game1Weak.length];
                     if (!fixed.has(n)) toRemove.add(n);
                 }
-
-                // Base: manter os do Jogo1 que não foram removidos
                 const candidateSet = new Set(game1.filter(n => !toRemove.has(n)));
                 for (const f of fixed) candidateSet.add(f);
 
-                // Escolher substitutos do ranking (rotacionar para variedade)
                 const subStart = (attempt * 7 + games.length * 3) % Math.max(1, substituteQueue.length);
                 let added = 0;
                 for (let i = 0; i < substituteQueue.length && added < swapCount; i++) {
                     const sub = substituteQueue[(subStart + i) % substituteQueue.length];
                     if (!candidateSet.has(sub)) { candidateSet.add(sub); added++; }
                 }
-
                 if (candidateSet.size < drawSize) continue;
 
-                // Montar jogo final
-                const candidates = [...candidateSet].sort((a,b) => (consensusScores[b]||0) - (consensusScores[a]||0));
+                const candidates = [...candidateSet].sort((a,b) => (consensusScores[b]||0)-(consensusScores[a]||0));
                 const newGame = candidates.slice(0, drawSize).sort((a,b) => a-b);
                 if (newGame.length < drawSize) continue;
                 if (!this._validateGame(newGame, cfg)) continue;
@@ -202,20 +257,19 @@ class PrecisionEngine {
                 if (usedKeys.has(key)) continue;
                 const overlap = newGame.filter(n => game1Set.has(n)).length;
                 if (overlap < minOverlap) continue;
-
                 games.push(newGame);
                 usedKeys.add(key);
                 found = true;
-                consecutiveFails = 0;
             }
 
             if (!found) {
-                consecutiveFails++;
+                // Fallback e emergency para fases 1-4
                 const extra = this._buildFallbackVariation(ranked, game1, fixed, drawSize, cfg, usedKeys, games.length, numGames, consensusScores);
-                if (extra) { games.push(extra); usedKeys.add(extra.join(',')); consecutiveFails = 0; }
+                if (extra) { games.push(extra); usedKeys.add(extra.join(',')); }
                 else {
                     const emergency = this._emergencyGame(ranked, fixed, drawSize, cfg, startNum, endNum, usedKeys);
-                    if (emergency) { games.push(emergency); usedKeys.add(emergency.join(',')); consecutiveFails = 0; }
+                    if (emergency) { games.push(emergency); usedKeys.add(emergency.join(',')); }
+                    else break; // sem mais combinações possíveis
                 }
             }
         }
@@ -223,6 +277,7 @@ class PrecisionEngine {
         console.log('[PRECISION-L99] ✅ ' + games.length + '/' + numGames + ' jogos gerados em ' + (Date.now() - t0) + 'ms');
         return this._buildResult(games, gameKey, history, totalRange, drawSize, t0);
     }
+
 
     // ─── Scores locais — 10 dimensões analíticas ─────────────────────────
     static _computeLocalScores(history, startNum, endNum, drawSize, totalRange) {
