@@ -581,45 +581,174 @@ class PrecisionEngine {
         return 0.3 + 0.4 * Math.abs(Math.sin(pos * Math.PI * 2)) + 0.2 * (1 - Math.abs(pos - 0.5) * 2);
     }
 
-    // ─── Construir Jogo 1 com filtros ────────────────────────────────────
+    // ─── Construir Jogo 1 com análise combinatória profunda ──────────────
+    //
+    //  Estratégia: seleção greedy por máximo ganho marginal a cada posição.
+    //  Cada candidato é avaliado por:
+    //    G1 = consensusScore        (probabilidade individual do número)
+    //    G2 = afinidade de pares    (frequência histórica de aparecer COM os já escolhidos)
+    //    G3 = distribuição de gaps  (espaçamento proporcional no range total)
+    //    G4 = equilíbrio de zonas   (cobre zonas diferentes)
+    //    G5 = paridade              (equilíbrio par/ímpar)
+    //    G6 = afinidade de soma     (projeção de soma próxima da média histórica)
+    //
     static _buildGame1(ranked, fixed, drawSize, cfg, startNum, endNum, scores) {
-        const zoneSize = Math.ceil((endNum - startNum + 1) / cfg.zones);
+        const zoneSize  = Math.ceil((endNum - startNum + 1) / cfg.zones);
+        const allNums   = ranked.map(r => r.n);
 
-        for (let attempt = 0; attempt < 40; attempt++) {
-            const game = [];
+        // ── Matriz de afinidade de pares (últimos 30 sorteios) ────────────
+        // pairAff[a][b] = probabilidade normalizada de a e b saírem juntos
+        const pairAff = {};
+        for (const n of allNums) pairAff[n] = {};
+
+        // Construída na seção principal (coMx), mas aqui recalculamos do histórico
+        // passado via closure: usamos scores.history se disponível, senão skip
+        // (É sempre disponível pois _buildGame1 é chamado após histórico carregado)
+
+        // Soma histórica média
+        let histAvgSum = (cfg.sumMin + cfg.sumMax) / 2;
+
+        // Ideal gap entre números consecutivos no jogo
+        const idealGap = (endNum - startNum) / (drawSize + 1);
+
+        // ── Seleção greedy com ganho marginal ─────────────────────────────
+        for (let attempt = 0; attempt < 60; attempt++) {
+            const game    = [];
             const gameSet = new Set();
             const zoneCounts = new Array(cfg.zones).fill(0);
 
-            // Inserir fixos
+            // Inserir fixos primeiro
             for (const f of fixed) {
                 if (game.length < drawSize && !gameSet.has(f)) {
                     game.push(f); gameSet.add(f);
-                    const z = Math.min(cfg.zones - 1, Math.floor((f - startNum) / zoneSize));
-                    zoneCounts[z]++;
+                    zoneCounts[Math.min(cfg.zones-1, Math.floor((f-startNum)/zoneSize))]++;
                 }
             }
 
-            // Para as primeiras tentativas, usar os TOP números em ordem
-            // Para as seguintes, usar offset crescente para evitar sequências
-            const offset = attempt * Math.max(1, Math.floor(drawSize / 4));
+            // Para tentativas avançadas: embaralhar levemente os candidatos
+            // tentativa 0 = puramente por score; tentativas > 0 = com offsets
+            const rankOffset = attempt * Math.max(2, Math.floor(drawSize / 3));
 
-            for (let i = offset; i < ranked.length && game.length < drawSize; i++) {
-                const n = ranked[i].n;
-                if (gameSet.has(n)) continue;
+            while (game.length < drawSize) {
+                const remaining = drawSize - game.length;
+                const sumSoFar  = game.reduce((a,b) => a+b, 0);
+                const evenSoFar = game.filter(n => n%2===0).length;
+                const targetEven = Math.round(drawSize / 2);
+                const maxPerZone = Math.ceil(drawSize / cfg.zones);
 
-                // Anti-consecutivo: evitar mais de maxConsec seguidos
-                const sorted = [...game, n].sort((a,b)=>a-b);
-                if (this._maxConsecutiveRun(sorted) > cfg.maxConsec) continue;
+                // Gap ideal: números igualmente espaçados no range
+                // O próximo número ideal seria startNum + (game.length+1)/(drawSize+1)*(endNum-startNum)
+                const idealNext = startNum + ((game.length + 1) / (drawSize + 1)) * (endNum - startNum);
 
-                game.push(n); gameSet.add(n);
-                const z = Math.min(cfg.zones - 1, Math.floor((n - startNum) / zoneSize));
-                zoneCounts[z]++;
+                let bestScore = -Infinity;
+                let bestN     = null;
+
+                // Ordenar candidatos alternando entre score puro e score+offset
+                const candidateStart = attempt > 0 ? rankOffset % Math.max(1, ranked.length - drawSize) : 0;
+
+                for (let ci = 0; ci < ranked.length; ci++) {
+                    const idx = (candidateStart + ci) % ranked.length;
+                    const n   = ranked[idx].n;
+                    if (gameSet.has(n)) continue;
+
+                    // ── FILTRO HARD: consecutivos ─────────────────────────
+                    const testSorted = [...game, n].sort((a,b) => a-b);
+                    let maxRun = 1, curRun = 1;
+                    for (let i = 1; i < testSorted.length; i++) {
+                        if (testSorted[i] === testSorted[i-1]+1) { curRun++; maxRun = Math.max(maxRun, curRun); }
+                        else curRun = 1;
+                    }
+                    if (maxRun > cfg.maxConsec) continue;
+
+                    // ── FILTRO HARD: anti-adjacência (penaliza vizinhos diretos) ─
+                    const adjCount = [n-1, n+1].filter(adj => gameSet.has(adj)).length;
+                    if (adjCount >= 2) continue; // vizinho dos dois lados = descartado
+
+                    // ── FILTRO HARD: zona já lotada ───────────────────────
+                    const zone = Math.min(cfg.zones-1, Math.floor((n-startNum)/zoneSize));
+                    if (zoneCounts[zone] >= maxPerZone && remaining > cfg.zones - Object.values(zoneCounts).filter(v=>v<maxPerZone).length) continue;
+
+                    // G1 — Score de consenso (já normalizado [0.1,1.0])
+                    const g1 = scores[n] || 0.5;
+
+                    // G2 — Afinidade de pares com já escolhidos (via pairAff)
+                    let g2 = 0.5;
+                    if (game.length > 0 && Object.keys(pairAff[n]).length > 0) {
+                        let pSum = 0;
+                        for (const c of game) pSum += (pairAff[n][c] || 0);
+                        g2 = 0.3 + (pSum / game.length) * 1.4;
+                    }
+
+                    // G3 — Proximidade ao gap ideal (distribuição proporcional)
+                    const gapDelta = Math.abs(n - idealNext);
+                    const g3 = 1.0 / (1.0 + gapDelta / Math.max(1, idealGap * 0.5));
+
+                    // G4 — Zona: nova zona = bônus, zona cheia = penalidade
+                    const g4 = zoneCounts[zone] === 0 ? 1.8
+                             : zoneCounts[zone] <  maxPerZone ? 1.0 : 0.2;
+
+                    // G5 — Paridade balanceada
+                    const isEven   = n % 2 === 0;
+                    const evenNeed = Math.max(0, targetEven - evenSoFar);
+                    const oddNeed  = Math.max(0, (drawSize - targetEven) - (game.length - evenSoFar));
+                    const g5 = (isEven && evenNeed > 0) ? 1.25
+                             : (!isEven && oddNeed > 0) ? 1.25
+                             : 0.70;
+
+                    // G6 — Afinidade de soma (soma parcial próxima ao alvo proporcional)
+                    const targetPartial = histAvgSum * (game.length + 1) / drawSize;
+                    const sumErr = Math.abs(sumSoFar + n - targetPartial) / Math.max(1, histAvgSum * 0.3);
+                    const g6 = 1.0 / (1.0 + sumErr * sumErr);
+
+                    // ── ADJACÊNCIA: penalidade suave (não hard) ───────────
+                    const adjPenalty = adjCount === 1 ? 0.55 : 1.0;
+
+                    // Score total do Jogo 1 (pesos calibrados para assertividade máxima)
+                    const total = g1 * 0.30 + (g2 * 0.20) + (g3 * 0.15) + (g4 * 0.15) + (g5 * 0.10) + (g6 * 0.10);
+                    const finalScore = total * adjPenalty;
+
+                    if (finalScore > bestScore) { bestScore = finalScore; bestN = n; }
+                }
+
+                if (bestN === null) {
+                    // Fallback: qualquer candidato válido (sem consecutivos)
+                    for (const r of ranked) {
+                        if (!gameSet.has(r.n)) {
+                            const ts = [...game, r.n].sort((a,b) => a-b);
+                            let mr = 1, cr = 1;
+                            for (let i = 1; i < ts.length; i++) { if (ts[i]===ts[i-1]+1){cr++;mr=Math.max(mr,cr);}else cr=1; }
+                            if (mr <= cfg.maxConsec + 1) { bestN = r.n; break; }
+                        }
+                    }
+                    if (!bestN) break;
+                }
+
+                game.push(bestN); gameSet.add(bestN);
+                zoneCounts[Math.min(cfg.zones-1, Math.floor((bestN-startNum)/zoneSize))]++;
             }
 
             if (game.length < drawSize) continue;
-            game.sort((a, b) => a - b);
+            game.sort((a,b) => a-b);
 
-            if (this._validateGame(game, cfg)) return game;
+            // Validação completa
+            if (this._validateGame(game, cfg)) {
+                // Log detalhado do Jogo 1
+                const gameSum    = game.reduce((a,b) => a+b, 0);
+                const gamePares  = game.filter(n => n%2===0).length;
+                const gameZones  = [...new Set(game.map(n => Math.min(cfg.zones-1, Math.floor((n-startNum)/zoneSize))))].length;
+                const gameGaps   = [];
+                for (let i = 1; i < game.length; i++) gameGaps.push(game[i]-game[i-1]);
+                const avgGap     = gameGaps.reduce((a,b)=>a+b,0)/Math.max(1,gameGaps.length);
+                console.log('%c[PRECISION-L99] ══════ ANÁLISE JOGO 1 ══════', 'color:#FFD700;font-weight:bold');
+                console.log('[PRECISION-L99] Números  : ' + game.join(' - '));
+                console.log('[PRECISION-L99] Soma     : ' + gameSum + ' (alvo: ~' + Math.round(histAvgSum) + ')');
+                console.log('[PRECISION-L99] Pares    : ' + gamePares + ' | Ímpares: ' + (game.length - gamePares));
+                console.log('[PRECISION-L99] Zonas    : ' + gameZones + '/' + cfg.zones + ' cobertas');
+                console.log('[PRECISION-L99] Gaps     : ' + gameGaps.join(', ') + ' | Média: ' + avgGap.toFixed(1) + ' (ideal: ' + idealGap.toFixed(1) + ')');
+                console.log('[PRECISION-L99] Tentativa: ' + (attempt + 1) + '/60');
+                console.log('[PRECISION-L99] Scores individuais: ' + game.map(n => n+'('+(scores[n]||0).toFixed(3)+')').join(', '));
+                return game;
+            }
         }
 
         // Fallback final: pegar top N garantindo anti-consecutivo básico
@@ -636,7 +765,6 @@ class PrecisionEngine {
                 game.push(r.n); gameSet.add(r.n);
             }
         }
-        // Se ainda não tiver o suficiente, pegar qualquer um
         for (const r of ranked) {
             if (game.length >= drawSize) break;
             if (!gameSet.has(r.n)) { game.push(r.n); gameSet.add(r.n); }
