@@ -133,120 +133,79 @@ class PrecisionEngine {
 
         if (numGames === 1) return this._buildResult([game1], gameKey, history, totalRange, drawSize, t0);
 
-        // ── 9. EXPANSÃO — 5 FASES PROGRESSIVAS SEM TETO ─────────────────
+        // ── 9. EXPANSÃO: 2 FASES — SWAP PRÓXIMO + ENUMERAÇÃO LIVRE ──────
         const games = [game1];
         const game1Set = new Set(game1);
-        const allNums = ranked.map(r => r.n);           // pool rankeado por score
+        const allNums = ranked.map(r => r.n);
         const substituteQueue = ranked.filter(r => !game1Set.has(r.n)).map(r => r.n);
         const game1Weak = [...game1].sort((a,b) => (consensusScores[a]||0) - (consensusScores[b]||0));
         const usedKeys = new Set([game1.join(',')]);
+        const totalCombos = this._combCount(allNums.length, drawSize);
+        let comboIdx = 0; // cursor da enumeração lexicográfica
 
-        // Fase 5: índice de enumeração lexicográfica (garante unicidade ilimitada)
-        let comboIdx = 0;
-
-        while (games.length < numGames) {
-            const progress = (games.length - 1) / Math.max(1, numGames - 1);
-
-            // ─ Fases 1–4: baseadas no Jogo 1 com trocas progressivas
-            // ─ Fase 5 (≥80%): enumeração lexicográfica livre do pool rankeado
-            let swapCount = 1, minOverlap = drawSize - 1;
-            if      (progress < 0.20) { swapCount = 1; minOverlap = drawSize - 1; }
-            else if (progress < 0.40) { swapCount = 2; minOverlap = Math.max(1, drawSize - 2); }
-            else if (progress < 0.60) { swapCount = Math.max(3, Math.floor(drawSize * 0.45)); minOverlap = Math.max(1, Math.floor(drawSize * 0.35)); }
-            else if (progress < 0.80) { swapCount = Math.max(4, Math.floor(drawSize * 0.65)); minOverlap = Math.max(0, Math.floor(drawSize * 0.10)); }
-            swapCount = Math.min(swapCount, Math.max(1, drawSize - fixed.size));
-
-            let found = false;
-
-            // ══ FASE 5: enumeração lexicográfica ══════════════════════════════
-            if (progress >= 0.80) {
-                // Tenta até 2000 índices consecutivos para encontrar um válido
-                for (let t = 0; t < 2000 && !found; t++, comboIdx++) {
-                    const totalCombos = this._combCount(allNums.length, drawSize);
-                    if (comboIdx >= totalCombos) comboIdx = 0; // reinicia se esgotou
-                    const game = this._nthCombo(allNums, drawSize, comboIdx);
-                    if (!game || game.length < drawSize) continue;
-                    // Garantir fixos
-                    for (const f of fixed) { if (!game.includes(f)) continue; }
-                    const sorted = game.sort((a,b) => a-b);
-                    const key = sorted.join(',');
-                    if (usedKeys.has(key)) continue;
-                    // Validação leve: só soma (sem consecutivo para máxima liberdade)
-                    const sum = sorted.reduce((a,b) => a+b, 0);
-                    if (sum < cfg.sumMin * 0.8 || sum > cfg.sumMax * 1.2) continue;
-                    games.push(sorted);
-                    usedKeys.add(key);
-                    comboIdx++;
-                    found = true;
-                }
-                // Fallback Math.random se enumeração não encontrou
-                if (!found) {
-                    for (let t = 0; t < 1000 && !found; t++) {
-                        const pool = [...allNums].sort(() => Math.random() - 0.5);
-                        const game = [];
-                        const gs = new Set();
-                        for (const f of fixed) { if (!gs.has(f) && game.length < drawSize) { game.push(f); gs.add(f); } }
-                        for (const n of pool) {
-                            if (game.length >= drawSize) break;
-                            if (!gs.has(n)) { game.push(n); gs.add(n); }
-                        }
-                        if (game.length < drawSize) continue;
-                        game.sort((a,b) => a-b);
-                        const key = game.join(',');
-                        if (usedKeys.has(key)) continue;
-                        games.push(game);
-                        usedKeys.add(key);
-                        found = true;
+        // ── FASE A: trocar 1 ou 2 números (primeiros 15% de jogos) ────────
+        const phaseALimit = Math.min(numGames, Math.max(1, Math.floor(numGames * 0.15)));
+        for (let swapSz = 1; swapSz <= 2 && games.length < phaseALimit; swapSz++) {
+            let failStreak = 0;
+            while (games.length < phaseALimit && failStreak < 80) {
+                let found = false;
+                for (let att = 0; att < 150 && !found; att++) {
+                    const rmStart = (att * 3 + games.length) % game1Weak.length;
+                    const toRm = new Set();
+                    for (let k = 0; k < swapSz; k++) {
+                        const n = game1Weak[(rmStart + k) % game1Weak.length];
+                        if (!fixed.has(n)) toRm.add(n);
                     }
+                    const cset = new Set(game1.filter(n => !toRm.has(n)));
+                    for (const f of fixed) cset.add(f);
+                    const subStart = (att * 7 + games.length * 3) % Math.max(1, substituteQueue.length);
+                    let added = 0;
+                    for (let i = 0; i < substituteQueue.length && added < swapSz; i++) {
+                        const s = substituteQueue[(subStart + i) % substituteQueue.length];
+                        if (!cset.has(s)) { cset.add(s); added++; }
+                    }
+                    if (cset.size < drawSize) continue;
+                    const ng = [...cset].sort((a,b) => (consensusScores[b]||0)-(consensusScores[a]||0)).slice(0, drawSize).sort((a,b) => a-b);
+                    if (ng.length < drawSize) continue;
+                    if (!this._validateGame(ng, cfg)) continue;
+                    const key = ng.join(',');
+                    if (usedKeys.has(key)) continue;
+                    games.push(ng); usedKeys.add(key); found = true;
                 }
-                if (!found) break;
-                continue;
-            }
-
-            // ══ FASES 1–4: trocas progressivas do Jogo 1 ═════════════════════
-            for (let attempt = 0; attempt < 300 && !found; attempt++) {
-                const removeStart = (attempt * 3 + games.length) % game1Weak.length;
-                const toRemove = new Set();
-                for (let k = 0; k < swapCount; k++) {
-                    const n = game1Weak[(removeStart + k) % game1Weak.length];
-                    if (!fixed.has(n)) toRemove.add(n);
-                }
-                const candidateSet = new Set(game1.filter(n => !toRemove.has(n)));
-                for (const f of fixed) candidateSet.add(f);
-
-                const subStart = (attempt * 7 + games.length * 3) % Math.max(1, substituteQueue.length);
-                let added = 0;
-                for (let i = 0; i < substituteQueue.length && added < swapCount; i++) {
-                    const sub = substituteQueue[(subStart + i) % substituteQueue.length];
-                    if (!candidateSet.has(sub)) { candidateSet.add(sub); added++; }
-                }
-                if (candidateSet.size < drawSize) continue;
-
-                const candidates = [...candidateSet].sort((a,b) => (consensusScores[b]||0)-(consensusScores[a]||0));
-                const newGame = candidates.slice(0, drawSize).sort((a,b) => a-b);
-                if (newGame.length < drawSize) continue;
-                if (!this._validateGame(newGame, cfg)) continue;
-                const key = newGame.join(',');
-                if (usedKeys.has(key)) continue;
-                const overlap = newGame.filter(n => game1Set.has(n)).length;
-                if (overlap < minOverlap) continue;
-                games.push(newGame);
-                usedKeys.add(key);
-                found = true;
-            }
-
-            if (!found) {
-                const extra = this._buildFallbackVariation(ranked, game1, fixed, drawSize, cfg, usedKeys, games.length, numGames, consensusScores);
-                if (extra) { games.push(extra); usedKeys.add(extra.join(',')); }
-                else {
-                    const emergency = this._emergencyGame(ranked, fixed, drawSize, cfg, startNum, endNum, usedKeys);
-                    if (emergency) { games.push(emergency); usedKeys.add(emergency.join(',')); }
-                    else break;
-                }
+                if (!found) failStreak++;
             }
         }
 
-        console.log('[PRECISION-L99] ✅ ' + games.length + '/' + numGames + ' jogos em ' + (Date.now() - t0) + 'ms');
+        // ── FASE B: enumeração lexicográfica — gera QUALQUER quantidade ───
+        // _nthCombo(allNums, drawSize, comboIdx) mapeia índice → combo único
+        // Pula combos já usados e avança o cursor. Garante até C(n,k) jogos únicos.
+        while (games.length < numGames) {
+            let found = false;
+            // Tenta até 50.000 índices antes de desistir (cobre lacunas de usedKeys)
+            for (let t = 0; t < 50000 && !found; t++) {
+                if (comboIdx >= totalCombos) comboIdx = 0; // volta ao início se esgotar
+                const game = this._nthCombo(allNums, drawSize, comboIdx);
+                comboIdx++;
+                if (!game || game.length < drawSize) continue;
+                const key = game.join(',');
+                if (usedKeys.has(key)) continue;
+                // Validação mínima: só soma (máxima liberdade de geração)
+                const sum = game.reduce((a,b) => a+b, 0);
+                if (sum < cfg.sumMin * 0.75 || sum > cfg.sumMax * 1.25) continue;
+                games.push(game); usedKeys.add(key); found = true;
+            }
+            // Último recurso: Math.random puro
+            if (!found) {
+                for (let t = 0; t < 2000 && !found; t++) {
+                    const g = [...allNums].sort(() => Math.random()-0.5).slice(0, drawSize).sort((a,b)=>a-b);
+                    const key = g.join(',');
+                    if (!usedKeys.has(key)) { games.push(g); usedKeys.add(key); found = true; }
+                }
+                if (!found) break; // impossível gerar mais (esgotou espaço)
+            }
+        }
+
+        console.log('[PRECISION-L99] ✅ ' + games.length + '/' + numGames + ' jogos em ' + (Date.now()-t0) + 'ms');
         return this._buildResult(games, gameKey, history, totalRange, drawSize, t0);
     }
 
