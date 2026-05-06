@@ -133,100 +133,106 @@ class PrecisionEngine {
 
         if (numGames === 1) return this._buildResult([game1], gameKey, history, totalRange, drawSize, t0);
 
-        // ── 9. EXPANSÃO: 2 FASES — SWAP PRÓXIMO + ENUMERAÇÃO LIVRE ──────
+        // ── 9. GERAÇÃO CIENTÍFICA: PROBABILIDADE CONDICIONAL + COBERTURA ──
         const games = [game1];
-        const game1Set = new Set(game1);
-        const allNums = ranked.map(r => r.n);
-        const substituteQueue = ranked.filter(r => !game1Set.has(r.n)).map(r => r.n);
-        const game1Weak = [...game1].sort((a,b) => (consensusScores[a]||0) - (consensusScores[b]||0));
         const usedKeys = new Set([game1.join(',')]);
-        const totalCombos = this._combCount(allNums.length, drawSize);
-        let comboIdx = 0; // cursor da enumeração lexicográfica
+        const allNums = ranked.map(r => r.n);
+        const zoneSize = Math.max(1, Math.ceil((endNum - startNum + 1) / cfg.zones));
 
-        // ── FASE A: trocar 1 ou 2 números (primeiros 15% de jogos) ────────
-        const phaseALimit = Math.min(numGames, Math.max(1, Math.floor(numGames * 0.15)));
-        for (let swapSz = 1; swapSz <= 2 && games.length < phaseALimit; swapSz++) {
-            let failStreak = 0;
-            while (games.length < phaseALimit && failStreak < 80) {
-                let found = false;
-                for (let att = 0; att < 150 && !found; att++) {
-                    const rmStart = (att * 3 + games.length) % game1Weak.length;
-                    const toRm = new Set();
-                    for (let k = 0; k < swapSz; k++) {
-                        const n = game1Weak[(rmStart + k) % game1Weak.length];
-                        if (!fixed.has(n)) toRm.add(n);
-                    }
-                    const cset = new Set(game1.filter(n => !toRm.has(n)));
-                    for (const f of fixed) cset.add(f);
-                    const subStart = (att * 7 + games.length * 3) % Math.max(1, substituteQueue.length);
-                    let added = 0;
-                    for (let i = 0; i < substituteQueue.length && added < swapSz; i++) {
-                        const s = substituteQueue[(subStart + i) % substituteQueue.length];
-                        if (!cset.has(s)) { cset.add(s); added++; }
-                    }
-                    if (cset.size < drawSize) continue;
-                    const ng = [...cset].sort((a,b) => (consensusScores[b]||0)-(consensusScores[a]||0)).slice(0, drawSize).sort((a,b) => a-b);
-                    if (ng.length < drawSize) continue;
-                    if (!this._validateGame(ng, cfg)) continue;
-                    const key = ng.join(',');
-                    if (usedKeys.has(key)) continue;
-                    games.push(ng); usedKeys.add(key); found = true;
+        // ─ Matriz de co-ocorrência histórica ──────────────────────────────
+        const coMx = {};
+        for (let n = startNum; n <= endNum; n++) coMx[n] = {};
+        for (const draw of history.slice(0, 50)) {
+            const nums = (draw.numbers || []).filter(n => n >= startNum && n <= endNum);
+            for (let i = 0; i < nums.length; i++)
+                for (let j = i+1; j < nums.length; j++) {
+                    coMx[nums[i]][nums[j]] = (coMx[nums[i]][nums[j]] || 0) + 1;
+                    coMx[nums[j]][nums[i]] = (coMx[nums[j]][nums[i]] || 0) + 1;
                 }
-                if (!found) failStreak++;
-            }
         }
+        const maxCo = {};
+        for (const n of allNums) maxCo[n] = Math.max(1, ...Object.values(coMx[n]).concat([1]));
 
-        // ── FASE B: amostragem ponderada por score — diversidade real ────
-        // Cada jogo amostra números proporcionalmente ao seu consensus score.
-        // Números com score alto aparecem MAIS, mas não em TODOS os jogos.
-        // Garante diversidade genuína sem repetir os mesmos 4-5 âncoras.
-        const scoreArr = allNums.map(n => Math.max(0.05, consensusScores[n] || 0.5));
+        // ─ Contador de cobertura (quantas vezes cada número foi usado) ────
+        const cov = {};
+        for (let n = startNum; n <= endNum; n++) cov[n] = 0;
+        for (const n of game1) cov[n]++;
 
-        // Função: sorteia drawSize números sem reposição, peso = score^exponent
-        const weightedSample = (exponent) => {
-            const game = [];
+        // ─ Função: constrói 1 jogo por probabilidade condicional ──────────
+        // Para cada posição escolhe o número com maior score combinado:
+        //   D1 = consensus score (10 dimensões analíticas do motor)
+        //   D2 = cobertura — boost para números sub-representados nos jogos gerados
+        //   D3 = co-ocorrência condicional com os já escolhidos neste jogo
+        //   D4 = equilíbrio de zonas — favorece zona não coberta no jogo atual
+        //   D5 = perturbação determinística hash(gIdx,pos,n) — garante variedade
+        const buildGame = (gIdx) => {
+            const chosen = [];
             const inGame = new Set();
-            // Fixos primeiro
-            for (const f of fixed) { if (!inGame.has(f) && game.length < drawSize) { game.push(f); inGame.add(f); } }
-            let tries = 0;
-            while (game.length < drawSize && tries < drawSize * 40) {
-                tries++;
-                // Calcular soma total dos pesos dos números não usados
-                let totalW = 0;
-                for (let i = 0; i < allNums.length; i++) {
-                    if (!inGame.has(allNums[i])) totalW += Math.pow(scoreArr[i], exponent);
+            for (const f of fixed) { if (!inGame.has(f) && chosen.length < drawSize) { chosen.push(f); inGame.add(f); } }
+
+            while (chosen.length < drawSize) {
+                const remaining = drawSize - chosen.length;
+                const sumSoFar = chosen.reduce((a,b) => a+b, 0);
+                const candidates = allNums.filter(n => !inGame.has(n));
+                const sortedC = [...candidates].sort((a,b) => a-b);
+                const totalCov = allNums.reduce((a,n) => a + cov[n], 0);
+                const avgCov = totalCov / Math.max(1, allNums.length);
+
+                let best = -Infinity, bestN = null;
+                for (const n of candidates) {
+                    // Viabilidade de soma (filtro hard)
+                    const remC = sortedC.filter(x => x !== n);
+                    if (remaining > 1) {
+                        const lo = sumSoFar + n + remC.slice(0, remaining-1).reduce((a,b)=>a+b,0);
+                        const hi = sumSoFar + n + remC.slice(-(remaining-1)).reduce((a,b)=>a+b,0);
+                        if (lo > cfg.sumMax * 1.15 || hi < cfg.sumMin * 0.85) continue;
+                    } else {
+                        const s = sumSoFar + n;
+                        if (s < cfg.sumMin * 0.85 || s > cfg.sumMax * 1.15) continue;
+                    }
+
+                    // D1: score consensus
+                    const d1 = consensusScores[n] || 0.5;
+                    // D2: cobertura — sub-representados recebem boost
+                    const d2 = 1.0 + Math.max(0, avgCov - (cov[n] || 0)) / Math.max(1, avgCov + 1);
+                    // D3: co-ocorrência condicional
+                    let d3 = 1.0;
+                    if (chosen.length > 0) {
+                        let coSum = 0;
+                        for (const c of chosen) coSum += (coMx[c][n] || 0) / maxCo[c];
+                        d3 = 0.6 + (coSum / chosen.length) * 0.8;
+                    }
+                    // D4: zona não usada = bônus
+                    const zone = Math.min(cfg.zones-1, Math.floor((n-startNum)/zoneSize));
+                    const usedZones = new Set(chosen.map(c => Math.min(cfg.zones-1, Math.floor((c-startNum)/zoneSize))));
+                    const d4 = usedZones.has(zone) ? 0.65 : 1.35;
+                    // D5: perturbação determinística única por (gIdx, posição, número)
+                    const h = (((gIdx * 2654435761 + chosen.length * 1234567 + n * 987654321) >>> 0) / 4294967295);
+                    const d5 = 0.88 + h * 0.24; // [0.88, 1.12]
+
+                    const score = d1 * d2 * d3 * d4 * d5;
+                    if (score > best) { best = score; bestN = n; }
                 }
-                if (totalW <= 0) break;
-                let r = Math.random() * totalW;
-                for (let i = 0; i < allNums.length; i++) {
-                    if (inGame.has(allNums[i])) continue;
-                    r -= Math.pow(scoreArr[i], exponent);
-                    if (r <= 0) { game.push(allNums[i]); inGame.add(allNums[i]); break; }
-                }
+
+                if (bestN === null) bestN = candidates[0] ?? null;
+                if (bestN === null) return null;
+                chosen.push(bestN); inGame.add(bestN);
             }
-            return game.length === drawSize ? game.sort((a,b) => a-b) : null;
+            return chosen.length === drawSize ? chosen.sort((a,b) => a-b) : null;
         };
 
-        // Expoente progressivo: começa concentrado (2.0) e vai ficando mais livre (0.5)
-        // — assim os primeiros jogos ainda têm os melhores números mas com variedade
-        let failCount = 0;
-        while (games.length < numGames && failCount < 500) {
-            const progress = (games.length - 1) / Math.max(1, numGames - 1);
-            // Expoente 2.0→0.5: quanto menor, mais uniforme (mais livre)
-            const exp = Math.max(0.5, 2.0 - progress * 1.5);
-            let found = false;
-            for (let t = 0; t < 60 && !found; t++) {
-                const game = weightedSample(exp);
-                if (!game || game.length < drawSize) continue;
-                const key = game.join(',');
-                if (usedKeys.has(key)) continue;
-                const sum = game.reduce((a,b) => a+b, 0);
-                if (sum < cfg.sumMin * 0.75 || sum > cfg.sumMax * 1.25) continue;
-                games.push(game); usedKeys.add(key); found = true; failCount = 0;
-            }
-            if (!found) failCount++;
+        // ─ Gerar todos os jogos solicitados ─────────────────────────────
+        let failStreak = 0;
+        while (games.length < numGames && failStreak < 400) {
+            const game = buildGame(games.length);
+            if (!game) { failStreak++; continue; }
+            const key = game.join(',');
+            if (usedKeys.has(key)) { failStreak++; continue; }
+            games.push(game);
+            usedKeys.add(key);
+            for (const n of game) cov[n]++;
+            failStreak = 0;
         }
-
 
 
         console.log('[PRECISION-L99] ✅ ' + games.length + '/' + numGames + ' jogos em ' + (Date.now()-t0) + 'ms');
