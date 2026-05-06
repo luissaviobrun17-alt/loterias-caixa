@@ -94,12 +94,34 @@ class PrecisionEngine {
             console.log('[PRECISION-L99] ✓ Scores locais calculados (fallback)');
         }
 
-        // ── 5. CONSENSO: combinar scores ──────────────────────────────────
+        // ── 5. CONSENSO: Borda Count — combinação robusta por ranking ────────
+        // Borda Count é superior à média ponderada de scores brutos porque:
+        //   - Robusto a outliers (um score extremo não domina)
+        //   - Combina engines com escalas diferentes de forma justa
+        //   - Preserva a ordem relativa de cada engine
         const consensusScores = {};
-        for (let n = startNum; n <= endNum; n++) {
-            const ne = neScores ? (neScores[n] || 0.5) : (localScores ? (localScores[n] || 0.5) : this._defaultScore(n, startNum, endNum));
-            const qg = qgScores ? (qgScores[n] || 0.5) : ne;
-            consensusScores[n] = neScores ? (ne * 0.60 + qg * 0.40) : (localScores ? ne : ne);
+        const bordaSources = [];
+        if (neScores)    bordaSources.push({ src: neScores,    w: 0.55 });
+        if (qgScores)    bordaSources.push({ src: qgScores,    w: 0.30 });
+        if (localScores) bordaSources.push({ src: localScores, w: (neScores ? 0.15 : 1.00) });
+
+        if (bordaSources.length === 0) {
+            for (let n = startNum; n <= endNum; n++)
+                consensusScores[n] = this._defaultScore(n, startNum, endNum);
+        } else {
+            const bordaPoints = {};
+            for (let n = startNum; n <= endNum; n++) bordaPoints[n] = 0;
+            for (const { src, w } of bordaSources) {
+                // Rankear por score desta fonte (descendente)
+                const arr = [];
+                for (let n = startNum; n <= endNum; n++) arr.push([n, src[n] || 0.5]);
+                arr.sort((a,b) => b[1]-a[1]);
+                // Atribuir Borda points ponderados pelo peso da fonte
+                arr.forEach(([n], rank) => { bordaPoints[n] += (totalRange - rank) * w; });
+            }
+            const maxBorda = Math.max(...Object.values(bordaPoints));
+            for (let n = startNum; n <= endNum; n++)
+                consensusScores[n] = 0.08 + (bordaPoints[n] / Math.max(1, maxBorda)) * 0.92;
         }
 
         // ── 6. Boost fixos/selecionados ───────────────────────────────────
@@ -673,21 +695,37 @@ class PrecisionEngine {
             // tentativa 0 = puramente por score; tentativas > 0 = com offsets
             const rankOffset = attempt * Math.max(2, Math.floor(drawSize / 3));
 
+            // G8 — Markov preditivo: P(n | similaridade com sorteio anterior)
+            // Pré-computado por tentativa (não muda entre candidatos)
+            const nextProb = {};
+            for (const n of allNums) nextProb[n] = 0.50;
+            if (H.length >= 2) {
+                const lastDraw = new Set((H[0].numbers || []).filter(n => n >= startNum && n <= endNum));
+                for (let i = 1; i < Math.min(H.length-1, 30); i++) {
+                    const hist = new Set((H[i].numbers || []).filter(n => n >= startNum && n <= endNum));
+                    let overlap = 0;
+                    for (const x of lastDraw) if (hist.has(x)) overlap++;
+                    const sim = overlap / Math.max(1, drawSize);
+                    if (sim > 0.10) {
+                        const wt = sim * Math.exp(-(i-1) * 0.12);
+                        for (const n of (H[i-1].numbers || []).filter(n => n >= startNum && n <= endNum))
+                            nextProb[n] = (nextProb[n] || 0.50) + wt;
+                    }
+                }
+                const maxNP = Math.max(...Object.values(nextProb));
+                for (const n of allNums) nextProb[n] = 0.10 + (nextProb[n] / Math.max(1, maxNP)) * 0.90;
+            }
+
             while (game.length < drawSize) {
-                const remaining = drawSize - game.length;
-                const sumSoFar  = game.reduce((a,b) => a+b, 0);
-                const evenSoFar = game.filter(n => n%2===0).length;
+                const remaining  = drawSize - game.length;
+                const sumSoFar   = game.reduce((a,b) => a+b, 0);
+                const evenSoFar  = game.filter(n => n%2===0).length;
                 const targetEven = Math.round(drawSize / 2);
                 const maxPerZone = Math.ceil(drawSize / cfg.zones);
-
-                // Gap ideal: números igualmente espaçados no range
-                // O próximo número ideal seria startNum + (game.length+1)/(drawSize+1)*(endNum-startNum)
-                const idealNext = startNum + ((game.length + 1) / (drawSize + 1)) * (endNum - startNum);
+                const gameSet2   = gameSet; // alias
 
                 let bestScore = -Infinity;
                 let bestN     = null;
-
-                // Ordenar candidatos alternando entre score puro e score+offset
                 const candidateStart = attempt > 0 ? rankOffset % Math.max(1, ranked.length - drawSize) : 0;
 
                 for (let ci = 0; ci < ranked.length; ci++) {
@@ -695,7 +733,7 @@ class PrecisionEngine {
                     const n   = ranked[idx].n;
                     if (gameSet.has(n)) continue;
 
-                    // ── FILTRO HARD: consecutivos ─────────────────────────
+                    // FILTRO HARD 1: sequência consecutiva
                     const testSorted = [...game, n].sort((a,b) => a-b);
                     let maxRun = 1, curRun = 1;
                     for (let i = 1; i < testSorted.length; i++) {
@@ -704,71 +742,69 @@ class PrecisionEngine {
                     }
                     if (maxRun > cfg.maxConsec) continue;
 
-                    // ── FILTRO HARD: anti-adjacência (penaliza vizinhos diretos) ─
+                    // FILTRO HARD 2: vizinho dos 2 lados = descartado
                     const adjCount = [n-1, n+1].filter(adj => gameSet.has(adj)).length;
-                    if (adjCount >= 2) continue; // vizinho dos dois lados = descartado
+                    if (adjCount >= 2) continue;
 
-                    // ── FILTRO HARD: zona já lotada ───────────────────────
+                    // FILTRO HARD 3: zona já lotada (quando ainda há zonas livres)
                     const zone = Math.min(cfg.zones-1, Math.floor((n-startNum)/zoneSize));
-                    if (zoneCounts[zone] >= maxPerZone && remaining > cfg.zones - Object.values(zoneCounts).filter(v=>v<maxPerZone).length) continue;
+                    const zonesWithRoom = zoneCounts.filter(v => v < maxPerZone).length;
+                    if (zoneCounts[zone] >= maxPerZone && remaining > zonesWithRoom) continue;
 
-                    // G1 — Score de consenso (já normalizado [0.1,1.0])
-                    const g1 = scores[n] || 0.5;
+                    // G1 — Borda Count consensus
+                    const g1 = scores[n] || 0.50;
 
-                    // G2 — Afinidade de pares REAL com os já escolhidos
-                    // Usa matriz pairAff construída do histórico dos últimos 50 sorteios
+                    // G2 — Pair affinity: produto de mínima × média
                     let g2 = 0.50;
                     if (game.length > 0) {
-                        let pSum = 0;
-                        for (const c of game) pSum += (pairAff[n][c] || 0);
-                        // g2 em [0.30, 1.70]: números que saem junto com os já escolhidos = bônus
-                        g2 = 0.30 + (pSum / game.length) * 1.40;
+                        let pSum = 0, pMin = 1.0;
+                        for (const c of game) {
+                            const pa = pairAff[n][c] || 0;
+                            pSum += pa; pMin = Math.min(pMin, pa);
+                        }
+                        g2 = Math.min(1.70, 0.25 + (pSum/game.length)*0.85 + pMin*0.60);
                     }
 
-                    // G3 — Gaussiana de gaps históricos
-                    // Score máximo quando o gap ao último número ≈ avgGapHist
-                    const lastN    = game.length > 0 ? game[game.length-1] : startNum - avgGapHist;
-                    const gapToLast = Math.abs(n - (game.length > 0 ? Math.max(...game) : startNum - avgGapHist));
-                    const gaussExp  = -((gapToLast - avgGapHist) ** 2) / (2 * Math.max(1, stdGapHist) ** 2);
-                    const g3        = 0.20 + 0.80 * Math.exp(gaussExp); // [0.20, 1.00]
+                    // G3 — Gaussiana bilateral (dois gaps criados ao inserir n)
+                    const ss    = [...game].sort((a,b) => a-b);
+                    let ip = ss.findIndex(x => x > n); if (ip === -1) ip = ss.length;
+                    const gL  = n - (ip > 0 ? ss[ip-1] : startNum - avgGapHist);
+                    const gR  = (ip < ss.length ? ss[ip] : endNum + avgGapHist) - n;
+                    const sig2 = 2 * Math.max(2, stdGapHist) ** 2;
+                    const g3  = 0.20 + 0.80 * (Math.exp(-((gL-avgGapHist)**2)/sig2) + Math.exp(-((gR-avgGapHist)**2)/sig2)) / 2;
 
-                    // G4 — Zona: nova zona = bônus, zona cheia = penalidade
-                    const g4 = zoneCounts[zone] === 0 ? 1.80
-                             : zoneCounts[zone] <  maxPerZone ? 1.00 : 0.20;
+                    // G4 — Zona
+                    const g4 = zoneCounts[zone] === 0 ? 1.80 : zoneCounts[zone] < maxPerZone ? 1.00 : 0.20;
 
-                    // G5 — Paridade balanceada
-                    const isEven   = n % 2 === 0;
-                    const evenNeed = Math.max(0, targetEven - evenSoFar);
-                    const oddNeed  = Math.max(0, (drawSize - targetEven) - (game.length - evenSoFar));
-                    const g5 = (isEven && evenNeed > 0) ? 1.25
-                             : (!isEven && oddNeed > 0) ? 1.25
-                             : 0.70;
+                    // G5 — Paridade
+                    const isEven  = n % 2 === 0;
+                    const eNeed   = Math.max(0, targetEven - evenSoFar);
+                    const oNeed   = Math.max(0, (drawSize-targetEven) - (game.length-evenSoFar));
+                    const g5 = (isEven && eNeed > 0) ? 1.25 : (!isEven && oNeed > 0) ? 1.25 : 0.70;
 
-                    // G6 — Afinidade de soma (soma parcial próxima ao alvo proporcional)
-                    const targetPartial = histAvgSum * (game.length + 1) / drawSize;
-                    const sumErr = Math.abs(sumSoFar + n - targetPartial) / Math.max(1, histAvgSum * 0.3);
-                    const g6 = 1.0 / (1.0 + sumErr * sumErr);
+                    // G6 — Soma
+                    const tPart = histAvgSum * (game.length+1) / drawSize;
+                    const sErr  = Math.abs(sumSoFar + n - tPart) / Math.max(1, histAvgSum * 0.3);
+                    const g6    = 1.0 / (1.0 + sErr * sErr);
 
-                    // G7 — Balanço quente/frio
-                    // Primeiros 30%: prefer hot | Depois: prefer cold (cobertura)
-                    const hotInGame  = game.filter(c => hotSet.has(c)).length;
-                    const coldInGame = game.filter(c => coldSet.has(c)).length;
-                    const g7 = (hotSet.has(n)  && hotInGame  < Math.ceil(drawSize * 0.4)) ? 1.15
-                             : (coldSet.has(n) && coldInGame < Math.ceil(drawSize * 0.3)) ? 1.10 : 0.90;
+                    // G7 — Hot/Cold
+                    const hCnt = game.filter(c => hotSet.has(c)).length;
+                    const cCnt = game.filter(c => coldSet.has(c)).length;
+                    const g7 = (hotSet.has(n)  && hCnt < Math.ceil(drawSize*0.4)) ? 1.15
+                             : (coldSet.has(n) && cCnt < Math.ceil(drawSize*0.3)) ? 1.10 : 0.90;
 
-                    // ── ADJACÊNCIA: penalidade suave (não hard) ───────────
-                    const adjPenalty = adjCount === 1 ? 0.55 : 1.0;
+                    // G8 — Markov preditivo
+                    const g8 = nextProb[n] || 0.50;
 
-                    // Score total (pesos calibrados)
-                    const total = g1*0.28 + g2*0.22 + g3*0.15 + g4*0.13 + g5*0.09 + g6*0.08 + g7*0.05;
-                    const finalScore = total * adjPenalty;
+                    // Penalidade de adjacência (vizinho de 1 lado)
+                    const adjP = adjCount === 1 ? 0.55 : 1.0;
 
+                    const total = g1*0.25 + g2*0.20 + g3*0.15 + g4*0.12 + g5*0.09 + g6*0.08 + g7*0.06 + g8*0.05;
+                    const finalScore = total * adjP;
                     if (finalScore > bestScore) { bestScore = finalScore; bestN = n; }
-
                 }
 
                 if (bestN === null) {
-                    // Fallback: qualquer candidato válido (sem consecutivos)
                     for (const r of ranked) {
                         if (!gameSet.has(r.n)) {
                             const ts = [...game, r.n].sort((a,b) => a-b);
