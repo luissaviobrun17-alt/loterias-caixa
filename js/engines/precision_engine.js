@@ -30,13 +30,13 @@ class PrecisionEngine {
     // ─── Configuração por loteria ─────────────────────────────────────────
     static getConfig(gameKey) {
         const c = {
-            megasena:   { drawSize:6,  range:[1,60],  swapMin:1, swapMax:1, minOverlap:4,  sumMin:120,  sumMax:240,  maxConsec:3, zones:6  },
-            lotofacil:  { drawSize:15, range:[1,25],  swapMin:1, swapMax:2, minOverlap:12, sumMin:155,  sumMax:235,  maxConsec:8, zones:5  },
-            quina:      { drawSize:5,  range:[1,80],  swapMin:1, swapMax:1, minOverlap:3,  sumMin:100,  sumMax:300,  maxConsec:2, zones:8  },
-            duplasena:  { drawSize:6,  range:[1,50],  swapMin:1, swapMax:1, minOverlap:4,  sumMin:60,   sumMax:220,  maxConsec:2, zones:5  },
-            lotomania:  { drawSize:50, range:[0,99],  swapMin:2, swapMax:4, minOverlap:44, sumMin:2100, sumMax:2900, maxConsec:5, zones:10 },
-            timemania:  { drawSize:10, range:[1,80],  swapMin:1, swapMax:2, minOverlap:7,  sumMin:220,  sumMax:580,  maxConsec:2, zones:8  },
-            diadesorte: { drawSize:7,  range:[1,31],  swapMin:1, swapMax:1, minOverlap:5,  sumMin:70,   sumMax:155,  maxConsec:3, zones:4  }
+            megasena:   { drawSize:6,  range:[1,60],  sumMin:100,  sumMax:280,  maxConsec:4, zones:6  },
+            lotofacil:  { drawSize:15, range:[1,25],  sumMin:140,  sumMax:250,  maxConsec:8, zones:5  },
+            quina:      { drawSize:5,  range:[1,80],  sumMin:80,   sumMax:320,  maxConsec:3, zones:8  },
+            duplasena:  { drawSize:6,  range:[1,50],  sumMin:50,   sumMax:250,  maxConsec:3, zones:5  },
+            lotomania:  { drawSize:50, range:[0,99],  sumMin:2000, sumMax:3000, maxConsec:6, zones:10 },
+            timemania:  { drawSize:10, range:[1,80],  sumMin:180,  sumMax:620,  maxConsec:3, zones:8  },
+            diadesorte: { drawSize:7,  range:[1,31],  sumMin:60,   sumMax:170,  maxConsec:4, zones:4  }
         };
         return c[gameKey] || c.megasena;
     }
@@ -133,86 +133,90 @@ class PrecisionEngine {
 
         if (numGames === 1) return this._buildResult([game1], gameKey, history, totalRange, drawSize, t0);
 
-        // ── 9. EXPANSÃO INCREMENTAL ────────────────────────────────────────
+        // ── 9. EXPANSÃO INCREMENTAL — 4 FASES PROGRESSIVAS ───────────────
         const games = [game1];
         const game1Set = new Set(game1);
-
-        // Fila de substituição ordenada por score (melhores não usados primeiro)
+        const allNums = ranked.map(r => r.n);
+        // Fila de substitutos: excluindo os do Jogo 1, ordenados por score
         const substituteQueue = ranked.filter(r => !game1Set.has(r.n)).map(r => r.n);
-
-        // Ranking interno do Jogo 1 (do PIOR para o MELHOR score → os piores saem primeiro)
-        const game1ByScore = [...game1].sort((a, b) => (consensusScores[a] || 0) - (consensusScores[b] || 0));
-
+        // Jogo1 ordenado do pior para o melhor score (os piores saem primeiro)
+        const game1Weak = [...game1].sort((a,b) => (consensusScores[a]||0) - (consensusScores[b]||0));
         const usedKeys = new Set([game1.join(',')]);
-        let subIdx = 0;
         let consecutiveFails = 0;
 
-        while (games.length < numGames && consecutiveFails < 200) {
-            // Quantidade de trocas aumenta gradualmente com o número de jogos
-            const progress = games.length / numGames;
-            const actualSwap = progress < 0.5 ? cfg.swapMin : Math.min(cfg.swapMax, cfg.swapMin + 1);
+        while (games.length < numGames && consecutiveFails < 300) {
+            const progress = (games.length - 1) / Math.max(1, numGames - 1); // 0→1
+
+            // FASE 1 (0–25%): trocar 1 número — muito próximo do Jogo1
+            // FASE 2 (25–50%): trocar 2 números
+            // FASE 3 (50–75%): trocar 3 números
+            // FASE 4 (75–100%): jogos amplamente independentes (até drawSize-2 trocas)
+            let swapCount, minOverlap;
+            if (progress < 0.25) {
+                swapCount = 1;
+                minOverlap = Math.max(1, drawSize - 1);
+            } else if (progress < 0.50) {
+                swapCount = 2;
+                minOverlap = Math.max(1, drawSize - 2);
+            } else if (progress < 0.75) {
+                swapCount = Math.max(3, Math.floor(drawSize * 0.5));
+                minOverlap = Math.max(1, Math.floor(drawSize * 0.35));
+            } else {
+                swapCount = Math.max(4, Math.floor(drawSize * 0.7));
+                minOverlap = Math.max(1, Math.floor(drawSize * 0.15));
+            }
+            // Para fixos: nunca exceder (drawSize - fixed.size)
+            swapCount = Math.min(swapCount, drawSize - fixed.size);
 
             let found = false;
-            for (let attempt = 0; attempt < 80 && !found; attempt++) {
-                // Selecionar quais números do Jogo 1 remover
-                // Rotacionar para variar quais saem
-                const removeStart = (attempt + subIdx) % game1ByScore.length;
-                const toRemoveSet = new Set(
-                    game1ByScore.slice(removeStart, removeStart + actualSwap)
-                        .concat(removeStart + actualSwap > game1ByScore.length
-                            ? game1ByScore.slice(0, (removeStart + actualSwap) - game1ByScore.length)
-                            : [])
-                );
-                // Garantir que fixos nunca são removidos
-                for (const f of fixed) toRemoveSet.delete(f);
+            for (let attempt = 0; attempt < 120 && !found; attempt++) {
+                // Quais posições do Jogo1 remover (rotacionar para variar)
+                const removeStart = (attempt * 3 + games.length) % game1Weak.length;
+                const toRemove = new Set();
+                for (let k = 0; k < swapCount; k++) {
+                    const idx = (removeStart + k) % game1Weak.length;
+                    const n = game1Weak[idx];
+                    if (!fixed.has(n)) toRemove.add(n);
+                }
 
-                const candidateSet = new Set(game1.filter(n => !toRemoveSet.has(n)));
+                // Base: manter os do Jogo1 que não foram removidos
+                const candidateSet = new Set(game1.filter(n => !toRemove.has(n)));
+                for (const f of fixed) candidateSet.add(f);
 
-                // Adicionar substitutos
+                // Escolher substitutos do ranking (rotacionar para variedade)
+                const subStart = (attempt * 7 + games.length * 3) % Math.max(1, substituteQueue.length);
                 let added = 0;
-                const startSub = (subIdx + attempt * 3) % Math.max(1, substituteQueue.length);
-                for (let i = 0; i < substituteQueue.length && added < actualSwap; i++) {
-                    const sub = substituteQueue[(startSub + i) % substituteQueue.length];
+                for (let i = 0; i < substituteQueue.length && added < swapCount; i++) {
+                    const sub = substituteQueue[(subStart + i) % substituteQueue.length];
                     if (!candidateSet.has(sub)) { candidateSet.add(sub); added++; }
                 }
 
-                // Garantir fixos
-                for (const f of fixed) candidateSet.add(f);
+                if (candidateSet.size < drawSize) continue;
 
-                const newGame = [...candidateSet].sort((a, b) => a - b).slice(0, drawSize);
+                // Montar jogo final
+                const candidates = [...candidateSet].sort((a,b) => (consensusScores[b]||0) - (consensusScores[a]||0));
+                const newGame = candidates.slice(0, drawSize).sort((a,b) => a-b);
                 if (newGame.length < drawSize) continue;
                 if (!this._validateGame(newGame, cfg)) continue;
-
                 const key = newGame.join(',');
                 if (usedKeys.has(key)) continue;
-
                 const overlap = newGame.filter(n => game1Set.has(n)).length;
-                if (overlap < cfg.minOverlap) continue;
+                if (overlap < minOverlap) continue;
 
                 games.push(newGame);
                 usedKeys.add(key);
                 found = true;
                 consecutiveFails = 0;
-                subIdx = (subIdx + actualSwap) % Math.max(1, substituteQueue.length);
             }
 
             if (!found) {
                 consecutiveFails++;
-                // Tentar variação com mais liberdade
                 const extra = this._buildFallbackVariation(ranked, game1, fixed, drawSize, cfg, usedKeys, games.length, numGames, consensusScores);
-                if (extra) {
-                    games.push(extra);
-                    usedKeys.add(extra.join(','));
-                    consecutiveFails = 0;
-                } else {
+                if (extra) { games.push(extra); usedKeys.add(extra.join(',')); consecutiveFails = 0; }
+                else {
                     const emergency = this._emergencyGame(ranked, fixed, drawSize, cfg, startNum, endNum, usedKeys);
-                    if (emergency) {
-                        games.push(emergency);
-                        usedKeys.add(emergency.join(','));
-                        consecutiveFails = 0;
-                    }
+                    if (emergency) { games.push(emergency); usedKeys.add(emergency.join(',')); consecutiveFails = 0; }
                 }
-                subIdx = (subIdx + 1) % Math.max(1, substituteQueue.length);
             }
         }
 
