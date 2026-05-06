@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SMART BETS ENGINE Ã¢â‚¬â€ Motor IA para Apostas Reduzidas
  * ====================================================
  * Gera jogos INTELIGENTES quando o apostador quer poucos jogos
@@ -282,6 +282,19 @@ class SmartBetsEngine {
         // â•‘  Cobertura Total + Diversidade MÃ¡xima + Backtesting Honesto      â•‘
         // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         if (['megasena','lotofacil','quina','duplasena','lotomania','diadesorte','timemania'].includes(gameKey)) {
+            // PRECISION ENGINE L99 - Jogo 1 Perfeito + Expansao Incremental
+            if (typeof PrecisionEngine !== 'undefined') {
+                console.log('%c[SmartBets] PRECISION ENGINE L99 - ' + gameKey + ' | ' + numGames + ' jogos', 'color: gold; font-weight: bold;');
+                try {
+                    var peResult = PrecisionEngine.generate(gameKey, numGames, selectedNumbers || [], fixedNumbers || [], drawSize);
+                    if (peResult && peResult.games && peResult.games.length > 0) {
+                        console.log('[DEBUG-L99] PrecisionEngine OK! ' + peResult.games.length + ' jogos | confianca=' + (peResult.analysis ? peResult.analysis.confidence : 'N/A') + '%');
+                        return peResult;
+                    }
+                } catch(peErr) {
+                    console.error('[SmartBets] PrecisionEngine CRASHED:', peErr.message);
+                }
+            }
             if (typeof NovaEraEngine !== 'undefined') {
                 console.log('[SmartBets] âš¡ Redirecionando para NOVA ERA V1 â€” ' + gameKey);
                 try {
@@ -2867,3 +2880,4 @@ class SmartBetsEngine {
         return history.length; // Nunca visto
     }
 }
+
