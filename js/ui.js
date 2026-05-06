@@ -1,4 +1,4 @@
-class UI {
+﻿class UI {
     constructor() {
         // ══ Helper para getElementById seguro ══
         const _el = (id) => document.getElementById(id);
@@ -9,6 +9,7 @@ class UI {
         this.gamesQuantityInput = _el('games-quantity');
         this.generateBtn = _el('generate-btn');
         this.generateSmartBtn = _el('generate-smart-btn');
+        this.btnPrecisionPlay = _el('btn-precision-play');
         this.smartDrawSizeSelect = _el('smart-draw-size');
         this.smartDrawInfo = _el('smart-draw-info');
         this.copyBtn = _el('copy-btn');
@@ -1879,6 +1880,67 @@ class UI {
         // Generate (IA Smart Bets)
         if (this.generateSmartBtn) {
             this.generateSmartBtn.onclick = () => this.runSmartGeneration();
+
+        // ── JOGAR L99 — PRECISION ENGINE ──────────────────────────────────
+        if (this.btnPrecisionPlay) {
+            this.btnPrecisionPlay.onclick = () => this.runPrecisionPlay();
+        }
+    // === JOGAR L99 - PRECISION ENGINE ===
+    runPrecisionPlay() {
+        const game = GAMES[this.currentGameKey];
+        if (!game || this._isGenerating) return;
+        this._isGenerating = true;
+        this._lastGenerationMode = 'precision_l99';
+
+        const btn = this.btnPrecisionPlay;
+        if (btn) { btn.disabled = true; btn.textContent = 'Calculando...'; }
+
+        const quantity    = parseInt(this.gamesQuantityInput ? this.gamesQuantityInput.value : 10) || 10;
+        const drawSize    = this.smartDrawSizeSelect ? parseInt(this.smartDrawSizeSelect.value) || game.minBet : game.minBet;
+        const fixedArr    = Array.from(this.fixedNumbers || []);
+        const selectedArr = Array.from(this.selectedNumbers || []);
+
+        console.log('[JOGAR-L99] PRECISION ENGINE: ' + quantity + ' jogos | ' + this.currentGameKey);
+
+        if (this.gamesContainer) {
+            this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#F59E0B;"><div style="font-size:2rem;margin-bottom:12px;">Calculando...</div><div style="color:#94A3B8;font-size:0.85rem;">Precision Engine L99 - 10 Dimensoes Analiticas</div></div>';
+        }
+
+        setTimeout(() => {
+            try {
+                let result = null;
+                if (typeof PrecisionEngine !== 'undefined') {
+                    result = PrecisionEngine.generate(this.currentGameKey, quantity, selectedArr, fixedArr, drawSize);
+                } else if (typeof SmartBetsEngine !== 'undefined') {
+                    result = SmartBetsEngine.generate(this.currentGameKey, quantity, selectedArr, fixedArr, drawSize);
+                }
+                if (!result || !result.games || result.games.length === 0) throw new Error('Nenhum jogo gerado');
+
+                this.currentGames = result.games;
+                this._renderGames(result.games, game);
+
+                const an = result.analysis || {};
+                const existing = document.querySelector('.smart-analysis-panel');
+                if (existing) existing.remove();
+                const badgeDiv = document.createElement('div');
+                badgeDiv.className = 'smart-analysis-panel';
+                badgeDiv.style.cssText = 'border-color:rgba(251,191,36,0.4);background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(15,23,42,0.95));';
+                badgeDiv.innerHTML = '<div class="analysis-header" style="color:#F59E0B;"><span style="font-size:1.3rem;">&#127919;</span><strong>PRECISION ENGINE L99 v3.0</strong><span class="confidence-badge" style="background:linear-gradient(135deg,#D97706,#92400E);color:#FEF3C7;">' + (an.confidence || 60) + '% confianca</span></div>'
+                    + '<div style="margin-top:8px;font-size:0.72rem;color:#94A3B8;text-align:center;">Jogo 1 Perfeito: [' + result.games[0].join(', ') + '] | ' + result.games.length + ' jogos gerados</div>';
+                if (this.gamesContainer && this.gamesContainer.parentNode) {
+                    this.gamesContainer.parentNode.insertBefore(badgeDiv, this.gamesContainer);
+                }
+                if (this.gamesContainer) setTimeout(() => this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+
+            } catch (err) {
+                console.error('[JOGAR-L99] ERRO:', err);
+                if (this.gamesContainer) this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + err.message + '</div>';
+            } finally {
+                this._isGenerating = false;
+                if (btn) { btn.disabled = false; btn.textContent = '\uD83C\uDFAF JOGAR L99'; }
+            }
+        }, 150);
+    }
 
             // ── ADICIONAR TOGGLE MODO PRECISÃO ──
             const actionRow = document.getElementById('action-buttons-row');
@@ -4544,3 +4606,4 @@ class UI {
 }
 
 // Export removed for global script compatibility
+
