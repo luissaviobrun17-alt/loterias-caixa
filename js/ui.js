@@ -2004,6 +2004,8 @@ class UI {
     // ====================================================================
     // JOGAR L99 - PRECISION ENGINE - 1 clique, maxima assertividade
     // ====================================================================
+    // JOGAR L99 - PRECISION ENGINE - 1 clique, maxima assertividade
+    // ====================================================================
     runPrecisionPlay() {
         const game = GAMES[this.currentGameKey];
         if (!game || this._isGenerating) return;
@@ -2011,52 +2013,82 @@ class UI {
         this._lastGenerationMode = 'precision_l99';
         const btn = this.btnPrecisionPlay;
         if (btn) { btn.disabled = true; btn.textContent = 'Calculando...'; }
-        const quantity = parseInt(this.gamesQuantityInput ? this.gamesQuantityInput.value : 10) || 10;
-        const drawSize = this.smartDrawSizeSelect ? parseInt(this.smartDrawSizeSelect.value) || game.minBet : game.minBet;
-        const fixedArr = Array.from(this.fixedNumbers || []);
+
+        const quantity    = parseInt(this.gamesQuantityInput ? this.gamesQuantityInput.value : 10) || 10;
+        const drawSize    = this.smartDrawSizeSelect ? parseInt(this.smartDrawSizeSelect.value) || game.minBet : game.minBet;
+        const fixedArr    = Array.from(this.fixedNumbers || []);
         const selectedArr = Array.from(this.selectedNumbers || []);
-        console.log('[JOGAR-L99] PRECISION ENGINE: ' + quantity + ' jogos | ' + this.currentGameKey);
+
+        console.log('[JOGAR-L99] PRECISION ENGINE: ' + quantity + ' jogos | ' + this.currentGameKey + ' | draw=' + drawSize);
+
         if (this.gamesContainer) {
-            this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#F59E0B;"><div style="font-size:1.5rem;margin-bottom:10px;">Calculando...</div><div style="color:#94A3B8;font-size:0.82rem;">Precision Engine L99 v3.0 | 10 Dimensoes</div></div>';
+            this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#F59E0B;">'
+                + '<div style="font-size:1.8rem;margin-bottom:10px;">&#127919;</div>'
+                + '<div style="font-size:1rem;font-weight:700;color:#FEF3C7;margin-bottom:6px;">PRECISION ENGINE L99 v3.0</div>'
+                + '<div style="color:#94A3B8;font-size:0.82rem;">Calculando Jogo 1 Perfeito...<br>10 Dimens\u00f5es Anal\u00edticas Ativas</div>'
+                + '</div>';
         }
+
         setTimeout(() => {
             try {
                 let result = null;
+
+                // Tentar PrecisionEngine primeiro
                 if (typeof PrecisionEngine !== 'undefined') {
                     result = PrecisionEngine.generate(this.currentGameKey, quantity, selectedArr, fixedArr, drawSize);
-                } else if (typeof SmartBetsEngine !== 'undefined') {
-                    result = SmartBetsEngine.generate(this.currentGameKey, quantity, selectedArr, fixedArr, drawSize);
                 }
-                if (!result || !result.games || result.games.length === 0) throw new Error('Nenhum jogo gerado');
-                this.currentGames = result.games;
-                this._renderGames(result.games, game);
+                // Fallback SmartBetsEngine
+                if (!result || !result.games || result.games.length === 0) {
+                    if (typeof SmartBetsEngine !== 'undefined') {
+                        result = SmartBetsEngine.generate(this.currentGameKey, quantity, selectedArr, fixedArr, drawSize);
+                    }
+                }
+
+                if (!result || !result.games || result.games.length === 0) {
+                    throw new Error('Nenhum jogo gerado pelo motor');
+                }
+
+                // Usar renderGames com a assinatura correta: (result, gameKey)
+                this.renderGames(result, this.currentGameKey);
+
+                // Badge de resultados
                 const an = result.analysis || {};
-                const existing = document.querySelector('.smart-analysis-panel');
-                if (existing) existing.remove();
-                const bd = document.createElement('div');
-                bd.className = 'smart-analysis-panel';
-                bd.style.cssText = 'border-color:rgba(251,191,36,0.4);background:linear-gradient(135deg,rgba(245,158,11,0.10),rgba(15,23,42,0.95));margin-bottom:10px;';
-                bd.innerHTML = '<div class="analysis-header" style="color:#F59E0B;">'
-                    + '<span style="font-size:1.3rem;">&#127919;</span>'
-                    + '<strong>PRECISION ENGINE L99 v3.0</strong>'
-                    + '<span class="confidence-badge" style="background:linear-gradient(135deg,#D97706,#92400E);color:#FEF3C7;">' + (an.confidence || 60) + '% confianca</span>'
-                    + '</div><div style="margin-top:8px;font-size:0.72rem;color:#94A3B8;text-align:center;">'
-                    + 'Jogo 1: [' + (result.games[0] || []).join(', ') + '] | ' + result.games.length + ' jogos'
-                    + '</div>';
-                if (this.gamesContainer && this.gamesContainer.parentNode) {
-                    this.gamesContainer.parentNode.insertBefore(bd, this.gamesContainer);
-                }
-                if (this.gamesContainer) setTimeout(() => this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
-                console.log('[JOGAR-L99] OK: ' + result.games.length + ' jogos | ' + (an.confidence || 60) + '%');
+                setTimeout(() => {
+                    const existing = document.querySelector('.smart-analysis-panel');
+                    if (existing) existing.remove();
+                    const bd = document.createElement('div');
+                    bd.className = 'smart-analysis-panel';
+                    bd.style.cssText = 'border-color:rgba(251,191,36,0.4);background:linear-gradient(135deg,rgba(245,158,11,0.10),rgba(15,23,42,0.95));margin-bottom:10px;';
+                    bd.innerHTML = '<div class="analysis-header" style="color:#F59E0B;">'
+                        + '<span style="font-size:1.3rem;">&#127919;</span>'
+                        + '<strong>PRECISION ENGINE L99 v3.0</strong>'
+                        + '<span class="confidence-badge" style="background:linear-gradient(135deg,#D97706,#92400E);color:#FEF3C7;">' + (an.confidence || 60) + '% confian\u00e7a</span>'
+                        + '</div>'
+                        + '<div style="margin-top:8px;font-size:0.72rem;color:#94A3B8;text-align:center;">'
+                        + '&#9733; Jogo 1: [' + (result.games[0] || []).join(', ') + '] &mdash; ' + result.games.length + ' jogos gerados em ' + (an.elapsedMs || 0) + 'ms'
+                        + '</div>';
+                    if (this.gamesContainer && this.gamesContainer.parentNode) {
+                        this.gamesContainer.parentNode.insertBefore(bd, this.gamesContainer);
+                    }
+                    if (this.gamesContainer) {
+                        this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 50);
+
+                console.log('[JOGAR-L99] OK: ' + result.games.length + ' jogos | confian\u00e7a=' + (an.confidence || 60) + '%');
+
             } catch (err) {
                 console.error('[JOGAR-L99] ERRO:', err);
-                if (this.gamesContainer) this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + err.message + '</div>';
+                if (this.gamesContainer) {
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">&#10060; Erro: ' + err.message + '</div>';
+                }
             } finally {
                 this._isGenerating = false;
                 if (btn) { btn.disabled = false; btn.textContent = '\uD83C\uDFAF JOGAR L99'; }
             }
-        }, 150);
+        }, 200);
     }
+
 
     initQuantum() {
         if (this.btnQuantumCalculate) {
