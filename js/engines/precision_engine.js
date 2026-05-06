@@ -207,8 +207,9 @@ class PrecisionEngine {
                     const usedZones = new Set(chosen.map(c => Math.min(cfg.zones-1, Math.floor((c-startNum)/zoneSize))));
                     const d4 = usedZones.has(zone) ? 0.65 : 1.35;
                     // D5: perturbação determinística única por (gIdx, posição, número)
+                    // Range amplo [0.30, 2.20] para garantir variedade real entre jogos
                     const h = (((gIdx * 2654435761 + chosen.length * 1234567 + n * 987654321) >>> 0) / 4294967295);
-                    const d5 = 0.88 + h * 0.24; // [0.88, 1.12]
+                    const d5 = 0.30 + h * 1.90; // [0.30, 2.20]
 
                     const score = d1 * d2 * d3 * d4 * d5;
                     if (score > best) { best = score; bestN = n; }
@@ -222,9 +223,13 @@ class PrecisionEngine {
         };
 
         // ─ Gerar todos os jogos solicitados ─────────────────────────────
+        // IMPORTANTE: gIdx deve ser independente de games.length.
+        // buildGame é determinístico: se gIdx não muda ao rejeitar, gera o mesmo jogo.
+        let gIdx = 1; // game1 já foi gerado com gIdx=0
         let failStreak = 0;
-        while (games.length < numGames && failStreak < 400) {
-            const game = buildGame(games.length);
+        while (games.length < numGames && failStreak < 3000) {
+            const game = buildGame(gIdx);
+            gIdx++; // sempre avança, independente de duplicado ou falha
             if (!game) { failStreak++; continue; }
             const key = game.join(',');
             if (usedKeys.has(key)) { failStreak++; continue; }
