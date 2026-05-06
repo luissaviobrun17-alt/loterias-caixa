@@ -114,9 +114,9 @@ If liberado Then
                 On Error GoTo 0
                 
                 If Not serverRunning Then
-                    ' Encontrar node.exe e iniciar servidor
-                    caminhoNode = "node"
-                    objShell.Run "cmd /c start /min /b node """ & caminhoServer & """", 0, False
+                    ' Usar caminho absoluto do node.exe para evitar falhas de PATH
+                    caminhoNode = """C:\Program Files\nodejs\node.exe"""
+                    objShell.Run caminhoNode & " """ & caminhoServer & """", 0, False
                     
                     ' Aguardar servidor iniciar (com verificacao, até 6 segundos)
                     Dim tentativaServer, serverOK

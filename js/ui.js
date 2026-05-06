@@ -3041,8 +3041,8 @@ class UI {
         if (hotHeader) hotHeader.textContent = `Mais Sorteados (${stats.hot.length})`;
         if (coldHeader) coldHeader.textContent = `Menos Sorteados (${stats.cold.length})`;
 
-        // Container scrollável quando há muitos números
-        const listStyle = 'display:flex;flex-wrap:wrap;gap:8px;max-height:260px;overflow-y:auto;padding:4px 2px;';
+        // Container sem scroll — todos os números visíveis
+        const listStyle = 'display:flex;flex-wrap:wrap;gap:8px;padding:4px 2px;';
         if (this.hotNumbersContainer)  this.hotNumbersContainer.setAttribute('style', listStyle);
         if (this.coldNumbersContainer) this.coldNumbersContainer.setAttribute('style', listStyle);
 
@@ -3137,8 +3137,9 @@ class UI {
         if (!game) return;
 
         const ranges = [3, 5, 10, 15];
-        const topN = Math.min(10, Math.ceil((game.range[1] - game.range[0] + 1) * 0.15));
-        const topNDisplay = Math.max(5, topN);
+        // Exibir no máximo 15 números por seção (hot/cold) — compacto para todas as loterias
+        const totalNumbers = game.range[1] - game.range[0] + 1;
+        const topNDisplay = Math.min(15, Math.ceil(totalNumbers * 0.25));
 
         // Verificar se temos dados
         const history = StatsService.historyStore ? StatsService.historyStore[this.currentGameKey] : null;
