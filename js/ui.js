@@ -9,6 +9,7 @@ class UI {
         this.gamesQuantityInput = _el('games-quantity');
         this.generateBtn = _el('generate-btn');
         this.generateSmartBtn = _el('generate-smart-btn');
+        this.btnPrecisionPlay = _el('btn-precision-play');
         this.smartDrawSizeSelect = _el('smart-draw-size');
         this.smartDrawInfo = _el('smart-draw-info');
         this.copyBtn = _el('copy-btn');
