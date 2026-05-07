@@ -11,13 +11,62 @@ const url  = require('url');
 const PORT = 8777;
 const ROOT = __dirname;
 
-// Pasta onde os jogos serão salvos (dentro do próprio projeto)
-const JOGOS_DIR = path.join(ROOT, 'Jogos_Salvos');
+// ══════════════════════════════════════════════
+// Pasta DEFINITIVA de jogos salvos — Área de Trabalho do usuário
+// ══════════════════════════════════════════════
+const os = require('os');
 
-// Garantir que a pasta base existe
+// Detectar Desktop real — PRIORIZAR ~/Desktop (diretório físico real)
+// NOTA: OneDrive cria ReparsePoints que parecem existir mas não contêm os arquivos reais
+function getDesktopPath() {
+    const directDesktop = path.join(os.homedir(), 'Desktop');
+    const directDesktopPT = path.join(os.homedir(), 'Área de Trabalho');
+    
+    // PRIORIDADE 1: Desktop direto (diretório físico real)
+    if (fs.existsSync(directDesktop)) {
+        return directDesktop;
+    }
+    if (fs.existsSync(directDesktopPT)) {
+        return directDesktopPT;
+    }
+    
+    // PRIORIDADE 2: Se não existir Desktop direto, tentar OneDrive
+    const oneDrivePaths = [
+        path.join(os.homedir(), 'OneDrive', 'Desktop'),
+        path.join(os.homedir(), 'OneDrive', 'Documents', 'OneDrive', 'Desktop'),
+    ];
+    for (const p of oneDrivePaths) {
+        if (fs.existsSync(p)) return p;
+    }
+    
+    return directDesktop; // Último recurso
+}
+
+const DESKTOP = getDesktopPath();
+const JOGOS_DIR = path.join(DESKTOP, 'LOTERIAS JOGOS SALVOS');
+
+// Mapeamento gameKey → nome EXATO da subpasta
+const PASTA_POR_JOGO = {
+    megasena:    'MEGASENA',
+    lotofacil:   'LOTOFACIL',
+    quina:       'QUINA',
+    duplasena:   'DUPLASENA',
+    lotomania:   'LOTOMANIA',
+    timemania:   'TIMEMANIA',
+    diadesorte:  'DIA DE SORTE',
+};
+
+// Garantir que a pasta base e subpastas existem
 if (!fs.existsSync(JOGOS_DIR)) {
     fs.mkdirSync(JOGOS_DIR, { recursive: true });
 }
+for (const subPasta of Object.values(PASTA_POR_JOGO)) {
+    const sp = path.join(JOGOS_DIR, subPasta);
+    if (!fs.existsSync(sp)) {
+        fs.mkdirSync(sp, { recursive: true });
+    }
+}
+
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -58,8 +107,9 @@ function handleSalvar(req, res) {
             // Sanitizar nome do arquivo (remover caracteres inválidos)
             const safeFileName = fileName.replace(/[<>:"/\\|?*]/g, '_');
 
-            // Criar subpasta por loteria (ex: Jogos_Salvos/megasena/)
-            const gameDir = path.join(JOGOS_DIR, gameKey);
+            // Usar nome EXATO da subpasta (ex: MEGASENA, DIA DE SORTE)
+            const subPasta = PASTA_POR_JOGO[gameKey] || gameKey.toUpperCase();
+            const gameDir = path.join(JOGOS_DIR, subPasta);
             if (!fs.existsSync(gameDir)) {
                 fs.mkdirSync(gameDir, { recursive: true });
             }
@@ -80,7 +130,7 @@ function handleSalvar(req, res) {
             res.end(JSON.stringify({
                 ok: true,
                 path: filePath,
-                relativePath: `Jogos_Salvos\\${gameKey}\\${safeFileName}`,
+                relativePath: `LOTERIAS JOGOS SALVOS\\${subPasta}\\${safeFileName}`,
             }));
 
         } catch (err) {
