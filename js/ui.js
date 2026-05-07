@@ -3695,7 +3695,28 @@ class UI {
                     btn.innerHTML = originalHTML;
                     btn.style.background = '';
                     btn.style.transform = '';
-                }, 2500);
+                }, 3000);
+
+                // Toast com o caminho da pasta onde foi salvo
+                const pastaRelativa = result.relativePath || result.path || 'Jogos_Salvos';
+                if (typeof Guardian !== 'undefined' && Guardian.toast) {
+                    Guardian.toast(`✅ Jogo salvo em:\n📁 ${pastaRelativa}`, 'success', 5000);
+                } else {
+                    // Notificação nativa como fallback
+                    const toast = document.createElement('div');
+                    toast.style.cssText = `
+                        position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+                        background:linear-gradient(135deg,#166534,#15803d); color:#fff;
+                        padding:14px 22px; border-radius:12px; font-size:13px;
+                        box-shadow:0 8px 32px rgba(0,0,0,0.4); z-index:99999;
+                        max-width:420px; text-align:center; line-height:1.5;
+                        animation: fadeInUp 0.3s ease;
+                    `;
+                    toast.innerHTML = `✅ <strong>Jogo salvo automaticamente!</strong><br>
+                        <span style="font-size:11px;opacity:0.85">📁 ${pastaRelativa}</span>`;
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 5000);
+                }
 
                 console.log(`[B2B] ✅ Salvo direto: ${result.path}`);
                 return;
@@ -3708,20 +3729,20 @@ class UI {
 
         // ══════ FALLBACK: Download direto (se servidor não estiver rodando) ══════
         const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-        const url = window.URL.createObjectURL(blob);
+        const urlObj = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
+        a.href = urlObj;
         a.download = fileName;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+        window.URL.revokeObjectURL(urlObj);
 
-        // Feedback visual
+        // Feedback visual fallback
         const btn = this.saveBtn;
         const originalHTML = btn.innerHTML;
-        btn.innerHTML = '✅ Baixado!';
-        btn.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
+        btn.innerHTML = '⬇️ Baixado!';
+        btn.style.background = 'linear-gradient(135deg, #2563EB, #1D4ED8)';
         setTimeout(() => {
             btn.innerHTML = originalHTML;
             btn.style.background = '';
