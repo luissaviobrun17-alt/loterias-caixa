@@ -1,60 +1,47 @@
-' =====================================================
-' B2B Loterias — Iniciar Servidor Automaticamente
-' Este script inicia o server.js em background
-' Colocar na pasta Startup do Windows para auto-inicio
-' =====================================================
+' =====================================================================
+' B2B Loterias — Servidor Silencioso v6.0
+' Startup do Windows — 100% invisivel, sem pop-ups
+' =====================================================================
+Option Explicit
 
-Dim objShell, objFSO
-Set objShell = CreateObject("WScript.Shell")
-Set objFSO = CreateObject("Scripting.FileSystemObject")
+Dim sh, fso
+Set sh  = CreateObject("WScript.Shell")
+Set fso = CreateObject("Scripting.FileSystemObject")
 
-' Caminho do servidor
-Dim caminhoApp, caminhoServer, caminhoNode
-caminhoApp = objFSO.GetParentFolderName(WScript.ScriptFullName)
-caminhoServer = caminhoApp & "\server.js"
-caminhoNode = """C:\Program Files\nodejs\node.exe"""
+Const APP_DIR = "C:\Users\luiss\.gemini\antigravity\scratch\loterias-caixa"
+Const PORTA   = 8777
 
-' Verificar se o servidor ja esta rodando
-Dim xmlHttp, serverRunning
-serverRunning = False
+' Testar se ja esta rodando
+Dim h, rodando : rodando = False
 On Error Resume Next
-Set xmlHttp = CreateObject("MSXML2.ServerXMLHTTP.6.0")
-xmlHttp.setTimeouts 2000, 2000, 2000, 2000
-xmlHttp.Open "GET", "http://localhost:8777/", False
-xmlHttp.Send
-If Err.Number = 0 And xmlHttp.status = 200 Then
-    serverRunning = True
-End If
-Set xmlHttp = Nothing
-Err.Clear
+Set h = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+h.setTimeouts 2000, 2000, 2000, 2000
+h.Open "GET", "http://localhost:" & PORTA & "/", False
+h.Send
+If Err.Number = 0 And h.Status >= 200 And h.Status < 400 Then rodando = True
+Set h = Nothing : Err.Clear
 On Error GoTo 0
 
-' Se nao esta rodando, iniciar
-If Not serverRunning Then
-    If objFSO.FileExists(caminhoServer) Then
-        ' Iniciar servidor em background (invisivel, sem janela)
-        objShell.Run caminhoNode & " """ & caminhoServer & """", 0, False
-        
-        ' Aguardar servidor ficar pronto (ate 10 segundos)
-        Dim tentativa, serverOK
-        serverOK = False
-        For tentativa = 1 To 7
-            WScript.Sleep 1500
-            On Error Resume Next
-            Set xmlHttp = CreateObject("MSXML2.ServerXMLHTTP.6.0")
-            xmlHttp.setTimeouts 1500, 1500, 1500, 1500
-            xmlHttp.Open "GET", "http://localhost:8777/", False
-            xmlHttp.Send
-            If Err.Number = 0 And xmlHttp.status = 200 Then
-                serverOK = True
-            End If
-            Set xmlHttp = Nothing
-            Err.Clear
-            On Error GoTo 0
-            If serverOK Then Exit For
-        Next
+If rodando Then WScript.Quit
+
+' Localizar node.exe
+Dim nd : nd = ""
+Dim caminhos : caminhos = Array( _
+    "C:\Program Files\nodejs\node.exe", _
+    sh.ExpandEnvironmentStrings("%LOCALAPPDATA%\Programs\nodejs\node.exe"))
+Dim p
+For Each p In caminhos
+    If fso.FileExists(p) Then
+        nd = """" & p & """"
+        Exit For
     End If
+Next
+If nd = "" Then nd = "node.exe"
+
+' Iniciar servidor
+Dim sj : sj = APP_DIR & "\server.js"
+If fso.FileExists(sj) Then
+    sh.Run nd & " """ & sj & """", 0, False
 End If
 
-Set objShell = Nothing
-Set objFSO = Nothing
+WScript.Quit

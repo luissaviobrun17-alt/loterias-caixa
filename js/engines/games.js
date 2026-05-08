@@ -14,18 +14,16 @@ const GAMES = {
         colorGrad: "#0d6b28",
         cols: 10,
         price: 6.00,
-        // Faixas: Sena (6), Quina (5), Quadra (4), Terno (3)
+        // Faixas oficiais Mega Sena: Sena (6), Quina (5), Quadra (4) — NÃO tem Terno
         strategies: [
             { id: "sena",   label: "Sena (6 acertos)",   match: 6, prize: 50000000, paid: true  },
             { id: "quina",  label: "Quina (5 acertos)",   match: 5, prize: 50000,    paid: true  },
-            { id: "quadra", label: "Quadra (4 acertos)",  match: 4, prize: 1000,     paid: true  },
-            { id: "terno",  label: "Terno (3 acertos)",   match: 3, prize: 5,        paid: true  }
+            { id: "quadra", label: "Quadra (4 acertos)",  match: 4, prize: 1000,     paid: true  }
         ],
         closingLevels: [
             { id: "close6", label: "Fechamento Sena (6)",   guarantee: 6, icon: "🎯" },
             { id: "close5", label: "Fechamento Quina (5)",  guarantee: 5, icon: "⭐" },
-            { id: "close4", label: "Fechamento Quadra (4)", guarantee: 4, icon: "🔥" },
-            { id: "close3", label: "Fechamento Terno (3)",  guarantee: 3, icon: "✅" }
+            { id: "close4", label: "Fechamento Quadra (4)", guarantee: 4, icon: "🔥" }
         ],
         minBet: 6,
         maxBet: 60,

@@ -937,7 +937,7 @@
     <div id="stats-modal-overlay" class="stats-modal-overlay">
         <div class="stats-modal">
             <div class="stats-modal-header">
-                <h2>📊 Estatísticas — Conferência de Resultados</h2>
+                <h2>📊 Estatísticas L99 — Relatório Preciso de Conferência</h2>
                 <button id="stats-modal-close" class="stats-modal-close">✕</button>
             </div>
 
@@ -949,8 +949,8 @@
             <!-- Filters -->
             <div id="stats-filter-bar" class="stats-filter-bar" style="display:none;">
                 <label>🔍 Filtros:</label>
-                <select id="stats-filter-modo"><option value="todos">Modo: Todos</option><option value="quantum_l99">Quantum L99</option><option value="gerar_jogos">Gerar Jogos</option><option value="fechamento">Fechamento</option><option value="dual_2g">Dual 2G</option><option value="manual">Manual</option></select>
-                <select id="stats-filter-precisao"><option value="todos">Precisão: Todos</option><option value="sim">Com Precisão</option><option value="nao">Sem Precisão</option></select>
+                <select id="stats-filter-modo"><option value="todos">Modo: Todos</option><option value="quantum_l99">⚡ QUANTUM L99</option><option value="precision_l99">🎯 JOGAR L99</option><option value="gerar_jogos">🎲 Gerar Jogos</option><option value="fechamento">🔒 Fechamento</option><option value="dual_2g">⚡ Dual 2G</option><option value="manual">✋ Manual</option></select>
+                <select id="stats-filter-precisao"><option value="todos">Precisão: Todos</option><option value="sim">🎯 Precisão L99</option><option value="nao">Sem Precisão</option></select>
                 <select id="stats-filter-qtd"><option value="todos">Qtd Jogos: Todos</option></select>
                 <select id="stats-filter-numjogo"><option value="todos">Nº/Jogo: Todos</option></select>
             </div>
@@ -997,9 +997,10 @@
 
                 <div class="load-saved-section"
                     style="margin-bottom: 15px; border-top: 1px solid var(--border-color); padding-top: 10px;">
-                    <p style="margin-bottom:5px; color:var(--text-secondary); font-size:0.9rem;">Ou carregue um arquivo
-                        salvo:</p>
-                    <input type="file" id="load-games-input" accept=".txt" style="width: 100%; padding: 5px;">
+                    <p style="margin-bottom:5px; color:var(--text-secondary); font-size:0.9rem;">Ou carregue jogos salvos da pasta L99:</p>
+                    <input type="file" id="load-games-input" accept=".txt" style="display:none;">
+                    <button id="btn-listar-jogos-salvos" style="width:100%;padding:10px 16px;background:linear-gradient(135deg,#1E40AF,#3B82F6);color:#fff;border:1px solid #60A5FA50;border-radius:10px;cursor:pointer;font-weight:700;font-size:0.85rem;margin-bottom:8px;transition:all 0.3s;">📂 Carregar da Pasta LOTERIAS JOGOS SALVOS</button>
+                    <div id="saved-games-list" style="display:none;max-height:200px;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(0,0,0,0.3);"></div>
                 </div>
                 <div class="check-actions" style="text-align:right;">
                     <button id="confirm-check-btn" class="action-btn">Verificar Jogos</button>

@@ -94,16 +94,33 @@ class PrecisionEngine {
             console.log('[PRECISION-L99] ✓ Scores locais calculados (fallback)');
         }
 
+        // ── 4b. Scores do PrecisionCalibrator (tendências + prob condicional) ──
+        let calibLast3Scores = null;
+        let calibCondScores = null;
+        if (typeof PrecisionCalibrator !== 'undefined' && history.length >= 4) {
+            try {
+                calibLast3Scores = PrecisionCalibrator.analyzeLast3Trends(gameKey, history, startNum, endNum);
+                console.log('[PRECISION-L99] ✓ PrecisionCalibrator Last3Trends ativado');
+            } catch(e) { console.warn('[PRECISION-L99] Calib Last3 erro:', e.message); }
+            try {
+                calibCondScores = PrecisionCalibrator.buildConditionalProbMatrix(gameKey, history, startNum, endNum, drawSize);
+                console.log('[PRECISION-L99] ✓ PrecisionCalibrator ConditionalProb ativado');
+            } catch(e) { console.warn('[PRECISION-L99] Calib Cond erro:', e.message); }
+        }
+
         // ── 5. CONSENSO: Borda Count — combinação robusta por ranking ────────
         // Borda Count é superior à média ponderada de scores brutos porque:
         //   - Robusto a outliers (um score extremo não domina)
         //   - Combina engines com escalas diferentes de forma justa
         //   - Preserva a ordem relativa de cada engine
+        //   - Agora com 5 fontes reais: NE + QG + Local + Last3 + ConditionalProb
         const consensusScores = {};
         const bordaSources = [];
-        if (neScores)    bordaSources.push({ src: neScores,    w: 0.55 });
-        if (qgScores)    bordaSources.push({ src: qgScores,    w: 0.30 });
-        if (localScores) bordaSources.push({ src: localScores, w: (neScores ? 0.15 : 1.00) });
+        if (neScores)    bordaSources.push({ src: neScores,    w: 0.40 });
+        if (qgScores)    bordaSources.push({ src: qgScores,    w: 0.22 });
+        if (localScores) bordaSources.push({ src: localScores, w: (neScores ? 0.10 : 0.62) });
+        if (calibLast3Scores)  bordaSources.push({ src: calibLast3Scores,  w: 0.22 });
+        if (calibCondScores)   bordaSources.push({ src: calibCondScores,   w: 0.16 });
 
         if (bordaSources.length === 0) {
             for (let n = startNum; n <= endNum; n++)
@@ -141,8 +158,48 @@ class PrecisionEngine {
 
         console.log('[PRECISION-L99] ★ TOP 10: ' + ranked.slice(0, 10).map(r => r.n + '(' + r.score.toFixed(3) + ')').join(', '));
 
-        // ── 8. CONSTRUIR JOGO 1 ────────────────────────────────────────────
-        const game1 = this._buildGame1(ranked, fixed, drawSize, cfg, startNum, endNum, consensusScores, history);
+        // ── 8. CONSTRUIR JOGO 1 — Competição por exclusão ─────────────────
+        // A perturbação de ranking NÃO funciona porque _buildGame1 usa greedy
+        // interno (G1-G8) que é determinístico. Solução real: gerar candidatos
+        // excluindo um número diferente do TOP cada vez, forçando diversidade
+        // real. Depois avalia qual candidato é melhor via PrecisionCalibrator.
+        let game1 = null;
+        let bestCalibScore = -1;
+        const hasCalibrator = typeof PrecisionCalibrator !== 'undefined' && typeof PrecisionCalibrator.scoreTicketPrecision === 'function';
+
+        // Candidato 0: sem exclusão (original)
+        const candidate0 = this._buildGame1(ranked, fixed, drawSize, cfg, startNum, endNum, consensusScores, history);
+
+        if (hasCalibrator && candidate0 && candidate0.length === drawSize && history.length >= 4) {
+            // Avaliar candidato base
+            const score0 = PrecisionCalibrator.scoreTicketPrecision(candidate0, gameKey, history, startNum, endNum, drawSize);
+            bestCalibScore = score0;
+            game1 = candidate0;
+            console.log('[PRECISION-L99] Candidato 0 (base): [' + candidate0.join(', ') + '] calibScore=' + score0.toFixed(3));
+
+            // Candidatos 1-10: excluir cada número do Jogo1 base e regenerar
+            for (let ei = 0; ei < candidate0.length; ei++) {
+                const excludeNum = candidate0[ei];
+                // Criar ranking sem este número
+                const filteredRanked = ranked.filter(r => r.n !== excludeNum);
+                const candidate = this._buildGame1(filteredRanked, fixed, drawSize, cfg, startNum, endNum, consensusScores, history);
+                if (!candidate || candidate.length < drawSize) continue;
+
+                const cScore = PrecisionCalibrator.scoreTicketPrecision(candidate, gameKey, history, startNum, endNum, drawSize);
+                const overlap = candidate.filter(n => candidate0.includes(n)).length;
+                console.log('[PRECISION-L99] Candidato ' + (ei+1) + ' (sem ' + excludeNum + '): [' + candidate.join(', ') + '] calibScore=' + cScore.toFixed(3) + ' overlap=' + overlap + '/' + drawSize);
+
+                if (cScore > bestCalibScore) {
+                    bestCalibScore = cScore;
+                    game1 = candidate;
+                }
+            }
+            console.log('[PRECISION-L99] ✓ Competição: ' + (candidate0.length + 1) + ' candidatos | melhor calibScore=' + bestCalibScore.toFixed(3));
+            console.log('[PRECISION-L99] ✓ Jogo final: [' + game1.join(', ') + ']');
+        } else {
+            game1 = candidate0;
+        }
+
         if (!game1 || game1.length < drawSize) {
             console.warn('[PRECISION-L99] ⚠ Jogo1 falhou → fallback NovaEra');
             return this._fallback(gameKey, numGames, selectedNumbers, fixedNumbers, drawSize);
@@ -623,7 +680,9 @@ class PrecisionEngine {
         // P(b|a) = vezes que a e b saíram juntos / vezes que a saiu
         const pairCount   = {};
         const numAppears  = {};
-        for (const n of allNums) { pairCount[n] = {}; numAppears[n] = 0; }
+        // Inicializar para TODO o range (não apenas allNums) para evitar crash
+        // quando chamado com ranking filtrado (exclusão de candidatos)
+        for (let n = startNum; n <= endNum; n++) { pairCount[n] = {}; numAppears[n] = 0; }
         for (const draw of H.slice(0, 50)) {
             const nums = (draw.numbers || []).filter(n => n >= startNum && n <= endNum);
             for (const n of nums) numAppears[n]++;
@@ -634,7 +693,7 @@ class PrecisionEngine {
                 }
         }
         const pairAff = {};
-        for (const n of allNums) {
+        for (let n = startNum; n <= endNum; n++) {
             pairAff[n] = {};
             const maxCnt = Math.max(1, ...Object.values(pairCount[n]).concat([1]));
             for (const [m, cnt] of Object.entries(pairCount[n]))

@@ -874,6 +874,7 @@ select:focus {
     white-space: nowrap;
 }
 .stats-badge.quantum { background: rgba(139, 92, 246, 0.2); color: #C4B5FD; border: 1px solid #8B5CF640; }
+.stats-badge.precision { background: rgba(234, 179, 8, 0.2); color: #FCD34D; border: 1px solid #EAB30860; }
 .stats-badge.gerar   { background: rgba(16, 185, 129, 0.15); color: #6EE7B7; border: 1px solid #10B98140; }
 .stats-badge.dual    { background: rgba(124, 58, 237, 0.15); color: #A78BFA; border: 1px solid #7C3AED40; }
 .stats-badge.fech    { background: rgba(234, 179, 8, 0.15); color: #FCD34D; border: 1px solid #EAB30840; }

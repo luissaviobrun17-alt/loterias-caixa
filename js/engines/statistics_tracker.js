@@ -328,24 +328,29 @@ const StatisticsTracker = (function() {
     // ── Helpers internos ────────────────────────────────────────
     function _modoLabel(modo) {
         const labels = {
-            'quantum_l99': 'Quantum L99',
-            'gerar_jogos': 'Gerar Jogos',
-            'dual_2g': 'Dual 2G',
-            'fechamento': 'Fechamento',
-            'manual': 'Manual'
+            'quantum_l99': '⚡ QUANTUM L99',
+            'precision_l99': '🎯 JOGAR L99',
+            'gerar_jogos': '🎲 Gerar Jogos',
+            'dual_2g': '⚡ Dual 2G',
+            'fechamento': '🔒 Fechamento',
+            'manual': '✋ Manual'
         };
-        return labels[modo] || modo || 'Manual';
+        return labels[modo] || modo || '✋ Manual';
     }
 
     function _modoFromLabel(label) {
         const map = {
             'quantum l99': 'quantum_l99',
+            'jogar l99': 'precision_l99',
+            'precision l99': 'precision_l99',
             'gerar jogos': 'gerar_jogos',
             'dual 2g': 'dual_2g',
             'fechamento': 'fechamento',
             'manual': 'manual'
         };
-        return map[(label || '').toLowerCase()] || 'manual';
+        // Strip emoji prefixes for matching
+        const clean = (label || '').toLowerCase().replace(/[⚡🎯🎲🔒✋]/g, '').trim();
+        return map[clean] || 'manual';
     }
 
     function _findKeyByName(name) {

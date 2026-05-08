@@ -8,7 +8,7 @@ Dim sh, fso
 Set sh  = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
 
-Const APP_DIR = "C:\Users\luiss\Desktop\B2B_Loterias"
+Const APP_DIR = "C:\Users\luiss\.gemini\antigravity\scratch\loterias-caixa"
 Const PORTA   = 8777
 Const SENHA   = "130767"
 
