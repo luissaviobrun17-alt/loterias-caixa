@@ -4362,8 +4362,9 @@ class UI {
 
                 StatisticsTracker.save(record);
 
-                // ── SALVAR CONFERÊNCIA NA PASTA ──
-                try {
+                var self = this;
+                // ── SALVAR CONFERÊNCIA NA PASTA (async para não travar) ──
+                setTimeout(function() { try {
                     var reportText = '════════════════════════════════════════════\n';
                     reportText += '  📊 CONFERÊNCIA L99 — ' + game.name + '\n';
                     reportText += '  Concurso ' + concursoNum + '\n';
@@ -4371,7 +4372,7 @@ class UI {
                     reportText += '════════════════════════════════════════════\n\n';
                     reportText += '📊 RESUMO\n';
                     reportText += '  Jogos Conferidos: ' + totalJogos + '\n';
-                    reportText += '  Modo: ' + (this._lastGenerationMode || 'manual') + '\n';
+                    reportText += '  Modo: ' + (self._lastGenerationMode || localStorage.getItem('l99_lastMode') || 'manual') + '\n';
                     reportText += '  Nº por Jogo: ' + actualDrawSize + '\n\n';
                     reportText += '🔢 NÚMEROS SORTEADOS: ' + drawnNumbers.join(' - ') + '\n\n';
                     reportText += '🏅 FAIXAS DE PREMIAÇÃO\n';
@@ -4387,10 +4388,11 @@ class UI {
                             reportText += '  Jogo ' + (w.index + 1) + ': ' + w.numbers.join(' - ') + ' → ' + w.hits + ' acertos (' + w.strat.label + ')\n';
                         });
                     }
-                    reportText += '\n📋 TODOS OS JOGOS CONFERIDOS\n';
+                    var maxListJogos = Math.min(self.currentGeneratedGames.length, 200);
+                    reportText += '\n📋 JOGOS CONFERIDOS (' + maxListJogos + ' de ' + self.currentGeneratedGames.length + ')\n';
                     var drawnS2 = new Set(drawnNumbers);
                     var minPrize = paidStrategies.length > 0 ? paidStrategies[paidStrategies.length-1].match : 3;
-                    this.currentGeneratedGames.forEach(function(nums, idx) {
+                    self.currentGeneratedGames.slice(0, maxListJogos).forEach(function(nums, idx) {
                         var h2 = 0;
                         nums.forEach(function(n) { if (drawnS2.has(n)) h2++; });
                         var sinal = h2 >= minPrize ? '✅' : '  ';
@@ -4402,21 +4404,21 @@ class UI {
                     fetch('/salvar-conferencia', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ gameKey: this.currentGameKey, concurso: concursoNum, content: reportText })
+                        body: JSON.stringify({ gameKey: self.currentGameKey, concurso: concursoNum, content: reportText })
                     }).then(function(r) { return r.json(); }).then(function(result) {
                         if (result.ok) console.log('[L99] ✅ Conferência salva em: ' + result.fileName);
                     }).catch(function() {});
                     // Marcar arquivo original como conferido
-                    if (this._lastLoadedFileName && !this._lastLoadedFileName.startsWith('✅')) {
+                    if (self._lastLoadedFileName && !self._lastLoadedFileName.startsWith('✅')) {
                         fetch('/marcar-conferido', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ gameKey: this.currentGameKey, fileName: this._lastLoadedFileName })
+                            body: JSON.stringify({ gameKey: self.currentGameKey, fileName: self._lastLoadedFileName })
                         }).catch(function() {});
                     }
                 } catch(saveErr) {
                     console.warn('[L99] Erro ao salvar conferência:', saveErr);
-                }
+                } }, 100); // setTimeout
             }
         } catch(statsErr) {
             console.warn('[Stats] Erro ao salvar estatística:', statsErr);
