@@ -4360,7 +4360,23 @@ class UI {
                 };
                 record.pctRetorno = valorInvestido > 0 ? ((estimatedTotal - valorInvestido) / valorInvestido * 100) : 0;
 
+                console.log('%c[L99-STATS] SALVANDO RECORD', 'color: #22C55E; font-weight: bold;', {
+                    modo: record.modoGeracao,
+                    concurso: record.concurso,
+                    jogos: record.qtdJogos,
+                    this_mode: this._lastGenerationMode,
+                    dom_mode: document.body.getAttribute('data-l99-mode'),
+                    ls_mode: localStorage.getItem('l99_lastMode')
+                });
                 StatisticsTracker.save(record);
+                // ALERTA VISUAL de confirmação
+                var modoSalvo = record.modoGeracao;
+                var toast = document.createElement('div');
+                toast.style.cssText = 'position:fixed;top:20px;right:20px;background:#22C55E;color:#fff;padding:12px 20px;border-radius:12px;z-index:999999;font-size:14px;font-weight:bold;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+                toast.textContent = '📊 Estatística salva! Modo: ' + modoSalvo + ' | Jogos: ' + record.qtdJogos;
+                document.body.appendChild(toast);
+                setTimeout(function() { toast.remove(); }, 5000);
+                console.log('%c[L99-STATS] RECORD SALVO COM SUCESSO', 'color: #22C55E; font-weight: bold;');
 
                 var self = this;
                 // ── SALVAR CONFERÊNCIA NA PASTA (async para não travar) ──

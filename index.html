@@ -1332,28 +1332,7 @@
     })();
     </script>
 
-<script>
-// L99: Limpeza automática de registros antigos com modo "manual"
-(function() {
-    try {
-        var raw = localStorage.getItem('b2b_stats_history');
-        if (!raw) return;
-        var data = JSON.parse(raw);
-        var removed = 0;
-        Object.keys(data).forEach(function(key) {
-            if (data[key] && Array.isArray(data[key])) {
-                var before = data[key].length;
-                data[key] = data[key].filter(function(r) { return r.modoGeracao !== 'manual'; });
-                removed += (before - data[key].length);
-            }
-        });
-        if (removed > 0) {
-            localStorage.setItem('b2b_stats_history', JSON.stringify(data));
-            console.log('[L99] 🗑️ Limpeza automática: ' + removed + ' registros antigos com modo "manual" removidos');
-        }
-    } catch(e) {}
-})();
-</script>
+
 </body>
 
 </html>
