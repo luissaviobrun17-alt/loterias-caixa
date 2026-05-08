@@ -4012,7 +4012,8 @@ class UI {
 
         let summaryHTML = `<div style="font-family:'Outfit','Inter',sans-serif;">`;
 
-        // ── CABEÇALHO ──
+        
+// ── CABEÇALHO ──
         summaryHTML += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">`;
         summaryHTML += `<div style="font-size:1.8rem;">🔍</div>`;
         summaryHTML += `<div>`;
@@ -4020,65 +4021,8 @@ class UI {
         summaryHTML += `<div style="font-size:0.72rem;color:#94A3B8;">${drawInfo || 'Resultado informado manualmente'} · Faixas premiadas: ${minStrat} a ${maxStrat} acertos</div>`;
         summaryHTML += `</div></div>`;
 
-        // ── NÚMEROS SORTEADOS ──
-        const sortedDrawn = [...drawnNumbers].sort((a, b) => a - b);
-        summaryHTML += `<div style="margin-bottom:12px;padding:10px 14px;background:linear-gradient(145deg,rgba(0,0,0,0.4),rgba(0,0,0,0.2));border:1px solid ${game.color}50;border-radius:10px;">`;
-        summaryHTML += `<div style="font-size:0.68rem;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Resultado Oficial</div>`;
-        summaryHTML += `<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">`;
-        sortedDrawn.forEach(n => {
-            summaryHTML += `<span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:${game.color};color:#fff;font-weight:800;font-size:0.88rem;box-shadow:0 2px 8px ${game.color}60;">${String(n).padStart(2,'0')}</span>`;
-        });
-        summaryHTML += `</div></div>`;
-
-        // ── V11: JOGOS GANHADORES — Agrupados do maior ao menor prêmio ──
-        if (winningGames.length > 0) {
-            // Ordenar do maior prêmio (mais acertos) para o menor
-            winningGames.sort((a, b) => b.hits - a.hits || b.prize - a.prize);
-
-            summaryHTML += `<div style="margin-bottom:12px;padding:12px 14px;background:linear-gradient(145deg,rgba(34,197,94,0.06),rgba(0,0,0,0.2));border:2px solid #22C55E40;border-radius:12px;">`;
-            summaryHTML += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">`;
-            summaryHTML += `<span style="font-size:1.2rem;">🏆</span>`;
-            summaryHTML += `<div style="font-size:0.78rem;color:#22C55E;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Jogos Ganhadores (${winningGames.length})</div>`;
-            summaryHTML += `</div>`;
-
-            let currentTier = null;
-            winningGames.forEach(wg => {
-                // Separador por faixa de prêmio
-                if (currentTier !== wg.strat.id) {
-                    currentTier = wg.strat.id;
-                    const isJP = wg.strat.match === game.draw;
-                    const tierColor = isJP ? '#FFD700' : '#22C55E';
-                    summaryHTML += `<div style="display:flex;align-items:center;gap:6px;margin:${currentTier === winningGames[0].strat.id ? '0' : '8px'} 0 6px 0;">`;
-                    summaryHTML += `<span style="font-size:0.7rem;">${isJP ? '🥇' : '✅'}</span>`;
-                    summaryHTML += `<span style="font-size:0.72rem;font-weight:700;color:${tierColor};">${wg.strat.label}</span>`;
-                    summaryHTML += `<div style="flex:1;height:1px;background:${tierColor}30;"></div>`;
-                    const tierPrize = wg.prize > 100 ? ` ≈ ${currency(wg.prize)}` : (wg.prize > 0 ? ` ≈ R$ ${wg.prize.toFixed(2).replace('.',',')}` : '');
-                    summaryHTML += `<span style="font-size:0.62rem;color:${tierColor};opacity:0.8;">${tierPrize}/jogo</span>`;
-                    summaryHTML += `</div>`;
-                }
-
-                // Card do jogo ganhador
-                const isJP = wg.strat.match === game.draw;
-                const cardBorder = isJP ? '#FFD70050' : '#22C55E40';
-                const cardBg = isJP ? 'rgba(255,215,0,0.06)' : 'rgba(34,197,94,0.04)';
-                summaryHTML += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:4px;background:${cardBg};border:1px solid ${cardBorder};border-radius:8px;">`;
-                summaryHTML += `<span style="font-size:0.68rem;color:#94A3B8;font-weight:600;min-width:42px;">Jogo ${wg.index + 1}</span>`;
-                summaryHTML += `<div style="display:flex;flex-wrap:wrap;gap:3px;flex:1;">`;
-                wg.numbers.forEach(n => {
-                    const isHit = drawnSet.has(n);
-                    const bg = isHit ? '#22C55E' : 'rgba(255,255,255,0.06)';
-                    const col = isHit ? '#fff' : '#64748b';
-                    const shadow = isHit ? 'box-shadow:0 0 6px rgba(34,197,94,0.4);' : '';
-                    summaryHTML += `<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:${bg};color:${col};font-weight:700;font-size:0.7rem;border:1px solid ${isHit ? '#22C55E' : 'rgba(255,255,255,0.1)'};${shadow}">${String(n).padStart(2,'0')}</span>`;
-                });
-                summaryHTML += `</div>`;
-                summaryHTML += `<span style="font-size:0.68rem;font-weight:700;color:${isJP ? '#FFD700' : '#22C55E'};min-width:28px;text-align:right;">${wg.hits}/${game.draw}</span>`;
-                summaryHTML += `</div>`;
-            });
-            summaryHTML += `</div>`;
-        }
-
-        // ── RESUMO RÁPIDO ──
+        
+// ── RESUMO RÁPIDO ──
         summaryHTML += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">`;
         summaryHTML += `<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;font-size:0.82rem;"><strong>${totalJogos}</strong> jogo${totalJogos > 1 ? 's' : ''} conferidos</div>`;
         if (totalGanhos > 0) {
@@ -4088,7 +4032,8 @@ class UI {
         }
         summaryHTML += `</div>`;
 
-        // ── DISTRIBUIÇÃO DE ACERTOS (gráfico de barras) ──
+        
+// ── DISTRIBUIÇÃO DE ACERTOS (gráfico de barras) ──
         summaryHTML += `<div style="margin-bottom:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;">`;
         summaryHTML += `<div style="font-size:0.68rem;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Distribuição de Acertos</div>`;
         const maxHitCount = Math.max(...Object.values(hitDistribution), 1);
@@ -4113,7 +4058,8 @@ class UI {
         }
         summaryHTML += `</div>`;
 
-        // ── TABELA DE FAIXAS PREMIADAS ──
+        
+// ── TABELA DE FAIXAS PREMIADAS ──
         summaryHTML += `<div style="font-size:0.72rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">💎 Faixas de Premiação — ${game.name}</div>`;
         summaryHTML += `<div style="display:flex;flex-direction:column;gap:4px;">`;
 
@@ -4197,7 +4143,8 @@ class UI {
 
         summaryHTML += `</div>`;
 
-        // ── TOTAL ESTIMADO ──
+        
+// ── TOTAL ESTIMADO ──
         if (estimatedTotal > 0) {
             summaryHTML += `<div style="margin-top:12px;padding:12px 16px;background:linear-gradient(135deg,rgba(34,197,94,0.2),rgba(16,185,129,0.1));border:2px solid #22C55E80;border-radius:12px;display:flex;justify-content:space-between;align-items:center;">`;
             summaryHTML += `<span style="color:#86efac;font-weight:700;font-size:0.88rem;">💰 Prêmio Estimado Total</span>`;
@@ -4205,7 +4152,68 @@ class UI {
             summaryHTML += `</div>`;
         }
 
-        // ── DISCLAIMER ──
+        
+// ── NÚMEROS SORTEADOS ──
+        const sortedDrawn = [...drawnNumbers].sort((a, b) => a - b);
+        summaryHTML += `<div style="margin-bottom:12px;padding:10px 14px;background:linear-gradient(145deg,rgba(0,0,0,0.4),rgba(0,0,0,0.2));border:1px solid ${game.color}50;border-radius:10px;">`;
+        summaryHTML += `<div style="font-size:0.68rem;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Resultado Oficial</div>`;
+        summaryHTML += `<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">`;
+        sortedDrawn.forEach(n => {
+            summaryHTML += `<span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:${game.color};color:#fff;font-weight:800;font-size:0.88rem;box-shadow:0 2px 8px ${game.color}60;">${String(n).padStart(2,'0')}</span>`;
+        });
+        summaryHTML += `</div></div>`;
+
+        
+// ── V11: JOGOS GANHADORES — Agrupados do maior ao menor prêmio ──
+        if (winningGames.length > 0) {
+            // Ordenar do maior prêmio (mais acertos) para o menor
+            winningGames.sort((a, b) => b.hits - a.hits || b.prize - a.prize);
+
+            summaryHTML += `<div style="margin-bottom:12px;padding:12px 14px;background:linear-gradient(145deg,rgba(34,197,94,0.06),rgba(0,0,0,0.2));border:2px solid #22C55E40;border-radius:12px;">`;
+            summaryHTML += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">`;
+            summaryHTML += `<span style="font-size:1.2rem;">🏆</span>`;
+            summaryHTML += `<div style="font-size:0.78rem;color:#22C55E;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Jogos Ganhadores (${winningGames.length})</div>`;
+            summaryHTML += `</div>`;
+
+            let currentTier = null;
+            winningGames.forEach(wg => {
+                // Separador por faixa de prêmio
+                if (currentTier !== wg.strat.id) {
+                    currentTier = wg.strat.id;
+                    const isJP = wg.strat.match === game.draw;
+                    const tierColor = isJP ? '#FFD700' : '#22C55E';
+                    summaryHTML += `<div style="display:flex;align-items:center;gap:6px;margin:${currentTier === winningGames[0].strat.id ? '0' : '8px'} 0 6px 0;">`;
+                    summaryHTML += `<span style="font-size:0.7rem;">${isJP ? '🥇' : '✅'}</span>`;
+                    summaryHTML += `<span style="font-size:0.72rem;font-weight:700;color:${tierColor};">${wg.strat.label}</span>`;
+                    summaryHTML += `<div style="flex:1;height:1px;background:${tierColor}30;"></div>`;
+                    const tierPrize = wg.prize > 100 ? ` ≈ ${currency(wg.prize)}` : (wg.prize > 0 ? ` ≈ R$ ${wg.prize.toFixed(2).replace('.',',')}` : '');
+                    summaryHTML += `<span style="font-size:0.62rem;color:${tierColor};opacity:0.8;">${tierPrize}/jogo</span>`;
+                    summaryHTML += `</div>`;
+                }
+
+                // Card do jogo ganhador
+                const isJP = wg.strat.match === game.draw;
+                const cardBorder = isJP ? '#FFD70050' : '#22C55E40';
+                const cardBg = isJP ? 'rgba(255,215,0,0.06)' : 'rgba(34,197,94,0.04)';
+                summaryHTML += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:4px;background:${cardBg};border:1px solid ${cardBorder};border-radius:8px;">`;
+                summaryHTML += `<span style="font-size:0.68rem;color:#94A3B8;font-weight:600;min-width:42px;">Jogo ${wg.index + 1}</span>`;
+                summaryHTML += `<div style="display:flex;flex-wrap:wrap;gap:3px;flex:1;">`;
+                wg.numbers.forEach(n => {
+                    const isHit = drawnSet.has(n);
+                    const bg = isHit ? '#22C55E' : 'rgba(255,255,255,0.06)';
+                    const col = isHit ? '#fff' : '#64748b';
+                    const shadow = isHit ? 'box-shadow:0 0 6px rgba(34,197,94,0.4);' : '';
+                    summaryHTML += `<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:${bg};color:${col};font-weight:700;font-size:0.7rem;border:1px solid ${isHit ? '#22C55E' : 'rgba(255,255,255,0.1)'};${shadow}">${String(n).padStart(2,'0')}</span>`;
+                });
+                summaryHTML += `</div>`;
+                summaryHTML += `<span style="font-size:0.68rem;font-weight:700;color:${isJP ? '#FFD700' : '#22C55E'};min-width:28px;text-align:right;">${wg.hits}/${game.draw}</span>`;
+                summaryHTML += `</div>`;
+            });
+            summaryHTML += `</div>`;
+        }
+
+        
+// ── DISCLAIMER ──
         summaryHTML += `<div style="margin-top:10px;padding:8px 12px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.2);border-radius:8px;font-size:0.65rem;color:#EAB308;">`;
         summaryHTML += `⚠️ <strong>Importante:</strong> Os valores de prêmios exibidos são estimativas médias baseadas nos sorteios recentes da Caixa. `;
         summaryHTML += `O prêmio real depende do rateio oficial (número de ganhadores em cada faixa). `;
