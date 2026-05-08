@@ -17,29 +17,39 @@ const ROOT = __dirname;
 const os = require('os');
 
 // Detectar Desktop real — PRIORIZAR ~/Desktop (diretório físico real)
-// NOTA: OneDrive cria ReparsePoints que parecem existir mas não contêm os arquivos reais
+// NOTA: OneDrive cria links simbólicos no Desktop que parecem existir mas os arquivos reais estão no OneDrive
 function getDesktopPath() {
-    const directDesktop = path.join(os.homedir(), 'Desktop');
-    const directDesktopPT = path.join(os.homedir(), 'Área de Trabalho');
+    const PASTA_ALVO = 'LOTERIAS JOGOS SALVOS';
     
-    // PRIORIDADE 1: Desktop direto (diretório físico real)
-    if (fs.existsSync(directDesktop)) {
-        return directDesktop;
-    }
-    if (fs.existsSync(directDesktopPT)) {
-        return directDesktopPT;
-    }
-    
-    // PRIORIDADE 2: Se não existir Desktop direto, tentar OneDrive
-    const oneDrivePaths = [
-        path.join(os.homedir(), 'OneDrive', 'Desktop'),
+    // Lista TODOS os caminhos candidatos
+    const candidatos = [
         path.join(os.homedir(), 'OneDrive', 'Documents', 'OneDrive', 'Desktop'),
+        path.join(os.homedir(), 'OneDrive', 'Desktop'),
+        path.join(os.homedir(), 'OneDrive', 'Área de Trabalho'),
+        path.join(os.homedir(), 'Desktop'),
+        path.join(os.homedir(), 'Área de Trabalho'),
     ];
-    for (const p of oneDrivePaths) {
-        if (fs.existsSync(p)) return p;
+    
+    // PRIORIDADE 1: Caminho que JÁ contém a pasta LOTERIAS JOGOS SALVOS com arquivos
+    for (const p of candidatos) {
+        const jogosDir = path.join(p, PASTA_ALVO);
+        try {
+            if (fs.existsSync(jogosDir) && fs.readdirSync(jogosDir).length > 0) {
+                console.log(`[B2B] ✅ Desktop detectado (com jogos): ${p}`);
+                return p;
+            }
+        } catch(e) {}
     }
     
-    return directDesktop; // Último recurso
+    // PRIORIDADE 2: Qualquer caminho que exista
+    for (const p of candidatos) {
+        if (fs.existsSync(p)) {
+            console.log(`[B2B] Desktop detectado (existente): ${p}`);
+            return p;
+        }
+    }
+    
+    return path.join(os.homedir(), 'Desktop');
 }
 
 const DESKTOP = getDesktopPath();
