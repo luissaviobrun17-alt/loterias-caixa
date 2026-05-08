@@ -69,7 +69,7 @@ class UI {
         this.currentGameKey = 'megasena';
 
         // ── Rastreamento de Modo de Geração (para Estatísticas) ──
-        this._lastGenerationMode = 'manual';   // quantum_l99 | gerar_jogos | dual_2g | fechamento | manual
+        this._lastGenerationMode = localStorage.getItem('l99_lastMode') || 'manual';   // quantum_l99 | gerar_jogos | dual_2g | fechamento | manual
         this._lastPrecisionMode = false;
         this._lastDrawSize = 6;
         this._lastCheckDrawInfo = '';
@@ -587,7 +587,7 @@ class UI {
         const isPrecisionMode = precisionCheckbox && precisionCheckbox.checked;
 
         // ── RASTREAMENTO DE MODO ──
-        this._lastGenerationMode = 'quantum_l99';
+        this._lastGenerationMode = 'quantum_l99'; localStorage.setItem('l99_lastMode','quantum_l99'); document.body.setAttribute('data-l99-mode','quantum_l99');
         this._lastPrecisionMode = isPrecisionMode;
         this._lastDrawSize = this.smartDrawSizeSelect ? parseInt(this.smartDrawSizeSelect.value) || game.minBet : game.minBet;
 
@@ -1616,9 +1616,9 @@ class UI {
             }
 
             if (closingVal && closingVal.startsWith('close_')) {
-                this._lastGenerationMode = 'fechamento';
+                this._lastGenerationMode = 'fechamento'; localStorage.setItem('l99_lastMode','fechamento'); document.body.setAttribute('data-l99-mode','fechamento');
             } else {
-                this._lastGenerationMode = 'gerar_jogos';
+                this._lastGenerationMode = 'gerar_jogos'; localStorage.setItem('l99_lastMode','gerar_jogos'); document.body.setAttribute('data-l99-mode','gerar_jogos');
             }
             this._lastDrawSize = parseInt(this.smartDrawSizeSelect?.value) || GAMES[this.currentGameKey]?.minBet || 6;
 
@@ -2010,7 +2010,7 @@ class UI {
         const game = GAMES[this.currentGameKey];
         if (!game || this._isGenerating) return;
         this._isGenerating = true;
-        this._lastGenerationMode = 'precision_l99';
+        this._lastGenerationMode = 'precision_l99'; localStorage.setItem('l99_lastMode','precision_l99'); document.body.setAttribute('data-l99-mode','precision_l99');
         const btn = this.btnPrecisionPlay;
         if (btn) { btn.disabled = true; btn.textContent = 'Calculando...'; }
 
@@ -3769,10 +3769,77 @@ class UI {
 
         // Add a visual hint about using last draw
         if (recent) {
-            this.inputCheckNumbers.title = `Último Concurso: ${recent.drawNumber}`;
+            this.inputCheckNumbers.title = `Concurso sugerido: ${autoFillValue}`;
         }
 
         this.inputCheckNumbers.focus();
+
+        // ── L99: Botão para listar jogos salvos da pasta ──
+        const self = this;
+        const listarBtn = document.getElementById('btn-listar-jogos-salvos');
+        const listArea = document.getElementById('saved-games-list');
+        if (listarBtn && listArea) {
+            listarBtn.onclick = async function() {
+                listarBtn.innerHTML = '⏳ Carregando...';
+                try {
+                    const resp = await fetch('/listar-jogos?gameKey=' + self.currentGameKey);
+                    const data = await resp.json();
+                    if (data.ok && data.files && data.files.length > 0) {
+                        // Filtrar apenas arquivos de jogos (não relatórios CONFERIDO_...Concurso)
+                        const gameFiles = data.files.filter(function(f) {
+                            return !f.name.includes('Concurso_');
+                        });
+                        listArea.style.display = 'block';
+                        listArea.innerHTML = '';
+                        if (gameFiles.length === 0) {
+                            listArea.innerHTML = '<div style="padding:12px;color:#94A3B8;text-align:center;">Nenhum arquivo de jogo encontrado (apenas relatórios de conferência)</div>';
+                            listarBtn.innerHTML = '📂 Carregar da Pasta LOTERIAS JOGOS SALVOS';
+                            return;
+                        }
+                        gameFiles.forEach(function(file) {
+                            var modified = new Date(file.modified).toLocaleDateString('pt-BR') + ' ' + new Date(file.modified).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+                            var isChecked = file.name.includes('CONFERIDO');
+                            var icon = isChecked ? '✅' : '📄';
+                            var item = document.createElement('div');
+                            item.style.cssText = 'padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.2s;font-size:0.8rem;';
+                            item.innerHTML = '<span style="color:#E2E8F0;font-weight:600;">' + icon + ' ' + file.name + '</span><span style="color:#64748b;font-size:0.7rem;">' + modified + '</span>';
+                            item.onmouseenter = function() { item.style.background = 'rgba(59,130,246,0.15)'; };
+                            item.onmouseleave = function() { item.style.background = ''; };
+                            item.onclick = async function() {
+                                item.innerHTML = '<span style="color:#22C55E;">⏳ Carregando...</span>';
+                                try {
+                                    var readResp = await fetch('/ler-jogo', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ gameKey: self.currentGameKey, fileName: file.name }) });
+                                    var readData = await readResp.json();
+                                    if (readData.ok && readData.content) {
+                                        var parsedGames = self.parseSavedGames(readData.content);
+                                        if (parsedGames && parsedGames.length > 0) {
+                                            self.currentGeneratedGames = parsedGames;
+                                            self._lastLoadedFileName = file.name;
+                                            self.renderGames({ games: parsedGames }, self.currentGameKey);
+                                            listArea.style.display = 'none';
+                                            listarBtn.innerHTML = '✅ ' + parsedGames.length + ' jogos carregados de ' + file.name;
+                                            setTimeout(function() { listarBtn.innerHTML = '📂 Carregar da Pasta LOTERIAS JOGOS SALVOS'; }, 3000);
+                                        } else {
+                                            alert('Nenhum jogo encontrado no arquivo: ' + file.name);
+                                            item.innerHTML = '<span style="color:#EF4444;">❌ Formato inválido</span>';
+                                        }
+                                    }
+                                } catch(e) {
+                                    alert('Erro ao ler arquivo: ' + e.message);
+                                }
+                            };
+                            listArea.appendChild(item);
+                        });
+                    } else {
+                        listArea.style.display = 'block';
+                        listArea.innerHTML = '<div style="padding:12px;color:#94A3B8;text-align:center;">Nenhum jogo salvo encontrado para esta loteria.<br><small>Pasta: ' + (data.path || '') + '</small></div>';
+                    }
+                } catch(e) {
+                    alert('Erro ao listar jogos: ' + e.message + '\nVerifique se o servidor está rodando.');
+                }
+                listarBtn.innerHTML = '📂 Carregar da Pasta LOTERIAS JOGOS SALVOS';
+            };
+        }
     }
 
     closeCheckModal() {
@@ -4282,7 +4349,7 @@ class UI {
                     drawInfo: drawInfo,
                     data: new Date().toISOString(),
                     qtdJogos: totalJogos,
-                    modoGeracao: this._lastGenerationMode || 'manual',
+                    modoGeracao: this._lastGenerationMode || document.body.getAttribute('data-l99-mode') || localStorage.getItem('l99_lastMode') || 'manual',
                     precisao: isPrecisao,
                     numPorJogo: actualDrawSize,
                     faixas: faixasDetail,
@@ -4294,6 +4361,62 @@ class UI {
                 record.pctRetorno = valorInvestido > 0 ? ((estimatedTotal - valorInvestido) / valorInvestido * 100) : 0;
 
                 StatisticsTracker.save(record);
+
+                // ── SALVAR CONFERÊNCIA NA PASTA ──
+                try {
+                    var reportText = '════════════════════════════════════════════\n';
+                    reportText += '  📊 CONFERÊNCIA L99 — ' + game.name + '\n';
+                    reportText += '  Concurso ' + concursoNum + '\n';
+                    reportText += '  Data: ' + new Date().toLocaleString('pt-BR') + '\n';
+                    reportText += '════════════════════════════════════════════\n\n';
+                    reportText += '📊 RESUMO\n';
+                    reportText += '  Jogos Conferidos: ' + totalJogos + '\n';
+                    reportText += '  Modo: ' + (this._lastGenerationMode || 'manual') + '\n';
+                    reportText += '  Nº por Jogo: ' + actualDrawSize + '\n\n';
+                    reportText += '🔢 NÚMEROS SORTEADOS: ' + drawnNumbers.join(' - ') + '\n\n';
+                    reportText += '🏅 FAIXAS DE PREMIAÇÃO\n';
+                    paidStrategies.forEach(function(s) {
+                        var count = awardCounts[s.id] || 0;
+                        reportText += '  ' + s.label + ': ' + count + ' volante(s)\n';
+                    });
+                    reportText += '\n  Total Premiados: ' + totalGanhos + ' volante(s)\n';
+                    reportText += '  Valor Estimado: R$ ' + estimatedTotal.toLocaleString('pt-BR', {minimumFractionDigits:2}) + '\n\n';
+                    if (winningGames.length > 0) {
+                        reportText += '🏆 JOGOS GANHADORES\n';
+                        winningGames.forEach(function(w) {
+                            reportText += '  Jogo ' + (w.index + 1) + ': ' + w.numbers.join(' - ') + ' → ' + w.hits + ' acertos (' + w.strat.label + ')\n';
+                        });
+                    }
+                    reportText += '\n📋 TODOS OS JOGOS CONFERIDOS\n';
+                    var drawnS2 = new Set(drawnNumbers);
+                    var minPrize = paidStrategies.length > 0 ? paidStrategies[paidStrategies.length-1].match : 3;
+                    this.currentGeneratedGames.forEach(function(nums, idx) {
+                        var h2 = 0;
+                        nums.forEach(function(n) { if (drawnS2.has(n)) h2++; });
+                        var sinal = h2 >= minPrize ? '✅' : '  ';
+                        reportText += sinal + ' Jogo ' + String(idx+1).padStart(4,' ') + ': ' + nums.map(function(n){return String(n).padStart(2,'0')}).join(' - ') + ' = ' + h2 + ' acertos\n';
+                    });
+                    reportText += '\n════════════════════════════════════════════\n';
+                    reportText += '  L99 B2B Loterias — Relatório Automático\n';
+                    reportText += '════════════════════════════════════════════\n';
+                    fetch('/salvar-conferencia', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ gameKey: this.currentGameKey, concurso: concursoNum, content: reportText })
+                    }).then(function(r) { return r.json(); }).then(function(result) {
+                        if (result.ok) console.log('[L99] ✅ Conferência salva em: ' + result.fileName);
+                    }).catch(function() {});
+                    // Marcar arquivo original como conferido
+                    if (this._lastLoadedFileName && !this._lastLoadedFileName.startsWith('✅')) {
+                        fetch('/marcar-conferido', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ gameKey: this.currentGameKey, fileName: this._lastLoadedFileName })
+                        }).catch(function() {});
+                    }
+                } catch(saveErr) {
+                    console.warn('[L99] Erro ao salvar conferência:', saveErr);
+                }
             }
         } catch(statsErr) {
             console.warn('[Stats] Erro ao salvar estatística:', statsErr);
