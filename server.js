@@ -179,6 +179,130 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // ── Rota GET /listar-jogos — Lista arquivos da pasta de jogos salvos ──
+    if (req.method === 'GET' && req.url.startsWith('/listar-jogos')) {
+        const params = new URL(req.url, `http://localhost:${PORT}`).searchParams;
+        const gameKey = params.get('gameKey') || '';
+        const subPasta = PASTA_POR_JOGO[gameKey] || '';
+        const targetDir = subPasta ? path.join(JOGOS_DIR, subPasta) : JOGOS_DIR;
+        try {
+            if (!fs.existsSync(targetDir)) {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: true, files: [], path: targetDir }));
+                return;
+            }
+            const files = fs.readdirSync(targetDir)
+                .filter(f => f.endsWith('.txt'))
+                .map(f => {
+                    const stat = fs.statSync(path.join(targetDir, f));
+                    return { name: f, size: stat.size, modified: stat.mtime };
+                })
+                .sort((a, b) => new Date(b.modified) - new Date(a.modified));
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: true, files, path: targetDir }));
+        } catch (err) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: false, error: err.message }));
+        }
+        return;
+    }
+
+    // ── Rota POST /ler-jogo — Lê conteúdo de um arquivo salvo ──
+    if (req.method === 'POST' && req.url === '/ler-jogo') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                const gameKey = data.gameKey || '';
+                const fileName = data.fileName || '';
+                const subPasta = PASTA_POR_JOGO[gameKey] || '';
+                const targetDir = subPasta ? path.join(JOGOS_DIR, subPasta) : JOGOS_DIR;
+                const filePath = path.join(targetDir, fileName);
+                if (!fs.existsSync(filePath)) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ ok: false, error: 'Arquivo não encontrado' }));
+                    return;
+                }
+                const content = fs.readFileSync(filePath, 'utf8');
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: true, content, fileName }));
+            } catch (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: false, error: err.message }));
+            }
+        });
+        return;
+    }
+
+    // ── Rota POST /salvar-conferencia — Salva relatório de conferência ──
+    if (req.method === 'POST' && req.url === '/salvar-conferencia') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                const gameKey = data.gameKey || '';
+                const content = data.content || '';
+                const concurso = data.concurso || 'sem-concurso';
+                const subPasta = PASTA_POR_JOGO[gameKey] || '';
+                const targetDir = subPasta ? path.join(JOGOS_DIR, subPasta) : JOGOS_DIR;
+                if (!fs.existsSync(targetDir)) {
+                    fs.mkdirSync(targetDir, { recursive: true });
+                }
+                const now = new Date();
+                const dateStr = now.toISOString().slice(0,10);
+                const timeStr = now.toTimeString().slice(0,8).replace(/:/g,'-');
+                const fileName = `✅CONFERIDO_${(subPasta || gameKey).toUpperCase()}_Concurso_${concurso}_${dateStr}_${timeStr}.txt`;
+                const filePath = path.join(targetDir, fileName);
+                fs.writeFileSync(filePath, content, 'utf8');
+                console.log(`[B2B] ✅ Conferência salva: ${filePath}`);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: true, path: filePath, fileName }));
+            } catch (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: false, error: err.message }));
+            }
+        });
+        return;
+    }
+
+    // ── Rota POST /marcar-conferido — Renomeia arquivo original com ✅ ──
+    if (req.method === 'POST' && req.url === '/marcar-conferido') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                const gameKey = data.gameKey || '';
+                const fileName = data.fileName || '';
+                const subPasta = PASTA_POR_JOGO[gameKey] || '';
+                const targetDir = subPasta ? path.join(JOGOS_DIR, subPasta) : JOGOS_DIR;
+                const oldPath = path.join(targetDir, fileName);
+                if (!fs.existsSync(oldPath)) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ ok: false, error: 'Arquivo não encontrado' }));
+                    return;
+                }
+                if (fileName.startsWith('✅')) {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ ok: true, already: true, fileName }));
+                    return;
+                }
+                const newName = '✅CONFERIDO_' + fileName;
+                const newPath = path.join(targetDir, newName);
+                fs.renameSync(oldPath, newPath);
+                console.log(`[B2B] ✅ Arquivo marcado: ${fileName} → ${newName}`);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: true, oldName: fileName, newName }));
+            } catch (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: false, error: err.message }));
+            }
+        });
+        return;
+    }
+
     // ── Arquivos estáticos ───────────────────
     let pathname = url.parse(req.url).pathname;
 
