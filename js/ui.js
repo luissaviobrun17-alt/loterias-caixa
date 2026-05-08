@@ -4349,7 +4349,7 @@ class UI {
                     drawInfo: drawInfo,
                     data: new Date().toISOString(),
                     qtdJogos: totalJogos,
-                    modoGeracao: this._lastGenerationMode || document.body.getAttribute('data-l99-mode') || localStorage.getItem('l99_lastMode') || 'manual',
+                    modoGeracao: localStorage.getItem('l99_lastMode') || document.body.getAttribute('data-l99-mode') || this._lastGenerationMode || 'manual',
                     precisao: isPrecisao,
                     numPorJogo: actualDrawSize,
                     faixas: faixasDetail,
@@ -4388,7 +4388,7 @@ class UI {
                     reportText += '════════════════════════════════════════════\n\n';
                     reportText += '📊 RESUMO\n';
                     reportText += '  Jogos Conferidos: ' + totalJogos + '\n';
-                    reportText += '  Modo: ' + (self._lastGenerationMode || localStorage.getItem('l99_lastMode') || 'manual') + '\n';
+                    reportText += '  Modo: ' + (localStorage.getItem('l99_lastMode') || document.body.getAttribute('data-l99-mode') || self._lastGenerationMode || 'manual') + '\n';
                     reportText += '  Nº por Jogo: ' + actualDrawSize + '\n\n';
                     reportText += '🔢 NÚMEROS SORTEADOS: ' + drawnNumbers.join(' - ') + '\n\n';
                     reportText += '🏅 FAIXAS DE PREMIAÇÃO\n';
