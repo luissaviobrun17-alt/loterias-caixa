@@ -1,3 +1,6 @@
+const L99_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+const L99_TIMES = ["ABC/RN", "América/MG", "América/RJ", "América/RN", "Atlético/GO", "Atlético/MG", "Atlético/PR", "Avaí/SC", "Bahia/BA", "Bangu/RJ", "Barueri/SP", "Botafogo/PB", "Botafogo/RJ", "Botafogo/SP", "Bragantino/SP", "Brasiliense/DF", "Campinense/PB", "Ceará/CE", "Corinthians/SP", "Coritiba/PR", "CRB/AL", "Criciúma/SC", "Cruzeiro/MG", "CSA/AL", "Desportiva/ES", "Figueirense/SC", "Flamengo/RJ", "Fluminense/RJ", "Fortaleza/CE", "Gama/DF", "Goiás/GO", "Grêmio/RS", "Guarani/SP", "Inter Limeira/SP", "Internacional/RS", "Ipatinga/MG", "Ituano/SP", "Ji-Paraná/RO", "Joinville/SC", "Juventude/RS", "Juventus/SP", "Londrina/PR", "Marília/SP", "Mixto/MT", "Moto Clube/MA", "Náutico/PE", "Nacional/AM", "Olaria/RJ", "Operário/MS", "Palmeiras/SP", "Paraná/PR", "Paulista/SP", "Paysandu/PA", "Ponte Preta/SP", "Portuguesa/SP", "Remo/PA", "Rio Branco/AC", "Rio Branco/ES", "River/PI", "Roraima/RR", "Sampaio Corrêa/MA", "Santa Cruz/PE", "Santo André/SP", "Santos/SP", "São Caetano/SP", "São Paulo/SP", "São Raimundo/AM", "Sergipe/SE", "Sport/PE", "Treze/PB", "Tuna Luso/PA", "Uberlândia/MG", "União Bandeirante/PR", "União São João/SP", "Vasco/RJ", "Vila Nova/GO", "Villa Nova/MG", "Vitória/BA", "Volta Redonda/RJ", "Ypiranga/AP"];
+
 class UI {
     constructor() {
         // ══ Helper para getElementById seguro ══
@@ -891,13 +894,15 @@ class UI {
         script += 'var TOTAL=JOGOS.length;var OK=0;var ERROS=0;var BLOCO=10;';
         script += 'var IS_TIMEMANIA=' + (isTimemania ? 'true' : 'false') + ';';
         script += 'var IS_DIADESORTE=' + (isDiaDeSorte ? 'true' : 'false') + ';';
+        script += 'var EXTRAS=' + JSON.stringify(this.currentGeneratedExtras || []) + ';';
         script += 'console.clear();';
         script += 'console.log("%c[B2B v9.0 TURBO] "+TOTAL+" jogos de ' + lName + '","color:#22C55E;font-size:14px;font-weight:bold");';
-        script += 'if(IS_TIMEMANIA)console.log("%c⚽ Modo TIMEMANIA: Seleção automática de time ativada","color:#F59E0B;font-weight:bold");';
-        script += 'if(IS_DIADESORTE)console.log("%c📅 Modo DIA DE SORTE: Seleção de mês ativada","color:#F59E0B;font-weight:bold");';
+        script += 'if(IS_TIMEMANIA)console.log("%c⚽ Modo TIMEMANIA: Seleção automática múltipla ativada","color:#F59E0B;font-weight:bold");';
+        script += 'if(IS_DIADESORTE)console.log("%c📅 Modo DIA DE SORTE: Seleção de meses múltiplos ativada","color:#F59E0B;font-weight:bold");';
         script += 'console.log("%cProcessando em blocos de "+BLOCO+"...","color:#60A5FA");';
         script += 'var t0=Date.now();';
         script += 'var delay=function(ms){return new Promise(function(r){setTimeout(r,ms)})};';
+        script += 'var CURRENT_IDX=0;'; // Track current game index globally
 
         // ── realClick: simula clique real com todos os eventos + Angular ──
         script += 'function realClick(el){if(!el)return false;try{el.scrollIntoView({block:"center",behavior:"smooth"});var r=el.getBoundingClientRect();var cx=r.left+r.width/2;var cy=r.top+r.height/2;var evts=["pointerdown","mousedown","pointerup","mouseup"];for(var i=0;i<evts.length;i++){el.dispatchEvent(new MouseEvent(evts[i],{view:window,bubbles:true,cancelable:true,clientX:cx,clientY:cy,button:0}))}el.click();try{var scope=angular.element(el).scope();if(scope&&scope.$apply)scope.$apply()}catch(ae){}return true}catch(e){try{el.click();return true}catch(e2){return false}}}';
@@ -917,7 +922,7 @@ class UI {
         // e img[name="btnTime"] com classe .data-selecionar-time-do-coracao
         // ═══════════════════════════════════════════════════════
         script += 'async function selecionarTime(){if(!IS_TIMEMANIA)return true;';
-        script += 'console.log("[B2B] ⚽ Selecionando Time do Coração...");';
+        script += 'console.log("[B2B] ⚽ Selecionando Time do Coração (Jogo "+(CURRENT_IDX+1)+")...");';
         script += 'await delay(300);';
         // Seletores REAIS do site da Caixa (AngularJS)
         script += 'var times=document.querySelectorAll("img[name=btnTime],.data-selecionar-time-do-coracao,li[ng-repeat*=listaEquipe] img,li[ng-click*=Time] img,li[ng-click*=time] img");';
@@ -927,7 +932,7 @@ class UI {
         script += 'if(times.length===0){var allUls=document.querySelectorAll("ul");for(var u=0;u<allUls.length;u++){var uImgs=allUls[u].querySelectorAll("img");if(uImgs.length>20){times=uImgs;console.log("[B2B] ⚽ Encontrada lista de "+uImgs.length+" times");break}}}';
         // Clicar no time
         script += 'if(times.length>0){';
-        script += 'var idx=Math.floor(Math.random()*times.length);';
+        script += 'var idx = EXTRAS[CURRENT_IDX] !== undefined ? (EXTRAS[CURRENT_IDX] % times.length) : Math.floor(Math.random()*times.length);';
         script += 'var chosen=times[idx];';
         // Garantir visibilidade e clique Angular
         script += 'chosen.scrollIntoView({block:"center",behavior:"smooth"});';
@@ -949,17 +954,17 @@ class UI {
         // e ng-click="configurarMes(mes)" para cada mês
         // ═══════════════════════════════════════════════════════
         script += 'async function selecionarMes(){if(!IS_DIADESORTE)return true;';
-        script += 'console.log("[B2B] 📅 Selecionando Mês da Sorte...");';
+        script += 'console.log("[B2B] 📅 Selecionando Mês da Sorte (Jogo "+(CURRENT_IDX+1)+")...");';
         script += 'await delay(300);';
         // Seletores REAIS do site da Caixa (AngularJS)
         script += 'var meses=document.querySelectorAll("li[ng-repeat*=listaMeses],li[ng-click*=configurarMes],[id=mes] li,ul.meses li,.meses-list li");';
         // Fallback: procurar meses por nome em português
         script += 'if(meses.length===0){var nomesMeses=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];var allLi=document.querySelectorAll("li,a,span,div");var found=[];for(var q=0;q<allLi.length;q++){var tx=allLi[q].textContent.trim().toLowerCase();for(var m=0;m<nomesMeses.length;m++){if(tx===nomesMeses[m]&&allLi[q].children.length<=1){found.push(allLi[q]);break}}}if(found.length>0)meses=found}';
         // Fallback 2: select/option
-        script += 'if(meses.length===0){var sel=document.querySelector("select");if(sel&&sel.options.length>1){sel.selectedIndex=Math.floor(Math.random()*(sel.options.length-1))+1;sel.dispatchEvent(new Event("change",{bubbles:true}));console.log("[B2B] 📅 Mês (select): "+sel.options[sel.selectedIndex].text);return true}}';
+        script += 'if(meses.length===0){var sel=document.querySelector("select");if(sel&&sel.options.length>1){var selIdx = EXTRAS[CURRENT_IDX] !== undefined ? (EXTRAS[CURRENT_IDX] % (sel.options.length-1)) + 1 : Math.floor(Math.random()*(sel.options.length-1))+1;sel.selectedIndex=selIdx;sel.dispatchEvent(new Event("change",{bubbles:true}));console.log("[B2B] 📅 Mês (select): "+sel.options[sel.selectedIndex].text);return true}}';
         // Clicar no mês
         script += 'if(meses.length>0){';
-        script += 'var idx=Math.floor(Math.random()*meses.length);';
+        script += 'var idx = EXTRAS[CURRENT_IDX] !== undefined ? (EXTRAS[CURRENT_IDX] % meses.length) : Math.floor(Math.random()*meses.length);';
         script += 'var mesEl=meses[idx];';
         script += 'realClick(mesEl);';
         script += 'await delay(400);';
@@ -990,6 +995,7 @@ class UI {
         // ── LOOP PRINCIPAL: processar todos os jogos ──
         script += 'fecharModais();await delay(400);';
         script += 'for(var i=0;i<TOTAL;i++){';
+        script += 'CURRENT_IDX = i;';
         script += 'var jogo=JOGOS[i];var blocoN=Math.floor(i/BLOCO)+1;var blocoT=Math.ceil(TOTAL/BLOCO);';
         script += 'if(i%BLOCO===0)console.log("%c=== BLOCO "+blocoN+"/"+blocoT+" ===","color:#F59E0B;font-weight:bold;font-size:12px");';
         script += 'console.log("[B2B] "+(i+1)+"/"+TOTAL+" ["+jogo.join(",")+"]");';
@@ -3294,11 +3300,46 @@ class UI {
         container.innerHTML = html;
     }
 
+    _generateExtras(gameKey, count) {
+        let pool = [];
+        if (gameKey === 'diadesorte') pool = L99_MESES.map((_, i) => i);
+        else if (gameKey === 'timemania') pool = L99_TIMES.map((_, i) => i);
+        else return null;
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        let extras = [];
+        let currentPool = [];
+        for (let i = 0; i < count; i++) {
+            if (currentPool.length === 0) {
+                currentPool = shuffle([...pool]);
+            }
+            extras.push(currentPool.pop());
+        }
+        return extras;
+    }
+
     renderGames(result, gameKey, updateHash = true) {
         // Validação defensiva de dados de entrada
         if (!result) result = { games: [] };
         if (!result.games) result.games = [];
         this.currentGeneratedGames = result.games;
+        
+        // Gerar múltiplos times/meses distribuídos com máxima cobertura (sem repetição precoce)
+        if (gameKey === 'timemania' || gameKey === 'diadesorte') {
+            this.currentGeneratedExtras = this._generateExtras(gameKey, result.games.length);
+        } else {
+            this.currentGeneratedExtras = null;
+        }
+
         if (!this.gamesContainer) return;
         this.gamesContainer.innerHTML = '';
         this.gamesContainer.dataset.gameKey = gameKey || this.currentGameKey;
@@ -3326,33 +3367,22 @@ class UI {
                     }
                     return `<div class="ball">${padded}</div>`;
                 }).join('');
-                chunks.push(`<div class="game-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div class="game-index-badge" style="position:static">Jogo ${index + 1}</div></div><div class="game-numbers-wrapper">${nums}</div></div>`);
-            });
-
-            // Mês da Sorte: badge visual acima dos jogos
-            if (gameKey === 'diadesorte') {
-                const mesSel = document.getElementById('mes-sorte-select');
-                const mesVal = mesSel ? mesSel.value : '';
-                if (mesVal) {
-                    this.gamesContainer.innerHTML = `<div style="text-align:center;padding:8px 14px;margin-bottom:8px;background:linear-gradient(145deg,rgba(226,120,32,0.15),rgba(15,23,42,0.9));border:1px solid rgba(226,120,32,0.4);border-radius:10px;color:#F59E0B;font-weight:700;font-size:0.95rem;">🌙 Mês da Sorte: ${mesVal}</div>` + chunks.join('');
-                    return;
+                
+                let extraHtml = '';
+                if (this.currentGeneratedExtras && this.currentGeneratedExtras[index] !== undefined) {
+                    if (gameKey === 'diadesorte') {
+                        extraHtml = `<span style="font-size:0.75em;color:#F59E0B;background:rgba(245,158,11,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;">📅 ${L99_MESES[this.currentGeneratedExtras[index]]}</span>`;
+                    } else if (gameKey === 'timemania') {
+                        extraHtml = `<span style="font-size:0.75em;color:#10B981;background:rgba(16,185,129,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;">⚽ ${L99_TIMES[this.currentGeneratedExtras[index]]}</span>`;
+                    }
                 }
-            }
+                chunks.push(`<div class="game-card"><div style="display:flex;align-items:center;margin-bottom:5px"><div class="game-index-badge" style="position:static">Jogo ${index + 1}</div>${extraHtml}</div><div class="game-numbers-wrapper">${nums}</div></div>`);
+            });
 
             this.gamesContainer.innerHTML = chunks.join('');
             return;
         }
-        // Mês da Sorte: badge visual (render normal ≤100 jogos)
-        if (gameKey === 'diadesorte') {
-            const mesSel = document.getElementById('mes-sorte-select');
-            const mesVal = mesSel ? mesSel.value : '';
-            if (mesVal) {
-                const mesBadge = document.createElement('div');
-                mesBadge.style.cssText = 'text-align:center;padding:8px 14px;margin-bottom:8px;background:linear-gradient(145deg,rgba(226,120,32,0.15),rgba(15,23,42,0.9));border:1px solid rgba(226,120,32,0.4);border-radius:10px;color:#F59E0B;font-weight:700;font-size:0.95rem;';
-                mesBadge.textContent = '🌙 Mês da Sorte: ' + mesVal;
-                this.gamesContainer.appendChild(mesBadge);
-            }
-        }
+        
         result.games.forEach((gameNumbers, index) => {
             const card = document.createElement('div');
             card.className = 'game-card';
@@ -3364,11 +3394,34 @@ class UI {
             header.style.alignItems = 'center';
             header.style.marginBottom = '5px';
 
+            const leftGroup = document.createElement('div');
+            leftGroup.style.display = 'flex';
+            leftGroup.style.alignItems = 'center';
+            leftGroup.style.gap = '8px';
+
             const indexBadge = document.createElement('div');
             indexBadge.className = 'game-index-badge';
             indexBadge.style.position = 'static'; // Override absolutism
             indexBadge.textContent = `Jogo ${index + 1}`;
-            header.appendChild(indexBadge);
+            leftGroup.appendChild(indexBadge);
+            
+            if (this.currentGeneratedExtras && this.currentGeneratedExtras[index] !== undefined) {
+                const extraBadge = document.createElement('span');
+                extraBadge.style.fontSize = '0.75rem';
+                extraBadge.style.borderRadius = '4px';
+                extraBadge.style.padding = '2px 6px';
+                if (gameKey === 'diadesorte') {
+                    extraBadge.style.color = '#F59E0B';
+                    extraBadge.style.background = 'rgba(245,158,11,0.1)';
+                    extraBadge.textContent = '📅 ' + L99_MESES[this.currentGeneratedExtras[index]];
+                } else if (gameKey === 'timemania') {
+                    extraBadge.style.color = '#10B981';
+                    extraBadge.style.background = 'rgba(16,185,129,0.1)';
+                    extraBadge.textContent = '⚽ ' + L99_TIMES[this.currentGeneratedExtras[index]];
+                }
+                leftGroup.appendChild(extraBadge);
+            }
+            header.appendChild(leftGroup);
 
             const copySingleBtn = document.createElement('button');
             copySingleBtn.className = 'card-copy-btn copy-single-btn';
@@ -4691,7 +4744,25 @@ class UI {
         const paidStrats = game.strategies.filter(s => s.paid !== false);
         const currency = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
 
-        let html = '<div class="stats-table-wrapper"><table class="stats-table"><thead><tr>';
+        // ── Adicionar Banner de Premiação (Timemania / Dia de Sorte) ──
+        let prizeBannerHtml = '';
+        if (lotteryKey === 'timemania' || lotteryKey === 'diadesorte') {
+            const prizeInfo = typeof StatsService !== 'undefined' ? StatsService.getPrizeInfo(lotteryKey) : null;
+            if (prizeInfo && prizeInfo.estimatedPrize) {
+                const prizeFormatted = prizeInfo.estimatedPrize.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                prizeBannerHtml = `
+                    <div style="margin-bottom:15px;padding:12px 16px;background:linear-gradient(145deg,rgba(16,185,129,0.1),rgba(15,23,42,0.9));border:1px solid #10B98150;border-radius:8px;display:flex;align-items:center;gap:12px;">
+                        <div style="font-size:2rem;">💰</div>
+                        <div>
+                            <div style="color:#10B981;font-weight:700;font-size:1.1rem;">Premiação Estimada ${game.name}</div>
+                            <div style="color:#E2E8F0;font-size:0.9rem;">Próximo Concurso: <span style="font-weight:800;color:#FFD700;">${prizeFormatted}</span></div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        let html = prizeBannerHtml + '<div class="stats-table-wrapper"><table class="stats-table"><thead><tr>';
         html += '<th>Data</th>';
         html += '<th>Concurso</th>';
         html += '<th>Jogos</th>';
