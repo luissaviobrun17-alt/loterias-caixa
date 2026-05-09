@@ -1880,21 +1880,9 @@ class UI {
         // Generate (IA Smart Bets)
         if (this.generateSmartBtn) {
             this.generateSmartBtn.onclick = () => this.runSmartGeneration();
+            // Remover lógica do botão legado
             if (this.btnPrecisionPlay) {
-                this.btnPrecisionPlay.onclick = () => this.runPrecisionPlay();
-            }
-
-            // ── ADICIONAR TOGGLE MODO PRECISÃO ──
-            const actionRow = document.getElementById('action-buttons-row');
-            const precisionLabel = document.createElement('label');
-            precisionLabel.id = 'precision-mode-label';
-            precisionLabel.className = 'action-btn';
-            precisionLabel.style.cssText = 'cursor:pointer; background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); white-space: nowrap; flex: 1; min-width: 0; display: none;';
-            precisionLabel.innerHTML = `<input type="checkbox" id="precision-mode-toggle" style="accent-color:#FFD700;width:16px;height:16px;cursor:pointer;"> 🎯 Precisão`;
-            if (actionRow) {
-                actionRow.appendChild(precisionLabel);
-            } else {
-                this.generateSmartBtn.parentNode.appendChild(precisionLabel);
+                this.btnPrecisionPlay.remove();
             }
 
             // ── LINHA SEPARADA: Pool de Precisão (aparece ABAIXO dos botões) ──
@@ -1908,30 +1896,30 @@ class UI {
                 >
                 <span id="precision-pool-info" style="color:#94A3B8;font-size:0.75rem;flex:1;">números no pool</span>
             `;
-            // Inserir abaixo do action-buttons-row (dentro do mesmo container)
-            if (actionRow && actionRow.parentNode) {
-                actionRow.parentNode.insertBefore(precisionPoolRow, actionRow.nextSibling);
-            } else if (this.generateSmartBtn && this.generateSmartBtn.parentNode) {
-                this.generateSmartBtn.parentNode.appendChild(precisionPoolRow);
+            
+            const smartNumbersRow = document.getElementById('smart-numbers-row');
+            if (smartNumbersRow && smartNumbersRow.parentNode) {
+                smartNumbersRow.parentNode.insertBefore(precisionPoolRow, smartNumbersRow.nextSibling);
             }
 
-            // Lógica para toggle visual + mostrar/esconder pool row
-            const toggle = precisionLabel.querySelector('#precision-mode-toggle');
-            toggle.onchange = () => {
-                if (toggle.checked) {
-                    precisionLabel.style.background = 'linear-gradient(135deg, #FFD700, #F59E0B)';
-                    precisionLabel.style.color = '#000';
-                    precisionLabel.style.boxShadow = '0 6px 25px rgba(255, 215, 0, 0.5)';
-                    precisionPoolRow.style.display = 'flex';
-                    // Atualizar min/max baseado na loteria atual
-                    this._updatePrecisionPoolLimits();
-                } else {
-                    precisionLabel.style.background = 'linear-gradient(135deg, #F59E0B, #D97706)';
-                    precisionLabel.style.color = '#fff';
-                    precisionLabel.style.boxShadow = '0 4px 15px rgba(245, 158, 11, 0.35)';
-                    precisionPoolRow.style.display = 'none';
-                }
-            };
+            // Lógica para toggle nativo do HTML (switch)
+            const toggle = document.getElementById('precision-mode-toggle');
+            if (toggle) {
+                toggle.addEventListener('change', () => {
+                    if (toggle.checked) {
+                        this.generateSmartBtn.innerHTML = '🎯 JOGAR PRECISÃO';
+                        this.generateSmartBtn.style.background = 'linear-gradient(135deg, #EF4444, #991B1B)';
+                        this.generateSmartBtn.style.boxShadow = '0 6px 25px rgba(239, 68, 68, 0.5)';
+                        precisionPoolRow.style.display = 'flex';
+                        this._updatePrecisionPoolLimits();
+                    } else {
+                        this.generateSmartBtn.innerHTML = '⚡ QUANTUM L99';
+                        this.generateSmartBtn.style.background = 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
+                        this.generateSmartBtn.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.35)';
+                        precisionPoolRow.style.display = 'none';
+                    }
+                });
+            }
         }
 
         this.copyBtn.onclick = () => this.copyGames();

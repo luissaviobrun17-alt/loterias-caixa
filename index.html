@@ -265,7 +265,6 @@
                         <div id="action-buttons-row" style="display:flex;gap:8px;align-items:stretch;margin-top:10px;">
                             <button id="generate-btn" class="action-btn" style="flex: 1; min-width: 0;">Gerar Jogos</button>
                             <button id="generate-smart-btn" class="action-btn smart-ia-btn" style="flex: 1; min-width: 0;" title="Motor QUANTUM L99: Computação Quântica + Futurologia + Clarividência — 18 camadas de predição para o próximo sorteio">⚡ QUANTUM L99</button>
-                            <button id="btn-precision-play" class="action-btn precision-play-btn" style="flex: 1; min-width: 0;" title="PRECISION ENGINE L99: Jogo 1 Perfeito + 10 Dimensões Analíticas — Máxima assertividade">🎯 JOGAR L99</button>
                         </div>
 
                         <!-- Painel de controle IA -->
@@ -275,7 +274,21 @@
                             </label>
                             <select id="smart-draw-size" style="max-width:80px;background:rgba(0,0,0,0.4);border:1px solid rgba(139,92,246,0.35);color:#E2E8F0;padding:6px 8px;border-radius:8px;font-size:0.9rem;font-weight:700;cursor:pointer;outline:none;height:36px;">
                             </select>
-                            <span id="smart-draw-info" style="color:#94A3B8;font-size:0.75rem;flex:1;">Mín: 6 | Máx: 20</span>
+                            
+                            <!-- Toggle Sniper -->
+                            <div style="display:flex;align-items:center;gap:6px;margin-left:auto;background:rgba(0,0,0,0.3);padding:4px 8px;border-radius:8px;border:1px solid rgba(255,215,0,0.2);">
+                                <span style="color:#FCD34D;font-size:0.75rem;font-weight:700;">🎯 Sniper</span>
+                                <label style="position:relative;display:inline-block;width:34px;height:20px;margin-bottom:0;">
+                                    <input type="checkbox" id="precision-mode-toggle" style="opacity:0;width:0;height:0;">
+                                    <span class="slider" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#475569;transition:.4s;border-radius:20px;">
+                                        <span class="slider-knob" style="position:absolute;content:'';height:14px;width:14px;left:3px;bottom:3px;background-color:white;transition:.4s;border-radius:50%;"></span>
+                                    </span>
+                                </label>
+                                <style>
+                                    #precision-mode-toggle:checked + .slider { background-color: #EF4444; }
+                                    #precision-mode-toggle:checked + .slider .slider-knob { transform: translateX(14px); }
+                                </style>
+                            </div>
                         </div>
                     </div>
                 </div>

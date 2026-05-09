@@ -2897,7 +2897,21 @@ select:focus {
                             </label>
                             <select id="smart-draw-size" style="max-width: 100px; background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.3); color: #E2E8F0; padding: 6px 8px; border-radius: 6px; font-size: 0.9rem; font-weight: 700; cursor: pointer; outline: none;">
                             </select>
-                            <span id="smart-draw-info" style="color: #94A3B8; font-size: 0.75rem; flex: 1;">Mín: 6 | Máx: 20</span>
+                            
+                            <!-- Toggle Sniper -->
+                            <div style="display:flex;align-items:center;gap:6px;margin-left:auto;background:rgba(0,0,0,0.3);padding:4px 8px;border-radius:8px;border:1px solid rgba(255,215,0,0.2);">
+                                <span style="color:#FCD34D;font-size:0.75rem;font-weight:700;">🎯 Sniper</span>
+                                <label style="position:relative;display:inline-block;width:34px;height:20px;margin-bottom:0;">
+                                    <input type="checkbox" id="precision-mode-toggle" style="opacity:0;width:0;height:0;">
+                                    <span class="slider" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#475569;transition:.4s;border-radius:20px;">
+                                        <span class="slider-knob" style="position:absolute;content:'';height:14px;width:14px;left:3px;bottom:3px;background-color:white;transition:.4s;border-radius:50%;"></span>
+                                    </span>
+                                </label>
+                                <style>
+                                    #precision-mode-toggle:checked + .slider { background-color: #EF4444; }
+                                    #precision-mode-toggle:checked + .slider .slider-knob { transform: translateX(14px); }
+                                </style>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -8208,6 +8222,42 @@ class UI {
         // Generate (IA Smart Bets)
         if (this.generateSmartBtn) {
             this.generateSmartBtn.onclick = () => this.runSmartGeneration();
+            
+            // ── LINHA SEPARADA: Pool de Precisão (aparece ABAIXO dos botões) ──
+            const precisionPoolRow = document.createElement('div');
+            precisionPoolRow.id = 'precision-pool-row';
+            precisionPoolRow.style.cssText = 'display:none; align-items:center; gap:10px; margin-top:8px; padding:10px 14px; background:linear-gradient(145deg,rgba(245,158,11,0.08),rgba(15,23,42,0.95)); border:1px solid rgba(245,158,11,0.3); border-radius:10px;';
+            precisionPoolRow.innerHTML = `
+                <span style="color:#F59E0B;font-size:0.85rem;font-weight:700;white-space:nowrap;">🎯 Pool de Precisão:</span>
+                <input type="number" id="precision-pool-size" min="7" max="60" value="20" 
+                    style="width:70px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,215,0,0.5);background:rgba(0,0,0,0.4);color:#FFD700;font-weight:800;font-size:0.95rem;text-align:center;outline:none;height:36px;"
+                >
+                <span id="precision-pool-info" style="color:#94A3B8;font-size:0.75rem;flex:1;">números no pool</span>
+            `;
+            
+            const smartNumbersRow = document.getElementById('smart-numbers-row');
+            if (smartNumbersRow && smartNumbersRow.parentNode) {
+                smartNumbersRow.parentNode.insertBefore(precisionPoolRow, smartNumbersRow.nextSibling);
+            }
+
+            // Lógica para toggle nativo do HTML (switch)
+            const toggle = document.getElementById('precision-mode-toggle');
+            if (toggle) {
+                toggle.addEventListener('change', () => {
+                    if (toggle.checked) {
+                        this.generateSmartBtn.innerHTML = '🎯 JOGAR PRECISÃO';
+                        this.generateSmartBtn.style.background = 'linear-gradient(135deg, #EF4444, #991B1B)';
+                        this.generateSmartBtn.style.boxShadow = '0 6px 25px rgba(239, 68, 68, 0.5)';
+                        precisionPoolRow.style.display = 'flex';
+                        if(typeof this._updatePrecisionPoolLimits === 'function') this._updatePrecisionPoolLimits();
+                    } else {
+                        this.generateSmartBtn.innerHTML = '⚡ QUANTUM L99';
+                        this.generateSmartBtn.style.background = 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
+                        this.generateSmartBtn.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.35)';
+                        precisionPoolRow.style.display = 'none';
+                    }
+                });
+            }
         }
 
         this.copyBtn.onclick = () => this.copyGames();
