@@ -19,7 +19,7 @@ const os = require('os');
 // Detectar Desktop real — PRIORIZAR ~/Desktop (diretório físico real)
 // NOTA: OneDrive cria links simbólicos no Desktop que parecem existir mas os arquivos reais estão no OneDrive
 function getDesktopPath() {
-    const PASTA_ALVO = 'LOTERIAS JOGOS SALVOS';
+    const PASTA_ALVO = 'LOTERIAS JOGOS SALVOS L99';
     
     // Lista TODOS os caminhos candidatos
     const candidatos = [
@@ -30,7 +30,7 @@ function getDesktopPath() {
         path.join(os.homedir(), 'Área de Trabalho'),
     ];
     
-    // PRIORIDADE 1: Caminho que JÁ contém a pasta LOTERIAS JOGOS SALVOS com arquivos
+    // PRIORIDADE 1: Caminho que JÁ contém a pasta LOTERIAS JOGOS SALVOS L99 com arquivos
     for (const p of candidatos) {
         const jogosDir = path.join(p, PASTA_ALVO);
         try {
@@ -53,7 +53,7 @@ function getDesktopPath() {
 }
 
 const DESKTOP = getDesktopPath();
-const JOGOS_DIR = path.join(DESKTOP, 'LOTERIAS JOGOS SALVOS');
+const JOGOS_DIR = path.join(DESKTOP, 'LOTERIAS JOGOS SALVOS L99');
 
 // Mapeamento gameKey → nome EXATO da subpasta
 const PASTA_POR_JOGO = {
@@ -140,7 +140,7 @@ function handleSalvar(req, res) {
             res.end(JSON.stringify({
                 ok: true,
                 path: filePath,
-                relativePath: `LOTERIAS JOGOS SALVOS\\${subPasta}\\${safeFileName}`,
+                relativePath: `LOTERIAS JOGOS SALVOS L99\\${subPasta}\\${safeFileName}`,
             }));
 
         } catch (err) {

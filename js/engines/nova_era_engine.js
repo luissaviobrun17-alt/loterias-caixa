@@ -2492,45 +2492,24 @@ class NovaEraEngine {
         const expectedRandom = drawSize * actualDrawnSize / totalRange;
         const improvement = avgHits / Math.max(0.01, expectedRandom);
 
-        // ★ v8.0: Confiança base com teto DINÂMICO por volume
-        // Volumes maiores têm MAIS cobertura → potencial de confiança maior
-        const volCeiling = games.length <= 100 ? 85
-            : games.length <= 500 ? 87
-            : games.length <= 1000 ? 89
-            : games.length <= 5000 ? 91
-            : games.length <= 10000 ? 93
-            : games.length <= 20000 ? 95
-            : games.length <= 30000 ? 96
-            : 97;
+        // ★ GOD MODE FIX: Remoção da Inflação Artificial de Confiança
+        // Loteria é estatisticamente imprevisível a longo prazo. 
+        // Remover os bônus acumulativos de volume que chegavam a 97% falsamente.
+        // Teto absoluto de confiança estrutural é fixado em 65%.
+        const honestCeiling = 65;
 
-        // Confiança baseada na melhoria real vs acaso
-        let confidence;
-        if (improvement >= 2.0) confidence = Math.min(volCeiling, 60 + Math.round(improvement * 10));
-        else if (improvement >= 1.5) confidence = Math.min(volCeiling - 5, 50 + Math.round(improvement * 15));
-        else if (improvement >= 1.1) confidence = Math.min(volCeiling - 10, 40 + Math.round(improvement * 20));
-        else confidence = Math.max(30, Math.round(improvement * 35));
-        confidence = Math.max(25, Math.min(volCeiling, confidence));
+        // Confiança baseada estritamente na melhoria real vs acaso
+        let confidence = Math.max(30, Math.round(improvement * 35));
+        confidence = Math.min(honestCeiling, confidence);
 
-        // ★ v8.0: Bônus PROGRESSIVO por volume — cada tier adiciona confiança REAL
-        // A lógica: mais jogos = mais cobertura do espaço = maior probabilidade estatística
-        if (games.length >= 100)   confidence = Math.min(volCeiling, confidence + 3);
-        if (games.length >= 500)   confidence = Math.min(volCeiling, confidence + 2);
-        if (games.length >= 1000)  confidence = Math.min(volCeiling, confidence + 2);
-        if (games.length >= 5000)  confidence = Math.min(volCeiling, confidence + 3);
-        if (games.length >= 10000) confidence = Math.min(volCeiling, confidence + 4);
-        if (games.length >= 15000) confidence = Math.min(volCeiling, confidence + 3);
-        if (games.length >= 20000) confidence = Math.min(volCeiling, confidence + 3);
-        if (games.length >= 25000) confidence = Math.min(volCeiling, confidence + 2);
-        if (games.length >= 30000) confidence = Math.min(volCeiling, confidence + 2);
-
-        // ★ v8.0: Bônus de COBERTURA — se os jogos cobrem >80% do range, bônus extra
+        // ★ v8.0: Bônus de COBERTURA — se os jogos cobrem >80% do range, pequeno bônus estrutural
         const uniqueNums_bt = new Set(sampledGames.flat());
         const coverageRatio = uniqueNums_bt.size / totalRange;
-        if (coverageRatio >= 0.95) confidence = Math.min(volCeiling, confidence + 4);
-        else if (coverageRatio >= 0.85) confidence = Math.min(volCeiling, confidence + 3);
-        else if (coverageRatio >= 0.70) confidence = Math.min(volCeiling, confidence + 2);
+        if (coverageRatio >= 0.95) confidence = Math.min(honestCeiling, confidence + 3);
+        else if (coverageRatio >= 0.85) confidence = Math.min(honestCeiling, confidence + 2);
+        else if (coverageRatio >= 0.70) confidence = Math.min(honestCeiling, confidence + 1);
 
-        console.log('[QUANTUM-L99] ★ v8.0: Volume=' + games.length + ' | Teto=' + volCeiling + '% | Cobertura=' + Math.round(coverageRatio*100) + '% | Confiança=' + confidence + '%');
+        console.log('[QUANTUM-L99] ★ GOD MODE: Volume=' + games.length + ' | Cobertura=' + Math.round(coverageRatio*100) + '% | Confiança Honesta=' + confidence + '%');
 
         const uniqueNums = new Set(games.flat());
         const coverage = Math.round(uniqueNums.size / totalRange * 100);

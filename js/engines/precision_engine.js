@@ -30,7 +30,7 @@ class PrecisionEngine {
     // ─── Configuração por loteria ─────────────────────────────────────────
     static getConfig(gameKey) {
         const c = {
-            megasena:   { drawSize:6,  range:[1,60],  sumMin:100,  sumMax:280,  maxConsec:4, zones:6  },
+            megasena:   { drawSize:6,  range:[1,60],  sumMin:100,  sumMax:280,  maxConsec:2, zones:6  },
             lotofacil:  { drawSize:15, range:[1,25],  sumMin:140,  sumMax:250,  maxConsec:8, zones:5  },
             quina:      { drawSize:5,  range:[1,80],  sumMin:80,   sumMax:320,  maxConsec:3, zones:8  },
             duplasena:  { drawSize:6,  range:[1,50],  sumMin:50,   sumMax:250,  maxConsec:3, zones:5  },
@@ -201,8 +201,8 @@ class PrecisionEngine {
         }
 
         if (!game1 || game1.length < drawSize) {
-            console.warn('[PRECISION-L99] ⚠ Jogo1 falhou → fallback NovaEra');
-            return this._fallback(gameKey, numGames, selectedNumbers, fixedNumbers, drawSize);
+            console.error('[PRECISION-L99] ❌ Jogo 1 falhou. Parâmetros muito restritos para gerar consenso.');
+            throw new Error('O Motor de Precisão falhou ao gerar combinações válidas com as restrições atuais. Por favor, relaxe os filtros de números fixos ou restrições.');
         }
 
         const game1Sum = game1.reduce((a,b)=>a+b,0);
@@ -393,12 +393,20 @@ class PrecisionEngine {
         // ─ Loop com temperatura adaptativa ───────────────────────────────
         // Temperatura decresce: primeiros jogos mais concentrados (score alto)
         //                       últimos jogos mais livres (maior cobertura)
+        // ★ GOD MODE FIX: Lotofácil (range curto) precisa de temperatura mais baixa para quebrar o ECO de consenso.
         let gIdx = 1;
         let failStreak = 0;
+        const isSmallRange = (totalRange <= 35);
+
         while (games.length < numGames && failStreak < 500000) {
             const progress  = games.length / numGames;          // 0→1
-            const temp      = Math.max(0.5, 2.5 - progress * 2.0); // 2.5→0.5
-            const game      = buildGame(gIdx++, temp);
+            let temp = Math.max(0.5, 2.5 - progress * 2.0); // Padrão: 2.5→0.5
+            if (isSmallRange) {
+                // Lotofácil: temperatura cai agressivamente para forçar exploração
+                temp = Math.max(0.2, 1.5 - progress * 1.3);
+            }
+            
+            const game = buildGame(gIdx++, temp);
             if (!game) continue;
             const key = game.join(',');
             if (usedKeys.has(key)) { failStreak++; continue; }

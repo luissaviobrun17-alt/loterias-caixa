@@ -16,16 +16,15 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-const formulas = [
-    "Ψ(n) = Σ[w_k×f(n,T_k)] × e^(-λ×delay) × M(n|last) — Telepatia V9-C",
-    "H(n) = -Σ p(n) log p(n) + Resonance(φ,n) — Entropia + Fibonacci",
-    "Ω(n,t) = ∫₀ᵀ P(n,τ) × e^(iω×τ) dτ — Fourier Preditiva Anti-Seq",
-    "P̂(n|past) = P(past|n)×P(n) / P(past) — Bayesiana Sorteio→Futuro",
-    "⟨n|Ψ⟩ = Σ αⱼ|zoneⱼ⟩ : maxPerZone ≤ ⌈N/Z⌉+1 — Anti-Concentração",
-    "Entanglement(n,m) = C(n,m)/√[C(n,n)×C(m,m)] — Correlação de Pares",
-    "Cycle(n) = argmax τ: auto_corr(n,past,τ) — Detecção de Ciclos",
-    "ΔFreq(n) = F(n,T5)/F(n,T15) — Aceleração de Tendência Temporal",
-    "Score(n) = Σ[w_k×F_k + Delay + Markov + Entropy + Fib + Trend] V9-C"
+const processingSteps = [
+    "Analisando Frequência Multi-Janela (3 a 30 sorteios)...",
+    "Calculando Tempo Médio de Retorno (Delay)...",
+    "Avaliando Transições de Markov (Co-ocorrência)...",
+    "Balanceando Entropia de Shannon (Distribuição Espacial)...",
+    "Aplicando Filtro Anti-Sequência Rigoroso...",
+    "Executando Ponderação por Zonas (MaxPerZone)...",
+    "Computando Aceleração de Tendência Recente...",
+    "Finalizando Score Bayesiano de Confiança Real..."
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -34,9 +33,9 @@ const formulas = [
 class QuantumService {
 
     static getFormula() {
-        const idx  = Math.floor(Math.random() * formulas.length);
-        const seed = Date.now().toString().slice(-4);
-        return `${formulas[idx]} [Ψ${seed}]`;
+        // Retorna o passo de processamento baseado no tempo milisegundo atual para criar animação fluida na UI
+        const stepIdx = Math.floor((Date.now() / 300) % processingSteps.length);
+        return processingSteps[stepIdx];
     }
 
     static generateSuggestion(gameType, count, history) {
@@ -172,27 +171,7 @@ class QuantumTelepatiaV9 {
         return numBoost;
     }
 
-    /** CAMADA 8: Ciclos de Fibonacci — telepatia temporal */
-    static _fibonacciCycles(history, startNum, endNum) {
-        const fibPeriods = [3, 5, 8, 13, 21];
-        const N = history.length;
-        const cycleScore = {};
-        for (let n = startNum; n <= endNum; n++) cycleScore[n] = 0;
-
-        for (let n = startNum; n <= endNum; n++) {
-            let lastSeen = -1;
-            for (let i = 0; i < N; i++) {
-                if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
-            }
-            if (lastSeen < 0) continue;
-            for (const period of fibPeriods) {
-                const dist = Math.abs(lastSeen - period);
-                if      (dist <= 1) cycleScore[n] += 0.14;
-                else if (dist <= 2) cycleScore[n] += 0.07;
-            }
-        }
-        return cycleScore;
-    }
+    // Camada Fibonacci removida (Superstição sem base estatística)
 
     /** CAMADA 9: Aceleração de tendência */
     static _trendAcceleration(history, startNum, endNum) {
@@ -236,18 +215,16 @@ class QuantumTelepatiaV9 {
         const delayLayer   = this._delayLayer(history, startNum, endNum);
         const markovLayer  = this._markovEntanglement(history, startNum, endNum);
         const entropyLayer = this._shannonEntropyZones(history, startNum, endNum);
-        const fibLayer     = this._fibonacciCycles(history, startNum, endNum);
         const trendLayer   = this._trendAcceleration(history, startNum, endNum);
 
         const scores = {};
         for (let n = startNum; n <= endNum; n++) {
             scores[n] = (
-                freqLayers[n]           * 0.32 +
-                (delayLayer[n]   || 0)  * 0.22 +
-                (markovLayer[n]  || 0)  * 0.15 +
-                (entropyLayer[n] || 0)  * 0.14 +
-                (fibLayer[n]     || 0)  * 0.09 +
-                (trendLayer[n]   || 0)  * 0.08
+                freqLayers[n]           * 0.35 +
+                (delayLayer[n]   || 0)  * 0.25 +
+                (markovLayer[n]  || 0)  * 0.18 +
+                (entropyLayer[n] || 0)  * 0.12 +
+                (trendLayer[n]   || 0)  * 0.10
             );
         }
         return scores;

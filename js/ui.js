@@ -3631,7 +3631,7 @@ class UI {
     // ═══════════════════════════════════════════════════════════════
     // 💾 SALVAR JOGOS — DIRETO na pasta da loteria (sem diálogo)
     //    POST /salvar → server.js grava em:
-    //    Desktop/LOTERIAS JOGOS SALVOS/<Loteria>/arquivo.txt
+    //    Desktop/LOTERIAS JOGOS SALVOS L99/<Loteria>/arquivo.txt
     // ═══════════════════════════════════════════════════════════════
 
     async saveGames() {
@@ -3793,7 +3793,7 @@ class UI {
                         listArea.innerHTML = '';
                         if (gameFiles.length === 0) {
                             listArea.innerHTML = '<div style="padding:12px;color:#94A3B8;text-align:center;">Nenhum arquivo de jogo encontrado (apenas relatórios de conferência)</div>';
-                            listarBtn.innerHTML = '📂 Carregar da Pasta LOTERIAS JOGOS SALVOS';
+                            listarBtn.innerHTML = '📂 Carregar da Pasta LOTERIAS JOGOS SALVOS L99';
                             return;
                         }
                         gameFiles.forEach(function(file) {
@@ -3818,7 +3818,7 @@ class UI {
                                             self.renderGames({ games: parsedGames }, self.currentGameKey);
                                             listArea.style.display = 'none';
                                             listarBtn.innerHTML = '✅ ' + parsedGames.length + ' jogos carregados de ' + file.name;
-                                            setTimeout(function() { listarBtn.innerHTML = '📂 Carregar da Pasta LOTERIAS JOGOS SALVOS'; }, 3000);
+                                            setTimeout(function() { listarBtn.innerHTML = '📂 Carregar da Pasta LOTERIAS JOGOS SALVOS L99'; }, 3000);
                                         } else {
                                             alert('Nenhum jogo encontrado no arquivo: ' + file.name);
                                             item.innerHTML = '<span style="color:#EF4444;">❌ Formato inválido</span>';
@@ -3837,7 +3837,7 @@ class UI {
                 } catch(e) {
                     alert('Erro ao listar jogos: ' + e.message + '\nVerifique se o servidor está rodando.');
                 }
-                listarBtn.innerHTML = '📂 Carregar da Pasta LOTERIAS JOGOS SALVOS';
+                listarBtn.innerHTML = '📂 Carregar da Pasta LOTERIAS JOGOS SALVOS L99';
             };
         }
     }

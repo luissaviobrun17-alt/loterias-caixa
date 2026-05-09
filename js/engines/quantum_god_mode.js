@@ -119,7 +119,7 @@ class QuantumGodEngine {
                 // ══ CAMADAS QUÂNTICAS QCAL-V3 ══
                 harmonics:    0.06, entropy: 0.07, regression: 0.06,
                 phaseAlign:   0.05, resonance: 0.05, clairvoyance: 0.08,
-                sumMin: 870, sumMax: 1130, linesPerRow: [1, 3],
+                sumMin: 2050, sumMax: 2950, linesPerRow: [1, 3],
                 maxConsecutive: 3, evenOddTolerance: 3,
                 repeatFromLast: [7, 14], guaranteedPct: 0.45,
                 monteCarloRuns: 25000, qualityAttempts: 3500

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * SMART BETS ENGINE Ã¢â‚¬â€ Motor IA para Apostas Reduzidas
  * ====================================================
  * Gera jogos INTELIGENTES quando o apostador quer poucos jogos
@@ -446,6 +446,23 @@ class SmartBetsEngine {
         const totalRange = endNum - startNum + 1;
 
         console.log(`[SmartBets] Ã°Å¸â€Â§ drawSize=${drawSize}, pool=${pool.length}, maxConc=${maxConcentration}`);
+
+         // ★ GOD MODE FIX: Viability Check antes de tentar gerar jogos
+         if (pool.length < drawSize) {
+             console.error('[SmartBets] ❌ Pool menor que o tamanho do jogo.');
+             throw new Error(`Modo Precisão Falhou: O conjunto tem apenas ${pool.length} números, mas o jogo exige ${drawSize}.`);
+         }
+         const poolEvens = pool.filter(n => n % 2 === 0).length;
+         const poolOdds = pool.length - poolEvens;
+         const minEvens = profile.evenOddIdeal[0] - profile.evenOddTolerance;
+         const minOdds = profile.evenOddIdeal[1] - profile.evenOddTolerance;
+         
+         if (pool.length / drawSize < 1.5) {
+             if (poolEvens < minEvens || poolOdds < minOdds) {
+                 console.error(`[SmartBets] ❌ Viability falhou. Pares no pool: ${poolEvens} (min: ${minEvens}). Ímpares: ${poolOdds} (min: ${minOdds})`);
+                 throw new Error(`Inviabilidade Estatística: O pool de ${pool.length} números possui ${poolEvens} pares e ${poolOdds} ímpares, sendo impossível gerar um jogo válido pelas regras da IA. Por favor, adicione mais números ou desative restrições.`);
+             }
+         }
 
          while (games.length < numGames && attempts < maxAttempts) {
             attempts++;
