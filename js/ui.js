@@ -900,7 +900,7 @@ class UI {
         script += 'var delay=function(ms){return new Promise(function(r){setTimeout(r,ms)})};';
 
         // ── realClick: simula clique real com todos os eventos + Angular ──
-        script += 'function realClick(el){if(!el)return false;try{el.scrollIntoView({block:"center",behavior:"instant"});var r=el.getBoundingClientRect();var cx=r.left+r.width/2;var cy=r.top+r.height/2;var evts=["pointerdown","mousedown","pointerup","mouseup","click"];for(var i=0;i<evts.length;i++){el.dispatchEvent(new MouseEvent(evts[i],{view:window,bubbles:true,cancelable:true,clientX:cx,clientY:cy,button:0}))}try{var scope=angular.element(el).scope();if(scope&&scope.$apply)scope.$apply()}catch(ae){}return true}catch(e){try{el.click();return true}catch(e2){return false}}}';
+        script += 'function realClick(el){if(!el)return false;try{el.scrollIntoView({block:"center",behavior:"smooth"});var r=el.getBoundingClientRect();var cx=r.left+r.width/2;var cy=r.top+r.height/2;var evts=["pointerdown","mousedown","pointerup","mouseup"];for(var i=0;i<evts.length;i++){el.dispatchEvent(new MouseEvent(evts[i],{view:window,bubbles:true,cancelable:true,clientX:cx,clientY:cy,button:0}))}el.click();try{var scope=angular.element(el).scope();if(scope&&scope.$apply)scope.$apply()}catch(ae){}return true}catch(e){try{el.click();return true}catch(e2){return false}}}';
 
         // ── fecharModais: fecha alertas/modais do site ──
         script += 'function fecharModais(){var ids=["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","botaosim","btnFecharModal","btnOk","btnConfirmar"];for(var k=0;k<ids.length;k++){var el=document.getElementById(ids[k]);if(el&&el.offsetParent!==null&&el.offsetWidth>0){try{realClick(el)}catch(e){}}}var bts=document.querySelectorAll("button,a");for(var j=0;j<bts.length;j++){var t=bts[j].textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="sim"||t==="continuar")&&bts[j].offsetParent!==null&&bts[j].offsetWidth>0){var isCart=bts[j].id&&(bts[j].id.toLowerCase().indexOf("carrinho")>=0||bts[j].id.toLowerCase().indexOf("pagamento")>=0);if(!isCart){try{realClick(bts[j])}catch(e){}}}}}';
@@ -930,7 +930,7 @@ class UI {
         script += 'var idx=Math.floor(Math.random()*times.length);';
         script += 'var chosen=times[idx];';
         // Garantir visibilidade e clique Angular
-        script += 'chosen.scrollIntoView({block:"center",behavior:"instant"});';
+        script += 'chosen.scrollIntoView({block:"center",behavior:"smooth"});';
         script += 'await delay(150);';
         script += 'realClick(chosen);';
         script += 'await delay(250);';
@@ -978,13 +978,13 @@ class UI {
         script += 'async function carrinho(){fecharModais();await delay(100);';
         script += 'if(IS_TIMEMANIA){await selecionarTime();await delay(300)}';
         script += 'if(IS_DIADESORTE){await selecionarMes();await delay(300)}';
-        script += 'for(var t=0;t<8;t++){var btn=document.getElementById("colocarnocarrinho");if(btn&&btn.offsetParent!==null){';
+        script += 'for(var t=0;t<8;t++){var btn=document.getElementById("colocarnocarrinho") || document.querySelector("button.btn-add-carrinho") || document.querySelector("button[id*=\'carrinho\' i]") || document.querySelector("a.btn-add-carrinho");if(btn&&btn.offsetParent!==null){';
         script += 'if(btn.disabled||btn.classList.contains("disabled")){console.log("[B2B] ⏳ Carrinho desabilitado, aguardando...");await delay(800);';
         script += 'if(IS_TIMEMANIA){await selecionarTime();await delay(400)}';
         script += 'if(IS_DIADESORTE){await selecionarMes();await delay(400)}';
         script += 'continue}';
         script += 'realClick(btn);await delay(800);fecharModais();await delay(300);fecharModais();return true}';
-        script += 'var allB=document.querySelectorAll("button,a");for(var k=0;k<allB.length;k++){var tx=allB[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar no carrinho")>=0||(tx.indexOf("carrinho")>=0&&tx.indexOf("ir para")<0&&tx.indexOf("ver")<0))&&allB[k].offsetParent!==null&&allB[k].offsetWidth>0){realClick(allB[k]);await delay(800);fecharModais();await delay(300);fecharModais();return true}}';
+        script += 'var allB=document.querySelectorAll("button,a");for(var k=0;k<allB.length;k++){var tx=allB[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar")>=0&&tx.indexOf("carrinho")>=0)||(tx.indexOf("adicionar")>=0&&tx.indexOf("carrinho")>=0)){if(allB[k].offsetParent!==null&&allB[k].offsetWidth>0){realClick(allB[k]);await delay(800);fecharModais();await delay(300);fecharModais();return true}}}';
         script += 'fecharModais();await delay(400)}return false}';
 
         // ── LOOP PRINCIPAL: processar todos os jogos ──
