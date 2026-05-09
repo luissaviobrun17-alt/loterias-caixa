@@ -2579,7 +2579,7 @@ class NovaEraEngine {
             backtestHits: { '5+': bt5, '4+': bt4, '3+': bt3, avg: avgHits.toFixed(2), maxHits },
             improvement: improvement.toFixed(2) + 'x',
             engine: 'QUANTUM L99 — ' + (profile.name || gameKey),
-            mode: 'QUANTUM L99 — 19 Camadas | Espelho Temporal | Clusters | Pattern DNA'
+            mode: 'QUANTUM L99 — 18 Camadas | Espelho Temporal | Clusters | Pattern DNA'
         };
     }
 
@@ -2615,27 +2615,43 @@ class NovaEraEngine {
             .map(([n, s]) => ({ num: parseInt(n), score: s }))
             .sort((a, b) => b.score - a.score);
 
-        // Garantir cobertura de zonas nos sugeridos
-        const numZones = profile.zones;
-        const zoneSize = profile.zoneSize;
+        // Filtro Lógico Anti-Sequências (substituindo cobertura forçada de zonas)
         const result = [];
-        const zoneCovered = new Array(numZones).fill(false);
-
-        for (let z = 0; z < numZones; z++) {
-            const inZone = ranked.filter(r => {
-                const nz = Math.min(numZones - 1, Math.floor((r.num - startNum) / zoneSize));
-                return nz === z;
-            });
-            if (inZone.length > 0 && result.length < count) {
-                result.push(inZone[0].num);
-                zoneCovered[z] = true;
-            }
-        }
+        const maxConsec = (game && game.maxConsec) ? game.maxConsec : 3;
 
         for (const r of ranked) {
             if (result.length >= count) break;
-            if (!result.includes(r.num)) {
+            
+            // Verificar se a adição deste número cria uma sequência irreal
+            // Ordenar o array temporário
+            const tempResult = [...result, r.num].sort((a, b) => a - b);
+            let hasLongSequence = false;
+            let currentConsec = 1;
+            
+            for (let i = 1; i < tempResult.length; i++) {
+                if (tempResult[i] === tempResult[i - 1] + 1) {
+                    currentConsec++;
+                    if (currentConsec > maxConsec) {
+                        hasLongSequence = true;
+                        break;
+                    }
+                } else {
+                    currentConsec = 1;
+                }
+            }
+            
+            if (!hasLongSequence && !result.includes(r.num)) {
                 result.push(r.num);
+            }
+        }
+        
+        // Fallback caso a restrição estrita não preencha o count (ex: todos os números restantes formam sequência)
+        if (result.length < count) {
+            for (const r of ranked) {
+                if (result.length >= count) break;
+                if (!result.includes(r.num)) {
+                    result.push(r.num);
+                }
             }
         }
 
@@ -2678,7 +2694,13 @@ class NovaEraEngine {
                     precisionLayer[n] = (last3Trends[n] || 0) * 0.6 + (conditionalProb[n] || 0) * 0.4;
                 }
                 precisionLayer = this._normalizeScores(precisionLayer, startNum, endNum);
-            } catch (e) { /* fallback neutro */ }
+            } catch (e) {
+                console.warn('[Camada 17] Falha no PrecisionCalibrator:', e.message);
+                // Fallback dinâmico: distribui o peso falho para a entropia e espelha em vez de cravar 0.5 absoluto
+                for (let n = startNum; n <= endNum; n++) {
+                    precisionLayer[n] = (layers[3][n] * 0.5) + 0.25; 
+                }
+            }
         }
         layers.push(precisionLayer);
 
@@ -2729,7 +2751,10 @@ class NovaEraEngine {
             for (let i = 0; i < 18; i++) {
                 total += (layers[i][n] || 0) * (w[wKeys[i]] || 0.05);
             }
-            scores[n] = total;
+            // Injeção de Ruído Termodinâmico Orgânico (± 0.5%)
+            // Permite variações nas requisições consecutivas para desempatar scores muito próximos
+            const noise = (Math.random() * 0.01) - 0.005; 
+            scores[n] = total + noise;
         }
 
         return scores;
