@@ -13,7 +13,7 @@ console.log('%c[QUANTUM-L99] ═══ MOTOR QUANTUM L99 v7.0 ATIVADO ═══'
  * ║  • Camada 19: Filtro Combinatório Final (validação estrutural)        ║
  * ║  • Perfis recalibrados com dados estatísticos REAIS                   ║
  * ║                                                                        ║
- * ║  19 CAMADAS:                                                           ║
+ * ║  18 CAMADAS:                                                           ║
  * ║   1-8:  Base (Freq, Trend, Delay, Entropy, Markov, Phase, MC, Next)   ║
  * ║   9-12: Modo Deus (Bayesian, Posicional, Sequential, Momentum)        ║
  * ║  13-16: QUANTUM (Espelho, Lacunas, Clusters, Regressão)               ║
@@ -1683,7 +1683,7 @@ class NovaEraEngine {
     }
 
     // ╔══════════════════════════════════════════════════════════════════════════════╗
-    // ║  ★★★ SÍNTESE QUANTUM L99 — 19 CAMADAS DE PREDIÇÃO ★★★                    ║
+    // ║  ★★★ SÍNTESE QUANTUM L99 — 18 CAMADAS DE PREDIÇÃO ★★★                    ║
     // ║  8 camadas clássicas + 4 Modo Deus + 4 QUANTUM L99                        ║
     // ║  + Precision Calibrator + Pattern DNA                                      ║
     // ║  + Filtro Combinatório Final (validação estrutural = Camada 19)            ║
@@ -1867,7 +1867,7 @@ class NovaEraEngine {
             console.log('[QUANTUM-L99]    DNA Ideal: soma=' + idealSoma.toFixed(2) + ' | paridade=' + idealParidade.toFixed(2) + ' | gap=' + idealGap.toFixed(1) + ' | delay=' + idealDelay.toFixed(1));
         }
 
-        console.log('%c[QUANTUM-L99] ★★★ 19 CAMADAS ATIVADAS — ' + gameKey + ' ★★★', 'color: gold; font-weight: bold;');
+        console.log('%c[QUANTUM-L99] ★★★ 18 CAMADAS ATIVADAS — ' + gameKey + ' ★★★', 'color: gold; font-weight: bold;');
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // ★★★ CONSENSO ENSEMBLE L99 — Votação entre 18 camadas ★★★
@@ -1981,7 +1981,7 @@ class NovaEraEngine {
 
             const names = ['freq','trend','delay','zone','markov','phase','clair','next','bayes','posit','seq','mom','mirror','gap','cluster','revert','prec','dna'];
             const boostStr = dynamicBoosts.map((b, i) => names[i] + '=' + b.toFixed(2)).join(' ');
-            console.log('[QUANTUM-L99] ★ v5.0 CALIBRAÇÃO (12-fold NDCG, 19 camadas): ' + boostStr);
+            console.log('[QUANTUM-L99] ★ v5.0 CALIBRAÇÃO (12-fold NDCG, 18 camadas): ' + boostStr);
         }
 
         // ━━━ PESOS QUANTUM L99 ━━━
@@ -2605,7 +2605,7 @@ class NovaEraEngine {
             if (history.length === 0 && typeof REAL_HISTORY_DB !== 'undefined') {
                 history = REAL_HISTORY_DB[gameKey] || [];
             }
-        } catch (e) {}
+        } catch (e) { console.warn('[NovaEraEngine] Falha ao carregar histórico nas sugestões:', e.message); }
 
         // Calcular scores QUANTUM L99 deterministicos (sem noise)
         const scores = this._scoreForSuggestionL99(gameKey, profile, history, startNum, endNum, totalRange);

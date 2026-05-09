@@ -56,17 +56,17 @@ class PrecisionEngine {
         try {
             if (typeof StatsService !== 'undefined') history = StatsService.getRecentResults(gameKey, 200) || [];
             if (!history.length && typeof REAL_HISTORY_DB !== 'undefined') history = REAL_HISTORY_DB[gameKey] || [];
-        } catch(e) {}
+        } catch(e) { console.warn('[PRECISION-L99] Falha ao carregar histórico:', e.message); }
         console.log('[PRECISION-L99] Histórico: ' + history.length + ' sorteios');
 
-        // ── 2. Scores NovaEraEngine (19 camadas) ─────────────────────────
+        // ── 2. Scores NovaEraEngine (18 camadas) ─────────────────────────
         let neScores = null;
         if (typeof NovaEraEngine !== 'undefined' && history.length >= 3) {
             try {
                 const profile = NovaEraEngine.getProfile(gameKey);
                 neScores = NovaEraEngine._scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange);
                 const topNE = Object.entries(neScores).sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>e[0]+'('+parseFloat(e[1]).toFixed(2)+')').join(', ');
-                console.log('[PRECISION-L99] ✓ NovaEra 19 camadas | TOP5: ' + topNE);
+                console.log('[PRECISION-L99] ✓ NovaEra 18 camadas | TOP5: ' + topNE);
             } catch(e) { console.warn('[PRECISION-L99] NE erro:', e.message); }
         }
 
@@ -1039,7 +1039,7 @@ class PrecisionEngine {
                 const improvement = expectedRandom > 0 ? avgHits / expectedRandom : 1;
                 confidence = Math.min(92, Math.max(45, Math.round(40 + rate * 40 + Math.min(12, improvement * 6))));
                 console.log('[PRECISION-L99] 🧪 BT: ' + threshold + '+ em ' + hits3plus + '/' + btDraws + ' | avg=' + avgHits.toFixed(1) + ' | melhoria=' + improvement.toFixed(1) + 'x → confiança ' + confidence + '%');
-            } catch(e) {}
+            } catch(e) { console.warn('[PRECISION-L99] Falha no backtest:', e.message); }
         }
 
         const uniqueNums = new Set(games.flat());

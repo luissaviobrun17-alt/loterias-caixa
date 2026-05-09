@@ -194,7 +194,7 @@ class UI {
         }
 
         const statusDiv = this.quantumResults;
-        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">★ MODO DEUS — 12 Camadas de Predição Ativadas...</div>';
+        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">★ MODO DEUS — 18 Camadas de Predição Ativadas...</div>';
 
         // Phase 1: Analysis
         setTimeout(() => {
@@ -307,7 +307,7 @@ class UI {
         // ── HELPER: obter histórico robusto (StatsService + fallback REAL_HISTORY_DB) ────
         const _getHistory = (gameKey, maxCount) => {
             let h = [];
-            try { h = StatsService.getRecentResults(gameKey, maxCount) || []; } catch(e) {}
+            try { h = StatsService.getRecentResults(gameKey, maxCount) || []; } catch(e) { console.warn('[UI_V50] Falha no StatsService:', e.message); }
             // Fallback: usar REAL_HISTORY_DB diretamente se StatsService retornar vazio
             if (h.length < 3 && typeof REAL_HISTORY_DB !== 'undefined' && REAL_HISTORY_DB[gameKey]) {
                 h = REAL_HISTORY_DB[gameKey].slice(0, maxCount);
@@ -502,7 +502,7 @@ class UI {
         this.gamesContainer.innerHTML = `
             <div style="text-align:center;padding:30px;">
                 <div style="font-size:2rem;margin-bottom:10px;">🔮</div>
-                <div style="color:#8B5CF6;font-weight:700;font-size:1rem;">★ MODO DEUS — 12 Camadas de Predição</div>
+                <div style="color:#8B5CF6;font-weight:700;font-size:1rem;">★ MODO DEUS — 18 Camadas de Predição</div>
                 <div style="color:#94A3B8;font-size:0.85rem;margin-top:5px;">${modeLabel}</div>
                 <div style="margin-top:15px;width:60%;height:4px;background:rgba(139,92,246,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
                     <div style="width:30%;height:100%;background:linear-gradient(90deg,#8B5CF6,#EC4899);border-radius:4px;animation:smartProgress 1.5s ease-in-out infinite;"></div>
@@ -938,7 +938,7 @@ class UI {
 // ╔══════════════════════════════════════════════════════════════╗
 // ║  B2B Loterias — Script de Aposta Automática                  ║
 // ║  ${config.name}: ${games.length} jogos                                     ║
-// ║  Gerado pelo MODO DEUS+ — 12 Camadas de Predição            ║
+// ║  Gerado pelo MODO DEUS+ — 18 Camadas de Predição            ║
 // ╚══════════════════════════════════════════════════════════════╝
 (async function() {
     const JOGOS = ${gamesJSON};

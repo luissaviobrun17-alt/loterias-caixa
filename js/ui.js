@@ -228,7 +228,7 @@ class UI {
             return;
         }
 
-        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">★ MODO DEUS — 28 Camadas de Predição Ativadas...</div>';
+        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">★ MODO DEUS — 18 Camadas de Predição Ativadas...</div>';
 
         // Phase 1: Analysis
         setTimeout(() => {
@@ -402,7 +402,7 @@ class UI {
         // ── HELPER: obter histórico robusto (StatsService + fallback REAL_HISTORY_DB) ────
         const _getHistory = (gameKey, maxCount) => {
             let h = [];
-            try { h = StatsService.getRecentResults(gameKey, maxCount) || []; } catch(e) {}
+            try { h = StatsService.getRecentResults(gameKey, maxCount) || []; } catch(e) { console.warn('[UI] Falha no StatsService (historico):', e.message); }
             // Fallback: usar REAL_HISTORY_DB diretamente se StatsService retornar vazio
             if (h.length < 3 && typeof REAL_HISTORY_DB !== 'undefined' && REAL_HISTORY_DB[gameKey]) {
                 h = REAL_HISTORY_DB[gameKey].slice(0, maxCount);
@@ -688,7 +688,7 @@ class UI {
                     const p3 = document.getElementById('q-phase-3');
                     const st = document.getElementById('q-status');
                     if (p3) { p3.style.opacity = '1'; p3.style.background = 'rgba(236,72,153,0.2)'; p3.style.borderColor = 'rgba(236,72,153,0.5)'; }
-                    if (st) st.innerHTML = '🧿 Clarividência: convergência de 19 camadas → Próximo Sorteio...';
+                    if (st) st.innerHTML = '🧿 Clarividência: convergência de 18 camadas → Próximo Sorteio...';
                 } catch(e) {}
 
                 setTimeout(() => {

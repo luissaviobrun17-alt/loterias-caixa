@@ -567,7 +567,7 @@ class SmartBetsEngine {
 
         // Carregar histÃ³rico
         let history = [];
-        try { history = StatsService.getRecentResults(gameKey, 200) || []; } catch(e) {}
+        try { history = StatsService.getRecentResults(gameKey, 200) || []; } catch(e) { console.warn('[SmartBets] Falha ao carregar histórico:', e.message); }
 
         const N = history.length;
         console.log('[QU-QCALV3] âš›ï¸ ' + (game.name || gameKey) + ' | ' + N + ' sorteios | drawSize=' + drawSize + ' | CALIBRAÃ‡ÃƒO QUÃ‚NTICA ATIVA');
