@@ -670,11 +670,10 @@ class CombinationEngine {
         // usando números mais frequentes do histórico
         const possibleCombinations = this.nCr(pool.length, game.minBet);
         
-        // ★ GOD MODE FIX: Circuit Breaker para evitar travamento (Out of Memory)
+        // ★ GOD MODE FIX: Circuit Breaker ajustado (Out of Memory não é mais um risco pois usamos geração randômica/heurística)
         const realComb = this.nCr(pool.length - fixedNumbers.length, game.minBet - fixedNumbers.length);
-        if (realComb > 500000) {
-            console.error(`[Circuit Breaker] Combinações astronômicas barradas: ${realComb}`);
-            throw new Error(`Proteção de Memória Ativada: A matriz solicitada gera ${realComb.toLocaleString('pt-BR')} combinações. O limite seguro do navegador é de 500.000. Por favor, remova alguns números do grupo ou adicione mais números fixos para reduzir o volume matemático.`);
+        if (realComb > 50000000) { // Limite aumentado para não bloquear Mega Sena (que tem ~50M combinações)
+            console.warn(`[Circuit Breaker] Matriz muito grande (${realComb}), mas o motor heurístico vai limitar os candidatos a ${quantity}.`);
         }
         if (possibleCombinations < quantity && pool.length < universe.length) {
             const history = (typeof StatsService !== 'undefined' && StatsService.historyStore[gameType]) 

@@ -603,6 +603,12 @@ class UI {
             ? parseInt(this.smartDrawSizeSelect.value) || game.minBet
             : game.minBet;
 
+        // V10 FIX: Expand pool to full board if user only selected fixed numbers
+        if (fixedArr.length > 0 && selectedArr.length === fixedArr.length) {
+            selectedArr = [];
+            for (let i = game.range[0]; i <= game.range[1]; i++) selectedArr.push(i);
+        }
+
         // AUTO-USAR números sugeridos pela fórmula IA (se nenhum selecionado no grid)
         if (selectedArr.length === 0 && this.quantumResults) {
             const quantumBalls = this.quantumResults.querySelectorAll('.ball');
@@ -1631,10 +1637,16 @@ class UI {
             // ━━ FECHAMENTO OBJETIVO (ClosingEngine v3.0) ━━
             if (closingVal && closingVal.startsWith('close_')) {
                 const guarantee = parseInt(closingVal.replace('close_', ''));
-                const selectedArr = Array.from(this.selectedNumbers);
+                let selectedArr = Array.from(this.selectedNumbers);
                 const fixedArr = Array.from(this.fixedNumbers);
                 const game = GAMES[this.currentGameKey];
                 const closingBetSize = typeof ClosingEngine !== 'undefined' ? ClosingEngine.getBetSize(this.currentGameKey) : game.draw;
+
+                // V10 FIX: Expand pool to full board if user only selected fixed numbers
+                if (fixedArr.length > 0 && selectedArr.length === fixedArr.length) {
+                    selectedArr = [];
+                    for (let i = game.range[0]; i <= game.range[1]; i++) selectedArr.push(i);
+                }
 
                 if (selectedArr.length < closingBetSize) {
                     alert('Selecione pelo menos ' + closingBetSize + ' números para o fechamento objetivo de ' + game.name + '.');
@@ -4034,39 +4046,17 @@ class UI {
         // V11: Coletar jogos ganhadores para exibição agrupada
         const winningGames = [];
 
-        cards.forEach((card, index) => {
-            const gameNumbers = this.currentGeneratedGames[index];
-            if (!gameNumbers) return;
+        // V12 FIX: Computar hits usando apenas DADOS (evita congelamento de UI em lotes grandes)
+        this.currentGeneratedGames.forEach((gameNumbers, index) => {
             let hits = 0;
-            const balls = card.querySelectorAll('.ball');
-
-            balls.forEach(ball => {
-                const num = parseInt(ball.textContent);
-                if (drawnSet.has(num)) {
-                    ball.classList.add('hit');
-                    ball.style.backgroundColor = '#22C55E';
-                    ball.style.color = '#fff';
-                    ball.style.borderColor = '#22C55E';
-                    ball.style.boxShadow = '0 0 8px rgba(34,197,94,0.5)';
-                    hits++;
-                } else {
-                    if (!ball.classList.contains('fixed')) {
-                        ball.style.backgroundColor = '';
-                        ball.style.color = '';
-                        ball.style.borderColor = '';
-                        ball.style.boxShadow = '';
-                        ball.classList.remove('hit');
-                    }
-                }
-            });
+            for (let i = 0; i < gameNumbers.length; i++) {
+                if (drawnSet.has(gameNumbers[i])) hits++;
+            }
 
             if (hits > maxPossibleHits) maxPossibleHits = hits;
             hitDistribution[hits] = (hitDistribution[hits] || 0) + 1;
 
-            // Lotomania: 0 acertos também é premiado
             const hitsToCheck = (this.currentGameKey === 'lotomania' && hits === 0) ? 0 : hits;
-
-            // V10: Encontrar TODAS as faixas premiadas que o jogo atinge
             const matchedStrat = paidStrategies.find(s => s.match === hitsToCheck);
 
             if (matchedStrat) {
@@ -4079,37 +4069,89 @@ class UI {
                     prize: matchedStrat.prize || 0
                 });
             }
-
-            // Indicador visual em cada card — V10 melhorado
-            let summary = card.querySelector('.hit-summary');
-            if (!summary) {
-                summary = document.createElement('div');
-                summary.className = 'hit-summary';
-                summary.style.cssText = 'width:100%;text-align:right;font-size:0.8rem;font-weight:bold;margin-top:5px;padding:4px 6px;border-radius:6px;';
-                card.appendChild(summary);
-            }
-
-            summary.innerHTML = '';
-            const displayHits = (this.currentGameKey === 'lotomania' && hits === 0) ? '0 (Mania!)' : hits;
-
-            if (matchedStrat) {
-                const isJackpot = matchedStrat.match === game.draw;
-                summary.style.color = isJackpot ? '#FFD700' : '#22C55E';
-                summary.style.background = isJackpot ? 'rgba(255,215,0,0.08)' : 'rgba(34,197,94,0.08)';
-                const prizeHint = matchedStrat.prize > 100
-                    ? ` ≈ ${matchedStrat.prize.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
-                    : (matchedStrat.prize > 0 ? ` ≈ R$ ${matchedStrat.prize.toFixed(2).replace('.', ',')}` : '');
-                summary.innerHTML = `🏆 ${displayHits} acertos — <strong>${matchedStrat.label}</strong>${prizeHint}`;
-            } else if (hits > 0) {
-                summary.style.color = '#94A3B8';
-                summary.style.background = 'rgba(255,255,255,0.03)';
-                summary.textContent = `${hits} acerto${hits > 1 ? 's' : ''} — sem premiação nesta faixa`;
-            } else {
-                summary.style.color = '#475569';
-                summary.style.background = '';
-                summary.textContent = 'Nenhum acerto';
-            }
         });
+
+        // Atualização Visual Otimizada (DOM)
+        // Se houver muitos jogos (>500), faremos atualizações assíncronas para não travar a UI
+        const CHUNK_SIZE = 250;
+        let currentChunk = 0;
+
+        const updateCardsChunk = () => {
+            const start = currentChunk * CHUNK_SIZE;
+            const end = Math.min(start + CHUNK_SIZE, cards.length);
+
+            for (let i = start; i < end; i++) {
+                const card = cards[i];
+                const gameNumbers = this.currentGeneratedGames[i];
+                if (!gameNumbers) continue;
+
+                let hits = 0;
+                for (let k = 0; k < gameNumbers.length; k++) {
+                    if (drawnSet.has(gameNumbers[k])) hits++;
+                }
+
+                const hitsToCheck = (this.currentGameKey === 'lotomania' && hits === 0) ? 0 : hits;
+                const matchedStrat = paidStrategies.find(s => s.match === hitsToCheck);
+
+                // Update balls
+                const balls = card.querySelectorAll('.ball');
+                balls.forEach((ball, bIdx) => {
+                    const num = gameNumbers[bIdx]; // Use the array directly, no textContent parsing needed
+                    if (drawnSet.has(num)) {
+                        ball.classList.add('hit');
+                        ball.style.backgroundColor = '#22C55E';
+                        ball.style.color = '#fff';
+                        ball.style.borderColor = '#22C55E';
+                        ball.style.boxShadow = '0 0 8px rgba(34,197,94,0.5)';
+                    } else {
+                        if (!ball.classList.contains('fixed')) {
+                            ball.style.backgroundColor = '';
+                            ball.style.color = '';
+                            ball.style.borderColor = '';
+                            ball.style.boxShadow = '';
+                            ball.classList.remove('hit');
+                        }
+                    }
+                });
+
+                // Update Summary
+                let summary = card.querySelector('.hit-summary');
+                if (!summary) {
+                    summary = document.createElement('div');
+                    summary.className = 'hit-summary';
+                    summary.style.cssText = 'width:100%;text-align:right;font-size:0.8rem;font-weight:bold;margin-top:5px;padding:4px 6px;border-radius:6px;';
+                    card.appendChild(summary);
+                }
+
+                const displayHits = (this.currentGameKey === 'lotomania' && hits === 0) ? '0 (Mania!)' : hits;
+
+                if (matchedStrat) {
+                    const isJackpot = matchedStrat.match === game.draw;
+                    summary.style.color = isJackpot ? '#FFD700' : '#22C55E';
+                    summary.style.background = isJackpot ? 'rgba(255,215,0,0.08)' : 'rgba(34,197,94,0.08)';
+                    const prizeHint = matchedStrat.prize > 100
+                        ? ` ≈ ${matchedStrat.prize.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+                        : (matchedStrat.prize > 0 ? ` ≈ R$ ${matchedStrat.prize.toFixed(2).replace('.', ',')}` : '');
+                    summary.innerHTML = `🏆 ${displayHits} acertos — <strong>${matchedStrat.label}</strong>${prizeHint}`;
+                } else if (hits > 0) {
+                    summary.style.color = '#94A3B8';
+                    summary.style.background = 'rgba(255,255,255,0.03)';
+                    summary.textContent = `${hits} acerto${hits > 1 ? 's' : ''} — sem premiação nesta faixa`;
+                } else {
+                    summary.style.color = '#475569';
+                    summary.style.background = '';
+                    summary.textContent = 'Nenhum acerto';
+                }
+            }
+
+            currentChunk++;
+            if (currentChunk * CHUNK_SIZE < cards.length) {
+                requestAnimationFrame(updateCardsChunk);
+            }
+        };
+
+        // Iniciar atualização visual
+        requestAnimationFrame(updateCardsChunk);
 
         // ═══ RESUMO DA CONFERÊNCIA V10 — COMPLETO E DETALHADO ═══
         const currency = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
