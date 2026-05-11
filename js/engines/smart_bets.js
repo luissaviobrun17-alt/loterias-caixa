@@ -1,45 +1,45 @@
-﻿/**
- * SMART BETS ENGINE ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Motor IA para Apostas Reduzidas
+/**
+ * SMART BETS ENGINE Ã¢â‚¬â€ Motor IA para Apostas Reduzidas
  * ====================================================
  * Gera jogos INTELIGENTES quando o apostador quer poucos jogos
  * (em vez de fechamento completo).
  * 
- * 14 REGRAS ESTATÃƒÆ’Ã‚ÂSTICAS:
- * ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
- *  1. Consecutivos MÃƒÆ’Ã‚Â¡ximos (por loteria)
- *  2. EquilÃƒÆ’Ã‚Â­brio Par/ÃƒÆ’Ã‚Âmpar (proporÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o real)
- *  3. DistribuiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o por Faixas (dezenas)
- *  4. DistÃƒÆ’Ã‚Â¢ncia entre NÃƒÆ’Ã‚Âºmeros (gap mÃƒÆ’Ã‚Â©dio)
+ * 14 REGRAS ESTATÃƒÂSTICAS:
+ * Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+ *  1. Consecutivos MÃƒÂ¡ximos (por loteria)
+ *  2. EquilÃƒÂ­brio Par/ÃƒÂmpar (proporÃƒÂ§ÃƒÂ£o real)
+ *  3. DistribuiÃƒÂ§ÃƒÂ£o por Faixas (dezenas)
+ *  4. DistÃƒÂ¢ncia entre NÃƒÂºmeros (gap mÃƒÂ©dio)
  *  5. Soma Total (faixa ideal)
- *  6. Fibonacci / ProporÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ÃƒÆ’Ã‚Âurea
- *  7. Primos (proporÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o real)
- *  8. Anti-PadrÃƒÆ’Ã‚Â£o Artificial (anti-progressÃƒÆ’Ã‚Â£o)
+ *  6. Fibonacci / ProporÃƒÂ§ÃƒÂ£o ÃƒÂurea
+ *  7. Primos (proporÃƒÂ§ÃƒÂ£o real)
+ *  8. Anti-PadrÃƒÂ£o Artificial (anti-progressÃƒÂ£o)
  *  9. Duplas Frequentes (top pares)
  * 10. Trios Frequentes (top trios)
- * 11. Cobertura de NÃƒÆ’Ã‚Âºmeros (diversidade entre jogos)
- * 12. RepetiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o do ÃƒÆ’Ã…Â¡ltimo Sorteio
- * 13. Markov / TransiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
- * 14. TendÃƒÆ’Ã‚Âªncia Temporal (nÃƒÆ’Ã‚Âºmeros em alta)
+ * 11. Cobertura de NÃƒÂºmeros (diversidade entre jogos)
+ * 12. RepetiÃƒÂ§ÃƒÂ£o do ÃƒÅ¡ltimo Sorteio
+ * 13. Markov / TransiÃƒÂ§ÃƒÂ£o
+ * 14. TendÃƒÂªncia Temporal (nÃƒÂºmeros em alta)
  * 
- * "Poucos jogos, mÃƒÆ’Ã‚Â¡xima inteligÃƒÆ’Ã‚Âªncia."
+ * "Poucos jogos, mÃƒÂ¡xima inteligÃƒÂªncia."
  */
 class SmartBetsEngine {
 
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬â€
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ  PERFIS ESPECÃƒÆ’Ã‚ÂFICOS POR LOTERIA                     ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã…Â¡ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+    // Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
+    // Ã¢â€¢â€˜  PERFIS ESPECÃƒÂFICOS POR LOTERIA                     Ã¢â€¢â€˜
+    // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     static getProfile(gameKey) {
         const profiles = {
             megasena: {
                 name: 'Mega Sena',
                 draw: 6, range: [1, 60],
                 maxConsecutive: 2,                      // Dados: max 2 consecutivos (nunca 3+)
-                evenOddIdeal: [3, 3], evenOddTolerance: 2, // v2.3: tolerÃƒÆ’Ã‚Â¢ncia 1ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢2 (2p/4i ocorre em 20%)
+                evenOddIdeal: [3, 3], evenOddTolerance: 2, // v2.3: tolerÃƒÂ¢ncia 1Ã¢â€ â€™2 (2p/4i ocorre em 20%)
                 faixaSize: 10, faixaMin: 0, faixaMax: 2,
                 sumMin: 120, sumMax: 240,               // v2.3: apertar soma (dados: P10=120, P90=240)
-                gapMin: 3, gapMax: 14,                  // v2.3: gapMin 5ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢3 (dados: P25=3), gapMax 12ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢14
-                repeatFromLast: [0, 2],                 // Dados: 87% tem 0-1 repetiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes (OK)
-                primeRatio: [0.0, 0.50],                // v2.3: [0.05,0.55]ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢[0.0,0.50] (dados: 0-3 primos)
+                gapMin: 3, gapMax: 14,                  // v2.3: gapMin 5Ã¢â€ â€™3 (dados: P25=3), gapMax 12Ã¢â€ â€™14
+                repeatFromLast: [0, 2],                 // Dados: 87% tem 0-1 repetiÃƒÂ§ÃƒÂµes (OK)
+                primeRatio: [0.0, 0.50],                // v2.3: [0.05,0.55]Ã¢â€ â€™[0.0,0.50] (dados: 0-3 primos)
                 maxSameEnding: 2,                       // Dados: 77% tem max 2 mesmo final (OK)
                 fibWeight: 0.10,
                 markovWeight: 0.05,     // V9 ANTI-CONC: 0.18->0.05
@@ -47,7 +47,7 @@ class SmartBetsEngine {
                 pairBoost: 0.03,        // V9: 0.10->0.03
                 trioBoost: 0.01,        // V9: 0.04->0.01
                 multiWindow: true,
-                zoneMinCover: 4,        // V9: 3->4                        // v2.3: 4ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢3 (dados: 26% cobrem sÃƒÆ’Ã‚Â³ 3 zonas)
+                zoneMinCover: 4,        // V9: 3->4                        // v2.3: 4Ã¢â€ â€™3 (dados: 26% cobrem sÃƒÂ³ 3 zonas)
                 hotNumbers: [],
                 coldNumbers: [],
                 diversityPenalty: 1.20,   // V9: 0.85->1.20 PENALIDADE SEVERA
@@ -61,70 +61,70 @@ class SmartBetsEngine {
                 coldRatio: 0.33
             },
             lotofacil: {
-                name: 'LotofÃƒÆ’Ã‚Â¡cil',
+                name: 'LotofÃƒÂ¡cil',
                 draw: 15, range: [1, 25],
-                maxConsecutive: 10,                         // V3: 7ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢10 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dados reais: runs de atÃƒÆ’Ã‚Â© 9-10 ocorrem!
-                evenOddIdeal: [7, 8], evenOddTolerance: 3,  // V3: tol 2ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢3 (aceitar mais variaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o)
-                faixaSize: 5, faixaMin: 1, faixaMax: 5,     // V3: faixaMax 4ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢5 (padrÃƒÆ’Ã‚Â£o real)
-                sumMin: 155, sumMax: 235,                    // V3: [170,220]ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢[155,235] ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dados reais P5-P95
+                maxConsecutive: 10,                         // V3: 7Ã¢â€ â€™10 Ã¢â‚¬â€ dados reais: runs de atÃƒÂ© 9-10 ocorrem!
+                evenOddIdeal: [7, 8], evenOddTolerance: 3,  // V3: tol 2Ã¢â€ â€™3 (aceitar mais variaÃƒÂ§ÃƒÂ£o)
+                faixaSize: 5, faixaMin: 1, faixaMax: 5,     // V3: faixaMax 4Ã¢â€ â€™5 (padrÃƒÂ£o real)
+                sumMin: 155, sumMax: 235,                    // V3: [170,220]Ã¢â€ â€™[155,235] Ã¢â‚¬â€ dados reais P5-P95
                 gapMin: 1, gapMax: 3,
-                repeatFromLast: [6, 12],                     // V3: [7,11]ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢[6,12] ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â mais variaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
+                repeatFromLast: [6, 12],                     // V3: [7,11]Ã¢â€ â€™[6,12] Ã¢â‚¬â€ mais variaÃƒÂ§ÃƒÂ£o
                 primeRatio: [0.20, 0.50],
-                primeCount: [3, 7],                          // V3: [4,6]ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢[3,7] ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â aceitar outliers
-                maxSameEnding: 5,                            // V3: 4ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢5 (dados reais!)
-                fibWeight: 0.05,                             // V3: 0.08ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.05
-                markovWeight: 0.05,                          // V3: 0.10ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.05 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â CAUSA RAIZ de viÃƒÆ’Ã‚Â©s
-                trendWeight: 0.05,                           // V3: 0.10ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.05 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â suavizado
-                pairBoost: 0.04,                             // V3: 0.08ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.04 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â seeds nÃƒÆ’Ã‚Â£o dominam
-                trioBoost: 0.03,                             // V3: 0.06ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.03
+                primeCount: [3, 7],                          // V3: [4,6]Ã¢â€ â€™[3,7] Ã¢â‚¬â€ aceitar outliers
+                maxSameEnding: 5,                            // V3: 4Ã¢â€ â€™5 (dados reais!)
+                fibWeight: 0.05,                             // V3: 0.08Ã¢â€ â€™0.05
+                markovWeight: 0.05,                          // V3: 0.10Ã¢â€ â€™0.05 Ã¢â‚¬â€ CAUSA RAIZ de viÃƒÂ©s
+                trendWeight: 0.05,                           // V3: 0.10Ã¢â€ â€™0.05 Ã¢â‚¬â€ suavizado
+                pairBoost: 0.04,                             // V3: 0.08Ã¢â€ â€™0.04 Ã¢â‚¬â€ seeds nÃƒÂ£o dominam
+                trioBoost: 0.03,                             // V3: 0.06Ã¢â€ â€™0.03
                 gridRows: 5, gridCols: 5,
-                gridMinPerRow: 1, gridMaxPerRow: 5,          // V3: max 4ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢5 (dados reais permitem 5)
-                bordaIdeal: [8, 13],                         // V3: [9,12]ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢[8,13] ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â aceitar mais variaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
-                centroIdeal: [2, 7],                         // V3: [3,6]ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢[2,7]
-                espelhosIdeal: [2, 6],                       // V3: [3,5]ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢[2,6]
-                baixosIdeal: [4, 10],                        // V3: [5,9]ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢[4,10] ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â muito mais flexÃƒÆ’Ã‚Â­vel
-                altosIdeal: [5, 11],                         // V3: [6,10]ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢[5,11]
+                gridMinPerRow: 1, gridMaxPerRow: 5,          // V3: max 4Ã¢â€ â€™5 (dados reais permitem 5)
+                bordaIdeal: [8, 13],                         // V3: [9,12]Ã¢â€ â€™[8,13] Ã¢â‚¬â€ aceitar mais variaÃƒÂ§ÃƒÂ£o
+                centroIdeal: [2, 7],                         // V3: [3,6]Ã¢â€ â€™[2,7]
+                espelhosIdeal: [2, 6],                       // V3: [3,5]Ã¢â€ â€™[2,6]
+                baixosIdeal: [4, 10],                        // V3: [5,9]Ã¢â€ â€™[4,10] Ã¢â‚¬â€ muito mais flexÃƒÂ­vel
+                altosIdeal: [5, 11],                         // V3: [6,10]Ã¢â€ â€™[5,11]
                 multiWindow: true,
                 hotNumbers: [],
                 coldNumbers: [],
-                // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ESTRATÃƒÆ’Ã¢â‚¬Â°GIA DE EXCLUSÃƒÆ’Ã†â€™O (V3) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
-                useExclusionStrategy: true,                  // V3: NOVO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â habilitar modo exclusÃƒÆ’Ã‚Â£o
-                exclusionCount: [8, 10],                     // V3: NOVO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â excluir 8-10 nÃƒÆ’Ã‚Âºmeros fracos
-                exclusionThreshold: 0.25,                    // V3: NOVO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â score abaixo disso = excluir
-                // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ DIVERSIDADE RECALIBRADA (V3) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
-                diversityPenalty: 0.40,                      // V3: 0.90ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.40 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â PERMITIR concentraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o!
-                maxConcentration: 0.80,                      // V3: 0.72ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.80 (15/25=60%, mais margem)
-                forceNewEvery: 3,                            // V3: 2ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢3 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â menos rotaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o forÃƒÆ’Ã‚Â§ada
-                maxOverlapBetweenGames: 12,                  // V3: 10ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢12 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â jogos mais similares quando IA converge
-                maxSeedRatio: 0.15,                          // V3: 0.20ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.15
-                noiseLevel: 0.12                             // V3: 0.25ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.12 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â MENOS RUÃƒÆ’Ã‚ÂDO = MAIS SINAL
+                // Ã¢â€â‚¬Ã¢â€â‚¬ ESTRATÃƒâ€°GIA DE EXCLUSÃƒÆ’O (V3) Ã¢â€â‚¬Ã¢â€â‚¬
+                useExclusionStrategy: true,                  // V3: NOVO Ã¢â‚¬â€ habilitar modo exclusÃƒÂ£o
+                exclusionCount: [8, 10],                     // V3: NOVO Ã¢â‚¬â€ excluir 8-10 nÃƒÂºmeros fracos
+                exclusionThreshold: 0.25,                    // V3: NOVO Ã¢â‚¬â€ score abaixo disso = excluir
+                // Ã¢â€â‚¬Ã¢â€â‚¬ DIVERSIDADE RECALIBRADA (V3) Ã¢â€â‚¬Ã¢â€â‚¬
+                diversityPenalty: 0.40,                      // V3: 0.90Ã¢â€ â€™0.40 Ã¢â‚¬â€ PERMITIR concentraÃƒÂ§ÃƒÂ£o!
+                maxConcentration: 0.80,                      // V3: 0.72Ã¢â€ â€™0.80 (15/25=60%, mais margem)
+                forceNewEvery: 3,                            // V3: 2Ã¢â€ â€™3 Ã¢â‚¬â€ menos rotaÃƒÂ§ÃƒÂ£o forÃƒÂ§ada
+                maxOverlapBetweenGames: 12,                  // V3: 10Ã¢â€ â€™12 Ã¢â‚¬â€ jogos mais similares quando IA converge
+                maxSeedRatio: 0.15,                          // V3: 0.20Ã¢â€ â€™0.15
+                noiseLevel: 0.12                             // V3: 0.25Ã¢â€ â€™0.12 Ã¢â‚¬â€ MENOS RUÃƒÂDO = MAIS SINAL
             },
             quina: {
                 name: 'Quina',
                 draw: 5, range: [1, 80],
                 maxConsecutive: 2,
-                evenOddIdeal: [3, 2], evenOddTolerance: 2,  // v2.3: tolerÃƒÆ’Ã‚Â¢ncia 1ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢2
+                evenOddIdeal: [3, 2], evenOddTolerance: 2,  // v2.3: tolerÃƒÂ¢ncia 1Ã¢â€ â€™2
                 faixaSize: 10, faixaMin: 0, faixaMax: 2,
                 sumMin: 100, sumMax: 300,               // v2.3: ajustado P10-P90
-                gapMin: 5, gapMax: 25,                  // v2.3: gapMax 20ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢25 (range 80)
+                gapMin: 5, gapMax: 25,                  // v2.3: gapMax 20Ã¢â€ â€™25 (range 80)
                 repeatFromLast: [0, 1],
                 primeRatio: [0.0, 0.55],
                 maxSameEnding: 2,
-                fibWeight: 0.08,                        // v2.3: 0.3ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.08
-                markovWeight: 0.15,                     // v2.3: 0.55ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.15 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â CAUSA RAIZ da concentraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
-                trendWeight: 0.15,                      // v2.3: 0.50ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.15
-                pairBoost: 0.08,                        // v2.3: 0.40ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.08
-                trioBoost: 0.04,                        // v2.3: 0.30ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.04
+                fibWeight: 0.08,                        // v2.3: 0.3Ã¢â€ â€™0.08
+                markovWeight: 0.15,                     // v2.3: 0.55Ã¢â€ â€™0.15 Ã¢â‚¬â€ CAUSA RAIZ da concentraÃƒÂ§ÃƒÂ£o
+                trendWeight: 0.15,                      // v2.3: 0.50Ã¢â€ â€™0.15
+                pairBoost: 0.08,                        // v2.3: 0.40Ã¢â€ â€™0.08
+                trioBoost: 0.04,                        // v2.3: 0.30Ã¢â€ â€™0.04
                 multiWindow: true,
                 zoneMinCover: 3,                        // Cobrir 3 de 8 zonas
                 hotNumbers: [],
                 coldNumbers: [],
-                diversityPenalty: 0.85,                 // v2.3: 0.45ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.85 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â penalidade SEVERA
-                maxConcentration: 0.08,                 // v2.3: 0.35ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.08 (5/80=6.25%, +2% margem)
-                forceNewEvery: 2,                       // v2.3: 3ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢2
+                diversityPenalty: 0.85,                 // v2.3: 0.45Ã¢â€ â€™0.85 Ã¢â‚¬â€ penalidade SEVERA
+                maxConcentration: 0.08,                 // v2.3: 0.35Ã¢â€ â€™0.08 (5/80=6.25%, +2% margem)
+                forceNewEvery: 2,                       // v2.3: 3Ã¢â€ â€™2
                 maxOverlapBetweenGames: 2,              // NOVO: max 2/5 overlap
                 maxSeedRatio: 0.20,                     // NOVO
-                noiseLevel: 0.50,                       // NOVO: ruÃƒÆ’Ã‚Â­do ALTO (range 80)
+                noiseLevel: 0.50,                       // NOVO: ruÃƒÂ­do ALTO (range 80)
                 // Camadas de temperatura
                 hotRatio: 0.40,                         // ~2/5 do pool HOT
                 warmRatio: 0.35,                        // ~2/5 do warm
@@ -133,29 +133,29 @@ class SmartBetsEngine {
             duplasena: {
                 name: 'Dupla Sena',
                 draw: 6, range: [1, 50],
-                maxConsecutive: 3,                           // v2.3: 4ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢3
-                evenOddIdeal: [3, 3], evenOddTolerance: 2,   // v2.3: tol 1ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢2
+                maxConsecutive: 3,                           // v2.3: 4Ã¢â€ â€™3
+                evenOddIdeal: [3, 3], evenOddTolerance: 2,   // v2.3: tol 1Ã¢â€ â€™2
                 faixaSize: 10, faixaMin: 0, faixaMax: 3,
                 sumMin: 60, sumMax: 220,                     // v2.3: ajustado P10-P90
-                gapMin: 3, gapMax: 15,                       // v2.3: gapMin 2ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢3, gapMax 7ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢15
-                repeatFromLast: [0, 2],                      // v2.3: 0-4ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0-2
+                gapMin: 3, gapMax: 15,                       // v2.3: gapMin 2Ã¢â€ â€™3, gapMax 7Ã¢â€ â€™15
+                repeatFromLast: [0, 2],                      // v2.3: 0-4Ã¢â€ â€™0-2
                 primeRatio: [0.0, 0.55],
-                maxSameEnding: 2,                            // v2.3: 3ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢2
-                fibWeight: 0.08,                             // v2.3: 0.3ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.08
-                markovWeight: 0.15,                          // v2.3: 0.55ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.15 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â CAUSA RAIZ
-                trendWeight: 0.15,                           // v2.3: 0.50ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.15
-                pairBoost: 0.08,                             // v2.3: 0.45ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.08
-                trioBoost: 0.04,                             // v2.3: 0.35ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.04
+                maxSameEnding: 2,                            // v2.3: 3Ã¢â€ â€™2
+                fibWeight: 0.08,                             // v2.3: 0.3Ã¢â€ â€™0.08
+                markovWeight: 0.15,                          // v2.3: 0.55Ã¢â€ â€™0.15 Ã¢â‚¬â€ CAUSA RAIZ
+                trendWeight: 0.15,                           // v2.3: 0.50Ã¢â€ â€™0.15
+                pairBoost: 0.08,                             // v2.3: 0.45Ã¢â€ â€™0.08
+                trioBoost: 0.04,                             // v2.3: 0.35Ã¢â€ â€™0.04
                 multiWindow: true,
                 zoneMinCover: 3,                             // NOVO: cobrir 3 de 5 zonas
                 hotNumbers: [],
                 coldNumbers: [],
-                diversityPenalty: 0.85,                      // v2.3: 0.35ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.85 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â penalidade SEVERA
-                maxConcentration: 0.15,                      // v2.3: 0.38ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.15 (6/50=12%, +3%)
-                forceNewEvery: 2,                            // v2.3: 3ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢2
+                diversityPenalty: 0.85,                      // v2.3: 0.35Ã¢â€ â€™0.85 Ã¢â‚¬â€ penalidade SEVERA
+                maxConcentration: 0.15,                      // v2.3: 0.38Ã¢â€ â€™0.15 (6/50=12%, +3%)
+                forceNewEvery: 2,                            // v2.3: 3Ã¢â€ â€™2
                 maxOverlapBetweenGames: 2,                   // NOVO: max 2/6 overlap
                 maxSeedRatio: 0.20,                          // NOVO
-                noiseLevel: 0.45,                            // NOVO: ruÃƒÆ’Ã‚Â­do para range 50
+                noiseLevel: 0.45,                            // NOVO: ruÃƒÂ­do para range 50
                 hotRatio: 0.40,
                 warmRatio: 0.35,
                 coldRatio: 0.25
@@ -164,27 +164,27 @@ class SmartBetsEngine {
                 name: 'Lotomania',
                 draw: 20, range: [0, 99],
                 maxConsecutive: 4,
-                evenOddIdeal: [25, 25], evenOddTolerance: 5, // v2.3: CORRIGIDO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â jogo tem 50 nums, nÃƒÆ’Ã‚Â£o 20!
-                faixaSize: 10, faixaMin: 1, faixaMax: 8,    // v2.3: CORRIGIDO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 50 nums cobrem 8+ faixas
-                sumMin: 2100, sumMax: 2900,                  // v2.3: CORRIGIDO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soma de 50 nums ~2475
-                gapMin: 1, gapMax: 3,                        // v2.3: CORRIGIDO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 50/100 = gaps pequenos
-                repeatFromLast: [7, 14],                     // v2.3: CORRIGIDO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 50 nums, overlap alto esperado
+                evenOddIdeal: [25, 25], evenOddTolerance: 5, // v2.3: CORRIGIDO Ã¢â‚¬â€ jogo tem 50 nums, nÃƒÂ£o 20!
+                faixaSize: 10, faixaMin: 1, faixaMax: 8,    // v2.3: CORRIGIDO Ã¢â‚¬â€ 50 nums cobrem 8+ faixas
+                sumMin: 2100, sumMax: 2900,                  // v2.3: CORRIGIDO Ã¢â‚¬â€ soma de 50 nums ~2475
+                gapMin: 1, gapMax: 3,                        // v2.3: CORRIGIDO Ã¢â‚¬â€ 50/100 = gaps pequenos
+                repeatFromLast: [7, 14],                     // v2.3: CORRIGIDO Ã¢â‚¬â€ 50 nums, overlap alto esperado
                 primeRatio: [0.15, 0.50],
-                maxSameEnding: 8,                            // v2.3: CORRIGIDO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 50 nums = ~5 por terminaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
-                fibWeight: 0.06,                             // v2.3: 0.2ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.06 ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦
-                markovWeight: 0.12,                          // v2.3: 0.40ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.12 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â anti-concentraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦
-                trendWeight: 0.12,                           // v2.3: 0.35ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.12 ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦
-                pairBoost: 0.06,                             // v2.3: 0.25ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.06 ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦
-                trioBoost: 0.03,                             // v2.3: 0.15ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.03 ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦
+                maxSameEnding: 8,                            // v2.3: CORRIGIDO Ã¢â‚¬â€ 50 nums = ~5 por terminaÃƒÂ§ÃƒÂ£o
+                fibWeight: 0.06,                             // v2.3: 0.2Ã¢â€ â€™0.06 Ã¢Å“â€¦
+                markovWeight: 0.12,                          // v2.3: 0.40Ã¢â€ â€™0.12 Ã¢â‚¬â€ anti-concentraÃƒÂ§ÃƒÂ£o Ã¢Å“â€¦
+                trendWeight: 0.12,                           // v2.3: 0.35Ã¢â€ â€™0.12 Ã¢Å“â€¦
+                pairBoost: 0.06,                             // v2.3: 0.25Ã¢â€ â€™0.06 Ã¢Å“â€¦
+                trioBoost: 0.03,                             // v2.3: 0.15Ã¢â€ â€™0.03 Ã¢Å“â€¦
                 multiWindow: true,
                 hotNumbers: [],
                 coldNumbers: [],
-                diversityPenalty: 0.80,                      // v2.3: 0.50ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.80 ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦
-                maxConcentration: 0.55,                      // v2.3: 0.30ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.55 (50/100=50%, +5%)
+                diversityPenalty: 0.80,                      // v2.3: 0.50Ã¢â€ â€™0.80 Ã¢Å“â€¦
+                maxConcentration: 0.55,                      // v2.3: 0.30Ã¢â€ â€™0.55 (50/100=50%, +5%)
                 forceNewEvery: 2,
                 maxOverlapBetweenGames: 35,                  // NOVO: max 35/50 overlap
                 maxSeedRatio: 0.15,                          // NOVO
-                noiseLevel: 0.35,                            // NOVO: ruÃƒÆ’Ã‚Â­do para explorar range 100
+                noiseLevel: 0.35,                            // NOVO: ruÃƒÂ­do para explorar range 100
                 hotRatio: 0.40,
                 warmRatio: 0.35,
                 coldRatio: 0.25
@@ -227,31 +227,31 @@ class SmartBetsEngine {
             diadesorte: {
                 name: 'Dia de Sorte',
                 draw: 7, range: [1, 31],
-                // Ã¢Ëœâ€¦ DDS V2.0: Anti-sequÃƒÂªncia rigoroso
-                maxConsecutive: 2,                           // v2.3: 4ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢3
+                // â˜… DDS V2.0: Anti-sequÃªncia rigoroso
+                maxConsecutive: 2,                           // v2.3: 4Ã¢â€ â€™3
                 evenOddIdeal: [3, 4], evenOddTolerance: 2,
-                faixaSize: 8, faixaMin: 1, faixaMax: 3,     // v2.3: faixaMax 4ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢3
+                faixaSize: 8, faixaMin: 1, faixaMax: 3,     // v2.3: faixaMax 4Ã¢â€ â€™3
                 sumMin: 70, sumMax: 155,                     // v2.3: ajustado
-                gapMin: 1, gapMax: 7,                        // v2.3: gapMax 5ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢7
-                repeatFromLast: [0, 3],                      // v2.3: 0-4ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0-3
+                gapMin: 1, gapMax: 7,                        // v2.3: gapMax 5Ã¢â€ â€™7
+                repeatFromLast: [0, 3],                      // v2.3: 0-4Ã¢â€ â€™0-3
                 primeRatio: [0.0, 0.60],
-                maxSameEnding: 2,                            // v2.3: 3ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢2
-                fibWeight: 0.04,                             // v2.3: 0.3ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.06
-                markovWeight: 0.08,                          // v2.3: 0.55ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.12 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â CAUSA RAIZ
-                trendWeight: 0.10,                           // v2.3: 0.50ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.12
-                // Ã¢Ëœâ€¦ DDS V2.0: PARES reforÃƒÂ§ados
-                pairBoost: 0.12,                             // v2.3: 0.45ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.06
-                trioBoost: 0.04,                             // v2.3: 0.35ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.03
+                maxSameEnding: 2,                            // v2.3: 3Ã¢â€ â€™2
+                fibWeight: 0.04,                             // v2.3: 0.3Ã¢â€ â€™0.06
+                markovWeight: 0.08,                          // v2.3: 0.55Ã¢â€ â€™0.12 Ã¢â‚¬â€ CAUSA RAIZ
+                trendWeight: 0.10,                           // v2.3: 0.50Ã¢â€ â€™0.12
+                // â˜… DDS V2.0: PARES reforÃ§ados
+                pairBoost: 0.12,                             // v2.3: 0.45Ã¢â€ â€™0.06
+                trioBoost: 0.04,                             // v2.3: 0.35Ã¢â€ â€™0.03
                 multiWindow: true,
                 hotNumbers: [],
                 coldNumbers: [],
-                diversityPenalty: 0.90,                      // v2.3: 0.25ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.88 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â MUITO agressivo (range 31!)
-                maxConcentration: 0.26,                      // v2.3: 0.45ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.28 (7/31=22.5%, +5.5%)
-                forceNewEvery: 2,                            // v2.3: 4ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢2
+                diversityPenalty: 0.90,                      // v2.3: 0.25Ã¢â€ â€™0.88 Ã¢â‚¬â€ MUITO agressivo (range 31!)
+                maxConcentration: 0.26,                      // v2.3: 0.45Ã¢â€ â€™0.28 (7/31=22.5%, +5.5%)
+                forceNewEvery: 2,                            // v2.3: 4Ã¢â€ â€™2
                 maxOverlapBetweenGames: 3,                   // NOVO: max 3/7 overlap
                 maxSeedRatio: 0.12,                          // NOVO
                 noiseLevel: 0.25,                            // NOVO
-                // Ã¢Ëœâ€¦ DDS V2.0: Mix hot/cold balanceado
+                // â˜… DDS V2.0: Mix hot/cold balanceado
                 hotRatio: 0.38,
                 warmRatio: 0.32,
                 coldRatio: 0.30
@@ -260,9 +260,9 @@ class SmartBetsEngine {
         return profiles[gameKey] || profiles.megasena;
     }
 
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬â€
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ  MÃƒÆ’Ã¢â‚¬Â°TODO PRINCIPAL: GERAR N JOGOS INTELIGENTES       ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã…Â¡ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+    // Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
+    // Ã¢â€¢â€˜  MÃƒâ€°TODO PRINCIPAL: GERAR N JOGOS INTELIGENTES       Ã¢â€¢â€˜
+    // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     static generate(gameKey, numGames, selectedNumbers, fixedNumbers = [], customDrawSize = null) {
         console.log('%c[DEBUG-L99] SmartBetsEngine.generate() CHAMADO | gameKey=' + gameKey + ' | numGames=' + numGames + ' | NovaEraEngine=' + (typeof NovaEraEngine), 'color: #FF0000; font-size: 16px; font-weight: bold;');
         const profile = this.getProfile(gameKey);
@@ -273,14 +273,14 @@ class SmartBetsEngine {
         const endNum = profile.range[1];
         const drawSize = customDrawSize || game.minBet || profile.draw;
 
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // V6: QUANTUM HARMÃƒÆ’Ã¢â‚¬ÂNICO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â INTERCEPTAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã†â€™O TIMEMANIA
-        // Motor especializado com anÃƒÆ’Ã‚Â¡lise profunda para 10/80
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
-        // Ã¢â€¢â€˜  NOVA ERA V1: Motor de ProjeÃƒÂ§ÃƒÂ£o Futura Ã¢â‚¬â€ TODAS AS LOTERIAS      Ã¢â€¢â€˜
-        // Ã¢â€¢â€˜  Cobertura Total + Diversidade MÃƒÂ¡xima + Backtesting Honesto      Ã¢â€¢â€˜
-        // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // V6: QUANTUM HARMÃƒâ€NICO Ã¢â‚¬â€ INTERCEPTAÃƒâ€¡ÃƒÆ’O TIMEMANIA
+        // Motor especializado com anÃƒÂ¡lise profunda para 10/80
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+        // â•‘  NOVA ERA V1: Motor de ProjeÃ§Ã£o Futura â€” TODAS AS LOTERIAS      â•‘
+        // â•‘  Cobertura Total + Diversidade MÃ¡xima + Backtesting Honesto      â•‘
+        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         if (['megasena','lotofacil','quina','duplasena','lotomania','diadesorte','timemania'].includes(gameKey)) {
             // v9.0 RECALIBRADO: PRIORIDADE INVERTIDA
             // NovaEraEngine PRIMEIRO (diversidade maxima)
@@ -298,7 +298,7 @@ class SmartBetsEngine {
                 }
             }
             if (typeof NovaEraEngine !== 'undefined') {
-                console.log('[SmartBets] Ã¢Å¡Â¡ Redirecionando para NOVA ERA V1 Ã¢â‚¬â€ ' + gameKey);
+                console.log('[SmartBets] âš¡ Redirecionando para NOVA ERA V1 â€” ' + gameKey);
                 try {
                     var neResult = NovaEraEngine.generate(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
                     console.log('%c[DEBUG-L99] NovaEraEngine SUCCESS! confidence=' + (neResult.analysis ? neResult.analysis.confidence : 'N/A'), 'color: #00FF00; font-size: 14px;');
@@ -309,22 +309,254 @@ class SmartBetsEngine {
                     return this._generateQuantumUniversal(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
                 }
             } else {
-                console.warn('[SmartBets] Ã¢Å¡Â Ã¯Â¸Â NovaEraEngine nÃƒÂ£o carregado, usando motor legado');
+                console.warn('[SmartBets] âš ï¸ NovaEraEngine nÃ£o carregado, usando motor legado');
                 return this._generateQuantumUniversal(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
             }
         }
 
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // NOTA: O bloco acima (NovaEraEngine) intercepta TODAS as 7 loterias.
+        // O cÃ³digo legado abaixo serve apenas como fallback se NovaEraEngine
+        // nÃ£o estiver carregado (via _generateQuantumUniversal).
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-        // ════════════════════════════════════════════════════════════════════════
-        // [REMOVIDO] ~234 linhas de codigo legado que NUNCA eram executadas.
-        // A cadeia PrecisionEngine -> NovaEraEngine -> _generateQuantumUniversal
-        // intercepta TODAS as 7 loterias e retorna antes deste ponto.
-        // ════════════════════════════════════════════════════════════════════════
+        // Pool de nÃƒÂºmeros: usar selecionados ou universo completo
+        // V9: Se usuÃ¡rio selecionou nÃºmeros (mesmo menos que drawSize), usar como pool preferencial
+        let pool;
+        if (selectedNumbers && selectedNumbers.length >= drawSize) {
+            // SeleÃ§Ã£o completa: usar exclusivamente os nÃºmeros escolhidos
+            pool = selectedNumbers.slice();
+            console.log('[SmartBets] ðŸŽ¯ Pool do usuÃ¡rio (' + pool.length + ' nums selecionados)');
+        } else if (selectedNumbers && selectedNumbers.length >= Math.ceil(drawSize / 2)) {
+            // SeleÃ§Ã£o parcial: usar como ponto de partida + completar com anÃ¡lise IA
+            const fullPool = this._buildFullPool(startNum, endNum);
+            const selectedSet = new Set(selectedNumbers);
+            // Priorizar: selecionados primeiro, depois os melhores da IA
+            pool = [...selectedNumbers, ...fullPool.filter(n => !selectedSet.has(n))];
+            console.log('[SmartBets] ðŸŽ¯ Pool hÃ­brido: ' + selectedNumbers.length + ' do usuÃ¡rio + ' + (pool.length - selectedNumbers.length) + ' IA');
+        } else {
+            // Sem seleÃ§Ã£o ou poucas: usar universo completo
+            pool = this._buildFullPool(startNum, endNum);
+            console.log('[SmartBets] ðŸ§  Pool IA completo (' + pool.length + ' nums)');
+        }
+
+        // Carregar histÃƒÂ³rico
+        let history = [];
+        try {
+            history = StatsService.getRecentResults(gameKey, 100) || [];
+        } catch (e) {
+            console.warn('[SmartBets] Sem histÃƒÂ³rico, usando modo bÃƒÂ¡sico');
+        }
+
+        console.log(`[SmartBets] Ã°Å¸Â§Â  Gerando ${numGames} jogos inteligentes para ${profile.name}`);
+        console.log(`[SmartBets] Ã°Å¸â€œÅ  Pool: ${pool.length} nÃƒÂºmeros | HistÃƒÂ³rico: ${history.length} sorteios`);
+
+
+        // Ã¢â€â‚¬Ã¢â€â‚¬ ANÃƒÂLISE PRÃƒâ€°-CÃƒÂLCULO Ã¢â€â‚¬Ã¢â€â‚¬
+        const analysis = this._deepAnalysis(gameKey, pool, history, profile, startNum, endNum);
+
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // V3: ESTRATÃƒâ€°GIA DE EXCLUSÃƒÆ’O INTELIGENTE
+        // Em vez de escolher os melhores, EXCLUIR os piores.
+        // LotofÃƒÂ¡cil: excluir 8-10 de 25 Ã¢â€ â€™ pool de 15-17
+        // Timemania: excluir 55-65 de 80 Ã¢â€ â€™ pool de 15-25
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        if (profile.useExclusionStrategy && history.length >= 5 && (!selectedNumbers || selectedNumbers.length === 0)) {
+            const exclusionScores = {};
+            const totalRange = endNum - startNum + 1;
+
+            for (let n = startNum; n <= endNum; n++) {
+                let excScore = 0;
+
+                // FATOR 1: FrequÃƒÂªncia BAIXA recente (ÃƒÂºltimos 5 sorteios) = provÃƒÂ¡vel que nÃƒÂ£o saia
+                let recentHits = 0;
+                const recentLimit = Math.min(5, history.length);
+                for (let i = 0; i < recentLimit; i++) {
+                    if (history[i].numbers.includes(n)) recentHits++;
+                }
+                const recentRate = recentHits / recentLimit;
+                if (recentRate < 0.15) excScore += 3.0;      // Quase nunca sai recentemente
+                else if (recentRate < 0.30) excScore += 1.5;
+
+                // FATOR 2: FrequÃƒÂªncia baixa em mÃƒÂºltiplas janelas
+                if (analysis.multiWindowScores && analysis.multiWindowScores[n] < 0.25) {
+                    excScore += 2.0;
+                } else if (analysis.multiWindowScores && analysis.multiWindowScores[n] < 0.40) {
+                    excScore += 1.0;
+                }
+
+                // FATOR 3: Score geral baixo
+                const baseScore = analysis.numberScores[n] || 0;
+                if (baseScore < 0.25) excScore += 2.5;
+                else if (baseScore < 0.40) excScore += 1.0;
+
+                // FATOR 4: TendÃƒÂªncia de QUEDA
+                const trend = analysis.trendScores[n] || 1.0;
+                if (trend < 0.3) excScore += 2.0;
+                else if (trend < 0.6) excScore += 0.8;
+
+                // FATOR 5: EstÃƒÂ¡ "frio" Ã¢â‚¬â€ saiu recentemente mas nÃƒÂ£o tem padrÃƒÂ£o de repetir
+                const lastSeen = this._findLastSeen(n, history);
+                if (lastSeen > 5 && recentRate < 0.20) excScore += 1.5;
+
+                exclusionScores[n] = excScore;
+            }
+
+            // Ordenar por score de exclusÃƒÂ£o (maior = mais provÃƒÂ¡vel de NÃƒÆ’O sair)
+            const ranked = pool.map(n => ({ num: n, excScore: exclusionScores[n] || 0 }))
+                .sort((a, b) => b.excScore - a.excScore);
+
+            // Determinar quantos excluir
+            const [minExcl, maxExcl] = profile.exclusionCount;
+            const targetExcl = Math.min(maxExcl, Math.max(minExcl, 
+                Math.floor(pool.length * (profile.exclusionThreshold || 0.30))
+            ));
+
+            // Garantir pool mÃƒÂ­nimo: drawSize + 2 (para ter diversidade)
+            const maxExclSafe = Math.max(0, pool.length - drawSize - 2);
+            const actualExcl = Math.min(targetExcl, maxExclSafe);
+
+            if (actualExcl > 0) {
+                const excluded = ranked.slice(0, actualExcl).map(r => r.num);
+                const excludedSet = new Set(excluded);
+                
+                // NÃƒÂ£o excluir nÃƒÂºmeros fixos
+                const safeExcluded = excluded.filter(n => !fixedNumbers.includes(n));
+                const safeExcludedSet = new Set(safeExcluded);
+                
+                pool = pool.filter(n => !safeExcludedSet.has(n));
+
+                console.log(`[SmartBets] Ã°Å¸Å¡Â« EXCLUSÃƒÆ’O V3: ${safeExcluded.length} nÃƒÂºmeros excluÃƒÂ­dos`);
+                console.log(`[SmartBets] Ã°Å¸Å¡Â« ExcluÃƒÂ­dos: [${safeExcluded.sort((a,b) => a-b).join(', ')}]`);
+                console.log(`[SmartBets] Ã¢Å“â€¦ Pool reduzido: ${pool.length} nÃƒÂºmeros Ã¢â€ â€™ [${pool.sort((a,b) => a-b).join(', ')}]`);
+            }
+        }
+
+        // Ã¢â€â‚¬Ã¢â€â‚¬ GERAR JOGOS Ã¢â€â‚¬Ã¢â€â‚¬
+        const games = [];
+        const allUsedNumbers = {};
+        const usedCombinations = new Set();
+        const isLargeGame = drawSize >= 15;
+        const isVeryLargeGame = drawSize >= 20;
+        const isLargeRange = (endNum - startNum + 1) >= 60; // Timemania/Quina: range 80
+        const maxAttempts = isVeryLargeGame ? numGames * 5000 : (isLargeGame ? numGames * 2000 : numGames * 1000);
+        let attempts = 0;
+
+        // Ã¢â€â‚¬Ã¢â€â‚¬ CONTROLE DE CONCENTRAÃƒâ€¡ÃƒÆ’O GLOBAL Ã¢â€â‚¬Ã¢â€â‚¬
+        const maxConcentration = profile.maxConcentration || 0.40;
+        const forceNewEvery = profile.forceNewEvery || 5;
+        const totalRange = endNum - startNum + 1;
+
+        console.log(`[SmartBets] Ã°Å¸â€Â§ drawSize=${drawSize}, pool=${pool.length}, maxConc=${maxConcentration}`);
+
+         // ★ GOD MODE FIX: Viability Check antes de tentar gerar jogos
+         if (pool.length < drawSize) {
+             console.error('[SmartBets] ❌ Pool menor que o tamanho do jogo.');
+             throw new Error(`Modo Precisão Falhou: O conjunto tem apenas ${pool.length} números, mas o jogo exige ${drawSize}.`);
+         }
+         const poolEvens = pool.filter(n => n % 2 === 0).length;
+         const poolOdds = pool.length - poolEvens;
+         const minEvens = profile.evenOddIdeal[0] - profile.evenOddTolerance;
+         const minOdds = profile.evenOddIdeal[1] - profile.evenOddTolerance;
+         
+         if (pool.length / drawSize < 1.5) {
+             if (poolEvens < minEvens || poolOdds < minOdds) {
+                 console.error(`[SmartBets] ❌ Viability falhou. Pares no pool: ${poolEvens} (min: ${minEvens}). Ímpares: ${poolOdds} (min: ${minOdds})`);
+                 throw new Error(`Inviabilidade Estatística: O pool de ${pool.length} números possui ${poolEvens} pares e ${poolOdds} ímpares, sendo impossível gerar um jogo válido pelas regras da IA. Por favor, adicione mais números ou desative restrições.`);
+             }
+         }
+
+         while (games.length < numGames && attempts < maxAttempts) {
+            attempts++;
+            const ticket = this._generateSingleSmartGame(
+                gameKey, pool, drawSize, profile, analysis,
+                history, games, allUsedNumbers, fixedNumbers
+            );
+
+            if (!ticket) continue;
+
+            const key = ticket.join(',');
+            if (usedCombinations.has(key)) continue;
+
+            // V3: Pool/drawSize ratio Ã¢â‚¬â€ se pool ÃƒÂ© apertado, relaxar validaÃƒÂ§ÃƒÂµes
+            const poolRatio = pool.length / drawSize;
+            const isTightPool = poolRatio < 1.4; // Ex: 17/15 = 1.13 Ã¢â€ â€™ tight
+
+            // Ã¢â€â‚¬Ã¢â€â‚¬ ANTI-CONCENTRAÃƒâ€¡ÃƒÆ’O v3: IGNORAR se pool ÃƒÂ© tight Ã¢â€â‚¬Ã¢â€â‚¬
+            if (!isTightPool && games.length > 1) {
+                const isSmallRange = totalRange <= 30;
+                const concLimit = isSmallRange
+                    ? Math.max(4, Math.ceil(games.length * Math.max(maxConcentration, drawSize / totalRange * 1.5)))
+                    : Math.max(3, Math.ceil(games.length * 0.08));
+                let overUsedCount = 0;
+                for (const num of ticket) {
+                    if ((allUsedNumbers[num] || 0) >= concLimit) {
+                        overUsedCount++;
+                    }
+                }
+                const overUsedThreshold = isSmallRange ? Math.max(2, Math.ceil(drawSize * 0.20)) : 2;
+                if (overUsedCount >= overUsedThreshold && attempts < maxAttempts * 0.70) continue;
+            }
+
+            // Ã¢â€â‚¬Ã¢â€â‚¬ ANTI-OVERLAP v3: RELAXAR se pool ÃƒÂ© tight Ã¢â€â‚¬Ã¢â€â‚¬
+            if (!isTightPool && games.length > 0) {
+                const maxOverlap = profile.maxOverlapBetweenGames || Math.ceil(drawSize * 0.80);
+                let tooSimilar = false;
+                const checkFrom = Math.max(0, games.length - 100);
+                for (let g = checkFrom; g < games.length; g++) {
+                    let overlap = 0;
+                    const existingSet = new Set(games[g]);
+                    for (const num of ticket) {
+                        if (existingSet.has(num)) overlap++;
+                    }
+                    if (overlap > maxOverlap) {
+                        tooSimilar = true;
+                        break;
+                    }
+                }
+                if (tooSimilar && attempts < maxAttempts * 0.85) continue;
+            }
+
+            // Ã¢â€â‚¬Ã¢â€â‚¬ VALIDAÃƒâ€¡ÃƒÆ’O FINAL v3 Ã¢â€â‚¬Ã¢â€â‚¬
+            if (isVeryLargeGame || isTightPool) {
+                // Pool tight: a inteligÃƒÂªncia estÃƒÂ¡ na EXCLUSÃƒÆ’O, nÃƒÂ£o na validaÃƒÂ§ÃƒÂ£o individual
+                games.push(ticket);
+                usedCombinations.add(key);
+                ticket.forEach(n => allUsedNumbers[n] = (allUsedNumbers[n] || 0) + 1);
+            } else {
+                const score = this._scoreGame(ticket, profile, analysis, history);
+                const minScore = isLargeGame ? 4.0 : 5.0;
+                if (score >= minScore || attempts > maxAttempts * 0.80) {
+                    games.push(ticket);
+                    usedCombinations.add(key);
+                    ticket.forEach(n => allUsedNumbers[n] = (allUsedNumbers[n] || 0) + 1);
+                }
+            }
+        }
+
+        // Ã¢â€â‚¬Ã¢â€â‚¬ CALCULAR CONFIANÃƒâ€¡A DO SET Ã¢â€â‚¬Ã¢â€â‚¬
+        const setAnalysis = this._analyzeGeneratedSet(games, profile, analysis, history, gameKey);
+
+        console.log(`[SmartBets] Ã¢Å“â€¦ ${games.length} jogos gerados em ${attempts} tentativas`);
+        console.log(`[SmartBets] Ã°Å¸â€œÅ  ConfianÃƒÂ§a: ${setAnalysis.confidence}% | Cobertura: ${setAnalysis.coverage}%`);
+
+        return {
+            pool: pool,
+            games: games,
+            analysis: setAnalysis
+        };
+    }
 
     // Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
-    // Ã¢â€¢â€˜  QUANTUM UNIVERSAL V9-D Ã¢â‚¬â€ Motor para TODAS as Loterias              Ã¢â€¢â€˜
-    // Ã¢â€¢â€˜  Anti-SequÃƒÂªncia Rigoroso + Cobertura de Zonas + ConfianÃƒÂ§a 95%+      Ã¢â€¢â€˜
+    // Ã¢â€¢â€˜  QUANTUM HARMÃƒâ€NICO V8 Ã¢â‚¬â€ FECHAMENTO MATEMÃƒÂTICO TIMEMANIA           Ã¢â€¢â€˜
+    // Ã¢â€¢â€˜  EstratÃƒÂ©gia: C(12,10)=66 combos do ELITE + 34 do TOP15            Ã¢â€¢â€˜
+    // Ã¢â€¢â€˜  Se 3+ sorteados estÃƒÂ£o no ELITE Ã¢â€ â€™ MÃƒÅ¡LTIPLOS bilhetes premiados    Ã¢â€¢â€˜
     // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  QUANTUM UNIVERSAL V9-D â€” Motor para TODAS as Loterias              â•‘
+    // â•‘  Anti-SequÃªncia Rigoroso + Cobertura de Zonas + ConfianÃ§a 95%+      â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _generateQuantumUniversal(gameKey, numGames, selectedNumbers, fixedNumbers, drawSize) {
         const game = GAMES[gameKey];
         const profile = this.getProfile(gameKey);
@@ -335,26 +567,26 @@ class SmartBetsEngine {
         const totalRange = endNum - startNum + 1;
         const numZones   = Math.ceil(totalRange / 10);
 
-        // Carregar histÃƒÂ³rico
+        // Carregar histÃ³rico
         let history = [];
-        try { history = StatsService.getRecentResults(gameKey, 200) || []; } catch(e) { console.warn('[SmartBets] Falha ao carregar histÃ³rico:', e.message); }
+        try { history = StatsService.getRecentResults(gameKey, 200) || []; } catch(e) { console.warn('[SmartBets] Falha ao carregar histórico:', e.message); }
 
         const N = history.length;
-        console.log('[QU-QCALV3] Ã¢Å¡â€ºÃ¯Â¸Â ' + (game.name || gameKey) + ' | ' + N + ' sorteios | drawSize=' + drawSize + ' | CALIBRAÃƒâ€¡ÃƒÆ’O QUÃƒâ€šNTICA ATIVA');
+        console.log('[QU-QCALV3] âš›ï¸ ' + (game.name || gameKey) + ' | ' + N + ' sorteios | drawSize=' + drawSize + ' | CALIBRAÃ‡ÃƒO QUÃ‚NTICA ATIVA');
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ CALIBRAÃƒâ€¡ÃƒÆ’O QUÃƒâ€šNTICA META-HEURÃƒÂSTICA (QCAL-V3) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-        // Integra Entropia Temporal + ClarividÃƒÂªncia Computacional + Filtros AtÃƒÂ´micos
-        // Ã¢Ëœâ€¦ PRECISION v2.0: Corrigido bug Ã¢â‚¬â€ drawCount era usado antes da definiÃƒÂ§ÃƒÂ£o
+        // â”€â”€ CALIBRAÃ‡ÃƒO QUÃ‚NTICA META-HEURÃSTICA (QCAL-V3) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // Integra Entropia Temporal + ClarividÃªncia Computacional + Filtros AtÃ´micos
+        // â˜… PRECISION v2.0: Corrigido bug â€” drawCount era usado antes da definiÃ§Ã£o
         let qCalibScores = null;
         if (typeof QuantumCalibration !== 'undefined' && N >= 3) {
             try {
                 qCalibScores = QuantumCalibration.calibrate(gameKey, history, drawSize);
             } catch(e) {
-                console.warn('[QU-QCALV3] CalibraÃƒÂ§ÃƒÂ£o quÃƒÂ¢ntica ignorada:', e.message);
+                console.warn('[QU-QCALV3] CalibraÃ§Ã£o quÃ¢ntica ignorada:', e.message);
             }
         }
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ FASE 1: SCORES MULTI-CAMADA Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        // â”€â”€ FASE 1: SCORES MULTI-CAMADA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         const freq   = {}, delay = {};
         const rec5   = {}, rec10 = {}, rec15 = {};
         for (let n = startNum; n <= endNum; n++) {
@@ -371,7 +603,7 @@ class SmartBetsEngine {
                 if (i < 15) rec15[n]++;
                 if (delay[n] === N) delay[n] = i;
             });
-            // Dupla Sena: contar 2Ã‚Âº sorteio tambÃƒÂ©m
+            // Dupla Sena: contar 2Âº sorteio tambÃ©m
             (d.numbers2 || []).forEach(n => {
                 if (n < startNum || n > endNum) return;
                 freq[n]++;
@@ -379,7 +611,7 @@ class SmartBetsEngine {
             });
         });
 
-        // Markov: co-ocorrÃƒÂªncias com ÃƒÂºltimo sorteio
+        // Markov: co-ocorrÃªncias com Ãºltimo sorteio
         const lastDraw = N > 0 ? (history[0].numbers || []) : [];
         const markov   = {};
         for (let n = startNum; n <= endNum; n++) markov[n] = 0;
@@ -395,7 +627,7 @@ class SmartBetsEngine {
             }
         }
 
-        // Entropia por zona (equilÃƒÂ­brio espacial)
+        // Entropia por zona (equilÃ­brio espacial)
         const zoneFreq    = new Array(numZones).fill(0);
         const zoneExpFreq = 1 / numZones;
         let zoneTotalDraws = 0;
@@ -409,11 +641,11 @@ class SmartBetsEngine {
         }
         const zoneBoosts = zoneFreq.map(f => (zoneExpFreq - f / Math.max(1, zoneTotalDraws)) * 0.9);
 
-        // PerÃƒÂ­odo de retorno esperado
+        // PerÃ­odo de retorno esperado
         const drawCount = drawSize > 0 ? drawSize : (game.minBet || 6);
         const expectedReturn = totalRange / drawCount;
 
-        // Score final composto Ã¢â‚¬â€ V9-D + QCAL-V3 Fusion
+        // Score final composto â€” V9-D + QCAL-V3 Fusion
         const scores = {};
         for (let n = startNum; n <= endNum; n++) {
             const fNorm   = freq[n] / Math.max(1, N);
@@ -430,22 +662,22 @@ class SmartBetsEngine {
             const baseScore = fNorm*0.28 + r5Norm*0.18 + r10Norm*0.20 + r15Norm*0.10
                             + delayBonus*0.10 + zBoost*0.08 + mkBoost*0.06;
 
-            // Score QCAL-V3: Entropia + ClarividÃƒÂªncia + Filtros AtÃƒÂ´micos
+            // Score QCAL-V3: Entropia + ClarividÃªncia + Filtros AtÃ´micos
             const qScore = qCalibScores ? (qCalibScores[n] || 0) : 0;
 
-            // FusÃƒÂ£o: 62% V9-D (dados histÃƒÂ³ricos) + 38% QCAL-V3 (padrÃƒÂµes quÃƒÂ¢nticos)
+            // FusÃ£o: 62% V9-D (dados histÃ³ricos) + 38% QCAL-V3 (padrÃµes quÃ¢nticos)
             scores[n] = baseScore * 0.62 + qScore * 0.38;
         }
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ FASE 2: DEFINIR POOL Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        // â”€â”€ FASE 2: DEFINIR POOL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         let pool = [];
         const hasUserSelection = selectedNumbers && selectedNumbers.length >= drawCount;
 
         if (hasUserSelection) {
             pool = selectedNumbers.slice().sort((a, b) => a - b);
-            console.log('[QU-V9D] Ã°Å¸Å½Â¯ Pool do usuÃƒÂ¡rio: ' + pool.length + ' nums');
+            console.log('[QU-V9D] ðŸŽ¯ Pool do usuÃ¡rio: ' + pool.length + ' nums');
         } else {
-            // Pool inteligente: top nÃƒÂºmeros de cada zona
+            // Pool inteligente: top nÃºmeros de cada zona
             const POOL_TARGET = Math.max(drawCount * 3, Math.min(totalRange, drawCount * 5));
             const perZone = Math.ceil(POOL_TARGET / numZones);
 
@@ -459,21 +691,21 @@ class SmartBetsEngine {
             for (let z = 0; z < numZones; z++) {
                 zones[z].slice(0, perZone).forEach(r => pool.push(r.num));
             }
-            // Completar se necessÃƒÂ¡rio
+            // Completar se necessÃ¡rio
             for (let n = startNum; n <= endNum && pool.length < POOL_TARGET; n++) {
                 if (!pool.includes(n)) pool.push(n);
             }
             pool.sort((a, b) => a - b);
-            console.log('[QU-V9D] Ã°Å¸Â§Â  Pool IA: ' + pool.length + ' nums de ' + totalRange);
+            console.log('[QU-V9D] ðŸ§  Pool IA: ' + pool.length + ' nums de ' + totalRange);
         }
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ FASE 3: GERAR JOGOS COM ANTI-SEQUÃƒÅ NCIA Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        // â”€â”€ FASE 3: GERAR JOGOS COM ANTI-SEQUÃŠNCIA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         const games     = [];
         const usedCount = {};
         const usedKeys  = new Set();
         pool.forEach(n => usedCount[n] = 0);
 
-        // maxUse proporcional ÃƒÂ  razÃƒÂ£o draw/pool Ã¢â‚¬â€ LotofÃƒÂ¡cil 15/25=60%, Mega 6/60=10%
+        // maxUse proporcional Ã  razÃ£o draw/pool â€” LotofÃ¡cil 15/25=60%, Mega 6/60=10%
         const drawPoolRatio = drawCount / Math.max(1, pool.length);
         const maxUsePerNum = Math.max(5, Math.ceil(numGames * Math.max(0.22, drawPoolRatio * 1.3)));
         const maxOverlap   = hasUserSelection
@@ -514,21 +746,21 @@ class SmartBetsEngine {
                 }
             }
 
-            // Embaralhar zonas para anti-sequÃƒÂªncia
+            // Embaralhar zonas para anti-sequÃªncia
             const zoneOrder = Array.from({ length: numZones }, (_, i) => i);
             for (let i = zoneOrder.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 const t = zoneOrder[i]; zoneOrder[i] = zoneOrder[j]; zoneOrder[j] = t;
             }
 
-            // MÃƒÂºltiplas rodadas por zona
+            // MÃºltiplas rodadas por zona
             const rounds = Math.ceil(drawCount / numZones) + 3;
             for (let round = 0; round < rounds && ticket.length < drawCount; round++) {
                 for (let zi = 0; zi < zoneOrder.length && ticket.length < drawCount; zi++) {
                     const z = zoneOrder[zi];
                     if (ticketZoneCount[z] >= maxPerZone) continue;
 
-                    // Calcular pesos Ã¢â‚¬â€ penaliza super-usados e consecutivos
+                    // Calcular pesos â€” penaliza super-usados e consecutivos
                     const inZone = pool.filter(n => {
                         const nz = Math.min(numZones-1, Math.floor((n-startNum)/10));
                         if (nz !== z) return false;
@@ -551,7 +783,7 @@ class SmartBetsEngine {
                         return Math.max(0.001, w);
                     });
 
-                    // SeleÃƒÂ§ÃƒÂ£o ponderada
+                    // SeleÃ§Ã£o ponderada
                     const totalW = weights.reduce((s, w) => s + w, 0);
                     let rand = Math.random() * totalW;
                     let chosen = inZone[0];
@@ -566,7 +798,7 @@ class SmartBetsEngine {
                 }
             }
 
-            // Completar se necessÃƒÂ¡rio (relaxar anti-consecutivo)
+            // Completar se necessÃ¡rio (relaxar anti-consecutivo)
             const remaining = pool.filter(n => !ticketSet.has(n) && (usedCount[n] || 0) < maxUsePerNum);
             remaining.sort((a, b) => (scores[b] || 0) - (scores[a] || 0));
             for (const n of remaining) {
@@ -597,12 +829,12 @@ class SmartBetsEngine {
             ticket.forEach(n => usedCount[n] = (usedCount[n] || 0) + 1);
         }
 
-        // Ã¢â€ÂÃ¢â€Â GARANTIA DE CONTAGEM EXATA Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â
-        // Preencher jogos faltantes sem nenhuma restriÃƒÂ§ÃƒÂ£o
+        // â”â” GARANTIA DE CONTAGEM EXATA â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+        // Preencher jogos faltantes sem nenhuma restriÃ§Ã£o
         if (games.length < numGames) {
-            console.warn('[QU-V9D] Ã¢Å¡Â Ã¯Â¸Â Preenchendo ' + (numGames - games.length) + ' jogo(s)');
+            console.warn('[QU-V9D] âš ï¸ Preenchendo ' + (numGames - games.length) + ' jogo(s)');
             let fillAtt = 0;
-            const fillMax = Math.min((numGames - games.length) * 50, 5000); // era 500x Ã¢â‚¬â€ muito lento
+            const fillMax = Math.min((numGames - games.length) * 50, 5000); // era 500x â€” muito lento
 
             while (games.length < numGames && fillAtt < fillMax) {
                 fillAtt++;
@@ -622,33 +854,33 @@ class SmartBetsEngine {
                     ticket.forEach(n => usedCount[n] = (usedCount[n] || 0) + 1);
                 }
             }
-            // ÃƒÅ¡ltimo recurso absoluto
+            // Ãšltimo recurso absoluto
             while (games.length < numGames && games.length > 0) {
                 games.push([...games[games.length % games.length]]);
             }
         }
 
-        console.log('[QU-QCALV3] Ã¢Å“â€¦ ' + games.length + '/' + numGames + ' jogos em ' + attempts + ' tentativas');
+        console.log('[QU-QCALV3] âœ… ' + games.length + '/' + numGames + ' jogos em ' + attempts + ' tentativas');
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-        // FASE 4: SISTEMA DE CONFIANÃƒâ€¡A ADAPTATIVO 95%+
-        // Arquitetura em 2 nÃƒÂ­veis:
-        //   A) Base garantida (68pts) Ã¢â‚¬â€ modelo estatÃƒÂ­stico confiÃƒÂ¡vel
-        //   B) BÃƒÂ´nus de performance (0-32pts) Ã¢â‚¬â€ qualidade real dos jogos
-        // Total possÃƒÂ­vel: 100pts Ã¢â€ â€™ teto 98%
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // FASE 4: SISTEMA DE CONFIANÃ‡A ADAPTATIVO 95%+
+        // Arquitetura em 2 nÃ­veis:
+        //   A) Base garantida (68pts) â€” modelo estatÃ­stico confiÃ¡vel
+        //   B) BÃ´nus de performance (0-32pts) â€” qualidade real dos jogos
+        // Total possÃ­vel: 100pts â†’ teto 98%
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
         const uniqueNums = new Set();
         games.forEach(g => g.forEach(n => uniqueNums.add(n)));
         const maxFreq    = Math.max(0, ...Object.values(usedCount).filter(v => v > 0));
         const maxFreqPct = games.length > 0 ? Math.round(maxFreq / games.length * 100) : 0;
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ BACKTESTING ADAPTATIVO: Amostrar atÃƒÂ© 50 sorteios Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-        // OttimizaÃƒÂ§ÃƒÂ£o: apenas verificar o melhor jogo por sorteio (O(n*draws))
+        // â”€â”€ BACKTESTING ADAPTATIVO: Amostrar atÃ© 50 sorteios â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // OttimizaÃ§Ã£o: apenas verificar o melhor jogo por sorteio (O(n*draws))
         const btCount = Math.min(50, history.length);
         let bt3 = 0, bt4 = 0, bt5 = 0, totalHits = 0, maxBtHits = 0;
 
-        // PrÃƒÂ©-criar sets para eficiÃƒÂªncia
+        // PrÃ©-criar sets para eficiÃªncia
         const gameSets = games.slice(0, Math.min(games.length, 200)).map(g => new Set(g));
 
         for (let t = 0; t < btCount; t++) {
@@ -669,7 +901,7 @@ class SmartBetsEngine {
 
         const avgHits    = btCount > 0 ? totalHits / btCount : 0;
         // Para Lotomania: game.draw=20 (bolas sorteadas) !== game.minBet=50 (aposta do jogador)
-        // Se game.draw existe e ÃƒÂ© diferente de drawCount, usar game.draw para esperanÃƒÂ§a
+        // Se game.draw existe e Ã© diferente de drawCount, usar game.draw para esperanÃ§a
         const actualDrawCount = (game && game.draw && game.draw < drawCount) ? game.draw : drawCount;
         const avgDrawn   = btCount > 0 ? history.slice(0, btCount).reduce((s, d) => s + (d.numbers || []).length, 0) / btCount : actualDrawCount;
         const expectedRnd = actualDrawCount * avgDrawn / totalRange;
@@ -678,46 +910,46 @@ class SmartBetsEngine {
         const winRate4 = btCount > 0 ? bt4 / btCount : 0;
         const winRate5 = btCount > 0 ? bt5 / btCount : 0;
 
-        // Ã¢â€¢ÂÃ¢â€¢Â NÃƒÂVEL A: BASE GARANTIDA (68 pontos totais) Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-        // Esses pontos sÃƒÂ£o garantidos quando o sistema estÃƒÂ¡ funcionando corretamente
+        // â•â• NÃVEL A: BASE GARANTIDA (68 pontos totais) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // Esses pontos sÃ£o garantidos quando o sistema estÃ¡ funcionando corretamente
 
-        // A1. ConfianÃƒÂ§a Base do Modelo (30pts) Ã¢â‚¬â€ Motor QCAL-V3 ativo + histÃƒÂ³rico
-        const modelBase = 30; // Base estrutural: 30pts garantidos com dados histÃƒÂ³ricos
+        // A1. ConfianÃ§a Base do Modelo (30pts) â€” Motor QCAL-V3 ativo + histÃ³rico
+        const modelBase = 30; // Base estrutural: 30pts garantidos com dados histÃ³ricos
 
-        // A2. Riqueza do HistÃƒÂ³rico (12pts) Ã¢â‚¬â€ quanto mais sorteios, mais confiÃƒÂ¡vel
+        // A2. Riqueza do HistÃ³rico (12pts) â€” quanto mais sorteios, mais confiÃ¡vel
         const historyPts = Math.min(12, (history.length / 15) * 12); // 15 sorteios = 100%
 
-        // A3. BÃƒÂ´nus QCAL-V3 Ativo (10pts) Ã¢â‚¬â€ calibraÃƒÂ§ÃƒÂ£o quÃƒÂ¢ntica integrada
+        // A3. BÃ´nus QCAL-V3 Ativo (10pts) â€” calibraÃ§Ã£o quÃ¢ntica integrada
         const qcalActivePts = (typeof QuantumCalibration !== 'undefined' && qCalibScores) ? 10 : 5;
 
-        // A4. Cobertura do Pool (8pts) Ã¢â‚¬â€ pool bem distribuÃƒÂ­do
+        // A4. Cobertura do Pool (8pts) â€” pool bem distribuÃ­do
         const coverageRatio = uniqueNums.size / Math.max(1, totalRange);
         const coveragePts = Math.min(8, coverageRatio * 8 * 4); // 25% do range = 100%
 
-        // A5. Diversidade (8pts) Ã¢â‚¬â€ anti-concentraÃƒÂ§ÃƒÂ£o
+        // A5. Diversidade (8pts) â€” anti-concentraÃ§Ã£o
         const diversityPts = Math.min(8, Math.max(0, 1 - maxFreqPct / 100) * 8 * 1.5); // 67%+ = 100%
 
         const baseTotal = modelBase + historyPts + qcalActivePts + coveragePts + diversityPts;
-        // baseTotal tÃƒÂ­pico: 30 + 12 + 10 + 6 + 6 = 64~68
+        // baseTotal tÃ­pico: 30 + 12 + 10 + 6 + 6 = 64~68
 
-        // Ã¢â€¢ÂÃ¢â€¢Â NÃƒÂVEL B: BÃƒâ€NUS DE PERFORMANCE (0-32 pontos) Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // â•â• NÃVEL B: BÃ”NUS DE PERFORMANCE (0-32 pontos) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-        // B1. Melhoria sobre acaso (0-10pts) Ã¢â‚¬â€ limiar mais baixo para ser atingÃƒÂ­vel
+        // B1. Melhoria sobre acaso (0-10pts) â€” limiar mais baixo para ser atingÃ­vel
         // improvement 1.2x = 40%, 1.5x = 100%
         const improvementPts = Math.min(10, Math.max(0, (improvement - 1.0) / 0.5) * 10);
 
-        // B2. Taxa de jogos com 3+ acertos (0-10pts) Ã¢â‚¬â€ meta atingÃƒÂ­vel 50%
-        // 50% com 3+ = 100%; antes era 80% = 100% (muito difÃƒÂ­cil)
+        // B2. Taxa de jogos com 3+ acertos (0-10pts) â€” meta atingÃ­vel 50%
+        // 50% com 3+ = 100%; antes era 80% = 100% (muito difÃ­cil)
         const win3Pts = Math.min(10, (winRate3 / 0.50) * 10);
 
         // B3. Taxa de 4+ e 5+ acertos (0-6pts)
         const win45Pts = Math.min(6, (winRate4 / 0.25) * 4 + (winRate5 / 0.05) * 2);
 
         // B4. Qualidade QCAL-V3 dos jogos gerados (0-6pts)
-        // Threshold reduzido de 0.60 para 0.40 (atingÃƒÂ­vel com MC 60 iteraÃƒÂ§ÃƒÂµes)
+        // Threshold reduzido de 0.60 para 0.40 (atingÃ­vel com MC 60 iteraÃ§Ãµes)
         let qcalQualPts = 0;
         if (qCalibScores && games.length > 0) {
-            // Amostrar apenas 30 jogos para calcular o score mÃƒÂ©dio
+            // Amostrar apenas 30 jogos para calcular o score mÃ©dio
             const sampleGames = games.length <= 30 ? games : games.filter((_, i) => i % Math.floor(games.length / 30) === 0).slice(0, 30);
             const avgQ = sampleGames.reduce((sum, g) => {
                 return sum + g.reduce((s, n) => s + (qCalibScores[n] || 0), 0) / g.length;
@@ -728,27 +960,27 @@ class SmartBetsEngine {
         }
 
         const bonusTotal = improvementPts + win3Pts + win45Pts + qcalQualPts;
-        // bonusTotal tÃƒÂ­pico: 8 + 7 + 3 + 4 = 22~28
+        // bonusTotal tÃ­pico: 8 + 7 + 3 + 4 = 22~28
 
-        // Ã¢â€¢ÂÃ¢â€¢Â SÃƒÂNTESE: Base (68) + BÃƒÂ´nus (0-32) = 68-100 Ã¢â€ â€™ normalizado 88-98% Ã¢â€¢ÂÃ¢â€¢Â
+        // â•â• SÃNTESE: Base (68) + BÃ´nus (0-32) = 68-100 â†’ normalizado 88-98% â•â•
         const rawConfidence = baseTotal + bonusTotal;
 
-        // Escalar: 68pts base Ã¢â€ â€™ 88%, 100pts mÃƒÂ¡ximo Ã¢â€ â€™ 98%
-        // FÃƒÂ³rmula: conf = 88 + (rawConf - 68) / 32 * 10
-        // Garante: mÃƒÂ­n=88% quando base completa mas zero bÃƒÂ´nus
-        //          95%+ quando 75pts+ (base + bÃƒÂ´nus razoÃƒÂ¡vel)
-        //          mÃƒÂ¡x=98%
+        // Escalar: 68pts base â†’ 88%, 100pts mÃ¡ximo â†’ 98%
+        // FÃ³rmula: conf = 88 + (rawConf - 68) / 32 * 10
+        // Garante: mÃ­n=88% quando base completa mas zero bÃ´nus
+        //          95%+ quando 75pts+ (base + bÃ´nus razoÃ¡vel)
+        //          mÃ¡x=98%
         let confidence;
         if (rawConfidence >= 68) {
             confidence = Math.round(88 + ((rawConfidence - 68) / 32) * 10);
         } else {
-            // Se nem a base foi atingida (histÃƒÂ³rico muito escasso)
+            // Se nem a base foi atingida (histÃ³rico muito escasso)
             confidence = Math.round(50 + (rawConfidence / 68) * 38);
         }
         confidence = Math.max(70, Math.min(98, confidence));
 
-        console.log(`[CONF-95+] Ã°Å¸Å½Â¯ ${gameKey}: ${confidence}% | Base=${Math.round(baseTotal)}/68 [Mod=30|Hist=${Math.round(historyPts)}/12|QCAL=${qcalActivePts}/10|Cov=${Math.round(coveragePts)}/8|Div=${Math.round(diversityPts)}/8] | Bonus=${Math.round(bonusTotal)}/32 [Imp=${Math.round(improvementPts)}/10|W3=${Math.round(win3Pts)}/10|W45=${Math.round(win45Pts)}/6|Qual=${Math.round(qcalQualPts)}/6]`);
-        console.log(`[CONF-95+] Ã°Å¸â€œÅ  BT: avg=${avgHits.toFixed(2)} (esp=${expectedRnd.toFixed(2)}) | imp=x${improvement.toFixed(2)} | W3=${Math.round(winRate3*100)}% | W4=${Math.round(winRate4*100)}% | MaxHits=${maxBtHits}`);
+        console.log(`[CONF-95+] ðŸŽ¯ ${gameKey}: ${confidence}% | Base=${Math.round(baseTotal)}/68 [Mod=30|Hist=${Math.round(historyPts)}/12|QCAL=${qcalActivePts}/10|Cov=${Math.round(coveragePts)}/8|Div=${Math.round(diversityPts)}/8] | Bonus=${Math.round(bonusTotal)}/32 [Imp=${Math.round(improvementPts)}/10|W3=${Math.round(win3Pts)}/10|W45=${Math.round(win45Pts)}/6|Qual=${Math.round(qcalQualPts)}/6]`);
+        console.log(`[CONF-95+] ðŸ“Š BT: avg=${avgHits.toFixed(2)} (esp=${expectedRnd.toFixed(2)}) | imp=x${improvement.toFixed(2)} | W3=${Math.round(winRate3*100)}% | W4=${Math.round(winRate4*100)}% | MaxHits=${maxBtHits}`);
 
 
         return {
@@ -765,17 +997,17 @@ class SmartBetsEngine {
                 backtestHits:  { '5+': bt5, '4+': bt4, '3+': bt3 },
                 pairsCovered:  '-',
                 triosCovered:  '-',
-                engine: 'Quantum Universal V9-D + QCAL-V3 Ã¢â‚¬â€ ' + (game.name || gameKey),
-                mode:   (hasUserSelection ? 'SELEÃƒâ€¡ÃƒÆ’O DO USUÃƒÂRIO' : 'ANÃƒÂLISE IA COMPLETA') + (qCalibScores ? ' Ã¢Å¡â€ºÃ¯Â¸Â CALIBRAÃƒâ€¡ÃƒÆ’O QUÃƒâ€šNTICA' : '')
+                engine: 'Quantum Universal V9-D + QCAL-V3 â€” ' + (game.name || gameKey),
+                mode:   (hasUserSelection ? 'SELEÃ‡ÃƒO DO USUÃRIO' : 'ANÃLISE IA COMPLETA') + (qCalibScores ? ' âš›ï¸ CALIBRAÃ‡ÃƒO QUÃ‚NTICA' : '')
             }
         };
     }
 
-    // Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
-    // Ã¢â€¢â€˜  QUANTUM HARMONICO V9 Ã¢â‚¬â€ DIVERSIDADE MAXIMA TIMEMANIA              Ã¢â€¢â€˜
-    // Ã¢â€¢â€˜  RECONSTRUCAO TOTAL: Elimina Elite-12 que causava 0 premios        Ã¢â€¢â€˜
-    // Ã¢â€¢â€˜  Respeita numeros selecionados pelo usuario como pool               Ã¢â€¢â€˜
-    // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  QUANTUM HARMONICO V9 â€” DIVERSIDADE MAXIMA TIMEMANIA              â•‘
+    // â•‘  RECONSTRUCAO TOTAL: Elimina Elite-12 que causava 0 premios        â•‘
+    // â•‘  Respeita numeros selecionados pelo usuario como pool               â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _generateTimemaniaQuantum(numGames, fixedNumbers, drawSize, profile, game, selectedNumbers = []) {
         let history = [];
         try {
@@ -788,11 +1020,11 @@ class SmartBetsEngine {
         }
 
         const N = history.length;
-        console.log('[QH-V9] DIVERSIDADE MAXIMA Ã¢â‚¬â€ Analisando ' + N + ' sorteios...');
+        console.log('[QH-V9] DIVERSIDADE MAXIMA â€” Analisando ' + N + ' sorteios...');
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         // FASE 1: ANALISE MULTI-JANELA EQUILIBRADA
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         const freq = {}, delay = {}, recent5 = {}, recent10 = {}, recent15 = {};
         for (let n = 1; n <= 80; n++) {
             freq[n] = 0; delay[n] = N;
@@ -815,20 +1047,20 @@ class SmartBetsEngine {
             scores[n] = fNorm * 0.30 + r5Norm * 0.20 + r10Norm * 0.25 + r15Norm * 0.15 + delayBonus * 0.10;
         }
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         // FASE 2: DEFINIR POOL
         // Se usuario selecionou numeros: usar como pool
         // Caso contrario: pool de 30 numeros distribuidos por zonas
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         let pool = [];
         const hasUserSelection = selectedNumbers && selectedNumbers.length >= drawSize;
 
         if (hasUserSelection) {
-            // Ã¢Å“â€¦ MODO USUARIO: usar exatamente os nÃƒÂºmeros escolhidos
+            // âœ… MODO USUARIO: usar exatamente os nÃºmeros escolhidos
             pool = selectedNumbers.slice().sort((a, b) => a - b);
-            console.log('[QH-V9] Ã°Å¸Å½Â¯ Pool do UsuÃƒÂ¡rio (' + pool.length + ' nums): [' + pool.join(', ') + ']');
+            console.log('[QH-V9] ðŸŽ¯ Pool do UsuÃ¡rio (' + pool.length + ' nums): [' + pool.join(', ') + ']');
         } else {
-            // Ã¢Å“â€¦ MODO IA: pool de 30 nÃƒÂºmeros distribuÃƒÂ­dos por 8 zonas
+            // âœ… MODO IA: pool de 30 nÃºmeros distribuÃ­dos por 8 zonas
             const POOL_SIZE = 30;
             let ranked = Object.entries(scores)
                 .map(([n, s]) => ({ num: +n, score: s }))
@@ -849,24 +1081,24 @@ class SmartBetsEngine {
                 if (!pool.includes(r.num)) pool.push(r.num);
             }
             pool.sort((a, b) => a - b);
-            console.log('[QH-V9] Ã°Å¸Â§Â  Pool IA Diversificado (' + pool.length + ' nums): [' + pool.join(', ') + ']');
+            console.log('[QH-V9] ðŸ§  Pool IA Diversificado (' + pool.length + ' nums): [' + pool.join(', ') + ']');
         }
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         // FASE 3: GERACAO COM ANTI-CONCENTRACAO BRUTAL
         // Nenhum numero aparece em mais de 20% dos jogos
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         const games = [];
         const usedCount = {};
         pool.forEach(n => usedCount[n] = 0);
         const usedKeys = new Set();
 
-        // maxUse proporcional ao draw/pool Ã¢â‚¬â€ ajustado para 10K+ jogos
+        // maxUse proporcional ao draw/pool â€” ajustado para 10K+ jogos
         const drawPoolRatio = drawSize / Math.max(1, pool.length);
         const getMaxUse = () => Math.max(5, Math.ceil(numGames * Math.max(0.20, drawPoolRatio * 1.3)));
 
         let attempts = 0;
-        // LIMITE SEGURO: max 300 tentativas por jogo (era 2000x Ã¢â‚¬â€ trava browser com 1000 jogos)
+        // LIMITE SEGURO: max 300 tentativas por jogo (era 2000x â€” trava browser com 1000 jogos)
         const maxAttempts = Math.min(numGames * 500, 5000000);
         const tStart = Date.now();
         const MAX_TIME_MS = 180000; // 3 minutos para lotes grandes
@@ -897,7 +1129,7 @@ class SmartBetsEngine {
             const ticket = [];
             const usedInTicket = new Set();
 
-            // NÃƒÂºmeros fixos
+            // NÃºmeros fixos
             for (const f of fixedNumbers) {
                 if (pool.includes(f) && !usedInTicket.has(f) && ticket.length < drawSize) {
                     ticket.push(f);
@@ -905,7 +1137,7 @@ class SmartBetsEngine {
                 }
             }
 
-            // Para pool do usuÃƒÂ¡rio: selecao direta ponderada sem obrigacao de zonas
+            // Para pool do usuÃ¡rio: selecao direta ponderada sem obrigacao de zonas
             // Para pool IA: garantir cobertura de 5 zonas
             if (!hasUserSelection) {
                 const coveredZones = new Set(ticket.map(n => Math.floor((n - 1) / 10)));
@@ -955,7 +1187,7 @@ class SmartBetsEngine {
             // Verificar overlap
             if (games.length > 0) {
                 const MAX_OVERLAP = hasUserSelection
-                    ? Math.ceil(drawSize * 0.50)   // Pool menor = mais overlap aceitÃƒÂ¡vel
+                    ? Math.ceil(drawSize * 0.50)   // Pool menor = mais overlap aceitÃ¡vel
                     : Math.ceil(drawSize * 0.30);   // Pool maior = menos overlap
                 let tooSimilar = false;
                 const checkFrom = Math.max(0, games.length - 50);
@@ -981,11 +1213,11 @@ class SmartBetsEngine {
             ticket.forEach(n => usedCount[n] = (usedCount[n] || 0) + 1);
         }
 
-        // Ã¢â€ÂÃ¢â€Â GARANTIA DE CONTAGEM EXATA Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â
-        // Se o loop principal nÃƒÂ£o gerou todos, preencher com jogos simples
-        // Sem restriÃƒÂ§ÃƒÂµes de overlap ou uso Ã¢â‚¬â€ garante exatamente numGames
+        // â”â” GARANTIA DE CONTAGEM EXATA â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+        // Se o loop principal nÃ£o gerou todos, preencher com jogos simples
+        // Sem restriÃ§Ãµes de overlap ou uso â€” garante exatamente numGames
         if (games.length < numGames) {
-            console.warn('[QH-V9] Ã¢Å¡Â Ã¯Â¸Â Preenchendo ' + (numGames - games.length) + ' jogo(s) restante(s) sem restriÃƒÂ§ÃƒÂµes');
+            console.warn('[QH-V9] âš ï¸ Preenchendo ' + (numGames - games.length) + ' jogo(s) restante(s) sem restriÃ§Ãµes');
             let fillAttempts = 0;
             const fillMax = (numGames - games.length) * 500;
             while (games.length < numGames && fillAttempts < fillMax) {
@@ -1007,17 +1239,17 @@ class SmartBetsEngine {
                     ticket.forEach(n => usedCount[n] = (usedCount[n] || 0) + 1);
                 }
             }
-            // ÃƒÅ¡ltimo recurso: se nÃƒÂ£o conseguir combinaÃƒÂ§ÃƒÂµes ÃƒÂºnicas, repetir o melhor
+            // Ãšltimo recurso: se nÃ£o conseguir combinaÃ§Ãµes Ãºnicas, repetir o melhor
             while (games.length < numGames) {
                 games.push([...games[games.length % Math.max(1, games.length - 1)]].sort((a,b) => a-b));
             }
         }
 
-        console.log('[QH-V9] Ã¢Å“â€¦ ' + games.length + '/' + numGames + ' jogos gerados em ' + attempts + ' tentativas');
+        console.log('[QH-V9] âœ… ' + games.length + '/' + numGames + ' jogos gerados em ' + attempts + ' tentativas');
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         // FASE 4: ANALISE DO SET
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         const uniqueNums = new Set();
         games.forEach(g => g.forEach(n => uniqueNums.add(n)));
         const maxFreq = Math.max(0, ...(Object.values(usedCount).filter(v => v > 0)));
@@ -1037,7 +1269,7 @@ class SmartBetsEngine {
             if (bestHits >= 3) bt3plus++;
         }
 
-        const modeLabel = hasUserSelection ? 'Jogos por SeleÃƒÂ§ÃƒÂ£o do UsuÃƒÂ¡rio' : 'Diversidade QuÃƒÂ¢ntica IA';
+        const modeLabel = hasUserSelection ? 'Jogos por SeleÃ§Ã£o do UsuÃ¡rio' : 'Diversidade QuÃ¢ntica IA';
         const setAnalysis = {
             confidence: Math.min(88, 40 + (bt3plus/Math.max(1,btCount))*25 + (bt4plus/Math.max(1,btCount))*15 + (uniqueNums.size/pool.length)*15),
             coverage: Math.round(uniqueNums.size / 80 * 100),
@@ -1049,11 +1281,11 @@ class SmartBetsEngine {
             backtestHits: { '5+': bt5plus, '4+': bt4plus, '3+': bt3plus },
             pairsCovered: '-',
             triosCovered: '-',
-            engine: 'Quantum V9 Ã¢â‚¬â€ ' + modeLabel,
-            mode: hasUserSelection ? 'SELEÃƒâ€¡ÃƒÆ’O' : 'DIVERSIDADE'
+            engine: 'Quantum V9 â€” ' + modeLabel,
+            mode: hasUserSelection ? 'SELEÃ‡ÃƒO' : 'DIVERSIDADE'
         };
 
-        console.log('[QH-V9] Cobertura: ' + uniqueNums.size + ' nÃƒÂºmeros ÃƒÂºnicos | Conc. max: ' + maxFreqPct + '%');
+        console.log('[QH-V9] Cobertura: ' + uniqueNums.size + ' nÃºmeros Ãºnicos | Conc. max: ' + maxFreqPct + '%');
         console.log('[QH-V9] Backtest: 5+=' + bt5plus + '/' + btCount + ', 4+=' + bt4plus + ', 3+=' + bt3plus);
 
         return {
@@ -1084,9 +1316,9 @@ class SmartBetsEngine {
     }
 
 
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬â€
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ  ANÃƒÆ’Ã‚ÂLISE PROFUNDA DO HISTÃƒÆ’Ã¢â‚¬Å“RICO                      ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã…Â¡ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+    // Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
+    // Ã¢â€¢â€˜  ANÃƒÂLISE PROFUNDA DO HISTÃƒâ€œRICO                      Ã¢â€¢â€˜
+    // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     static _deepAnalysis(gameKey, pool, history, profile, startNum, endNum) {
         const analysis = {
             topPairs: [],
@@ -1106,10 +1338,10 @@ class SmartBetsEngine {
 
         if (history.length === 0) return analysis;
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ÃƒÆ’Ã…Â¡LTIMO SORTEIO ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ ÃƒÅ¡LTIMO SORTEIO Ã¢â€â‚¬Ã¢â€â‚¬
         analysis.lastDraw = history[0].numbers || [];
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ FIBONACCI ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ FIBONACCI Ã¢â€â‚¬Ã¢â€â‚¬
         let fa = 1, fb = 1;
         while (fa <= endNum) {
             if (fa >= startNum) analysis.fibNumbers[fa] = true;
@@ -1117,7 +1349,7 @@ class SmartBetsEngine {
         }
         if (startNum === 0) analysis.fibNumbers[0] = true;
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ PRIMOS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ PRIMOS Ã¢â€â‚¬Ã¢â€â‚¬
         const sieve = new Array(endNum + 1).fill(true);
         sieve[0] = false; sieve[1] = false;
         for (let p = 2; p * p <= endNum; p++) {
@@ -1125,7 +1357,7 @@ class SmartBetsEngine {
         }
         for (let n = 2; n <= endNum; n++) if (sieve[n]) analysis.primes[n] = true;
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ SCORE DE CADA NÃƒÆ’Ã…Â¡MERO (frequÃƒÆ’Ã‚Âªncia + atraso + tendÃƒÆ’Ã‚Âªncia) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ SCORE DE CADA NÃƒÅ¡MERO (frequÃƒÂªncia + atraso + tendÃƒÂªncia) Ã¢â€â‚¬Ã¢â€â‚¬
         const freq = {};
         const lastSeen = {};
         for (let n = startNum; n <= endNum; n++) { freq[n] = 0; lastSeen[n] = -1; }
@@ -1150,7 +1382,7 @@ class SmartBetsEngine {
             analysis.numberScores[n] = freqScore * 0.6 + latencyScore * 0.4;
         }
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ DUPLAS FREQUENTES ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ DUPLAS FREQUENTES Ã¢â€â‚¬Ã¢â€â‚¬
         const pairCount = {};
         const pairLimit = Math.min(30, history.length);
         for (let d = 0; d < pairLimit; d++) {
@@ -1170,7 +1402,7 @@ class SmartBetsEngine {
             return { nums: [a, b], count };
         });
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ TRIOS FREQUENTES ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ TRIOS FREQUENTES Ã¢â€â‚¬Ã¢â€â‚¬
         const trioCount = {};
         const trioLimit = Math.min(15, history.length);
         for (let d = 0; d < trioLimit; d++) {
@@ -1195,7 +1427,7 @@ class SmartBetsEngine {
             return { nums, count };
         });
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ MARKOV (transiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ MARKOV (transiÃƒÂ§ÃƒÂµes) Ã¢â€â‚¬Ã¢â€â‚¬
         for (let n = startNum; n <= endNum; n++) analysis.markovNext[n] = {};
         const markovLimit = Math.min(history.length - 1, 25);
         for (let i = 0; i < markovLimit; i++) {
@@ -1212,7 +1444,7 @@ class SmartBetsEngine {
             }
         }
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ TENDÃƒÆ’Ã…Â NCIA (ÃƒÆ’Ã‚Âºltimos 5 vs anteriores) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ TENDÃƒÅ NCIA (ÃƒÂºltimos 5 vs anteriores) Ã¢â€â‚¬Ã¢â€â‚¬
         const recentLimit = Math.min(5, history.length);
         const olderLimit = Math.min(20, history.length);
         for (let n = startNum; n <= endNum; n++) {
@@ -1228,7 +1460,7 @@ class SmartBetsEngine {
             analysis.trendScores[n] = olderRate > 0 ? recentRate / olderRate : (recentRate > 0 ? 1.5 : 0.5);
         }
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ PADRÃƒÆ’Ã¢â‚¬Â¢ES MÃƒÆ’Ã¢â‚¬Â°DIOS (ÃƒÆ’Ã‚Âºltimos 15 sorteios) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ PADRÃƒâ€¢ES MÃƒâ€°DIOS (ÃƒÂºltimos 15 sorteios) Ã¢â€â‚¬Ã¢â€â‚¬
         let totalEvens = 0, totalSum = 0, totalGap = 0, totalConsec = 0, count = 0;
         const analyzeCount = Math.min(15, history.length);
         for (let i = 0; i < analyzeCount; i++) {
@@ -1256,11 +1488,11 @@ class SmartBetsEngine {
         analysis.avgGap = count > 0 ? totalGap / count : 5;
         analysis.avgConsecutive = count > 0 ? totalConsec / count : 1;
 
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // NOVAS CAMADAS DE ANÃƒÆ’Ã‚ÂLISE ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â LotofÃƒÆ’Ã‚Â¡cil & Timemania otimizadas
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // NOVAS CAMADAS DE ANÃƒÂLISE Ã¢â‚¬â€ LotofÃƒÂ¡cil & Timemania otimizadas
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ MULTI-JANELA TEMPORAL (tendÃƒÆ’Ã‚Âªncia em 3, 5, 10, 15 sorteios) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ MULTI-JANELA TEMPORAL (tendÃƒÂªncia em 3, 5, 10, 15 sorteios) Ã¢â€â‚¬Ã¢â€â‚¬
         if (profile.multiWindow) {
             analysis.multiWindowScores = {};
             const windows = [3, 5, 10, 15];
@@ -1282,10 +1514,10 @@ class SmartBetsEngine {
                 }
                 analysis.multiWindowScores[n] = windowCount > 0 ? windowScore / windowCount : 0.5;
             }
-            console.log('[SmartBets] ÃƒÂ°Ã…Â¸Ã‚ÂªÃ…Â¸ Multi-janela temporal calculada (3/5/10/15 sorteios)');
+            console.log('[SmartBets] Ã°Å¸ÂªÅ¸ Multi-janela temporal calculada (3/5/10/15 sorteios)');
         }
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ GRID 5ÃƒÆ’Ã¢â‚¬â€5 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â DistribuiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o real por linhas (LotofÃƒÆ’Ã‚Â¡cil) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ GRID 5Ãƒâ€”5 Ã¢â‚¬â€ DistribuiÃƒÂ§ÃƒÂ£o real por linhas (LotofÃƒÂ¡cil) Ã¢â€â‚¬Ã¢â€â‚¬
         if (profile.gridRows) {
             analysis.gridPatterns = [];
             analysis.avgGrid = new Array(profile.gridRows).fill(0);
@@ -1303,10 +1535,10 @@ class SmartBetsEngine {
             for (let r = 0; r < profile.gridRows; r++) {
                 analysis.avgGrid[r] = analysis.avgGrid[r] / gridCount;
             }
-            console.log('[SmartBets] ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…Â  Grid mÃƒÆ’Ã‚Â©dio:', analysis.avgGrid.map(v => v.toFixed(1)).join('-'));
+            console.log('[SmartBets] Ã°Å¸â€œÅ  Grid mÃƒÂ©dio:', analysis.avgGrid.map(v => v.toFixed(1)).join('-'));
         }
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ BORDAS vs CENTRO (Grid 5ÃƒÆ’Ã¢â‚¬â€5) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ BORDAS vs CENTRO (Grid 5Ãƒâ€”5) Ã¢â€â‚¬Ã¢â€â‚¬
         if (profile.bordaIdeal) {
             // Grid:  1  2  3  4  5
             //        6  7  8  9 10
@@ -1327,7 +1559,7 @@ class SmartBetsEngine {
                     analysis.centroNumbers[n] = true;
                 }
             }
-            // PadrÃƒÆ’Ã‚Â£o mÃƒÆ’Ã‚Â©dio de bordas nos ÃƒÆ’Ã‚Âºltimos sorteios
+            // PadrÃƒÂ£o mÃƒÂ©dio de bordas nos ÃƒÂºltimos sorteios
             let avgBorda = 0;
             const bCount = Math.min(10, history.length);
             for (let i = 0; i < bCount; i++) {
@@ -1338,10 +1570,10 @@ class SmartBetsEngine {
                 avgBorda += b;
             }
             analysis.avgBorda = bCount > 0 ? avgBorda / bCount : 10;
-            console.log('[SmartBets] ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â² Borda mÃƒÆ’Ã‚Â©dia:', analysis.avgBorda.toFixed(1));
+            console.log('[SmartBets] Ã°Å¸â€Â² Borda mÃƒÂ©dia:', analysis.avgBorda.toFixed(1));
         }
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ESPELHOS (N + N' = endNum + startNum) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ ESPELHOS (N + N' = endNum + startNum) Ã¢â€â‚¬Ã¢â€â‚¬
         if (profile.espelhosIdeal) {
             const mirrorSum = endNum + startNum;
             analysis.mirrorPairs = {};
@@ -1351,7 +1583,7 @@ class SmartBetsEngine {
                     if (n < mirror) analysis.mirrorPairs[n] = mirror;
                 }
             }
-            // Contar espelhos mÃƒÆ’Ã‚Â©dios nos sorteios
+            // Contar espelhos mÃƒÂ©dios nos sorteios
             let avgMirrors = 0;
             const mCount = Math.min(10, history.length);
             for (let i = 0; i < mCount; i++) {
@@ -1364,10 +1596,10 @@ class SmartBetsEngine {
                 avgMirrors += mirrors;
             }
             analysis.avgMirrors = mCount > 0 ? avgMirrors / mCount : 3;
-            console.log('[SmartBets] ÃƒÂ°Ã…Â¸Ã‚ÂªÃ…Â¾ Espelhos mÃƒÆ’Ã‚Â©dios:', analysis.avgMirrors.toFixed(1));
+            console.log('[SmartBets] Ã°Å¸ÂªÅ¾ Espelhos mÃƒÂ©dios:', analysis.avgMirrors.toFixed(1));
         }
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ QUADRAS FREQUENTES (top 4-nÃƒÆ’Ã‚Âºmeros) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ QUADRAS FREQUENTES (top 4-nÃƒÂºmeros) Ã¢â€â‚¬Ã¢â€â‚¬
         if (profile.draw >= 15) {
             const quadCount = {};
             const quadLimit = Math.min(10, history.length);
@@ -1394,10 +1626,10 @@ class SmartBetsEngine {
                     nums: key.split('-').map(Number),
                     count
                 }));
-            console.log('[SmartBets] ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ Quadras frequentes:', analysis.topQuads.length);
+            console.log('[SmartBets] Ã°Å¸Å½Â¯ Quadras frequentes:', analysis.topQuads.length);
         }
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ SCORE APRIMORADO (multi-janela + grid + bordas) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ SCORE APRIMORADO (multi-janela + grid + bordas) Ã¢â€â‚¬Ã¢â€â‚¬
         if (profile.multiWindow && analysis.multiWindowScores) {
             for (let n = startNum; n <= endNum; n++) {
                 const mwScore = analysis.multiWindowScores[n] || 0.5;
@@ -1410,22 +1642,22 @@ class SmartBetsEngine {
         return analysis;
     }
 
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬â€
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ  GERAR UM JOGO INTELIGENTE ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â v2 ANTI-CONCENTRAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã†â€™O   ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã…Â¡ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+    // Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
+    // Ã¢â€¢â€˜  GERAR UM JOGO INTELIGENTE Ã¢â‚¬â€ v2 ANTI-CONCENTRAÃƒâ€¡ÃƒÆ’O   Ã¢â€¢â€˜
+    // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     static _generateSingleSmartGame(gameKey, pool, drawSize, profile, analysis, history, existingGames, usedCounts, fixedNumbers) {
         const startNum = profile.range[0];
         const endNum = profile.range[1];
         const totalRange = endNum - startNum + 1;
         const useLayers = profile.hotRatio && totalRange >= 30; // Camadas de temperatura para ranges grandes
 
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // FASE 1: PESOS INTELIGENTES PARA CADA NÃƒÆ’Ã…Â¡MERO
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // FASE 1: PESOS INTELIGENTES PARA CADA NÃƒÅ¡MERO
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         const weights = {};
         const poolSet = new Set(pool);
 
-        // Classificar nÃƒÆ’Ã‚Âºmeros em hot/warm/cold por score
+        // Classificar nÃƒÂºmeros em hot/warm/cold por score
         const sortedByScore = pool.slice().sort((a, b) => 
             (analysis.numberScores[b] || 0) - (analysis.numberScores[a] || 0)
         );
@@ -1442,11 +1674,11 @@ class SmartBetsEngine {
             const n = pool[i];
             let w = 1.0;
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Score base (frequÃƒÆ’Ã‚Âªncia + atraso) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Score base (frequÃƒÂªncia + atraso) Ã¢â€â‚¬Ã¢â€â‚¬
             const baseScore = analysis.numberScores[n] || 0.5;
-            w += baseScore * 0.3; // REDUZIDO de 0.5 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 0.3 (menos influÃƒÆ’Ã‚Âªncia do score)
+            w += baseScore * 0.3; // REDUZIDO de 0.5 Ã¢â€ â€™ 0.3 (menos influÃƒÂªncia do score)
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Markov boost (CONTROLADO pelo perfil) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Markov boost (CONTROLADO pelo perfil) Ã¢â€â‚¬Ã¢â€â‚¬
             if (analysis.lastDraw.length > 0) {
                 let markovScore = 0;
                 for (let ld = 0; ld < analysis.lastDraw.length; ld++) {
@@ -1455,28 +1687,28 @@ class SmartBetsEngine {
                         markovScore += analysis.markovNext[from][n];
                     }
                 }
-                w += Math.min(0.4, markovScore * 0.02) * profile.markovWeight; // Cap reduzido 0.8ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.4
+                w += Math.min(0.4, markovScore * 0.02) * profile.markovWeight; // Cap reduzido 0.8Ã¢â€ â€™0.4
             }
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ TendÃƒÆ’Ã‚Âªncia temporal (SUAVIZADA) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ TendÃƒÂªncia temporal (SUAVIZADA) Ã¢â€â‚¬Ã¢â€â‚¬
             const trend = analysis.trendScores[n] || 1.0;
             if (trend > 1.5) w += 0.20 * profile.trendWeight;   // Reduzido de 0.35
             else if (trend > 1.2) w += 0.10 * profile.trendWeight; // Reduzido de 0.2
             else if (trend < 0.3) w -= 0.05;  // Reduzido
             else if (trend < 0.6) w -= 0.02;  // Reduzido
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Fibonacci boost ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Fibonacci boost Ã¢â€â‚¬Ã¢â€â‚¬
             if (analysis.fibNumbers[n]) w += 0.08 * profile.fibWeight;
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Primo boost leve ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Primo boost leve Ã¢â€â‚¬Ã¢â€â‚¬
             if (analysis.primes[n]) w += 0.03;
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Hot/Cold balancing: EQUALIZADO (cold recebe mais boost!) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
-            if (hotNums.has(n)) w += 0.05;      // Reduzido de 0.15 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 0.05
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Hot/Cold balancing: EQUALIZADO (cold recebe mais boost!) Ã¢â€â‚¬Ã¢â€â‚¬
+            if (hotNums.has(n)) w += 0.05;      // Reduzido de 0.15 Ã¢â€ â€™ 0.05
             else if (warmNums.has(n)) w += 0.08; // NOVO: warm recebe boost
-            else if (coldNums.has(n)) w += 0.12; // AUMENTADO de 0.05 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 0.12
+            else if (coldNums.has(n)) w += 0.12; // AUMENTADO de 0.05 Ã¢â€ â€™ 0.12
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Multi-janela temporal (MODERADO) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Multi-janela temporal (MODERADO) Ã¢â€â‚¬Ã¢â€â‚¬
             if (analysis.multiWindowScores && analysis.multiWindowScores[n]) {
                 const mwScore = analysis.multiWindowScores[n];
                 if (mwScore > 0.7) w += 0.15 * profile.trendWeight;  // Reduzido de 0.40
@@ -1484,12 +1716,12 @@ class SmartBetsEngine {
                 else if (mwScore < 0.2) w -= 0.05;
             }
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Borda/Centro boost (LotofÃƒÆ’Ã‚Â¡cil) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Borda/Centro boost (LotofÃƒÂ¡cil) Ã¢â€â‚¬Ã¢â€â‚¬
             if (analysis.bordaNumbers && analysis.bordaNumbers[n]) {
                 w += 0.06;
             }
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Hot/Cold numbers do perfil ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Hot/Cold numbers do perfil Ã¢â€â‚¬Ã¢â€â‚¬
             if (profile.hotNumbers && profile.hotNumbers.length > 0 && profile.hotNumbers.includes(n)) {
                 const hotDecay = usedCounts[n] ? Math.max(0, 0.12 - usedCounts[n] * 0.03) : 0.12;
                 w += hotDecay;
@@ -1498,35 +1730,35 @@ class SmartBetsEngine {
                 w -= 0.15;
             }
 
-            // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+            // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
             // DIVERSIDADE INTER-JOGOS: PENALIDADE AGRESSIVA v2
-            // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+            // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
             if (usedCounts[n]) {
                 const isSmallRange = totalRange <= 30;
                 if (isSmallRange && Object.keys(usedCounts).length > 5) {
-                    // EQUALIZAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã†â€™O AGRESSIVA para ranges pequenos (LotofÃƒÆ’Ã‚Â¡cil, Dia de Sorte)
+                    // EQUALIZAÃƒâ€¡ÃƒÆ’O AGRESSIVA para ranges pequenos (LotofÃƒÂ¡cil, Dia de Sorte)
                     const totalUsed = Object.values(usedCounts).reduce((a, b) => a + b, 0);
                     const avgUse = totalUsed / totalRange;
                     const excess = (usedCounts[n] || 0) - avgUse;
                     if (excess > 0.5) {
-                        w -= 0.60 * Math.pow(excess, 2.0); // v2.3: 0.30*^1.5 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 0.60*^2.0 MUITO mais severo
+                        w -= 0.60 * Math.pow(excess, 2.0); // v2.3: 0.30*^1.5 Ã¢â€ â€™ 0.60*^2.0 MUITO mais severo
                     } else if (excess < -0.5) {
-                        w += 0.60 * Math.abs(excess);       // v2.3: 0.40ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.60 boost forte para sub-usados
+                        w += 0.60 * Math.abs(excess);       // v2.3: 0.40Ã¢â€ â€™0.60 boost forte para sub-usados
                     }
                 } else {
                     // RANGES GRANDES (Mega Sena, Quina, Dupla Sena): 
-                    // Penalidade EXPONENCIAL SEVERA ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â crescimento ^1.8
+                    // Penalidade EXPONENCIAL SEVERA Ã¢â‚¬â€ crescimento ^1.8
                     const basePenalty = profile.diversityPenalty || 0.50;
-                    const expPenalty = basePenalty * Math.pow(usedCounts[n], 1.8); // AUMENTADO: 1.4ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢1.8
+                    const expPenalty = basePenalty * Math.pow(usedCounts[n], 1.8); // AUMENTADO: 1.4Ã¢â€ â€™1.8
                     w -= expPenalty;
                 }
             }
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Boost FORTE para nÃƒÆ’Ã‚Âºmeros NUNCA usados ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Boost FORTE para nÃƒÂºmeros NUNCA usados Ã¢â€â‚¬Ã¢â€â‚¬
             if (!usedCounts[n] && Object.keys(usedCounts).length > 0) {
                 const totalGames = Object.values(usedCounts).reduce((a, b) => a + b, 0) / drawSize;
                 if (totalGames > 1) {
-                    w += 0.80;  // AUMENTADO: 0.45ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.80 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â boost MUITO FORTE para inexplorados
+                    w += 0.80;  // AUMENTADO: 0.45Ã¢â€ â€™0.80 Ã¢â‚¬â€ boost MUITO FORTE para inexplorados
                 }
             }
 
@@ -1537,13 +1769,13 @@ class SmartBetsEngine {
             weights[n] = Math.max(0.01, w);
         }
 
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // FASE 2: CONSTRUÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã†â€™O DO JOGO
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // FASE 2: CONSTRUÃƒâ€¡ÃƒÆ’O DO JOGO
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         const ticket = [];
         const usedInTicket = new Set();
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ 2a. NÃƒÆ’Ã‚Âºmeros fixos ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ 2a. NÃƒÂºmeros fixos Ã¢â€â‚¬Ã¢â€â‚¬
         for (let f = 0; f < fixedNumbers.length; f++) {
             if (poolSet.has(fixedNumbers[f]) && ticket.length < drawSize) {
                 ticket.push(fixedNumbers[f]);
@@ -1551,10 +1783,10 @@ class SmartBetsEngine {
             }
         }
 
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // FASE 2b: SELEÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã†â€™O POR CAMADAS DE TEMPERATURA
-        // (Para Mega Sena, Quina, Dupla Sena ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ranges ÃƒÂ¢Ã¢â‚¬Â°Ã‚Â¥ 30)
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // FASE 2b: SELEÃƒâ€¡ÃƒÆ’O POR CAMADAS DE TEMPERATURA
+        // (Para Mega Sena, Quina, Dupla Sena Ã¢â‚¬â€ ranges Ã¢â€°Â¥ 30)
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         if (useLayers && ticket.length < drawSize) {
             const remaining = drawSize - ticket.length;
             const hotSlots = Math.max(1, Math.round(remaining * (profile.hotRatio || 0.34)));
@@ -1565,7 +1797,7 @@ class SmartBetsEngine {
                 const available = layerPool.filter(n => poolSet.has(n) && !usedInTicket.has(n));
                 const picked = [];
                 for (let i = 0; i < count && available.length > 0; i++) {
-                    // SeleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ponderada dentro da camada
+                    // SeleÃƒÂ§ÃƒÂ£o ponderada dentro da camada
                     let totalW = 0;
                     for (let r = 0; r < available.length; r++) {
                         totalW += weights[available[r]] || 0.01;
@@ -1592,11 +1824,11 @@ class SmartBetsEngine {
             ticket.push(...hotPicks, ...warmPicks, ...coldPicks);
         }
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ LIMITE DE SEEDS: evitar que seeds dominem (SÃƒÆ’Ã¢â‚¬Å“ se nÃƒÆ’Ã‚Â£o usou camadas) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ LIMITE DE SEEDS: evitar que seeds dominem (SÃƒâ€œ se nÃƒÂ£o usou camadas) Ã¢â€â‚¬Ã¢â€â‚¬
         if (!useLayers) {
             const maxSeedNums = Math.ceil(drawSize * (profile.maxSeedRatio || 0.40));
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Seed com duplas frequentes ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Seed com duplas frequentes Ã¢â€â‚¬Ã¢â€â‚¬
             if (analysis.topPairs.length > 0) {
                 const numPairsToSeed = Math.min(
                     Math.ceil(drawSize / 5),
@@ -1630,7 +1862,7 @@ class SmartBetsEngine {
                 }
             }
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Seed com trio frequente ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Seed com trio frequente Ã¢â€â‚¬Ã¢â€â‚¬
             if (analysis.topTrios.length > 0 && Math.random() < profile.trioBoost && ticket.length - fixedNumbers.length < maxSeedNums) {
                 const trioIdx = Math.floor(Math.random() * Math.min(8, analysis.topTrios.length));
                 const trio = analysis.topTrios[trioIdx];
@@ -1646,7 +1878,7 @@ class SmartBetsEngine {
                 }
             }
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Seed com QUADRA frequente (LotofÃƒÆ’Ã‚Â¡cil) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Seed com QUADRA frequente (LotofÃƒÂ¡cil) Ã¢â€â‚¬Ã¢â€â‚¬
             if (analysis.topQuads && analysis.topQuads.length > 0 && Math.random() < (profile.trioBoost || 0.4) * 0.5 && ticket.length - fixedNumbers.length < maxSeedNums) {
                 const quadIdx = Math.floor(Math.random() * Math.min(5, analysis.topQuads.length));
                 const quad = analysis.topQuads[quadIdx];
@@ -1662,7 +1894,7 @@ class SmartBetsEngine {
                 }
             }
 
-            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ RepetiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o do ÃƒÆ’Ã‚Âºltimo sorteio (seed inteligente) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ RepetiÃƒÂ§ÃƒÂ£o do ÃƒÂºltimo sorteio (seed inteligente) Ã¢â€â‚¬Ã¢â€â‚¬
             if (analysis.lastDraw.length > 0) {
                 const minRepeat = profile.repeatFromLast[0];
                 let currentRepeat = 0;
@@ -1683,7 +1915,7 @@ class SmartBetsEngine {
             }
         }
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ 2e. COBERTURA DE ZONAS (garantir distribuiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o PARA TODOS) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ 2e. COBERTURA DE ZONAS (garantir distribuiÃƒÂ§ÃƒÂ£o PARA TODOS) Ã¢â€â‚¬Ã¢â€â‚¬
         if (drawSize >= 5 && drawSize < 20) {
             const zoneSize = profile.faixaSize;
             const numZones = Math.ceil(totalRange / zoneSize);
@@ -1694,9 +1926,9 @@ class SmartBetsEngine {
                 coveredZones.add(Math.floor((n - startNum) / zoneSize));
             }
 
-            // Preencher zonas vazias ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â usar RANDOM dentro da zona (nÃƒÆ’Ã‚Â£o melhor peso!)
+            // Preencher zonas vazias Ã¢â‚¬â€ usar RANDOM dentro da zona (nÃƒÂ£o melhor peso!)
             if (coveredZones.size < minZonesToCover) {
-                // Embaralhar zonas para nÃƒÆ’Ã‚Â£o sempre preencher na mesma ordem
+                // Embaralhar zonas para nÃƒÂ£o sempre preencher na mesma ordem
                 const unfilledZones = [];
                 for (let z = 0; z < numZones; z++) {
                     if (!coveredZones.has(z)) unfilledZones.push(z);
@@ -1712,7 +1944,7 @@ class SmartBetsEngine {
                     const zStart = startNum + z * zoneSize;
                     const zEnd = Math.min(endNum, zStart + zoneSize - 1);
                     
-                    // Candidatos da zona, ponderados mas com ruÃƒÆ’Ã‚Â­do
+                    // Candidatos da zona, ponderados mas com ruÃƒÂ­do
                     const candidates = [];
                     for (let n = zStart; n <= zEnd; n++) {
                         if (poolSet.has(n) && !usedInTicket.has(n)) {
@@ -1720,7 +1952,7 @@ class SmartBetsEngine {
                         }
                     }
                     if (candidates.length > 0) {
-                        // Selecionar com peso + ruÃƒÆ’Ã‚Â­do alto
+                        // Selecionar com peso + ruÃƒÂ­do alto
                         let totalW = 0;
                         for (const c of candidates) totalW += weights[c] || 0.01;
                         let rand = Math.random() * totalW;
@@ -1738,7 +1970,7 @@ class SmartBetsEngine {
             }
         }
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ 2f. Completar com seleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ponderada INTELIGENTE ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ 2f. Completar com seleÃƒÂ§ÃƒÂ£o ponderada INTELIGENTE Ã¢â€â‚¬Ã¢â€â‚¬
         const isLotofacilType = profile.maxConsecutive >= 5;
         const remaining = pool.filter(n => !usedInTicket.has(n));
         while (ticket.length < drawSize && remaining.length > 0) {
@@ -1778,8 +2010,8 @@ class SmartBetsEngine {
 
         ticket.sort((a, b) => a - b);
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ VALIDAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã†â€™O RÃƒÆ’Ã‚ÂPIDA (rejeitar jogos ruins) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
-        // V3: passar pool para que validaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o saiba se ÃƒÆ’Ã‚Â© tight
+        // Ã¢â€â‚¬Ã¢â€â‚¬ VALIDAÃƒâ€¡ÃƒÆ’O RÃƒÂPIDA (rejeitar jogos ruins) Ã¢â€â‚¬Ã¢â€â‚¬
+        // V3: passar pool para que validaÃƒÂ§ÃƒÂ£o saiba se ÃƒÂ© tight
         if (!this._validateGame(ticket, profile, analysis, pool)) {
             return null;
         }
@@ -1787,27 +2019,27 @@ class SmartBetsEngine {
         return ticket;
     }
 
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬â€
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ  VALIDAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã†â€™O DE UM JOGO (20+ REGRAS)                  ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã…Â¡ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+    // Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
+    // Ã¢â€¢â€˜  VALIDAÃƒâ€¡ÃƒÆ’O DE UM JOGO (20+ REGRAS)                  Ã¢â€¢â€˜
+    // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     static _validateGame(ticket, profile, analysis, pool) {
         const n = ticket.length;
         if (n === 0) return false;
 
-        // Para jogos grandes (Lotomania = 50 nÃƒÆ’Ã‚Âºmeros), validaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o relaxada
+        // Para jogos grandes (Lotomania = 50 nÃƒÂºmeros), validaÃƒÂ§ÃƒÂ£o relaxada
         if (n >= 20) return true;
 
         const startNum = profile.range[0];
         const endNum = profile.range[1];
 
-        // V3: Detectar pool tight (exclusÃƒÆ’Ã‚Â£o ativa)
+        // V3: Detectar pool tight (exclusÃƒÂ£o ativa)
         const poolRatio = pool ? pool.length / n : 999;
         const isTightPool = poolRatio < 1.4;
 
-        // Se pool ÃƒÆ’Ã‚Â© tight, APENAS validar regras bÃƒÆ’Ã‚Â¡sicas (1, 2, 3)
-        // As regras estruturais (grid, bordas, espelhos) nÃƒÆ’Ã‚Â£o fazem sentido com pool restrito
+        // Se pool ÃƒÂ© tight, APENAS validar regras bÃƒÂ¡sicas (1, 2, 3)
+        // As regras estruturais (grid, bordas, espelhos) nÃƒÂ£o fazem sentido com pool restrito
 
-        // REGRA 1: Consecutivos mÃƒÆ’Ã‚Â¡ximos
+        // REGRA 1: Consecutivos mÃƒÂ¡ximos
         let maxRun = 1, currentRun = 1;
         for (let i = 1; i < n; i++) {
             if (ticket[i] - ticket[i - 1] === 1) {
@@ -1819,7 +2051,7 @@ class SmartBetsEngine {
         }
         if (maxRun > profile.maxConsecutive) return false;
 
-        // REGRA 2: Par/ÃƒÆ’Ã‚Âmpar
+        // REGRA 2: Par/ÃƒÂmpar
         let evens = 0;
         for (let i = 0; i < n; i++) {
             if (ticket[i] % 2 === 0) evens++;
@@ -1834,10 +2066,10 @@ class SmartBetsEngine {
         for (let i = 0; i < n; i++) sum += ticket[i];
         if (sum < profile.sumMin * 0.90 || sum > profile.sumMax * 1.10) return false;
 
-        // V3: Pool tight ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ aprovar apÃƒÆ’Ã‚Â³s regras bÃƒÆ’Ã‚Â¡sicas (a inteligÃƒÆ’Ã‚Âªncia estÃƒÆ’Ã‚Â¡ na exclusÃƒÆ’Ã‚Â£o)
+        // V3: Pool tight Ã¢â€ â€™ aprovar apÃƒÂ³s regras bÃƒÂ¡sicas (a inteligÃƒÂªncia estÃƒÂ¡ na exclusÃƒÂ£o)
         if (isTightPool) return true;
 
-        // REGRA 4: Anti-progressÃƒÆ’Ã‚Â£o aritmÃƒÆ’Ã‚Â©tica (mÃƒÆ’Ã‚Â¡x 3 em PA)
+        // REGRA 4: Anti-progressÃƒÂ£o aritmÃƒÂ©tica (mÃƒÂ¡x 3 em PA)
         let paCount = 0;
         for (let i = 0; i < n - 2; i++) {
             const d1 = ticket[i + 1] - ticket[i];
@@ -1846,7 +2078,7 @@ class SmartBetsEngine {
         }
         if (paCount > n * 0.3) return false;
 
-        // REGRA 5: Anti-terminaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o repetida
+        // REGRA 5: Anti-terminaÃƒÂ§ÃƒÂ£o repetida
         const endings = {};
         for (let i = 0; i < n; i++) {
             const d = ticket[i] % 10;
@@ -1856,11 +2088,11 @@ class SmartBetsEngine {
             if (endings[d] > profile.maxSameEnding + 1) return false;
         }
 
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // NOVAS REGRAS ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â LotofÃƒÆ’Ã‚Â¡cil & Timemania
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // NOVAS REGRAS Ã¢â‚¬â€ LotofÃƒÂ¡cil & Timemania
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
 
-        // REGRA 6: Grid 5ÃƒÆ’Ã¢â‚¬â€5 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â cada linha deve ter entre min e max nÃƒÆ’Ã‚Âºmeros
+        // REGRA 6: Grid 5Ãƒâ€”5 Ã¢â‚¬â€ cada linha deve ter entre min e max nÃƒÂºmeros
         if (profile.gridRows && profile.gridCols) {
             const gridRow = new Array(profile.gridRows).fill(0);
             for (let i = 0; i < n; i++) {
@@ -1895,7 +2127,7 @@ class SmartBetsEngine {
             if (baixos < profile.baixosIdeal[0] - 1 || baixos > profile.baixosIdeal[1] + 1) return false;
         }
 
-        // REGRA 9: Espelhos ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â verificar que tem entre ideal[0] e ideal[1] espelhos
+        // REGRA 9: Espelhos Ã¢â‚¬â€ verificar que tem entre ideal[0] e ideal[1] espelhos
         if (profile.espelhosIdeal && analysis.mirrorPairs) {
             const numSet = new Set(ticket);
             const mirrorSum = endNum + startNum;
@@ -1904,7 +2136,7 @@ class SmartBetsEngine {
                 const mirror = mirrorSum - num;
                 if (num < mirror && numSet.has(mirror)) mirrorCount++;
             }
-            // Aceitar se estiver dentro da faixa Ãƒâ€šÃ‚Â±1
+            // Aceitar se estiver dentro da faixa Ã‚Â±1
             if (mirrorCount < profile.espelhosIdeal[0] - 1 || mirrorCount > profile.espelhosIdeal[1] + 1) return false;
         }
 
@@ -1920,16 +2152,16 @@ class SmartBetsEngine {
         return true;
     }
 
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬â€
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ  PONTUAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã†â€™O DE QUALIDADE DE UM JOGO                  ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã…Â¡ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+    // Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
+    // Ã¢â€¢â€˜  PONTUAÃƒâ€¡ÃƒÆ’O DE QUALIDADE DE UM JOGO                  Ã¢â€¢â€˜
+    // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     static _scoreGame(ticket, profile, analysis, history) {
-        let score = 5.0; // Base calibrada ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â confianÃƒÆ’Ã‚Â§a REAL
+        let score = 5.0; // Base calibrada Ã¢â‚¬â€ confianÃƒÂ§a REAL
         const n = ticket.length;
         const startNum = profile.range[0];
         const endNum = profile.range[1];
 
-        // 1. Consecutivos ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â bonus generoso com crÃƒÆ’Ã‚Â©dito parcial
+        // 1. Consecutivos Ã¢â‚¬â€ bonus generoso com crÃƒÂ©dito parcial
         let maxRun = 1, currentRun = 1, totalConsec = 0;
         for (let i = 1; i < n; i++) {
             if (ticket[i] - ticket[i - 1] === 1) {
@@ -1940,14 +2172,14 @@ class SmartBetsEngine {
             }
         }
         if (maxRun <= profile.maxConsecutive) score += 2.0;
-        else if (maxRun <= profile.maxConsecutive + 1) score += 1.0; // CrÃƒÆ’Ã‚Â©dito parcial
+        else if (maxRun <= profile.maxConsecutive + 1) score += 1.0; // CrÃƒÂ©dito parcial
         else score -= (maxRun - profile.maxConsecutive) * 0.5;
 
-        // Consecutivos perto da mÃƒÆ’Ã‚Â©dia historia
+        // Consecutivos perto da mÃƒÂ©dia historia
         const consecDiff = Math.abs(totalConsec - analysis.avgConsecutive);
         score += Math.max(0, 1.5 - consecDiff * 0.2);
 
-        // 2. Par/ÃƒÆ’Ã‚Âmpar ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â crÃƒÆ’Ã‚Â©dito parcial ampliado
+        // 2. Par/ÃƒÂmpar Ã¢â‚¬â€ crÃƒÂ©dito parcial ampliado
         let evens = 0;
         for (let i = 0; i < n; i++) if (ticket[i] % 2 === 0) evens++;
         const evenDiff = Math.abs(evens - profile.evenOddIdeal[0]);
@@ -1955,7 +2187,7 @@ class SmartBetsEngine {
         else if (evenDiff <= profile.evenOddTolerance) score += 2.0;
         else if (evenDiff <= profile.evenOddTolerance + 1) score += 1.0;
 
-        // 3. DistribuiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o por faixas
+        // 3. DistribuiÃƒÂ§ÃƒÂ£o por faixas
         const numFaixas = Math.ceil((endNum - startNum + 1) / profile.faixaSize);
         const faixas = new Array(numFaixas).fill(0);
         for (let i = 0; i < n; i++) {
@@ -1969,20 +2201,20 @@ class SmartBetsEngine {
         const fillRatio = filledFaixas / Math.min(numFaixas, n);
         score += fillRatio * 2.5;
 
-        // 4. Gap mÃƒÆ’Ã‚Â©dio ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â crÃƒÆ’Ã‚Â©dito amplo
+        // 4. Gap mÃƒÂ©dio Ã¢â‚¬â€ crÃƒÂ©dito amplo
         let totalGap = 0;
         for (let i = 1; i < n; i++) totalGap += ticket[i] - ticket[i - 1];
         const avgGap = n > 1 ? totalGap / (n - 1) : 0;
         const gapDiff = Math.abs(avgGap - analysis.avgGap);
         score += Math.max(0, 2.0 - gapDiff * 0.08);
 
-        // 5. Soma ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â crÃƒÆ’Ã‚Â©dito parcial generoso
+        // 5. Soma Ã¢â‚¬â€ crÃƒÂ©dito parcial generoso
         let sum = 0;
         for (let i = 0; i < n; i++) sum += ticket[i];
         const sumMid = (profile.sumMin + profile.sumMax) / 2;
         const sumRange = (profile.sumMax - profile.sumMin) / 2;
         const sumDist = Math.abs(sum - sumMid) / sumRange;
-        if (sumDist <= 1.0) score += 3.0 * (1 - sumDist * 0.5); // Dentro da faixa = atÃƒÆ’Ã‚Â© 3.0
+        if (sumDist <= 1.0) score += 3.0 * (1 - sumDist * 0.5); // Dentro da faixa = atÃƒÂ© 3.0
         else score += Math.max(0, 1.5 - (sumDist - 1) * 2);
 
         // 6. Fibonacci
@@ -1990,14 +2222,14 @@ class SmartBetsEngine {
         for (let i = 0; i < n; i++) if (analysis.fibNumbers[ticket[i]]) fibCount++;
         if (fibCount >= 1) score += 1.0;
 
-        // 7. Primos ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â crÃƒÆ’Ã‚Â©dito parcial
+        // 7. Primos Ã¢â‚¬â€ crÃƒÂ©dito parcial
         let primeCount = 0;
         for (let i = 0; i < n; i++) if (analysis.primes[ticket[i]]) primeCount++;
         const primeRatio = primeCount / n;
         if (primeRatio >= profile.primeRatio[0] && primeRatio <= profile.primeRatio[1]) score += 1.5;
         else if (primeRatio > 0) score += 0.5;
 
-        // 8. DistribuiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de terminaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes (endings)
+        // 8. DistribuiÃƒÂ§ÃƒÂ£o de terminaÃƒÂ§ÃƒÂµes (endings)
         const endings = {};
         for (let i = 0; i < n; i++) {
             const d = ticket[i] % 10;
@@ -2006,14 +2238,14 @@ class SmartBetsEngine {
         const usedEndings = Object.keys(endings).length;
         score += Math.min(2.0, usedEndings * 0.3);
 
-        // 12. RepetiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o do ÃƒÆ’Ã‚Âºltimo sorteio ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â MODERADO para evitar viÃƒÆ’Ã‚Â©s
+        // 12. RepetiÃƒÂ§ÃƒÂ£o do ÃƒÂºltimo sorteio Ã¢â‚¬â€ MODERADO para evitar viÃƒÂ©s
         if (history.length > 0 && analysis.lastDraw.length > 0) {
             let repeatCount = 0;
             for (let i = 0; i < n; i++) {
                 if (analysis.lastDraw.includes(ticket[i])) repeatCount++;
             }
             if (repeatCount >= profile.repeatFromLast[0] && repeatCount <= profile.repeatFromLast[1]) {
-                score += 1.5;  // v2.3: 3.0ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢1.5 (menos dependÃƒÆ’Ã‚Âªncia do ÃƒÆ’Ã‚Âºltimo sorteio)
+                score += 1.5;  // v2.3: 3.0Ã¢â€ â€™1.5 (menos dependÃƒÂªncia do ÃƒÂºltimo sorteio)
             } else {
                 const rDist = repeatCount < profile.repeatFromLast[0]
                     ? profile.repeatFromLast[0] - repeatCount
@@ -2024,7 +2256,7 @@ class SmartBetsEngine {
             score += 1.0;
         }
 
-        // 13. Markov score ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â MODERADO para evitar concentraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
+        // 13. Markov score Ã¢â‚¬â€ MODERADO para evitar concentraÃƒÂ§ÃƒÂ£o
         if (analysis.lastDraw.length > 0) {
             let markovHits = 0;
             for (let i = 0; i < n; i++) {
@@ -2036,10 +2268,10 @@ class SmartBetsEngine {
                     }
                 }
             }
-            score += Math.min(1.5, markovHits * 0.15);  // v2.3: max 3.0ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢1.5, mult 0.25ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢0.15
+            score += Math.min(1.5, markovHits * 0.15);  // v2.3: max 3.0Ã¢â€ â€™1.5, mult 0.25Ã¢â€ â€™0.15
         }
 
-        // 14. TendÃƒÆ’Ã‚Âªncia (nÃƒÆ’Ã‚Âºmeros em alta)
+        // 14. TendÃƒÂªncia (nÃƒÂºmeros em alta)
         if (analysis.trendScores) {
             let trendHits = 0;
             for (let i = 0; i < n; i++) {
@@ -2049,26 +2281,26 @@ class SmartBetsEngine {
             score += Math.min(2.0, trendHits * 0.4);
         }
 
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // NOVAS PONTUAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã¢â‚¬Â¢ES ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â LotofÃƒÆ’Ã‚Â¡cil & Timemania
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // NOVAS PONTUAÃƒâ€¡Ãƒâ€¢ES Ã¢â‚¬â€ LotofÃƒÂ¡cil & Timemania
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
 
-        // 15. Grid 5ÃƒÆ’Ã¢â‚¬â€5 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â bonus para distribuiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ideal
+        // 15. Grid 5Ãƒâ€”5 Ã¢â‚¬â€ bonus para distribuiÃƒÂ§ÃƒÂ£o ideal
         if (profile.gridRows && profile.gridCols) {
             const gridRow = new Array(profile.gridRows).fill(0);
             for (let i = 0; i < n; i++) {
                 const rowIdx = Math.min(profile.gridRows - 1, Math.floor((ticket[i] - startNum) / profile.gridCols));
                 gridRow[rowIdx]++;
             }
-            // Verificar se todas as linhas estÃƒÆ’Ã‚Â£o dentro da faixa ideal
+            // Verificar se todas as linhas estÃƒÂ£o dentro da faixa ideal
             let gridOk = 0;
             for (let r = 0; r < profile.gridRows; r++) {
                 if (gridRow[r] >= profile.gridMinPerRow && gridRow[r] <= profile.gridMaxPerRow) gridOk++;
             }
-            score += (gridOk / profile.gridRows) * 3.0; // AtÃƒÆ’Ã‚Â© 3.0 para grid perfeito
+            score += (gridOk / profile.gridRows) * 3.0; // AtÃƒÂ© 3.0 para grid perfeito
         }
 
-        // 16. Bordas vs Centro ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â bonus para proporÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o real
+        // 16. Bordas vs Centro Ã¢â‚¬â€ bonus para proporÃƒÂ§ÃƒÂ£o real
         if (profile.bordaIdeal && analysis.bordaNumbers) {
             let bordaCount = 0;
             for (let i = 0; i < n; i++) {
@@ -2084,7 +2316,7 @@ class SmartBetsEngine {
             }
         }
 
-        // 17. Espelhos ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â bonus para quantidade ideal
+        // 17. Espelhos Ã¢â‚¬â€ bonus para quantidade ideal
         if (profile.espelhosIdeal && analysis.mirrorPairs) {
             const numSet = new Set(ticket);
             const mirrorSum = endNum + startNum;
@@ -2100,7 +2332,7 @@ class SmartBetsEngine {
             }
         }
 
-        // 18. Multi-janela ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â bonus para nÃƒÆ’Ã‚Âºmeros quentes em mÃƒÆ’Ã‚Âºltiplas janelas
+        // 18. Multi-janela Ã¢â‚¬â€ bonus para nÃƒÂºmeros quentes em mÃƒÂºltiplas janelas
         if (analysis.multiWindowScores) {
             let multiHot = 0;
             for (let i = 0; i < n; i++) {
@@ -2113,9 +2345,9 @@ class SmartBetsEngine {
         return score;
     }
 
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬â€
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ  ANÃƒÆ’Ã‚ÂLISE DO SET GERADO (confianÃƒÆ’Ã‚Â§a + cobertura)      ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã…Â¡ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+    // Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
+    // Ã¢â€¢â€˜  ANÃƒÂLISE DO SET GERADO (confianÃƒÂ§a + cobertura)      Ã¢â€¢â€˜
+    // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     static _analyzeGeneratedSet(games, profile, analysis, history, gameKey) {
         if (games.length === 0) {
             return { confidence: 0, coverage: 0, details: {} };
@@ -2288,19 +2520,19 @@ class SmartBetsEngine {
         };
     }
 
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬â€
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ  UTILITÃƒÆ’Ã‚ÂRIOS                                        ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã…Â¡ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+    // Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
+    // Ã¢â€¢â€˜  UTILITÃƒÂRIOS                                        Ã¢â€¢â€˜
+    // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     static _buildFullPool(startNum, endNum) {
         const pool = [];
         for (let i = startNum; i <= endNum; i++) pool.push(i);
         return pool;
     }
 
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬â€
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ  MODO PRECISÃƒÆ’Ã†â€™O ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Maximizar 14-15 acertos (LotofÃƒÆ’Ã‚Â¡cil)       ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ  EstratÃƒÆ’Ã‚Â©gia: Pool reduzido de ~17 nÃƒÆ’Ã‚Âºmeros + variaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes      ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã…Â¡ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+    // Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
+    // Ã¢â€¢â€˜  MODO PRECISÃƒÆ’O Ã¢â‚¬â€ Maximizar 14-15 acertos (LotofÃƒÂ¡cil)       Ã¢â€¢â€˜
+    // Ã¢â€¢â€˜  EstratÃƒÂ©gia: Pool reduzido de ~17 nÃƒÂºmeros + variaÃƒÂ§ÃƒÂµes      Ã¢â€¢â€˜
+    // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     static generatePrecisionMode(gameKey, numGames, customPoolSize = null) {
         const profile = this.getProfile(gameKey);
         const game = GAMES[gameKey];
@@ -2311,25 +2543,25 @@ class SmartBetsEngine {
         const drawSize = game.minBet || profile.draw;
         const totalRange = endNum - startNum + 1;
 
-        // Carregar histÃƒÆ’Ã‚Â³rico
+        // Carregar histÃƒÂ³rico
         let history = [];
         try {
             history = StatsService.getRecentResults(gameKey, 100) || [];
         } catch (e) {
-            console.warn('[PrecisÃƒÆ’Ã‚Â£o] Sem histÃƒÆ’Ã‚Â³rico');
+            console.warn('[PrecisÃƒÂ£o] Sem histÃƒÂ³rico');
         }
 
-        console.log(`[PrecisÃƒÆ’Ã‚Â£o] ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ MODO PRECISÃƒÆ’Ã†â€™O ativado para ${profile.name}`);
-        console.log(`[PrecisÃƒÆ’Ã‚Â£o] ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…Â  HistÃƒÆ’Ã‚Â³rico: ${history.length} sorteios`);
+        console.log(`[PrecisÃƒÂ£o] Ã°Å¸Å½Â¯ MODO PRECISÃƒÆ’O ativado para ${profile.name}`);
+        console.log(`[PrecisÃƒÂ£o] Ã°Å¸â€œÅ  HistÃƒÂ³rico: ${history.length} sorteios`);
 
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // PASSO 1: CALCULAR SCORE DE CADA NÃƒÆ’Ã…Â¡MERO
-        // Combinar 6 anÃƒÆ’Ã‚Â¡lises para ranking de probabilidade
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // PASSO 1: CALCULAR SCORE DE CADA NÃƒÅ¡MERO
+        // Combinar 6 anÃƒÂ¡lises para ranking de probabilidade
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0;
 
-        // 1A. FrequÃƒÆ’Ã‚Âªncia multi-janela (3, 5, 10, 15 sorteios)
+        // 1A. FrequÃƒÂªncia multi-janela (3, 5, 10, 15 sorteios)
         const windows = [3, 5, 10, 15];
         const windowWeights = [2.0, 1.5, 1.0, 0.5];
         for (let n = startNum; n <= endNum; n++) {
@@ -2343,7 +2575,7 @@ class SmartBetsEngine {
             }
         }
 
-        // 1B. RepetiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o entre sorteios consecutivos (nÃƒÆ’Ã‚Âºmeros que "grudam")
+        // 1B. RepetiÃƒÂ§ÃƒÂ£o entre sorteios consecutivos (nÃƒÂºmeros que "grudam")
         const stickyLimit = Math.min(10, history.length - 1);
         for (let i = 0; i < stickyLimit; i++) {
             const curr = new Set(history[i].numbers);
@@ -2353,7 +2585,7 @@ class SmartBetsEngine {
             }
         }
 
-        // 1C. Markov (transiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes do ÃƒÆ’Ã‚Âºltimo sorteio ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ prÃƒÆ’Ã‚Â³ximo)
+        // 1C. Markov (transiÃƒÂ§ÃƒÂµes do ÃƒÂºltimo sorteio Ã¢â€ â€™ prÃƒÂ³ximo)
         if (history.length > 1) {
             const lastDraw = history[0].numbers;
             const markovBoost = {};
@@ -2373,7 +2605,7 @@ class SmartBetsEngine {
             }
         }
 
-        // 1D. Pares frequentes (nÃƒÆ’Ã‚Âºmeros que saem juntos)
+        // 1D. Pares frequentes (nÃƒÂºmeros que saem juntos)
         const pairBoost = {};
         const pairLimit = Math.min(20, history.length);
         for (let d = 0; d < pairLimit; d++) {
@@ -2391,19 +2623,19 @@ class SmartBetsEngine {
             scores[n] += Math.min(0.5, pairBoost[n] || 0);
         }
 
-        // 1E. Ciclo (nÃƒÆ’Ã‚Âºmero "devendo" = atraso longo)
+        // 1E. Ciclo (nÃƒÂºmero "devendo" = atraso longo)
         for (let n = startNum; n <= endNum; n++) {
             let lastSeen = -1;
             for (let i = 0; i < history.length; i++) {
                 if (history[i].numbers.includes(n)) { lastSeen = i; break; }
             }
-            if (lastSeen > 3) scores[n] += 0.2; // NÃƒÆ’Ã‚Âºmero "devendo"
+            if (lastSeen > 3) scores[n] += 0.2; // NÃƒÂºmero "devendo"
         }
 
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // PASSO 2: SELECIONAR POOL DE PRECISÃƒÆ’Ã†â€™O
-        // Top ~17 nÃƒÆ’Ã‚Âºmeros (para LotofÃƒÆ’Ã‚Â¡cil 15/25)
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // PASSO 2: SELECIONAR POOL DE PRECISÃƒÆ’O
+        // Top ~17 nÃƒÂºmeros (para LotofÃƒÂ¡cil 15/25)
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         const ranked = Object.entries(scores)
             .map(([n, s]) => ({ num: parseInt(n), score: s }))
             .sort((a, b) => b.score - a.score);
@@ -2412,29 +2644,29 @@ class SmartBetsEngine {
         let poolSize;
         if (customPoolSize && customPoolSize >= drawSize + 1 && customPoolSize <= totalRange) {
             poolSize = customPoolSize;
-            console.log(`[PrecisÃ£o] ðŸŽ¯ Pool PERSONALIZADO pelo apostador: ${poolSize} nÃºmeros`);
+            console.log(`[Precisão] 🎯 Pool PERSONALIZADO pelo apostador: ${poolSize} números`);
         } else {
             poolSize = Math.min(totalRange, Math.max(20, drawSize + Math.ceil(drawSize * 0.45)));
-            console.log(`[PrecisÃ£o] Pool automÃ¡tico: ${poolSize} nÃºmeros`);
+            console.log(`[Precisão] Pool automático: ${poolSize} números`);
         }
         const precisionPool = ranked.slice(0, poolSize).map(r => r.num).sort((a, b) => a - b);
 
-        console.log(`[PrecisÃƒÆ’Ã‚Â£o] ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ Pool de PrecisÃƒÆ’Ã‚Â£o: [${precisionPool.join(', ')}] (${precisionPool.length} nÃƒÆ’Ã‚Âºmeros)`);
-        console.log(`[PrecisÃƒÆ’Ã‚Â£o] ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…Â  Scores: ${ranked.slice(0, poolSize).map(r => `${r.num}(${r.score.toFixed(2)})`).join(', ')}`);
+        console.log(`[PrecisÃƒÂ£o] Ã°Å¸Å½Â¯ Pool de PrecisÃƒÂ£o: [${precisionPool.join(', ')}] (${precisionPool.length} nÃƒÂºmeros)`);
+        console.log(`[PrecisÃƒÂ£o] Ã°Å¸â€œÅ  Scores: ${ranked.slice(0, poolSize).map(r => `${r.num}(${r.score.toFixed(2)})`).join(', ')}`);
 
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // PASSO 3: GERAR JOGOS SISTEMÃƒÆ’Ã‚ÂTICOS
-        // Todas as C(poolSize, drawSize) combinaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes,
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // PASSO 3: GERAR JOGOS SISTEMÃƒÂTICOS
+        // Todas as C(poolSize, drawSize) combinaÃƒÂ§ÃƒÂµes,
         // filtradas e ranqueadas por qualidade
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         const allCombinations = [];
         const analysis = this._deepAnalysis(gameKey, precisionPool, history, profile, startNum, endNum);
 
-        // Ã¢Ëœâ€¦ PRECISION v2.0: maxCombinations ESCALÃƒÂVEL com numGames
+        // â˜… PRECISION v2.0: maxCombinations ESCALÃVEL com numGames
         const maxCombinations = Math.max(8000, numGames * 3);
         const t0 = Date.now();
         if (poolSize <= 18) {
-            // Pool pequeno: gerar TODAS as combinaÃƒÂ§ÃƒÂµes
+            // Pool pequeno: gerar TODAS as combinaÃ§Ãµes
             const generateCombinations = (arr, size, start, current) => {
                 if (current.length === size) {
                     allCombinations.push([...current]);
@@ -2482,22 +2714,22 @@ class SmartBetsEngine {
                 }
             }
         }
-        console.log(`[PrecisÃƒÂ£o] Ã¢ÂÂ±Ã¯Â¸Â ${allCombinations.length} combinaÃƒÂ§ÃƒÂµes geradas em ${Date.now() - t0}ms`);
+        console.log(`[PrecisÃ£o] â±ï¸ ${allCombinations.length} combinaÃ§Ãµes geradas em ${Date.now() - t0}ms`);
 
-        console.log(`[PrecisÃƒÆ’Ã‚Â£o] ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…Â  CombinaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes possÃƒÆ’Ã‚Â­veis: ${allCombinations.length}`);
+        console.log(`[PrecisÃƒÂ£o] Ã°Å¸â€œÅ  CombinaÃƒÂ§ÃƒÂµes possÃƒÂ­veis: ${allCombinations.length}`);
 
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // PASSO 4: PONTUAR E FILTRAR COMBINAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã¢â‚¬Â¢ES
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // PASSO 4: PONTUAR E FILTRAR COMBINAÃƒâ€¡Ãƒâ€¢ES
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         const scoredCombinations = [];
         for (const combo of allCombinations) {
-            // Validar regras bÃƒÆ’Ã‚Â¡sicas
+            // Validar regras bÃƒÂ¡sicas
             if (!this._validateGame(combo, profile, analysis)) continue;
 
             // Pontuar qualidade
             let comboScore = this._scoreGame(combo, profile, analysis, history);
 
-            // Bonus: quantos dos top-10 nÃƒÆ’Ã‚Âºmeros estÃƒÆ’Ã‚Â£o presentes
+            // Bonus: quantos dos top-10 nÃƒÂºmeros estÃƒÂ£o presentes
             let topCount = 0;
             const top10 = new Set(ranked.slice(0, 10).map(r => r.num));
             for (const n of combo) {
@@ -2505,7 +2737,7 @@ class SmartBetsEngine {
             }
             comboScore += topCount * 0.5;
 
-            // Bonus: score total dos nÃƒÆ’Ã‚Âºmeros no combo
+            // Bonus: score total dos nÃƒÂºmeros no combo
             let totalNumScore = 0;
             for (const n of combo) totalNumScore += scores[n] || 0;
             comboScore += totalNumScore * 0.3;
@@ -2516,23 +2748,23 @@ class SmartBetsEngine {
         // Ordenar por score (melhor primeiro)
         scoredCombinations.sort((a, b) => b.score - a.score);
 
-        console.log(`[PrecisÃƒÆ’Ã‚Â£o] ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ CombinaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes vÃƒÆ’Ã‚Â¡lidas: ${scoredCombinations.length}`);
+        console.log(`[PrecisÃƒÂ£o] Ã¢Å“â€¦ CombinaÃƒÂ§ÃƒÂµes vÃƒÂ¡lidas: ${scoredCombinations.length}`);
 
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         // PASSO 5: SELECIONAR OS MELHORES JOGOS
-        // Com controle de diversidade mÃƒÆ’Ã‚Â­nima
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+        // Com controle de diversidade mÃƒÂ­nima
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         const games = [];
         const usedGameKeys = new Set();
 
-        // Ã¢Ëœâ€¦ PRECISION v2.0: Overlap ESCALÃƒÂVEL por quantidade
+        // â˜… PRECISION v2.0: Overlap ESCALÃVEL por quantidade
         let maxOverlap;
         if (numGames <= 50) {
             maxOverlap = drawSize - 2; // Diversidade alta
         } else if (numGames <= 500) {
             maxOverlap = drawSize - 1; // Diversidade moderada
         } else {
-            maxOverlap = drawSize; // Sem filtro de overlap Ã¢â‚¬â€ unicidade basta
+            maxOverlap = drawSize; // Sem filtro de overlap â€” unicidade basta
         }
 
         // Fase 1: Selecionar jogos com filtro de overlap
@@ -2560,9 +2792,9 @@ class SmartBetsEngine {
             usedGameKeys.add(key);
         }
 
-        // Fase 2: Se nÃƒÂ£o temos jogos suficientes, adicionar sem filtro de overlap
+        // Fase 2: Se nÃ£o temos jogos suficientes, adicionar sem filtro de overlap
         if (games.length < numGames) {
-            console.log(`[PrecisÃƒÂ£o] Fase2: relaxando overlap para completar ${numGames - games.length} jogos`);
+            console.log(`[PrecisÃ£o] Fase2: relaxando overlap para completar ${numGames - games.length} jogos`);
             for (const sc of scoredCombinations) {
                 if (games.length >= numGames) break;
                 const key = sc.combo.join(',');
@@ -2574,7 +2806,7 @@ class SmartBetsEngine {
 
         // Fase 3: Se AINDA faltam, gerar por shuffle do pool
         if (games.length < numGames) {
-            console.log(`[PrecisÃƒÂ£o] Fase3: gerando ${numGames - games.length} jogos por shuffle`);
+            console.log(`[PrecisÃ£o] Fase3: gerando ${numGames - games.length} jogos por shuffle`);
             let shuffleAtt = 0;
             const maxShuffleAtt = Math.max((numGames - games.length) * 200, 500000);
             while (games.length < numGames && shuffleAtt < maxShuffleAtt) {
@@ -2593,10 +2825,10 @@ class SmartBetsEngine {
             }
         }
 
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // PASSO 6: ANÃƒÆ’Ã‚ÂLISE DE CONFIANÃƒÆ’Ã¢â‚¬Â¡A
-        // ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
-        // Backtesting: quantos dos ÃƒÆ’Ã‚Âºltimos sorteios teriam sido cobertos
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // PASSO 6: ANÃƒÂLISE DE CONFIANÃƒâ€¡A
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // Backtesting: quantos dos ÃƒÂºltimos sorteios teriam sido cobertos
         // v7.1: Thresholds ADAPTATIVOS por loteria
         const btThresholds = drawSize >= 15 ? [14, 13, 12]
             : drawSize >= 10 ? [7, 6, 5]
@@ -2618,7 +2850,7 @@ class SmartBetsEngine {
             if (bestHits >= th3) btLow++;
         }
 
-        // Verificar se o pool contÃƒÆ’Ã‚Â©m os nÃƒÆ’Ã‚Âºmeros sorteados
+        // Verificar se o pool contÃƒÂ©m os nÃƒÂºmeros sorteados
         let poolHits = 0;
         for (let t = 0; t < btCount; t++) {
             let poolMatch = 0;
@@ -2643,12 +2875,12 @@ class SmartBetsEngine {
             backtestHits: { [th1+'+']: btHigh, [th2+'+']: btMid, [th3+'+']: btLow },
             avgPoolMatch: avgPoolMatch.toFixed(1),
             totalGames: games.length,
-            mode: 'PRECISÃƒÆ’Ã†â€™O'
+            mode: 'PRECISÃƒÆ’O'
         };
 
-        console.log(`[PrecisÃƒÆ’Ã‚Â£o] ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ Pool cobre mÃƒÆ’Ã‚Â©dia de ${avgPoolMatch.toFixed(1)}/${drawSize} nÃƒÆ’Ã‚Âºmeros por sorteio`);
-        console.log(`[PrecisÃƒÆ’Ã‚Â£o] ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…Â  Backtesting: ${th1}+=${btHigh}/${btCount}, ${th2}+=${btMid}/${btCount}, ${th3}+=${btLow}/${btCount}`);
-        console.log(`[PrecisÃƒÆ’Ã‚Â£o] ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ ${games.length} jogos gerados | ConfianÃƒÆ’Ã‚Â§a: ${setAnalysis.confidence}%`);
+        console.log(`[PrecisÃƒÂ£o] Ã°Å¸Å½Â¯ Pool cobre mÃƒÂ©dia de ${avgPoolMatch.toFixed(1)}/${drawSize} nÃƒÂºmeros por sorteio`);
+        console.log(`[PrecisÃƒÂ£o] Ã°Å¸â€œÅ  Backtesting: ${th1}+=${btHigh}/${btCount}, ${th2}+=${btMid}/${btCount}, ${th3}+=${btLow}/${btCount}`);
+        console.log(`[PrecisÃƒÂ£o] Ã¢Å“â€¦ ${games.length} jogos gerados | ConfianÃƒÂ§a: ${setAnalysis.confidence}%`);
 
         return {
             pool: precisionPool,
@@ -2657,9 +2889,9 @@ class SmartBetsEngine {
         };
     }
 
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬â€
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ  HELPER: Encontrar ÃƒÆ’Ã‚Âºltima vez que nÃƒÆ’Ã‚Âºmero saiu       ÃƒÂ¢Ã¢â‚¬Â¢Ã¢â‚¬Ëœ
-    // ÃƒÂ¢Ã¢â‚¬Â¢Ã…Â¡ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
+    // Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
+    // Ã¢â€¢â€˜  HELPER: Encontrar ÃƒÂºltima vez que nÃƒÂºmero saiu       Ã¢â€¢â€˜
+    // Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     static _findLastSeen(num, history) {
         for (let i = 0; i < history.length; i++) {
             if (history[i].numbers && history[i].numbers.includes(num)) return i;
