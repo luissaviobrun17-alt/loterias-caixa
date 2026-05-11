@@ -2446,29 +2446,57 @@ class NovaEraEngine {
             console.log('[SNIPER-QUANTUM]   Tier ' + (t+1) + ': [' + tiers[t].join(', ') + ']');
         }
         
-        // ━━━ FASE 4: GERAR JOGOS ━━━
+        // ━━━ FASE 4: GERAR JOGOS (GOD MODE v10) ━━━
         const games = [];
         const usedKeys = new Set();
         const startTime = Date.now();
+        
+        // ★ v10: Anti-sobreposição — controlar overlap máximo entre jogos
+        const _overlapWith = (newT, existing) => {
+            let maxO = 0;
+            const last = existing.slice(-30); // checar últimos 30
+            for (const g of last) {
+                let o = 0;
+                for (const n of newT) { if (g.includes(n)) o++; }
+                if (o > maxO) maxO = o;
+            }
+            return maxO;
+        };
+        const maxOverlapAllowed = Math.max(2, actualDrawSize - 2);
+        
+        // ★ v10: Filtro de distribuição por zonas
+        const numZones = profile.zones || Math.ceil((endNum - startNum + 1) / 10);
+        const zoneSize = profile.zoneSize || 10;
+        
+        const _zoneBalanced = (ticket) => {
+            const zoneCounts = new Array(numZones).fill(0);
+            for (const n of ticket) {
+                const z = Math.min(numZones - 1, Math.floor((n - startNum) / zoneSize));
+                zoneCounts[z]++;
+            }
+            // Não permitir > 60% dos números em uma única zona
+            const maxInZone = Math.max(...zoneCounts);
+            return maxInZone <= Math.ceil(actualDrawSize * 0.6);
+        };
         
         // 4A: Adicionar todos os jogos de tier direto (melhor qualidade)
         for (const tier of tiers) {
             if (games.length >= numGames) break;
             const key = tier.join(',');
-            if (!usedKeys.has(key) && this._validateSniperTicket(tier, profile, startNum, endNum, actualDrawSize, history)) {
+            if (!usedKeys.has(key) && this._validateSniperTicket(tier, profile, startNum, endNum, actualDrawSize, history) && _zoneBalanced(tier)) {
                 games.push([...tier]);
                 usedKeys.add(key);
             }
         }
         console.log('[SNIPER-QUANTUM] Fase 4A (Tiers diretos): ' + games.length + ' jogos');
         
-        // 4B: Cross-combinar tiers — pegar 1 número de cada tier, formando jogos mistos
+        // 4B: Cross-combinar tiers — Strategy Pattern: Top-Mid-Bottom mix
         if (games.length < numGames && tiers.length >= 2) {
             const crossGames = this._crossCombineTiers(tiers, remainder, actualDrawSize, numGames - games.length, profile, startNum, endNum, poolScores, history);
             for (const cg of crossGames) {
                 if (games.length >= numGames) break;
                 const key = cg.join(',');
-                if (!usedKeys.has(key)) {
+                if (!usedKeys.has(key) && _overlapWith(cg, games) <= maxOverlapAllowed && _zoneBalanced(cg)) {
                     games.push(cg);
                     usedKeys.add(key);
                 }
@@ -2476,10 +2504,10 @@ class NovaEraEngine {
         }
         console.log('[SNIPER-QUANTUM] Fase 4B (Cross-tiers): ' + games.length + ' jogos');
         
-        // 4C: Gerar jogos adicionais usando Roulette Wheel do pool selecionado
+        // 4C: Gerar jogos adicionais usando Roulette Wheel com anti-overlap
         if (games.length < numGames) {
             const remaining = numGames - games.length;
-            console.log('[SNIPER-QUANTUM] Fase 4C: gerando ' + remaining + ' jogos via Roulette Wheel do pool...');
+            console.log('[SNIPER-QUANTUM] Fase 4C: gerando ' + remaining + ' jogos via Roulette Wheel...');
             
             const usedCount = {};
             for (const n of selectedPool) usedCount[n] = 0;
@@ -2492,7 +2520,7 @@ class NovaEraEngine {
             
             let att = 0;
             const maxAtt = Math.min(remaining * 500, 5000000);
-            const timeout = 300000; // 5 min
+            const timeout = 300000;
             
             while (games.length < numGames && att < maxAtt && (Date.now() - startTime) < timeout) {
                 att++;
@@ -2505,6 +2533,9 @@ class NovaEraEngine {
                 if (!ticket || ticket.length < actualDrawSize) continue;
                 const key = ticket.join(',');
                 if (usedKeys.has(key)) continue;
+                // ★ v10: anti-overlap (relaxar se volume > 1000)
+                if (games.length < 1000 && _overlapWith(ticket, games) > maxOverlapAllowed) continue;
+                if (!_zoneBalanced(ticket)) continue;
                 
                 games.push(ticket);
                 usedKeys.add(key);
@@ -2521,20 +2552,26 @@ class NovaEraEngine {
         const coveragePct = (uniqueNums.size / totalRange * 100).toFixed(1);
         const poolCoverage = (uniqueNums.size / poolSize * 100).toFixed(1);
         
-        // Calcular confiança baseada na qualidade dos números selecionados
+        // ★ v10 GOD MODE: Confiança recalculada com diversidade + anti-overlap
         const avgScore = selectedPool.reduce((s, n) => s + (scores[n] || 0), 0) / selectedPool.length;
-        const maxScore = ranked[0].score;
-        const qualityRatio = avgScore / Math.max(0.01, maxScore);
+        const maxScoreInPool = Math.max(...selectedPool.map(n => scores[n] || 0), 0.01);
+        const qualityRatio = avgScore / maxScoreInPool;
+        
+        // Diversidade: quantos números únicos vs pool total
+        const diversityRatio = uniqueNums.size / Math.max(1, poolSize);
+        // Completude
+        const completionRatio = games.length / Math.max(1, numGames);
         
         const honestCeiling = profile._confidenceCeiling || 75;
         const confidence = Math.min(honestCeiling, Math.round(
-            qualityRatio * 50 + // Qualidade do pool (0-50%)
-            (games.length / numGames) * 20 + // Completude (0-20%)
-            parseFloat(poolCoverage) * 0.10 // Cobertura do pool (0-10%)
+            qualityRatio * 35 +        // Qualidade dos scores (0-35%)
+            completionRatio * 20 +     // Completude (0-20%)
+            diversityRatio * 15 +      // Diversidade de números (0-15%)
+            parseFloat(poolCoverage) * 0.05  // Cobertura (0-5%)
         ));
         
         const analysis = {
-            engine: 'SNIPER QUANTUM v9.5',
+            engine: 'SNIPER QUANTUM v10 GOD',
             confidence: confidence,
             uniqueNumbers: uniqueNums.size,
             totalNumbers: totalRange,
@@ -2543,6 +2580,7 @@ class NovaEraEngine {
             coveragePct: coveragePct,
             poolCoverage: poolCoverage,
             avgPoolScore: avgScore.toFixed(3),
+            diversityIndex: (diversityRatio * 100).toFixed(1),
             topNumbers: rankedPool.slice(0, actualDrawSize).join(', '),
             generationTime: Date.now() - startTime
         };
@@ -2591,11 +2629,11 @@ class NovaEraEngine {
         
         if (numTiers < 2) return results;
         
-        // Estratégia 1: Pegar números distribuídos entre tiers
-        // Para cada jogo, selecionar X números do tier 1, Y do tier 2, Z do tier 3...
-        // Distribuição: mais do tier 1 (melhores), menos dos tiers inferiores
+        // ★ v10 GOD MODE: Strategy Pattern — Top-Mid-Bottom mix
+        // Estratégia: garantir que cada jogo tem números de diferentes tiers
+        // Tier 1 contribui ~50%, Tier 2 ~30%, restantes ~20%
         
-        const maxAttempts = Math.min(maxGames * 100, 500000);
+        const maxAttempts = Math.min(maxGames * 150, 500000);
         let attempts = 0;
         
         while (results.length < maxGames && attempts < maxAttempts) {
@@ -2603,23 +2641,31 @@ class NovaEraEngine {
             const ticket = [];
             const ticketSet = new Set();
             
-            // Distribuir números entre tiers com viés para os melhores
-            // Tier 1 contribui mais, tiers inferiores menos
+            // ★ Strategy: calcular quantos de cada tier
+            const tier1Qty = Math.max(1, Math.round(drawSize * 0.45));
+            const tier2Qty = Math.max(1, Math.round(drawSize * 0.30));
+            const tierRestQty = drawSize - tier1Qty - tier2Qty;
+            
+            // Coletar por tier com quantidade estratégica
             const allNums = [];
+            const tierQuotas = [tier1Qty, tier2Qty];
+            // Distribuir restante entre tiers 3+
+            for (let t = 2; t < numTiers; t++) tierQuotas.push(Math.max(1, Math.ceil(tierRestQty / Math.max(1, numTiers - 2))));
+            
             for (let t = 0; t < numTiers; t++) {
-                // Peso inversamente proporcional ao tier (tier 0 = peso máximo)
-                const weight = Math.pow(0.7, t);
-                for (const n of tiers[t]) {
-                    // Adicionar com probabilidade baseada no peso do tier e score individual
-                    if (Math.random() < weight) {
-                        allNums.push({ num: n, score: (scores[n] || 0.5) * weight });
-                    }
+                const quota = tierQuotas[t] || 1;
+                // Shuffle tier e pegar quota números aleatórios
+                const shuffled = [...tiers[t]].sort(() => Math.random() - 0.5);
+                const picked = shuffled.slice(0, quota);
+                for (const n of picked) {
+                    const weight = Math.pow(0.8, t);
+                    allNums.push({ num: n, score: (scores[n] || 0.5) * weight * (1 + Math.random() * 0.3) });
                 }
             }
             // Adicionar remainder com peso baixo
             for (const n of remainder) {
-                if (Math.random() < 0.3) {
-                    allNums.push({ num: n, score: (scores[n] || 0.3) * 0.3 });
+                if (Math.random() < 0.25) {
+                    allNums.push({ num: n, score: (scores[n] || 0.3) * 0.25 });
                 }
             }
             
