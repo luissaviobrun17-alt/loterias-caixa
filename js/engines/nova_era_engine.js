@@ -393,8 +393,8 @@ class NovaEraEngine {
         const drawSize = customDrawSize || game.minBet || profile.drawSize;
 
         // Carregar histÃ³rico
-        let history = [];
-        try {
+        let history = historyOverride || [];
+        if (history.length === 0) try {
             if (typeof StatsService !== 'undefined') {
                 history = StatsService.getRecentResults(gameKey, 200) || [];
             }
@@ -3401,7 +3401,8 @@ class NovaEraEngine {
     // â•‘  Retorna os N nÃºmeros com maior projeÃ§Ã£o futura usando         â•‘
     // â•‘  todas as 18 camadas de anÃ¡lise QUANTUM                        â•‘
     // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    static suggestNumbers(gameKey, count) {
+    static suggestNumbers(gameKey, count, historyOverride) {
+        // v10.0: Walk-Forward out-of-sample support
         const profile = this.getProfile(gameKey);
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         if (!game) return [];
@@ -3410,8 +3411,8 @@ class NovaEraEngine {
         const endNum = profile.range[1];
         const totalRange = endNum - startNum + 1;
 
-        let history = [];
-        try {
+        let history = historyOverride || [];
+        if (history.length === 0) try {
             if (typeof StatsService !== 'undefined') {
                 history = StatsService.getRecentResults(gameKey, 200) || [];
             }
@@ -3756,6 +3757,7 @@ class NovaEraEngine {
 if (typeof window !== 'undefined') {
     window.NovaEraEngine = NovaEraEngine;
 }
+
 
 
 

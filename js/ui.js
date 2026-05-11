@@ -264,7 +264,10 @@ class UI {
                         if (typeof NovaEraEngine !== 'undefined' && typeof NovaEraEngine.suggestNumbers === 'function') {
                             try {
                                 console.log('[UI] Usando NovaEraEngine.suggestNumbers para ' + this.currentGameKey);
-                                suggestion = NovaEraEngine.suggestNumbers(this.currentGameKey, count);
+                                // v10.0: Walk-Forward OUT-OF-SAMPLE
+                                // Treinar com history[10+], testar contra history[0..9]
+                                const trainHistory = history.length > 12 ? history.slice(10) : history;
+                                suggestion = NovaEraEngine.suggestNumbers(this.currentGameKey, count, trainHistory);
                             } catch(neErr) {
                                 console.warn('[UI] NovaEraEngine falhou:', neErr.message);
                                 suggestion = null;
@@ -343,7 +346,15 @@ class UI {
                             }
                         }
 
-                        console.log('[UI] SugestÃ£o gerada: ' + (suggestion ? suggestion.length : 0) + ' nÃºmeros');
+                                                // v10.0: Indicador visual de fallback aleatorio
+                        if (_usedRandomFallback) {
+                            const fallbackDiv = document.createElement('div');
+                            fallbackDiv.style.cssText = 'text-align:center;padding:8px;margin:6px 0;border-radius:8px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);font-size:0.78rem;color:#EF4444;font-weight:700;';
+                            fallbackDiv.textContent = '\u26a0\ufe0f Gerado ALEATORIAMENTE \u2014 motores IA falharam. Recarregue a p\u00e1gina (Ctrl+Shift+R)';
+                            this.quantumResults.innerHTML = '';
+                            this.quantumResults.appendChild(fallbackDiv);
+                        }
+console.log('[UI] SugestÃ£o gerada: ' + (suggestion ? suggestion.length : 0) + ' nÃºmeros');
                         this.renderQuantumResults(suggestion);
                     } catch (err) {
                         console.error('[UI] ERRO CRÃTICO no engine:', err);
@@ -442,80 +453,18 @@ class UI {
             return h;
         };
 
-        // â”€â”€ DIAGNÃ“STICO: quais engines estÃ£o carregados â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+        // v10.0: DIAGNOSTICO REAL de engines carregados
         const enginesLoaded = [
-            typeof AnalysisEngine !== 'undefined'       ? 'ðŸ”¬AE-V2'  : null,
-            typeof DecisionEngine !== 'undefined'       ? 'âœ…DE-V1'  : null,
-            typeof UniversalGroupEngine !== 'undefined' ? 'ðŸŽ¯UGE-V1' : null,
+            typeof NovaEraEngine !== 'undefined'        ? '\u269b\ufe0fNE-v10'  : null,
+            typeof PrecisionEngine !== 'undefined'      ? '\ud83c\udfafPE-v2'   : null,
+            typeof SmartBetsEngine !== 'undefined'      ? '\ud83e\udde0SB-v1'   : null,
+            typeof PrecisionCalibrator !== 'undefined'  ? '\ud83d\udcd0PC-v1'   : null,
         ].filter(Boolean);
-        if (enginesLoaded.length > 0) {
-            const diagDiv = document.createElement('div');
-            diagDiv.style.cssText = 'text-align:center;font-size:0.58rem;color:#475569;padding:3px 0 1px;letter-spacing:0.5px;';
-            diagDiv.textContent = 'Motores: ' + enginesLoaded.join(' Â· ');
-            this.quantumResults.appendChild(diagDiv);
-        } else {
-            const diagDiv = document.createElement('div');
-            diagDiv.style.cssText = 'text-align:center;font-size:0.65rem;color:#EF4444;padding:4px;';
-            diagDiv.textContent = 'âš ï¸ Motores de anÃ¡lise nÃ£o carregados â€” recarregue a pÃ¡gina (Ctrl+Shift+R)';
-            this.quantumResults.appendChild(diagDiv);
-        }
-
-        // â”€â”€ ANÃLISE PROFUNDA DE EFICIÃŠNCIA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        try {
-            if (typeof AnalysisEngine !== 'undefined' && numbers && numbers.length > 0) {
-                const aeStatus = document.createElement('div');
-                aeStatus.style.cssText = 'text-align:center;color:#8B5CF6;font-size:0.72rem;padding:6px;opacity:0.8;';
-                aeStatus.textContent = 'ðŸ”¬ Analisando eficiÃªncia da seleÃ§Ã£o em 12 dimensÃµes...';
-                this.quantumResults.appendChild(aeStatus);
-
-                setTimeout(() => {
-                    try {
-                        const history = _getHistory(this.currentGameKey, 100);
-                        if (history.length < 3) {
-                            aeStatus.textContent = 'âš ï¸ AE-V2: histÃ³rico insuficiente (' + history.length + ' registros)';
-                            return;
-                        }
-                        const analysis = AnalysisEngine.analyze(this.currentGameKey, numbers, history);
-                        aeStatus.remove();
-                        if (analysis) {
-                            const aeContainer = document.createElement('div');
-                            AnalysisEngine.renderPanel(analysis, aeContainer);
-                            this.quantumResults.appendChild(aeContainer);
-                        } else {
-                            aeStatus.textContent = 'âš ï¸ AE-V2: anÃ¡lise retornou null';
-                        }
-                    } catch (aeErr) {
-                        aeStatus.style.color = '#EF4444';
-                        aeStatus.textContent = 'âš ï¸ AE-V2 erro: ' + aeErr.message;
-                        console.warn('[AE] Erro:', aeErr);
-                    }
-                }, 200);
-            }
-        } catch(e) { console.warn('[AE] Erro ao iniciar anÃ¡lise:', e); }
-
-        // â”€â”€ PAINEL DE DECISÃƒO INTEGRADO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        try {
-            if (typeof DecisionEngine !== 'undefined' && numbers && numbers.length > 0) {
-                setTimeout(() => {
-                    try {
-                        const history = _getHistory(this.currentGameKey, 200);
-                        if (history.length < 3) return;
-                        const decision = DecisionEngine.decide(this.currentGameKey, numbers, history);
-                        if (decision) {
-                            const deContainer = document.createElement('div');
-                            DecisionEngine.renderDecisionPanel(decision, deContainer);
-                            this.quantumResults.appendChild(deContainer);
-                        }
-                    } catch (deErr) {
-                        const errDiv = document.createElement('div');
-                        errDiv.style.cssText = 'color:#EF4444;font-size:0.65rem;padding:6px;text-align:center;';
-                        errDiv.textContent = 'âš ï¸ DecisÃ£o erro: ' + deErr.message;
-                        this.quantumResults.appendChild(errDiv);
-                        console.warn('[DE] Erro motor de decisÃ£o:', deErr);
-                    }
-                }, 600);
-            }
-        } catch(e) { console.warn('[DE] Erro ao iniciar decisÃ£o:', e); }
+        const diagDiv = document.createElement('div');
+        diagDiv.style.cssText = 'text-align:center;font-size:0.58rem;color:#475569;padding:3px 0 1px;letter-spacing:0.5px;';
+        diagDiv.textContent = 'v10.0 | 21 Camadas | ' + enginesLoaded.join(' \u00b7 ');
+        this.quantumResults.appendChild(diagDiv);
     }
 
     useQuantumNumbers() {
@@ -5089,5 +5038,7 @@ class UI {
 
 // Export removed for global script compatibility
 /* Cache bust: 20260511171042 */
+
+
 
 
