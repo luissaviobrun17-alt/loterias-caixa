@@ -589,8 +589,9 @@ class UI {
         const precisionCheckbox = document.getElementById('precision-mode-toggle');
         const isPrecisionMode = precisionCheckbox && precisionCheckbox.checked;
 
-        // ── RASTREAMENTO DE MODO ──
-        this._lastGenerationMode = 'quantum_l99'; localStorage.setItem('l99_lastMode','quantum_l99'); document.body.setAttribute('data-l99-mode','quantum_l99');
+        // ── RASTREAMENTO DE MODO ── ★ FIX: diferenciar precision vs quantum
+        const _modeKey = isPrecisionMode ? 'precision' : 'quantum_l99';
+        this._lastGenerationMode = _modeKey; localStorage.setItem('l99_lastMode', _modeKey); document.body.setAttribute('data-l99-mode', _modeKey);
         this._lastPrecisionMode = isPrecisionMode;
         this._lastDrawSize = this.smartDrawSizeSelect ? parseInt(this.smartDrawSizeSelect.value) || game.minBet : game.minBet;
 
@@ -610,6 +611,7 @@ class UI {
         }
 
         // AUTO-USAR números sugeridos pela fórmula IA (se nenhum selecionado no grid)
+        let _quantumInjected = false;
         if (selectedArr.length === 0 && this.quantumResults) {
             const quantumBalls = this.quantumResults.querySelectorAll('.ball');
             if (quantumBalls.length > 0) {
@@ -620,7 +622,8 @@ class UI {
                 });
                 if (quantumNums.length > 0) {
                     selectedArr = quantumNums;
-                    console.log(`[SmartBets] 🔮 Usando ${quantumNums.length} números da Telepatia Quântica`);
+                    _quantumInjected = true;
+                    console.log(`[SmartBets] 🔮 Usando ${quantumNums.length} números da Telepatia Quântica como pool`);
                 }
             }
         }
@@ -641,10 +644,12 @@ class UI {
         const oldCaixaBtn = document.getElementById('caixa-panel');
         if (oldCaixaBtn) oldCaixaBtn.remove();
 
-        // V9: Indicador de modo
-        const modeLabel = selectedArr.length > 0
-            ? `🎯 ${selectedArr.length} números selecionados → gerando variantes`
-            : '🧠 Análise IA completa do universo';
+        // V9: Indicador de modo ★ FIX: mostrar quando usa Quantum auto-injeção
+        const modeLabel = _quantumInjected
+            ? `🔮 ${selectedArr.length} números da Telepatia Quântica → pool preferencial`
+            : selectedArr.length > 0
+                ? `🎯 ${selectedArr.length} números selecionados → gerando variantes`
+                : '🧠 Análise IA completa do universo';
 
         // Loading - QUANTUM L99 Premium
         this.gamesContainer.innerHTML = `
@@ -682,22 +687,21 @@ class UI {
             this.generateSmartBtn.style.opacity = '0.6';
         }
 
-        // Fase 2: Futurologia Preditiva
+        // ★ FIX: Animação reduzida de 1200ms → 400ms total (era teatro puro)
         setTimeout(() => {
             try {
                 const p2 = document.getElementById('q-phase-2');
                 const st = document.getElementById('q-status');
                 if (p2) { p2.style.opacity = '1'; p2.style.background = 'rgba(16,185,129,0.2)'; p2.style.borderColor = 'rgba(16,185,129,0.5)'; }
-                if (st) st.innerHTML = '🔮 Projeção futura: tendências temporais + Monte Carlo...';
+                if (st) st.innerHTML = '🔮 Análise preditiva multi-camada...';
             } catch(e) {}
 
-            // Fase 3: Clarividência Computacional
             setTimeout(() => {
                 try {
                     const p3 = document.getElementById('q-phase-3');
                     const st = document.getElementById('q-status');
                     if (p3) { p3.style.opacity = '1'; p3.style.background = 'rgba(236,72,153,0.2)'; p3.style.borderColor = 'rgba(236,72,153,0.5)'; }
-                    if (st) st.innerHTML = '🧿 Clarividência: convergência de 18 camadas → Próximo Sorteio...';
+                    if (st) st.innerHTML = '🧿 Convergência de camadas → Gerando jogos...';
                 } catch(e) {}
 
                 setTimeout(() => {
@@ -711,7 +715,8 @@ class UI {
                             const precisionPoolInput = document.getElementById('precision-pool-size');
                             const precisionPoolValue = precisionPoolInput ? parseInt(precisionPoolInput.value) : 0;
                             const poolSize = precisionPoolValue > 0 ? precisionPoolValue : (customDrawSize || game.minBet * 5);
-                            const actualDrawSize = game.minBet;
+                            // ★ FIX #6: usar customDrawSize (dropdown) em vez de game.minBet fixo
+                            const actualDrawSize = customDrawSize || game.minBet;
                             console.log('%c[UI] ★ SNIPER QUANTUM ATIVADO — pool=' + poolSize + ' (precision-pool-size=' + precisionPoolValue + ') | jogos=' + quantity + ' | drawSize=' + actualDrawSize, 'color: #EF4444; font-weight: bold;');
                             result = NovaEraEngine.generateSniper(
                                 this.currentGameKey,
@@ -873,9 +878,9 @@ class UI {
                             this.generateSmartBtn.style.opacity = '1';
                         }
                     }
-                }, 200);
-            }, 500);
-        }, 500);
+                }, 50);
+            }, 150);
+        }, 200);
     }
 
     // ╔══════════════════════════════════════════════════════════════╗
