@@ -83,7 +83,7 @@ class NovaEraEngine {
                 // ★ v9.0 RECALIBRADO: Soma validada P5-P95
                 sumRange: [155, 235],
                 maxUsagePct: 0.90,
-                maxOverlap: 12,
+                maxOverlap: 13,
                 // ★ v9.0: Ampliado — dados reais variam 5-13 repetições
                 repeatFromLast: [5, 13],
                 weights: {
@@ -2362,19 +2362,19 @@ class NovaEraEngine {
         const maxOverlap = ap.maxOverlap !== undefined ? ap.maxOverlap : profile.maxOverlap;
         const checkRadius = ap.checkRadius || 30;
 
-        // ━━ FASE 1: Jogos de QUALIDADE com IA + filtros v5.0 ━━
+        // ━━ FASE 1: Jogos de QUALIDADE com IA + filtros v9.5 ━━
         const fase1MaxAttempts = numGames <= 100
             ? numGames * 800
             : numGames <= 1000
-                ? Math.min(numGames * 500, 5000000)
-                : Math.min(numGames * 200, 10000000);
+                ? Math.min(numGames * 600, 6000000)
+                : Math.min(numGames * 400, 20000000);
         const fase1Timeout = numGames <= 100
             ? 30000
             : numGames <= 1000
                 ? 120000
                 : numGames <= 5000
-                    ? 300000
-                    : 600000;
+                    ? 600000
+                    : 900000;
         const startTime = Date.now();
         let attempts = 0;
 
@@ -2650,13 +2650,17 @@ class NovaEraEngine {
             }
             if (maxConsecRun > profile.maxConsecutive) return null;
 
-            // ★ v9.0: Rejeitar jogos com muitos pares de consecutivos
-            // Mega Sena real: 70% dos sorteios tem 0-1 par consecutivo
+            // ★ v9.5 FIX: maxPairsAllowed PROPORCIONAL ao drawSize/range
+            // Lotofácil (15/25): média real = 8-10 pares → limitar em 10
+            // Mega Sena (6/60): média real = 0.5 pares → limitar em 2
+            // Lotomania (50/100): média real = 24 pares → limitar em 28
             let consecPairs = 0;
             for (let i = 1; i < ticket.length; i++) {
                 if (ticket[i] === ticket[i-1] + 1) consecPairs++;
             }
-            const maxPairsAllowed = drawSize <= 6 ? 1 : drawSize <= 10 ? 2 : drawSize <= 15 ? 4 : 6;
+            const totalRange = endNum - startNum + 1;
+            const density = drawSize / totalRange; // 0.6 para Lotofácil, 0.1 para Mega
+            const maxPairsAllowed = Math.max(1, Math.round(drawSize * density * 1.2));
             if (consecPairs > maxPairsAllowed) return null;
         }
 
