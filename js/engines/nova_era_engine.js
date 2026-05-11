@@ -3553,17 +3553,103 @@ class NovaEraEngine {
         }
         layers.push(patternDnaLayer);
 
+        // ★ v10.0 FIX: CAMADA 19 — Duplas e Trios Frequentes (era AUSENTE!)
+        let pairTrioLayer = {};
+        for (let n = startNum; n <= endNum; n++) pairTrioLayer[n] = 0.5;
+        if (N >= 8) {
+            const pairFreq = {};
+            const pairLimit = Math.min(50, N);
+            for (let t = 0; t < pairLimit; t++) {
+                const nums = (history[t].numbers || []).concat(history[t].numbers2 || [])
+                    .filter(x => x >= startNum && x <= endNum).sort((a, b) => a - b);
+                const decay = Math.exp(-t * 0.04);
+                for (let i = 0; i < nums.length; i++) {
+                    for (let j = i + 1; j < nums.length; j++) {
+                        const pk = nums[i] + '-' + nums[j];
+                        pairFreq[pk] = (pairFreq[pk] || 0) + decay;
+                    }
+                }
+            }
+            const topPairs = Object.entries(pairFreq).sort((a, b) => b[1] - a[1]).slice(0, 30);
+            for (const [pk, freq] of topPairs) {
+                const [a, b] = pk.split('-').map(Number);
+                const boost = freq * 0.06;
+                pairTrioLayer[a] = (pairTrioLayer[a] || 0.5) + boost;
+                pairTrioLayer[b] = (pairTrioLayer[b] || 0.5) + boost;
+            }
+            pairTrioLayer = this._normalizeScores(pairTrioLayer, startNum, endNum);
+        }
+        layers.push(pairTrioLayer);
+
+        // ★ v10.0 FIX: CAMADA 20 — Ciclo Individual de Retorno (era AUSENTE!)
+        let cycleReturnLayer = {};
+        for (let n = startNum; n <= endNum; n++) cycleReturnLayer[n] = 0.5;
+        if (N >= 10) {
+            const expectedGlobalCycle = totalRange / drawSize;
+            for (let n = startNum; n <= endNum; n++) {
+                const appearances = [];
+                for (let i = 0; i < Math.min(60, N); i++) {
+                    if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) appearances.push(i);
+                }
+                if (appearances.length < 2) {
+                    cycleReturnLayer[n] = appearances.length > 0 && appearances[0] > expectedGlobalCycle * 1.5 ? 0.90 : 0.60;
+                    continue;
+                }
+                const gaps = [];
+                for (let j = 0; j < appearances.length - 1; j++) gaps.push(appearances[j + 1] - appearances[j]);
+                const avgCycle = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+                const currentDelay = appearances[0];
+                const cyclePosition = currentDelay / Math.max(1, avgCycle);
+                let score = 0.3;
+                if (cyclePosition >= 0.85 && cyclePosition <= 1.2) score = 0.95;
+                else if (cyclePosition >= 0.6 && cyclePosition < 0.85) score = 0.75;
+                else if (cyclePosition > 1.2 && cyclePosition <= 2.0) score = 0.85;
+                else if (cyclePosition > 2.0) score = 0.80;
+                cycleReturnLayer[n] = Math.min(1.0, score);
+            }
+            cycleReturnLayer = this._normalizeScores(cycleReturnLayer, startNum, endNum);
+        }
+        layers.push(cycleReturnLayer);
+
+        // ★ v10.0 FIX: CAMADA 21 — Superposição Quântica (era AUSENTE!)
+        let quantumSuperLayer = {};
+        for (let n = startNum; n <= endNum; n++) quantumSuperLayer[n] = 0.5;
+        if (N >= 8) {
+            const scenarios = [
+                { window: 3, weight: 0.30 }, { window: 7, weight: 0.25 },
+                { window: 15, weight: 0.20 }, { window: 30, weight: 0.15 },
+                { window: Math.min(50, N), weight: 0.10 }
+            ];
+            for (let n = startNum; n <= endNum; n++) {
+                let collapseProb = 0;
+                for (const sc of scenarios) {
+                    const ws = Math.min(sc.window, N);
+                    let freq = 0;
+                    for (let i = 0; i < ws; i++) {
+                        if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) freq++;
+                    }
+                    const freqRatio = freq / ws;
+                    const expectedFreq = drawSize / totalRange;
+                    const deviation = freqRatio / Math.max(0.001, expectedFreq);
+                    collapseProb += deviation * sc.weight;
+                }
+                quantumSuperLayer[n] = Math.min(1.0, collapseProb * 0.5);
+            }
+            quantumSuperLayer = this._normalizeScores(quantumSuperLayer, startNum, endNum);
+        }
+        layers.push(quantumSuperLayer);
+
+        // ★ v10.0: 21 camadas sincronizadas com _scoreAllNumbers
         const w = this._getGodModeWeights(gameKey);
-        const wKeys = ['frequency','trend','delay','zone','markov','phase','clairvoyance','nextDraw','bayesian','positional','sequential','momentum','mirror','gap','cluster','reversion','precision','patternDna'];
+        const wKeys = ['frequency','trend','delay','zone','markov','phase','clairvoyance','nextDraw','bayesian','positional','sequential','momentum','mirror','gap','cluster','reversion','precision','patternDna','pairTrio','cycleReturn','quantumSuper'];
         const scores = {};
 
         for (let n = startNum; n <= endNum; n++) {
             let total = 0;
-            for (let i = 0; i < 18; i++) {
+            for (let i = 0; i < 21; i++) {
                 total += (layers[i][n] || 0) * (w[wKeys[i]] || 0.05);
             }
-            // Injeção de Ruído Termodinâmico Orgânico (± 0.5%)
-            // Permite variações nas requisições consecutivas para desempatar scores muito próximos
+            // Micro-ruído para desempate (± 0.5%)
             const noise = (Math.random() * 0.01) - 0.005; 
             scores[n] = total + noise;
         }
