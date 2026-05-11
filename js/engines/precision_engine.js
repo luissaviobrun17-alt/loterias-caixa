@@ -1017,6 +1017,9 @@ class PrecisionEngine {
     static _buildResult(games, gameKey, history, totalRange, drawSize, t0) {
         const elapsed = Date.now() - t0;
         let confidence = 60;
+        const game0 = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+        const startNum = game0 ? game0.range[0] : 1;
+        const endNum = game0 ? game0.range[1] : 60;
 
         if (history.length >= 5 && games.length > 0) {
             try {
@@ -1054,21 +1057,72 @@ class PrecisionEngine {
             }
             avgOverlap /= Math.min(games.length - 1, 9);
         }
-        console.log('[PRECISION-L99] 📊 Coverage=' + coverage + '% | OverlapMédio(J1)=' + avgOverlap.toFixed(1) + '/' + drawSize);
+
+        // ★ FIX: Calcular duplas e trios cobertos com dados REAIS do histórico
+        let pairsCovered = 0;
+        let triosCovered = 0;
+        if (history && history.length >= 5 && games.length > 0) {
+            try {
+                // Duplas do histórico
+                const histPairs = new Set();
+                for (let t = 0; t < Math.min(20, history.length); t++) {
+                    const nums = (history[t].numbers || []).filter(x => x >= startNum && x <= endNum).sort((a,b) => a-b);
+                    for (let i = 0; i < nums.length; i++)
+                        for (let j = i+1; j < nums.length; j++)
+                            histPairs.add(nums[i] + '-' + nums[j]);
+                }
+                const gamePairs = new Set();
+                for (const g of games) {
+                    const s = [...g].sort((a,b) => a-b);
+                    for (let i = 0; i < s.length; i++)
+                        for (let j = i+1; j < s.length; j++)
+                            gamePairs.add(s[i] + '-' + s[j]);
+                }
+                let pCov = 0;
+                for (const p of histPairs) { if (gamePairs.has(p)) pCov++; }
+                pairsCovered = Math.round(pCov / Math.max(1, histPairs.size) * 100);
+
+                // Trios do histórico
+                const histTrios = new Set();
+                for (let t = 0; t < Math.min(15, history.length); t++) {
+                    const nums = (history[t].numbers || []).filter(x => x >= startNum && x <= endNum).sort((a,b) => a-b);
+                    for (let i = 0; i < nums.length; i++)
+                        for (let j = i+1; j < nums.length; j++)
+                            for (let k = j+1; k < Math.min(j+4, nums.length); k++)
+                                histTrios.add(nums[i] + '-' + nums[j] + '-' + nums[k]);
+                }
+                const gameTrios = new Set();
+                for (const g of games) {
+                    const s = [...g].sort((a,b) => a-b);
+                    for (let i = 0; i < s.length; i++)
+                        for (let j = i+1; j < s.length; j++)
+                            for (let k = j+1; k < Math.min(j+4, s.length); k++)
+                                gameTrios.add(s[i] + '-' + s[j] + '-' + s[k]);
+                }
+                let tCov = 0;
+                for (const t of histTrios) { if (gameTrios.has(t)) tCov++; }
+                triosCovered = Math.round(tCov / Math.max(1, histTrios.size) * 100);
+            } catch(e) { console.warn('[PRECISION-L99] Falha no cálculo de duplas/trios:', e.message); }
+        }
+
+        console.log('[PRECISION-L99] 📊 Coverage=' + coverage + '% | Duplas=' + pairsCovered + '% | Trios=' + triosCovered + '% | OverlapMédio(J1)=' + avgOverlap.toFixed(1) + '/' + drawSize);
 
         return {
             games,
             analysis: {
                 confidence,
                 coverage,
-                uniqueCount: uniqueNums.size,
+                uniqueNumbers: uniqueNums.size,  // ★ FIX: era uniqueCount, UI espera uniqueNumbers
+                uniqueCount: uniqueNums.size,     // Manter retrocompatibilidade
                 diversity: Math.round((1 - drawSize / totalRange) * 100),
                 backtestScore: confidence,
-                pairsCovered: 0,
-                triosCovered: 0,
+                pairsCovered: pairsCovered,       // ★ FIX: era 0 fixo, agora calcula real
+                triosCovered: triosCovered,       // ★ FIX: era 0 fixo, agora calcula real
                 improvement: '1.00x',
-                engine: 'PRECISION ENGINE L99 v2.0',
-                mode: 'Jogo 1 Perfeito + Expansão Incremental | 19+28 Camadas Consenso',
+                engine: 'PRECISION ENGINE L99 v2.5',
+                mode: 'PRECISÃO',                 // ★ FIX: era texto longo, UI compara com 'PRECISÃO'
+                precisionPool: [...uniqueNums].sort((a,b) => a-b),
+                poolSize: uniqueNums.size,
                 elapsedMs: elapsed
             }
         };
