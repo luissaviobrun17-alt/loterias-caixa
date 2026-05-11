@@ -4362,8 +4362,20 @@ class UI {
                 const isJP = wg.strat.match === game.draw;
                 const cardBorder = isJP ? '#FFD70050' : '#22C55E40';
                 const cardBg = isJP ? 'rgba(255,215,0,0.06)' : 'rgba(34,197,94,0.04)';
-                summaryHTML += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:4px;background:${cardBg};border:1px solid ${cardBorder};border-radius:8px;">`;
+                summaryHTML += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:4px;background:${cardBg};border:1px solid ${cardBorder};border-radius:8px;flex-wrap:wrap;">`;
                 summaryHTML += `<span style="font-size:0.68rem;color:#94A3B8;font-weight:600;min-width:42px;">Jogo ${wg.index + 1}</span>`;
+                
+                // ★ v9.5: Badge de Time (Timemania) ou Mês (Dia de Sorte) no jogo ganhador
+                if (this.currentGeneratedExtras && this.currentGeneratedExtras[wg.index] !== undefined) {
+                    if (this.currentGameKey === 'timemania' && typeof L99_TIMES !== 'undefined') {
+                        const timeName = L99_TIMES[this.currentGeneratedExtras[wg.index]] || '?';
+                        summaryHTML += `<span style="font-size:0.62rem;color:#10B981;background:rgba(16,185,129,0.15);padding:1px 5px;border-radius:4px;font-weight:600;">⚽ ${timeName}</span>`;
+                    } else if (this.currentGameKey === 'diadesorte') {
+                        const mesName = L99_MESES[this.currentGeneratedExtras[wg.index]] || '?';
+                        summaryHTML += `<span style="font-size:0.62rem;color:#F59E0B;background:rgba(245,158,11,0.15);padding:1px 5px;border-radius:4px;font-weight:600;">📅 ${mesName}</span>`;
+                    }
+                }
+                
                 summaryHTML += `<div style="display:flex;flex-wrap:wrap;gap:3px;flex:1;">`;
                 wg.numbers.forEach(n => {
                     const isHit = drawnSet.has(n);
@@ -4373,7 +4385,18 @@ class UI {
                     summaryHTML += `<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:${bg};color:${col};font-weight:700;font-size:0.7rem;border:1px solid ${isHit ? '#22C55E' : 'rgba(255,255,255,0.1)'};${shadow}">${String(n).padStart(2,'0')}</span>`;
                 });
                 summaryHTML += `</div>`;
-                summaryHTML += `<span style="font-size:0.68rem;font-weight:700;color:${isJP ? '#FFD700' : '#22C55E'};min-width:28px;text-align:right;">${wg.hits}/${game.draw}</span>`;
+                
+                // ★ v9.5: Mostrar acertos e valor estimado do prêmio por jogo
+                const prizePerGame = wg.prize || 0;
+                summaryHTML += `<div style="text-align:right;min-width:60px;">`;
+                summaryHTML += `<div style="font-size:0.68rem;font-weight:700;color:${isJP ? '#FFD700' : '#22C55E'};">${wg.hits}/${game.draw}</div>`;
+                if (prizePerGame > 0) {
+                    const prizeDisplay = prizePerGame >= 100 
+                        ? prizePerGame.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                        : 'R$ ' + prizePerGame.toFixed(2).replace('.', ',');
+                    summaryHTML += `<div style="font-size:0.58rem;color:${isJP ? '#FFD70090' : '#22C55E90'};">≈ ${prizeDisplay}</div>`;
+                }
+                summaryHTML += `</div>`;
                 summaryHTML += `</div>`;
             });
             summaryHTML += `</div>`;
