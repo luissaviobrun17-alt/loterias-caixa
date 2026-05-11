@@ -2039,7 +2039,7 @@ class UI {
             precisionPoolRow.style.cssText = 'display:none; align-items:center; gap:10px; margin-top:8px; padding:10px 14px; background:linear-gradient(145deg,rgba(245,158,11,0.08),rgba(15,23,42,0.95)); border:1px solid rgba(245,158,11,0.3); border-radius:10px;';
             precisionPoolRow.innerHTML = `
                 <span style="color:#F59E0B;font-size:0.85rem;font-weight:700;white-space:nowrap;">🎯 Pool de Precisão:</span>
-                <input type="number" id="precision-pool-size" min="7" max="60" value="20" 
+                <input type="number" id="precision-pool-size" min="7" max="100" value="20" 
                     style="width:70px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,215,0,0.5);background:rgba(0,0,0,0.4);color:#FFD700;font-weight:800;font-size:0.95rem;text-align:center;outline:none;height:36px;"
                 >
                 <span id="precision-pool-info" style="color:#94A3B8;font-size:0.75rem;flex:1;">números no pool</span>
