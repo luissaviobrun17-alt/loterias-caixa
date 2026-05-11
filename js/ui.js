@@ -4465,6 +4465,21 @@ class UI {
                     }
                 }
 
+                // ★ v9.5: Coletar times/meses dos jogos ganhadores
+                let extrasGanhadores = [];
+                if ((this.currentGameKey === 'timemania' || this.currentGameKey === 'diadesorte') && this.currentGeneratedExtras) {
+                    winningGames.forEach(wg => {
+                        const extraIdx = this.currentGeneratedExtras[wg.index];
+                        if (extraIdx !== undefined) {
+                            if (this.currentGameKey === 'timemania' && typeof L99_TIMES !== 'undefined') {
+                                extrasGanhadores.push({ jogo: wg.index + 1, extra: L99_TIMES[extraIdx] || '?', acertos: wg.hits, premio: wg.prize });
+                            } else if (this.currentGameKey === 'diadesorte') {
+                                extrasGanhadores.push({ jogo: wg.index + 1, extra: L99_MESES[extraIdx] || '?', acertos: wg.hits, premio: wg.prize });
+                            }
+                        }
+                    });
+                }
+
                 const record = {
                     lotteryKey: this.currentGameKey,
                     lotteryName: game.name,
@@ -4479,7 +4494,8 @@ class UI {
                     volantesPremiados: totalGanhos,
                     valorPremio: estimatedTotal,
                     valorInvestido: valorInvestido,
-                    drawnNumbers: [...drawnNumbers]
+                    drawnNumbers: [...drawnNumbers],
+                    extrasGanhadores: extrasGanhadores.length > 0 ? extrasGanhadores : undefined
                 };
                 record.pctRetorno = valorInvestido > 0 ? ((estimatedTotal - valorInvestido) / valorInvestido * 100) : 0;
 
@@ -4844,6 +4860,11 @@ class UI {
             }
         }
 
+        const isTimemania = lotteryKey === 'timemania';
+        const isDiaDeSorte = lotteryKey === 'diadesorte';
+        const hasExtrasCol = isTimemania || isDiaDeSorte;
+        const extrasColLabel = isTimemania ? '⚽ Time' : '📅 Mês';
+
         let html = prizeBannerHtml + '<div class="stats-table-wrapper"><table class="stats-table"><thead><tr>';
         html += '<th>Data</th>';
         html += '<th>Concurso</th>';
@@ -4857,6 +4878,8 @@ class UI {
         });
 
         html += '<th>Premiados</th>';
+        // ★ v9.5: Coluna Time/Mês para Timemania e Dia de Sorte
+        if (hasExtrasCol) html += `<th>${extrasColLabel}</th>`;
         html += '<th>Valor Prêmio</th>';
         html += '<th>Investido</th>';
         html += '<th>% Retorno</th>';
@@ -4910,6 +4933,22 @@ class UI {
             });
 
             html += `<td>${r.volantesPremiados > 0 ? '<strong style="color:#22C55E;">' + r.volantesPremiados + '</strong>' : '0'}</td>`;
+
+            // ★ v9.5: Coluna Time/Mês com badges dos ganhadores
+            if (hasExtrasCol) {
+                if (r.extrasGanhadores && r.extrasGanhadores.length > 0) {
+                    const badgeColor = isTimemania ? '#10B981' : '#F59E0B';
+                    const badgeBg = isTimemania ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)';
+                    const icon = isTimemania ? '⚽' : '📅';
+                    const badges = r.extrasGanhadores.map(eg =>
+                        `<span style="display:inline-block;font-size:0.58rem;color:${badgeColor};background:${badgeBg};padding:1px 4px;border-radius:3px;margin:1px;white-space:nowrap;" title="Jogo ${eg.jogo}: ${eg.acertos} acertos ≈ R$${(eg.premio||0).toFixed(2)}">${icon} ${eg.extra}</span>`
+                    ).join('');
+                    html += `<td style="max-width:120px;">${badges}</td>`;
+                } else {
+                    html += `<td style="color:#334155;">—</td>`;
+                }
+            }
+
             html += `<td class="${premioClass}">${premioStr}</td>`;
             html += `<td>${currency(r.valorInvestido || 0)}</td>`;
             html += `<td class="${retClass}">${retStr}</td>`;
