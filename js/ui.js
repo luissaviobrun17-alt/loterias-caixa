@@ -1601,7 +1601,7 @@ class UI {
         this.btnFixedMode.onclick = () => this.toggleFixedMode();
 
         // Generate (Fechamento) — Motor Inteligente v3 + Fechamento Objetivo L99
-        this.generateBtn.onclick = () => {
+        this.generateBtn.onclick = async () => {
             // ── RASTREAMENTO DE MODO ──
             const precisionCb = document.getElementById('precision-mode-toggle');
             this._lastPrecisionMode = !!(precisionCb && precisionCb.checked);
@@ -1742,7 +1742,7 @@ class UI {
                 return;
             }
 
-            // ━━ MODO PADRÃO (CombinationEngine) ━━
+            // ━━ MODO PADRÃO — MOTOR HÍBRIDO (Quantum IA + Sniper + CombinationEngine) ━━
             // ── LIMPEZA COMPLETA antes de renderizar (FIX: painéis do QUANTUM anterior) ──
             const _cgParent = this.gamesContainer.parentNode;
             if (_cgParent) {
@@ -1752,19 +1752,143 @@ class UI {
             }
 
             try {
-                if (typeof CombinationEngine === 'undefined') {
-                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">❌ Motor de Combinação (CombinationEngine) não carregado.<br><small>Recarregue a página com Ctrl+Shift+R</small></div>';
-                    return;
+                const game = GAMES[this.currentGameKey];
+                const selectedArr = Array.from(this.selectedNumbers);
+                const fixedArr = Array.from(this.fixedNumbers);
+                const qty = parseInt(this.gamesQuantityInput.value) || 10;
+                
+                // ★ v9.5 GOD MODE: Motor Híbrido — Quantum IA + Sniper para geração manual
+                // Se o pool é grande o suficiente e NovaEraEngine está disponível, usar motor de alta precisão
+                const useHybridEngine = typeof NovaEraEngine !== 'undefined' 
+                    && typeof NovaEraEngine.generateSniper === 'function'
+                    && selectedArr.length >= game.minBet * 2
+                    && qty <= 10000;
+                
+                let result;
+                
+                if (useHybridEngine) {
+                    console.log('%c[MANUAL-HYBRID] ★ MOTOR HÍBRIDO ATIVADO — Pool=' + selectedArr.length + ' | Jogos=' + qty, 'color: #F59E0B; font-weight: bold; font-size: 13px;');
+                    
+                    // Loading premium
+                    this.gamesContainer.innerHTML = `
+                        <div style="text-align:center;padding:30px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border-radius:16px;border:1px solid rgba(245,158,11,0.3);">
+                            <div style="font-size:2.5rem;margin-bottom:8px;filter:drop-shadow(0 0 15px rgba(245,158,11,0.5));">🎯</div>
+                            <div style="color:#F59E0B;font-weight:900;font-size:1.1rem;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 10px rgba(245,158,11,0.4);">MOTOR HÍBRIDO — Quantum + Sniper</div>
+                            <div style="color:#94A3B8;font-size:0.8rem;margin-top:6px;margin-bottom:15px;">🎯 ${selectedArr.length} números selecionados → Tiers + Filtros IA</div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px auto;max-width:450px;">
+                                <div style="padding:10px 8px;border-radius:10px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);">
+                                    <div style="font-size:1.2rem;margin-bottom:4px;">⚛️</div>
+                                    <div style="color:#FCD34D;font-size:0.7rem;font-weight:700;">21 CAMADAS</div>
+                                    <div style="color:#F59E0B;font-size:0.6rem;">SCORING</div>
+                                </div>
+                                <div style="padding:10px 8px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);">
+                                    <div style="font-size:1.2rem;margin-bottom:4px;">🎯</div>
+                                    <div style="color:#FCA5A5;font-size:0.7rem;font-weight:700;">SNIPER</div>
+                                    <div style="color:#EF4444;font-size:0.6rem;">TIERS</div>
+                                </div>
+                                <div style="padding:10px 8px;border-radius:10px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);">
+                                    <div style="font-size:1.2rem;margin-bottom:4px;">🔮</div>
+                                    <div style="color:#6EE7B7;font-size:0.7rem;font-weight:700;">FILTROS</div>
+                                    <div style="color:#10B981;font-size:0.6rem;">QUANTUM IA</div>
+                                </div>
+                            </div>
+                            <div style="margin-top:12px;width:70%;height:4px;background:rgba(245,158,11,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
+                                <div style="width:30%;height:100%;background:linear-gradient(90deg,#F59E0B,#EF4444,#10B981);border-radius:4px;animation:smartProgress 2s ease-in-out infinite;"></div>
+                            </div>
+                        </div>`;
+                    
+                    // Executar com timeout para dar tempo ao loading
+                    await new Promise(r => setTimeout(r, 100));
+                    
+                    const sniperResult = NovaEraEngine.generateSniper(
+                        this.currentGameKey,
+                        qty,
+                        selectedArr.length,  // Pool = todos os números selecionados pelo apostador
+                        fixedArr,
+                        game.minBet,  // Cada jogo usa o drawSize mínimo da loteria
+                        selectedArr   // ★ HYBRID: Pool fornecido pelo apostador (customPool)
+                    );
+                    
+                    result = {
+                        pool: selectedArr,
+                        games: sniperResult.games,
+                        smartAnalysis: {
+                            engineVersion: 'Hybrid v9.5 (Quantum+Sniper)',
+                            historySize: 100,
+                            candidatesGenerated: sniperResult.analysis.tiersCreated + ' tiers',
+                            avgScore: sniperResult.analysis.avgPoolScore,
+                            confidence: sniperResult.analysis.confidence,
+                            poolSize: sniperResult.analysis.poolSize,
+                            uniqueNumbers: sniperResult.analysis.uniqueNumbers,
+                            coveragePct: sniperResult.analysis.coveragePct,
+                            generationTime: sniperResult.analysis.generationTime
+                        }
+                    };
+                    
+                    console.log('%c[MANUAL-HYBRID] ★ RESULTADO: ' + result.games.length + '/' + qty + ' jogos | Confiança: ' + sniperResult.analysis.confidence + '%', 'color: #F59E0B; font-weight: bold;');
+                    
+                } else {
+                    // Fallback: CombinationEngine original (pool muito pequeno ou NovaEra indisponível)
+                    if (typeof CombinationEngine === 'undefined') {
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">❌ Motor de Combinação (CombinationEngine) não carregado.<br><small>Recarregue a página com Ctrl+Shift+R</small></div>';
+                        return;
+                    }
+                    result = CombinationEngine.generate(
+                        this.currentGameKey,
+                        closingVal,
+                        qty,
+                        selectedArr,
+                        fixedArr
+                    );
                 }
-                const result = CombinationEngine.generate(
-                    this.currentGameKey,
-                    closingVal,
-                    parseInt(this.gamesQuantityInput.value),
-                    Array.from(this.selectedNumbers),
-                    Array.from(this.fixedNumbers)
-                );
+                
                 this.renderGames(result, this.currentGameKey);
             if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
+
+            // ★ v9.5: Banner premium do Motor Híbrido
+            if (useHybridEngine && result.smartAnalysis) {
+                const sa = result.smartAnalysis;
+                const confPct = sa.confidence || 0;
+                const confColor = confPct >= 90 ? '#22C55E' : confPct >= 70 ? '#F59E0B' : '#EF4444';
+                const hybridBanner = document.createElement('div');
+                hybridBanner.className = 'smart-gen-analysis';
+                hybridBanner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(245,158,11,0.12),rgba(15,23,42,0.95));border:1px solid #F59E0B40;';
+                hybridBanner.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                        <div style="font-size:1.4rem;filter:drop-shadow(0 0 8px rgba(245,158,11,0.4));">🎯</div>
+                        <div>
+                            <div style="font-weight:900;color:#F59E0B;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">MOTOR HÍBRIDO — Quantum + Sniper</div>
+                            <div style="font-size:0.72rem;color:#94A3B8;">Seus ${selectedArr.length} números → 21 Camadas IA → Tiers → Filtros Quantum</div>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;font-size:0.75rem;">
+                        <div style="text-align:center;padding:6px;background:rgba(255,255,255,0.04);border-radius:8px;">
+                            <div style="color:#94A3B8;font-size:0.6rem;">JOGOS</div>
+                            <div style="color:#F59E0B;font-weight:800;font-size:1.1rem;">${result.games.length}</div>
+                        </div>
+                        <div style="text-align:center;padding:6px;background:rgba(255,255,255,0.04);border-radius:8px;">
+                            <div style="color:#94A3B8;font-size:0.6rem;">POOL</div>
+                            <div style="color:#FCD34D;font-weight:800;font-size:1.1rem;">${sa.poolSize || selectedArr.length}</div>
+                        </div>
+                        <div style="text-align:center;padding:6px;background:rgba(255,255,255,0.04);border-radius:8px;">
+                            <div style="color:#94A3B8;font-size:0.6rem;">TIERS</div>
+                            <div style="color:#EF4444;font-weight:800;font-size:1.1rem;">${sa.candidatesGenerated || '—'}</div>
+                        </div>
+                        <div style="text-align:center;padding:6px;background:rgba(255,255,255,0.04);border-radius:8px;">
+                            <div style="color:#94A3B8;font-size:0.6rem;">COBERTURA</div>
+                            <div style="color:#10B981;font-weight:800;font-size:1.1rem;">${sa.coveragePct || 0}%</div>
+                        </div>
+                        <div style="text-align:center;padding:6px;background:rgba(255,255,255,0.04);border-radius:8px;">
+                            <div style="color:#94A3B8;font-size:0.6rem;">CONFIANÇA</div>
+                            <div style="color:${confColor};font-weight:800;font-size:1.1rem;">${confPct}%</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:8px;padding:6px 10px;background:rgba(245,158,11,0.08);border-radius:8px;font-size:0.72rem;color:#D97706;">
+                        💡 <strong>Números do apostador:</strong> Cada jogo usa ${game.minBet} dos seus ${selectedArr.length} números, alinhados simetricamente via Tiers de probabilidade das 21 camadas Quantum IA + filtros anti-sequência, paridade e soma.
+                    </div>`;
+                this.gamesContainer.parentNode.insertBefore(hybridBanner, this.gamesContainer);
+                hybridBanner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
 
             // Info se o motor expandiu automaticamente o pool
             const qtdSolicitada = parseInt(this.gamesQuantityInput.value);

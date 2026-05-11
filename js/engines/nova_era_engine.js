@@ -2343,8 +2343,8 @@ class NovaEraEngine {
     // ║  4. Aplica TODOS os filtros do Quantum IA                              ║
     // ║  Limite: 10.000 jogos                                                  ║
     // ╚══════════════════════════════════════════════════════════════════════════╝
-    static generateSniper(gameKey, numGames, poolSize, fixedNumbers, drawSize) {
-        console.log('%c[SNIPER-QUANTUM] ★★★ INICIANDO v9.5 ★★★ ' + gameKey + ' | pool=' + poolSize + ' | jogos=' + numGames + ' | drawSize=' + drawSize, 'color: #EF4444; font-weight: bold; font-size: 14px;');
+    static generateSniper(gameKey, numGames, poolSize, fixedNumbers, drawSize, customPool) {
+        console.log('%c[SNIPER-QUANTUM] ★★★ INICIANDO v9.5 ★★★ ' + gameKey + ' | pool=' + poolSize + ' | jogos=' + numGames + ' | drawSize=' + drawSize + (customPool ? ' | MANUAL=' + customPool.length : ''), 'color: #EF4444; font-weight: bold; font-size: 14px;');
         
         const MAX_GAMES = 10000;
         numGames = Math.min(numGames, MAX_GAMES);
@@ -2381,31 +2381,42 @@ class NovaEraEngine {
         // Chamar _scoreAllNumbers para ter os scores de 21 camadas
         const scores = this._scoreAllNumbers(gameKey, history, startNum, endNum, history.length, drawSize, totalRange, profile);
         
-        // ━━━ FASE 2: SELECIONAR TOP N NÚMEROS ━━━
-        // Ranking baseado nos scores finais de 21 camadas
-        const ranked = [];
-        for (let n = startNum; n <= endNum; n++) {
-            ranked.push({ num: n, score: scores[n] || 0 });
-        }
-        ranked.sort((a, b) => b.score - a.score);
-        
-        // Incluir fixedNumbers obrigatoriamente no pool
+        // ━━━ FASE 2: SELECIONAR POOL ━━━
         const fixedSet = new Set(fixedNumbers || []);
         const selectedPool = [];
         const poolSet = new Set();
         
-        // Primeiro: adicionar todos os fixos
-        for (const f of fixedSet) {
-            selectedPool.push(f);
-            poolSet.add(f);
-        }
-        
-        // Depois: adicionar os TOP N até completar poolSize
-        for (const r of ranked) {
-            if (poolSet.size >= poolSize) break;
-            if (!poolSet.has(r.num)) {
-                selectedPool.push(r.num);
-                poolSet.add(r.num);
+        // ★ v9.5 HYBRID: Se customPool fornecido (modo manual), usar EXATAMENTE esses números
+        if (customPool && customPool.length >= actualDrawSize) {
+            console.log('%c[SNIPER-QUANTUM] 🎯 MODO MANUAL HÍBRIDO: usando ' + customPool.length + ' números do apostador', 'color: #F59E0B; font-weight: bold;');
+            for (const n of customPool) {
+                if (!poolSet.has(n)) {
+                    selectedPool.push(n);
+                    poolSet.add(n);
+                }
+            }
+            poolSize = selectedPool.length;
+        } else {
+            // Modo automático: Ranking baseado nos scores finais de 21 camadas
+            const ranked = [];
+            for (let n = startNum; n <= endNum; n++) {
+                ranked.push({ num: n, score: scores[n] || 0 });
+            }
+            ranked.sort((a, b) => b.score - a.score);
+            
+            // Primeiro: adicionar todos os fixos
+            for (const f of fixedSet) {
+                selectedPool.push(f);
+                poolSet.add(f);
+            }
+            
+            // Depois: adicionar os TOP N até completar poolSize
+            for (const r of ranked) {
+                if (poolSet.size >= poolSize) break;
+                if (!poolSet.has(r.num)) {
+                    selectedPool.push(r.num);
+                    poolSet.add(r.num);
+                }
             }
         }
         
