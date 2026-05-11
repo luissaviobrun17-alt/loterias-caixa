@@ -2052,8 +2052,8 @@ class UI {
             // Lógica para toggle nativo do HTML (switch)
             const toggle = document.getElementById('precision-mode-toggle');
             if (toggle) {
-                toggle.addEventListener('change', () => {
-                    if (toggle.checked) {
+                const _applyPrecisionUI = (checked) => {
+                    if (checked) {
                         this.generateSmartBtn.innerHTML = '🎯 JOGAR PRECISÃO';
                         this.generateSmartBtn.style.background = 'linear-gradient(135deg, #EF4444, #991B1B)';
                         this.generateSmartBtn.style.boxShadow = '0 6px 25px rgba(239, 68, 68, 0.5)';
@@ -2065,7 +2065,32 @@ class UI {
                         this.generateSmartBtn.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.35)';
                         precisionPoolRow.style.display = 'none';
                     }
+                };
+                toggle.addEventListener('change', () => {
+                    localStorage.setItem('l99_precision_on', toggle.checked ? '1' : '0');
+                    _applyPrecisionUI(toggle.checked);
                 });
+                // ★ Restaurar estado do toggle após refresh
+                const savedPrecision = localStorage.getItem('l99_precision_on');
+                if (savedPrecision === '1') {
+                    toggle.checked = true;
+                    _applyPrecisionUI(true);
+                }
+                // ★ Restaurar valor do pool após refresh
+                const savedPool = localStorage.getItem('l99_precision_pool');
+                const poolInput = document.getElementById('precision-pool-size');
+                if (savedPool && poolInput) {
+                    poolInput.value = savedPool;
+                }
+                // Salvar pool ao mudar
+                if (poolInput) {
+                    poolInput.addEventListener('change', () => {
+                        localStorage.setItem('l99_precision_pool', poolInput.value);
+                    });
+                    poolInput.addEventListener('input', () => {
+                        localStorage.setItem('l99_precision_pool', poolInput.value);
+                    });
+                }
             }
         }
 
