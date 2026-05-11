@@ -231,7 +231,7 @@ class UI {
             return;
         }
 
-        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">★ MODO DEUS v9.0 — 19 Camadas + Duplas/Trios + Futurologia Ativadas...</div>';
+        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">★ MODO DEUS v9.5 — 21 Camadas + Ciclo Individual + Superposição Quântica...</div>';
 
         // Phase 1: Analysis
         setTimeout(() => {

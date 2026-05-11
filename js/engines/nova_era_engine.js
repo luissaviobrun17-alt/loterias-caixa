@@ -1952,17 +1952,102 @@ class NovaEraEngine {
             console.log('[QUANTUM-L99]    TOP3 Trios: ' + topTrioNums);
         }
 
-        console.log('%c[QUANTUM-L99] ★★★ 19 CAMADAS ATIVADAS — ' + gameKey + ' ★★★', 'color: gold; font-weight: bold;');
+        console.log('%c[QUANTUM-L99] ★★★ 21 CAMADAS ATIVADAS — ' + gameKey + ' ★★★', 'color: gold; font-weight: bold;');
+
+        // ━━━ CAMADA 20: CICLO INDIVIDUAL DE RETORNO — Futurologia Temporal ━━━
+        // Cada número tem seu PRÓPRIO RITMO. Score MÁXIMO no ponto ótimo de retorno.
+        let cycleReturnScores = {};
+        for (let n = startNum; n <= endNum; n++) cycleReturnScores[n] = 0.5;
+        if (N >= 10) {
+            const expectedGlobalCycle = totalRange / drawSize;
+            for (let n = startNum; n <= endNum; n++) {
+                const appearances = [];
+                for (let i = 0; i < Math.min(60, N); i++) {
+                    if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) appearances.push(i);
+                }
+                if (appearances.length < 2) {
+                    cycleReturnScores[n] = appearances.length > 0 && appearances[0] > expectedGlobalCycle * 1.5 ? 0.90 : 0.60;
+                    continue;
+                }
+                const gaps = [];
+                for (let j = 0; j < appearances.length - 1; j++) gaps.push(appearances[j + 1] - appearances[j]);
+                const avgCycle = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+                const stdCycle = Math.sqrt(gaps.map(g => (g - avgCycle) ** 2).reduce((a, b) => a + b, 0) / gaps.length);
+                const currentDelay = appearances[0];
+                const cyclePosition = currentDelay / Math.max(1, avgCycle);
+                let acceleration = 0;
+                if (gaps.length >= 4) {
+                    const half = Math.floor(gaps.length / 2);
+                    const recentAvg = gaps.slice(0, half).reduce((a, b) => a + b, 0) / half;
+                    const oldAvg = gaps.slice(half).reduce((a, b) => a + b, 0) / (gaps.length - half);
+                    acceleration = (oldAvg - recentAvg) / Math.max(1, oldAvg);
+                }
+                let score = 0.3;
+                if (cyclePosition >= 0.85 && cyclePosition <= 1.2) score = 0.95;
+                else if (cyclePosition >= 0.6 && cyclePosition < 0.85) score = 0.75;
+                else if (cyclePosition > 1.2 && cyclePosition <= 2.0) score = 0.85;
+                else if (cyclePosition > 2.0) score = 0.80;
+                else score = 0.25;
+                if (acceleration > 0.15) score += 0.10;
+                const cv = stdCycle / Math.max(1, avgCycle);
+                if (cv < 0.3) score += 0.08;
+                else if (cv < 0.5) score += 0.04;
+                cycleReturnScores[n] = Math.min(1.0, score);
+            }
+            cycleReturnScores = this._normalizeScores(cycleReturnScores, startNum, endNum);
+            const optNums = Object.entries(cycleReturnScores).filter(([,s]) => s > 0.75).sort((a,b) => b[1]-a[1]).slice(0,8).map(([n,s]) => n+'('+s.toFixed(2)+')').join(', ');
+            console.log('[QUANTUM-L99] ★ CAMADA 20 (Ciclo Individual) — Ponto Ótimo: ' + optNums);
+        }
+
+        // ━━━ CAMADA 21: SUPERPOSIÇÃO QUÂNTICA — 5 Cenários Paralelos ━━━
+        // Cada número avaliado em 5 janelas temporais simultâneas. Colapso = score.
+        let quantumSuperScores = {};
+        for (let n = startNum; n <= endNum; n++) quantumSuperScores[n] = 0.5;
+        if (N >= 8) {
+            const scenarios = [
+                { window: 3, weight: 0.30 }, { window: 7, weight: 0.25 },
+                { window: 15, weight: 0.20 }, { window: 30, weight: 0.15 },
+                { window: Math.min(50, N), weight: 0.10 }
+            ];
+            for (let n = startNum; n <= endNum; n++) {
+                let collapseProb = 0;
+                for (const sc of scenarios) {
+                    const ws = Math.min(sc.window, N);
+                    let freq = 0;
+                    for (let i = 0; i < ws; i++) {
+                        if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) freq++;
+                    }
+                    const freqRatio = freq / ws;
+                    const expectedFreq = drawSize / totalRange;
+                    let trend = 0;
+                    if (ws >= 4) {
+                        const half = Math.floor(ws / 2);
+                        let fh = 0, sh = 0;
+                        for (let i = 0; i < half; i++) { if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) fh++; }
+                        for (let i = half; i < ws; i++) { if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) sh++; }
+                        trend = (fh / half) - (sh / (ws - half));
+                    }
+                    const devBonus = freqRatio < expectedFreq ? 0.15 : -0.05;
+                    const ss = Math.max(0, Math.min(1, 0.3 + freqRatio * 0.25 + trend * 0.20 + devBonus + (cycleReturnScores[n] || 0.5) * 0.10));
+                    collapseProb += ss * sc.weight;
+                }
+                quantumSuperScores[n] = collapseProb;
+            }
+            quantumSuperScores = this._normalizeScores(quantumSuperScores, startNum, endNum);
+            const topQ = Object.entries(quantumSuperScores).sort((a,b) => b[1]-a[1]).slice(0,6).map(([n,s]) => n+'('+s.toFixed(2)+')').join(', ');
+            console.log('[QUANTUM-L99] ★ CAMADA 21 (Superposição Quântica) — Colapso TOP: ' + topQ);
+        }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // ★★★ CONSENSO ENSEMBLE L99 — Votação entre 19 camadas ★★★
+        // ★★★ CONSENSO ENSEMBLE L99 — Votação entre 21 camadas ★★★
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         const allLayers = [
             freqScores, trendScores, delayScores, entropyScores,
             markovScores, phaseScores, clairScores, nextDrawScores,
             bayesianScores, positionalScores, sequentialScores, momentumScores,
             mirrorScores, gapScores, clusterScores, reversionScores,
-            precisionScores, patternDnaScores, pairTrioScores
+            precisionScores, patternDnaScores, pairTrioScores,
+            cycleReturnScores, quantumSuperScores
         ];
 
         const topCandidateSize = Math.min(drawSize * 5, totalRange);
@@ -1990,7 +2075,7 @@ class NovaEraEngine {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // ★★★ v5.0: Cross-validation 12 sorteios + NDCG ★★★
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        const NUM_LAYERS = 19;
+        const NUM_LAYERS = 21;
         let dynamicBoosts = new Array(NUM_LAYERS).fill(1.0);
         if (N >= 8) {
             const testDraws = Math.min(12, N - 5);
@@ -2043,6 +2128,11 @@ class NovaEraEngine {
                 // Camada 19: Duplas+Trios (simplificado para CV)
                 testLayers.push({}); // Placeholder — pairs/trios são pesados demais para CV
 
+                // Camada 20: Ciclo Individual (placeholder para CV)
+                testLayers.push({});
+                // Camada 21: Superposição Quântica (placeholder para CV)
+                testLayers.push({});
+
                 for (let L = 0; L < NUM_LAYERS; L++) {
                     const layerTop = Object.entries(testLayers[L] || {})
                         .sort((a, b) => b[1] - a[1])
@@ -2061,15 +2151,15 @@ class NovaEraEngine {
 
             const avgBoost = dynamicBoosts.reduce((a, b) => a + b, 0) / NUM_LAYERS;
             for (let L = 0; L < NUM_LAYERS; L++) {
-                // v9.0: Camada DNA (17), Precision (16) e PairTrio (18) recebem boost mínimo 1.0
+                // v9.5: Camadas 16+ (Precision, DNA, PairTrio, Cycle, Quantum) recebem boost mínimo 1.0
                 // porque não são adequadamente testadas na CV
                 const minBoost = (L >= 16) ? 1.0 : 0.5;
                 dynamicBoosts[L] = Math.max(minBoost, dynamicBoosts[L] / avgBoost);
             }
 
-            const names = ['freq','trend','delay','zone','markov','phase','clair','next','bayes','posit','seq','mom','mirror','gap','cluster','revert','prec','dna','pairs'];
+            const names = ['freq','trend','delay','zone','markov','phase','clair','next','bayes','posit','seq','mom','mirror','gap','cluster','revert','prec','dna','pairs','cycle','qsuper'];
             const boostStr = dynamicBoosts.map((b, i) => names[i] + '=' + b.toFixed(2)).join(' ');
-            console.log('[QUANTUM-L99] ★ v9.0 CALIBRAÇÃO (12-fold NDCG, 19 camadas): ' + boostStr);
+            console.log('[QUANTUM-L99] ★ v9.5 CALIBRAÇÃO (12-fold NDCG, 21 camadas): ' + boostStr);
         }
 
         // ━━━ PESOS QUANTUM L99 ━━━
@@ -2084,6 +2174,10 @@ class NovaEraEngine {
         const dnaWeight = weights.patternDna || 0.12;
         // ★ v9.0: peso da camada 19 (Duplas + Trios Frequentes)
         const pairTrioWeight = weights.pairTrio || 0.10;
+        // ★ v9.5: peso da camada 20 (Ciclo Individual de Retorno)
+        const cycleWeight = weights.cycleReturn || 0.08;
+        // ★ v9.5: peso da camada 21 (Superposição Quântica)
+        const quantumSuperWeight = weights.quantumSuper || 0.08;
 
         for (let n = startNum; n <= endNum; n++) {
             let raw = (freqScores[n] || 0) * weights.frequency * dynamicBoosts[0]
@@ -2104,16 +2198,17 @@ class NovaEraEngine {
                     + (reversionScores[n] || 0) * weights.reversion * dynamicBoosts[15]
                     + (precisionScores[n] || 0) * precisionWeight * dynamicBoosts[16]
                     + (patternDnaScores[n] || 0) * dnaWeight * dynamicBoosts[17]
-                    + (pairTrioScores[n] || 0) * pairTrioWeight * dynamicBoosts[18];
+                    + (pairTrioScores[n] || 0) * pairTrioWeight * dynamicBoosts[18]
+                    + (cycleReturnScores[n] || 0) * cycleWeight * dynamicBoosts[19]
+                    + (quantumSuperScores[n] || 0) * quantumSuperWeight * dynamicBoosts[20];
 
-            // ★ v9.0: CONSENSO MODERADO — range comprimido [0.85, 1.25] para 19 camadas
-            // Nenhum número é eliminado pelo consenso
+            // ★ v9.5: CONSENSO para 21 camadas
             const votes = voteCount[n] || 0;
-            if (votes >= 18) raw *= 1.25;
-            else if (votes >= 16) raw *= 1.18;
-            else if (votes >= 14) raw *= 1.12;
-            else if (votes >= 12) raw *= 1.06;
-            else if (votes >= 10) raw *= 1.00;
+            if (votes >= 20) raw *= 1.28;
+            else if (votes >= 18) raw *= 1.22;
+            else if (votes >= 16) raw *= 1.15;
+            else if (votes >= 14) raw *= 1.08;
+            else if (votes >= 11) raw *= 1.00;
             else if (votes >= 7) raw *= 0.95;
             else if (votes >= 4) raw *= 0.90;
             else raw *= 0.85;
@@ -2131,100 +2226,107 @@ class NovaEraEngine {
     }
 
     // ╔══════════════════════════════════════════════════════════════════════════╗
-    // ║  ★★★ PESOS QUANTUM L99 v9.0 — 20 DIMENSÕES POR LOTERIA ★★★            ║
+    // ║  ★★★ PESOS QUANTUM L99 v9.5 — 22 DIMENSÕES POR LOTERIA ★★★            ║
     // ║  + Camada 17: PRECISION (Futurologia dos últimos 3)                    ║
     // ║  + Camada 18: PATTERN DNA (Aprender com o passado)                     ║
     // ║  + Camada 19: PAIR TRIO (Duplas e Trios Frequentes)                    ║
-    // ║  Noise ZERO — foco total na assertividade preditiva                    ║
+    // ║  + Camada 20: CYCLE RETURN (Ritmo Individual de Retorno)               ║
+    // ║  + Camada 21: QUANTUM SUPER (Superposição Multi-Cenário)               ║
     // ╚══════════════════════════════════════════════════════════════════════════╝
     static _getGodModeWeights(gameKey) {
         const calibrations = {
 
-            // ★ MEGA SENA: 6/60 — pairTrio + DNA + gap + mirror + delay
+            // ★ MEGA SENA: 6/60 — cycleReturn forte (ciclos individuais importam)
             megasena: {
-                frequency: 0.02, delay: 0.06, trend: 0.02,
+                frequency: 0.01, delay: 0.05, trend: 0.02,
                 zone: 0.03, markov: 0.02, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.09,
-                bayesian: 0.06, positional: 0.04,
-                sequential: 0.06, momentum: 0.03,
-                mirror: 0.08, gap: 0.08, cluster: 0.05, reversion: 0.05,
-                precision: 0.08, patternDna: 0.10, pairTrio: 0.11
+                clairvoyance: 0.01, nextDraw: 0.07,
+                bayesian: 0.05, positional: 0.03,
+                sequential: 0.05, momentum: 0.02,
+                mirror: 0.07, gap: 0.07, cluster: 0.04, reversion: 0.04,
+                precision: 0.07, patternDna: 0.08, pairTrio: 0.09,
+                cycleReturn: 0.10, quantumSuper: 0.07
             },
 
-            // ★ LOTOFÁCIL: 15/25 — pairTrio forte (range curto = duplas se repetem MUITO)
+            // ★ LOTOFÁCIL: 15/25 — quantumSuper forte (range curto, multi-cenário eficaz)
             lotofacil: {
                 frequency: 0.01, delay: 0.02, trend: 0.01,
                 zone: 0.01, markov: 0.01, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.14,
-                bayesian: 0.05, positional: 0.03,
-                sequential: 0.05, momentum: 0.02,
-                mirror: 0.07, gap: 0.05, cluster: 0.06, reversion: 0.04,
-                precision: 0.13, patternDna: 0.12, pairTrio: 0.11
+                clairvoyance: 0.01, nextDraw: 0.11,
+                bayesian: 0.04, positional: 0.02,
+                sequential: 0.04, momentum: 0.02,
+                mirror: 0.06, gap: 0.04, cluster: 0.05, reversion: 0.04,
+                precision: 0.11, patternDna: 0.10, pairTrio: 0.09,
+                cycleReturn: 0.10, quantumSuper: 0.10
             },
 
-            // ★ QUINA: 5/80 — gap + pairTrio + delay (range amplo, ciclos longos)
+            // ★ QUINA: 5/80 — cycleReturn + gap fortes (range amplo, ciclos longos)
             quina: {
-                frequency: 0.02, delay: 0.07, trend: 0.02,
-                zone: 0.04, markov: 0.02, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.07,
-                bayesian: 0.06, positional: 0.03,
-                sequential: 0.05, momentum: 0.02,
-                mirror: 0.06, gap: 0.10, cluster: 0.04, reversion: 0.06,
-                precision: 0.09, patternDna: 0.11, pairTrio: 0.12
-            },
-
-            // ★ DUPLA SENA: 6/50 — pairTrio + DNA + sequential (2 sorteios)
-            duplasena: {
-                frequency: 0.02, delay: 0.05, trend: 0.02,
+                frequency: 0.01, delay: 0.06, trend: 0.02,
                 zone: 0.03, markov: 0.02, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.08,
-                bayesian: 0.05, positional: 0.04,
-                sequential: 0.07, momentum: 0.02,
-                mirror: 0.07, gap: 0.06, cluster: 0.05, reversion: 0.05,
-                precision: 0.10, patternDna: 0.13, pairTrio: 0.12
+                clairvoyance: 0.01, nextDraw: 0.06,
+                bayesian: 0.05, positional: 0.02,
+                sequential: 0.04, momentum: 0.02,
+                mirror: 0.05, gap: 0.08, cluster: 0.03, reversion: 0.05,
+                precision: 0.07, patternDna: 0.09, pairTrio: 0.10,
+                cycleReturn: 0.12, quantumSuper: 0.06
             },
 
-            // ★ LOTOMANIA: 50/100 — reversion + pairTrio + gap + DNA
+            // ★ DUPLA SENA: 6/50 — pairTrio + cycleReturn (2 sorteios = mais dados)
+            duplasena: {
+                frequency: 0.01, delay: 0.04, trend: 0.02,
+                zone: 0.03, markov: 0.02, phase: 0.01,
+                clairvoyance: 0.01, nextDraw: 0.06,
+                bayesian: 0.04, positional: 0.03,
+                sequential: 0.06, momentum: 0.02,
+                mirror: 0.06, gap: 0.05, cluster: 0.04, reversion: 0.04,
+                precision: 0.08, patternDna: 0.11, pairTrio: 0.10,
+                cycleReturn: 0.10, quantumSuper: 0.07
+            },
+
+            // ★ LOTOMANIA: 50/100 — reversion + quantumSuper (range imenso)
             lotomania: {
                 frequency: 0.01, delay: 0.02, trend: 0.01,
-                zone: 0.05, markov: 0.01, phase: 0.01,
+                zone: 0.04, markov: 0.01, phase: 0.01,
+                clairvoyance: 0.01, nextDraw: 0.04,
+                bayesian: 0.04, positional: 0.02,
+                sequential: 0.03, momentum: 0.02,
+                mirror: 0.06, gap: 0.07, cluster: 0.04, reversion: 0.08,
+                precision: 0.08, patternDna: 0.13, pairTrio: 0.08,
+                cycleReturn: 0.10, quantumSuper: 0.10
+            },
+
+            // ★ TIMEMANIA: 10/80 — cycleReturn + gap (ciclos longos em range amplo)
+            timemania: {
+                frequency: 0.01, delay: 0.06, trend: 0.02,
+                zone: 0.03, markov: 0.02, phase: 0.01,
                 clairvoyance: 0.01, nextDraw: 0.05,
                 bayesian: 0.05, positional: 0.02,
-                sequential: 0.03, momentum: 0.02,
-                mirror: 0.07, gap: 0.09, cluster: 0.05, reversion: 0.10,
-                precision: 0.10, patternDna: 0.15, pairTrio: 0.10
+                sequential: 0.04, momentum: 0.02,
+                mirror: 0.06, gap: 0.07, cluster: 0.03, reversion: 0.04,
+                precision: 0.07, patternDna: 0.12, pairTrio: 0.10,
+                cycleReturn: 0.11, quantumSuper: 0.06
             },
 
-            // ★ TIMEMANIA: 10/80 — pairTrio + gap + DNA + delay
-            timemania: {
-                frequency: 0.02, delay: 0.07, trend: 0.02,
-                zone: 0.04, markov: 0.02, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.06,
-                bayesian: 0.06, positional: 0.03,
-                sequential: 0.05, momentum: 0.02,
-                mirror: 0.07, gap: 0.08, cluster: 0.04, reversion: 0.05,
-                precision: 0.09, patternDna: 0.14, pairTrio: 0.12
-            },
-
-            // ★ DIA DE SORTE: 7/31 — pairTrio + DNA + cluster (range curto)
+            // ★ DIA DE SORTE: 7/31 — quantumSuper + DNA forte (range curto favorece multi-cenário)
             diadesorte: {
-                frequency: 0.02, delay: 0.05, trend: 0.02,
+                frequency: 0.01, delay: 0.04, trend: 0.02,
                 zone: 0.03, markov: 0.02, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.08,
-                bayesian: 0.04, positional: 0.03,
+                clairvoyance: 0.01, nextDraw: 0.06,
+                bayesian: 0.03, positional: 0.02,
                 sequential: 0.03, momentum: 0.02,
-                mirror: 0.05, gap: 0.05, cluster: 0.10, reversion: 0.03,
-                precision: 0.10, patternDna: 0.18, pairTrio: 0.13
+                mirror: 0.04, gap: 0.04, cluster: 0.08, reversion: 0.03,
+                precision: 0.08, patternDna: 0.15, pairTrio: 0.11,
+                cycleReturn: 0.09, quantumSuper: 0.08
             }
         };
 
         const w = calibrations[gameKey] || calibrations.megasena;
         const quantumPct = ((w.mirror + w.gap + w.cluster + w.reversion) * 100).toFixed(0);
         const godPct = ((w.bayesian + w.positional + w.sequential + w.momentum) * 100).toFixed(0);
-        const precPct = ((w.precision || 0) * 100).toFixed(0);
-        const dnaPct = ((w.patternDna || 0) * 100).toFixed(0);
+        const futuroPct = (((w.cycleReturn || 0) + (w.quantumSuper || 0)) * 100).toFixed(0);
         const pairsPct = ((w.pairTrio || 0) * 100).toFixed(0);
-        console.log('[QUANTUM-L99] ★ ' + gameKey + ': Pairs=' + pairsPct + '% | DNA=' + dnaPct + '% | Precision=' + precPct + '% | Quantum=' + quantumPct + '% | God=' + godPct + '%');
+        console.log('[QUANTUM-L99] ★ ' + gameKey + ': Futuro=' + futuroPct + '% | Pairs=' + pairsPct + '% | DNA=' + ((w.patternDna||0)*100).toFixed(0) + '% | Quantum=' + quantumPct + '% | God=' + godPct + '%');
         return w;
     }
 
@@ -2469,7 +2571,8 @@ class NovaEraEngine {
             }
         }
 
-        // 4. ★ v5.0: ROULETTE WHEEL SELECTION (substitui Tournament)
+        // 4. ★ v9.5: ROULETTE WHEEL + CO-OCORRÊNCIA DINÂMICA
+        // Quando escolhe o nº A, boost nos parceiros históricos de A
         while (ticket.length < drawSize) {
             const remaining = available.filter(n => !ticketSet.has(n));
             if (remaining.length === 0) break;
@@ -2479,6 +2582,33 @@ class NovaEraEngine {
             ticketSet.add(chosen);
             const z = Math.min(numZones - 1, Math.floor((chosen - startNum) / zoneSize));
             zoneCount[z]++;
+            
+            // ★ v9.5: CO-OCORRÊNCIA — boost parceiros de 'chosen'
+            // Buscar números que mais saíram JUNTO com 'chosen' nos últimos 30 sorteios
+            if (history && history.length >= 5 && ticket.length < drawSize) {
+                const partnerBoost = {};
+                const coLimit = Math.min(30, history.length);
+                for (let t = 0; t < coLimit; t++) {
+                    const nums = (history[t].numbers || []).concat(history[t].numbers2 || []);
+                    if (nums.includes(chosen)) {
+                        const decay = Math.exp(-t * 0.05);
+                        for (const pn of nums) {
+                            if (pn >= startNum && pn <= endNum && pn !== chosen && !ticketSet.has(pn)) {
+                                partnerBoost[pn] = (partnerBoost[pn] || 0) + decay;
+                            }
+                        }
+                    }
+                }
+                // Aplicar boost de 15-30% nos TOP parceiros
+                const topPartners = Object.entries(partnerBoost).sort((a,b) => b[1]-a[1]).slice(0, 10);
+                if (topPartners.length > 0) {
+                    const maxP = topPartners[0][1];
+                    for (const [pn, freq] of topPartners) {
+                        const boost = 1 + (freq / maxP) * 0.30;
+                        if (weights[parseInt(pn)]) weights[parseInt(pn)] *= boost;
+                    }
+                }
+            }
         }
 
         if (ticket.length < drawSize) return null;
