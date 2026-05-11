@@ -5060,3 +5060,4 @@ class UI {
 }
 
 // Export removed for global script compatibility
+/* Cache bust: 20260511171042 */
