@@ -703,16 +703,18 @@ class UI {
                 setTimeout(() => {
                     try {
                         let result;
-                        if (isPrecisionMode && typeof SmartBetsEngine.generatePrecisionMode === 'function') {
-                            // ── MODO PRECISÃO: Pool reduzido + geração sistemática ──
+                        if (isPrecisionMode && typeof NovaEraEngine !== 'undefined' && typeof NovaEraEngine.generateSniper === 'function') {
+                            // ── SNIPER QUANTUM v9.5: Pool pré-selecionado + Tiers + Cross-combo ──
                             try {
-                                // Ler tamanho do pool personalizado pelo apostador
-                                const poolSizeInput = document.getElementById('precision-pool-size');
-                                const customPool = poolSizeInput ? parseInt(poolSizeInput.value) || null : null;
-                                result = SmartBetsEngine.generatePrecisionMode(
+                                const poolSize = customDrawSize || game.minBet * 5;
+                                const actualDrawSize = game.minBet;
+                                console.log('%c[UI] ★ SNIPER QUANTUM ATIVADO — pool=' + poolSize + ' | jogos=' + quantity + ' | drawSize=' + actualDrawSize, 'color: #EF4444; font-weight: bold;');
+                                result = NovaEraEngine.generateSniper(
                                     this.currentGameKey,
-                                    quantity,
-                                    customPool
+                                    Math.min(quantity, 10000),
+                                    poolSize,
+                                    fixedArr,
+                                    actualDrawSize
                                 );
                                 // Se o resultado veio sem métricas completas, recalcular via NovaEraEngine
                                 if (result && result.analysis && (result.analysis.pairsCovered == null || result.analysis.pairsCovered === '-')) {

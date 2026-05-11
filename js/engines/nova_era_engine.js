@@ -2335,6 +2335,332 @@ class NovaEraEngine {
         return this._getGodModeWeights(gameKey);
     }
 
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  ★★★ SNIPER QUANTUM v9.5 — MOTOR ESPECIALIZADO DE ALTA PRECISÃO ★★★    ║
+    // ║  1. Pré-seleciona TOP N números via 21 camadas do Quantum IA           ║
+    // ║  2. Divide em Tiers (melhor → pior) e gera jogos por tier              ║
+    // ║  3. Cross-combina tiers entre si para máxima diversidade               ║
+    // ║  4. Aplica TODOS os filtros do Quantum IA                              ║
+    // ║  Limite: 10.000 jogos                                                  ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    static generateSniper(gameKey, numGames, poolSize, fixedNumbers, drawSize) {
+        console.log('%c[SNIPER-QUANTUM] ★★★ INICIANDO v9.5 ★★★ ' + gameKey + ' | pool=' + poolSize + ' | jogos=' + numGames + ' | drawSize=' + drawSize, 'color: #EF4444; font-weight: bold; font-size: 14px;');
+        
+        const MAX_GAMES = 10000;
+        numGames = Math.min(numGames, MAX_GAMES);
+        
+        // ━━━ FASE 1: Obter scores de TODAS as 21 camadas ━━━
+        const profile = this._getProfileForGame(gameKey);
+        if (!profile) {
+            console.error('[SNIPER] Perfil não encontrado:', gameKey);
+            return { games: [], analysis: { confidence: 0, engine: 'SniperQuantum-ERROR' } };
+        }
+        
+        const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+        const startNum = game ? game.range[0] : 1;
+        const endNum = game ? game.range[1] : 60;
+        const totalRange = endNum - startNum + 1;
+        const minBet = game ? game.minBet : drawSize;
+        
+        // Usar drawSize mínimo da loteria para os jogos individuais
+        const actualDrawSize = minBet;
+        
+        // Garantir que poolSize é válido
+        poolSize = Math.max(actualDrawSize * 2, Math.min(poolSize, totalRange));
+        
+        // Obter histórico
+        let history = [];
+        try {
+            if (typeof REAL_HISTORY_DB !== 'undefined' && REAL_HISTORY_DB[gameKey]) {
+                history = REAL_HISTORY_DB[gameKey].slice(0, 100);
+            } else if (typeof StatsService !== 'undefined') {
+                history = StatsService.getRecentResults(gameKey, 100) || [];
+            }
+        } catch(e) { console.warn('[SNIPER] Histórico falhou:', e.message); }
+        
+        // Chamar _scoreAllNumbers para ter os scores de 21 camadas
+        const scores = this._scoreAllNumbers(gameKey, history, startNum, endNum, history.length, drawSize, totalRange, profile);
+        
+        // ━━━ FASE 2: SELECIONAR TOP N NÚMEROS ━━━
+        // Ranking baseado nos scores finais de 21 camadas
+        const ranked = [];
+        for (let n = startNum; n <= endNum; n++) {
+            ranked.push({ num: n, score: scores[n] || 0 });
+        }
+        ranked.sort((a, b) => b.score - a.score);
+        
+        // Incluir fixedNumbers obrigatoriamente no pool
+        const fixedSet = new Set(fixedNumbers || []);
+        const selectedPool = [];
+        const poolSet = new Set();
+        
+        // Primeiro: adicionar todos os fixos
+        for (const f of fixedSet) {
+            selectedPool.push(f);
+            poolSet.add(f);
+        }
+        
+        // Depois: adicionar os TOP N até completar poolSize
+        for (const r of ranked) {
+            if (poolSet.size >= poolSize) break;
+            if (!poolSet.has(r.num)) {
+                selectedPool.push(r.num);
+                poolSet.add(r.num);
+            }
+        }
+        
+        selectedPool.sort((a, b) => a - b);
+        console.log('[SNIPER-QUANTUM] ★ Pool selecionado: ' + poolSize + ' números → [' + selectedPool.slice(0, 15).join(', ') + (selectedPool.length > 15 ? '...' : '') + ']');
+        
+        // Score de cada número no pool (para usar na geração)
+        const poolScores = {};
+        for (const n of selectedPool) poolScores[n] = scores[n] || 0.5;
+        
+        // ━━━ FASE 3: DIVIDIR EM TIERS ━━━
+        // Tier 1 = TOP números, Tier 2 = segundos melhores, etc.
+        const numTiers = Math.floor(selectedPool.length / actualDrawSize);
+        const tiers = [];
+        const rankedPool = [...selectedPool].sort((a, b) => (poolScores[b] || 0) - (poolScores[a] || 0));
+        
+        for (let t = 0; t < numTiers; t++) {
+            const tierNums = rankedPool.slice(t * actualDrawSize, (t + 1) * actualDrawSize).sort((a, b) => a - b);
+            tiers.push(tierNums);
+        }
+        
+        // Números restantes (não completam um tier)
+        const remainder = rankedPool.slice(numTiers * actualDrawSize);
+        
+        console.log('[SNIPER-QUANTUM] ★ ' + numTiers + ' Tiers de ' + actualDrawSize + ' números | Resto: ' + remainder.length);
+        for (let t = 0; t < Math.min(5, tiers.length); t++) {
+            console.log('[SNIPER-QUANTUM]   Tier ' + (t+1) + ': [' + tiers[t].join(', ') + ']');
+        }
+        
+        // ━━━ FASE 4: GERAR JOGOS ━━━
+        const games = [];
+        const usedKeys = new Set();
+        const startTime = Date.now();
+        
+        // 4A: Adicionar todos os jogos de tier direto (melhor qualidade)
+        for (const tier of tiers) {
+            if (games.length >= numGames) break;
+            const key = tier.join(',');
+            if (!usedKeys.has(key) && this._validateSniperTicket(tier, profile, startNum, endNum, actualDrawSize, history)) {
+                games.push([...tier]);
+                usedKeys.add(key);
+            }
+        }
+        console.log('[SNIPER-QUANTUM] Fase 4A (Tiers diretos): ' + games.length + ' jogos');
+        
+        // 4B: Cross-combinar tiers — pegar 1 número de cada tier, formando jogos mistos
+        if (games.length < numGames && tiers.length >= 2) {
+            const crossGames = this._crossCombineTiers(tiers, remainder, actualDrawSize, numGames - games.length, profile, startNum, endNum, poolScores, history);
+            for (const cg of crossGames) {
+                if (games.length >= numGames) break;
+                const key = cg.join(',');
+                if (!usedKeys.has(key)) {
+                    games.push(cg);
+                    usedKeys.add(key);
+                }
+            }
+        }
+        console.log('[SNIPER-QUANTUM] Fase 4B (Cross-tiers): ' + games.length + ' jogos');
+        
+        // 4C: Gerar jogos adicionais usando Roulette Wheel do pool selecionado
+        if (games.length < numGames) {
+            const remaining = numGames - games.length;
+            console.log('[SNIPER-QUANTUM] Fase 4C: gerando ' + remaining + ' jogos via Roulette Wheel do pool...');
+            
+            const usedCount = {};
+            for (const n of selectedPool) usedCount[n] = 0;
+            for (const g of games) {
+                for (const n of g) usedCount[n] = (usedCount[n] || 0) + 1;
+            }
+            
+            const maxUsage = Math.max(5, Math.ceil(numGames * (profile.maxUsagePct || 0.30)));
+            const lastDrawSet = history.length > 0 ? new Set((history[0].numbers || []).concat(history[0].numbers2 || [])) : new Set();
+            
+            let att = 0;
+            const maxAtt = Math.min(remaining * 500, 5000000);
+            const timeout = 300000; // 5 min
+            
+            while (games.length < numGames && att < maxAtt && (Date.now() - startTime) < timeout) {
+                att++;
+                const ticket = this._generateSingleGame(
+                    profile, poolScores, selectedPool, actualDrawSize,
+                    fixedNumbers || [], usedCount, maxUsage,
+                    startNum, endNum, profile.zones, profile.zoneSize,
+                    games.length, numGames, lastDrawSet
+                );
+                if (!ticket || ticket.length < actualDrawSize) continue;
+                const key = ticket.join(',');
+                if (usedKeys.has(key)) continue;
+                
+                games.push(ticket);
+                usedKeys.add(key);
+                for (const n of ticket) usedCount[n] = (usedCount[n] || 0) + 1;
+            }
+        }
+        
+        console.log('%c[SNIPER-QUANTUM] ★★★ TOTAL: ' + games.length + '/' + numGames + ' jogos em ' + (Date.now() - startTime) + 'ms ★★★', 'color: #EF4444; font-weight: bold;');
+        
+        // ━━━ FASE 5: ANÁLISE E CONFIANÇA ━━━
+        const uniqueNums = new Set();
+        for (const g of games) for (const n of g) uniqueNums.add(n);
+        
+        const coveragePct = (uniqueNums.size / totalRange * 100).toFixed(1);
+        const poolCoverage = (uniqueNums.size / poolSize * 100).toFixed(1);
+        
+        // Calcular confiança baseada na qualidade dos números selecionados
+        const avgScore = selectedPool.reduce((s, n) => s + (scores[n] || 0), 0) / selectedPool.length;
+        const maxScore = ranked[0].score;
+        const qualityRatio = avgScore / Math.max(0.01, maxScore);
+        
+        const honestCeiling = profile._confidenceCeiling || 75;
+        const confidence = Math.min(honestCeiling, Math.round(
+            qualityRatio * 50 + // Qualidade do pool (0-50%)
+            (games.length / numGames) * 20 + // Completude (0-20%)
+            parseFloat(poolCoverage) * 0.10 // Cobertura do pool (0-10%)
+        ));
+        
+        const analysis = {
+            engine: 'SNIPER QUANTUM v9.5',
+            confidence: confidence,
+            uniqueNumbers: uniqueNums.size,
+            totalNumbers: totalRange,
+            poolSize: poolSize,
+            tiersCreated: tiers.length,
+            coveragePct: coveragePct,
+            poolCoverage: poolCoverage,
+            avgPoolScore: avgScore.toFixed(3),
+            topNumbers: rankedPool.slice(0, actualDrawSize).join(', '),
+            generationTime: Date.now() - startTime
+        };
+        
+        console.log('[SNIPER-QUANTUM] Confiança: ' + confidence + '% | Pool: ' + poolSize + '/' + totalRange + ' (' + coveragePct + '%) | Tiers: ' + tiers.length);
+        
+        return { games, analysis };
+    }
+    
+    // ★ Validar ticket do Sniper com filtros Quantum IA
+    static _validateSniperTicket(ticket, profile, startNum, endNum, drawSize, history) {
+        if (!ticket || ticket.length < drawSize) return false;
+        
+        // Paridade
+        const evens = ticket.filter(n => n % 2 === 0).length;
+        if (evens < profile.evenOddRange[0] || evens > profile.evenOddRange[1]) return false;
+        
+        // Soma
+        const sum = ticket.reduce((a, b) => a + b, 0);
+        if (sum < profile.sumRange[0] || sum > profile.sumRange[1]) return false;
+        
+        // Anti-sequência
+        let maxRun = 1, curRun = 1;
+        for (let i = 1; i < ticket.length; i++) {
+            if (ticket[i] === ticket[i-1] + 1) { curRun++; if (curRun > maxRun) maxRun = curRun; }
+            else curRun = 1;
+        }
+        if (maxRun > profile.maxConsecutive) return false;
+        
+        // Pares consecutivos
+        let cp = 0;
+        for (let i = 1; i < ticket.length; i++) { if (ticket[i] === ticket[i-1] + 1) cp++; }
+        const totalRange = endNum - startNum + 1;
+        const density = drawSize / totalRange;
+        const maxPairs = Math.max(1, Math.round(drawSize * density * 1.2));
+        if (cp > maxPairs) return false;
+        
+        return true;
+    }
+    
+    // ★ Cross-combinar tiers para gerar jogos mistos de alta qualidade
+    static _crossCombineTiers(tiers, remainder, drawSize, maxGames, profile, startNum, endNum, scores, history) {
+        const results = [];
+        const usedKeys = new Set();
+        const numTiers = tiers.length;
+        
+        if (numTiers < 2) return results;
+        
+        // Estratégia 1: Pegar números distribuídos entre tiers
+        // Para cada jogo, selecionar X números do tier 1, Y do tier 2, Z do tier 3...
+        // Distribuição: mais do tier 1 (melhores), menos dos tiers inferiores
+        
+        const maxAttempts = Math.min(maxGames * 100, 500000);
+        let attempts = 0;
+        
+        while (results.length < maxGames && attempts < maxAttempts) {
+            attempts++;
+            const ticket = [];
+            const ticketSet = new Set();
+            
+            // Distribuir números entre tiers com viés para os melhores
+            // Tier 1 contribui mais, tiers inferiores menos
+            const allNums = [];
+            for (let t = 0; t < numTiers; t++) {
+                // Peso inversamente proporcional ao tier (tier 0 = peso máximo)
+                const weight = Math.pow(0.7, t);
+                for (const n of tiers[t]) {
+                    // Adicionar com probabilidade baseada no peso do tier e score individual
+                    if (Math.random() < weight) {
+                        allNums.push({ num: n, score: (scores[n] || 0.5) * weight });
+                    }
+                }
+            }
+            // Adicionar remainder com peso baixo
+            for (const n of remainder) {
+                if (Math.random() < 0.3) {
+                    allNums.push({ num: n, score: (scores[n] || 0.3) * 0.3 });
+                }
+            }
+            
+            // Roulette wheel dos candidatos
+            allNums.sort(() => Math.random() - 0.5); // shuffle base
+            const totalW = allNums.reduce((s, x) => s + Math.max(0.01, x.score), 0);
+            
+            while (ticket.length < drawSize && allNums.length > 0) {
+                let r = Math.random() * totalW;
+                let picked = null;
+                for (let i = 0; i < allNums.length; i++) {
+                    r -= Math.max(0.01, allNums[i].score);
+                    if (r <= 0) {
+                        if (!ticketSet.has(allNums[i].num)) {
+                            picked = allNums[i].num;
+                            ticketSet.add(picked);
+                            ticket.push(picked);
+                            allNums.splice(i, 1);
+                        }
+                        break;
+                    }
+                }
+                if (picked === null) {
+                    // Fallback: pegar qualquer não-usado
+                    for (let i = 0; i < allNums.length; i++) {
+                        if (!ticketSet.has(allNums[i].num)) {
+                            ticket.push(allNums[i].num);
+                            ticketSet.add(allNums[i].num);
+                            allNums.splice(i, 1);
+                            break;
+                        }
+                    }
+                    if (ticket.length === ticketSet.size - 1) break; // stuck
+                }
+            }
+            
+            if (ticket.length < drawSize) continue;
+            ticket.sort((a, b) => a - b);
+            
+            // Validar
+            if (!this._validateSniperTicket(ticket, profile, startNum, endNum, drawSize, history)) continue;
+            
+            const key = ticket.join(',');
+            if (usedKeys.has(key)) continue;
+            
+            results.push(ticket);
+            usedKeys.add(key);
+        }
+        
+        return results;
+    }
+
     // ╔══════════════════════════════════════════════════════════════╗
     // ║  GERADOR DE JOGOS DIVERSIFICADOS                             ║
     // ║  Cada jogo é maximamente diferente dos anteriores            ║
