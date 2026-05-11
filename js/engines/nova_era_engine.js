@@ -2464,7 +2464,7 @@ class NovaEraEngine {
         } catch(e) { console.warn('[SNIPER] Histórico falhou:', e.message); }
         
         // Chamar _scoreAllNumbers para ter os scores de 21 camadas
-        const scores = this._scoreAllNumbers(gameKey, history, startNum, endNum, history.length, drawSize, totalRange, profile);
+        const scores = this._scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange);
         
         // ━━━ FASE 2: SELECIONAR POOL ━━━
         const fixedSet = new Set(fixedNumbers || []);
