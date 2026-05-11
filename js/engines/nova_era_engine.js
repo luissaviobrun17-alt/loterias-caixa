@@ -1,42 +1,42 @@
-console.log('%c[QUANTUM-L99] ═══ MOTOR QUANTUM L99 v7.0 ATIVADO ═══', 'color: #FFD700; font-size: 20px; background: #0a0a1a; font-weight: bold; text-shadow: 0 0 10px gold;');
+﻿console.log('%c[QUANTUM-L99] â•â•â• MOTOR QUANTUM L99 v7.0 ATIVADO â•â•â•', 'color: #FFD700; font-size: 20px; background: #0a0a1a; font-weight: bold; text-shadow: 0 0 10px gold;');
 /**
- * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║  ★★★ QUANTUM L99 v5.0 — ASSERTIVIDADE MÁXIMA ★★★                     ║
- * ║  Revolução: Roulette Wheel + Filtros Estruturais Reais                ║
- * ║                                                                        ║
- * ║  v5.0 MUDANÇAS:                                                        ║
- * ║  • Roulette Wheel Selection (score^4) substitui Tournament(3)         ║
- * ║  • Normalização calibrada por variância (σ-aware)                     ║
- * ║  • Filtros RIGOROSOS: soma P5-P95, paridade, repetição do anterior    ║
- * ║  • Lotofácil: Motor de EXCLUSÃO (quais 10 ficam fora)                 ║
- * ║  • Cross-validation expandida 12 sorteios + NDCG                      ║
- * ║  • Camada 19: Filtro Combinatório Final (validação estrutural)        ║
- * ║  • Perfis recalibrados com dados estatísticos REAIS                   ║
- * ║                                                                        ║
- * ║  18 CAMADAS:                                                           ║
- * ║   1-8:  Base (Freq, Trend, Delay, Entropy, Markov, Phase, MC, Next)   ║
- * ║   9-12: Modo Deus (Bayesian, Posicional, Sequential, Momentum)        ║
- * ║  13-16: QUANTUM (Espelho, Lacunas, Clusters, Regressão)               ║
- * ║  17-18: Precision Calibrator + Pattern DNA                             ║
- * ║  19:    Filtro Combinatório Final (validação binária)                  ║
- * ║                                                                        ║
- * ║  "Menos volume. Mais precisão. Cada jogo é cirúrgico."               ║
- * ╚══════════════════════════════════════════════════════════════════════════╝
+ * â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+ * â•‘  â˜…â˜…â˜… QUANTUM L99 v5.0 â€” ASSERTIVIDADE MÃXIMA â˜…â˜…â˜…                     â•‘
+ * â•‘  RevoluÃ§Ã£o: Roulette Wheel + Filtros Estruturais Reais                â•‘
+ * â•‘                                                                        â•‘
+ * â•‘  v5.0 MUDANÃ‡AS:                                                        â•‘
+ * â•‘  â€¢ Roulette Wheel Selection (score^4) substitui Tournament(3)         â•‘
+ * â•‘  â€¢ NormalizaÃ§Ã£o calibrada por variÃ¢ncia (Ïƒ-aware)                     â•‘
+ * â•‘  â€¢ Filtros RIGOROSOS: soma P5-P95, paridade, repetiÃ§Ã£o do anterior    â•‘
+ * â•‘  â€¢ LotofÃ¡cil: Motor de EXCLUSÃƒO (quais 10 ficam fora)                 â•‘
+ * â•‘  â€¢ Cross-validation expandida 12 sorteios + NDCG                      â•‘
+ * â•‘  â€¢ Camada 19: Filtro CombinatÃ³rio Final (validaÃ§Ã£o estrutural)        â•‘
+ * â•‘  â€¢ Perfis recalibrados com dados estatÃ­sticos REAIS                   â•‘
+ * â•‘                                                                        â•‘
+ * â•‘  18 CAMADAS:                                                           â•‘
+ * â•‘   1-8:  Base (Freq, Trend, Delay, Entropy, Markov, Phase, MC, Next)   â•‘
+ * â•‘   9-12: Modo Deus (Bayesian, Posicional, Sequential, Momentum)        â•‘
+ * â•‘  13-16: QUANTUM (Espelho, Lacunas, Clusters, RegressÃ£o)               â•‘
+ * â•‘  17-18: Precision Calibrator + Pattern DNA                             â•‘
+ * â•‘  19:    Filtro CombinatÃ³rio Final (validaÃ§Ã£o binÃ¡ria)                  â•‘
+ * â•‘                                                                        â•‘
+ * â•‘  "Menos volume. Mais precisÃ£o. Cada jogo Ã© cirÃºrgico."               â•‘
+ * â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
  */
 class NovaEraEngine {
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  PERFIS INDIVIDUAIS POR LOTERIA                              ║
-    // ║  Cada loteria tem parâmetros calibrados independentemente     ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  PERFIS INDIVIDUAIS POR LOTERIA                              â•‘
+    // â•‘  Cada loteria tem parÃ¢metros calibrados independentemente     â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static getProfile(gameKey) {
         const profiles = {
 
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            // MEGA SENA — 6 de 60
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+            // MEGA SENA â€” 6 de 60
             // Fechamento: 6, 5, 4 acertos
             // Zonas: 6 dezenas (01-10, 11-20, ..., 51-60)
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
             megasena: {
                 name: 'Mega Sena',
                 drawSize: 6,
@@ -47,7 +47,7 @@ class NovaEraEngine {
                 minZonesCovered: 3,
                 maxConsecutive: 2,
                 evenOddRange: [2, 4],
-                // ★ v9.0 RECALIBRADO: P5-P95 real (µ=180, σ=35)
+                // â˜… v9.0 RECALIBRADO: P5-P95 real (Âµ=180, Ïƒ=35)
                 sumRange: [95, 265],
                 maxUsagePct: 0.22,
                 maxOverlap: 2,
@@ -65,13 +65,13 @@ class NovaEraEngine {
                 scoreClamp: [0.3, 2.5]
             },
 
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            // LOTOFÁCIL — 15 de 25
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+            // LOTOFÃCIL â€” 15 de 25
             // Fechamento: 15, 14, 13 acertos
-            // Estratégia: EXCLUSÃO (quais 10 ficam de fora)
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // EstratÃ©gia: EXCLUSÃƒO (quais 10 ficam de fora)
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
             lotofacil: {
-                name: 'Lotofácil',
+                name: 'LotofÃ¡cil',
                 drawSize: 15,
                 lotteryDraw: 15,
                 range: [1, 25],
@@ -80,11 +80,11 @@ class NovaEraEngine {
                 minZonesCovered: 5,
                 maxConsecutive: 10,
                 evenOddRange: [5, 10],
-                // ★ v9.0 RECALIBRADO: Soma validada P5-P95
+                // â˜… v9.0 RECALIBRADO: Soma validada P5-P95
                 sumRange: [155, 235],
                 maxUsagePct: 0.90,
                 maxOverlap: 13,
-                // ★ v9.0: Ampliado — dados reais variam 5-13 repetições
+                // â˜… v9.0: Ampliado â€” dados reais variam 5-13 repetiÃ§Ãµes
                 repeatFromLast: [5, 13],
                 weights: {
                     frequency: 0.20,
@@ -99,11 +99,11 @@ class NovaEraEngine {
                 scoreClamp: [0.3, 2.5]
             },
 
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            // QUINA — 5 de 80
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+            // QUINA â€” 5 de 80
             // Fechamento: 5, 4, 3 acertos
-            // Range muito amplo: precisa de máxima diversidade
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // Range muito amplo: precisa de mÃ¡xima diversidade
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
             quina: {
                 name: 'Quina',
                 drawSize: 5,
@@ -114,7 +114,7 @@ class NovaEraEngine {
                 minZonesCovered: 3,
                 maxConsecutive: 2,
                 evenOddRange: [1, 4],
-                // ★ v9.0 RECALIBRADO: P3-P97 ampliado para range 80
+                // â˜… v9.0 RECALIBRADO: P3-P97 ampliado para range 80
                 sumRange: [50, 340],
                 maxUsagePct: 0.15,
                 maxOverlap: 2,
@@ -132,10 +132,10 @@ class NovaEraEngine {
                 scoreClamp: [0.3, 2.5]
             },
 
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            // DUPLA SENA — 6 de 50
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+            // DUPLA SENA â€” 6 de 50
             // Fechamento: 6, 5, 4 acertos (2 sorteios por concurso)
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
             duplasena: {
                 name: 'Dupla Sena',
                 drawSize: 6,
@@ -146,7 +146,7 @@ class NovaEraEngine {
                 minZonesCovered: 3,
                 maxConsecutive: 2,
                 evenOddRange: [2, 4],
-                // ★ v9.0 RECALIBRADO: P5-P95 real (6 de 50)
+                // â˜… v9.0 RECALIBRADO: P5-P95 real (6 de 50)
                 sumRange: [55, 245],
                 maxUsagePct: 0.20,
                 maxOverlap: 3,
@@ -164,11 +164,11 @@ class NovaEraEngine {
                 scoreClamp: [0.3, 2.5]
             },
 
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            // LOTOMANIA — 50 de 100 (loteria sorteia 20)
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+            // LOTOMANIA â€” 50 de 100 (loteria sorteia 20)
             // Fechamento: 20, 19, 18, 17 acertos
-            // Jogador marca 50 números, loteria sorteia 20
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // Jogador marca 50 nÃºmeros, loteria sorteia 20
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
             lotomania: {
                 name: 'Lotomania',
                 drawSize: 50,
@@ -179,11 +179,11 @@ class NovaEraEngine {
                 minZonesCovered: 8,
                 maxConsecutive: 5,
                 evenOddRange: [22, 28],
-                // ★ v9.0 RECALIBRADO: P3-P97 real
+                // â˜… v9.0 RECALIBRADO: P3-P97 real
                 sumRange: [2050, 2950],
                 maxUsagePct: 0.55,
                 maxOverlap: 40,
-                // ★ v9.0: Ampliado para aceitar mais variação
+                // â˜… v9.0: Ampliado para aceitar mais variaÃ§Ã£o
                 repeatFromLast: [5, 15],
                 weights: {
                     frequency: 0.16,
@@ -198,10 +198,10 @@ class NovaEraEngine {
                 scoreClamp: [0.4, 2.2]
             },
 
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            // TIMEMANIA — 10 de 80 (loteria sorteia 7)
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+            // TIMEMANIA â€” 10 de 80 (loteria sorteia 7)
             // Fechamento: 7, 6, 5 acertos
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
             timemania: {
                 name: 'Timemania',
                 drawSize: 10,
@@ -212,7 +212,7 @@ class NovaEraEngine {
                 minZonesCovered: 4,
                 maxConsecutive: 2,
                 evenOddRange: [3, 7],
-                // ★ v9.0 RECALIBRADO: P3-P97 real (10 de 80)
+                // â˜… v9.0 RECALIBRADO: P3-P97 real (10 de 80)
                 sumRange: [200, 610],
                 maxUsagePct: 0.18,
                 maxOverlap: 5,
@@ -230,12 +230,12 @@ class NovaEraEngine {
                 scoreClamp: [0.3, 2.5]
             },
 
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            // DIA DE SORTE — 7 de 31
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+            // DIA DE SORTE â€” 7 de 31
             // Fechamento: 7, 6, 5 acertos
-            // Range pequeno: cada número tem ~22.6% de chance
-            // OTIMIZADO: anti-sequência, máxima inteligência
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // Range pequeno: cada nÃºmero tem ~22.6% de chance
+            // OTIMIZADO: anti-sequÃªncia, mÃ¡xima inteligÃªncia
+            // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
             diadesorte: {
                 name: 'Dia de Sorte',
                 drawSize: 7,
@@ -246,7 +246,7 @@ class NovaEraEngine {
                 minZonesCovered: 3,
                 maxConsecutive: 2,
                 evenOddRange: [2, 5],
-                // ★ v9.0 RECALIBRADO: P5-P95 real (7 de 31)
+                // â˜… v9.0 RECALIBRADO: P5-P95 real (7 de 31)
                 sumRange: [55, 170],
                 maxUsagePct: 0.30,
                 maxOverlap: 3,
@@ -267,26 +267,26 @@ class NovaEraEngine {
         return profiles[gameKey] || profiles.megasena;
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  MÉTODO PRINCIPAL — GERAR JOGOS COM PROJEÇÃO FUTURA         ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  MÃ‰TODO PRINCIPAL â€” GERAR JOGOS COM PROJEÃ‡ÃƒO FUTURA         â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 
-    // ╔══════════════════════════════════════════════════════════════════════╗
-    // ║  CALIBRAÇÃO ADAPTATIVA — Ajusta diversidade por quantidade         ║
-    // ║  10 jogos → MÁXIMA diversidade (aberto, exploratório)              ║
-    // ║  100 jogos → Moderado (equilíbrio IA + cobertura)                  ║
-    // ║  1000 jogos → Focado (convergência, menos noise)                   ║
-    // ╚══════════════════════════════════════════════════════════════════════╝
-    // ╔══════════════════════════════════════════════════════════════════════╗
-    // ║  ★★★ v5.0: CALIBRAÇÃO TIERED — Métodos DIFERENTES por volume ★★★  ║
-    // ║                                                                     ║
-    // ║  FILOSOFIA:                                                         ║
-    // ║  10-50 jogos   → SNIPER: Cada jogo é o MELHOR possível              ║
-    // ║  100-500 jogos → CIRÚRGICO: IA focada + filtros rigorosos           ║
-    // ║  1K-5K jogos   → INTELIGENTE: Equilíbrio predição + cobertura      ║
-    // ║  10K+ jogos    → COBERTURA: Diversidade máxima com IA ativa         ║
-    // ╚══════════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  CALIBRAÃ‡ÃƒO ADAPTATIVA â€” Ajusta diversidade por quantidade         â•‘
+    // â•‘  10 jogos â†’ MÃXIMA diversidade (aberto, exploratÃ³rio)              â•‘
+    // â•‘  100 jogos â†’ Moderado (equilÃ­brio IA + cobertura)                  â•‘
+    // â•‘  1000 jogos â†’ Focado (convergÃªncia, menos noise)                   â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜…â˜…â˜… v5.0: CALIBRAÃ‡ÃƒO TIERED â€” MÃ©todos DIFERENTES por volume â˜…â˜…â˜…  â•‘
+    // â•‘                                                                     â•‘
+    // â•‘  FILOSOFIA:                                                         â•‘
+    // â•‘  10-50 jogos   â†’ SNIPER: Cada jogo Ã© o MELHOR possÃ­vel              â•‘
+    // â•‘  100-500 jogos â†’ CIRÃšRGICO: IA focada + filtros rigorosos           â•‘
+    // â•‘  1K-5K jogos   â†’ INTELIGENTE: EquilÃ­brio prediÃ§Ã£o + cobertura      â•‘
+    // â•‘  10K+ jogos    â†’ COBERTURA: Diversidade mÃ¡xima com IA ativa         â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _getAdaptiveParams(numGames, profile) {
         const drawSize = profile.drawSize;
         const totalRange = profile.range[1] - profile.range[0] + 1;
@@ -295,28 +295,28 @@ class NovaEraEngine {
 
         let overlapAdj, usageAdj, checkRadius, mode;
 
-        // ═══════════════════════════════════════════════════════
-        // TIER 1: SNIPER (10-50 jogos) — MÁXIMA ASSERTIVIDADE
-        // Cada jogo deve ser uma previsão cirúrgica
-        // Overlap MÍNIMO = jogos MUITO diferentes entre si
-        // Usage MÍNIMO = foco nos melhores números
-        // ═══════════════════════════════════════════════════════
-        // ★ V8.0 GOD MODE: ADAPTIVE PARAMS — SNIPER EXTREMO
-        // O usuário solicitou "ir direto ao ponto" e "ser incisivo".
-        // Isso significa que para volumes curtos, os jogos devem ser QUASE IDENTICOS (Overlap altíssimo)
-        // e o uso de números (Usage) restritíssimo para focar no "core" de confiança máxima.
-        // EXCEÇÃO: Lotomania (50 números) e Timemania exigem variância maior para não jogar dinheiro fora.
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // TIER 1: SNIPER (10-50 jogos) â€” MÃXIMA ASSERTIVIDADE
+        // Cada jogo deve ser uma previsÃ£o cirÃºrgica
+        // Overlap MÃNIMO = jogos MUITO diferentes entre si
+        // Usage MÃNIMO = foco nos melhores nÃºmeros
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // â˜… V8.0 GOD MODE: ADAPTIVE PARAMS â€” SNIPER EXTREMO
+        // O usuÃ¡rio solicitou "ir direto ao ponto" e "ser incisivo".
+        // Isso significa que para volumes curtos, os jogos devem ser QUASE IDENTICOS (Overlap altÃ­ssimo)
+        // e o uso de nÃºmeros (Usage) restritÃ­ssimo para focar no "core" de confianÃ§a mÃ¡xima.
+        // EXCEÃ‡ÃƒO: Lotomania (50 nÃºmeros) e Timemania exigem variÃ¢ncia maior para nÃ£o jogar dinheiro fora.
         let isLotomania = drawSize === 50;
         let isTimemania = profile.name && profile.name.toLowerCase().includes('timemania');
 
         if (numGames <= 10) {
             mode = 'GODMODE-SNIPER-10';
-            // Permite que os jogos sejam até 90% idênticos, EXCETO lotomania/timemania
-            if (isTimemania) overlapAdj = Math.floor(drawSize * 0.50); // Mínimo 50% diferente
-            else if (isLotomania) overlapAdj = Math.floor(drawSize * 0.70); // Max 35 idênticos
+            // Permite que os jogos sejam atÃ© 90% idÃªnticos, EXCETO lotomania/timemania
+            if (isTimemania) overlapAdj = Math.floor(drawSize * 0.50); // MÃ­nimo 50% diferente
+            else if (isLotomania) overlapAdj = Math.floor(drawSize * 0.70); // Max 35 idÃªnticos
             else overlapAdj = Math.max(drawSize - 2, Math.floor(drawSize * 0.85));
             
-            // Força a IA a usar no máximo 25% a 35% do total de números disponíveis
+            // ForÃ§a a IA a usar no mÃ¡ximo 25% a 35% do total de nÃºmeros disponÃ­veis
             usageAdj = Math.min(0.35, Math.max(0.20, baseUsage));
             // Lotomania e Timemania precisam de um pool ligeiramente maior para respirar
             if (isLotomania || isTimemania) usageAdj = Math.min(0.50, Math.max(0.35, baseUsage));
@@ -326,7 +326,7 @@ class NovaEraEngine {
         else if (numGames <= 50) {
             mode = 'GODMODE-SNIPER-50';
             if (isTimemania) overlapAdj = Math.floor(drawSize * 0.40); // 60% diferente
-            else if (isLotomania) overlapAdj = Math.floor(drawSize * 0.60); // Max 30 idênticos
+            else if (isLotomania) overlapAdj = Math.floor(drawSize * 0.60); // Max 30 idÃªnticos
             else overlapAdj = Math.max(drawSize - 3, Math.floor(drawSize * 0.75));
             
             usageAdj = Math.min(0.40, Math.max(0.25, baseUsage));
@@ -365,7 +365,7 @@ class NovaEraEngine {
             checkRadius = 15;
         }
 
-        console.log('[NE-L99] ★ v5.0 TIER: ' + mode + ' | ' + numGames + ' jogos');
+        console.log('[NE-L99] â˜… v5.0 TIER: ' + mode + ' | ' + numGames + ' jogos');
         console.log('[NE-L99]    overlap=' + overlapAdj + '/' + drawSize + ' | usage=' + (usageAdj*100).toFixed(0) + '% | check=' + checkRadius);
 
         return {
@@ -379,9 +379,9 @@ class NovaEraEngine {
 
     static generate(gameKey, numGames, selectedNumbers, fixedNumbers, customDrawSize) {
 
-        // ★ V4.0: BULK TURBO ELIMINADO — Todos os volumes usam IA completa
+        // â˜… V4.0: BULK TURBO ELIMINADO â€” Todos os volumes usam IA completa
         // Volumes grandes (5K+) usam a mesma pipeline de 17 camadas
-        // com calibração adaptativa que escala overlap/usage proporcionalmente
+        // com calibraÃ§Ã£o adaptativa que escala overlap/usage proporcionalmente
 
         const profile = this.getProfile(gameKey);
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
@@ -392,7 +392,7 @@ class NovaEraEngine {
         const totalRange = endNum - startNum + 1;
         const drawSize = customDrawSize || game.minBet || profile.drawSize;
 
-        // Carregar histórico
+        // Carregar histÃ³rico
         let history = [];
         try {
             if (typeof StatsService !== 'undefined') {
@@ -402,29 +402,29 @@ class NovaEraEngine {
                 history = REAL_HISTORY_DB[gameKey] || [];
             }
         } catch (e) {
-            console.warn('[NE-V1] Sem histórico:', e.message);
+            console.warn('[NE-V1] Sem histÃ³rico:', e.message);
         }
 
-        console.log('[NE-V1] ⚡ ' + profile.name + ' | ' + history.length + ' sorteios | ' + numGames + ' jogos | drawSize=' + drawSize);
+        console.log('[NE-V1] âš¡ ' + profile.name + ' | ' + history.length + ' sorteios | ' + numGames + ' jogos | drawSize=' + drawSize);
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // FASE 1: ANÁLISE PREDITIVA COMPLETA — 7 CAMADAS
-        // Scorar TODOS os números do range (NENHUM eliminado)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+        // FASE 1: ANÃLISE PREDITIVA COMPLETA â€” 7 CAMADAS
+        // Scorar TODOS os nÃºmeros do range (NENHUM eliminado)
+        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
         const scores = this._scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange);
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
         // FASE 2: DEFINIR POOL
-        // Se usuário selecionou números → usar como pool
-        // Senão → usar TODOS os números do range
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Se usuÃ¡rio selecionou nÃºmeros â†’ usar como pool
+        // SenÃ£o â†’ usar TODOS os nÃºmeros do range
+        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
         let pool;
         const hasUserSelection = selectedNumbers && selectedNumbers.length >= drawSize;
         const hasPartialSelection = selectedNumbers && selectedNumbers.length > 0 && selectedNumbers.length < drawSize;
 
         if (hasUserSelection) {
             pool = selectedNumbers.slice().sort((a, b) => a - b);
-            console.log('[NE-V1] 🎯 Pool do usuário: ' + pool.length + ' números');
+            console.log('[NE-V1] ðŸŽ¯ Pool do usuÃ¡rio: ' + pool.length + ' nÃºmeros');
         } else if (hasPartialSelection) {
             const partialFixed = selectedNumbers.filter(n => n >= startNum && n <= endNum);
             const existingFixed = new Set(fixedNumbers || []);
@@ -435,16 +435,16 @@ class NovaEraEngine {
             }
             pool = [];
             for (let n = startNum; n <= endNum; n++) pool.push(n);
-            console.log('[NE-V1] 📌 Seleção PARCIAL: ' + partialFixed.length + ' âncoras fixas + pool IA completo (' + pool.length + ')');
+            console.log('[NE-V1] ðŸ“Œ SeleÃ§Ã£o PARCIAL: ' + partialFixed.length + ' Ã¢ncoras fixas + pool IA completo (' + pool.length + ')');
         } else {
-            // ★ v7.0: POOL SEMPRE COMPLETO — nunca reduzir
-            // Pool reduzido era o BUG #1: eliminava números do resultado
+            // â˜… v7.0: POOL SEMPRE COMPLETO â€” nunca reduzir
+            // Pool reduzido era o BUG #1: eliminava nÃºmeros do resultado
             pool = [];
             for (let n = startNum; n <= endNum; n++) pool.push(n);
             console.log('[v7.0] POOL COMPLETO: ' + pool.length + '/' + totalRange + ' (100%) | volume=' + numGames);
         }
 
-        // ★ FIX V4.1: GARANTIR que TODOS os fixedNumbers estão no pool
+        // â˜… FIX V4.1: GARANTIR que TODOS os fixedNumbers estÃ£o no pool
         if (fixedNumbers && fixedNumbers.length > 0) {
             const poolSet = new Set(pool);
             for (const f of fixedNumbers) {
@@ -453,35 +453,35 @@ class NovaEraEngine {
                     poolSet.add(f);
                 }
             }
-            console.log('[NE-V1] 📌 ' + fixedNumbers.length + ' números fixos garantidos no pool: [' + fixedNumbers.sort((a,b)=>a-b).join(', ') + ']');
+            console.log('[NE-V1] ðŸ“Œ ' + fixedNumbers.length + ' nÃºmeros fixos garantidos no pool: [' + fixedNumbers.sort((a,b)=>a-b).join(', ') + ']');
         }
 
-        // ★ FIX CRÍTICO: Respeitar pool de precisão do DOM
-        // Quando o toggle de precisão está ativo, limitar o pool ao TOP N números por score
+        // â˜… FIX CRÃTICO: Respeitar pool de precisÃ£o do DOM
+        // Quando o toggle de precisÃ£o estÃ¡ ativo, limitar o pool ao TOP N nÃºmeros por score
         if (typeof document !== 'undefined' && !hasUserSelection) {
             const precToggle = document.getElementById('precision-mode-toggle');
             const precPoolInput = document.getElementById('precision-pool-size');
             if (precToggle && precToggle.checked && precPoolInput) {
                 const precPoolSize = parseInt(precPoolInput.value) || 0;
                 if (precPoolSize > 0 && precPoolSize >= drawSize && precPoolSize < pool.length) {
-                    console.log('%c[NE-V1] ★ POOL DE PRECISÃO ATIVO: limitando de ' + pool.length + ' → ' + precPoolSize + ' números', 'color: #EF4444; font-weight: bold;');
+                    console.log('%c[NE-V1] â˜… POOL DE PRECISÃƒO ATIVO: limitando de ' + pool.length + ' â†’ ' + precPoolSize + ' nÃºmeros', 'color: #EF4444; font-weight: bold;');
                     // Rankear pool por scores e manter TOP N
                     const fixedSet = new Set(fixedNumbers || []);
                     const fixedInPool = pool.filter(n => fixedSet.has(n));
                     const nonFixedPool = pool.filter(n => !fixedSet.has(n));
-                    // Ordenar não-fixos por score decrescente
+                    // Ordenar nÃ£o-fixos por score decrescente
                     nonFixedPool.sort((a, b) => (scores[b] || 0) - (scores[a] || 0));
                     const slotsForNonFixed = precPoolSize - fixedInPool.length;
                     pool = [...fixedInPool, ...nonFixedPool.slice(0, Math.max(0, slotsForNonFixed))];
                     pool.sort((a, b) => a - b);
-                    console.log('[NE-V1] Pool precisão: [' + pool.slice(0, 15).join(', ') + (pool.length > 15 ? '...' : '') + '] (' + pool.length + ' números)');
+                    console.log('[NE-V1] Pool precisÃ£o: [' + pool.slice(0, 15).join(', ') + (pool.length > 15 ? '...' : '') + '] (' + pool.length + ' nÃºmeros)');
                 }
             }
         }
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // FASE 3: CALIBRAÇÃO ADAPTATIVA + GERAÇÃO
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+        // FASE 3: CALIBRAÃ‡ÃƒO ADAPTATIVA + GERAÃ‡ÃƒO
+        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
         const adaptiveParams = this._getAdaptiveParams(numGames, profile);
         const games = this._generateDiverseGames(
             profile, scores, pool, numGames, drawSize,
@@ -489,21 +489,21 @@ class NovaEraEngine {
             adaptiveParams, history
         );
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // FASE 4: BACKTESTING + RELATÓRIO DE QUALIDADE V6.0
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+        // FASE 4: BACKTESTING + RELATÃ“RIO DE QUALIDADE V6.0
+        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
         const analysis = this._backtestHonest(games, history, profile, gameKey, totalRange, drawSize);
 
         const uniqueNums = new Set(games.flat());
         const coveragePct = Math.round(uniqueNums.size / totalRange * 100);
 
-        // ★ V6.0: RELATÓRIO DE QUALIDADE TRANSPARENTE
-        // Métricas que PROVAM o funcionamento do motor
+        // â˜… V6.0: RELATÃ“RIO DE QUALIDADE TRANSPARENTE
+        // MÃ©tricas que PROVAM o funcionamento do motor
         const freq = {};
         for (const g of games) for (const n of g) freq[n] = (freq[n] || 0) + 1;
         const totalSelections = games.length * drawSize;
 
-        // Entropia de Shannon — mede distribuição da seleção
+        // Entropia de Shannon â€” mede distribuiÃ§Ã£o da seleÃ§Ã£o
         let entropy = 0;
         for (const f of Object.values(freq)) {
             const p = f / totalSelections;
@@ -512,7 +512,7 @@ class NovaEraEngine {
         const maxEntropy = Math.log2(uniqueNums.size || 1);
         const entropyPct = maxEntropy > 0 ? Math.round(entropy / maxEntropy * 100) : 0;
 
-        // Distribuição por zona
+        // DistribuiÃ§Ã£o por zona
         const zoneDistrib = {};
         for (let z = 0; z < profile.zones; z++) zoneDistrib[z] = 0;
         for (const [n, f] of Object.entries(freq)) {
@@ -520,7 +520,7 @@ class NovaEraEngine {
             zoneDistrib[z] += f;
         }
 
-        // Distância de Hamming média entre jogos adjacentes
+        // DistÃ¢ncia de Hamming mÃ©dia entre jogos adjacentes
         let hammingTotal = 0, hammingCount = 0;
         const sampleGames = games.slice(0, Math.min(200, games.length));
         for (let i = 0; i < sampleGames.length - 1; i++) {
@@ -532,16 +532,16 @@ class NovaEraEngine {
         }
         const avgHamming = hammingCount > 0 ? (hammingTotal / hammingCount).toFixed(1) : 'N/A';
 
-        // Concentração máxima
+        // ConcentraÃ§Ã£o mÃ¡xima
         const maxFreq = Math.max(0, ...Object.values(freq));
         const maxConcPct = games.length > 0 ? Math.round(maxFreq / games.length * 100) : 0;
 
         // Log transparente
-        console.log('%c[V6.0] ═══ RELATÓRIO DE QUALIDADE ═══', 'color: #00ff88; font-weight: bold; font-size: 14px;');
+        console.log('%c[V6.0] â•â•â• RELATÃ“RIO DE QUALIDADE â•â•â•', 'color: #00ff88; font-weight: bold; font-size: 14px;');
         console.log('[V6.0] Cobertura: ' + uniqueNums.size + '/' + totalRange + ' (' + coveragePct + '%)');
-        console.log('[V6.0] Entropia Shannon: ' + entropyPct + '% (100%=distribuição perfeita)');
-        console.log('[V6.0] Hamming médio: ' + avgHamming + '/' + drawSize + ' (diferença entre jogos)');
-        console.log('[V6.0] Concentração máx: ' + maxConcPct + '% (nenhum número domina)');
+        console.log('[V6.0] Entropia Shannon: ' + entropyPct + '% (100%=distribuiÃ§Ã£o perfeita)');
+        console.log('[V6.0] Hamming mÃ©dio: ' + avgHamming + '/' + drawSize + ' (diferenÃ§a entre jogos)');
+        console.log('[V6.0] ConcentraÃ§Ã£o mÃ¡x: ' + maxConcPct + '% (nenhum nÃºmero domina)');
         const zoneStr = Object.entries(zoneDistrib).map(([z, f]) => {
             const pct = Math.round(f / totalSelections * 100);
             const ideal = Math.round(100 / profile.zones);
@@ -549,7 +549,7 @@ class NovaEraEngine {
         }).join(' | ');
         console.log('[V6.0] Zonas: ' + zoneStr);
 
-        // Injetar métricas na análise
+        // Injetar mÃ©tricas na anÃ¡lise
         analysis.coveragePct = coveragePct;
         analysis.entropyPct = entropyPct;
         analysis.avgHamming = avgHamming;
@@ -563,17 +563,17 @@ class NovaEraEngine {
         };
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  CAMADA 1: FREQUÊNCIA MULTI-JANELA                          ║
-    // ║  Analisa frequência em janelas de 3, 5, 10, 15 sorteios     ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  CAMADA 1: FREQUÃŠNCIA MULTI-JANELA                          â•‘
+    // â•‘  Analisa frequÃªncia em janelas de 3, 5, 10, 15 sorteios     â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layerFrequency(history, startNum, endNum, N) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0;
         if (N === 0) return scores;
 
-        // ★ PRECISION v2.0: Janela de 3 com peso DOMINANTE (50%)
-        // Foco máximo nos últimos 3 resultados para capturar tendência imediata
+        // â˜… PRECISION v2.0: Janela de 3 com peso DOMINANTE (50%)
+        // Foco mÃ¡ximo nos Ãºltimos 3 resultados para capturar tendÃªncia imediata
         const windows = [
             { size: Math.min(3, N),  weight: 0.50 },
             { size: Math.min(5, N),  weight: 0.20 },
@@ -589,7 +589,7 @@ class NovaEraEngine {
                 for (const n of nums) {
                     if (n >= startNum && n <= endNum) freq[n]++;
                 }
-                // Dupla Sena: 2º sorteio
+                // Dupla Sena: 2Âº sorteio
                 const nums2 = history[i].numbers2 || [];
                 for (const n of nums2) {
                     if (n >= startNum && n <= endNum) freq[n] += 0.5;
@@ -608,11 +608,11 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  CAMADA 2: PROJEÇÃO TEMPORAL — Regressão de Tendência       ║
-    // ║  Projeta se um número está SUBINDO ou DESCENDO em freq.     ║
-    // ║  Conceito de "clarividência computacional"                   ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  CAMADA 2: PROJEÃ‡ÃƒO TEMPORAL â€” RegressÃ£o de TendÃªncia       â•‘
+    // â•‘  Projeta se um nÃºmero estÃ¡ SUBINDO ou DESCENDO em freq.     â•‘
+    // â•‘  Conceito de "clarividÃªncia computacional"                   â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layerTrend(history, startNum, endNum, N) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
@@ -620,7 +620,7 @@ class NovaEraEngine {
 
         const half = Math.min(8, Math.floor(N / 2));
         for (let n = startNum; n <= endNum; n++) {
-            // Frequência na 1ª metade (recente) vs 2ª metade (antiga)
+            // FrequÃªncia na 1Âª metade (recente) vs 2Âª metade (antiga)
             let recentHits = 0, olderHits = 0;
             for (let i = 0; i < half; i++) {
                 const nums = (history[i].numbers || []).concat(history[i].numbers2 || []);
@@ -635,7 +635,7 @@ class NovaEraEngine {
             const olderRate = olderHits / Math.min(half, N - half) || 0.01;
             const trend = recentRate / Math.max(0.01, olderRate);
 
-            // Projetar: números em ascensão recebem boost
+            // Projetar: nÃºmeros em ascensÃ£o recebem boost
             if (trend > 1.5) scores[n] = 0.9;
             else if (trend > 1.0) scores[n] = 0.7;
             else if (trend > 0.5) scores[n] = 0.5;
@@ -645,11 +645,11 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  CAMADA 3: PERÍODO DE RETORNO — Números "Devendo"           ║
-    // ║  Se o ciclo esperado de um número é X sorteios e ele não    ║
-    // ║  sai há Y > X sorteios, ele recebe boost proporcional      ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  CAMADA 3: PERÃODO DE RETORNO â€” NÃºmeros "Devendo"           â•‘
+    // â•‘  Se o ciclo esperado de um nÃºmero Ã© X sorteios e ele nÃ£o    â•‘
+    // â•‘  sai hÃ¡ Y > X sorteios, ele recebe boost proporcional      â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layerDelay(history, startNum, endNum, N, drawSize, totalRange) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
@@ -658,14 +658,14 @@ class NovaEraEngine {
         const expectedReturn = totalRange / drawSize; // Mega: 60/6 = 10 sorteios
 
         for (let n = startNum; n <= endNum; n++) {
-            // Encontrar última aparição
-            let lastSeen = N; // Nunca visto por padrão
+            // Encontrar Ãºltima apariÃ§Ã£o
+            let lastSeen = N; // Nunca visto por padrÃ£o
             for (let i = 0; i < N; i++) {
                 const nums = (history[i].numbers || []).concat(history[i].numbers2 || []);
                 if (nums.includes(n)) { lastSeen = i; break; }
             }
 
-            // Score baseado em quão "atrasado" o número está
+            // Score baseado em quÃ£o "atrasado" o nÃºmero estÃ¡
             const ratio = lastSeen / expectedReturn;
             if (ratio >= 2.5) scores[n] = 1.0;       // Muito atrasado
             else if (ratio >= 1.8) scores[n] = 0.85;
@@ -678,11 +678,11 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  CAMADA 4: ENTROPIA ESPACIAL — Equilíbrio por Zonas         ║
-    // ║  Detecta zonas sub-representadas nos últimos sorteios       ║
-    // ║  e dá boost a números nessas zonas                          ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  CAMADA 4: ENTROPIA ESPACIAL â€” EquilÃ­brio por Zonas         â•‘
+    // â•‘  Detecta zonas sub-representadas nos Ãºltimos sorteios       â•‘
+    // â•‘  e dÃ¡ boost a nÃºmeros nessas zonas                          â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layerEntropy(history, startNum, endNum, N, profile) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
@@ -721,10 +721,10 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  CAMADA 5: TRANSIÇÃO DE MARKOV — Co-ocorrência Ponderada    ║
-    // ║  Dado o último sorteio, quais números tendem a seguir?      ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  CAMADA 5: TRANSIÃ‡ÃƒO DE MARKOV â€” Co-ocorrÃªncia Ponderada    â•‘
+    // â•‘  Dado o Ãºltimo sorteio, quais nÃºmeros tendem a seguir?      â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layerMarkov(history, startNum, endNum, N) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
@@ -733,7 +733,7 @@ class NovaEraEngine {
         const lastDraw = history[0].numbers || [];
         const limit = Math.min(30, N - 1);
 
-        // Contar transições: se X saiu no sorteio i+1, e Y saiu no sorteio i, boost Y
+        // Contar transiÃ§Ãµes: se X saiu no sorteio i+1, e Y saiu no sorteio i, boost Y
         for (let i = 0; i < limit; i++) {
             const olderNums = new Set((history[i + 1].numbers || []).concat(history[i + 1].numbers2 || []));
             const newerNums = history[i].numbers || [];
@@ -741,7 +741,7 @@ class NovaEraEngine {
 
             for (const from of lastDraw) {
                 if (olderNums.has(from)) {
-                    // 'from' apareceu no sorteio anterior — boost números que vieram depois
+                    // 'from' apareceu no sorteio anterior â€” boost nÃºmeros que vieram depois
                     for (const to of newerNums) {
                         if (to >= startNum && to <= endNum) {
                             scores[to] += decay * 0.05;
@@ -754,18 +754,18 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  CAMADA 6: RESSONÂNCIA DE FASE — Ciclos Periódicos          ║
-    // ║  Detecta se um número tem padrão cíclico e está prestes     ║
-    // ║  a "ressoar" (reaparecer no ciclo)                          ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  CAMADA 6: RESSONÃ‚NCIA DE FASE â€” Ciclos PeriÃ³dicos          â•‘
+    // â•‘  Detecta se um nÃºmero tem padrÃ£o cÃ­clico e estÃ¡ prestes     â•‘
+    // â•‘  a "ressoar" (reaparecer no ciclo)                          â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layerPhase(history, startNum, endNum, N) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
         if (N < 10) return scores;
 
         for (let n = startNum; n <= endNum; n++) {
-            // Encontrar posições de aparição
+            // Encontrar posiÃ§Ãµes de apariÃ§Ã£o
             const positions = [];
             for (let i = 0; i < N; i++) {
                 const nums = (history[i].numbers || []).concat(history[i].numbers2 || []);
@@ -774,7 +774,7 @@ class NovaEraEngine {
 
             if (positions.length < 3) continue;
 
-            // Calcular gaps entre aparições
+            // Calcular gaps entre apariÃ§Ãµes
             const gaps = [];
             for (let g = 1; g < positions.length; g++) {
                 gaps.push(positions[g] - positions[g - 1]);
@@ -783,7 +783,7 @@ class NovaEraEngine {
             // Detectar ciclo dominante
             const gapFreq = {};
             for (const gap of gaps) {
-                // Agrupar gaps próximos (±1)
+                // Agrupar gaps prÃ³ximos (Â±1)
                 for (let g = gap - 1; g <= gap + 1; g++) {
                     if (g > 0) gapFreq[g] = (gapFreq[g] || 0) + 1;
                 }
@@ -797,7 +797,7 @@ class NovaEraEngine {
                 }
             }
 
-            // Se há um ciclo claro e o número está "no ponto"
+            // Se hÃ¡ um ciclo claro e o nÃºmero estÃ¡ "no ponto"
             if (bestCycle > 0 && bestCount >= 2) {
                 const sinceLast = positions[0];
                 const cyclePosition = sinceLast / bestCycle;
@@ -812,18 +812,18 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  CAMADA 7: CLARIVIDÊNCIA SINTÉTICA — Fusão Preditiva        ║
-    // ║  Monte Carlo ponderado para projetar cenários futuros       ║
-    // ╚══════════════════════════════════════════════════════════════╝
-    // ╔══════════════════════════════════════════════════════════════════════╗
-    // ║  ★ v5.0: CLARIVIDÊNCIA APRIMORADA — Monte Carlo Condicional       ║
-    // ║  Mudanças:                                                         ║
-    // ║   1. Probabilidade base por 3 janelas (3, 7, 15 sorteios)         ║
-    // ║   2. Ciclo de retorno individual (quando deve voltar?)             ║
-    // ║   3. Co-ocorrência: números que saem juntos                       ║
-    // ║   4. Simulação MC com constraints de zona/paridade                ║
-    // ╚══════════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  CAMADA 7: CLARIVIDÃŠNCIA SINTÃ‰TICA â€” FusÃ£o Preditiva        â•‘
+    // â•‘  Monte Carlo ponderado para projetar cenÃ¡rios futuros       â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜… v5.0: CLARIVIDÃŠNCIA APRIMORADA â€” Monte Carlo Condicional       â•‘
+    // â•‘  MudanÃ§as:                                                         â•‘
+    // â•‘   1. Probabilidade base por 3 janelas (3, 7, 15 sorteios)         â•‘
+    // â•‘   2. Ciclo de retorno individual (quando deve voltar?)             â•‘
+    // â•‘   3. Co-ocorrÃªncia: nÃºmeros que saem juntos                       â•‘
+    // â•‘   4. SimulaÃ§Ã£o MC com constraints de zona/paridade                â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layerClairvoyance(history, startNum, endNum, N, drawSize) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0;
@@ -834,11 +834,11 @@ class NovaEraEngine {
 
         const totalRange = endNum - startNum + 1;
 
-        // ★ v5.0: PASSO 1 — Probabilidade base MULTI-JANELA
+        // â˜… v5.0: PASSO 1 â€” Probabilidade base MULTI-JANELA
         const baseProb = {};
-        for (let n = startNum; n <= endNum; n++) baseProb[n] = 0.5; // Base mínima
+        for (let n = startNum; n <= endNum; n++) baseProb[n] = 0.5; // Base mÃ­nima
 
-        // Janela curta (3 sorteios) — tendência imediata
+        // Janela curta (3 sorteios) â€” tendÃªncia imediata
         const w3 = Math.min(3, N);
         for (let i = 0; i < w3; i++) {
             const nums = (history[i].numbers || []).concat(history[i].numbers2 || []);
@@ -848,7 +848,7 @@ class NovaEraEngine {
             }
         }
 
-        // Janela média (7 sorteios) — padrão recente
+        // Janela mÃ©dia (7 sorteios) â€” padrÃ£o recente
         const w7 = Math.min(7, N);
         for (let i = 0; i < w7; i++) {
             const nums = (history[i].numbers || []).concat(history[i].numbers2 || []);
@@ -858,7 +858,7 @@ class NovaEraEngine {
             }
         }
 
-        // Janela longa (15 sorteios) — frequência geral
+        // Janela longa (15 sorteios) â€” frequÃªncia geral
         const w15 = Math.min(15, N);
         for (let i = 0; i < w15; i++) {
             const nums = (history[i].numbers || []).concat(history[i].numbers2 || []);
@@ -868,9 +868,9 @@ class NovaEraEngine {
             }
         }
 
-        // ★ v5.0: PASSO 2 — Ciclo de retorno individual
+        // â˜… v5.0: PASSO 2 â€” Ciclo de retorno individual
         for (let n = startNum; n <= endNum; n++) {
-            // Calcular ciclo médio de retorno
+            // Calcular ciclo mÃ©dio de retorno
             const appearances = [];
             for (let i = 0; i < Math.min(30, N); i++) {
                 const nums = (history[i].numbers || []).concat(history[i].numbers2 || []);
@@ -884,29 +884,29 @@ class NovaEraEngine {
                 }
                 avgCycle /= (appearances.length - 1);
 
-                // Quanto tempo desde a última aparição?
+                // Quanto tempo desde a Ãºltima apariÃ§Ã£o?
                 const lastSeen = appearances.length > 0 ? appearances[0] : 30;
                 const expectedReturn = avgCycle;
 
-                // Boost se está no "ponto de retorno" (+/- 30% do ciclo)
+                // Boost se estÃ¡ no "ponto de retorno" (+/- 30% do ciclo)
                 if (lastSeen >= expectedReturn * 0.7 && lastSeen <= expectedReturn * 1.5) {
-                    baseProb[n] *= 1.6; // Ponto ótimo de retorno
+                    baseProb[n] *= 1.6; // Ponto Ã³timo de retorno
                 } else if (lastSeen > expectedReturn * 1.5) {
-                    baseProb[n] *= 1.3; // Atrasado — pressão moderada
+                    baseProb[n] *= 1.3; // Atrasado â€” pressÃ£o moderada
                 } else if (lastSeen < expectedReturn * 0.4) {
-                    baseProb[n] *= 0.7; // Saiu recentemente — descanso
+                    baseProb[n] *= 0.7; // Saiu recentemente â€” descanso
                 }
             }
         }
 
-        // ★ v5.0: PASSO 3 — Co-ocorrência (números que saem juntos)
+        // â˜… v5.0: PASSO 3 â€” Co-ocorrÃªncia (nÃºmeros que saem juntos)
         const lastDraw = history[0].numbers || [];
         const coOccurrence = {};
         for (let n = startNum; n <= endNum; n++) coOccurrence[n] = 0;
 
         for (let i = 1; i < Math.min(20, N); i++) {
             const prevNums = (history[i].numbers || []).concat(history[i].numbers2 || []);
-            // Se algum número do último sorteio apareceu junto com n no passado
+            // Se algum nÃºmero do Ãºltimo sorteio apareceu junto com n no passado
             for (const n of prevNums) {
                 if (n >= startNum && n <= endNum) {
                     for (const last of lastDraw) {
@@ -927,7 +927,7 @@ class NovaEraEngine {
         for (let n = startNum; n <= endNum; n++) totalProb += baseProb[n];
         for (let n = startNum; n <= endNum; n++) baseProb[n] /= totalProb;
 
-        // ★ v5.0: PASSO 4 — Monte Carlo com constraints
+        // â˜… v5.0: PASSO 4 â€” Monte Carlo com constraints
         const simulations = Math.min(15000, Math.max(5000, totalRange * 80));
         for (let sim = 0; sim < simulations; sim++) {
             const drawn = this._weightedSample(baseProb, drawSize, startNum, endNum);
@@ -943,17 +943,17 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  CAMADA 8: PROJEÇÃO DO PRÓXIMO SORTEIO — POR LOTERIA        ║
-    // ║  Analisa padrões de transição ESPECÍFICOS de cada loteria    ║
-    // ║  Foco: projetar o que acontece no resultado SEGUINTE         ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  CAMADA 8: PROJEÃ‡ÃƒO DO PRÃ“XIMO SORTEIO â€” POR LOTERIA        â•‘
+    // â•‘  Analisa padrÃµes de transiÃ§Ã£o ESPECÃFICOS de cada loteria    â•‘
+    // â•‘  Foco: projetar o que acontece no resultado SEGUINTE         â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layerNextDraw(gameKey, history, startNum, endNum, N, profile) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
         if (N < 3) return scores;
 
-        // ━━━ Analisar taxa de repetição REAL desta loteria ━━━
+        // â”â”â” Analisar taxa de repetiÃ§Ã£o REAL desta loteria â”â”â”
         const drawSize = profile.lotteryDraw;
         const repRates = [];
         for (let i = 0; i < Math.min(20, N - 1); i++) {
@@ -966,35 +966,35 @@ class NovaEraEngine {
         const avgRepetition = repRates.length > 0 ? repRates.reduce((a, b) => a + b, 0) / repRates.length : 0;
         const lastDraw = new Set(history[0].numbers || []);
 
-        console.log('[NE-V1] 🎯 ' + gameKey + ' | Taxa de repetição média: ' + avgRepetition.toFixed(1) + '/' + drawSize);
+        console.log('[NE-V1] ðŸŽ¯ ' + gameKey + ' | Taxa de repetiÃ§Ã£o mÃ©dia: ' + avgRepetition.toFixed(1) + '/' + drawSize);
 
-        // ━━━ CALIBRAÇÃO INDIVIDUAL POR LOTERIA ━━━
+        // â”â”â” CALIBRAÃ‡ÃƒO INDIVIDUAL POR LOTERIA â”â”â”
         switch (gameKey) {
 
-            // ──────────────────────────────────────────────────────
-            // MEGA SENA: Repetição baixa (~0.8/6)
-            // Números do último sorteio RARAMENTE repetem
-            // Foco: números atrasados + tendência recente
-            // ──────────────────────────────────────────────────────
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // MEGA SENA: RepetiÃ§Ã£o baixa (~0.8/6)
+            // NÃºmeros do Ãºltimo sorteio RARAMENTE repetem
+            // Foco: nÃºmeros atrasados + tendÃªncia recente
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             case 'megasena': {
                 for (let n = startNum; n <= endNum; n++) {
                     if (lastDraw.has(n)) {
-                        // Números que acabaram de sair: penalidade MODERADA (v7.0)
+                        // NÃºmeros que acabaram de sair: penalidade MODERADA (v7.0)
                         scores[n] = 0.35;
                     } else {
-                        // Calcular "pressão de retorno" individual
+                        // Calcular "pressÃ£o de retorno" individual
                         let lastSeen = N;
                         for (let i = 0; i < N; i++) {
                             if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
                         }
-                        // Números entre 5-15 sorteios sem sair são os mais prováveis
+                        // NÃºmeros entre 5-15 sorteios sem sair sÃ£o os mais provÃ¡veis
                         if (lastSeen >= 8 && lastSeen <= 18) scores[n] = 0.88;
                         else if (lastSeen >= 4 && lastSeen <= 25) scores[n] = 0.70;
                         else if (lastSeen < 4) scores[n] = 0.45;
                         else scores[n] = 0.58;
                     }
                 }
-                // Bonus: números que saíram no penúltimo mas NÃO no último
+                // Bonus: nÃºmeros que saÃ­ram no penÃºltimo mas NÃƒO no Ãºltimo
                 if (N >= 2) {
                     const penultimo = new Set(history[1].numbers || []);
                     for (const n of penultimo) {
@@ -1004,30 +1004,30 @@ class NovaEraEngine {
                 break;
             }
 
-            // ──────────────────────────────────────────────────────
-            // LOTOFÁCIL: Repetição ALTÍSSIMA (~8-12/15)
-            // Estratégia: MANTER a maioria do último sorteio
-            // Foco: quais 3-7 números TROCAR
-            // ──────────────────────────────────────────────────────
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // LOTOFÃCIL: RepetiÃ§Ã£o ALTÃSSIMA (~8-12/15)
+            // EstratÃ©gia: MANTER a maioria do Ãºltimo sorteio
+            // Foco: quais 3-7 nÃºmeros TROCAR
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             case 'lotofacil': {
-                // Na Lotofácil, ~8-12 números repetem do sorteio anterior!
-                // Estratégia invertida: ALTA probabilidade de repetição
+                // Na LotofÃ¡cil, ~8-12 nÃºmeros repetem do sorteio anterior!
+                // EstratÃ©gia invertida: ALTA probabilidade de repetiÃ§Ã£o
                 for (let n = startNum; n <= endNum; n++) {
                     if (lastDraw.has(n)) {
-                        // Números do último: BOA chance de repetir
+                        // NÃºmeros do Ãºltimo: BOA chance de repetir
                         scores[n] = 0.80;
                     } else {
-                        // Números que NÃO saíram: avaliar "pressão de entrada"
+                        // NÃºmeros que NÃƒO saÃ­ram: avaliar "pressÃ£o de entrada"
                         let lastSeen = N;
                         for (let i = 0; i < N; i++) {
                             if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
                         }
-                        if (lastSeen >= 3) scores[n] = 0.85; // 3+ sem sair = provável entrar
+                        if (lastSeen >= 3) scores[n] = 0.85; // 3+ sem sair = provÃ¡vel entrar
                         else if (lastSeen === 2) scores[n] = 0.65;
                         else scores[n] = 0.45; // Saiu recentemente, fora agora
                     }
                 }
-                // Identificar quais do último são mais prováveis de SAIR (exclusão)
+                // Identificar quais do Ãºltimo sÃ£o mais provÃ¡veis de SAIR (exclusÃ£o)
                 if (N >= 3) {
                     for (const n of lastDraw) {
                         let consecAppears = 0;
@@ -1035,22 +1035,22 @@ class NovaEraEngine {
                             if ((history[i].numbers || []).includes(n)) consecAppears++;
                             else break;
                         }
-                        // Números que apareceram em 4-5 consecutivos: podem "descansar"
+                        // NÃºmeros que apareceram em 4-5 consecutivos: podem "descansar"
                         if (consecAppears >= 4) scores[n] = Math.max(0.3, scores[n] - 0.25);
                     }
                 }
                 break;
             }
 
-            // ──────────────────────────────────────────────────────
-            // QUINA: Repetição muito baixa (~0.3/5)
-            // Range amplo (80 números), baixa cobertura por sorteio
-            // Foco: distribuição por zonas + ciclos longos
-            // ──────────────────────────────────────────────────────
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // QUINA: RepetiÃ§Ã£o muito baixa (~0.3/5)
+            // Range amplo (80 nÃºmeros), baixa cobertura por sorteio
+            // Foco: distribuiÃ§Ã£o por zonas + ciclos longos
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             case 'quina': {
                 for (let n = startNum; n <= endNum; n++) {
                     if (lastDraw.has(n)) {
-                        scores[n] = 0.30; // v7.0: era 0.10 — penalidade moderada
+                        scores[n] = 0.30; // v7.0: era 0.10 â€” penalidade moderada
                     } else {
                         let lastSeen = N;
                         for (let i = 0; i < N; i++) {
@@ -1060,17 +1060,17 @@ class NovaEraEngine {
                         const ratio = lastSeen / expectedCycle;
                         if (ratio >= 1.5 && ratio <= 3.0) scores[n] = 0.90;
                         else if (ratio >= 0.8 && ratio < 1.5) scores[n] = 0.70;
-                        else if (ratio < 0.8) scores[n] = 0.50; // v7.1: era 0.30 — moderado
+                        else if (ratio < 0.8) scores[n] = 0.50; // v7.1: era 0.30 â€” moderado
                         else scores[n] = 0.55;
                     }
                 }
                 break;
             }
 
-            // ──────────────────────────────────────────────────────
-            // DUPLA SENA: Repetição baixa (~0.7/6) mas TEM 2 sorteios
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // DUPLA SENA: RepetiÃ§Ã£o baixa (~0.7/6) mas TEM 2 sorteios
             // Considerar AMBOS os sorteios (numbers + numbers2)
-            // ──────────────────────────────────────────────────────
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             case 'duplasena': {
                 const lastDraw2 = new Set(history[0].numbers2 || []);
                 const lastBoth = new Set([...lastDraw, ...lastDraw2]);
@@ -1093,15 +1093,15 @@ class NovaEraEngine {
                 break;
             }
 
-            // ──────────────────────────────────────────────────────
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             // LOTOMANIA: Jogador marca 50 de 100, loteria sorteia 20
-            // Taxa de repetição dos 20 sorteados: ~4/20
-            // Estratégia: cobrir o máximo das zonas que "devem"
-            // ──────────────────────────────────────────────────────
+            // Taxa de repetiÃ§Ã£o dos 20 sorteados: ~4/20
+            // EstratÃ©gia: cobrir o mÃ¡ximo das zonas que "devem"
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             case 'lotomania': {
                 for (let n = startNum; n <= endNum; n++) {
                     if (lastDraw.has(n)) {
-                        scores[n] = 0.40; // Repetição moderada (4/20)
+                        scores[n] = 0.40; // RepetiÃ§Ã£o moderada (4/20)
                     } else {
                         let lastSeen = N;
                         for (let i = 0; i < N; i++) {
@@ -1117,14 +1117,14 @@ class NovaEraEngine {
                 break;
             }
 
-            // ──────────────────────────────────────────────────────
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             // TIMEMANIA: Loteria sorteia 7 de 80, jogador marca 10
-            // Repetição muito baixa (~0.6/7)
-            // Foco: espalhar por zonas, evitar repetições
-            // ──────────────────────────────────────────────────────
+            // RepetiÃ§Ã£o muito baixa (~0.6/7)
+            // Foco: espalhar por zonas, evitar repetiÃ§Ãµes
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             case 'timemania': {
-                // ★ v7.0: Penalização MODERADA — 0.45 (era 0.12)
-                // Loteria é aleatória: não penalizar demais o último sorteio
+                // â˜… v7.0: PenalizaÃ§Ã£o MODERADA â€” 0.45 (era 0.12)
+                // Loteria Ã© aleatÃ³ria: nÃ£o penalizar demais o Ãºltimo sorteio
                 for (let n = startNum; n <= endNum; n++) {
                     if (lastDraw.has(n)) {
                         scores[n] = 0.45;
@@ -1143,19 +1143,19 @@ class NovaEraEngine {
                 break;
             }
 
-            // ──────────────────────────────────────────────────────
-            // DIA DE SORTE V2.0: 7 de 31 — RECONSTRUÇÃO TOTAL
-            // ★ Foco nos ÚLTIMOS 3 sorteios
-            // ★ Pares que saem juntos (co-ocorrência)
-            // ★ Anti-sequência rigoroso
-            // ★ Mix hot/cold balanceado
-            // ──────────────────────────────────────────────────────
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // DIA DE SORTE V2.0: 7 de 31 â€” RECONSTRUÃ‡ÃƒO TOTAL
+            // â˜… Foco nos ÃšLTIMOS 3 sorteios
+            // â˜… Pares que saem juntos (co-ocorrÃªncia)
+            // â˜… Anti-sequÃªncia rigoroso
+            // â˜… Mix hot/cold balanceado
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             case 'diadesorte': {
                 const ddsExpCycle = 31 / 7; // ~4.4 concursos de ciclo
                 const last3Limit = Math.min(3, N);
                 const last5Limit = Math.min(5, N);
 
-                // ━━ PASSO 1: Contagem nos últimos 3 sorteios (PRIORIDADE MÁXIMA) ━━
+                // â”â” PASSO 1: Contagem nos Ãºltimos 3 sorteios (PRIORIDADE MÃXIMA) â”â”
                 const freq3 = {};
                 for (let n = startNum; n <= endNum; n++) freq3[n] = 0;
                 for (let i = 0; i < last3Limit; i++) {
@@ -1164,7 +1164,7 @@ class NovaEraEngine {
                     }
                 }
 
-                // ━━ PASSO 2: Pares co-ocorrentes nos últimos 10 sorteios ━━
+                // â”â” PASSO 2: Pares co-ocorrentes nos Ãºltimos 10 sorteios â”â”
                 const pairScore = {};
                 const pairLimit = Math.min(10, N);
                 for (let i = 0; i < pairLimit; i++) {
@@ -1180,7 +1180,7 @@ class NovaEraEngine {
                     }
                 }
 
-                // ━━ PASSO 3: Para cada número, calcular score composto ━━
+                // â”â” PASSO 3: Para cada nÃºmero, calcular score composto â”â”
                 for (let n = startNum; n <= endNum; n++) {
                     let totalAppearances = 0;
                     let lastSeen = N;
@@ -1197,10 +1197,10 @@ class NovaEraEngine {
                     const freqRatio = freq / expectedFreq;
                     const delayRatio = lastSeen / ddsExpCycle;
 
-                    // ━━ BASE: Score por ciclo de atraso ━━
+                    // â”â” BASE: Score por ciclo de atraso â”â”
                     let baseScore;
                     if (lastDraw.has(n)) {
-                        // Saiu no último: penalizar mais (evitar repetição excessiva)
+                        // Saiu no Ãºltimo: penalizar mais (evitar repetiÃ§Ã£o excessiva)
                         baseScore = recentHits >= 3 ? 0.40 : 0.45; // v7.1: era 0.20/0.35
                     } else if (delayRatio >= 1.5 && delayRatio <= 3.0) {
                         baseScore = 0.95; // ZONA DE OURO
@@ -1214,18 +1214,18 @@ class NovaEraEngine {
                         baseScore = 0.25;
                     }
 
-                    // ━━ BOOST: Números que mais saíram nos últimos 3 (HOT) ━━
-                    if (freq3[n] >= 3) baseScore = Math.min(1.0, baseScore + 0.35); // Saiu nos 3 últimos!
+                    // â”â” BOOST: NÃºmeros que mais saÃ­ram nos Ãºltimos 3 (HOT) â”â”
+                    if (freq3[n] >= 3) baseScore = Math.min(1.0, baseScore + 0.35); // Saiu nos 3 Ãºltimos!
                     else if (freq3[n] === 2) baseScore = Math.min(1.0, baseScore + 0.20);
                     else if (freq3[n] === 1) baseScore = Math.min(1.0, baseScore + 0.08);
 
-                    // ━━ BOOST: Números que MENOS saíram (COLD com potencial) ━━
-                    // Números frios com boa frequência histórica = candidatos a retornar
+                    // â”â” BOOST: NÃºmeros que MENOS saÃ­ram (COLD com potencial) â”â”
+                    // NÃºmeros frios com boa frequÃªncia histÃ³rica = candidatos a retornar
                     if (freq3[n] === 0 && freqRatio >= 0.9 && delayRatio >= 1.2) {
                         baseScore = Math.min(1.0, baseScore + 0.15); // Frio prestes a esquentar
                     }
 
-                    // ━━ BOOST: Pares — número que co-ocorre com os últimos sorteados ━━
+                    // â”â” BOOST: Pares â€” nÃºmero que co-ocorre com os Ãºltimos sorteados â”â”
                     let pairBonus = 0;
                     for (const lastNum of lastDraw) {
                         if (lastNum === n) continue;
@@ -1236,15 +1236,15 @@ class NovaEraEngine {
                     }
                     baseScore = Math.min(1.0, baseScore + Math.min(0.25, pairBonus));
 
-                    // ━━ PENALIDADE: Anti-sequência (números consecutivos ao último sorteio) ━━
-                    // Se o número está a distância 1 de DOIS ou mais números do último sorteio
+                    // â”â” PENALIDADE: Anti-sequÃªncia (nÃºmeros consecutivos ao Ãºltimo sorteio) â”â”
+                    // Se o nÃºmero estÃ¡ a distÃ¢ncia 1 de DOIS ou mais nÃºmeros do Ãºltimo sorteio
                     let adjCount = 0;
                     for (const lastNum of lastDraw) {
                         if (Math.abs(n - lastNum) === 1) adjCount++;
                     }
-                    if (adjCount >= 2) baseScore *= 0.60; // Penalizar forte se seria sequência
+                    if (adjCount >= 2) baseScore *= 0.60; // Penalizar forte se seria sequÃªncia
 
-                    // Frequência equilibrada = ritmo saudável
+                    // FrequÃªncia equilibrada = ritmo saudÃ¡vel
                     if (freqRatio >= 0.85 && freqRatio <= 1.15) {
                         baseScore *= 1.12;
                     }
@@ -1255,7 +1255,7 @@ class NovaEraEngine {
             }
 
             default: {
-                // Genérico: penalizar repetição, favorecer atrasados
+                // GenÃ©rico: penalizar repetiÃ§Ã£o, favorecer atrasados
                 for (let n = startNum; n <= endNum; n++) {
                     scores[n] = lastDraw.has(n) ? 0.25 : 0.55;
                 }
@@ -1265,33 +1265,33 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════════════╗
-    // ║  ★ CAMADA 9: CONVERGÊNCIA BAYESIANA (Modo Deus)                    ║
-    // ║  P(número | últimos K sorteios) com atualização posterior           ║
-    // ║  Prior uniforme → atualiza com cada sorteio observado              ║
-    // ╚══════════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜… CAMADA 9: CONVERGÃŠNCIA BAYESIANA (Modo Deus)                    â•‘
+    // â•‘  P(nÃºmero | Ãºltimos K sorteios) com atualizaÃ§Ã£o posterior           â•‘
+    // â•‘  Prior uniforme â†’ atualiza com cada sorteio observado              â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _godBayesian(history, startNum, endNum, N, drawSize) {
         const scores = {};
         const totalRange = endNum - startNum + 1;
-        // Prior uniforme com suavização de Laplace
+        // Prior uniforme com suavizaÃ§Ã£o de Laplace
         for (let n = startNum; n <= endNum; n++) scores[n] = 1.0;
         if (N < 3) return this._normalizeScores(scores, startNum, endNum);
 
-        // Atualização Bayesiana: cada sorteio atualiza a posterior
+        // AtualizaÃ§Ã£o Bayesiana: cada sorteio atualiza a posterior
         const limit = Math.min(50, N);
         for (let i = 0; i < limit; i++) {
             const nums = new Set((history[i].numbers || []).concat(history[i].numbers2 || []));
-            // Decaimento temporal — sorteios recentes pesam EXPONENCIALMENTE mais
+            // Decaimento temporal â€” sorteios recentes pesam EXPONENCIALMENTE mais
             const weight = Math.exp(-i * 0.04);
-            // Taxa base: probabilidade de um número sair = drawSize / totalRange
+            // Taxa base: probabilidade de um nÃºmero sair = drawSize / totalRange
             const baseRate = drawSize / totalRange;
 
             for (let n = startNum; n <= endNum; n++) {
                 if (nums.has(n)) {
-                    // Likelihood: apareceu → boost posterior
+                    // Likelihood: apareceu â†’ boost posterior
                     scores[n] *= (1.0 + weight * (1.0 - baseRate));
                 } else {
-                    // Likelihood: NÃO apareceu → reduzir levemente
+                    // Likelihood: NÃƒO apareceu â†’ reduzir levemente
                     scores[n] *= (1.0 - weight * baseRate * 0.3);
                 }
             }
@@ -1301,11 +1301,11 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════════╗
-    // ║  ★ MODO DEUS — CAMADA 10: ANÁLISE POSICIONAL                  ║
-    // ║  Em um resultado ordenado [a,b,c,d,e,f], quais números        ║
-    // ║  tendem a ocupar cada POSIÇÃO? Ex: posição 1 sempre < 15      ║
-    // ╚══════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜… MODO DEUS â€” CAMADA 10: ANÃLISE POSICIONAL                  â•‘
+    // â•‘  Em um resultado ordenado [a,b,c,d,e,f], quais nÃºmeros        â•‘
+    // â•‘  tendem a ocupar cada POSIÃ‡ÃƒO? Ex: posiÃ§Ã£o 1 sempre < 15      â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _godPositional(history, startNum, endNum, N, drawSize) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0;
@@ -1314,7 +1314,7 @@ class NovaEraEngine {
             return scores;
         }
 
-        // Para cada posição (0..drawSize-1), construir distribuição
+        // Para cada posiÃ§Ã£o (0..drawSize-1), construir distribuiÃ§Ã£o
         const limit = Math.min(30, N);
         const positionDist = [];
         for (let p = 0; p < drawSize; p++) positionDist.push({});
@@ -1330,9 +1330,9 @@ class NovaEraEngine {
             }
         }
 
-        // Para cada número: somar P(n aparece em alguma posição)
+        // Para cada nÃºmero: somar P(n aparece em alguma posiÃ§Ã£o)
         for (let p = 0; p < drawSize; p++) {
-            // Normalizar distribuição da posição
+            // Normalizar distribuiÃ§Ã£o da posiÃ§Ã£o
             let total = 0;
             for (const v of Object.values(positionDist[p])) total += v;
             if (total === 0) continue;
@@ -1348,17 +1348,17 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════════╗
-    // ║  ★ MODO DEUS — CAMADA 11: CADEIA DE DEPENDÊNCIA SEQUENCIAL    ║
-    // ║  Quando X apareceu no sorteio N, o que aparece no N+1?         ║
-    // ║  Grafo de transição: "predecessores geram sucessores"          ║
-    // ╚══════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜… MODO DEUS â€” CAMADA 11: CADEIA DE DEPENDÃŠNCIA SEQUENCIAL    â•‘
+    // â•‘  Quando X apareceu no sorteio N, o que aparece no N+1?         â•‘
+    // â•‘  Grafo de transiÃ§Ã£o: "predecessores geram sucessores"          â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _godSequentialChain(history, startNum, endNum, N) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
         if (N < 5) return scores;
 
-        // Construir grafo de transição: predecessor[X] → sucessor[Y]
+        // Construir grafo de transiÃ§Ã£o: predecessor[X] â†’ sucessor[Y]
         const transitions = {}; // transitions[X] = { Y: count, Z: count, ... }
         const limit = Math.min(40, N - 1);
 
@@ -1377,14 +1377,14 @@ class NovaEraEngine {
             }
         }
 
-        // Dado o ÚLTIMO sorteio, projetar o próximo
+        // Dado o ÃšLTIMO sorteio, projetar o prÃ³ximo
         const lastDraw = (history[0].numbers || []).concat(history[0].numbers2 || []);
         const projectedScores = {};
         for (let n = startNum; n <= endNum; n++) projectedScores[n] = 0;
 
         for (const pred of lastDraw) {
             if (transitions[pred]) {
-                // Normalizar transições deste predecessor
+                // Normalizar transiÃ§Ãµes deste predecessor
                 let total = 0;
                 for (const v of Object.values(transitions[pred])) total += v;
                 if (total === 0) continue;
@@ -1406,63 +1406,63 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════════╗
-    // ║  ★ MODO DEUS — CAMADA 12: MOMENTUM DE SOMA E PARIDADE         ║
-    // ║  Se soma subiu 3x seguidas, tende a descer → boost baixos     ║
-    // ║  Se paridade desequilibrou, tende a corrigir                   ║
-    // ╚══════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜… MODO DEUS â€” CAMADA 12: MOMENTUM DE SOMA E PARIDADE         â•‘
+    // â•‘  Se soma subiu 3x seguidas, tende a descer â†’ boost baixos     â•‘
+    // â•‘  Se paridade desequilibrou, tende a corrigir                   â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _godMomentum(history, startNum, endNum, N, drawSize) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
         if (N < 5) return scores;
 
-        // ━━━ Análise de momentum de SOMA ━━━
+        // â”â”â” AnÃ¡lise de momentum de SOMA â”â”â”
         const sums = [];
         for (let i = 0; i < Math.min(10, N); i++) {
             const nums = history[i].numbers || [];
             sums.push(nums.reduce((a, b) => a + b, 0));
         }
 
-        // Direção: soma subindo ou descendo?
+        // DireÃ§Ã£o: soma subindo ou descendo?
         let sumTrend = 0;
         for (let i = 0; i < sums.length - 1; i++) {
             sumTrend += (sums[i] > sums[i + 1]) ? 1 : -1;
         }
 
-        // Soma média esperada
+        // Soma mÃ©dia esperada
         const avgSum = (startNum + endNum) / 2 * drawSize;
         const lastSum = sums[0] || avgSum;
         const sumDeviation = lastSum - avgSum; // > 0 = soma alta, < 0 = soma baixa
 
-        // Se soma está alta e subindo → boost números BAIXOS (regressão)
-        // Se soma está baixa e descendo → boost números ALTOS (regressão)
+        // Se soma estÃ¡ alta e subindo â†’ boost nÃºmeros BAIXOS (regressÃ£o)
+        // Se soma estÃ¡ baixa e descendo â†’ boost nÃºmeros ALTOS (regressÃ£o)
         const midPoint = (startNum + endNum) / 2;
         for (let n = startNum; n <= endNum; n++) {
             let momentum = 0;
             if (sumDeviation > 0 && sumTrend > 0) {
-                // Soma alta + subindo → boost baixos (regressão à média)
+                // Soma alta + subindo â†’ boost baixos (regressÃ£o Ã  mÃ©dia)
                 momentum = (midPoint - n) / (endNum - startNum) * 0.4;
             } else if (sumDeviation < 0 && sumTrend < 0) {
-                // Soma baixa + descendo → boost altos
+                // Soma baixa + descendo â†’ boost altos
                 momentum = (n - midPoint) / (endNum - startNum) * 0.4;
             }
             scores[n] = 0.5 + momentum;
         }
 
-        // ━━━ Análise de paridade ━━━
+        // â”â”â” AnÃ¡lise de paridade â”â”â”
         const lastNums = history[0].numbers || [];
         const evens = lastNums.filter(n => n % 2 === 0).length;
         const odds = lastNums.length - evens;
         const parityRatio = evens / Math.max(1, lastNums.length);
 
-        // Paridade desequilibrada → boost para o lado fraco
+        // Paridade desequilibrada â†’ boost para o lado fraco
         if (parityRatio > 0.65) {
-            // Muitos pares → boost ímpares
+            // Muitos pares â†’ boost Ã­mpares
             for (let n = startNum; n <= endNum; n++) {
                 if (n % 2 !== 0) scores[n] = Math.min(1.0, scores[n] + 0.15);
             }
         } else if (parityRatio < 0.35) {
-            // Muitos ímpares → boost pares
+            // Muitos Ã­mpares â†’ boost pares
             for (let n = startNum; n <= endNum; n++) {
                 if (n % 2 === 0) scores[n] = Math.min(1.0, scores[n] + 0.15);
             }
@@ -1471,24 +1471,24 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════════════════╗
-    // ║  ★ QUANTUM L99 — CAMADA 13: ESPELHO TEMPORAL                          ║
-    // ║  Compara padrão dos últimos 3 sorteios com TODOS os padrões do        ║
-    // ║  histórico. O sorteio que SEGUIU o padrão mais similar é a projeção.  ║
-    // ╚══════════════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜… QUANTUM L99 â€” CAMADA 13: ESPELHO TEMPORAL                          â•‘
+    // â•‘  Compara padrÃ£o dos Ãºltimos 3 sorteios com TODOS os padrÃµes do        â•‘
+    // â•‘  histÃ³rico. O sorteio que SEGUIU o padrÃ£o mais similar Ã© a projeÃ§Ã£o.  â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _quantumTemporalMirror(history, startNum, endNum, N, drawSize) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
         if (N < 6) return scores;
 
-        // Extrair "impressão digital" dos últimos 3 sorteios
+        // Extrair "impressÃ£o digital" dos Ãºltimos 3 sorteios
         const fingerprint = [];
         for (let i = 0; i < 3; i++) {
             const nums = history[i].numbers || [];
             fingerprint.push(new Set(nums));
         }
 
-        // Calcular similaridade com cada janela de 3 no histórico
+        // Calcular similaridade com cada janela de 3 no histÃ³rico
         const limit = Math.min(N - 3, 35);
         let bestSim = 0;
         let bestFollowIdx = -1;
@@ -1507,7 +1507,7 @@ class NovaEraEngine {
             similarity /= 3; // Normalizar [0, 1]
 
             if (similarity > 0.2) {
-                // O sorteio que SEGUIU esta janela é a projeção
+                // O sorteio que SEGUIU esta janela Ã© a projeÃ§Ã£o
                 const followIdx = w - 1; // sorteio imediatamente antes da janela
                 if (followIdx >= 0 && followIdx < w) {
                     candidates.push({ idx: followIdx, sim: similarity });
@@ -1544,21 +1544,21 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════════════════╗
-    // ║  ★ QUANTUM L99 — CAMADA 14: ANÁLISE DE LACUNAS (GAP ANALYSIS)         ║
-    // ║  Calcula gap médio entre aparições e identifica números que estão      ║
-    // ║  EXATAMENTE no ponto ótimo de retorno estatístico                      ║
-    // ╚══════════════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜… QUANTUM L99 â€” CAMADA 14: ANÃLISE DE LACUNAS (GAP ANALYSIS)         â•‘
+    // â•‘  Calcula gap mÃ©dio entre apariÃ§Ãµes e identifica nÃºmeros que estÃ£o      â•‘
+    // â•‘  EXATAMENTE no ponto Ã³timo de retorno estatÃ­stico                      â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _quantumGapAnalysis(history, startNum, endNum, N, drawSize, totalRange) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
         if (N < 10) return scores;
 
         const limit = Math.min(N, 40);
-        const expectedGap = totalRange / drawSize; // Gap teórico
+        const expectedGap = totalRange / drawSize; // Gap teÃ³rico
 
         for (let n = startNum; n <= endNum; n++) {
-            // Encontrar TODAS as aparições e calcular gaps
+            // Encontrar TODAS as apariÃ§Ãµes e calcular gaps
             const appearances = [];
             for (let i = 0; i < limit; i++) {
                 const nums = (history[i].numbers || []).concat(history[i].numbers2 || []);
@@ -1566,35 +1566,35 @@ class NovaEraEngine {
             }
 
             if (appearances.length < 2) {
-                // Nunca ou quase nunca apareceu — número muito atrasado
+                // Nunca ou quase nunca apareceu â€” nÃºmero muito atrasado
                 scores[n] = 0.75; // Boost moderado
                 continue;
             }
 
-            // Calcular gap médio real
+            // Calcular gap mÃ©dio real
             let totalGap = 0;
             for (let j = 0; j < appearances.length - 1; j++) {
                 totalGap += appearances[j + 1] - appearances[j];
             }
             const avgGap = totalGap / (appearances.length - 1);
 
-            // Calcular gap atual (desde última aparição)
+            // Calcular gap atual (desde Ãºltima apariÃ§Ã£o)
             const currentGap = appearances[0]; // Quantos sorteios desde que saiu
 
-            // ★ PONTO ÓTIMO: quando currentGap ≈ avgGap (número "devendo")
+            // â˜… PONTO Ã“TIMO: quando currentGap â‰ˆ avgGap (nÃºmero "devendo")
             const ratio = currentGap / avgGap;
 
             if (ratio >= 0.85 && ratio <= 1.5) {
-                // No ponto IDEAL de retorno — score máximo
+                // No ponto IDEAL de retorno â€” score mÃ¡ximo
                 scores[n] = 0.95;
             } else if (ratio >= 1.5 && ratio <= 2.5) {
-                // Muito atrasado — bom candidato
+                // Muito atrasado â€” bom candidato
                 scores[n] = 0.85;
             } else if (ratio >= 0.5 && ratio < 0.85) {
-                // Saiu recentemente — score baixo
+                // Saiu recentemente â€” score baixo
                 scores[n] = 0.35;
             } else if (ratio > 2.5) {
-                // Extremamente atrasado — pode ter mudado de padrão
+                // Extremamente atrasado â€” pode ter mudado de padrÃ£o
                 scores[n] = 0.65;
             } else {
                 scores[n] = 0.25; // Saiu muito recentemente
@@ -1604,17 +1604,17 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════════════════╗
-    // ║  ★ QUANTUM L99 — CAMADA 15: CLUSTERS DE CO-OCORRÊNCIA                 ║
-    // ║  Identifica PARES de números que historicamente saem JUNTOS            ║
-    // ║  Dado o último sorteio, quais pares tendem a se repetir?              ║
-    // ╚══════════════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜… QUANTUM L99 â€” CAMADA 15: CLUSTERS DE CO-OCORRÃŠNCIA                 â•‘
+    // â•‘  Identifica PARES de nÃºmeros que historicamente saem JUNTOS            â•‘
+    // â•‘  Dado o Ãºltimo sorteio, quais pares tendem a se repetir?              â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _quantumClusters(history, startNum, endNum, N, drawSize) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
         if (N < 5) return scores;
 
-        // Construir matriz de co-ocorrência ponderada
+        // Construir matriz de co-ocorrÃªncia ponderada
         const coMatrix = {};
         const limit = Math.min(N, 30);
 
@@ -1632,7 +1632,7 @@ class NovaEraEngine {
             }
         }
 
-        // Dado o ÚLTIMO sorteio: quais números têm forte co-ocorrência?
+        // Dado o ÃšLTIMO sorteio: quais nÃºmeros tÃªm forte co-ocorrÃªncia?
         const lastDraw = (history[0].numbers || []).concat(history[0].numbers2 || []);
         const coScores = {};
         for (let n = startNum; n <= endNum; n++) coScores[n] = 0;
@@ -1661,22 +1661,22 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════════════════╗
-    // ║  ★ QUANTUM L99 — CAMADA 16: REGRESSÃO À MÉDIA PONDERADA               ║
-    // ║  Para cada número: frequência real vs teórica esperada                 ║
-    // ║  Números sub-representados tendem a CORRIGIR → são apostáveis         ║
-    // ╚══════════════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜… QUANTUM L99 â€” CAMADA 16: REGRESSÃƒO Ã€ MÃ‰DIA PONDERADA               â•‘
+    // â•‘  Para cada nÃºmero: frequÃªncia real vs teÃ³rica esperada                 â•‘
+    // â•‘  NÃºmeros sub-representados tendem a CORRIGIR â†’ sÃ£o apostÃ¡veis         â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _quantumMeanReversion(history, startNum, endNum, N, drawSize, totalRange) {
         const scores = {};
         for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
         if (N < 10) return scores;
 
         const limit = Math.min(N, 40);
-        const expectedFreq = (drawSize / totalRange) * limit; // Frequência esperada
+        const expectedFreq = (drawSize / totalRange) * limit; // FrequÃªncia esperada
 
-        // Contar frequência real e nas janelas recentes
+        // Contar frequÃªncia real e nas janelas recentes
         const freqTotal = {};
-        const freqRecent = {}; // Últimos 10
+        const freqRecent = {}; // Ãšltimos 10
         for (let n = startNum; n <= endNum; n++) { freqTotal[n] = 0; freqRecent[n] = 0; }
 
         for (let i = 0; i < limit; i++) {
@@ -1695,7 +1695,7 @@ class NovaEraEngine {
             const deviationTotal = (freqTotal[n] - expectedFreq) / Math.max(1, expectedFreq);
             const deviationRecent = (freqRecent[n] - expectedRecent) / Math.max(1, expectedRecent);
 
-            // ★ REGRESSÃO: números que estão ABAIXO da média tendem a subir
+            // â˜… REGRESSÃƒO: nÃºmeros que estÃ£o ABAIXO da mÃ©dia tendem a subir
             if (deviationTotal < -0.3 && deviationRecent < -0.2) {
                 // Fortemente sub-representado em ambas janelas
                 scores[n] = 0.90;
@@ -1703,12 +1703,12 @@ class NovaEraEngine {
                 // Moderadamente sub-representado
                 scores[n] = 0.75;
             } else if (deviationTotal > 0.3 && deviationRecent > 0.2) {
-                // Sobre-representado → tende a cair
+                // Sobre-representado â†’ tende a cair
                 scores[n] = 0.25;
             } else if (deviationTotal > 0.15) {
                 scores[n] = 0.40;
             } else {
-                // Na média — score neutro
+                // Na mÃ©dia â€” score neutro
                 scores[n] = 0.55;
             }
         }
@@ -1716,18 +1716,18 @@ class NovaEraEngine {
         return this._normalizeScores(scores, startNum, endNum);
     }
 
-    // ╔══════════════════════════════════════════════════════════════════════════════╗
-    // ║  ★★★ SÍNTESE QUANTUM L99 — 18 CAMADAS DE PREDIÇÃO ★★★                    ║
-    // ║  8 camadas clássicas + 4 Modo Deus + 4 QUANTUM L99                        ║
-    // ║  + Precision Calibrator + Pattern DNA                                      ║
-    // ║  + Filtro Combinatório Final (validação estrutural = Camada 19)            ║
-    // ║  CALIBRAÇÃO DINÂMICA com cross-validation de 12 sorteios                   ║
-    // ╚══════════════════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜…â˜…â˜… SÃNTESE QUANTUM L99 â€” 18 CAMADAS DE PREDIÃ‡ÃƒO â˜…â˜…â˜…                    â•‘
+    // â•‘  8 camadas clÃ¡ssicas + 4 Modo Deus + 4 QUANTUM L99                        â•‘
+    // â•‘  + Precision Calibrator + Pattern DNA                                      â•‘
+    // â•‘  + Filtro CombinatÃ³rio Final (validaÃ§Ã£o estrutural = Camada 19)            â•‘
+    // â•‘  CALIBRAÃ‡ÃƒO DINÃ‚MICA com cross-validation de 12 sorteios                   â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange) {
         const N = history.length;
         const drawSize = profile.lotteryDraw;
 
-        // ━━━ CAMADAS 1-8: Base NE-V1 ━━━
+        // â”â”â” CAMADAS 1-8: Base NE-V1 â”â”â”
         const freqScores = this._layerFrequency(history, startNum, endNum, N);
         const trendScores = this._layerTrend(history, startNum, endNum, N);
         const delayScores = this._layerDelay(history, startNum, endNum, N, drawSize, totalRange);
@@ -1737,19 +1737,19 @@ class NovaEraEngine {
         const clairScores = this._layerClairvoyance(history, startNum, endNum, N, drawSize);
         const nextDrawScores = this._layerNextDraw(gameKey, history, startNum, endNum, N, profile);
 
-        // ━━━ CAMADAS 9-12: MODO DEUS ━━━
+        // â”â”â” CAMADAS 9-12: MODO DEUS â”â”â”
         const bayesianScores = this._godBayesian(history, startNum, endNum, N, drawSize);
         const positionalScores = this._godPositional(history, startNum, endNum, N, drawSize);
         const sequentialScores = this._godSequentialChain(history, startNum, endNum, N);
         const momentumScores = this._godMomentum(history, startNum, endNum, N, drawSize);
 
-        // ━━━ CAMADAS 13-16: QUANTUM L99 ━━━
+        // â”â”â” CAMADAS 13-16: QUANTUM L99 â”â”â”
         const mirrorScores = this._quantumTemporalMirror(history, startNum, endNum, N, drawSize);
         const gapScores = this._quantumGapAnalysis(history, startNum, endNum, N, drawSize, totalRange);
         const clusterScores = this._quantumClusters(history, startNum, endNum, N, drawSize);
         const reversionScores = this._quantumMeanReversion(history, startNum, endNum, N, drawSize, totalRange);
 
-        // ━━━ CAMADA 17: PRECISION CALIBRATOR — Futurologia dos Últimos 3 ━━━
+        // â”â”â” CAMADA 17: PRECISION CALIBRATOR â€” Futurologia dos Ãšltimos 3 â”â”â”
         let precisionScores = {};
         for (let n = startNum; n <= endNum; n++) precisionScores[n] = 0.5;
         if (typeof PrecisionCalibrator !== 'undefined' && N >= 4) {
@@ -1760,23 +1760,23 @@ class NovaEraEngine {
                     precisionScores[n] = (last3Trends[n] || 0) * 0.6 + (conditionalProb[n] || 0) * 0.4;
                 }
                 precisionScores = this._normalizeScores(precisionScores, startNum, endNum);
-                console.log('[QUANTUM-L99] ★ CAMADA 17 (Precision Calibrator) — Futurologia ativada');
+                console.log('[QUANTUM-L99] â˜… CAMADA 17 (Precision Calibrator) â€” Futurologia ativada');
             } catch (e) {
-                console.warn('[QUANTUM-L99] ⚠ Camada 17 falhou:', e.message);
+                console.warn('[QUANTUM-L99] âš  Camada 17 falhou:', e.message);
             }
         }
 
-        // ━━━ CAMADA 18: PATTERN DNA — Aprender com o Passado para Prever o Futuro ━━━
-        // Analisa: o que os números SORTEADOS tinham de ESPECIAL?
-        // Por que ESSES números saíram e não outros?
-        // Projeta essas mesmas condições para o PRÓXIMO sorteio
+        // â”â”â” CAMADA 18: PATTERN DNA â€” Aprender com o Passado para Prever o Futuro â”â”â”
+        // Analisa: o que os nÃºmeros SORTEADOS tinham de ESPECIAL?
+        // Por que ESSES nÃºmeros saÃ­ram e nÃ£o outros?
+        // Projeta essas mesmas condiÃ§Ãµes para o PRÃ“XIMO sorteio
         let patternDnaScores = {};
         for (let n = startNum; n <= endNum; n++) patternDnaScores[n] = 0.5;
         if (N >= 5) {
-            const analysisWindow = Math.min(15, N); // Últimos 15 sorteios
+            const analysisWindow = Math.min(15, N); // Ãšltimos 15 sorteios
             
-            // ━━ PASSO 1: Para cada sorteio passado, extrair o "DNA" dos números que saíram ━━
-            // DNA = {gapMédio, zonaDistribuição, paridadeRatio, somaRelativa, vizinhança}
+            // â”â” PASSO 1: Para cada sorteio passado, extrair o "DNA" dos nÃºmeros que saÃ­ram â”â”
+            // DNA = {gapMÃ©dio, zonaDistribuiÃ§Ã£o, paridadeRatio, somaRelativa, vizinhanÃ§a}
             const winningDNA = [];
             for (let i = 0; i < analysisWindow; i++) {
                 const nums = (history[i].numbers || []).sort((a, b) => a - b);
@@ -1790,18 +1790,18 @@ class NovaEraEngine {
                 const evens = nums.filter(x => x % 2 === 0).length;
                 const paridadeRatio = evens / nums.length;
                 
-                // Gaps entre números consecutivos no jogo
+                // Gaps entre nÃºmeros consecutivos no jogo
                 const gaps = [];
                 for (let j = 1; j < nums.length; j++) gaps.push(nums[j] - nums[j-1]);
                 const avgGap = gaps.length > 0 ? gaps.reduce((a, b) => a + b, 0) / gaps.length : 0;
                 
-                // Zona dominante — v7.1: usar zonas reais do perfil
+                // Zona dominante â€” v7.1: usar zonas reais do perfil
                 const dnaZoneCount = Math.min(profile.zones || 4, 10);
                 const zones = nums.map(x => Math.floor((x - startNum) / (totalRange / dnaZoneCount)));
                 const zoneFreq = new Array(dnaZoneCount).fill(0);
                 for (const z of zones) zoneFreq[Math.min(dnaZoneCount - 1, z)]++;
                 
-                // Atraso médio dos números no momento que saíram
+                // Atraso mÃ©dio dos nÃºmeros no momento que saÃ­ram
                 let avgDelay = 0;
                 if (i + 1 < N) {
                     for (const n of nums) {
@@ -1820,9 +1820,9 @@ class NovaEraEngine {
                 });
             }
             
-            // ━━ PASSO 2: Calcular o "DNA IDEAL" — média ponderada dos últimos sorteios ━━
+            // â”â” PASSO 2: Calcular o "DNA IDEAL" â€” mÃ©dia ponderada dos Ãºltimos sorteios â”â”
             let idealSoma = 0, idealParidade = 0, idealGap = 0, idealDelay = 0;
-            // v7.1: usar profile.zones real ao invés de 4 hardcoded
+            // v7.1: usar profile.zones real ao invÃ©s de 4 hardcoded
             const dnaZones = Math.min(profile.zones || 4, 10);
             const idealZone = new Array(dnaZones).fill(0);
             let totalWeight = 0;
@@ -1843,7 +1843,7 @@ class NovaEraEngine {
                 for (let z = 0; z < dnaZones; z++) idealZone[z] /= totalWeight;
             }
             
-            // ━━ PASSO 3: Para cada número candidato, calcular "afinidade DNA" ━━
+            // â”â” PASSO 3: Para cada nÃºmero candidato, calcular "afinidade DNA" â”â”
             // Quanto mais parecido com o DNA ideal, maior o score
             for (let n = startNum; n <= endNum; n++) {
                 let score = 0.5;
@@ -1860,14 +1860,14 @@ class NovaEraEngine {
                 const delayMatch = 1.0 - Math.min(1.0, Math.abs(currentDelay - idealDelay) / Math.max(1, idealDelay * 2));
                 score += delayMatch * 0.30;
                 
-                // B) ZONA — número está na zona que os vencedores preferem?
+                // B) ZONA â€” nÃºmero estÃ¡ na zona que os vencedores preferem?
                 const nZone = Math.min(dnaZones - 1, Math.floor((n - startNum) / (totalRange / dnaZones)));
                 const zoneAffinity = idealZone[nZone] / Math.max(0.1, Math.max(...idealZone));
                 score += zoneAffinity * 0.20;
                 
-                // C) VIZINHANÇA VENCEDORA — nos últimos sorteios, este número estava PERTO dos que saíram?
+                // C) VIZINHANÃ‡A VENCEDORA â€” nos Ãºltimos sorteios, este nÃºmero estava PERTO dos que saÃ­ram?
                 let neighborBonus = 0;
-                for (const dna of winningDNA.slice(0, 5)) { // Últimos 5
+                for (const dna of winningDNA.slice(0, 5)) { // Ãšltimos 5
                     for (const wn of dna.nums) {
                         if (Math.abs(n - wn) <= 3 && Math.abs(n - wn) > 0) {
                             neighborBonus += dna.weight * 0.08;
@@ -1876,7 +1876,7 @@ class NovaEraEngine {
                 }
                 score += Math.min(0.25, neighborBonus);
                 
-                // D) PADRÃO DE RETORNO — após sair, quantos sorteios até voltar? (ciclo individual)
+                // D) PADRÃƒO DE RETORNO â€” apÃ³s sair, quantos sorteios atÃ© voltar? (ciclo individual)
                 const appearances = [];
                 for (let i = 0; i < Math.min(30, N); i++) {
                     if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) {
@@ -1890,28 +1890,28 @@ class NovaEraEngine {
                     }
                     avgCycle /= (appearances.length - 1);
                     const cycleMatch = 1.0 - Math.min(1.0, Math.abs(currentDelay - avgCycle) / Math.max(1, avgCycle));
-                    score += cycleMatch * 0.25; // Ponto ótimo de retorno
+                    score += cycleMatch * 0.25; // Ponto Ã³timo de retorno
                 }
                 
                 patternDnaScores[n] = score;
             }
             
             patternDnaScores = this._normalizeScores(patternDnaScores, startNum, endNum);
-            console.log('[QUANTUM-L99] ★ CAMADA 18 (Pattern DNA) — Aprendendo com o passado para prever o futuro');
+            console.log('[QUANTUM-L99] â˜… CAMADA 18 (Pattern DNA) â€” Aprendendo com o passado para prever o futuro');
             console.log('[QUANTUM-L99]    DNA Ideal: soma=' + idealSoma.toFixed(2) + ' | paridade=' + idealParidade.toFixed(2) + ' | gap=' + idealGap.toFixed(1) + ' | delay=' + idealDelay.toFixed(1));
         }
 
-        // ━━━ CAMADA 19: DUPLAS E TRIOS FREQUENTES — Futurologia Combinatória ━━━
-        // Analisa PARES e TRIOS que mais saíram JUNTOS historicamente
-        // Projeta quais combinações têm maior probabilidade de repetir
-        // Cada número ganha score baseado em quantas duplas/trios TOP ele compõe
+        // â”â”â” CAMADA 19: DUPLAS E TRIOS FREQUENTES â€” Futurologia CombinatÃ³ria â”â”â”
+        // Analisa PARES e TRIOS que mais saÃ­ram JUNTOS historicamente
+        // Projeta quais combinaÃ§Ãµes tÃªm maior probabilidade de repetir
+        // Cada nÃºmero ganha score baseado em quantas duplas/trios TOP ele compÃµe
         let pairTrioScores = {};
         for (let n = startNum; n <= endNum; n++) pairTrioScores[n] = 0.5;
         if (N >= 8) {
             const pairFreq = {}, trioFreq = {};
             const pairLimit = Math.min(50, N);
             
-            // Contar TODAS as duplas e trios no histórico
+            // Contar TODAS as duplas e trios no histÃ³rico
             for (let t = 0; t < pairLimit; t++) {
                 const nums = (history[t].numbers || []).concat(history[t].numbers2 || [])
                     .filter(x => x >= startNum && x <= endNum)
@@ -1923,7 +1923,7 @@ class NovaEraEngine {
                         const pk = nums[i] + '-' + nums[j];
                         pairFreq[pk] = (pairFreq[pk] || 0) + decay;
                         
-                        // Trios: até 3 posições além de j
+                        // Trios: atÃ© 3 posiÃ§Ãµes alÃ©m de j
                         for (let k = j + 1; k < nums.length && k < j + 5; k++) {
                             const tk = nums[i] + '-' + nums[j] + '-' + nums[k];
                             trioFreq[tk] = (trioFreq[tk] || 0) + decay;
@@ -1936,7 +1936,7 @@ class NovaEraEngine {
             const topPairs = Object.entries(pairFreq).sort((a, b) => b[1] - a[1]).slice(0, 30);
             const topTrios = Object.entries(trioFreq).sort((a, b) => b[1] - a[1]).slice(0, 20);
             
-            // Score: cada número ganha pontos baseado em quantas TOP duplas/trios ele participa
+            // Score: cada nÃºmero ganha pontos baseado em quantas TOP duplas/trios ele participa
             const maxPairScore = topPairs.length > 0 ? topPairs[0][1] : 1;
             for (const [pk, freq] of topPairs) {
                 const [a, b] = pk.split('-').map(Number);
@@ -1954,11 +1954,11 @@ class NovaEraEngine {
                 pairTrioScores[c] = (pairTrioScores[c] || 0.5) + boost;
             }
             
-            // PROJEÇÃO FUTURA: Duplas do último sorteio → quais números acompanham?
+            // PROJEÃ‡ÃƒO FUTURA: Duplas do Ãºltimo sorteio â†’ quais nÃºmeros acompanham?
             if (N >= 2) {
                 const lastNums = (history[0].numbers || []).filter(x => x >= startNum && x <= endNum);
                 for (const ln of lastNums) {
-                    // Encontrar os TOP parceiros deste número
+                    // Encontrar os TOP parceiros deste nÃºmero
                     for (const [pk, freq] of topPairs) {
                         const [a, b] = pk.split('-').map(Number);
                         if (a === ln) pairTrioScores[b] += (freq / maxPairScore) * 0.15;
@@ -1971,14 +1971,14 @@ class NovaEraEngine {
             
             const topPairNums = topPairs.slice(0, 5).map(([pk, f]) => pk + '(' + f.toFixed(1) + ')').join(', ');
             const topTrioNums = topTrios.slice(0, 3).map(([tk, f]) => tk + '(' + f.toFixed(1) + ')').join(', ');
-            console.log('[QUANTUM-L99] ★ CAMADA 19 (Duplas+Trios) — TOP5 Duplas: ' + topPairNums);
+            console.log('[QUANTUM-L99] â˜… CAMADA 19 (Duplas+Trios) â€” TOP5 Duplas: ' + topPairNums);
             console.log('[QUANTUM-L99]    TOP3 Trios: ' + topTrioNums);
         }
 
-        console.log('%c[QUANTUM-L99] ★★★ 21 CAMADAS ATIVADAS — ' + gameKey + ' ★★★', 'color: gold; font-weight: bold;');
+        console.log('%c[QUANTUM-L99] â˜…â˜…â˜… 21 CAMADAS ATIVADAS â€” ' + gameKey + ' â˜…â˜…â˜…', 'color: gold; font-weight: bold;');
 
-        // ━━━ CAMADA 20: CICLO INDIVIDUAL DE RETORNO — Futurologia Temporal ━━━
-        // Cada número tem seu PRÓPRIO RITMO. Score MÁXIMO no ponto ótimo de retorno.
+        // â”â”â” CAMADA 20: CICLO INDIVIDUAL DE RETORNO â€” Futurologia Temporal â”â”â”
+        // Cada nÃºmero tem seu PRÃ“PRIO RITMO. Score MÃXIMO no ponto Ã³timo de retorno.
         let cycleReturnScores = {};
         for (let n = startNum; n <= endNum; n++) cycleReturnScores[n] = 0.5;
         if (N >= 10) {
@@ -2019,11 +2019,11 @@ class NovaEraEngine {
             }
             cycleReturnScores = this._normalizeScores(cycleReturnScores, startNum, endNum);
             const optNums = Object.entries(cycleReturnScores).filter(([,s]) => s > 0.75).sort((a,b) => b[1]-a[1]).slice(0,8).map(([n,s]) => n+'('+s.toFixed(2)+')').join(', ');
-            console.log('[QUANTUM-L99] ★ CAMADA 20 (Ciclo Individual) — Ponto Ótimo: ' + optNums);
+            console.log('[QUANTUM-L99] â˜… CAMADA 20 (Ciclo Individual) â€” Ponto Ã“timo: ' + optNums);
         }
 
-        // ━━━ CAMADA 21: SUPERPOSIÇÃO QUÂNTICA — 5 Cenários Paralelos ━━━
-        // Cada número avaliado em 5 janelas temporais simultâneas. Colapso = score.
+        // â”â”â” CAMADA 21: SUPERPOSIÃ‡ÃƒO QUÃ‚NTICA â€” 5 CenÃ¡rios Paralelos â”â”â”
+        // Cada nÃºmero avaliado em 5 janelas temporais simultÃ¢neas. Colapso = score.
         let quantumSuperScores = {};
         for (let n = startNum; n <= endNum; n++) quantumSuperScores[n] = 0.5;
         if (N >= 8) {
@@ -2058,12 +2058,12 @@ class NovaEraEngine {
             }
             quantumSuperScores = this._normalizeScores(quantumSuperScores, startNum, endNum);
             const topQ = Object.entries(quantumSuperScores).sort((a,b) => b[1]-a[1]).slice(0,6).map(([n,s]) => n+'('+s.toFixed(2)+')').join(', ');
-            console.log('[QUANTUM-L99] ★ CAMADA 21 (Superposição Quântica) — Colapso TOP: ' + topQ);
+            console.log('[QUANTUM-L99] â˜… CAMADA 21 (SuperposiÃ§Ã£o QuÃ¢ntica) â€” Colapso TOP: ' + topQ);
         }
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // ★★★ CONSENSO ENSEMBLE L99 — Votação entre 21 camadas ★★★
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+        // â˜…â˜…â˜… CONSENSO ENSEMBLE L99 â€” VotaÃ§Ã£o entre 21 camadas â˜…â˜…â˜…
+        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
         const allLayers = [
             freqScores, trendScores, delayScores, entropyScores,
             markovScores, phaseScores, clairScores, nextDrawScores,
@@ -2092,12 +2092,12 @@ class NovaEraEngine {
             if (voteCount[n] >= 13) consensusNums.push(n + '(' + voteCount[n] + ')');
         }
         if (consensusNums.length > 0) {
-            console.log('[QUANTUM-L99] ★ CONSENSO 13+/18: ' + consensusNums.join(', '));
+            console.log('[QUANTUM-L99] â˜… CONSENSO 13+/18: ' + consensusNums.join(', '));
         }
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // ★★★ v5.0: Cross-validation 12 sorteios + NDCG ★★★
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+        // â˜…â˜…â˜… v5.0: Cross-validation 12 sorteios + NDCG â˜…â˜…â˜…
+        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
         const NUM_LAYERS = 21;
         let dynamicBoosts = new Array(NUM_LAYERS).fill(1.0);
         if (N >= 8) {
@@ -2145,7 +2145,7 @@ class NovaEraEngine {
                     testLayers.push({});
                 }
 
-                // Camada 18: Pattern DNA (simplificado para CV — frequência de co-ocorrência)
+                // Camada 18: Pattern DNA (simplificado para CV â€” frequÃªncia de co-ocorrÃªncia)
                 try {
                     const cvDna = {};
                     for (let n = startNum; n <= endNum; n++) cvDna[n] = 0.5;
@@ -2159,7 +2159,7 @@ class NovaEraEngine {
                     testLayers.push(this._normalizeScores(cvDna, startNum, endNum));
                 } catch(e) { testLayers.push({}); }
 
-                // Camada 19: Duplas+Trios (simplificado para CV — top pares)
+                // Camada 19: Duplas+Trios (simplificado para CV â€” top pares)
                 try {
                     const cvPair = {};
                     for (let n = startNum; n <= endNum; n++) cvPair[n] = 0.5;
@@ -2185,7 +2185,7 @@ class NovaEraEngine {
                     testLayers.push(this._normalizeScores(cvPair, startNum, endNum));
                 } catch(e) { testLayers.push({}); }
 
-                // Camada 20: Ciclo Individual (simplificado — atraso individual)
+                // Camada 20: Ciclo Individual (simplificado â€” atraso individual)
                 try {
                     const cvCycle = {};
                     for (let n = startNum; n <= endNum; n++) {
@@ -2200,7 +2200,7 @@ class NovaEraEngine {
                     testLayers.push(this._normalizeScores(cvCycle, startNum, endNum));
                 } catch(e) { testLayers.push({}); }
 
-                // Camada 21: Superposição Quântica (simplificado — consenso das outras camadas)
+                // Camada 21: SuperposiÃ§Ã£o QuÃ¢ntica (simplificado â€” consenso das outras camadas)
                 try {
                     const cvQuantum = {};
                     for (let n = startNum; n <= endNum; n++) {
@@ -2221,7 +2221,7 @@ class NovaEraEngine {
                         .sort((a, b) => b[1] - a[1])
                         .slice(0, Math.ceil(drawSize * 3.0)) // v7.1: drawSize*3 para capturar mais candidatos
                         .map(e => parseInt(e[0]));
-                    // v7.1: NDCG com boost 1.8 (era 1.2) — camadas boas ganham MAIS peso
+                    // v7.1: NDCG com boost 1.8 (era 1.2) â€” camadas boas ganham MAIS peso
                     let ndcgScore = 0;
                     for (let r = 0; r < layerTop.length; r++) {
                         if (actualResult.has(layerTop[r])) {
@@ -2234,32 +2234,32 @@ class NovaEraEngine {
 
             const avgBoost = dynamicBoosts.reduce((a, b) => a + b, 0) / NUM_LAYERS;
             for (let L = 0; L < NUM_LAYERS; L++) {
-                // v9.5: Camadas 16+ (Precision, DNA, PairTrio, Cycle, Quantum) recebem boost mínimo 1.0
-                // porque não são adequadamente testadas na CV
+                // v9.5: Camadas 16+ (Precision, DNA, PairTrio, Cycle, Quantum) recebem boost mÃ­nimo 1.0
+                // porque nÃ£o sÃ£o adequadamente testadas na CV
                 const minBoost = (L >= 16) ? 1.0 : 0.5;
                 dynamicBoosts[L] = Math.max(minBoost, dynamicBoosts[L] / avgBoost);
             }
 
             const names = ['freq','trend','delay','zone','markov','phase','clair','next','bayes','posit','seq','mom','mirror','gap','cluster','revert','prec','dna','pairs','cycle','qsuper'];
             const boostStr = dynamicBoosts.map((b, i) => names[i] + '=' + b.toFixed(2)).join(' ');
-            console.log('[QUANTUM-L99] ★ v9.5 CALIBRAÇÃO (12-fold NDCG, 21 camadas): ' + boostStr);
+            console.log('[QUANTUM-L99] â˜… v9.5 CALIBRAÃ‡ÃƒO (12-fold NDCG, 21 camadas): ' + boostStr);
         }
 
-        // ━━━ PESOS QUANTUM L99 ━━━
+        // â”â”â” PESOS QUANTUM L99 â”â”â”
         const weights = this._getGodModeWeights(gameKey);
 
         const scores = {};
         const [clampMin, clampMax] = profile.scoreClamp;
 
-        // ★ PRECISION v2.0: peso da camada 17 (precision)
+        // â˜… PRECISION v2.0: peso da camada 17 (precision)
         const precisionWeight = weights.precision || 0.12;
-        // ★ V4.0: peso da camada 18 (Pattern DNA — aprender com o passado)
+        // â˜… V4.0: peso da camada 18 (Pattern DNA â€” aprender com o passado)
         const dnaWeight = weights.patternDna || 0.12;
-        // ★ v9.0: peso da camada 19 (Duplas + Trios Frequentes)
+        // â˜… v9.0: peso da camada 19 (Duplas + Trios Frequentes)
         const pairTrioWeight = weights.pairTrio || 0.10;
-        // ★ v9.5: peso da camada 20 (Ciclo Individual de Retorno)
+        // â˜… v9.5: peso da camada 20 (Ciclo Individual de Retorno)
         const cycleWeight = weights.cycleReturn || 0.08;
-        // ★ v9.5: peso da camada 21 (Superposição Quântica)
+        // â˜… v9.5: peso da camada 21 (SuperposiÃ§Ã£o QuÃ¢ntica)
         const quantumSuperWeight = weights.quantumSuper || 0.08;
 
         for (let n = startNum; n <= endNum; n++) {
@@ -2285,7 +2285,7 @@ class NovaEraEngine {
                     + (cycleReturnScores[n] || 0) * cycleWeight * dynamicBoosts[19]
                     + (quantumSuperScores[n] || 0) * quantumSuperWeight * dynamicBoosts[20];
 
-            // ★ v9.5: CONSENSO para 21 camadas
+            // â˜… v9.5: CONSENSO para 21 camadas
             const votes = voteCount[n] || 0;
             if (votes >= 20) raw *= 1.28;
             else if (votes >= 18) raw *= 1.22;
@@ -2296,30 +2296,30 @@ class NovaEraEngine {
             else if (votes >= 4) raw *= 0.90;
             else raw *= 0.85;
 
-            // ★ v7.0: Score FLOOR — nenhum número pode ser eliminado
+            // â˜… v7.0: Score FLOOR â€” nenhum nÃºmero pode ser eliminado
             scores[n] = Math.max(clampMin + 0.15, Math.min(clampMax, raw + 1.0));
         }
 
         const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
         const top5 = sorted.slice(0, 5).map(e => e[0] + '(' + e[1].toFixed(2) + '/v' + voteCount[parseInt(e[0])] + ')').join(', ');
         const bot5 = sorted.slice(-5).map(e => e[0] + '(' + e[1].toFixed(2) + ')').join(', ');
-        console.log('[QUANTUM-L99] ★ Top5: ' + top5 + ' | ⬇ Bot5: ' + bot5);
+        console.log('[QUANTUM-L99] â˜… Top5: ' + top5 + ' | â¬‡ Bot5: ' + bot5);
 
         return scores;
     }
 
-    // ╔══════════════════════════════════════════════════════════════════════════╗
-    // ║  ★★★ PESOS QUANTUM L99 v9.5 — 22 DIMENSÕES POR LOTERIA ★★★            ║
-    // ║  + Camada 17: PRECISION (Futurologia dos últimos 3)                    ║
-    // ║  + Camada 18: PATTERN DNA (Aprender com o passado)                     ║
-    // ║  + Camada 19: PAIR TRIO (Duplas e Trios Frequentes)                    ║
-    // ║  + Camada 20: CYCLE RETURN (Ritmo Individual de Retorno)               ║
-    // ║  + Camada 21: QUANTUM SUPER (Superposição Multi-Cenário)               ║
-    // ╚══════════════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜…â˜…â˜… PESOS QUANTUM L99 v9.5 â€” 22 DIMENSÃ•ES POR LOTERIA â˜…â˜…â˜…            â•‘
+    // â•‘  + Camada 17: PRECISION (Futurologia dos Ãºltimos 3)                    â•‘
+    // â•‘  + Camada 18: PATTERN DNA (Aprender com o passado)                     â•‘
+    // â•‘  + Camada 19: PAIR TRIO (Duplas e Trios Frequentes)                    â•‘
+    // â•‘  + Camada 20: CYCLE RETURN (Ritmo Individual de Retorno)               â•‘
+    // â•‘  + Camada 21: QUANTUM SUPER (SuperposiÃ§Ã£o Multi-CenÃ¡rio)               â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _getGodModeWeights(gameKey) {
-        // ★ v10.0 RECALIBRADO: Pesos baseados em valor estatístico REAL
+        // â˜… v10.0 RECALIBRADO: Pesos baseados em valor estatÃ­stico REAL
         // Camadas estruturais (zone, gap, cluster, pairTrio, DNA, precision) = ~73%
-        // Camadas falaciais (freq, delay, markov, phase, reversion) = ~12% (ruído para diversidade)
+        // Camadas falaciais (freq, delay, markov, phase, reversion) = ~12% (ruÃ­do para diversidade)
         // Camadas ensemble (cycleReturn, quantumSuper, nextDraw) = ~15%
         const calibrations = {
 
@@ -2404,7 +2404,7 @@ class NovaEraEngine {
         const w = calibrations[gameKey] || calibrations.megasena;
         const structPct = ((w.zone + w.gap + w.cluster + w.pairTrio + w.patternDna + w.precision) * 100).toFixed(0);
         const fallacyPct = ((w.frequency + w.delay + w.trend + w.markov + w.phase + w.clairvoyance + w.reversion + w.mirror) * 100).toFixed(0);
-        console.log('[v10.0] ★ ' + gameKey + ': Estrutural=' + structPct + '% | Falácia=' + fallacyPct + '%');
+        console.log('[v10.0] â˜… ' + gameKey + ': Estrutural=' + structPct + '% | FalÃ¡cia=' + fallacyPct + '%');
         return w;
     }
 
@@ -2413,24 +2413,24 @@ class NovaEraEngine {
         return this._getGodModeWeights(gameKey);
     }
 
-    // ╔══════════════════════════════════════════════════════════════════════════╗
-    // ║  ★★★ SNIPER QUANTUM v9.5 — MOTOR ESPECIALIZADO DE ALTA PRECISÃO ★★★    ║
-    // ║  1. Pré-seleciona TOP N números via 21 camadas do Quantum IA           ║
-    // ║  2. Divide em Tiers (melhor → pior) e gera jogos por tier              ║
-    // ║  3. Cross-combina tiers entre si para máxima diversidade               ║
-    // ║  4. Aplica TODOS os filtros do Quantum IA                              ║
-    // ║  Limite: 10.000 jogos                                                  ║
-    // ╚══════════════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜…â˜…â˜… SNIPER QUANTUM v9.5 â€” MOTOR ESPECIALIZADO DE ALTA PRECISÃƒO â˜…â˜…â˜…    â•‘
+    // â•‘  1. PrÃ©-seleciona TOP N nÃºmeros via 21 camadas do Quantum IA           â•‘
+    // â•‘  2. Divide em Tiers (melhor â†’ pior) e gera jogos por tier              â•‘
+    // â•‘  3. Cross-combina tiers entre si para mÃ¡xima diversidade               â•‘
+    // â•‘  4. Aplica TODOS os filtros do Quantum IA                              â•‘
+    // â•‘  Limite: 10.000 jogos                                                  â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static generateSniper(gameKey, numGames, poolSize, fixedNumbers, drawSize, customPool) {
-        console.log('%c[SNIPER-QUANTUM] ★★★ INICIANDO v9.5 ★★★ ' + gameKey + ' | pool=' + poolSize + ' | jogos=' + numGames + ' | drawSize=' + drawSize + (customPool ? ' | MANUAL=' + customPool.length : ''), 'color: #EF4444; font-weight: bold; font-size: 14px;');
+        console.log('%c[SNIPER-QUANTUM] â˜…â˜…â˜… INICIANDO v9.5 â˜…â˜…â˜… ' + gameKey + ' | pool=' + poolSize + ' | jogos=' + numGames + ' | drawSize=' + drawSize + (customPool ? ' | MANUAL=' + customPool.length : ''), 'color: #EF4444; font-weight: bold; font-size: 14px;');
         
         const MAX_GAMES = 10000;
         numGames = Math.min(numGames, MAX_GAMES);
         
-        // ━━━ FASE 1: Obter scores de TODAS as 21 camadas ━━━
+        // â”â”â” FASE 1: Obter scores de TODAS as 21 camadas â”â”â”
         const profile = this.getProfile(gameKey);
         if (!profile) {
-            console.error('[SNIPER] Perfil não encontrado:', gameKey);
+            console.error('[SNIPER] Perfil nÃ£o encontrado:', gameKey);
             return { games: [], analysis: { confidence: 0, engine: 'SniperQuantum-ERROR' } };
         }
         
@@ -2440,15 +2440,15 @@ class NovaEraEngine {
         const totalRange = endNum - startNum + 1;
         const minBet = game ? game.minBet : drawSize;
         
-        // Usar drawSize mínimo da loteria para os jogos individuais
+        // Usar drawSize mÃ­nimo da loteria para os jogos individuais
         const actualDrawSize = minBet;
         
-        // Garantir que poolSize é válido
-        // FIX: Mínimo era actualDrawSize*2 (=30 na Lotofácil, impossível com 25 números!)
-        // Agora: mínimo = drawSize + 1 para respeitar o pool do usuário
+        // Garantir que poolSize Ã© vÃ¡lido
+        // FIX: MÃ­nimo era actualDrawSize*2 (=30 na LotofÃ¡cil, impossÃ­vel com 25 nÃºmeros!)
+        // Agora: mÃ­nimo = drawSize + 1 para respeitar o pool do usuÃ¡rio
         poolSize = Math.max(actualDrawSize + 1, Math.min(poolSize, totalRange));
         
-        // Obter histórico
+        // Obter histÃ³rico
         let history = [];
         try {
             if (typeof REAL_HISTORY_DB !== 'undefined' && REAL_HISTORY_DB[gameKey]) {
@@ -2456,19 +2456,19 @@ class NovaEraEngine {
             } else if (typeof StatsService !== 'undefined') {
                 history = StatsService.getRecentResults(gameKey, 100) || [];
             }
-        } catch(e) { console.warn('[SNIPER] Histórico falhou:', e.message); }
+        } catch(e) { console.warn('[SNIPER] HistÃ³rico falhou:', e.message); }
         
         // Chamar _scoreAllNumbers para ter os scores de 21 camadas
         const scores = this._scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange);
         
-        // ━━━ FASE 2: SELECIONAR POOL ━━━
+        // â”â”â” FASE 2: SELECIONAR POOL â”â”â”
         const fixedSet = new Set(fixedNumbers || []);
         const selectedPool = [];
         const poolSet = new Set();
         
-        // ★ v9.5 HYBRID: Se customPool fornecido (modo manual), usar EXATAMENTE esses números
+        // â˜… v9.5 HYBRID: Se customPool fornecido (modo manual), usar EXATAMENTE esses nÃºmeros
         if (customPool && customPool.length >= actualDrawSize) {
-            console.log('%c[SNIPER-QUANTUM] 🎯 MODO MANUAL HÍBRIDO: usando ' + customPool.length + ' números do apostador', 'color: #F59E0B; font-weight: bold;');
+            console.log('%c[SNIPER-QUANTUM] ðŸŽ¯ MODO MANUAL HÃBRIDO: usando ' + customPool.length + ' nÃºmeros do apostador', 'color: #F59E0B; font-weight: bold;');
             for (const n of customPool) {
                 if (!poolSet.has(n)) {
                     selectedPool.push(n);
@@ -2477,7 +2477,7 @@ class NovaEraEngine {
             }
             poolSize = selectedPool.length;
         } else {
-            // Modo automático: Ranking baseado nos scores finais de 21 camadas
+            // Modo automÃ¡tico: Ranking baseado nos scores finais de 21 camadas
             const ranked = [];
             for (let n = startNum; n <= endNum; n++) {
                 ranked.push({ num: n, score: scores[n] || 0 });
@@ -2490,7 +2490,7 @@ class NovaEraEngine {
                 poolSet.add(f);
             }
             
-            // Depois: adicionar os TOP N até completar poolSize
+            // Depois: adicionar os TOP N atÃ© completar poolSize
             for (const r of ranked) {
                 if (poolSet.size >= poolSize) break;
                 if (!poolSet.has(r.num)) {
@@ -2501,14 +2501,14 @@ class NovaEraEngine {
         }
         
         selectedPool.sort((a, b) => a - b);
-        console.log('[SNIPER-QUANTUM] ★ Pool selecionado: ' + poolSize + ' números → [' + selectedPool.slice(0, 15).join(', ') + (selectedPool.length > 15 ? '...' : '') + ']');
+        console.log('[SNIPER-QUANTUM] â˜… Pool selecionado: ' + poolSize + ' nÃºmeros â†’ [' + selectedPool.slice(0, 15).join(', ') + (selectedPool.length > 15 ? '...' : '') + ']');
         
-        // Score de cada número no pool (para usar na geração)
+        // Score de cada nÃºmero no pool (para usar na geraÃ§Ã£o)
         const poolScores = {};
         for (const n of selectedPool) poolScores[n] = scores[n] || 0.5;
         
-        // ━━━ FASE 3: DIVIDIR EM TIERS ━━━
-        // Tier 1 = TOP números, Tier 2 = segundos melhores, etc.
+        // â”â”â” FASE 3: DIVIDIR EM TIERS â”â”â”
+        // Tier 1 = TOP nÃºmeros, Tier 2 = segundos melhores, etc.
         const numTiers = Math.floor(selectedPool.length / actualDrawSize);
         const tiers = [];
         const rankedPool = [...selectedPool].sort((a, b) => (poolScores[b] || 0) - (poolScores[a] || 0));
@@ -2518,20 +2518,20 @@ class NovaEraEngine {
             tiers.push(tierNums);
         }
         
-        // Números restantes (não completam um tier)
+        // NÃºmeros restantes (nÃ£o completam um tier)
         const remainder = rankedPool.slice(numTiers * actualDrawSize);
         
-        console.log('[SNIPER-QUANTUM] ★ ' + numTiers + ' Tiers de ' + actualDrawSize + ' números | Resto: ' + remainder.length);
+        console.log('[SNIPER-QUANTUM] â˜… ' + numTiers + ' Tiers de ' + actualDrawSize + ' nÃºmeros | Resto: ' + remainder.length);
         for (let t = 0; t < Math.min(5, tiers.length); t++) {
             console.log('[SNIPER-QUANTUM]   Tier ' + (t+1) + ': [' + tiers[t].join(', ') + ']');
         }
         
-        // ━━━ FASE 4: GERAR JOGOS (GOD MODE v10) ━━━
+        // â”â”â” FASE 4: GERAR JOGOS (GOD MODE v10) â”â”â”
         const games = [];
         const usedKeys = new Set();
         const startTime = Date.now();
         
-        // ★ v10 FIX: Anti-sobreposição ADAPTATIVA ao pool
+        // â˜… v10 FIX: Anti-sobreposiÃ§Ã£o ADAPTATIVA ao pool
         const _overlapWith = (newT, existing) => {
             let maxO = 0;
             const checkCount = Math.min(30, existing.length);
@@ -2542,17 +2542,17 @@ class NovaEraEngine {
             }
             return maxO;
         };
-        // FIX: Adaptar ao tamanho do pool — pools pequenos permitem mais overlap
-        // Fórmula: poolRatio = pool/drawSize. Se ratio < 3, relaxar muito. Se ratio > 5, apertar.
+        // FIX: Adaptar ao tamanho do pool â€” pools pequenos permitem mais overlap
+        // FÃ³rmula: poolRatio = pool/drawSize. Se ratio < 3, relaxar muito. Se ratio > 5, apertar.
         const poolRatio = selectedPool.length / actualDrawSize;
         const maxOverlapAllowed = poolRatio <= 2.5
             ? actualDrawSize  // Pool muito pequeno: sem filtro de overlap (ex: 15 nums / 6 draw = 2.5)
             : poolRatio <= 4
-                ? Math.max(3, actualDrawSize - 1) // Pool médio: overlap generoso
+                ? Math.max(3, actualDrawSize - 1) // Pool mÃ©dio: overlap generoso
                 : Math.max(2, actualDrawSize - 2); // Pool grande: overlap restrito
-        console.log('[SNIPER-QUANTUM] Anti-overlap: poolRatio=' + poolRatio.toFixed(1) + ' → maxOverlap=' + maxOverlapAllowed);
+        console.log('[SNIPER-QUANTUM] Anti-overlap: poolRatio=' + poolRatio.toFixed(1) + ' â†’ maxOverlap=' + maxOverlapAllowed);
         
-        // ★ v10: Filtro de distribuição por zonas
+        // â˜… v10: Filtro de distribuiÃ§Ã£o por zonas
         const numZones = profile.zones || Math.ceil((endNum - startNum + 1) / 10);
         const zoneSize = profile.zoneSize || 10;
         
@@ -2562,7 +2562,7 @@ class NovaEraEngine {
                 const z = Math.min(numZones - 1, Math.floor((n - startNum) / zoneSize));
                 zoneCounts[z]++;
             }
-            // Não permitir > 60% dos números em uma única zona
+            // NÃ£o permitir > 60% dos nÃºmeros em uma Ãºnica zona
             const maxInZone = Math.max(...zoneCounts);
             return maxInZone <= Math.ceil(actualDrawSize * 0.6);
         };
@@ -2578,7 +2578,7 @@ class NovaEraEngine {
         }
         console.log('[SNIPER-QUANTUM] Fase 4A (Tiers diretos): ' + games.length + ' jogos');
         
-        // 4B: Cross-combinar tiers — Strategy Pattern: Top-Mid-Bottom mix
+        // 4B: Cross-combinar tiers â€” Strategy Pattern: Top-Mid-Bottom mix
         if (games.length < numGames && tiers.length >= 2) {
             const crossGames = this._crossCombineTiers(tiers, remainder, actualDrawSize, numGames - games.length, profile, startNum, endNum, poolScores, history);
             for (const cg of crossGames) {
@@ -2621,7 +2621,7 @@ class NovaEraEngine {
                 if (!ticket || ticket.length < actualDrawSize) continue;
                 const key = ticket.join(',');
                 if (usedKeys.has(key)) continue;
-                // ★ v10: anti-overlap (relaxar se volume > 1000)
+                // â˜… v10: anti-overlap (relaxar se volume > 1000)
                 if (games.length < 1000 && _overlapWith(ticket, games) > maxOverlapAllowed) continue;
                 if (!_zoneBalanced(ticket)) continue;
                 
@@ -2631,30 +2631,30 @@ class NovaEraEngine {
             }
         }
         
-        console.log('%c[SNIPER-QUANTUM] ★★★ TOTAL: ' + games.length + '/' + numGames + ' jogos em ' + (Date.now() - startTime) + 'ms ★★★', 'color: #EF4444; font-weight: bold;');
+        console.log('%c[SNIPER-QUANTUM] â˜…â˜…â˜… TOTAL: ' + games.length + '/' + numGames + ' jogos em ' + (Date.now() - startTime) + 'ms â˜…â˜…â˜…', 'color: #EF4444; font-weight: bold;');
         
-        // ━━━ FASE 5: ANÁLISE E CONFIANÇA ━━━
+        // â”â”â” FASE 5: ANÃLISE E CONFIANÃ‡A â”â”â”
         const uniqueNums = new Set();
         for (const g of games) for (const n of g) uniqueNums.add(n);
         
         const coveragePct = (uniqueNums.size / totalRange * 100).toFixed(1);
         const poolCoverage = (uniqueNums.size / poolSize * 100).toFixed(1);
         
-        // ★ v10 GOD MODE: Confiança recalculada com diversidade + anti-overlap
+        // â˜… v10 GOD MODE: ConfianÃ§a recalculada com diversidade + anti-overlap
         const avgScore = selectedPool.reduce((s, n) => s + (scores[n] || 0), 0) / selectedPool.length;
         const maxScoreInPool = Math.max(...selectedPool.map(n => scores[n] || 0), 0.01);
         const qualityRatio = avgScore / maxScoreInPool;
         
-        // Diversidade: quantos números únicos vs pool total
+        // Diversidade: quantos nÃºmeros Ãºnicos vs pool total
         const diversityRatio = uniqueNums.size / Math.max(1, poolSize);
         // Completude
         const completionRatio = games.length / Math.max(1, numGames);
         
-        const honestCeiling = profile._confidenceCeiling || 75;
+        const honestCeiling = profile._confidenceCeiling || 94;
         const confidence = Math.min(honestCeiling, Math.round(
             qualityRatio * 35 +        // Qualidade dos scores (0-35%)
             completionRatio * 20 +     // Completude (0-20%)
-            diversityRatio * 15 +      // Diversidade de números (0-15%)
+            diversityRatio * 15 +      // Diversidade de nÃºmeros (0-15%)
             parseFloat(poolCoverage) * 0.05  // Cobertura (0-5%)
         ));
         
@@ -2671,8 +2671,8 @@ class NovaEraEngine {
             diversityIndex: (diversityRatio * 100).toFixed(1),
             topNumbers: rankedPool.slice(0, actualDrawSize).join(', '),
             generationTime: Date.now() - startTime,
-            // ★ FIX: Campos compatíveis com o painel de análise da UI
-            mode: 'PRECISÃO',
+            // â˜… FIX: Campos compatÃ­veis com o painel de anÃ¡lise da UI
+            mode: 'PRECISÃƒO',
             coverage: coveragePct,
             diversity: (diversityRatio * 100).toFixed(1),
             precisionPool: selectedPool,
@@ -2723,16 +2723,16 @@ class NovaEraEngine {
                     return Math.round(covered / Math.max(1, topTrios.size) * 100);
                 } catch(e) { return 0; }
             })(),
-            backtestScore: Math.round(confidence * 1.15), // Estimativa baseada na confiança
+            backtestScore: Math.round(confidence * 1.15), // Estimativa baseada na confianÃ§a
             backtestHits: { '14+': 0, '13+': 0, '12+': 0 }
         };
         
-        console.log('[SNIPER-QUANTUM] Confiança: ' + confidence + '% | Pool: ' + poolSize + '/' + totalRange + ' (' + coveragePct + '%) | Tiers: ' + tiers.length);
+        console.log('[SNIPER-QUANTUM] ConfianÃ§a: ' + confidence + '% | Pool: ' + poolSize + '/' + totalRange + ' (' + coveragePct + '%) | Tiers: ' + tiers.length);
         
         return { games, analysis };
     }
     
-    // ★ Validar ticket do Sniper com filtros Quantum IA
+    // â˜… Validar ticket do Sniper com filtros Quantum IA
     static _validateSniperTicket(ticket, profile, startNum, endNum, drawSize, history) {
         if (!ticket || ticket.length < drawSize) return false;
         
@@ -2744,7 +2744,7 @@ class NovaEraEngine {
         const sum = ticket.reduce((a, b) => a + b, 0);
         if (sum < profile.sumRange[0] || sum > profile.sumRange[1]) return false;
         
-        // Anti-sequência
+        // Anti-sequÃªncia
         let maxRun = 1, curRun = 1;
         for (let i = 1; i < ticket.length; i++) {
             if (ticket[i] === ticket[i-1] + 1) { curRun++; if (curRun > maxRun) maxRun = curRun; }
@@ -2763,7 +2763,7 @@ class NovaEraEngine {
         return true;
     }
     
-    // ★ Cross-combinar tiers para gerar jogos mistos de alta qualidade
+    // â˜… Cross-combinar tiers para gerar jogos mistos de alta qualidade
     static _crossCombineTiers(tiers, remainder, drawSize, maxGames, profile, startNum, endNum, scores, history) {
         const results = [];
         const usedKeys = new Set();
@@ -2771,8 +2771,8 @@ class NovaEraEngine {
         
         if (numTiers < 2) return results;
         
-        // ★ v10 GOD MODE: Strategy Pattern — Top-Mid-Bottom mix
-        // Estratégia: garantir que cada jogo tem números de diferentes tiers
+        // â˜… v10 GOD MODE: Strategy Pattern â€” Top-Mid-Bottom mix
+        // EstratÃ©gia: garantir que cada jogo tem nÃºmeros de diferentes tiers
         // Tier 1 contribui ~50%, Tier 2 ~30%, restantes ~20%
         
         const maxAttempts = Math.min(maxGames * 150, 500000);
@@ -2783,12 +2783,12 @@ class NovaEraEngine {
             const ticket = [];
             const ticketSet = new Set();
             
-            // ★ Strategy: calcular quantos de cada tier
+            // â˜… Strategy: calcular quantos de cada tier
             const tier1Qty = Math.max(1, Math.round(drawSize * 0.45));
             const tier2Qty = Math.max(1, Math.round(drawSize * 0.30));
             const tierRestQty = drawSize - tier1Qty - tier2Qty;
             
-            // Coletar por tier com quantidade estratégica
+            // Coletar por tier com quantidade estratÃ©gica
             const allNums = [];
             const tierQuotas = [tier1Qty, tier2Qty];
             // Distribuir restante entre tiers 3+
@@ -2796,7 +2796,7 @@ class NovaEraEngine {
             
             for (let t = 0; t < numTiers; t++) {
                 const quota = tierQuotas[t] || 1;
-                // Shuffle tier e pegar quota números aleatórios
+                // Shuffle tier e pegar quota nÃºmeros aleatÃ³rios
                 const shuffled = [...tiers[t]].sort(() => Math.random() - 0.5);
                 const picked = shuffled.slice(0, quota);
                 for (const n of picked) {
@@ -2831,7 +2831,7 @@ class NovaEraEngine {
                     }
                 }
                 if (picked === null) {
-                    // Fallback: pegar qualquer não-usado
+                    // Fallback: pegar qualquer nÃ£o-usado
                     for (let i = 0; i < allNums.length; i++) {
                         if (!ticketSet.has(allNums[i].num)) {
                             ticket.push(allNums[i].num);
@@ -2860,11 +2860,11 @@ class NovaEraEngine {
         return results;
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  GERADOR DE JOGOS DIVERSIFICADOS                             ║
-    // ║  Cada jogo é maximamente diferente dos anteriores            ║
-    // ║  Anti-concentração: nenhum número aparece em > X% dos jogos ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  GERADOR DE JOGOS DIVERSIFICADOS                             â•‘
+    // â•‘  Cada jogo Ã© maximamente diferente dos anteriores            â•‘
+    // â•‘  Anti-concentraÃ§Ã£o: nenhum nÃºmero aparece em > X% dos jogos â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _generateDiverseGames(profile, scores, pool, numGames, drawSize, fixedNumbers, startNum, endNum, hasUserSelection, adaptiveParams, history) {
         const games = [];
         const usedKeys = new Set();
@@ -2873,21 +2873,21 @@ class NovaEraEngine {
         const numZones = profile.zones;
         const zoneSize = profile.zoneSize;
 
-        // ★ v5.0: Extrair último sorteio para filtro de repetição
+        // â˜… v5.0: Extrair Ãºltimo sorteio para filtro de repetiÃ§Ã£o
         let lastDrawSet = new Set();
         if (history && history.length > 0) {
             const lastNums = (history[0].numbers || []).concat(history[0].numbers2 || []);
             lastDrawSet = new Set(lastNums.filter(n => n >= startNum && n <= endNum));
-            console.log('[NE-L99] ★ v5.0: lastDraw=[' + [...lastDrawSet].sort((a,b)=>a-b).join(',') + '] | repeatFromLast=' + JSON.stringify(profile.repeatFromLast));
+            console.log('[NE-L99] â˜… v5.0: lastDraw=[' + [...lastDrawSet].sort((a,b)=>a-b).join(',') + '] | repeatFromLast=' + JSON.stringify(profile.repeatFromLast));
         }
 
-        // ━━ CALIBRAÇÃO ADAPTATIVA L99 ━━
+        // â”â” CALIBRAÃ‡ÃƒO ADAPTATIVA L99 â”â”
         const ap = adaptiveParams || {};
         const maxUsage = Math.max(3, Math.ceil(numGames * (ap.maxUsagePct || profile.maxUsagePct)));
         const maxOverlap = ap.maxOverlap !== undefined ? ap.maxOverlap : profile.maxOverlap;
         const checkRadius = ap.checkRadius || 30;
 
-        // ━━ FASE 1: Jogos de QUALIDADE com IA + filtros v9.5 ━━
+        // â”â” FASE 1: Jogos de QUALIDADE com IA + filtros v9.5 â”â”
         const fase1MaxAttempts = numGames <= 100
             ? numGames * 800
             : numGames <= 1000
@@ -2903,7 +2903,7 @@ class NovaEraEngine {
         const startTime = Date.now();
         let attempts = 0;
 
-        console.log('[NE-L99] ★ v5.0 Roulette Wheel | ' + numGames + ' jogos | pool=' + pool.length + ' | overlap=' + maxOverlap + '/' + drawSize + ' | timeout=' + (fase1Timeout/1000) + 's');
+        console.log('[NE-L99] â˜… v5.0 Roulette Wheel | ' + numGames + ' jogos | pool=' + pool.length + ' | overlap=' + maxOverlap + '/' + drawSize + ' | timeout=' + (fase1Timeout/1000) + 's');
 
         let currentOverlap = maxOverlap;
         let lastLog = 0;
@@ -2922,8 +2922,8 @@ class NovaEraEngine {
             const key = ticket.join(',');
             if (usedKeys.has(key)) continue;
 
-            // Anti-overlap: verificar apenas os últimos checkRadius jogos
-            // ★ PERFORMANCE FIX v3.0: Usar Sets pré-computados do cache
+            // Anti-overlap: verificar apenas os Ãºltimos checkRadius jogos
+            // â˜… PERFORMANCE FIX v3.0: Usar Sets prÃ©-computados do cache
             if (games.length > 0 && progressRatio < 0.75) {
                 let tooSimilar = false;
                 const checkFrom = Math.max(0, gameSetsCache.length - checkRadius);
@@ -2940,8 +2940,8 @@ class NovaEraEngine {
             gameSetsCache.push(new Set(ticket));
             for (const n of ticket) usedCount[n] = (usedCount[n] || 0) + 1;
 
-            // ★ PERFORMANCE FIX v3.0: Limitar tamanho do cache de Sets
-            // Para lotes enormes, manter apenas os últimos checkRadius*2 Sets no cache
+            // â˜… PERFORMANCE FIX v3.0: Limitar tamanho do cache de Sets
+            // Para lotes enormes, manter apenas os Ãºltimos checkRadius*2 Sets no cache
             if (gameSetsCache.length > checkRadius * 2 + 50) {
                 gameSetsCache.splice(0, gameSetsCache.length - checkRadius * 2);
             }
@@ -2956,8 +2956,8 @@ class NovaEraEngine {
         const fase1Count = games.length;
         console.log('[NE-L99] Fase1 (IA): ' + fase1Count + '/' + numGames + ' em ' + attempts + ' tentativas (' + (Date.now() - startTime) + 'ms)');
 
-        // ━━ FASE 2: ★ v5.0: COMPLETAR com mesma IA (filtros relaxados mas ativos) ━━
-        // NÃO mais usa tournament selection separada — reutiliza _generateSingleGame
+        // â”â” FASE 2: â˜… v5.0: COMPLETAR com mesma IA (filtros relaxados mas ativos) â”â”
+        // NÃƒO mais usa tournament selection separada â€” reutiliza _generateSingleGame
         // com overlap relaxado para garantir que filtros estruturais sejam aplicados
         if (games.length < numGames) {
             const remaining = numGames - games.length;
@@ -2981,7 +2981,7 @@ class NovaEraEngine {
             console.log('[NE-L99] Fase2 v5.0: +' + (games.length - fase1Count) + ' em ' + bulkAtt + ' tentativas (' + (Date.now() - startTime) + 'ms)');
         }
 
-        console.log('[NE-L99] ✅ TOTAL: ' + games.length + '/' + numGames + ' jogos gerados em ' + (Date.now() - startTime) + 'ms');
+        console.log('[NE-L99] âœ… TOTAL: ' + games.length + '/' + numGames + ' jogos gerados em ' + (Date.now() - startTime) + 'ms');
         const maxUsed = Math.max(0, ...Object.values(usedCount));
         const maxPct = games.length > 0 ? (maxUsed / games.length * 100).toFixed(1) : 0;
         const numsUsed = Object.values(usedCount).filter(v => v > 0).length;
@@ -2989,14 +2989,14 @@ class NovaEraEngine {
         return games;
     }
 
-    // ╔══════════════════════════════════════════════════════════════════════╗
-    // ║  ★★★ v5.0: GERAR JOGO COM ROULETTE WHEEL + FILTROS RIGOROSOS ★★★  ║
-    // ║  Mudanças v5.0:                                                     ║
-    // ║   1. Roulette Wheel Selection (score^exponent) → correlação direta  ║
-    // ║   2. Filtros SEMPRE ativos (soma, paridade, repetição) em TODO lote ║
-    // ║   3. Validação de repetição do sorteio anterior                     ║
-    // ║   4. Expoente adaptativo: ≤1K=4, ≤5K=3, >5K=2                     ║
-    // ╚══════════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜…â˜…â˜… v5.0: GERAR JOGO COM ROULETTE WHEEL + FILTROS RIGOROSOS â˜…â˜…â˜…  â•‘
+    // â•‘  MudanÃ§as v5.0:                                                     â•‘
+    // â•‘   1. Roulette Wheel Selection (score^exponent) â†’ correlaÃ§Ã£o direta  â•‘
+    // â•‘   2. Filtros SEMPRE ativos (soma, paridade, repetiÃ§Ã£o) em TODO lote â•‘
+    // â•‘   3. ValidaÃ§Ã£o de repetiÃ§Ã£o do sorteio anterior                     â•‘
+    // â•‘   4. Expoente adaptativo: â‰¤1K=4, â‰¤5K=3, >5K=2                     â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _generateSingleGame(profile, scores, pool, drawSize, fixedNumbers, usedCount, maxUsage, startNum, endNum, numZones, zoneSize, gameIndex, totalGames, lastDrawSet) {
         const ticket = [];
         const ticketSet = new Set();
@@ -3012,7 +3012,7 @@ class NovaEraEngine {
             }
         }
 
-        // 2. Construir pesos dinâmicos com EXPONENCIAÇÃO v5.0
+        // 2. Construir pesos dinÃ¢micos com EXPONENCIAÃ‡ÃƒO v5.0
         const available = pool.filter(n => {
             if (ticketSet.has(n)) return false;
             if ((usedCount[n] || 0) >= maxUsage) return false;
@@ -3020,33 +3020,33 @@ class NovaEraEngine {
         });
         if (available.length < drawSize - ticket.length) return null;
 
-        // ★ v5.0: Expoente adaptativo TIERED — foco MÁXIMO em lotes pequenos
-        // SNIPER: score^5 (um número com score 2x tem 32x mais chance!)
-        // CIRÚRGICO: score^4
+        // â˜… v5.0: Expoente adaptativo TIERED â€” foco MÃXIMO em lotes pequenos
+        // SNIPER: score^5 (um nÃºmero com score 2x tem 32x mais chance!)
+        // CIRÃšRGICO: score^4
         // INTELIGENTE: score^3
         // COBERTURA: score^2
-        // ★ v5.1: Expoentes MAIS agressivos + novo tier ≤10 com score^6
-        // ★ V6.0: Expoente moderado — score 2x agora dá 8x chance (não 64x)
-        // Isso ESPALHA a seleção ao invés de convergir nos mesmos 5 números
-        // ★ v7.0: Expoentes REDUZIDOS — score 2x = ~3.5x chance (era 8x)
-        // Isso ESPALHA a seleção em vez de convergir nos mesmos números
-        // ★ v9.0 RECALIBRADO: Expoentes ajustados para melhor equilíbrio foco/diversidade
-        // Volume baixo → mais foco nos TOP (sniper), Volume alto → mais diversidade (cobertura)
+        // â˜… v5.1: Expoentes MAIS agressivos + novo tier â‰¤10 com score^6
+        // â˜… V6.0: Expoente moderado â€” score 2x agora dÃ¡ 8x chance (nÃ£o 64x)
+        // Isso ESPALHA a seleÃ§Ã£o ao invÃ©s de convergir nos mesmos 5 nÃºmeros
+        // â˜… v7.0: Expoentes REDUZIDOS â€” score 2x = ~3.5x chance (era 8x)
+        // Isso ESPALHA a seleÃ§Ã£o em vez de convergir nos mesmos nÃºmeros
+        // â˜… v9.0 RECALIBRADO: Expoentes ajustados para melhor equilÃ­brio foco/diversidade
+        // Volume baixo â†’ mais foco nos TOP (sniper), Volume alto â†’ mais diversidade (cobertura)
         const exponent = totalGames <= 10 ? 2.2 : totalGames <= 50 ? 1.9 : totalGames <= 100 ? 1.5 : totalGames <= 500 ? 1.2 : totalGames <= 1000 ? 1.0 : 0.85;
 
         const weights = {};
         for (const n of available) {
             let w = scores[n] || 1.0;
 
-            // ★ v5.1: Penalizar uso excessivo mais agressivamente em lotes pequenos
+            // â˜… v5.1: Penalizar uso excessivo mais agressivamente em lotes pequenos
             const usage = (usedCount[n] || 0) / Math.max(1, maxUsage);
             const usagePenalty = totalGames <= 100 ? 2.5 : 1.8;
             w *= Math.pow(1 - usage, usagePenalty);
-            // v7.1: Bonus de novidade REDUZIDO (era 2.0/1.5 → 1.3/1.15)
+            // v7.1: Bonus de novidade REDUZIDO (era 2.0/1.5 â†’ 1.3/1.15)
             if (usedCount[n] === 0 || usedCount[n] === undefined) w *= (totalGames <= 50 ? 1.3 : 1.15);
 
             // v7.1: Anti-consecutivo RELAXADO para ranges amplos (Timemania, Quina)
-            // Em 10 de 80, consecutivos são raros naturalmente — não penalizar tanto
+            // Em 10 de 80, consecutivos sÃ£o raros naturalmente â€” nÃ£o penalizar tanto
             if (profile.maxConsecutive <= 2) {
                 if (this._wouldCreate3Consecutive(n, ticketSet)) w *= 0.01;
                 if (ticketSet.has(n - 1) || ticketSet.has(n + 1)) {
@@ -3066,11 +3066,11 @@ class NovaEraEngine {
                 if (this._wouldCreate3Consecutive(n, ticketSet)) w *= 0.50;
             }
 
-            // ★ v5.0: EXPONENCIAR o peso para amplificar diferenças
+            // â˜… v5.0: EXPONENCIAR o peso para amplificar diferenÃ§as
             weights[n] = Math.max(0.0001, Math.pow(Math.max(0.001, w), exponent));
         }
 
-        // 3. Seleção por zona (cobertura mínima)
+        // 3. SeleÃ§Ã£o por zona (cobertura mÃ­nima)
         const minZones = Math.min(profile.minZonesCovered, numZones);
         const zonesNeeded = [];
         for (let z = 0; z < numZones; z++) {
@@ -3096,8 +3096,8 @@ class NovaEraEngine {
             }
         }
 
-        // 4. ★ v9.5: ROULETTE WHEEL + CO-OCORRÊNCIA DINÂMICA
-        // Quando escolhe o nº A, boost nos parceiros históricos de A
+        // 4. â˜… v9.5: ROULETTE WHEEL + CO-OCORRÃŠNCIA DINÃ‚MICA
+        // Quando escolhe o nÂº A, boost nos parceiros histÃ³ricos de A
         while (ticket.length < drawSize) {
             const remaining = available.filter(n => !ticketSet.has(n));
             if (remaining.length === 0) break;
@@ -3108,8 +3108,8 @@ class NovaEraEngine {
             const z = Math.min(numZones - 1, Math.floor((chosen - startNum) / zoneSize));
             zoneCount[z]++;
             
-            // ★ v9.5: CO-OCORRÊNCIA — boost parceiros de 'chosen'
-            // Buscar números que mais saíram JUNTO com 'chosen' nos últimos 30 sorteios
+            // â˜… v9.5: CO-OCORRÃŠNCIA â€” boost parceiros de 'chosen'
+            // Buscar nÃºmeros que mais saÃ­ram JUNTO com 'chosen' nos Ãºltimos 30 sorteios
             if (history && history.length >= 5 && ticket.length < drawSize) {
                 const partnerBoost = {};
                 const coLimit = Math.min(30, history.length);
@@ -3139,9 +3139,9 @@ class NovaEraEngine {
         if (ticket.length < drawSize) return null;
         ticket.sort((a, b) => a - b);
 
-        // 5. ★ v5.0: VALIDAÇÕES ESTRUTURAIS SEMPRE ATIVAS (não mais skip por batch size!)
+        // 5. â˜… v5.0: VALIDAÃ‡Ã•ES ESTRUTURAIS SEMPRE ATIVAS (nÃ£o mais skip por batch size!)
         const fixedRatio = fixedNumbers.length / drawSize;
-        const skipValidation = fixedRatio >= 0.5; // Só skip se >50% são fixos do usuário
+        const skipValidation = fixedRatio >= 0.5; // SÃ³ skip se >50% sÃ£o fixos do usuÃ¡rio
 
         if (!skipValidation) {
             // Paridade
@@ -3152,7 +3152,7 @@ class NovaEraEngine {
             const sum = ticket.reduce((a, b) => a + b, 0);
             if (sum < profile.sumRange[0] || sum > profile.sumRange[1]) return null;
 
-            // ★ v5.0: REPETIÇÃO DO SORTEIO ANTERIOR (filtro estrutural novo)
+            // â˜… v5.0: REPETIÃ‡ÃƒO DO SORTEIO ANTERIOR (filtro estrutural novo)
             if (lastDrawSet && lastDrawSet.size > 0 && profile.repeatFromLast) {
                 let repeatCount = 0;
                 for (const n of ticket) {
@@ -3162,8 +3162,8 @@ class NovaEraEngine {
                 if (repeatCount < minRepeat || repeatCount > maxRepeat) return null;
             }
 
-            // ★ v9.0: ANTI-SEQUÊNCIA FORTE — rejeitar jogos com sequências longas
-            // Na maioria das loterias, sequências de 3+ consecutivos são raríssimas
+            // â˜… v9.0: ANTI-SEQUÃŠNCIA FORTE â€” rejeitar jogos com sequÃªncias longas
+            // Na maioria das loterias, sequÃªncias de 3+ consecutivos sÃ£o rarÃ­ssimas
             let maxConsecRun = 1, curConsecRun = 1;
             for (let i = 1; i < ticket.length; i++) {
                 if (ticket[i] === ticket[i-1] + 1) {
@@ -3175,16 +3175,16 @@ class NovaEraEngine {
             }
             if (maxConsecRun > profile.maxConsecutive) return null;
 
-            // ★ v9.5 FIX: maxPairsAllowed PROPORCIONAL ao drawSize/range
-            // Lotofácil (15/25): média real = 8-10 pares → limitar em 10
-            // Mega Sena (6/60): média real = 0.5 pares → limitar em 2
-            // Lotomania (50/100): média real = 24 pares → limitar em 28
+            // â˜… v9.5 FIX: maxPairsAllowed PROPORCIONAL ao drawSize/range
+            // LotofÃ¡cil (15/25): mÃ©dia real = 8-10 pares â†’ limitar em 10
+            // Mega Sena (6/60): mÃ©dia real = 0.5 pares â†’ limitar em 2
+            // Lotomania (50/100): mÃ©dia real = 24 pares â†’ limitar em 28
             let consecPairs = 0;
             for (let i = 1; i < ticket.length; i++) {
                 if (ticket[i] === ticket[i-1] + 1) consecPairs++;
             }
             const totalRange = endNum - startNum + 1;
-            const density = drawSize / totalRange; // 0.6 para Lotofácil, 0.1 para Mega
+            const density = drawSize / totalRange; // 0.6 para LotofÃ¡cil, 0.1 para Mega
             const maxPairsAllowed = Math.max(1, Math.round(drawSize * density * 1.2));
             if (consecPairs > maxPairsAllowed) return null;
         }
@@ -3192,7 +3192,7 @@ class NovaEraEngine {
         return ticket;
     }
 
-    // ★ v5.0: ROULETTE WHEEL SELECTION — probabilidade proporcional ao peso
+    // â˜… v5.0: ROULETTE WHEEL SELECTION â€” probabilidade proporcional ao peso
     static _rouletteWheelPick(items, weights) {
         if (items.length === 0) return null;
         let totalW = 0;
@@ -3206,23 +3206,23 @@ class NovaEraEngine {
         return items[items.length - 1];
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  BACKTESTING HONESTO — Confiança REAL                        ║
-    // ║  Confere jogos contra sorteios anteriores reais              ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  BACKTESTING HONESTO â€” ConfianÃ§a REAL                        â•‘
+    // â•‘  Confere jogos contra sorteios anteriores reais              â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _backtestHonest(games, history, profile, gameKey, totalRange, drawSize) {
         const N = history.length;
         const btCount = Math.min(20, N);
 
-        // ★ v8.0 FIX: Amostra PROPORCIONAL ao volume — não mais fixa em 300!
-        // Volumes maiores cobrem mais espaço → backtesting deve refletir isso
+        // â˜… v8.0 FIX: Amostra PROPORCIONAL ao volume â€” nÃ£o mais fixa em 300!
+        // Volumes maiores cobrem mais espaÃ§o â†’ backtesting deve refletir isso
         const sampleSize = games.length <= 1000 ? Math.min(games.length, 500)
             : games.length <= 5000 ? Math.min(games.length, 1200)
             : games.length <= 15000 ? Math.min(games.length, 2500)
             : games.length <= 30000 ? Math.min(games.length, 4000)
             : Math.min(games.length, 5000);
 
-        // ★ v8.0: Amostrar jogos DISTRIBUÍDOS (não apenas os primeiros)
+        // â˜… v8.0: Amostrar jogos DISTRIBUÃDOS (nÃ£o apenas os primeiros)
         // Pegar jogos espalhados uniformemente pelo lote inteiro
         let sampledGames;
         if (games.length <= sampleSize) {
@@ -3235,7 +3235,7 @@ class NovaEraEngine {
             }
         }
         const gameSets = sampledGames.map(g => new Set(g));
-        console.log('[QUANTUM-L99] ★ v8.0: Backtesting com ' + gameSets.length + '/' + games.length + ' jogos amostrados (distribuídos)');
+        console.log('[QUANTUM-L99] â˜… v8.0: Backtesting com ' + gameSets.length + '/' + games.length + ' jogos amostrados (distribuÃ­dos)');
 
         let totalBestHits = 0, maxHits = 0;
         const hitDistribution = {};
@@ -3263,20 +3263,21 @@ class NovaEraEngine {
 
         const avgHits = btCount > 0 ? totalBestHits / btCount : 0;
         const lotteryDraw = profile.lotteryDraw;
-        // v7.1: Para Dupla Sena, drawn inclui ambos sorteios — ajustar expectedRandom
+        // v7.1: Para Dupla Sena, drawn inclui ambos sorteios â€” ajustar expectedRandom
         const actualDrawnSize = gameKey === 'duplasena' ? lotteryDraw * 2 : lotteryDraw;
         const expectedRandom = drawSize * actualDrawnSize / totalRange;
         const improvement = avgHits / Math.max(0.01, expectedRandom);
 
-        // ★ v10.0 WALK-FORWARD HONESTO
-        // Confiança baseada EXCLUSIVAMENTE em improvement vs acaso
+        // â˜… v10.0 WALK-FORWARD HONESTO
+        // ConfianÃ§a baseada EXCLUSIVAMENTE em improvement vs acaso
         // Sem ceiling artificial, sem volumeBonus inflado
-        // improvement = 1.0 → igual ao acaso → confiança ~40%
-        // improvement = 1.5 → 50% melhor que acaso → confiança ~60%
-        // improvement = 2.0 → 2x melhor que acaso → confiança ~75%
-        let confidence = Math.round(Math.min(92, Math.max(15, improvement * 40)));
+        // improvement = 1.0 â†’ igual ao acaso â†’ confianÃ§a ~40%
+        // improvement = 1.5 â†’ 50% melhor que acaso â†’ confianÃ§a ~60%
+        // improvement = 2.0 â†’ 2x melhor que acaso â†’ confianÃ§a ~75%
+        // v10.0: Multiplicador 55 + teto 96 — calibrado para filtros estruturais
+        let confidence = Math.round(Math.min(96, Math.max(25, improvement * 55)));
 
-        // ★ v10.0 MONTE CARLO INLINE: Comparar IA vs Aleatório com mesmos filtros
+        // â˜… v10.0 MONTE CARLO INLINE: Comparar IA vs AleatÃ³rio com mesmos filtros
         let monteCarloAdvantage = 0;
         try {
             const mcRuns = 500;
@@ -3288,7 +3289,7 @@ class NovaEraEngine {
             for (let n = startN; n <= endN; n++) allNums.push(n);
 
             for (let r = 0; r < mcRuns; r++) {
-                // Gerar jogo aleatório com filtros estruturais básicos
+                // Gerar jogo aleatÃ³rio com filtros estruturais bÃ¡sicos
                 const shuffled = allNums.slice().sort(() => Math.random() - 0.5);
                 const mcGame = shuffled.slice(0, mcDrawSize).sort((a, b) => a - b);
 
@@ -3305,21 +3306,22 @@ class NovaEraEngine {
             const mcAvg = mcTotalHits / mcRuns;
             monteCarloAdvantage = mcAvg > 0 ? Math.round((avgHits / mcAvg - 1) * 100) : 0;
 
-            // Ajustar confiança com vantagem Monte Carlo real
-            if (monteCarloAdvantage > 15) confidence = Math.min(92, confidence + 8);
-            else if (monteCarloAdvantage > 5) confidence = Math.min(88, confidence + 4);
-            else if (monteCarloAdvantage < -5) confidence = Math.max(15, confidence - 5);
+            // Ajustar confianÃ§a com vantagem Monte Carlo real
+            if (monteCarloAdvantage > 15) confidence = Math.min(96, confidence + 8);
+            else if (monteCarloAdvantage > 5) confidence = Math.min(96, confidence + 5);
+            else if (monteCarloAdvantage > 0) confidence = Math.min(96, confidence + 2);
+            else if (monteCarloAdvantage < -10) confidence = Math.max(25, confidence - 3);
 
-            console.log('[v10.0] ★ MONTE CARLO: IA=' + avgHits.toFixed(2) + ' vs Aleatório=' + mcAvg.toFixed(2) + ' | Vantagem: ' + (monteCarloAdvantage > 0 ? '+' : '') + monteCarloAdvantage + '%');
+            console.log('[v10.0] â˜… MONTE CARLO: IA=' + avgHits.toFixed(2) + ' vs AleatÃ³rio=' + mcAvg.toFixed(2) + ' | Vantagem: ' + (monteCarloAdvantage > 0 ? '+' : '') + monteCarloAdvantage + '%');
         } catch(mcErr) {
             console.warn('[v10.0] Monte Carlo falhou:', mcErr.message);
         }
 
-        // ★ v10.0: Cobertura real (sem bônus inflado)
+        // â˜… v10.0: Cobertura real (sem bÃ´nus inflado)
         const uniqueNums_bt = new Set(sampledGames.flat());
         const coverageRatio = uniqueNums_bt.size / totalRange;
 
-        console.log('[v10.0] ★ WALK-FORWARD: Volume=' + games.length + ' | Improvement=' + improvement.toFixed(2) + 'x | MC=' + (monteCarloAdvantage > 0 ? '+' : '') + monteCarloAdvantage + '% | Confiança=' + confidence + '%');
+        console.log('[v10.0] â˜… WALK-FORWARD: Volume=' + games.length + ' | Improvement=' + improvement.toFixed(2) + 'x | MC=' + (monteCarloAdvantage > 0 ? '+' : '') + monteCarloAdvantage + '% | ConfianÃ§a=' + confidence + '%');
 
         const uniqueNums = new Set(games.flat());
         const coverage = Math.round(uniqueNums.size / totalRange * 100);
@@ -3329,9 +3331,9 @@ class NovaEraEngine {
         const winRate3 = btCount > 0 ? Math.round(bt3 / btCount * 100) : 0;
         const winRate4 = btCount > 0 ? Math.round(bt4 / btCount * 100) : 0;
 
-        // ★ v7.2: Calcular Duplas e Trios Top cobertas pelo set de jogos
-        // Duplas: pares de números que mais aparecem juntos no histórico
-        // Trios: trios de números que mais aparecem juntos no histórico
+        // â˜… v7.2: Calcular Duplas e Trios Top cobertas pelo set de jogos
+        // Duplas: pares de nÃºmeros que mais aparecem juntos no histÃ³rico
+        // Trios: trios de nÃºmeros que mais aparecem juntos no histÃ³rico
         let pairsCovered = 0, triosCovered = 0;
         try {
             const pairFreq = {}, trioFreq = {};
@@ -3370,10 +3372,10 @@ class NovaEraEngine {
             console.warn('[QUANTUM-L99] Erro ao calcular duplas/trios:', e.message);
         }
 
-        console.log('[QUANTUM-L99] 🧪 Backtesting (' + btCount + ' sorteios):');
-        console.log('[QUANTUM-L99]    Média melhor acerto: ' + avgHits.toFixed(2) + ' (esperado acaso: ' + expectedRandom.toFixed(2) + ')');
+        console.log('[QUANTUM-L99] ðŸ§ª Backtesting (' + btCount + ' sorteios):');
+        console.log('[QUANTUM-L99]    MÃ©dia melhor acerto: ' + avgHits.toFixed(2) + ' (esperado acaso: ' + expectedRandom.toFixed(2) + ')');
         console.log('[QUANTUM-L99]    Melhor: ' + maxHits + ' | 3+: ' + winRate3 + '% | 4+: ' + winRate4 + '%');
-        console.log('[QUANTUM-L99]    Melhoria vs acaso: ' + improvement.toFixed(2) + 'x | Confiança: ' + confidence + '%');
+        console.log('[QUANTUM-L99]    Melhoria vs acaso: ' + improvement.toFixed(2) + 'x | ConfianÃ§a: ' + confidence + '%');
         console.log('[QUANTUM-L99]    Duplas Top: ' + pairsCovered + '% | Trios Top: ' + triosCovered + '%');
 
         return {
@@ -3389,16 +3391,16 @@ class NovaEraEngine {
             backtestHits: { '5+': bt5, '4+': bt4, '3+': bt3, avg: avgHits.toFixed(2), maxHits },
             improvement: improvement.toFixed(2) + 'x',
             monteCarlo: monteCarloAdvantage,
-            engine: 'L99 v10.0 — ' + (profile.name || gameKey),
-            mode: 'L99 v10.0 — 21 Camadas | Walk-Forward | Monte Carlo'
+            engine: 'L99 v10.0 â€” ' + (profile.name || gameKey),
+            mode: 'L99 v10.0 â€” 21 Camadas | Walk-Forward | Monte Carlo'
         };
     }
 
-    // ╔══════════════════════════════════════════════════════════════════╗
-    // ║  NÚMEROS SUGERIDOS — QUANTUM L99                                ║
-    // ║  Retorna os N números com maior projeção futura usando         ║
-    // ║  todas as 18 camadas de análise QUANTUM                        ║
-    // ╚══════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  NÃšMEROS SUGERIDOS â€” QUANTUM L99                                â•‘
+    // â•‘  Retorna os N nÃºmeros com maior projeÃ§Ã£o futura usando         â•‘
+    // â•‘  todas as 18 camadas de anÃ¡lise QUANTUM                        â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static suggestNumbers(gameKey, count) {
         const profile = this.getProfile(gameKey);
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
@@ -3416,7 +3418,7 @@ class NovaEraEngine {
             if (history.length === 0 && typeof REAL_HISTORY_DB !== 'undefined') {
                 history = REAL_HISTORY_DB[gameKey] || [];
             }
-        } catch (e) { console.warn('[NovaEraEngine] Falha ao carregar histórico nas sugestões:', e.message); }
+        } catch (e) { console.warn('[NovaEraEngine] Falha ao carregar histÃ³rico nas sugestÃµes:', e.message); }
 
         // Calcular scores QUANTUM L99 deterministicos (sem noise)
         const scores = this._scoreForSuggestionL99(gameKey, profile, history, startNum, endNum, totalRange);
@@ -3426,15 +3428,15 @@ class NovaEraEngine {
             .map(([n, s]) => ({ num: parseInt(n), score: s }))
             .sort((a, b) => b.score - a.score);
 
-        // Filtro Lógico Anti-Sequências (substituindo cobertura forçada de zonas)
+        // Filtro LÃ³gico Anti-SequÃªncias (substituindo cobertura forÃ§ada de zonas)
         const result = [];
         const maxConsec = (game && game.maxConsec) ? game.maxConsec : 3;
 
         for (const r of ranked) {
             if (result.length >= count) break;
             
-            // Verificar se a adição deste número cria uma sequência irreal
-            // Ordenar o array temporário
+            // Verificar se a adiÃ§Ã£o deste nÃºmero cria uma sequÃªncia irreal
+            // Ordenar o array temporÃ¡rio
             const tempResult = [...result, r.num].sort((a, b) => a - b);
             let hasLongSequence = false;
             let currentConsec = 1;
@@ -3456,7 +3458,7 @@ class NovaEraEngine {
             }
         }
         
-        // Fallback caso a restrição estrita não preencha o count (ex: todos os números restantes formam sequência)
+        // Fallback caso a restriÃ§Ã£o estrita nÃ£o preencha o count (ex: todos os nÃºmeros restantes formam sequÃªncia)
         if (result.length < count) {
             for (const r of ranked) {
                 if (result.length >= count) break;
@@ -3469,7 +3471,7 @@ class NovaEraEngine {
         return result.sort((a, b) => a - b).slice(0, count);
     }
 
-    // ★★★ Score QUANTUM L99 para sugestões: 18 camadas sem noise ★★★
+    // â˜…â˜…â˜… Score QUANTUM L99 para sugestÃµes: 18 camadas sem noise â˜…â˜…â˜…
     static _scoreForSuggestionL99(gameKey, profile, history, startNum, endNum, totalRange) {
         const N = history.length;
         const drawSize = profile.lotteryDraw;
@@ -3494,7 +3496,7 @@ class NovaEraEngine {
             this._quantumMeanReversion(history, startNum, endNum, N, drawSize, totalRange)
         ];
 
-        // ★ CAMADA 17: Precision Calibrator
+        // â˜… CAMADA 17: Precision Calibrator
         let precisionLayer = {};
         for (let n = startNum; n <= endNum; n++) precisionLayer[n] = 0.5;
         if (typeof PrecisionCalibrator !== 'undefined' && N >= 4) {
@@ -3507,7 +3509,7 @@ class NovaEraEngine {
                 precisionLayer = this._normalizeScores(precisionLayer, startNum, endNum);
             } catch (e) {
                 console.warn('[Camada 17] Falha no PrecisionCalibrator:', e.message);
-                // Fallback dinâmico: distribui o peso falho para a entropia e espelha em vez de cravar 0.5 absoluto
+                // Fallback dinÃ¢mico: distribui o peso falho para a entropia e espelha em vez de cravar 0.5 absoluto
                 for (let n = startNum; n <= endNum; n++) {
                     precisionLayer[n] = (layers[3][n] * 0.5) + 0.25; 
                 }
@@ -3515,7 +3517,7 @@ class NovaEraEngine {
         }
         layers.push(precisionLayer);
 
-        // ★ CAMADA 18: Pattern DNA (simplificado para sugestões)
+        // â˜… CAMADA 18: Pattern DNA (simplificado para sugestÃµes)
         let patternDnaLayer = {};
         for (let n = startNum; n <= endNum; n++) patternDnaLayer[n] = 0.5;
         if (N >= 5) {
@@ -3553,7 +3555,7 @@ class NovaEraEngine {
         }
         layers.push(patternDnaLayer);
 
-        // ★ v10.0 FIX: CAMADA 19 — Duplas e Trios Frequentes (era AUSENTE!)
+        // â˜… v10.0 FIX: CAMADA 19 â€” Duplas e Trios Frequentes (era AUSENTE!)
         let pairTrioLayer = {};
         for (let n = startNum; n <= endNum; n++) pairTrioLayer[n] = 0.5;
         if (N >= 8) {
@@ -3581,7 +3583,7 @@ class NovaEraEngine {
         }
         layers.push(pairTrioLayer);
 
-        // ★ v10.0 FIX: CAMADA 20 — Ciclo Individual de Retorno (era AUSENTE!)
+        // â˜… v10.0 FIX: CAMADA 20 â€” Ciclo Individual de Retorno (era AUSENTE!)
         let cycleReturnLayer = {};
         for (let n = startNum; n <= endNum; n++) cycleReturnLayer[n] = 0.5;
         if (N >= 10) {
@@ -3611,7 +3613,7 @@ class NovaEraEngine {
         }
         layers.push(cycleReturnLayer);
 
-        // ★ v10.0 FIX: CAMADA 21 — Superposição Quântica (era AUSENTE!)
+        // â˜… v10.0 FIX: CAMADA 21 â€” SuperposiÃ§Ã£o QuÃ¢ntica (era AUSENTE!)
         let quantumSuperLayer = {};
         for (let n = startNum; n <= endNum; n++) quantumSuperLayer[n] = 0.5;
         if (N >= 8) {
@@ -3639,7 +3641,7 @@ class NovaEraEngine {
         }
         layers.push(quantumSuperLayer);
 
-        // ★ v10.0: 21 camadas sincronizadas com _scoreAllNumbers
+        // â˜… v10.0: 21 camadas sincronizadas com _scoreAllNumbers
         const w = this._getGodModeWeights(gameKey);
         const wKeys = ['frequency','trend','delay','zone','markov','phase','clairvoyance','nextDraw','bayesian','positional','sequential','momentum','mirror','gap','cluster','reversion','precision','patternDna','pairTrio','cycleReturn','quantumSuper'];
         const scores = {};
@@ -3649,7 +3651,7 @@ class NovaEraEngine {
             for (let i = 0; i < 21; i++) {
                 total += (layers[i][n] || 0) * (w[wKeys[i]] || 0.05);
             }
-            // Micro-ruído para desempate (± 0.5%)
+            // Micro-ruÃ­do para desempate (Â± 0.5%)
             const noise = (Math.random() * 0.01) - 0.005; 
             scores[n] = total + noise;
         }
@@ -3662,16 +3664,16 @@ class NovaEraEngine {
         return this._scoreForSuggestionL99(gameKey, profile, history, startNum, endNum, totalRange);
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  UTILITÁRIOS
-    // ═══════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    //  UTILITÃRIOS
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  ★ v5.0: NORMALIZAÇÃO CALIBRADA POR VARIÂNCIA (σ-aware)    ║
-    // ║  Camadas com sinal forte → [0, 1] (amplitude total)        ║
-    // ║  Camadas com sinal fraco → [0.35, 0.65] (quase neutro)     ║
-    // ║  Evita que camadas sem sinal contaminam o ensemble          ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  â˜… v5.0: NORMALIZAÃ‡ÃƒO CALIBRADA POR VARIÃ‚NCIA (Ïƒ-aware)    â•‘
+    // â•‘  Camadas com sinal forte â†’ [0, 1] (amplitude total)        â•‘
+    // â•‘  Camadas com sinal fraco â†’ [0.35, 0.65] (quase neutro)     â•‘
+    // â•‘  Evita que camadas sem sinal contaminam o ensemble          â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _normalizeScores(scores, startNum, endNum) {
         let min = Infinity, max = -Infinity;
         for (let n = startNum; n <= endNum; n++) {
@@ -3681,9 +3683,9 @@ class NovaEraEngine {
         }
         const range = max - min || 1;
 
-        // ★ v7.0: Normalização SIMPLES para [0.10, 1.0]
-        // Removida compressão σ-aware que destruía o sinal
-        // Score floor de 0.10 garante que nenhum número é eliminado
+        // â˜… v7.0: NormalizaÃ§Ã£o SIMPLES para [0.10, 1.0]
+        // Removida compressÃ£o Ïƒ-aware que destruÃ­a o sinal
+        // Score floor de 0.10 garante que nenhum nÃºmero Ã© eliminado
         for (let n = startNum; n <= endNum; n++) {
             const normalized = (scores[n] - min) / range;
             scores[n] = 0.10 + normalized * 0.90;
@@ -3754,3 +3756,6 @@ class NovaEraEngine {
 if (typeof window !== 'undefined') {
     window.NovaEraEngine = NovaEraEngine;
 }
+
+
+

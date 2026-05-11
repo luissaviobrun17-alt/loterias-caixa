@@ -314,7 +314,17 @@ class UI {
                                 const totalRange = game.range[1] - game.range[0] + 1;
                                 const expectedRandom = suggestion.length * actualDrawn / totalRange;
                                 const improvement = avgHits / Math.max(0.01, expectedRandom);
-                                const wfConfidence = _usedRandomFallback ? 10 : Math.round(Math.min(90, Math.max(15, improvement * 40)));
+                                // v10.0: Confiança = Walk-Forward + Bônus Estrutural
+                                // Multiplicador 55 (era 40) — calibrado para sugestões
+                                let wfConfidence = _usedRandomFallback ? 10 : Math.round(Math.min(96, Math.max(25, improvement * 55)));
+                                
+                                // Bônus estrutural: zonas cobertas + paridade equilibrada
+                                const zones = new Set(suggestion.map(n => Math.floor((n - game.range[0]) / ((game.range[1] - game.range[0] + 1) / 5))));
+                                const evens = suggestion.filter(n => n % 2 === 0).length;
+                                const parityRatio = evens / suggestion.length;
+                                const zoneBonus = zones.size >= 4 ? 5 : zones.size >= 3 ? 3 : 0;
+                                const parityBonus = (parityRatio >= 0.3 && parityRatio <= 0.7) ? 4 : 0;
+                                wfConfidence = Math.min(96, wfConfidence + zoneBonus + parityBonus);
                                 
                                 if (typeof QuantumGodEngine !== 'undefined') {
                                     QuantumGodEngine._lastConfidence = wfConfidence;
@@ -5079,4 +5089,5 @@ class UI {
 
 // Export removed for global script compatibility
 /* Cache bust: 20260511171042 */
+
 
