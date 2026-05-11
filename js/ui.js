@@ -1,9 +1,9 @@
-const L99_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-const L99_TIMES = ["ABC/RN", "América/MG", "América/RJ", "América/RN", "Atlético/GO", "Atlético/MG", "Atlético/PR", "Avaí/SC", "Bahia/BA", "Bangu/RJ", "Barueri/SP", "Botafogo/PB", "Botafogo/RJ", "Botafogo/SP", "Bragantino/SP", "Brasiliense/DF", "Campinense/PB", "Ceará/CE", "Corinthians/SP", "Coritiba/PR", "CRB/AL", "Criciúma/SC", "Cruzeiro/MG", "CSA/AL", "Desportiva/ES", "Figueirense/SC", "Flamengo/RJ", "Fluminense/RJ", "Fortaleza/CE", "Gama/DF", "Goiás/GO", "Grêmio/RS", "Guarani/SP", "Inter Limeira/SP", "Internacional/RS", "Ipatinga/MG", "Ituano/SP", "Ji-Paraná/RO", "Joinville/SC", "Juventude/RS", "Juventus/SP", "Londrina/PR", "Marília/SP", "Mixto/MT", "Moto Clube/MA", "Náutico/PE", "Nacional/AM", "Olaria/RJ", "Operário/MS", "Palmeiras/SP", "Paraná/PR", "Paulista/SP", "Paysandu/PA", "Ponte Preta/SP", "Portuguesa/SP", "Remo/PA", "Rio Branco/AC", "Rio Branco/ES", "River/PI", "Roraima/RR", "Sampaio Corrêa/MA", "Santa Cruz/PE", "Santo André/SP", "Santos/SP", "São Caetano/SP", "São Paulo/SP", "São Raimundo/AM", "Sergipe/SE", "Sport/PE", "Treze/PB", "Tuna Luso/PA", "Uberlândia/MG", "União Bandeirante/PR", "União São João/SP", "Vasco/RJ", "Vila Nova/GO", "Villa Nova/MG", "Vitória/BA", "Volta Redonda/RJ", "Ypiranga/AP"];
+﻿const L99_MESES = ["Janeiro", "Fevereiro", "MarÃ§o", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+const L99_TIMES = ["ABC/RN", "AmÃ©rica/MG", "AmÃ©rica/RJ", "AmÃ©rica/RN", "AtlÃ©tico/GO", "AtlÃ©tico/MG", "AtlÃ©tico/PR", "AvaÃ­/SC", "Bahia/BA", "Bangu/RJ", "Barueri/SP", "Botafogo/PB", "Botafogo/RJ", "Botafogo/SP", "Bragantino/SP", "Brasiliense/DF", "Campinense/PB", "CearÃ¡/CE", "Corinthians/SP", "Coritiba/PR", "CRB/AL", "CriciÃºma/SC", "Cruzeiro/MG", "CSA/AL", "Desportiva/ES", "Figueirense/SC", "Flamengo/RJ", "Fluminense/RJ", "Fortaleza/CE", "Gama/DF", "GoiÃ¡s/GO", "GrÃªmio/RS", "Guarani/SP", "Inter Limeira/SP", "Internacional/RS", "Ipatinga/MG", "Ituano/SP", "Ji-ParanÃ¡/RO", "Joinville/SC", "Juventude/RS", "Juventus/SP", "Londrina/PR", "MarÃ­lia/SP", "Mixto/MT", "Moto Clube/MA", "NÃ¡utico/PE", "Nacional/AM", "Olaria/RJ", "OperÃ¡rio/MS", "Palmeiras/SP", "ParanÃ¡/PR", "Paulista/SP", "Paysandu/PA", "Ponte Preta/SP", "Portuguesa/SP", "Remo/PA", "Rio Branco/AC", "Rio Branco/ES", "River/PI", "Roraima/RR", "Sampaio CorrÃªa/MA", "Santa Cruz/PE", "Santo AndrÃ©/SP", "Santos/SP", "SÃ£o Caetano/SP", "SÃ£o Paulo/SP", "SÃ£o Raimundo/AM", "Sergipe/SE", "Sport/PE", "Treze/PB", "Tuna Luso/PA", "UberlÃ¢ndia/MG", "UniÃ£o Bandeirante/PR", "UniÃ£o SÃ£o JoÃ£o/SP", "Vasco/RJ", "Vila Nova/GO", "Villa Nova/MG", "VitÃ³ria/BA", "Volta Redonda/RJ", "Ypiranga/AP"];
 
 class UI {
     constructor() {
-        // ══ Helper para getElementById seguro ══
+        // â•â• Helper para getElementById seguro â•â•
         const _el = (id) => document.getElementById(id);
 
         this.navButtons = document.querySelectorAll('.nav-btn') || [];
@@ -34,7 +34,7 @@ class UI {
         this.closeCopyModalBtns = document.querySelectorAll('.close-copy-modal') || [];
         this.copyTextarea = _el('copy-textarea');
 
-        this.currentGeneratedGames = []; // Store generated games — FONTE ÚNICA DE VERDADE
+        this.currentGeneratedGames = []; // Store generated games â€” FONTE ÃšNICA DE VERDADE
 
         this.hotNumbersContainer = _el('hot-numbers');
         this.coldNumbersContainer = _el('cold-numbers');
@@ -71,13 +71,13 @@ class UI {
         this.selectedNumbers = new Set();
         this.currentGameKey = 'megasena';
 
-        // ── Rastreamento de Modo de Geração (para Estatísticas) ──
+        // â”€â”€ Rastreamento de Modo de GeraÃ§Ã£o (para EstatÃ­sticas) â”€â”€
         this._lastGenerationMode = localStorage.getItem('l99_lastMode') || 'manual';   // quantum_l99 | gerar_jogos | dual_2g | fechamento | manual
         this._lastPrecisionMode = false;
         this._lastDrawSize = 6;
         this._lastCheckDrawInfo = '';
 
-        // ── Flag de geração em andamento (previne double-click) ──
+        // â”€â”€ Flag de geraÃ§Ã£o em andamento (previne double-click) â”€â”€
         this._isGenerating = false;
 
         // Quantum/IA Elements
@@ -159,8 +159,8 @@ class UI {
     }
 
     initInstallEvents() {
-        // btn-install agora é um link <a> para INSTALAR_B2B.html — não precisa de handler
-        // Apenas garante que o modal antigo não seja aberto por acidente
+        // btn-install agora Ã© um link <a> para INSTALAR_B2B.html â€” nÃ£o precisa de handler
+        // Apenas garante que o modal antigo nÃ£o seja aberto por acidente
         if (this.installModal) {
             // Fechar modal antigo se ainda existir (retrocompatibilidade)
             if (this.closeInstallModalBtns) {
@@ -193,8 +193,8 @@ class UI {
     runQuantumCalculation() {
         const game = typeof GAMES !== 'undefined' ? GAMES[this.currentGameKey] : null;
         if (!game) {
-            console.error('[UI] GAMES não carregado ou jogo inválido:', this.currentGameKey);
-            if (typeof Guardian !== 'undefined' && Guardian.toast) Guardian.toast('Erro: dados do jogo não carregados. Recarregue a página.', 'error');
+            console.error('[UI] GAMES nÃ£o carregado ou jogo invÃ¡lido:', this.currentGameKey);
+            if (typeof Guardian !== 'undefined' && Guardian.toast) Guardian.toast('Erro: dados do jogo nÃ£o carregados. Recarregue a pÃ¡gina.', 'error');
             return;
         }
 
@@ -204,44 +204,44 @@ class UI {
             : null;
         const totalNumbers = constraints ? constraints.totalNumbers : (game.range[1] - game.range[0] + 1);
 
-        // Validação: mínimo é o minBet do jogo
+        // ValidaÃ§Ã£o: mÃ­nimo Ã© o minBet do jogo
         if (count < game.minBet) {
             if (typeof Guardian !== 'undefined' && Guardian.toast) {
-                Guardian.toast(`Mínimo de ${game.minBet} números para ${game.name}.`, 'warning');
+                Guardian.toast(`MÃ­nimo de ${game.minBet} nÃºmeros para ${game.name}.`, 'warning');
             } else {
-                alert(`Mínimo de ${game.minBet} números para ${game.name}.`);
+                alert(`MÃ­nimo de ${game.minBet} nÃºmeros para ${game.name}.`);
             }
             if (this.quantumCountInput) this.quantumCountInput.value = game.minBet;
             return;
         }
 
-        // Validação: máximo é o total de números da loteria
+        // ValidaÃ§Ã£o: mÃ¡ximo Ã© o total de nÃºmeros da loteria
         if (count > totalNumbers) {
             if (typeof Guardian !== 'undefined' && Guardian.toast) {
-                Guardian.toast(`Limite excedido: ${game.name} possui apenas ${totalNumbers} números.`, 'warning');
+                Guardian.toast(`Limite excedido: ${game.name} possui apenas ${totalNumbers} nÃºmeros.`, 'warning');
             } else {
-                alert(`Limite excedido: ${game.name} possui apenas ${totalNumbers} números.`);
+                alert(`Limite excedido: ${game.name} possui apenas ${totalNumbers} nÃºmeros.`);
             }
             return;
         }
 
         const statusDiv = this.quantumResults;
         if (!statusDiv) {
-            console.error('[UI] quantum-results não encontrado no DOM');
+            console.error('[UI] quantum-results nÃ£o encontrado no DOM');
             return;
         }
 
-        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">★ MODO DEUS v9.5 — 21 Camadas + Ciclo Individual + Superposição Quântica...</div>';
+        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">â˜… MODO DEUS v9.5 â€” 21 Camadas + Ciclo Individual + SuperposiÃ§Ã£o QuÃ¢ntica...</div>';
 
         // Phase 1: Analysis
         setTimeout(() => {
             if (!statusDiv.parentNode) return; // Elemento removido do DOM
-            statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #6366f1; font-style: normal;">★ Bayesian + Markov + Posicional + Cadeias Sequenciais...</div>';
+            statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #6366f1; font-style: normal;">â˜… Bayesian + Markov + Posicional + Cadeias Sequenciais...</div>';
 
             // Phase 2: Processing
             setTimeout(() => {
                 if (!statusDiv.parentNode) return;
-                statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #ec4899; font-style: normal;">★ Convergência Bayesiana + Monte Carlo → Próximo Sorteio...</div>';
+                statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #ec4899; font-style: normal;">â˜… ConvergÃªncia Bayesiana + Monte Carlo â†’ PrÃ³ximo Sorteio...</div>';
 
                 // Phase 3: Run Engine (with robust error handling + fallback chain)
                 setTimeout(() => {
@@ -282,9 +282,9 @@ class UI {
                             }
                         }
 
-                        // Motor 3: Fallback aleatório (último recurso)
+                        // Motor 3: Fallback aleatÃ³rio (Ãºltimo recurso)
                         if (!suggestion || suggestion.length === 0) {
-                            console.warn('[UI] Todos os motores falharam, usando fallback aleatório');
+                            console.warn('[UI] Todos os motores falharam, usando fallback aleatÃ³rio');
                             suggestion = [];
                             const pool = [];
                             for (let i = game.range[0]; i <= game.range[1]; i++) pool.push(i);
@@ -294,14 +294,14 @@ class UI {
                             suggestion.sort((a, b) => a - b);
                         }
 
-                        // Calcular confiança via backtest (se disponível)
+                        // Calcular confianÃ§a via backtest (se disponÃ­vel)
                         if (suggestion && suggestion.length > 0 && history.length >= 3 && typeof QuantumGodEngine !== 'undefined') {
                             try {
                                 if (typeof QuantumGodEngine._backtestResult === 'function') {
                                     const bt = QuantumGodEngine._backtestResult(suggestion, history, this.currentGameKey);
                                     QuantumGodEngine._lastConfidence = bt.confidence;
                                     QuantumGodEngine._lastBacktest = bt;
-                                    console.log('[UI] Confiança calculada via backtest: ' + bt.confidence + '%');
+                                    console.log('[UI] ConfianÃ§a calculada via backtest: ' + bt.confidence + '%');
                                 } else if (typeof QuantumGodEngine._evaluateConfidence === 'function') {
                                     const ev = QuantumGodEngine._evaluateConfidence(suggestion, history, game, count);
                                     QuantumGodEngine._lastConfidence = ev.confidence;
@@ -315,11 +315,11 @@ class UI {
                             }
                         }
 
-                        console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + ' números');
+                        console.log('[UI] SugestÃ£o gerada: ' + (suggestion ? suggestion.length : 0) + ' nÃºmeros');
                         this.renderQuantumResults(suggestion);
                     } catch (err) {
-                        console.error('[UI] ERRO CRÍTICO no engine:', err);
-                        statusDiv.innerHTML = '<div style="color: #ef4444; text-align: center; padding: 10px;">❌ Erro: ' + err.message + '<br><small>Verifique o console (F12) para detalhes</small></div>';
+                        console.error('[UI] ERRO CRÃTICO no engine:', err);
+                        statusDiv.innerHTML = '<div style="color: #ef4444; text-align: center; padding: 10px;">âŒ Erro: ' + err.message + '<br><small>Verifique o console (F12) para detalhes</small></div>';
                     }
                 }, 100);
 
@@ -339,7 +339,7 @@ class UI {
         card.style.width = '100%';
 
         if (!numbers || numbers.length === 0) {
-            this.quantumResults.innerHTML = '<div style="color: var(--text-secondary); text-align: center; font-size: 0.8rem;">Nenhum número gerado. Tente novamente.</div>';
+            this.quantumResults.innerHTML = '<div style="color: var(--text-secondary); text-align: center; font-size: 0.8rem;">Nenhum nÃºmero gerado. Tente novamente.</div>';
             return;
         }
 
@@ -373,24 +373,24 @@ class UI {
 
         this.quantumResults.appendChild(card);
 
-        // Indicador de Confiança V9
+        // Indicador de ConfianÃ§a V9
         try {
             const confidence = QuantumGodEngine.getLastConfidence ? QuantumGodEngine.getLastConfidence() : 50;
             const backtest = QuantumGodEngine.getLastBacktest ? QuantumGodEngine.getLastBacktest() : null;
             const confColor = confidence >= 70 ? '#22C55E' : confidence >= 50 ? '#EAB308' : '#EF4444';
-            const confEmoji = confidence >= 70 ? '🟢' : confidence >= 50 ? '🟡' : '🔴';
+            const confEmoji = confidence >= 70 ? 'ðŸŸ¢' : confidence >= 50 ? 'ðŸŸ¡' : 'ðŸ”´';
             const confLabel = confidence >= 70 ? 'ALTA' : confidence >= 50 ? 'MODERADA' : 'BAIXA';
 
             let confHTML = `<div style="margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(0,0,0,0.3);border:1px solid ${confColor}40;font-size:0.78rem;">`;
             confHTML += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">`;
-            confHTML += `<span style="color:${confColor};font-weight:800;">${confEmoji} Confiança: ${confidence}% (${confLabel})</span>`;
+            confHTML += `<span style="color:${confColor};font-weight:800;">${confEmoji} ConfianÃ§a: ${confidence}% (${confLabel})</span>`;
             if (backtest && backtest.improvement) {
                 const impColor = backtest.improvement >= 1.0 ? '#22C55E' : '#EF4444';
-                confHTML += `<span style="color:${impColor};font-weight:700;">${backtest.improvement >= 1.0 ? '↑' : '↓'} ${(backtest.improvement * 100 - 100).toFixed(0)}% vs chance</span>`;
+                confHTML += `<span style="color:${impColor};font-weight:700;">${backtest.improvement >= 1.0 ? 'â†‘' : 'â†“'} ${(backtest.improvement * 100 - 100).toFixed(0)}% vs chance</span>`;
             }
             confHTML += `</div>`;
             if (backtest && backtest.avgHits !== undefined) {
-                confHTML += `<div style="color:#94a3b8;font-size:0.72rem;">Média: ${backtest.avgHits.toFixed(1)} acertos (esperado: ${(backtest.expectedByChance || 0).toFixed(1)}) | Taxa de vitória: ${((backtest.winRate || 0) * 100).toFixed(0)}%</div>`;
+                confHTML += `<div style="color:#94a3b8;font-size:0.72rem;">MÃ©dia: ${backtest.avgHits.toFixed(1)} acertos (esperado: ${(backtest.expectedByChance || 0).toFixed(1)}) | Taxa de vitÃ³ria: ${((backtest.winRate || 0) * 100).toFixed(0)}%</div>`;
             }
             confHTML += `</div>`;
 
@@ -402,7 +402,7 @@ class UI {
         // Update formula again for "Next Run"
         try { this.quantumFormula.textContent = QuantumService.getFormula(); } catch(e) {}
 
-        // ── HELPER: obter histórico robusto (StatsService + fallback REAL_HISTORY_DB) ────
+        // â”€â”€ HELPER: obter histÃ³rico robusto (StatsService + fallback REAL_HISTORY_DB) â”€â”€â”€â”€
         const _getHistory = (gameKey, maxCount) => {
             let h = [];
             try { h = StatsService.getRecentResults(gameKey, maxCount) || []; } catch(e) { console.warn('[UI] Falha no StatsService (historico):', e.message); }
@@ -414,37 +414,37 @@ class UI {
             return h;
         };
 
-        // ── DIAGNÓSTICO: quais engines estão carregados ────────────────────────
+        // â”€â”€ DIAGNÃ“STICO: quais engines estÃ£o carregados â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         const enginesLoaded = [
-            typeof AnalysisEngine !== 'undefined'       ? '🔬AE-V2'  : null,
-            typeof DecisionEngine !== 'undefined'       ? '✅DE-V1'  : null,
-            typeof UniversalGroupEngine !== 'undefined' ? '🎯UGE-V1' : null,
+            typeof AnalysisEngine !== 'undefined'       ? 'ðŸ”¬AE-V2'  : null,
+            typeof DecisionEngine !== 'undefined'       ? 'âœ…DE-V1'  : null,
+            typeof UniversalGroupEngine !== 'undefined' ? 'ðŸŽ¯UGE-V1' : null,
         ].filter(Boolean);
         if (enginesLoaded.length > 0) {
             const diagDiv = document.createElement('div');
             diagDiv.style.cssText = 'text-align:center;font-size:0.58rem;color:#475569;padding:3px 0 1px;letter-spacing:0.5px;';
-            diagDiv.textContent = 'Motores: ' + enginesLoaded.join(' · ');
+            diagDiv.textContent = 'Motores: ' + enginesLoaded.join(' Â· ');
             this.quantumResults.appendChild(diagDiv);
         } else {
             const diagDiv = document.createElement('div');
             diagDiv.style.cssText = 'text-align:center;font-size:0.65rem;color:#EF4444;padding:4px;';
-            diagDiv.textContent = '⚠️ Motores de análise não carregados — recarregue a página (Ctrl+Shift+R)';
+            diagDiv.textContent = 'âš ï¸ Motores de anÃ¡lise nÃ£o carregados â€” recarregue a pÃ¡gina (Ctrl+Shift+R)';
             this.quantumResults.appendChild(diagDiv);
         }
 
-        // ── ANÁLISE PROFUNDA DE EFICIÊNCIA ──────────────────────────────────
+        // â”€â”€ ANÃLISE PROFUNDA DE EFICIÃŠNCIA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         try {
             if (typeof AnalysisEngine !== 'undefined' && numbers && numbers.length > 0) {
                 const aeStatus = document.createElement('div');
                 aeStatus.style.cssText = 'text-align:center;color:#8B5CF6;font-size:0.72rem;padding:6px;opacity:0.8;';
-                aeStatus.textContent = '🔬 Analisando eficiência da seleção em 12 dimensões...';
+                aeStatus.textContent = 'ðŸ”¬ Analisando eficiÃªncia da seleÃ§Ã£o em 12 dimensÃµes...';
                 this.quantumResults.appendChild(aeStatus);
 
                 setTimeout(() => {
                     try {
                         const history = _getHistory(this.currentGameKey, 100);
                         if (history.length < 3) {
-                            aeStatus.textContent = '⚠️ AE-V2: histórico insuficiente (' + history.length + ' registros)';
+                            aeStatus.textContent = 'âš ï¸ AE-V2: histÃ³rico insuficiente (' + history.length + ' registros)';
                             return;
                         }
                         const analysis = AnalysisEngine.analyze(this.currentGameKey, numbers, history);
@@ -454,18 +454,18 @@ class UI {
                             AnalysisEngine.renderPanel(analysis, aeContainer);
                             this.quantumResults.appendChild(aeContainer);
                         } else {
-                            aeStatus.textContent = '⚠️ AE-V2: análise retornou null';
+                            aeStatus.textContent = 'âš ï¸ AE-V2: anÃ¡lise retornou null';
                         }
                     } catch (aeErr) {
                         aeStatus.style.color = '#EF4444';
-                        aeStatus.textContent = '⚠️ AE-V2 erro: ' + aeErr.message;
+                        aeStatus.textContent = 'âš ï¸ AE-V2 erro: ' + aeErr.message;
                         console.warn('[AE] Erro:', aeErr);
                     }
                 }, 200);
             }
-        } catch(e) { console.warn('[AE] Erro ao iniciar análise:', e); }
+        } catch(e) { console.warn('[AE] Erro ao iniciar anÃ¡lise:', e); }
 
-        // ── PAINEL DE DECISÃO INTEGRADO ──────────────────────────────────────
+        // â”€â”€ PAINEL DE DECISÃƒO INTEGRADO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         try {
             if (typeof DecisionEngine !== 'undefined' && numbers && numbers.length > 0) {
                 setTimeout(() => {
@@ -481,13 +481,13 @@ class UI {
                     } catch (deErr) {
                         const errDiv = document.createElement('div');
                         errDiv.style.cssText = 'color:#EF4444;font-size:0.65rem;padding:6px;text-align:center;';
-                        errDiv.textContent = '⚠️ Decisão erro: ' + deErr.message;
+                        errDiv.textContent = 'âš ï¸ DecisÃ£o erro: ' + deErr.message;
                         this.quantumResults.appendChild(errDiv);
-                        console.warn('[DE] Erro motor de decisão:', deErr);
+                        console.warn('[DE] Erro motor de decisÃ£o:', deErr);
                     }
                 }, 600);
             }
-        } catch(e) { console.warn('[DE] Erro ao iniciar decisão:', e); }
+        } catch(e) { console.warn('[DE] Erro ao iniciar decisÃ£o:', e); }
     }
 
     useQuantumNumbers() {
@@ -495,11 +495,11 @@ class UI {
         const balls = resultDiv.querySelectorAll('.ball');
 
         if (balls.length === 0) {
-            alert("Gere uma sugestão quântica primeiro!");
+            alert("Gere uma sugestÃ£o quÃ¢ntica primeiro!");
             return;
         }
 
-        // IMPORTANTE: Extrair números ANTES de clearSelection (que limpa o DOM)
+        // IMPORTANTE: Extrair nÃºmeros ANTES de clearSelection (que limpa o DOM)
         const numbersToSelect = [];
         balls.forEach(b => {
             const n = parseInt(b.textContent);
@@ -508,7 +508,7 @@ class UI {
 
         if (numbersToSelect.length === 0) return;
 
-        // Limpar seleção atual (mas preservar os números já extraídos)
+        // Limpar seleÃ§Ã£o atual (mas preservar os nÃºmeros jÃ¡ extraÃ­dos)
         this.selectedNumbers.clear();
         this.fixedNumbers.clear();
         this.isFixedMode = false;
@@ -519,7 +519,7 @@ class UI {
             el.classList.remove('selected');
             el.classList.remove('fixed');
         });
-        this.gamesContainer.innerHTML = '<div class="empty-state">Selecione as opções e clique em Gerar Jogos</div>';
+        this.gamesContainer.innerHTML = '<div class="empty-state">Selecione as opÃ§Ãµes e clique em Gerar Jogos</div>';
 
         const game = GAMES[this.currentGameKey];
 
@@ -539,9 +539,9 @@ class UI {
         this.gridContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    // ╔══════════════════════════════════════════════════════════╗
-    // ║  POOL PRECISÃO — LIMITES DINÂMICOS POR LOTERIA           ║
-    // ╚══════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  POOL PRECISÃƒO â€” LIMITES DINÃ‚MICOS POR LOTERIA           â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     _updatePrecisionPoolLimits() {
         const poolInput = document.getElementById('precision-pool-size');
         if (!poolInput) return;
@@ -551,45 +551,45 @@ class UI {
 
         const drawSize = game.minBet;
         const totalRange = game.range[1] - game.range[0] + 1;
-        const minPool = drawSize + 1; // Mínimo: drawSize + 1 (ex: Mega Sena = 7)
-        const maxPool = totalRange; // Máximo: total de números da loteria (ex: Timemania = 80)
+        const minPool = drawSize + 1; // MÃ­nimo: drawSize + 1 (ex: Mega Sena = 7)
+        const maxPool = totalRange; // MÃ¡ximo: total de nÃºmeros da loteria (ex: Timemania = 80)
         const defaultPool = Math.min(totalRange, Math.max(20, drawSize + Math.ceil(drawSize * 0.45)));
 
         poolInput.min = minPool;
         poolInput.max = maxPool;
-        // Só atualiza o valor se estiver fora dos limites
+        // SÃ³ atualiza o valor se estiver fora dos limites
         const current = parseInt(poolInput.value) || defaultPool;
         if (current < minPool || current > maxPool) {
             poolInput.value = defaultPool;
         }
-        poolInput.title = `Mín: ${minPool} | Máx: ${maxPool} | Padrão: ${defaultPool}`;
+        poolInput.title = `MÃ­n: ${minPool} | MÃ¡x: ${maxPool} | PadrÃ£o: ${defaultPool}`;
 
         // Atualizar texto info
         const infoSpan = document.getElementById('precision-pool-info');
         if (infoSpan) {
-            infoSpan.textContent = `Mín: ${minPool} | Máx: ${maxPool} | Padrão: ${defaultPool}`;
+            infoSpan.textContent = `MÃ­n: ${minPool} | MÃ¡x: ${maxPool} | PadrÃ£o: ${defaultPool}`;
         }
     }
 
-    // ╔══════════════════════════════════════════════════════════╗
-    // ║  GERAR JOGOS COM IA (SMART BETS + MODO PRECISÃO)        ║
-    // ╚══════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  GERAR JOGOS COM IA (SMART BETS + MODO PRECISÃƒO)        â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     runSmartGeneration() {
         const game = GAMES[this.currentGameKey];
         if (!game) return;
 
-        // ── PROTEÇÃO DOUBLE-CLICK ──
+        // â”€â”€ PROTEÃ‡ÃƒO DOUBLE-CLICK â”€â”€
         if (this._isGenerating) {
-            console.warn('[SmartBets] Geração já em andamento, ignorando clique duplo');
+            console.warn('[SmartBets] GeraÃ§Ã£o jÃ¡ em andamento, ignorando clique duplo');
             return;
         }
         this._isGenerating = true;
 
-        // Verificar se Modo Precisão está ativo
+        // Verificar se Modo PrecisÃ£o estÃ¡ ativo
         const precisionCheckbox = document.getElementById('precision-mode-toggle');
         const isPrecisionMode = precisionCheckbox && precisionCheckbox.checked;
 
-        // ── RASTREAMENTO DE MODO ── ★ FIX: diferenciar precision vs quantum
+        // â”€â”€ RASTREAMENTO DE MODO â”€â”€ â˜… FIX: diferenciar precision vs quantum
         const _modeKey = isPrecisionMode ? 'precision' : 'quantum_l99';
         this._lastGenerationMode = _modeKey; localStorage.setItem('l99_lastMode', _modeKey); document.body.setAttribute('data-l99-mode', _modeKey);
         this._lastPrecisionMode = isPrecisionMode;
@@ -599,7 +599,7 @@ class UI {
         let selectedArr = Array.from(this.selectedNumbers);
         const fixedArr = Array.from(this.fixedNumbers);
 
-        // Ler quantidade de números por jogo IA
+        // Ler quantidade de nÃºmeros por jogo IA
         const customDrawSize = this.smartDrawSizeSelect
             ? parseInt(this.smartDrawSizeSelect.value) || game.minBet
             : game.minBet;
@@ -610,7 +610,7 @@ class UI {
             for (let i = game.range[0]; i <= game.range[1]; i++) selectedArr.push(i);
         }
 
-        // AUTO-USAR números sugeridos pela fórmula IA (se nenhum selecionado no grid)
+        // AUTO-USAR nÃºmeros sugeridos pela fÃ³rmula IA (se nenhum selecionado no grid)
         let _quantumInjected = false;
         if (selectedArr.length === 0 && this.quantumResults) {
             const quantumBalls = this.quantumResults.querySelectorAll('.ball');
@@ -623,16 +623,16 @@ class UI {
                 if (quantumNums.length > 0) {
                     selectedArr = quantumNums;
                     _quantumInjected = true;
-                    console.log(`[SmartBets] 🔮 Usando ${quantumNums.length} números da Telepatia Quântica como pool`);
+                    console.log(`[SmartBets] ðŸ”® Usando ${quantumNums.length} nÃºmeros da Telepatia QuÃ¢ntica como pool`);
                 }
             }
         }
 
-        // V9: Sem validação restritiva — qualquer quantidade de selecionados é aceita
+        // V9: Sem validaÃ§Ã£o restritiva â€” qualquer quantidade de selecionados Ã© aceita
         // O motor IA usa os selecionados como pool preferencial (veja smart_bets.js)
-        // Só bloquear se 0 < selected < 2 (impossível de fazer qualquer jogo)
+        // SÃ³ bloquear se 0 < selected < 2 (impossÃ­vel de fazer qualquer jogo)
         if (selectedArr.length > 0 && selectedArr.length < 2) {
-            alert(`Selecione pelo menos ${customDrawSize} números (ou nenhum para usar análise completa).`);
+            alert(`Selecione pelo menos ${customDrawSize} nÃºmeros (ou nenhum para usar anÃ¡lise completa).`);
             return;
         }
 
@@ -644,37 +644,37 @@ class UI {
         const oldCaixaBtn = document.getElementById('caixa-panel');
         if (oldCaixaBtn) oldCaixaBtn.remove();
 
-        // V9: Indicador de modo ★ FIX: mostrar quando usa Quantum auto-injeção
+        // V9: Indicador de modo â˜… FIX: mostrar quando usa Quantum auto-injeÃ§Ã£o
         const modeLabel = _quantumInjected
-            ? `🔮 ${selectedArr.length} números da Telepatia Quântica → pool preferencial`
+            ? `ðŸ”® ${selectedArr.length} nÃºmeros da Telepatia QuÃ¢ntica â†’ pool preferencial`
             : selectedArr.length > 0
-                ? `🎯 ${selectedArr.length} números selecionados → gerando variantes`
-                : '🧠 Análise IA completa do universo';
+                ? `ðŸŽ¯ ${selectedArr.length} nÃºmeros selecionados â†’ gerando variantes`
+                : 'ðŸ§  AnÃ¡lise IA completa do universo';
 
         // Loading - QUANTUM L99 Premium
         this.gamesContainer.innerHTML = `
             <div style="text-align:center;padding:30px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border-radius:16px;border:1px solid rgba(139,92,246,0.3);">
-                <div style="font-size:2.5rem;margin-bottom:8px;filter:drop-shadow(0 0 15px rgba(255,215,0,0.5));">⚡</div>
-                <div style="color:#FFD700;font-weight:900;font-size:1.1rem;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 10px rgba(255,215,0,0.4);">QUANTUM L99 — Motor de Predição</div>
+                <div style="font-size:2.5rem;margin-bottom:8px;filter:drop-shadow(0 0 15px rgba(255,215,0,0.5));">âš¡</div>
+                <div style="color:#FFD700;font-weight:900;font-size:1.1rem;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 10px rgba(255,215,0,0.4);">QUANTUM L99 â€” Motor de PrediÃ§Ã£o</div>
                 <div style="color:#94A3B8;font-size:0.8rem;margin-top:6px;margin-bottom:15px;">${modeLabel}</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px auto;max-width:450px;">
                     <div id="q-phase-1" style="padding:10px 8px;border-radius:10px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);transition:all 0.5s;">
-                        <div style="font-size:1.2rem;margin-bottom:4px;">⚛️</div>
-                        <div style="color:#C4B5FD;font-size:0.7rem;font-weight:700;">COMPUTAÇÃO</div>
-                        <div style="color:#8B5CF6;font-size:0.6rem;">QUÂNTICA</div>
+                        <div style="font-size:1.2rem;margin-bottom:4px;">âš›ï¸</div>
+                        <div style="color:#C4B5FD;font-size:0.7rem;font-weight:700;">COMPUTAÃ‡ÃƒO</div>
+                        <div style="color:#8B5CF6;font-size:0.6rem;">QUÃ‚NTICA</div>
                     </div>
                     <div id="q-phase-2" style="padding:10px 8px;border-radius:10px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);transition:all 0.5s;opacity:0.4;">
-                        <div style="font-size:1.2rem;margin-bottom:4px;">🔮</div>
+                        <div style="font-size:1.2rem;margin-bottom:4px;">ðŸ”®</div>
                         <div style="color:#6EE7B7;font-size:0.7rem;font-weight:700;">FUTUROLOGIA</div>
                         <div style="color:#10B981;font-size:0.6rem;">PREDITIVA</div>
                     </div>
                     <div id="q-phase-3" style="padding:10px 8px;border-radius:10px;background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.15);transition:all 0.5s;opacity:0.4;">
-                        <div style="font-size:1.2rem;margin-bottom:4px;">🧿</div>
-                        <div style="color:#F9A8D4;font-size:0.7rem;font-weight:700;">CLARIVIDÊNCIA</div>
+                        <div style="font-size:1.2rem;margin-bottom:4px;">ðŸ§¿</div>
+                        <div style="color:#F9A8D4;font-size:0.7rem;font-weight:700;">CLARIVIDÃŠNCIA</div>
                         <div style="color:#EC4899;font-size:0.6rem;">COMPUTACIONAL</div>
                     </div>
                 </div>
-                <div id="q-status" style="color:#C4B5FD;font-weight:600;font-size:0.82rem;margin-top:8px;">⚛️ Processando entrelaçamento quântico...</div>
+                <div id="q-status" style="color:#C4B5FD;font-weight:600;font-size:0.82rem;margin-top:8px;">âš›ï¸ Processando entrelaÃ§amento quÃ¢ntico...</div>
                 <div style="margin-top:12px;width:70%;height:4px;background:rgba(139,92,246,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
                     <div style="width:30%;height:100%;background:linear-gradient(90deg,#8B5CF6,#FFD700,#EC4899);border-radius:4px;animation:smartProgress 2s ease-in-out infinite;"></div>
                 </div>
@@ -687,13 +687,13 @@ class UI {
             this.generateSmartBtn.style.opacity = '0.6';
         }
 
-        // ★ FIX: Animação reduzida de 1200ms → 400ms total (era teatro puro)
+        // â˜… FIX: AnimaÃ§Ã£o reduzida de 1200ms â†’ 400ms total (era teatro puro)
         setTimeout(() => {
             try {
                 const p2 = document.getElementById('q-phase-2');
                 const st = document.getElementById('q-status');
                 if (p2) { p2.style.opacity = '1'; p2.style.background = 'rgba(16,185,129,0.2)'; p2.style.borderColor = 'rgba(16,185,129,0.5)'; }
-                if (st) st.innerHTML = '🔮 Análise preditiva multi-camada...';
+                if (st) st.innerHTML = 'ðŸ”® AnÃ¡lise preditiva multi-camada...';
             } catch(e) {}
 
             setTimeout(() => {
@@ -701,23 +701,23 @@ class UI {
                     const p3 = document.getElementById('q-phase-3');
                     const st = document.getElementById('q-status');
                     if (p3) { p3.style.opacity = '1'; p3.style.background = 'rgba(236,72,153,0.2)'; p3.style.borderColor = 'rgba(236,72,153,0.5)'; }
-                    if (st) st.innerHTML = '🧿 Convergência de camadas → Gerando jogos...';
+                    if (st) st.innerHTML = 'ðŸ§¿ ConvergÃªncia de camadas â†’ Gerando jogos...';
                 } catch(e) {}
 
                 setTimeout(() => {
-                    // ★ Identificar motor para rastreamento
+                    // â˜… Identificar motor para rastreamento
                     let _engineUsed = 'SmartBets';
                     try {
                         let result;
                         if (isPrecisionMode && typeof NovaEraEngine !== 'undefined' && typeof NovaEraEngine.generateSniper === 'function') {
-                            // ── SNIPER QUANTUM v9.5: Pool pré-selecionado + Tiers + Cross-combo ──
-                            // ★ FIX: Ler pool do campo CORRETO (precision-pool-size)
+                            // â”€â”€ SNIPER QUANTUM v9.5: Pool prÃ©-selecionado + Tiers + Cross-combo â”€â”€
+                            // â˜… FIX: Ler pool do campo CORRETO (precision-pool-size)
                             const precisionPoolInput = document.getElementById('precision-pool-size');
                             const precisionPoolValue = precisionPoolInput ? parseInt(precisionPoolInput.value) : 0;
                             const poolSize = precisionPoolValue > 0 ? precisionPoolValue : (customDrawSize || game.minBet * 5);
-                            // ★ FIX #6: usar customDrawSize (dropdown) em vez de game.minBet fixo
+                            // â˜… FIX #6: usar customDrawSize (dropdown) em vez de game.minBet fixo
                             const actualDrawSize = customDrawSize || game.minBet;
-                            console.log('%c[UI] ★ SNIPER QUANTUM ATIVADO — pool=' + poolSize + ' (precision-pool-size=' + precisionPoolValue + ') | jogos=' + quantity + ' | drawSize=' + actualDrawSize, 'color: #EF4444; font-weight: bold;');
+                            console.log('%c[UI] â˜… SNIPER QUANTUM ATIVADO â€” pool=' + poolSize + ' (precision-pool-size=' + precisionPoolValue + ') | jogos=' + quantity + ' | drawSize=' + actualDrawSize, 'color: #EF4444; font-weight: bold;');
                             result = NovaEraEngine.generateSniper(
                                 this.currentGameKey,
                                 Math.min(quantity, 10000),
@@ -726,7 +726,7 @@ class UI {
                                 actualDrawSize
                             );
                             _engineUsed = 'Sniper Quantum (Pool: ' + poolSize + ')';
-                            // Se o resultado veio sem métricas completas, recalcular via NovaEraEngine
+                            // Se o resultado veio sem mÃ©tricas completas, recalcular via NovaEraEngine
                             if (result && result.analysis && (result.analysis.pairsCovered == null || result.analysis.pairsCovered === '-')) {
                                 if (typeof NovaEraEngine !== 'undefined' && result.games && result.games.length > 0) {
                                     try {
@@ -738,14 +738,14 @@ class UI {
                                         result.analysis.triosCovered = neAnalysis.triosCovered;
                                         result.analysis.backtestScore = neAnalysis.backtestScore;
                                         result.analysis.uniqueNumbers = neAnalysis.uniqueNumbers || result.analysis.uniqueNumbers;
-                                        console.log('[Precisão] ✅ Métricas enriquecidas via NovaEraEngine');
+                                        console.log('[PrecisÃ£o] âœ… MÃ©tricas enriquecidas via NovaEraEngine');
                                     } catch(neErr) {
-                                        console.warn('[Precisão] NovaEraEngine backtest falhou:', neErr.message);
+                                        console.warn('[PrecisÃ£o] NovaEraEngine backtest falhou:', neErr.message);
                                     }
                                 }
                             }
                         } else {
-                            // ── MODO PADRÃO: Geração com diversidade V9 ──
+                            // â”€â”€ MODO PADRÃƒO: GeraÃ§Ã£o com diversidade V9 â”€â”€
                             result = SmartBetsEngine.generate(
                                 this.currentGameKey,
                                 quantity,
@@ -757,11 +757,11 @@ class UI {
                         }
 
                         if (!result || !result.games || result.games.length === 0) {
-                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">❌ Não foi possível gerar jogos. Tente selecionar mais números.</div>';
+                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">âŒ NÃ£o foi possÃ­vel gerar jogos. Tente selecionar mais nÃºmeros.</div>';
                             return;
                         }
 
-                        // ── LIMPEZA COMPLETA antes de renderizar (FIX: painéis do fechamento anterior) ──
+                        // â”€â”€ LIMPEZA COMPLETA antes de renderizar (FIX: painÃ©is do fechamento anterior) â”€â”€
                         const _parent = this.gamesContainer.parentNode;
                         if (_parent) {
                             _parent.querySelectorAll('.generation-feedback, .smart-analysis-panel, .smart-gen-analysis').forEach(el => el.remove());
@@ -773,19 +773,19 @@ class UI {
                         this.renderGames(result, this.currentGameKey);
                         if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
 
-                        // ── PAINEL DE ANÁLISE IA ──
+                        // â”€â”€ PAINEL DE ANÃLISE IA â”€â”€
                         const analysis = result.analysis;
                         if (analysis) {
                             const confColor = analysis.confidence >= 70 ? '#22C55E' : analysis.confidence >= 50 ? '#EAB308' : '#EF4444';
-                            const confEmoji = analysis.confidence >= 70 ? '🟢' : analysis.confidence >= 50 ? '🟡' : '🔴';
+                            const confEmoji = analysis.confidence >= 70 ? 'ðŸŸ¢' : analysis.confidence >= 50 ? 'ðŸŸ¡' : 'ðŸ”´';
                             const confLabel = analysis.confidence >= 70 ? 'ALTA' : analysis.confidence >= 50 ? 'MODERADA' : 'BAIXA';
-                            const modeLabel = analysis.mode === 'PRECISÃO' ? '🎯 Modo Precisão' : '🧠 Smart Bets';
+                            const modeLabel = analysis.mode === 'PRECISÃƒO' ? 'ðŸŽ¯ Modo PrecisÃ£o' : 'ðŸ§  Smart Bets';
 
                             let analysisHTML = `
                                 <div class="smart-analysis-panel" style="margin-top:10px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(15,23,42,0.95),rgba(30,41,59,0.9));border:1px solid ${confColor}40;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
                                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:6px;">
-                                        <span style="color:${confColor};font-weight:800;font-size:0.9rem;">${confEmoji} Confiança IA: ${analysis.confidence}% (${confLabel})</span>
-                                        <span style="color:${analysis.mode === 'PRECISÃO' ? '#F59E0B' : '#8B5CF6'};font-weight:700;font-size:0.78rem;">${modeLabel}</span>
+                                        <span style="color:${confColor};font-weight:800;font-size:0.9rem;">${confEmoji} ConfianÃ§a IA: ${analysis.confidence}% (${confLabel})</span>
+                                        <span style="color:${analysis.mode === 'PRECISÃƒO' ? '#F59E0B' : '#8B5CF6'};font-weight:700;font-size:0.78rem;">${modeLabel}</span>
                                     </div>
                                     <div style="text-align:right;margin-bottom:6px;">
                                         <span style="color:#64748B;font-size:0.65rem;font-style:italic;">Motor: ${_engineUsed}</span>
@@ -812,25 +812,25 @@ class UI {
                                             <div style="color:#E2E8F0;font-weight:700;">${analysis.backtestScore != null ? analysis.backtestScore : '-'}%</div>
                                         </div>
                                         <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
-                                            <div style="color:#94A3B8;">Nº Únicos</div>
+                                            <div style="color:#94A3B8;">NÂº Ãšnicos</div>
                                             <div style="color:#E2E8F0;font-weight:700;">${analysis.uniqueNumbers != null ? analysis.uniqueNumbers : '-'}</div>
                                         </div>
                                     </div>
                                 </div>
                             `;
 
-                            // ── PAINEL EXTRA MODO PRECISÃO ──
-                            if (analysis.mode === 'PRECISÃO' && analysis.precisionPool) {
+                            // â”€â”€ PAINEL EXTRA MODO PRECISÃƒO â”€â”€
+                            if (analysis.mode === 'PRECISÃƒO' && analysis.precisionPool) {
                                 analysisHTML += `
                                 <div class="smart-analysis-panel" style="margin-top:6px;margin-bottom:10px;padding:10px 14px;border-radius:10px;background:linear-gradient(145deg,rgba(245,158,11,0.08),rgba(15,23,42,0.95));border:1px solid #F59E0B30;">
-                                    <div style="color:#F59E0B;font-weight:700;font-size:0.82rem;margin-bottom:6px;">🎯 Pool de Precisão: ${analysis.poolSize} números</div>
+                                    <div style="color:#F59E0B;font-weight:700;font-size:0.82rem;margin-bottom:6px;">ðŸŽ¯ Pool de PrecisÃ£o: ${analysis.poolSize} nÃºmeros</div>
                                     <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">
                                         ${analysis.precisionPool.map(n => '<span style="background:#F59E0B22;color:#F59E0B;padding:2px 7px;border-radius:12px;font-size:0.75rem;font-weight:700;">' + String(n).padStart(2,'0') + '</span>').join('')}
                                     </div>
                                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:0.72rem;">
                                         <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:4px;text-align:center;"><span style="color:#94A3B8;">14+ hits</span><br><span style="color:#22C55E;font-weight:700;">${(analysis.backtestHits && analysis.backtestHits['14+']) || 0}/10</span></div>
                                         <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:4px;text-align:center;"><span style="color:#94A3B8;">13+ hits</span><br><span style="color:#EAB308;font-weight:700;">${(analysis.backtestHits && analysis.backtestHits['13+']) || 0}/10</span></div>
-                                        <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:4px;text-align:center;"><span style="color:#94A3B8;">Pool Match</span><br><span style="color:#E2E8F0;font-weight:700;">${analysis.avgPoolMatch || '—'}</span></div>
+                                        <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:4px;text-align:center;"><span style="color:#94A3B8;">Pool Match</span><br><span style="color:#E2E8F0;font-weight:700;">${analysis.avgPoolMatch || 'â€”'}</span></div>
                                     </div>
                                 </div>`;
                             }
@@ -844,13 +844,13 @@ class UI {
                         const feedback = document.createElement('div');
                         feedback.className = 'generation-feedback';
                         feedback.style.cssText = 'text-align:center;padding:14px 16px;font-weight:800;margin-top:10px;margin-bottom:10px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border:1px solid rgba(255,215,0,0.3);border-radius:12px;';
-                        feedback.innerHTML = `<span style="color:#FFD700;font-size:1rem;">⚡ QUANTUM L99</span><br><span style="color:#C4B5FD;font-size:0.9rem;">${result.games.length} jogos gerados — Computação Quântica + Futurologia + Clarividência</span>`;
+                        feedback.innerHTML = `<span style="color:#FFD700;font-size:1rem;">âš¡ QUANTUM L99</span><br><span style="color:#C4B5FD;font-size:0.9rem;">${result.games.length} jogos gerados â€” ComputaÃ§Ã£o QuÃ¢ntica + Futurologia + ClarividÃªncia</span>`;
                         this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
 
-                        // ── APOSTAR NA CAIXA — PAINEL UNIVERSAL ──
+                        // â”€â”€ APOSTAR NA CAIXA â€” PAINEL UNIVERSAL â”€â”€
                         this._insertCaixaPanel(result.games, this.currentGameKey);
 
-                        // ── BACKTESTING AUTOMÁTICO V3 ──
+                        // â”€â”€ BACKTESTING AUTOMÃTICO V3 â”€â”€
                         try {
                             if (typeof BacktestingEngine !== 'undefined') {
                                 const btMetrics = BacktestingEngine.run(this.currentGameKey, 'smart', 10, 8);
@@ -870,7 +870,7 @@ class UI {
 
                     } catch (err) {
                         console.error('[SmartBets] ERRO:', err);
-                        this.gamesContainer.innerHTML = `<div class="empty-state" style="color:#EF4444;">❌ Erro: ${err.message}<br><small>Verifique o console (F12)</small></div>`;
+                        this.gamesContainer.innerHTML = `<div class="empty-state" style="color:#EF4444;">âŒ Erro: ${err.message}<br><small>Verifique o console (F12)</small></div>`;
                     } finally {
                         this._isGenerating = false;
                         if (this.generateSmartBtn) {
@@ -883,12 +883,12 @@ class UI {
         }, 200);
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  SISTEMA DE APOSTA ONLINE — CAIXA LOTERIAS                  ║
-    // ║  Gera script de automação para preencher jogos no site      ║
-    // ║  da Caixa Econômica Federal (Loterias Online)               ║
-    // ╚══════════════════════════════════════════════════════════════╝
-    // [REMOVIDO] _generateBookmarklet — obsoleto, usava alert('Pronto!') que conflitava com v5.0
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  SISTEMA DE APOSTA ONLINE â€” CAIXA LOTERIAS                  â•‘
+    // â•‘  Gera script de automaÃ§Ã£o para preencher jogos no site      â•‘
+    // â•‘  da Caixa EconÃ´mica Federal (Loterias Online)               â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // [REMOVIDO] _generateBookmarklet â€” obsoleto, usava alert('Pronto!') que conflitava com v5.0
 
     _generateCaixaScript_LEGACY(config, games) {
         const gamesJSON = JSON.stringify(games);
@@ -896,11 +896,11 @@ class UI {
         const isTimemania = config.url === 'timemania';
         const isDiaDeSorte = config.url === 'dia-de-sorte';
 
-        // ═══════════════════════════════════════════════════════════════
-        // B2B v9.0 TURBO — Script de Automação COMPLETO
-        // Suporta: Mega Sena, Lotofácil, Quina, Dupla Sena, Lotomania,
-        //          Timemania (com Time do Coração), Dia de Sorte (com Mês)
-        // ═══════════════════════════════════════════════════════════════
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // B2B v9.0 TURBO â€” Script de AutomaÃ§Ã£o COMPLETO
+        // Suporta: Mega Sena, LotofÃ¡cil, Quina, Dupla Sena, Lotomania,
+        //          Timemania (com Time do CoraÃ§Ã£o), Dia de Sorte (com MÃªs)
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         let script = '(async function(){';
         script += 'var JOGOS=' + gamesJSON + ';';
         script += 'var TOTAL=JOGOS.length;var OK=0;var ERROS=0;var BLOCO=10;';
@@ -909,39 +909,39 @@ class UI {
         script += 'var EXTRAS=' + JSON.stringify(this.currentGeneratedExtras || []) + ';';
         script += 'console.clear();';
         script += 'console.log("%c[B2B v9.0 TURBO] "+TOTAL+" jogos de ' + lName + '","color:#22C55E;font-size:14px;font-weight:bold");';
-        script += 'if(IS_TIMEMANIA)console.log("%c⚽ Modo TIMEMANIA: Seleção automática múltipla ativada","color:#F59E0B;font-weight:bold");';
-        script += 'if(IS_DIADESORTE)console.log("%c📅 Modo DIA DE SORTE: Seleção de meses múltiplos ativada","color:#F59E0B;font-weight:bold");';
+        script += 'if(IS_TIMEMANIA)console.log("%câš½ Modo TIMEMANIA: SeleÃ§Ã£o automÃ¡tica mÃºltipla ativada","color:#F59E0B;font-weight:bold");';
+        script += 'if(IS_DIADESORTE)console.log("%cðŸ“… Modo DIA DE SORTE: SeleÃ§Ã£o de meses mÃºltiplos ativada","color:#F59E0B;font-weight:bold");';
         script += 'console.log("%cProcessando em blocos de "+BLOCO+"...","color:#60A5FA");';
         script += 'var t0=Date.now();';
         script += 'var delay=function(ms){return new Promise(function(r){setTimeout(r,ms)})};';
         script += 'var CURRENT_IDX=0;'; // Track current game index globally
 
-        // ── realClick: simula clique real com todos os eventos + Angular ──
+        // â”€â”€ realClick: simula clique real com todos os eventos + Angular â”€â”€
         script += 'function realClick(el){if(!el)return false;try{el.scrollIntoView({block:"center",behavior:"smooth"});var r=el.getBoundingClientRect();var cx=r.left+r.width/2;var cy=r.top+r.height/2;var evts=["pointerdown","mousedown","pointerup","mouseup"];for(var i=0;i<evts.length;i++){el.dispatchEvent(new MouseEvent(evts[i],{view:window,bubbles:true,cancelable:true,clientX:cx,clientY:cy,button:0}))}el.click();try{var scope=angular.element(el).scope();if(scope&&scope.$apply)scope.$apply()}catch(ae){}return true}catch(e){try{el.click();return true}catch(e2){return false}}}';
 
-        // ── fecharModais: fecha alertas/modais do site ──
+        // â”€â”€ fecharModais: fecha alertas/modais do site â”€â”€
         script += 'function fecharModais(){var ids=["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","botaosim","btnFecharModal","btnOk","btnConfirmar"];for(var k=0;k<ids.length;k++){var el=document.getElementById(ids[k]);if(el&&el.offsetParent!==null&&el.offsetWidth>0){try{realClick(el)}catch(e){}}}var bts=document.querySelectorAll("button,a");for(var j=0;j<bts.length;j++){var t=bts[j].textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="sim"||t==="continuar")&&bts[j].offsetParent!==null&&bts[j].offsetWidth>0){var isCart=bts[j].id&&(bts[j].id.toLowerCase().indexOf("carrinho")>=0||bts[j].id.toLowerCase().indexOf("pagamento")>=0);if(!isCart){try{realClick(bts[j])}catch(e){}}}}}';
 
-        // ── clicarNumero: seleciona um número no volante ──
+        // â”€â”€ clicarNumero: seleciona um nÃºmero no volante â”€â”€
         script += 'function clicarNumero(num){var p=String(num).padStart(2,"0");var el=document.getElementById("n"+p);if(el)return realClick(el);el=document.querySelector("a#n"+p)||document.querySelector("#n"+p);if(el)return realClick(el);var todos=document.querySelectorAll("a[role=button],a.dezena,a.numero,a[id^=n]");for(var i=0;i<todos.length;i++){if(todos[i].textContent.trim()===p)return realClick(todos[i])}var allN=document.querySelectorAll(".number,.dezena,.num,[class*=number],[class*=dezena]");for(var k=0;k<allN.length;k++){var txt=allN[k].textContent.trim();if(txt===p||txt===String(num))return realClick(allN[k])}return false}';
 
-        // ── limpar: limpa a seleção atual ──
+        // â”€â”€ limpar: limpa a seleÃ§Ã£o atual â”€â”€
         script += 'function limpar(){fecharModais();var btn=document.getElementById("limparvolante");if(btn)return realClick(btn);btn=document.querySelector("[id*=limpar]");if(btn)return realClick(btn);var bts=document.querySelectorAll("button");for(var k=0;k<bts.length;k++){if(bts[k].textContent.toLowerCase().indexOf("limpar")>=0)return realClick(bts[k])}return false}';
 
-        // ═══════════════════════════════════════════════════════
-        // ⚽ TIMEMANIA: Selecionar Time do Coração (OBRIGATÓRIO)
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // âš½ TIMEMANIA: Selecionar Time do CoraÃ§Ã£o (OBRIGATÃ“RIO)
         // Site da Caixa usa AngularJS: li[ng-repeat="equipe in listaEquipe"]
         // e img[name="btnTime"] com classe .data-selecionar-time-do-coracao
-        // ═══════════════════════════════════════════════════════
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         script += 'async function selecionarTime(){if(!IS_TIMEMANIA)return true;';
-        script += 'console.log("[B2B] ⚽ Selecionando Time do Coração (Jogo "+(CURRENT_IDX+1)+")...");';
+        script += 'console.log("[B2B] âš½ Selecionando Time do CoraÃ§Ã£o (Jogo "+(CURRENT_IDX+1)+")...");';
         script += 'await delay(300);';
         // Seletores REAIS do site da Caixa (AngularJS)
         script += 'var times=document.querySelectorAll("img[name=btnTime],.data-selecionar-time-do-coracao,li[ng-repeat*=listaEquipe] img,li[ng-click*=Time] img,li[ng-click*=time] img");';
         // Fallback: procurar LIs com ng-repeat de equipes
         script += 'if(times.length===0){var tLis=document.querySelectorAll("li[ng-repeat*=listaEquipe],li[ng-repeat*=equipe]");if(tLis.length>0){var tImgs=[];for(var q=0;q<tLis.length;q++){var tImg=tLis[q].querySelector("img");if(tImg)tImgs.push(tImg)}if(tImgs.length>0)times=tImgs}}';
         // Fallback 2: UL com muitas imagens (>20 = lista de times)
-        script += 'if(times.length===0){var allUls=document.querySelectorAll("ul");for(var u=0;u<allUls.length;u++){var uImgs=allUls[u].querySelectorAll("img");if(uImgs.length>20){times=uImgs;console.log("[B2B] ⚽ Encontrada lista de "+uImgs.length+" times");break}}}';
+        script += 'if(times.length===0){var allUls=document.querySelectorAll("ul");for(var u=0;u<allUls.length;u++){var uImgs=allUls[u].querySelectorAll("img");if(uImgs.length>20){times=uImgs;console.log("[B2B] âš½ Encontrada lista de "+uImgs.length+" times");break}}}';
         // Clicar no time
         script += 'if(times.length>0){';
         script += 'var idx = EXTRAS[CURRENT_IDX] !== undefined ? (EXTRAS[CURRENT_IDX] % times.length) : Math.floor(Math.random()*times.length);';
@@ -951,52 +951,52 @@ class UI {
         script += 'await delay(150);';
         script += 'realClick(chosen);';
         script += 'await delay(250);';
-        // Também clica no LI pai para garantir trigger Angular
+        // TambÃ©m clica no LI pai para garantir trigger Angular
         script += 'if(chosen.parentElement&&chosen.parentElement.tagName==="LI"){realClick(chosen.parentElement);await delay(200)}';
-        // Forçar digest cycle do AngularJS se disponível
+        // ForÃ§ar digest cycle do AngularJS se disponÃ­vel
         script += 'try{var scope=angular.element(chosen).scope();if(scope&&scope.$apply)scope.$apply()}catch(e){}';
         script += 'await delay(200);';
         script += 'var nome=chosen.alt||chosen.title||(chosen.parentElement?chosen.parentElement.textContent.trim().substring(0,30):"Time #"+(idx+1));';
-        script += 'console.log("[B2B] ⚽ Time selecionado: "+nome);return true}';
-        script += 'console.warn("[B2B] ⚠️ Nenhum time encontrado!");return false}';
+        script += 'console.log("[B2B] âš½ Time selecionado: "+nome);return true}';
+        script += 'console.warn("[B2B] âš ï¸ Nenhum time encontrado!");return false}';
 
-        // ═══════════════════════════════════════════════════════
-        // 📅 DIA DE SORTE: Selecionar Mês da Sorte (OBRIGATÓRIO)
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // ðŸ“… DIA DE SORTE: Selecionar MÃªs da Sorte (OBRIGATÃ“RIO)
         // Site da Caixa usa AngularJS: li[ng-repeat*="listaMeses"]
-        // e ng-click="configurarMes(mes)" para cada mês
-        // ═══════════════════════════════════════════════════════
+        // e ng-click="configurarMes(mes)" para cada mÃªs
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         script += 'async function selecionarMes(){if(!IS_DIADESORTE)return true;';
-        script += 'console.log("[B2B] 📅 Selecionando Mês da Sorte (Jogo "+(CURRENT_IDX+1)+")...");';
+        script += 'console.log("[B2B] ðŸ“… Selecionando MÃªs da Sorte (Jogo "+(CURRENT_IDX+1)+")...");';
         script += 'await delay(300);';
         // Seletores REAIS do site da Caixa (AngularJS)
         script += 'var meses=document.querySelectorAll("li[ng-repeat*=listaMeses],li[ng-click*=configurarMes],[id=mes] li,ul.meses li,.meses-list li");';
-        // Fallback: procurar meses por nome em português
-        script += 'if(meses.length===0){var nomesMeses=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];var allLi=document.querySelectorAll("li,a,span,div");var found=[];for(var q=0;q<allLi.length;q++){var tx=allLi[q].textContent.trim().toLowerCase();for(var m=0;m<nomesMeses.length;m++){if(tx===nomesMeses[m]&&allLi[q].children.length<=1){found.push(allLi[q]);break}}}if(found.length>0)meses=found}';
+        // Fallback: procurar meses por nome em portuguÃªs
+        script += 'if(meses.length===0){var nomesMeses=["janeiro","fevereiro","marÃ§o","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];var allLi=document.querySelectorAll("li,a,span,div");var found=[];for(var q=0;q<allLi.length;q++){var tx=allLi[q].textContent.trim().toLowerCase();for(var m=0;m<nomesMeses.length;m++){if(tx===nomesMeses[m]&&allLi[q].children.length<=1){found.push(allLi[q]);break}}}if(found.length>0)meses=found}';
         // Fallback 2: select/option
-        script += 'if(meses.length===0){var sel=document.querySelector("select");if(sel&&sel.options.length>1){var selIdx = EXTRAS[CURRENT_IDX] !== undefined ? (EXTRAS[CURRENT_IDX] % (sel.options.length-1)) + 1 : Math.floor(Math.random()*(sel.options.length-1))+1;sel.selectedIndex=selIdx;sel.dispatchEvent(new Event("change",{bubbles:true}));console.log("[B2B] 📅 Mês (select): "+sel.options[sel.selectedIndex].text);return true}}';
-        // Clicar no mês
+        script += 'if(meses.length===0){var sel=document.querySelector("select");if(sel&&sel.options.length>1){var selIdx = EXTRAS[CURRENT_IDX] !== undefined ? (EXTRAS[CURRENT_IDX] % (sel.options.length-1)) + 1 : Math.floor(Math.random()*(sel.options.length-1))+1;sel.selectedIndex=selIdx;sel.dispatchEvent(new Event("change",{bubbles:true}));console.log("[B2B] ðŸ“… MÃªs (select): "+sel.options[sel.selectedIndex].text);return true}}';
+        // Clicar no mÃªs
         script += 'if(meses.length>0){';
         script += 'var idx = EXTRAS[CURRENT_IDX] !== undefined ? (EXTRAS[CURRENT_IDX] % meses.length) : Math.floor(Math.random()*meses.length);';
         script += 'var mesEl=meses[idx];';
         script += 'realClick(mesEl);';
         script += 'await delay(400);';
-        // Se clicou em um filho, também clica no LI pai
+        // Se clicou em um filho, tambÃ©m clica no LI pai
         script += 'if(mesEl.tagName!=="LI"&&mesEl.parentElement&&mesEl.parentElement.tagName==="LI"){realClick(mesEl.parentElement);await delay(200)}';
-        // Forçar digest cycle do AngularJS
+        // ForÃ§ar digest cycle do AngularJS
         script += 'try{var scope=angular.element(mesEl).scope();if(scope&&scope.$apply)scope.$apply()}catch(e){}';
         script += 'await delay(200);';
-        // Verificar se o mês ficou selecionado
-        script += 'var mesNome=mesEl.textContent.trim()||"Mês #"+(idx+1);';
-        script += 'console.log("[B2B] 📅 Mês selecionado: "+mesNome);';
+        // Verificar se o mÃªs ficou selecionado
+        script += 'var mesNome=mesEl.textContent.trim()||"MÃªs #"+(idx+1);';
+        script += 'console.log("[B2B] ðŸ“… MÃªs selecionado: "+mesNome);';
         script += 'return true}';
-        script += 'console.warn("[B2B] ⚠️ Nenhum mês encontrado na página!");return false}';
+        script += 'console.warn("[B2B] âš ï¸ Nenhum mÃªs encontrado na pÃ¡gina!");return false}';
 
-        // ── carrinho: coloca no carrinho com retry ──
+        // â”€â”€ carrinho: coloca no carrinho com retry â”€â”€
         script += 'async function carrinho(){fecharModais();await delay(100);';
         script += 'if(IS_TIMEMANIA){await selecionarTime();await delay(300)}';
         script += 'if(IS_DIADESORTE){await selecionarMes();await delay(300)}';
         script += 'for(var t=0;t<8;t++){var btn=document.getElementById("colocarnocarrinho") || document.querySelector("button.btn-add-carrinho") || document.querySelector("button[id*=\'carrinho\' i]") || document.querySelector("a.btn-add-carrinho");if(btn&&btn.offsetParent!==null){';
-        script += 'if(btn.disabled||btn.classList.contains("disabled")){console.log("[B2B] ⏳ Carrinho desabilitado, aguardando...");await delay(800);';
+        script += 'if(btn.disabled||btn.classList.contains("disabled")){console.log("[B2B] â³ Carrinho desabilitado, aguardando...");await delay(800);';
         script += 'if(IS_TIMEMANIA){await selecionarTime();await delay(400)}';
         script += 'if(IS_DIADESORTE){await selecionarMes();await delay(400)}';
         script += 'continue}';
@@ -1004,7 +1004,7 @@ class UI {
         script += 'var allB=document.querySelectorAll("button,a");for(var k=0;k<allB.length;k++){var tx=allB[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar")>=0&&tx.indexOf("carrinho")>=0)||(tx.indexOf("adicionar")>=0&&tx.indexOf("carrinho")>=0)){if(allB[k].offsetParent!==null&&allB[k].offsetWidth>0){realClick(allB[k]);await delay(800);fecharModais();await delay(300);fecharModais();return true}}}';
         script += 'fecharModais();await delay(400)}return false}';
 
-        // ── LOOP PRINCIPAL: processar todos os jogos ──
+        // â”€â”€ LOOP PRINCIPAL: processar todos os jogos â”€â”€
         script += 'fecharModais();await delay(400);';
         script += 'for(var i=0;i<TOTAL;i++){';
         script += 'CURRENT_IDX = i;';
@@ -1017,29 +1017,29 @@ class UI {
         script += 'if(ac<jogo.length)console.warn("[B2B] Jogo "+(i+1)+": "+ac+"/"+jogo.length+" nums");';
         script += 'try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}await delay(400);fecharModais();await delay(200);';
         script += 'var ok=await carrinho();';
-        script += 'if(ok){OK++;console.log("[B2B] ✅ "+(i+1)+" ("+OK+"/"+TOTAL+")")}else{ERROS++;console.error("[B2B] ❌ "+(i+1)+"'+(isTimemania ? ' — Verifique se o Time do Coração foi selecionado' : '')+'")}';
+        script += 'if(ok){OK++;console.log("[B2B] âœ… "+(i+1)+" ("+OK+"/"+TOTAL+")")}else{ERROS++;console.error("[B2B] âŒ "+(i+1)+"'+(isTimemania ? ' â€” Verifique se o Time do CoraÃ§Ã£o foi selecionado' : '')+'")}';
         script += 'if(i<TOTAL-1){await delay(600);fecharModais()}';
         script += 'if((i+1)%BLOCO===0){var el=((Date.now()-t0)/1000).toFixed(0);var sp=((i+1)/el*60).toFixed(0);console.log("%c[B2B] Bloco "+blocoN+" OK! "+OK+"/"+TOTAL+" | "+el+"s | ~"+sp+" jogos/min","color:#22C55E;font-weight:bold");if(i+1<TOTAL){console.log("[B2B] Proximo bloco em 1s...");await delay(1000)}}';
         script += '}';
 
-        // ── RESULTADO FINAL ──
+        // â”€â”€ RESULTADO FINAL â”€â”€
         script += 'var tt=((Date.now()-t0)/1000).toFixed(1);';
-        script += 'console.log("%c[B2B v9.0] ✅ PRONTO! "+OK+"/"+TOTAL+" de ' + lName + ' em "+tt+"s","color:#22C55E;font-size:16px;font-weight:bold");';
-        script += 'console.log("%c[B2B] 💳 Clique no carrinho (🛒) no topo da pagina para finalizar.","color:#F59E0B;font-size:13px");';
-        script += 'alert("[B2B v9.0 TURBO] ✅ "+OK+"/"+TOTAL+" jogos de ' + lName + ' em "+tt+"s!"+(ERROS>0?"\\n"+ERROS+" erro(s).":"")+"\\n\\n💳 PRÓXIMO PASSO:\\nClique no ícone do carrinho (🛒) no topo da página\\ne finalize o pagamento.")';
+        script += 'console.log("%c[B2B v9.0] âœ… PRONTO! "+OK+"/"+TOTAL+" de ' + lName + ' em "+tt+"s","color:#22C55E;font-size:16px;font-weight:bold");';
+        script += 'console.log("%c[B2B] ðŸ’³ Clique no carrinho (ðŸ›’) no topo da pagina para finalizar.","color:#F59E0B;font-size:13px");';
+        script += 'alert("[B2B v9.0 TURBO] âœ… "+OK+"/"+TOTAL+" jogos de ' + lName + ' em "+tt+"s!"+(ERROS>0?"\\n"+ERROS+" erro(s).":"")+"\\n\\nðŸ’³ PRÃ“XIMO PASSO:\\nClique no Ã­cone do carrinho (ðŸ›’) no topo da pÃ¡gina\\ne finalize o pagamento.")';
         script += '})()';
 
         return script;
     }
 
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  PAINEL APOSTE ONLINE — UNIVERSAL (TODAS AS LOTERIAS)       ║
-    // ║  Insere botão de aposta automática após qualquer geração    ║
-    // ╚══════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  PAINEL APOSTE ONLINE â€” UNIVERSAL (TODAS AS LOTERIAS)       â•‘
+    // â•‘  Insere botÃ£o de aposta automÃ¡tica apÃ³s qualquer geraÃ§Ã£o    â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     _getCaixaLotteryConfig() {
         return {
             megasena:   { name: 'Mega-Sena',   url: 'mega-sena' },
-            lotofacil:  { name: 'Lotofácil',    url: 'lotofacil' },
+            lotofacil:  { name: 'LotofÃ¡cil',    url: 'lotofacil' },
             quina:      { name: 'Quina',        url: 'quina' },
             lotomania:  { name: 'Lotomania',    url: 'lotomania' },
             duplasena:  { name: 'Dupla Sena',   url: 'dupla-sena' },
@@ -1048,30 +1048,30 @@ class UI {
         };
     }
 
-    // ── Detectar se é mobile ──
+    // â”€â”€ Detectar se Ã© mobile â”€â”€
     _isMobile() {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
             || (window.innerWidth <= 768)
             || ('ontouchstart' in window);
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // ║  MODAL MOBILE v2.0 — COM AUTOMAÇÃO VIA BOOKMARKLET            ║
-    // ║  Resolve o problema de não ter F12 no celular                  ║
-    // ║  Duas abas: ⚡ Automático (bookmarklet) e 📋 Manual (copiar)  ║
-    // ══════════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // â•‘  MODAL MOBILE v2.0 â€” COM AUTOMAÃ‡ÃƒO VIA BOOKMARKLET            â•‘
+    // â•‘  Resolve o problema de nÃ£o ter F12 no celular                  â•‘
+    // â•‘  Duas abas: âš¡ AutomÃ¡tico (bookmarklet) e ðŸ“‹ Manual (copiar)  â•‘
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-    // ── Gerar o bookmarklet de automação (minificado, cabe num bookmark) ──
+    // â”€â”€ Gerar o bookmarklet de automaÃ§Ã£o (minificado, cabe num bookmark) â”€â”€
     _generateMobileBookmarklet(games, config) {
         const gamesJSON = JSON.stringify(games);
         const isTimemania = config.url === 'timemania';
         const isDiaDeSorte = config.url === 'dia-de-sorte';
         // Minified automation script embedded in bookmarklet
-        const script = `javascript:void((async function(){var J=${gamesJSON};var T=J.length;var OK=0;var ER=0;var TM=${isTimemania};var DS=${isDiaDeSorte};function d(ms){return new Promise(function(r){setTimeout(r,ms)})}function rc(e){if(!e)return!1;try{e.scrollIntoView({block:"center",behavior:"instant"});var r=e.getBoundingClientRect();var x=r.left+r.width/2;var y=r.top+r.height/2;["pointerdown","mousedown","pointerup","mouseup","click"].forEach(function(ev){e.dispatchEvent(new MouseEvent(ev,{view:window,bubbles:!0,cancelable:!0,clientX:x,clientY:y,button:0}))});try{var sc=angular.element(e).scope();if(sc&&sc.$apply)sc.$apply()}catch(ae){}return!0}catch(x){try{e.click();return!0}catch(x2){return!1}}}function fm(){["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","botaosim","btnFecharModal","btnOk","btnConfirmar"].forEach(function(id){var e=document.getElementById(id);if(e&&e.offsetParent!==null)try{rc(e)}catch(x){}});document.querySelectorAll("button,a").forEach(function(b){var t=b.textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="sim"||t==="continuar")&&b.offsetParent!==null&&b.offsetWidth>0){var ic=b.id&&(b.id.toLowerCase().indexOf("carrinho")>=0||b.id.toLowerCase().indexOf("pagamento")>=0);if(!ic)try{rc(b)}catch(x){}}})}function cn(n){var p=String(n).padStart(2,"0");var e=document.getElementById("n"+p);if(e)return rc(e);e=document.querySelector("a#n"+p)||document.querySelector("#n"+p);if(e)return rc(e);var all=document.querySelectorAll("a[role=button],a.dezena,a.numero,a[id^=n]");for(var i=0;i<all.length;i++)if(all[i].textContent.trim()===p)return rc(all[i]);var allN=document.querySelectorAll(".number,.dezena,.num,[class*=number],[class*=dezena]");for(var k=0;k<allN.length;k++){var t=allN[k].textContent.trim();if(t===p||t===String(n))return rc(allN[k])}return!1}function lmp(){fm();var b=document.getElementById("limparvolante");if(b)return rc(b);b=document.querySelector("[id*=limpar]");if(b)return rc(b);var bs=document.querySelectorAll("button");for(var k=0;k<bs.length;k++)if(bs[k].textContent.toLowerCase().indexOf("limpar")>=0)return rc(bs[k]);return!1}async function selTime(){if(!TM)return!0;await d(500);var ts=document.querySelectorAll("[data-selecionar-time-do-coracao],img[name=btnTime],.time-coracao img,li img[src*=time],.times-list img,.team-item img");if(ts.length===0){var al=document.querySelectorAll("li");for(var k=0;k<al.length;k++){var im=al[k].querySelectorAll("img");if(im.length>0&&al[k].querySelector("span")){ts=im;break}}}if(ts.length===0){var tb=document.querySelectorAll("a[class*=time],button[class*=time],div[class*=time]");if(tb.length>0)ts=tb}if(ts.length>0){var idx=Math.floor(Math.random()*ts.length);rc(ts[idx]);await d(400);if(ts[idx].parentElement&&ts[idx].parentElement.tagName==="LI"&&!ts[idx].parentElement.classList.contains("active")){rc(ts[idx].parentElement);await d(200)}return!0}return!1}async function selMes(){if(!DS)return!0;await d(500);var ms=document.querySelectorAll("[data-selecionar-mes],select#mes option,.mes-sorte,.month-item");if(ms.length===0){var s=document.querySelector("select");if(s&&s.options.length>1){s.selectedIndex=Math.floor(Math.random()*(s.options.length-1))+1;s.dispatchEvent(new Event("change",{bubbles:!0}));return!0}}if(ms.length>0){var idx=Math.floor(Math.random()*ms.length);rc(ms[idx]);await d(250);return!0}return!1}async function car(){fm();await d(100);if(TM){await selTime();await d(300)}if(DS){await selMes();await d(300)}for(var t=0;t<8;t++){var b=document.getElementById("colocarnocarrinho");if(b&&b.offsetParent!==null){if(b.disabled||b.classList.contains("disabled")){await d(800);if(TM){await selTime();await d(400)}if(DS){await selMes();await d(400)}continue}rc(b);await d(800);fm();await d(300);fm();return!0}var ab=document.querySelectorAll("button,a");for(var k=0;k<ab.length;k++){var tx=ab[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar no carrinho")>=0||(tx.indexOf("carrinho")>=0&&tx.indexOf("ir para")<0&&tx.indexOf("ver")<0))&&ab[k].offsetParent!==null&&ab[k].offsetWidth>0){rc(ab[k]);await d(800);fm();await d(300);fm();return!0}}fm();await d(400)}return!1}var pg=document.createElement("div");pg.id="b2b-mob-progress";pg.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(145deg,#0F172A,#1E293B);border-bottom:2px solid #FFD700;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.6);font-family:Inter,sans-serif;";pg.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#FFD700;font-weight:800;font-size:0.85rem;">⚡ B2B TURBO</span><span id="b2b-pg-txt" style="color:#E2E8F0;font-size:0.8rem;font-weight:600;">0/'+T+'</span><button onclick="this.parentNode.parentNode.remove()" style="background:none;border:none;color:#94A3B8;font-size:1.2rem;cursor:pointer;">✕</button></div><div style="margin-top:6px;background:rgba(255,255,255,0.1);border-radius:4px;height:6px;overflow:hidden;"><div id="b2b-pg-bar" style="width:0%;height:100%;background:linear-gradient(90deg,#FFD700,#22C55E);border-radius:4px;transition:width 0.3s;"></div></div>';document.body.appendChild(pg);fm();await d(400);for(var i=0;i<T;i++){var j=J[i];var pt=document.getElementById("b2b-pg-txt");var pb=document.getElementById("b2b-pg-bar");if(pt)pt.textContent=(i+1)+"/"+T+" ["+j.join(",")+"]";if(pb)pb.style.width=((i+1)/T*100).toFixed(0)+"%";fm();if(i>0){lmp();await d(500);fm();await d(200)}var ac=0;for(var n=0;n<j.length;n++){if(cn(j[n]))ac++;else{await d(150);if(cn(j[n]))ac++}await d(120)}try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}await d(400);fm();await d(200);var ok=await car();if(ok){OK++}else{ER++}if(i<T-1){await d(600);fm()}}var pp=document.getElementById("b2b-mob-progress");if(pp){pp.style.borderColor="#22C55E";pp.innerHTML='<div style="text-align:center;padding:8px;"><div style="color:#22C55E;font-weight:800;font-size:1rem;">✅ PRONTO! '+OK+'/'+T+' jogos no carrinho!</div><div style="color:#E2E8F0;font-size:0.8rem;margin-top:4px;">💳 Toque no carrinho (🛒) para finalizar o pagamento.</div><button onclick="this.parentNode.parentNode.remove()" style="margin-top:8px;background:#22C55E;color:white;border:none;padding:8px 20px;border-radius:8px;font-weight:700;cursor:pointer;">OK</button></div>'}alert("✅ "+OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\n\\n💳 Toque no carrinho (🛒) para finalizar.")})())`;
+        const script = `javascript:void((async function(){var J=${gamesJSON};var T=J.length;var OK=0;var ER=0;var TM=${isTimemania};var DS=${isDiaDeSorte};function d(ms){return new Promise(function(r){setTimeout(r,ms)})}function rc(e){if(!e)return!1;try{e.scrollIntoView({block:"center",behavior:"instant"});var r=e.getBoundingClientRect();var x=r.left+r.width/2;var y=r.top+r.height/2;["pointerdown","mousedown","pointerup","mouseup","click"].forEach(function(ev){e.dispatchEvent(new MouseEvent(ev,{view:window,bubbles:!0,cancelable:!0,clientX:x,clientY:y,button:0}))});try{var sc=angular.element(e).scope();if(sc&&sc.$apply)sc.$apply()}catch(ae){}return!0}catch(x){try{e.click();return!0}catch(x2){return!1}}}function fm(){["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","botaosim","btnFecharModal","btnOk","btnConfirmar"].forEach(function(id){var e=document.getElementById(id);if(e&&e.offsetParent!==null)try{rc(e)}catch(x){}});document.querySelectorAll("button,a").forEach(function(b){var t=b.textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="sim"||t==="continuar")&&b.offsetParent!==null&&b.offsetWidth>0){var ic=b.id&&(b.id.toLowerCase().indexOf("carrinho")>=0||b.id.toLowerCase().indexOf("pagamento")>=0);if(!ic)try{rc(b)}catch(x){}}})}function cn(n){var p=String(n).padStart(2,"0");var e=document.getElementById("n"+p);if(e)return rc(e);e=document.querySelector("a#n"+p)||document.querySelector("#n"+p);if(e)return rc(e);var all=document.querySelectorAll("a[role=button],a.dezena,a.numero,a[id^=n]");for(var i=0;i<all.length;i++)if(all[i].textContent.trim()===p)return rc(all[i]);var allN=document.querySelectorAll(".number,.dezena,.num,[class*=number],[class*=dezena]");for(var k=0;k<allN.length;k++){var t=allN[k].textContent.trim();if(t===p||t===String(n))return rc(allN[k])}return!1}function lmp(){fm();var b=document.getElementById("limparvolante");if(b)return rc(b);b=document.querySelector("[id*=limpar]");if(b)return rc(b);var bs=document.querySelectorAll("button");for(var k=0;k<bs.length;k++)if(bs[k].textContent.toLowerCase().indexOf("limpar")>=0)return rc(bs[k]);return!1}async function selTime(){if(!TM)return!0;await d(500);var ts=document.querySelectorAll("[data-selecionar-time-do-coracao],img[name=btnTime],.time-coracao img,li img[src*=time],.times-list img,.team-item img");if(ts.length===0){var al=document.querySelectorAll("li");for(var k=0;k<al.length;k++){var im=al[k].querySelectorAll("img");if(im.length>0&&al[k].querySelector("span")){ts=im;break}}}if(ts.length===0){var tb=document.querySelectorAll("a[class*=time],button[class*=time],div[class*=time]");if(tb.length>0)ts=tb}if(ts.length>0){var idx=Math.floor(Math.random()*ts.length);rc(ts[idx]);await d(400);if(ts[idx].parentElement&&ts[idx].parentElement.tagName==="LI"&&!ts[idx].parentElement.classList.contains("active")){rc(ts[idx].parentElement);await d(200)}return!0}return!1}async function selMes(){if(!DS)return!0;await d(500);var ms=document.querySelectorAll("[data-selecionar-mes],select#mes option,.mes-sorte,.month-item");if(ms.length===0){var s=document.querySelector("select");if(s&&s.options.length>1){s.selectedIndex=Math.floor(Math.random()*(s.options.length-1))+1;s.dispatchEvent(new Event("change",{bubbles:!0}));return!0}}if(ms.length>0){var idx=Math.floor(Math.random()*ms.length);rc(ms[idx]);await d(250);return!0}return!1}async function car(){fm();await d(100);if(TM){await selTime();await d(300)}if(DS){await selMes();await d(300)}for(var t=0;t<8;t++){var b=document.getElementById("colocarnocarrinho");if(b&&b.offsetParent!==null){if(b.disabled||b.classList.contains("disabled")){await d(800);if(TM){await selTime();await d(400)}if(DS){await selMes();await d(400)}continue}rc(b);await d(800);fm();await d(300);fm();return!0}var ab=document.querySelectorAll("button,a");for(var k=0;k<ab.length;k++){var tx=ab[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar no carrinho")>=0||(tx.indexOf("carrinho")>=0&&tx.indexOf("ir para")<0&&tx.indexOf("ver")<0))&&ab[k].offsetParent!==null&&ab[k].offsetWidth>0){rc(ab[k]);await d(800);fm();await d(300);fm();return!0}}fm();await d(400)}return!1}var pg=document.createElement("div");pg.id="b2b-mob-progress";pg.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(145deg,#0F172A,#1E293B);border-bottom:2px solid #FFD700;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.6);font-family:Inter,sans-serif;";pg.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#FFD700;font-weight:800;font-size:0.85rem;">âš¡ B2B TURBO</span><span id="b2b-pg-txt" style="color:#E2E8F0;font-size:0.8rem;font-weight:600;">0/'+T+'</span><button onclick="this.parentNode.parentNode.remove()" style="background:none;border:none;color:#94A3B8;font-size:1.2rem;cursor:pointer;">âœ•</button></div><div style="margin-top:6px;background:rgba(255,255,255,0.1);border-radius:4px;height:6px;overflow:hidden;"><div id="b2b-pg-bar" style="width:0%;height:100%;background:linear-gradient(90deg,#FFD700,#22C55E);border-radius:4px;transition:width 0.3s;"></div></div>';document.body.appendChild(pg);fm();await d(400);for(var i=0;i<T;i++){var j=J[i];var pt=document.getElementById("b2b-pg-txt");var pb=document.getElementById("b2b-pg-bar");if(pt)pt.textContent=(i+1)+"/"+T+" ["+j.join(",")+"]";if(pb)pb.style.width=((i+1)/T*100).toFixed(0)+"%";fm();if(i>0){lmp();await d(500);fm();await d(200)}var ac=0;for(var n=0;n<j.length;n++){if(cn(j[n]))ac++;else{await d(150);if(cn(j[n]))ac++}await d(120)}try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}await d(400);fm();await d(200);var ok=await car();if(ok){OK++}else{ER++}if(i<T-1){await d(600);fm()}}var pp=document.getElementById("b2b-mob-progress");if(pp){pp.style.borderColor="#22C55E";pp.innerHTML='<div style="text-align:center;padding:8px;"><div style="color:#22C55E;font-weight:800;font-size:1rem;">âœ… PRONTO! '+OK+'/'+T+' jogos no carrinho!</div><div style="color:#E2E8F0;font-size:0.8rem;margin-top:4px;">ðŸ’³ Toque no carrinho (ðŸ›’) para finalizar o pagamento.</div><button onclick="this.parentNode.parentNode.remove()" style="margin-top:8px;background:#22C55E;color:white;border:none;padding:8px 20px;border-radius:8px;font-weight:700;cursor:pointer;">OK</button></div>'}alert("âœ… "+OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\n\\nðŸ’³ Toque no carrinho (ðŸ›’) para finalizar.")})())`;
         return script;
     }
 
-    // ── Modal MOBILE v2.0: Abas Automático + Manual ──
+    // â”€â”€ Modal MOBILE v2.0: Abas AutomÃ¡tico + Manual â”€â”€
     _openMobileBetModal(games, gameKey) {
         const allConfigs = this._getCaixaLotteryConfig();
         const cfg = allConfigs[gameKey];
@@ -1082,22 +1082,22 @@ class UI {
         const old = document.getElementById('mobile-bet-modal');
         if (old) old.remove();
 
-        // ═══ SALVAR JOGOS NO LOCALSTORAGE ═══
+        // â•â•â• SALVAR JOGOS NO LOCALSTORAGE â•â•â•
         try {
             localStorage.setItem('b2b_mobile_games', JSON.stringify(games));
             localStorage.setItem('b2b_mobile_config', JSON.stringify(cfg));
             localStorage.setItem('b2b_mobile_timestamp', Date.now().toString());
-        } catch(e) { console.warn('[B2B] localStorage indisponível:', e); }
+        } catch(e) { console.warn('[B2B] localStorage indisponÃ­vel:', e); }
 
-        // ═══ GERAR BOOKMARKLET ═══
+        // â•â•â• GERAR BOOKMARKLET â•â•â•
         const bookmarkletCode = this._generateMobileBookmarklet(games, cfg);
 
-        // ═══ GERAR HTML DOS JOGOS (aba manual) ═══
+        // â•â•â• GERAR HTML DOS JOGOS (aba manual) â•â•â•
         let jogosHTML = '';
         games.forEach((g, i) => {
             const nums = g.map(n => String(n).padStart(2, '0')).join('  ');
             const numsCSV = g.map(n => String(n).padStart(2, '0')).join(', ');
-            jogosHTML += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.06);"><div style="flex:1;"><div style="color:#60A5FA;font-weight:700;font-size:0.72rem;margin-bottom:3px;">Jogo ' + (i+1) + '</div><div style="color:#E2E8F0;font-size:1rem;font-weight:600;font-family:monospace;letter-spacing:1px;">' + nums + '</div></div><button class="mobile-copy-game-btn" data-nums="' + numsCSV + '" style="background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;padding:10px 14px;border-radius:10px;font-size:0.8rem;font-weight:800;cursor:pointer;white-space:nowrap;min-width:70px;">📋 Copiar</button></div>';
+            jogosHTML += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.06);"><div style="flex:1;"><div style="color:#60A5FA;font-weight:700;font-size:0.72rem;margin-bottom:3px;">Jogo ' + (i+1) + '</div><div style="color:#E2E8F0;font-size:1rem;font-weight:600;font-family:monospace;letter-spacing:1px;">' + nums + '</div></div><button class="mobile-copy-game-btn" data-nums="' + numsCSV + '" style="background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;padding:10px 14px;border-radius:10px;font-size:0.8rem;font-weight:800;cursor:pointer;white-space:nowrap;min-width:70px;">ðŸ“‹ Copiar</button></div>';
         });
 
         const allFormatted = games.map((g, i) =>
@@ -1112,42 +1112,42 @@ class UI {
         <div style="background:linear-gradient(145deg,#0F172A,#1E293B);border-radius:16px;border:1px solid #FFD70040;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;padding:18px;color:#E2E8F0;box-shadow:0 20px 60px rgba(0,0,0,0.6);">
             <!-- HEADER -->
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-                <h2 style="margin:0;font-size:1.1rem;color:#FFD700;">📱 Apostar no Celular</h2>
-                <button id="close-mobile-bet-modal" style="background:none;border:none;color:#94A3B8;font-size:1.8rem;cursor:pointer;padding:4px 8px;">✕</button>
+                <h2 style="margin:0;font-size:1.1rem;color:#FFD700;">ðŸ“± Apostar no Celular</h2>
+                <button id="close-mobile-bet-modal" style="background:none;border:none;color:#94A3B8;font-size:1.8rem;cursor:pointer;padding:4px 8px;">âœ•</button>
             </div>
 
             <!-- INFO BAR -->
             <div style="background:linear-gradient(135deg,rgba(255,215,0,0.12),rgba(0,60,120,0.1));border:1px solid #FFD70030;border-radius:12px;padding:12px;margin-bottom:14px;">
-                <div style="font-weight:800;color:#FFD700;font-size:0.95rem;margin-bottom:4px;">🎰 ${games.length} jogos de ${cfg.name}</div>
-                <div style="font-size:0.75rem;color:#94A3B8;line-height:1.4;">Escolha como apostar: automático (recomendado) ou copiar manualmente.</div>
+                <div style="font-weight:800;color:#FFD700;font-size:0.95rem;margin-bottom:4px;">ðŸŽ° ${games.length} jogos de ${cfg.name}</div>
+                <div style="font-size:0.75rem;color:#94A3B8;line-height:1.4;">Escolha como apostar: automÃ¡tico (recomendado) ou copiar manualmente.</div>
             </div>
 
             <!-- TABS -->
             <div style="display:flex;gap:4px;margin-bottom:14px;">
-                <button id="tab-auto-btn" style="flex:1;padding:12px 8px;border-radius:10px;border:2px solid #FFD700;background:linear-gradient(135deg,#FFD70020,#FFD70008);color:#FFD700;font-weight:800;font-size:0.82rem;cursor:pointer;transition:all 0.2s;">⚡ AUTOMÁTICO</button>
-                <button id="tab-manual-btn" style="flex:1;padding:12px 8px;border-radius:10px;border:1px solid #47556940;background:transparent;color:#94A3B8;font-weight:700;font-size:0.82rem;cursor:pointer;transition:all 0.2s;">📋 Manual</button>
+                <button id="tab-auto-btn" style="flex:1;padding:12px 8px;border-radius:10px;border:2px solid #FFD700;background:linear-gradient(135deg,#FFD70020,#FFD70008);color:#FFD700;font-weight:800;font-size:0.82rem;cursor:pointer;transition:all 0.2s;">âš¡ AUTOMÃTICO</button>
+                <button id="tab-manual-btn" style="flex:1;padding:12px 8px;border-radius:10px;border:1px solid #47556940;background:transparent;color:#94A3B8;font-weight:700;font-size:0.82rem;cursor:pointer;transition:all 0.2s;">ðŸ“‹ Manual</button>
             </div>
 
-            <!-- ═══════════ ABA AUTOMÁTICO ═══════════ -->
+            <!-- â•â•â•â•â•â•â•â•â•â•â• ABA AUTOMÃTICO â•â•â•â•â•â•â•â•â•â•â• -->
             <div id="tab-auto-content">
                 <div style="background:linear-gradient(145deg,rgba(34,197,94,0.1),rgba(0,60,120,0.08));border:1px solid #22C55E30;border-radius:12px;padding:14px;margin-bottom:12px;">
-                    <div style="color:#22C55E;font-weight:800;font-size:0.9rem;margin-bottom:8px;">⚡ Preenchimento Automático — Sem F12!</div>
+                    <div style="color:#22C55E;font-weight:800;font-size:0.9rem;margin-bottom:8px;">âš¡ Preenchimento AutomÃ¡tico â€” Sem F12!</div>
                     <div style="font-size:0.78rem;color:#CBD5E1;line-height:1.6;">
                         O sistema preenche seus jogos automaticamente no site da Caixa.<br>
-                        <strong style="color:#FFD700;">Nenhum conhecimento técnico necessário.</strong>
+                        <strong style="color:#FFD700;">Nenhum conhecimento tÃ©cnico necessÃ¡rio.</strong>
                     </div>
                 </div>
 
                 <!-- PASSO A PASSO -->
                 <div style="margin-bottom:14px;">
-                    <div style="color:#FFD700;font-weight:800;font-size:0.82rem;margin-bottom:10px;">📝 Passo a Passo (uma vez só!):</div>
+                    <div style="color:#FFD700;font-weight:800;font-size:0.82rem;margin-bottom:10px;">ðŸ“ Passo a Passo (uma vez sÃ³!):</div>
 
                     <!-- PASSO 1: Copiar o Bookmarklet -->
                     <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
                         <span style="background:#FFD700;color:#000;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">1</span>
                         <div style="flex:1;">
-                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:6px;">Copie o link de automação:</div>
-                            <button id="btn-copy-bookmarklet" style="width:100%;background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;padding:12px;border-radius:10px;font-size:0.88rem;font-weight:800;cursor:pointer;box-shadow:0 4px 15px rgba(34,197,94,0.35);">📋 COPIAR LINK DE AUTOMAÇÃO</button>
+                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:6px;">Copie o link de automaÃ§Ã£o:</div>
+                            <button id="btn-copy-bookmarklet" style="width:100%;background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;padding:12px;border-radius:10px;font-size:0.88rem;font-weight:800;cursor:pointer;box-shadow:0 4px 15px rgba(34,197,94,0.35);">ðŸ“‹ COPIAR LINK DE AUTOMAÃ‡ÃƒO</button>
                         </div>
                     </div>
 
@@ -1155,8 +1155,8 @@ class UI {
                     <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
                         <span style="background:#0066CC;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">2</span>
                         <div style="flex:1;">
-                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:6px;">Abra o site da Caixa e faça login:</div>
-                            <a href="${caixaUrl}" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:12px;border-radius:10px;font-size:0.85rem;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;box-sizing:border-box;">🌐 ABRIR ${cfg.name.toUpperCase()}</a>
+                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:6px;">Abra o site da Caixa e faÃ§a login:</div>
+                            <a href="${caixaUrl}" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:12px;border-radius:10px;font-size:0.85rem;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;box-sizing:border-box;">ðŸŒ ABRIR ${cfg.name.toUpperCase()}</a>
                         </div>
                     </div>
 
@@ -1166,8 +1166,8 @@ class UI {
                         <div style="flex:1;">
                             <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:4px;">No site da Caixa, crie um favorito:</div>
                             <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;">
-                                <div style="margin-bottom:4px;"><strong style="color:#60A5FA;">Chrome:</strong> ⋮ → ☆ (Adicionar favorito) → OK</div>
-                                <div><strong style="color:#60A5FA;">Safari:</strong> 📤 Compartilhar → "Adicionar Favorito"</div>
+                                <div style="margin-bottom:4px;"><strong style="color:#60A5FA;">Chrome:</strong> â‹® â†’ â˜† (Adicionar favorito) â†’ OK</div>
+                                <div><strong style="color:#60A5FA;">Safari:</strong> ðŸ“¤ Compartilhar â†’ "Adicionar Favorito"</div>
                             </div>
                         </div>
                     </div>
@@ -1176,16 +1176,16 @@ class UI {
                     <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,215,0,0.06);border-radius:10px;border:1px solid rgba(255,215,0,0.15);">
                         <span style="background:#F59E0B;color:#000;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">4</span>
                         <div style="flex:1;">
-                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:4px;">Edite o favorito recém-criado:</div>
+                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:4px;">Edite o favorito recÃ©m-criado:</div>
                             <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;">
-                                <div>• Abra os favoritos do navegador</div>
-                                <div>• Toque e segure no favorito recém-criado</div>
-                                <div>• Toque em <strong style="color:#FFD700;">"Editar"</strong></div>
-                                <div>• No campo <strong style="color:#FFD700;">URL / Endereço</strong>:</div>
-                                <div style="padding:4px 0;">  → Apague tudo que estiver lá</div>
-                                <div style="padding:4px 0;">  → <strong style="color:#22C55E;">Cole</strong> o link copiado no passo 1</div>
-                                <div>• Renomeie para <strong style="color:#FFD700;">"⚡ B2B Apostar"</strong></div>
-                                <div>• Salve</div>
+                                <div>â€¢ Abra os favoritos do navegador</div>
+                                <div>â€¢ Toque e segure no favorito recÃ©m-criado</div>
+                                <div>â€¢ Toque em <strong style="color:#FFD700;">"Editar"</strong></div>
+                                <div>â€¢ No campo <strong style="color:#FFD700;">URL / EndereÃ§o</strong>:</div>
+                                <div style="padding:4px 0;">  â†’ Apague tudo que estiver lÃ¡</div>
+                                <div style="padding:4px 0;">  â†’ <strong style="color:#22C55E;">Cole</strong> o link copiado no passo 1</div>
+                                <div>â€¢ Renomeie para <strong style="color:#FFD700;">"âš¡ B2B Apostar"</strong></div>
+                                <div>â€¢ Salve</div>
                             </div>
                         </div>
                     </div>
@@ -1194,61 +1194,61 @@ class UI {
                     <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:rgba(34,197,94,0.08);border-radius:10px;border:1px solid rgba(34,197,94,0.2);">
                         <span style="background:#22C55E;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">5</span>
                         <div style="flex:1;">
-                            <div style="font-size:0.8rem;font-weight:700;color:#22C55E;margin-bottom:4px;">Execute! 🚀</div>
+                            <div style="font-size:0.8rem;font-weight:700;color:#22C55E;margin-bottom:4px;">Execute! ðŸš€</div>
                             <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;">
-                                <div>Na página do jogo da Caixa (já logado):</div>
-                                <div style="margin-top:3px;"><strong style="color:#FFD700;">Abra seus favoritos e toque em "⚡ B2B Apostar"</strong></div>
-                                <div style="margin-top:3px;color:#22C55E;font-weight:600;">✅ Os ${games.length} jogos serão preenchidos automaticamente!</div>
+                                <div>Na pÃ¡gina do jogo da Caixa (jÃ¡ logado):</div>
+                                <div style="margin-top:3px;"><strong style="color:#FFD700;">Abra seus favoritos e toque em "âš¡ B2B Apostar"</strong></div>
+                                <div style="margin-top:3px;color:#22C55E;font-weight:600;">âœ… Os ${games.length} jogos serÃ£o preenchidos automaticamente!</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ALTERNATIVA RÁPIDA: Cole na barra de endereço -->
+                <!-- ALTERNATIVA RÃPIDA: Cole na barra de endereÃ§o -->
                 <div style="background:rgba(139,92,246,0.08);border:1px solid #8B5CF640;border-radius:12px;padding:12px;margin-bottom:12px;">
-                    <div style="color:#C4B5FD;font-weight:800;font-size:0.82rem;margin-bottom:8px;">🚀 Alternativa Rápida (Sem criar favorito):</div>
+                    <div style="color:#C4B5FD;font-weight:800;font-size:0.82rem;margin-bottom:8px;">ðŸš€ Alternativa RÃ¡pida (Sem criar favorito):</div>
                     <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;margin-bottom:8px;">
-                        <div>① Copie o link acima (passo 1)</div>
-                        <div>② No site da Caixa, toque na <strong style="color:#C4B5FD;">barra de endereço</strong></div>
-                        <div>③ Apague o endereço atual</div>
-                        <div>④ Cole o link e toque <strong style="color:#C4B5FD;">Ir / Enter</strong></div>
+                        <div>â‘  Copie o link acima (passo 1)</div>
+                        <div>â‘¡ No site da Caixa, toque na <strong style="color:#C4B5FD;">barra de endereÃ§o</strong></div>
+                        <div>â‘¢ Apague o endereÃ§o atual</div>
+                        <div>â‘£ Cole o link e toque <strong style="color:#C4B5FD;">Ir / Enter</strong></div>
                     </div>
                     <div style="font-size:0.68rem;color:#F59E0B;line-height:1.4;">
-                        ⚠️ <strong>Importante:</strong> Alguns navegadores removem o "javascript:" do início ao colar. Se não funcionar, digite <strong style="color:#FFD700;">javascript:</strong> manualmente antes de colar.
+                        âš ï¸ <strong>Importante:</strong> Alguns navegadores removem o "javascript:" do inÃ­cio ao colar. Se nÃ£o funcionar, digite <strong style="color:#FFD700;">javascript:</strong> manualmente antes de colar.
                     </div>
                 </div>
 
                 <!-- LISTA RESUMIDA DOS JOGOS -->
                 <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px;margin-bottom:12px;">
-                    <div style="color:#94A3B8;font-size:0.72rem;font-weight:700;margin-bottom:6px;">🎰 Jogos que serão apostados:</div>
+                    <div style="color:#94A3B8;font-size:0.72rem;font-weight:700;margin-bottom:6px;">ðŸŽ° Jogos que serÃ£o apostados:</div>
                     <div style="font-size:0.7rem;color:#CBD5E1;font-family:monospace;line-height:1.8;max-height:120px;overflow-y:auto;">
                         ${games.map((g, i) => '<div><span style="color:#60A5FA;">' + (i+1) + '.</span> ' + g.map(n => String(n).padStart(2,'0')).join(' ') + '</div>').join('')}
                     </div>
                 </div>
 
                 <div style="text-align:center;font-size:0.65rem;color:#475569;line-height:1.4;">
-                    💡 O script seleciona números e coloca no carrinho automaticamente.<br>
-                    O pagamento é feito manualmente por você.
+                    ðŸ’¡ O script seleciona nÃºmeros e coloca no carrinho automaticamente.<br>
+                    O pagamento Ã© feito manualmente por vocÃª.
                 </div>
             </div>
 
-            <!-- ═══════════ ABA MANUAL ═══════════ -->
+            <!-- â•â•â•â•â•â•â•â•â•â•â• ABA MANUAL â•â•â•â•â•â•â•â•â•â•â• -->
             <div id="tab-manual-content" style="display:none;">
                 <div style="background:linear-gradient(135deg,rgba(0,102,204,0.1),rgba(0,60,120,0.08));border:1px solid #0066CC20;border-radius:12px;padding:10px;margin-bottom:12px;">
                     <div style="font-size:0.78rem;color:#94A3B8;line-height:1.5;">Copie cada jogo e preencha manualmente no site da Caixa.</div>
                 </div>
                 <div style="margin-bottom:12px;">${jogosHTML}</div>
-                <button id="mobile-copy-all-btn" style="width:100%;background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:white;border:none;padding:14px;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 15px rgba(139,92,246,0.4);">📋 COPIAR TODOS OS ${games.length} JOGOS</button>
-                <a href="${caixaUrl}" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:14px;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 4px 15px rgba(0,102,204,0.4);box-sizing:border-box;">🌐 ABRIR SITE DA CAIXA — ${cfg.name}</a>
+                <button id="mobile-copy-all-btn" style="width:100%;background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:white;border:none;padding:14px;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 15px rgba(139,92,246,0.4);">ðŸ“‹ COPIAR TODOS OS ${games.length} JOGOS</button>
+                <a href="${caixaUrl}" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:14px;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 4px 15px rgba(0,102,204,0.4);box-sizing:border-box;">ðŸŒ ABRIR SITE DA CAIXA â€” ${cfg.name}</a>
                 <div style="margin-top:12px;padding:10px;background:rgba(245,158,11,0.08);border:1px solid #F59E0B30;border-radius:10px;">
-                    <div style="color:#F59E0B;font-weight:700;font-size:0.82rem;margin-bottom:6px;">📝 Como apostar manualmente:</div>
+                    <div style="color:#F59E0B;font-weight:700;font-size:0.82rem;margin-bottom:6px;">ðŸ“ Como apostar manualmente:</div>
                     <div style="font-size:0.75rem;color:#CBD5E1;line-height:1.7;">
-                        <div>① Copie os números de um jogo acima</div>
-                        <div>② Toque em "Abrir Site da Caixa"</div>
-                        <div>③ Faça login na sua conta</div>
-                        <div>④ Selecione os números manualmente</div>
-                        <div>⑤ Toque em "Colocar no Carrinho"</div>
-                        <div>⑥ Repita para cada jogo</div>
+                        <div>â‘  Copie os nÃºmeros de um jogo acima</div>
+                        <div>â‘¡ Toque em "Abrir Site da Caixa"</div>
+                        <div>â‘¢ FaÃ§a login na sua conta</div>
+                        <div>â‘£ Selecione os nÃºmeros manualmente</div>
+                        <div>â‘¤ Toque em "Colocar no Carrinho"</div>
+                        <div>â‘¥ Repita para cada jogo</div>
                     </div>
                 </div>
             </div>
@@ -1256,13 +1256,13 @@ class UI {
 
         document.body.appendChild(modal);
 
-        // ═══ EVENT HANDLERS ═══
+        // â•â•â• EVENT HANDLERS â•â•â•
 
         // Fechar modal
         document.getElementById('close-mobile-bet-modal').addEventListener('click', () => modal.remove());
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
 
-        // ── Abas ──
+        // â”€â”€ Abas â”€â”€
         const tabAutoBtn = document.getElementById('tab-auto-btn');
         const tabManualBtn = document.getElementById('tab-manual-btn');
         const tabAutoContent = document.getElementById('tab-auto-content');
@@ -1290,7 +1290,7 @@ class UI {
             tabAutoBtn.style.color = '#94A3B8';
         });
 
-        // ── Copiar Bookmarklet ──
+        // â”€â”€ Copiar Bookmarklet â”€â”€
         const bookmarkletBtn = document.getElementById('btn-copy-bookmarklet');
         if (bookmarkletBtn) {
             bookmarkletBtn.addEventListener('click', async () => {
@@ -1305,16 +1305,16 @@ class UI {
                     document.execCommand('copy');
                     document.body.removeChild(ta);
                 }
-                bookmarkletBtn.textContent = '✅ LINK COPIADO!';
+                bookmarkletBtn.textContent = 'âœ… LINK COPIADO!';
                 bookmarkletBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
                 setTimeout(() => {
-                    bookmarkletBtn.textContent = '📋 COPIAR LINK DE AUTOMAÇÃO';
+                    bookmarkletBtn.textContent = 'ðŸ“‹ COPIAR LINK DE AUTOMAÃ‡ÃƒO';
                     bookmarkletBtn.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)';
                 }, 3000);
             });
         }
 
-        // ── Copiar jogo individual ──
+        // â”€â”€ Copiar jogo individual â”€â”€
         modal.querySelectorAll('.mobile-copy-game-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const nums = btn.getAttribute('data-nums');
@@ -1322,12 +1322,12 @@ class UI {
                     const ta = document.createElement('textarea'); ta.value = nums; ta.style.cssText = 'position:fixed;left:-9999px;';
                     document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
                 }
-                btn.textContent = '✅ Copiado!'; btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-                setTimeout(() => { btn.textContent = '📋 Copiar'; btn.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)'; }, 2000);
+                btn.textContent = 'âœ… Copiado!'; btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+                setTimeout(() => { btn.textContent = 'ðŸ“‹ Copiar'; btn.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)'; }, 2000);
             });
         });
 
-        // ── Copiar todos ──
+        // â”€â”€ Copiar todos â”€â”€
         const copyAllBtn = document.getElementById('mobile-copy-all-btn');
         if (copyAllBtn) {
             copyAllBtn.addEventListener('click', async () => {
@@ -1335,8 +1335,8 @@ class UI {
                     const ta = document.createElement('textarea'); ta.value = allFormatted; ta.style.cssText = 'position:fixed;left:-9999px;';
                     document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
                 }
-                copyAllBtn.textContent = '✅ TODOS COPIADOS!'; copyAllBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-                setTimeout(() => { copyAllBtn.textContent = '📋 COPIAR TODOS OS ' + games.length + ' JOGOS'; copyAllBtn.style.background = 'linear-gradient(135deg,#8B5CF6,#7C3AED)'; }, 3000);
+                copyAllBtn.textContent = 'âœ… TODOS COPIADOS!'; copyAllBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+                setTimeout(() => { copyAllBtn.textContent = 'ðŸ“‹ COPIAR TODOS OS ' + games.length + ' JOGOS'; copyAllBtn.style.background = 'linear-gradient(135deg,#8B5CF6,#7C3AED)'; }, 3000);
             });
         }
     }
@@ -1372,9 +1372,9 @@ class UI {
         var _info = document.createElement('div');
         _info.style.cssText = 'margin-top:8px;font-size:0.72rem;color:#94A3B8;line-height:1.5;';
         if (isMobile) {
-            _info.innerHTML = '📱 <strong style="color:#60A5FA;">Celular:</strong> Toque para ver seus jogos formatados e copiar para o site da Caixa.';
+            _info.innerHTML = 'ðŸ“± <strong style="color:#60A5FA;">Celular:</strong> Toque para ver seus jogos formatados e copiar para o site da Caixa.';
         } else {
-            _info.innerHTML = '💡 <strong style="color:#60A5FA;">Como funciona:</strong> O script é copiado automaticamente. No site da Caixa, pressione <kbd style="background:#1E293B;padding:2px 6px;border-radius:4px;border:1px solid #475569;color:#E2E8F0;font-size:0.7rem;">F12</kbd> → aba <strong>Console</strong> → cole com <kbd style="background:#1E293B;padding:2px 6px;border-radius:4px;border:1px solid #475569;color:#E2E8F0;font-size:0.7rem;">Ctrl+V</kbd> → pressione <kbd style="background:#1E293B;padding:2px 6px;border-radius:4px;border:1px solid #475569;color:#E2E8F0;font-size:0.7rem;">Enter</kbd>';
+            _info.innerHTML = 'ðŸ’¡ <strong style="color:#60A5FA;">Como funciona:</strong> O script Ã© copiado automaticamente. No site da Caixa, pressione <kbd style="background:#1E293B;padding:2px 6px;border-radius:4px;border:1px solid #475569;color:#E2E8F0;font-size:0.7rem;">F12</kbd> â†’ aba <strong>Console</strong> â†’ cole com <kbd style="background:#1E293B;padding:2px 6px;border-radius:4px;border:1px solid #475569;color:#E2E8F0;font-size:0.7rem;">Ctrl+V</kbd> â†’ pressione <kbd style="background:#1E293B;padding:2px 6px;border-radius:4px;border:1px solid #475569;color:#E2E8F0;font-size:0.7rem;">Enter</kbd>';
         }
 
         _cp.appendChild(_btn);
@@ -1385,24 +1385,24 @@ class UI {
             this.gamesContainer.parentNode.insertBefore(_cp, this.gamesContainer);
         }
 
-        // Handler — DETECTA MOBILE vs DESKTOP
+        // Handler â€” DETECTA MOBILE vs DESKTOP
         _btn.addEventListener('click', async function() {
             var currentGames = _self._lastGeneratedGames || _self.currentGeneratedGames || games;
             var currentKey = _self._lastGameKey || gameKey;
             var cfg = allConfigs[currentKey] || lotteryConfig;
 
             if (_self._isMobile()) {
-                // ══════ MOBILE: Abrir modal com jogos formatados ══════
+                // â•â•â•â•â•â• MOBILE: Abrir modal com jogos formatados â•â•â•â•â•â•
                 _self._openMobileBetModal(currentGames, currentKey);
             } else {
-                // ══════ DESKTOP: Fluxo de script (Console F12) ══════
+                // â•â•â•â•â•â• DESKTOP: Fluxo de script (Console F12) â•â•â•â•â•â•
                 console.log('[B2B] Enviando ' + currentGames.length + ' jogos para ' + currentKey);
                 var freshUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfg.url;
                 var freshScript = _self._generateCaixaScript_LEGACY(cfg, currentGames);
 
                 try {
                     await navigator.clipboard.writeText(freshScript);
-                    console.log('[B2B] ✅ ' + currentGames.length + ' jogos de ' + cfg.name + ' copiados!');
+                    console.log('[B2B] âœ… ' + currentGames.length + ' jogos de ' + cfg.name + ' copiados!');
                 } catch(e) {
                     var ta = document.createElement('textarea'); ta.value = freshScript; ta.style.cssText = 'position:fixed;left:-9999px;';
                     document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
@@ -1410,13 +1410,13 @@ class UI {
 
                 document.dispatchEvent(new CustomEvent('b2b-aposte-online', { detail: { games: currentGames, config: cfg } }));
 
-                alert('✅ Script v7.0 TURBO copiado! ' + currentGames.length + ' jogos de ' + cfg.name + '\n\n⚠️ IMPORTANTE:\n1. Na Caixa, pressione F12\n2. Clique na aba "Console"\n3. Cole com Ctrl+V\n4. Pressione Enter');
+                alert('âœ… Script v7.0 TURBO copiado! ' + currentGames.length + ' jogos de ' + cfg.name + '\n\nâš ï¸ IMPORTANTE:\n1. Na Caixa, pressione F12\n2. Clique na aba "Console"\n3. Cole com Ctrl+V\n4. Pressione Enter');
                 setTimeout(function() { if (!window._b2bExtensionOpened) window.open(freshUrl, '_blank'); }, 300);
 
                 _st.style.display = 'block';
-                _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1.1rem;margin-bottom:8px;">✅ ' + currentGames.length + ' jogos de ' + cfg.name + ' copiados!</div><div style="color:#E2E8F0;font-size:0.88rem;">Site da Caixa abrindo em <strong>' + cfg.name + '</strong>... cole com <strong>Ctrl+V</strong> no Console (F12).</div>';
+                _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1.1rem;margin-bottom:8px;">âœ… ' + currentGames.length + ' jogos de ' + cfg.name + ' copiados!</div><div style="color:#E2E8F0;font-size:0.88rem;">Site da Caixa abrindo em <strong>' + cfg.name + '</strong>... cole com <strong>Ctrl+V</strong> no Console (F12).</div>';
                 _btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-                _btn.textContent = '✅ ' + currentGames.length + ' JOGOS DE ' + cfg.name.toUpperCase() + ' COPIADOS — Cole no Console (F12)';
+                _btn.textContent = 'âœ… ' + currentGames.length + ' JOGOS DE ' + cfg.name.toUpperCase() + ' COPIADOS â€” Cole no Console (F12)';
                 setTimeout(function() {
                     _btn.style.background = 'linear-gradient(135deg,#0066CC,#003D80)';
                     _btn.textContent = '\u{1F3E6} APOSTE ONLINE \u{2014} ' + currentGames.length + ' jogos de ' + cfg.name;
@@ -1426,13 +1426,13 @@ class UI {
     }
 
 
-    // Mantido como fallback — não usado diretamente
+    // Mantido como fallback â€” nÃ£o usado diretamente
     _showCaixaAutomationPanel_LEGACY(config, games) {
         // Remover modal anterior se existir
         const existing = document.getElementById('caixa-automation-modal');
         if (existing) existing.remove();
 
-        // Gerar o script de automação
+        // Gerar o script de automaÃ§Ã£o
         const gamesJSON = JSON.stringify(games);
         const automationScript = this._generateCaixaScript(config, games);
 
@@ -1455,34 +1455,34 @@ class UI {
             ">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                     <h2 style="margin:0;font-size:1.2rem;color:#0066CC;">
-                        🏦 Apostar na Caixa Online
+                        ðŸ¦ Apostar na Caixa Online
                     </h2>
                     <button id="close-caixa-modal" style="
                         background:none;border:none;color:#94A3B8;font-size:1.5rem;cursor:pointer;
-                    ">✕</button>
+                    ">âœ•</button>
                 </div>
 
                 <div style="background:rgba(0,102,204,0.1);border:1px solid #0066CC30;border-radius:10px;padding:14px;margin-bottom:16px;">
-                    <div style="font-weight:700;color:#60A5FA;margin-bottom:8px;">📋 ${games.length} jogos de ${config.name} prontos</div>
+                    <div style="font-weight:700;color:#60A5FA;margin-bottom:8px;">ðŸ“‹ ${games.length} jogos de ${config.name} prontos</div>
                     <div style="font-size:0.8rem;color:#94A3B8;">
                         ${games.map((g, i) => '<span style="color:#E2E8F0;font-weight:600;">Jogo ' + (i+1) + ':</span> ' + g.map(n => String(n).padStart(2,'0')).join(', ')).join('<br>')}
                     </div>
                 </div>
 
                 <div style="margin-bottom:16px;">
-                    <div style="font-weight:700;color:#F59E0B;margin-bottom:10px;">📝 Passo a passo:</div>
+                    <div style="font-weight:700;color:#F59E0B;margin-bottom:10px;">ðŸ“ Passo a passo:</div>
                     <div style="font-size:0.85rem;line-height:1.8;">
                         <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
                             <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">1</span>
-                            <span>Abra: <a href="https://www.loteriasonline.caixa.gov.br/silce-web/#/${config.url}" target="_blank" style="color:#60A5FA;text-decoration:underline;">Loterias Online — ${config.name}</a></span>
+                            <span>Abra: <a href="https://www.loteriasonline.caixa.gov.br/silce-web/#/${config.url}" target="_blank" style="color:#60A5FA;text-decoration:underline;">Loterias Online â€” ${config.name}</a></span>
                         </div>
                         <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
                             <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">2</span>
-                            <span>Faça login na sua conta da Caixa</span>
+                            <span>FaÃ§a login na sua conta da Caixa</span>
                         </div>
                         <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
                             <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">3</span>
-                            <span>Na página do jogo, pressione <kbd style="background:#334155;padding:2px 6px;border-radius:4px;font-size:0.75rem;">F12</kbd> para abrir o Console</span>
+                            <span>Na pÃ¡gina do jogo, pressione <kbd style="background:#334155;padding:2px 6px;border-radius:4px;font-size:0.75rem;">F12</kbd> para abrir o Console</span>
                         </div>
                         <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
                             <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">4</span>
@@ -1493,12 +1493,12 @@ class UI {
                             <span>Cole <kbd style="background:#334155;padding:2px 6px;border-radius:4px;font-size:0.75rem;">Ctrl+V</kbd> no Console e pressione <kbd style="background:#334155;padding:2px 6px;border-radius:4px;font-size:0.75rem;">Enter</kbd></span>
                         </div>
                         <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
-                            <span style="background:#22C55E;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">✓</span>
+                            <span style="background:#22C55E;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">âœ“</span>
                             <span style="color:#22C55E;font-weight:700;">O script preenche cada jogo automaticamente!</span>
                         </div>
                         <div style="display:flex;gap:8px;align-items:flex-start;">
                             <span style="background:#F59E0B;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">6</span>
-                            <span>Após todos os jogos, finalize o pagamento manualmente</span>
+                            <span>ApÃ³s todos os jogos, finalize o pagamento manualmente</span>
                         </div>
                     </div>
                 </div>
@@ -1515,7 +1515,7 @@ class UI {
                     width: 100%;
                     margin-bottom: 10px;
                     transition: all 0.3s ease;
-                ">📋 Copiar Script de Automação</button>
+                ">ðŸ“‹ Copiar Script de AutomaÃ§Ã£o</button>
 
                 <button id="open-caixa-site" style="
                     background: linear-gradient(135deg, #0066CC, #003D80);
@@ -1528,10 +1528,10 @@ class UI {
                     cursor: pointer;
                     width: 100%;
                     transition: all 0.3s ease;
-                ">🌐 Abrir Loterias Online da Caixa</button>
+                ">ðŸŒ Abrir Loterias Online da Caixa</button>
 
                 <div style="margin-top:12px;padding:10px;background:rgba(245,158,11,0.08);border:1px solid #F59E0B30;border-radius:8px;font-size:0.72rem;color:#F59E0B;">
-                    ⚠️ O script seleciona os números e adiciona ao carrinho automaticamente. O pagamento é feito manualmente por você. Delay entre jogos: 3 segundos.
+                    âš ï¸ O script seleciona os nÃºmeros e adiciona ao carrinho automaticamente. O pagamento Ã© feito manualmente por vocÃª. Delay entre jogos: 3 segundos.
                 </div>
             </div>
         `;
@@ -1545,10 +1545,10 @@ class UI {
         document.getElementById('copy-caixa-script').addEventListener('click', () => {
             navigator.clipboard.writeText(automationScript).then(() => {
                 const btn = document.getElementById('copy-caixa-script');
-                btn.textContent = '✅ Script Copiado!';
+                btn.textContent = 'âœ… Script Copiado!';
                 btn.style.background = 'linear-gradient(135deg, #059669, #047857)';
                 setTimeout(() => {
-                    btn.textContent = '📋 Copiar Script de Automação';
+                    btn.textContent = 'ðŸ“‹ Copiar Script de AutomaÃ§Ã£o';
                     btn.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
                 }, 3000);
             }).catch(() => {
@@ -1566,7 +1566,7 @@ class UI {
         });
     }
 
-    // Gerar o script JavaScript para automação no site da Caixa
+    // Gerar o script JavaScript para automaÃ§Ã£o no site da Caixa
     // Redireciona para o script TURBO que funciona com AngularJS
     _generateCaixaScript(config, games) {
         return this._generateCaixaScript_LEGACY(config, games);
@@ -1581,7 +1581,7 @@ class UI {
     }
 
     initEvents() {
-        // Navigation Buttons — apply game color gradients
+        // Navigation Buttons â€” apply game color gradients
         this.navButtons.forEach(btn => {
             const gameKey = btn.dataset.game;
             const game = GAMES[gameKey];
@@ -1604,16 +1604,16 @@ class UI {
         // Fixed Mode Toggle
         this.btnFixedMode.onclick = () => this.toggleFixedMode();
 
-        // Generate (Fechamento) — Motor Inteligente v3 + Fechamento Objetivo L99
+        // Generate (Fechamento) â€” Motor Inteligente v3 + Fechamento Objetivo L99
         this.generateBtn.onclick = async () => {
-            // ── RASTREAMENTO DE MODO ──
+            // â”€â”€ RASTREAMENTO DE MODO â”€â”€
             const precisionCb = document.getElementById('precision-mode-toggle');
             this._lastPrecisionMode = !!(precisionCb && precisionCb.checked);
             let closingVal = this.closingSelect.value;
 
-            // ═══ PROTEÇÃO v3.4: Quantidade solicitada tem PRIORIDADE ═══
-            // Se a quantidade solicitada é ≤50000 e o dropdown está em close_,
-            // o usuário pode ter o dropdown errado (cache antigo, troca de loteria).
+            // â•â•â• PROTEÃ‡ÃƒO v3.4: Quantidade solicitada tem PRIORIDADE â•â•â•
+            // Se a quantidade solicitada Ã© â‰¤50000 e o dropdown estÃ¡ em close_,
+            // o usuÃ¡rio pode ter o dropdown errado (cache antigo, troca de loteria).
             // Verificar e redirecionar para CombinationEngine.
             const requestedQty = parseInt(this.gamesQuantityInput.value) || 10;
             if (closingVal && closingVal.startsWith('close_') && requestedQty <= 50000) {
@@ -1625,9 +1625,9 @@ class UI {
                 
                 // Se o fechamento geraria MUITO mais do que o solicitado, avisar
                 if (estClosureGames > requestedQty * 2 && requestedQty < estClosureGames) {
-                    const confirmMsg = `⚠️ ATENÇÃO: O Fechamento Objetivo vai gerar ~${estClosureGames.toLocaleString('pt-BR')} jogos.\n\nVocê solicitou apenas ${requestedQty} jogos.\n\n▶ OK = Gerar ${requestedQty} jogos (modo inteligente)\n▶ Cancelar = Gerar fechamento completo (${estClosureGames.toLocaleString('pt-BR')} jogos)`;
+                    const confirmMsg = `âš ï¸ ATENÃ‡ÃƒO: O Fechamento Objetivo vai gerar ~${estClosureGames.toLocaleString('pt-BR')} jogos.\n\nVocÃª solicitou apenas ${requestedQty} jogos.\n\nâ–¶ OK = Gerar ${requestedQty} jogos (modo inteligente)\nâ–¶ Cancelar = Gerar fechamento completo (${estClosureGames.toLocaleString('pt-BR')} jogos)`;
                     if (confirm(confirmMsg)) {
-                        closingVal = 'generate'; // Forçar CombinationEngine
+                        closingVal = 'generate'; // ForÃ§ar CombinationEngine
                         this.closingSelect.value = 'generate';
                     }
                 }
@@ -1640,7 +1640,7 @@ class UI {
             }
             this._lastDrawSize = parseInt(this.smartDrawSizeSelect?.value) || GAMES[this.currentGameKey]?.minBet || 6;
 
-            // ━━ FECHAMENTO OBJETIVO (ClosingEngine v3.0) ━━
+            // â”â” FECHAMENTO OBJETIVO (ClosingEngine v3.0) â”â”
             if (closingVal && closingVal.startsWith('close_')) {
                 const guarantee = parseInt(closingVal.replace('close_', ''));
                 let selectedArr = Array.from(this.selectedNumbers);
@@ -1655,11 +1655,11 @@ class UI {
                 }
 
                 if (selectedArr.length < closingBetSize) {
-                    alert('Selecione pelo menos ' + closingBetSize + ' números para o fechamento objetivo de ' + game.name + '.');
+                    alert('Selecione pelo menos ' + closingBetSize + ' nÃºmeros para o fechamento objetivo de ' + game.name + '.');
                     return;
                 }
 
-                // Limpar painéis anteriores (incluindo painéis do QUANTUM L99)
+                // Limpar painÃ©is anteriores (incluindo painÃ©is do QUANTUM L99)
                 const _clParent = this.gamesContainer.parentNode;
                 if (_clParent) {
                     _clParent.querySelectorAll('.generation-feedback, .smart-analysis-panel, .smart-gen-analysis').forEach(el => el.remove());
@@ -1668,14 +1668,14 @@ class UI {
                 }
 
                 // Mostrar loading
-                const fixedInfo = fixedArr.length > 0 ? '<br><small style="color:#F59E0B;">📌 ' + fixedArr.length + ' números fixos: ' + fixedArr.sort((a,b)=>a-b).join(', ') + '</small>' : '';
-                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">🎯 Calculando Fechamento Objetivo v3.0...<br><small>Garantia de ' + guarantee + ' acertos | ' + selectedArr.length + ' números | ' + game.name + '</small>' + fixedInfo + '</div></div>';
+                const fixedInfo = fixedArr.length > 0 ? '<br><small style="color:#F59E0B;">ðŸ“Œ ' + fixedArr.length + ' nÃºmeros fixos: ' + fixedArr.sort((a,b)=>a-b).join(', ') + '</small>' : '';
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">ðŸŽ¯ Calculando Fechamento Objetivo v3.0...<br><small>Garantia de ' + guarantee + ' acertos | ' + selectedArr.length + ' nÃºmeros | ' + game.name + '</small>' + fixedInfo + '</div></div>';
 
                 setTimeout(() => {
                   try {
                     // v3.0: Passar fixedNumbers ao ClosingEngine
                     if (typeof ClosingEngine === 'undefined') {
-                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">❌ Motor de Fechamento (ClosingEngine) não carregado.<br><small>Recarregue a página com Ctrl+Shift+R</small></div>';
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">âŒ Motor de Fechamento (ClosingEngine) nÃ£o carregado.<br><small>Recarregue a pÃ¡gina com Ctrl+Shift+R</small></div>';
                         return;
                     }
 
@@ -1687,7 +1687,7 @@ class UI {
                         const errorStyle = closingResult.impossible
                             ? 'background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:12px;padding:20px;color:#F87171;text-align:center;'
                             : '';
-                        this.gamesContainer.innerHTML = '<div class="empty-state" style="' + errorStyle + 'color:#EF4444;">❌ ' + closingResult.error + '</div>';
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="' + errorStyle + 'color:#EF4444;">âŒ ' + closingResult.error + '</div>';
                         return;
                     }
 
@@ -1705,18 +1705,18 @@ class UI {
                     banner.className = 'smart-gen-analysis';
                     banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(234,179,8,0.12),rgba(15,23,42,0.95));border:1px solid #EAB30840;';
                     const guaranteeLabels = { 20: '20 PONTOS', 19: '19 PONTOS', 18: '18 PONTOS', 17: '17 PONTOS', 15: '15 PONTOS', 14: '14 PONTOS', 13: '13 PONTOS', 12: '12 PONTOS', 11: '11 PONTOS', 10: '10 PONTOS', 9: '9 PONTOS', 8: '8 PONTOS', 7: '7 PONTOS', 6: 'SENA', 5: 'QUINA', 4: 'QUADRA', 3: 'TERNO' };
-                    const guaranteeIcons = { 20: '🎯', 19: '⭐', 18: '🔥', 17: '✅', 15: '🎯', 14: '⭐', 13: '🔥', 12: '💎', 11: '💎', 10: '👑', 9: '👑', 8: '🔥', 7: '⭐', 6: '🎯', 5: '⭐', 4: '🔥', 3: '✅' };
+                    const guaranteeIcons = { 20: 'ðŸŽ¯', 19: 'â­', 18: 'ðŸ”¥', 17: 'âœ…', 15: 'ðŸŽ¯', 14: 'â­', 13: 'ðŸ”¥', 12: 'ðŸ’Ž', 11: 'ðŸ’Ž', 10: 'ðŸ‘‘', 9: 'ðŸ‘‘', 8: 'ðŸ”¥', 7: 'â­', 6: 'ðŸŽ¯', 5: 'â­', 4: 'ðŸ”¥', 3: 'âœ…' };
                     const modeLabel = closingResult.mode ? ' <span style="font-size:0.7em;color:#94A3B8;">(' + closingResult.mode + ')</span>' : '';
 
-                    // v3.0: Badge de confiança
+                    // v3.0: Badge de confianÃ§a
                     const confPct = closingResult.confidence || closingResult.coveragePct;
                     const confColor = confPct >= 99 ? '#10B981' : confPct >= 95 ? '#22C55E' : confPct >= 80 ? '#F59E0B' : '#EF4444';
-                    const confBadge = '<div style="margin-top:8px;padding:6px 10px;background:rgba(16,185,129,0.08);border:1px solid ' + confColor + '30;border-radius:8px;font-size:0.82em;color:' + confColor + ';font-weight:600;">🔒 Confiança: ' + confPct.toFixed(1) + '% | Modo: ' + (closingResult.mode || 'EXATO') + '</div>';
+                    const confBadge = '<div style="margin-top:8px;padding:6px 10px;background:rgba(16,185,129,0.08);border:1px solid ' + confColor + '30;border-radius:8px;font-size:0.82em;color:' + confColor + ';font-weight:600;">ðŸ”’ ConfianÃ§a: ' + confPct.toFixed(1) + '% | Modo: ' + (closingResult.mode || 'EXATO') + '</div>';
 
-                    // v3.0: Badge de números fixos
-                    const fixedBadge = fixedArr.length > 0 ? '<div style="margin-top:8px;padding:6px 10px;background:rgba(245,158,11,0.12);border:1px solid #F59E0B30;border-radius:8px;font-size:0.8em;color:#F59E0B;">📌 <strong>Números Fixos (' + fixedArr.length + '):</strong> ' + fixedArr.sort((a,b)=>a-b).map(n => '<span style="background:#F59E0B22;padding:1px 6px;border-radius:10px;font-weight:700;">' + String(n).padStart(2,'0') + '</span>').join(' ') + ' — presentes em TODOS os ' + closingResult.totalGames + ' jogos</div>' : '';
+                    // v3.0: Badge de nÃºmeros fixos
+                    const fixedBadge = fixedArr.length > 0 ? '<div style="margin-top:8px;padding:6px 10px;background:rgba(245,158,11,0.12);border:1px solid #F59E0B30;border-radius:8px;font-size:0.8em;color:#F59E0B;">ðŸ“Œ <strong>NÃºmeros Fixos (' + fixedArr.length + '):</strong> ' + fixedArr.sort((a,b)=>a-b).map(n => '<span style="background:#F59E0B22;padding:1px 6px;border-radius:10px;font-weight:700;">' + String(n).padStart(2,'0') + '</span>').join(' ') + ' â€” presentes em TODOS os ' + closingResult.totalGames + ' jogos</div>' : '';
 
-                    banner.innerHTML = '<div style="font-size:1.1em;font-weight:700;color:#EAB308;margin-bottom:6px;">' + (guaranteeIcons[guarantee] || '🎯') + ' FECHAMENTO OBJETIVO — ' + (guaranteeLabels[guarantee] || guarantee) + modeLabel + '</div>' +
+                    banner.innerHTML = '<div style="font-size:1.1em;font-weight:700;color:#EAB308;margin-bottom:6px;">' + (guaranteeIcons[guarantee] || 'ðŸŽ¯') + ' FECHAMENTO OBJETIVO â€” ' + (guaranteeLabels[guarantee] || guarantee) + modeLabel + '</div>' +
                         '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:0.85em;">' +
                         '<div style="text-align:center;"><div style="color:#9CA3AF;">Jogos</div><div style="font-weight:700;color:#F59E0B;font-size:1.3em;">' + closingResult.totalGames + '</div></div>' +
                         '<div style="text-align:center;"><div style="color:#9CA3AF;">Cobertura</div><div style="font-weight:700;color:#10B981;font-size:1.3em;">' + closingResult.coveragePct + '%</div></div>' +
@@ -1725,11 +1725,11 @@ class UI {
                         '</div>' +
                         confBadge +
                         fixedBadge +
-                        '<div style="margin-top:8px;padding:6px 10px;background:rgba(234,179,8,0.1);border-radius:8px;font-size:0.8em;color:#D97706;">💡 <strong>Garantia matemática:</strong> Se ' + guarantee + ' dos números sorteados estiverem entre os ' + selectedArr.length + ' selecionados, pelo menos 1 jogo terá ' + guarantee + ' acertos.</div>' +
-                    (closingResult.note ? '<div style="margin-top:6px;padding:6px 10px;background:rgba(148,163,184,0.08);border-radius:8px;font-size:0.75em;color:#94A3B8;">ℹ️ ' + closingResult.note + '</div>' : '');
+                        '<div style="margin-top:8px;padding:6px 10px;background:rgba(234,179,8,0.1);border-radius:8px;font-size:0.8em;color:#D97706;">ðŸ’¡ <strong>Garantia matemÃ¡tica:</strong> Se ' + guarantee + ' dos nÃºmeros sorteados estiverem entre os ' + selectedArr.length + ' selecionados, pelo menos 1 jogo terÃ¡ ' + guarantee + ' acertos.</div>' +
+                    (closingResult.note ? '<div style="margin-top:6px;padding:6px 10px;background:rgba(148,163,184,0.08);border-radius:8px;font-size:0.75em;color:#94A3B8;">â„¹ï¸ ' + closingResult.note + '</div>' : '');
                     this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
 
-                    // ★ V4.0: Scroll automático para os resultados
+                    // â˜… V4.0: Scroll automÃ¡tico para os resultados
                     banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                     // v3.0: Painel Aposte Online
@@ -1738,7 +1738,7 @@ class UI {
                     }
                   } catch (closingErr) {
                     console.error('[ClosingEngine] ERRO FATAL:', closingErr);
-                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:12px;padding:20px;">❌ Erro no Fechamento: ' + closingErr.message + '<br><small>Verifique o console (F12) para detalhes.<br>Tente recarregar com Ctrl+Shift+R</small></div>';
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:12px;padding:20px;">âŒ Erro no Fechamento: ' + closingErr.message + '<br><small>Verifique o console (F12) para detalhes.<br>Tente recarregar com Ctrl+Shift+R</small></div>';
                   }
                 }, 50);
 
@@ -1746,8 +1746,8 @@ class UI {
                 return;
             }
 
-            // ━━ MODO PADRÃO — MOTOR HÍBRIDO (Quantum IA + Sniper + CombinationEngine) ━━
-            // ── LIMPEZA COMPLETA antes de renderizar (FIX: painéis do QUANTUM anterior) ──
+            // â”â” MODO PADRÃƒO â€” MOTOR HÃBRIDO (Quantum IA + Sniper + CombinationEngine) â”â”
+            // â”€â”€ LIMPEZA COMPLETA antes de renderizar (FIX: painÃ©is do QUANTUM anterior) â”€â”€
             const _cgParent = this.gamesContainer.parentNode;
             if (_cgParent) {
                 _cgParent.querySelectorAll('.generation-feedback, .smart-analysis-panel, .smart-gen-analysis').forEach(el => el.remove());
@@ -1761,8 +1761,8 @@ class UI {
                 const fixedArr = Array.from(this.fixedNumbers);
                 const qty = parseInt(this.gamesQuantityInput.value) || 10;
                 
-                // ★ v9.5 GOD MODE: Motor Híbrido — Quantum IA + Sniper para geração manual
-                // Se o pool é grande o suficiente e NovaEraEngine está disponível, usar motor de alta precisão
+                // â˜… v9.5 GOD MODE: Motor HÃ­brido â€” Quantum IA + Sniper para geraÃ§Ã£o manual
+                // Se o pool Ã© grande o suficiente e NovaEraEngine estÃ¡ disponÃ­vel, usar motor de alta precisÃ£o
                 const useHybridEngine = typeof NovaEraEngine !== 'undefined' 
                     && typeof NovaEraEngine.generateSniper === 'function'
                     && selectedArr.length >= game.minBet * 2
@@ -1771,27 +1771,27 @@ class UI {
                 let result;
                 
                 if (useHybridEngine) {
-                    console.log('%c[MANUAL-HYBRID] ★ MOTOR HÍBRIDO ATIVADO — Pool=' + selectedArr.length + ' | Jogos=' + qty, 'color: #F59E0B; font-weight: bold; font-size: 13px;');
+                    console.log('%c[MANUAL-HYBRID] â˜… MOTOR HÃBRIDO ATIVADO â€” Pool=' + selectedArr.length + ' | Jogos=' + qty, 'color: #F59E0B; font-weight: bold; font-size: 13px;');
                     
                     // Loading premium
                     this.gamesContainer.innerHTML = `
                         <div style="text-align:center;padding:30px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border-radius:16px;border:1px solid rgba(245,158,11,0.3);">
-                            <div style="font-size:2.5rem;margin-bottom:8px;filter:drop-shadow(0 0 15px rgba(245,158,11,0.5));">🎯</div>
-                            <div style="color:#F59E0B;font-weight:900;font-size:1.1rem;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 10px rgba(245,158,11,0.4);">MOTOR HÍBRIDO — Quantum + Sniper</div>
-                            <div style="color:#94A3B8;font-size:0.8rem;margin-top:6px;margin-bottom:15px;">🎯 ${selectedArr.length} números selecionados → Tiers + Filtros IA</div>
+                            <div style="font-size:2.5rem;margin-bottom:8px;filter:drop-shadow(0 0 15px rgba(245,158,11,0.5));">ðŸŽ¯</div>
+                            <div style="color:#F59E0B;font-weight:900;font-size:1.1rem;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 10px rgba(245,158,11,0.4);">MOTOR HÃBRIDO â€” Quantum + Sniper</div>
+                            <div style="color:#94A3B8;font-size:0.8rem;margin-top:6px;margin-bottom:15px;">ðŸŽ¯ ${selectedArr.length} nÃºmeros selecionados â†’ Tiers + Filtros IA</div>
                             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px auto;max-width:450px;">
                                 <div style="padding:10px 8px;border-radius:10px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);">
-                                    <div style="font-size:1.2rem;margin-bottom:4px;">⚛️</div>
+                                    <div style="font-size:1.2rem;margin-bottom:4px;">âš›ï¸</div>
                                     <div style="color:#FCD34D;font-size:0.7rem;font-weight:700;">21 CAMADAS</div>
                                     <div style="color:#F59E0B;font-size:0.6rem;">SCORING</div>
                                 </div>
                                 <div style="padding:10px 8px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);">
-                                    <div style="font-size:1.2rem;margin-bottom:4px;">🎯</div>
+                                    <div style="font-size:1.2rem;margin-bottom:4px;">ðŸŽ¯</div>
                                     <div style="color:#FCA5A5;font-size:0.7rem;font-weight:700;">SNIPER</div>
                                     <div style="color:#EF4444;font-size:0.6rem;">TIERS</div>
                                 </div>
                                 <div style="padding:10px 8px;border-radius:10px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);">
-                                    <div style="font-size:1.2rem;margin-bottom:4px;">🔮</div>
+                                    <div style="font-size:1.2rem;margin-bottom:4px;">ðŸ”®</div>
                                     <div style="color:#6EE7B7;font-size:0.7rem;font-weight:700;">FILTROS</div>
                                     <div style="color:#10B981;font-size:0.6rem;">QUANTUM IA</div>
                                 </div>
@@ -1807,10 +1807,10 @@ class UI {
                     const sniperResult = NovaEraEngine.generateSniper(
                         this.currentGameKey,
                         qty,
-                        selectedArr.length,  // Pool = todos os números selecionados pelo apostador
+                        selectedArr.length,  // Pool = todos os nÃºmeros selecionados pelo apostador
                         fixedArr,
-                        game.minBet,  // Cada jogo usa o drawSize mínimo da loteria
-                        selectedArr   // ★ HYBRID: Pool fornecido pelo apostador (customPool)
+                        game.minBet,  // Cada jogo usa o drawSize mÃ­nimo da loteria
+                        selectedArr   // â˜… HYBRID: Pool fornecido pelo apostador (customPool)
                     );
                     
                     result = {
@@ -1829,12 +1829,12 @@ class UI {
                         }
                     };
                     
-                    console.log('%c[MANUAL-HYBRID] ★ RESULTADO: ' + result.games.length + '/' + qty + ' jogos | Confiança: ' + sniperResult.analysis.confidence + '%', 'color: #F59E0B; font-weight: bold;');
+                    console.log('%c[MANUAL-HYBRID] â˜… RESULTADO: ' + result.games.length + '/' + qty + ' jogos | ConfianÃ§a: ' + sniperResult.analysis.confidence + '%', 'color: #F59E0B; font-weight: bold;');
                     
                 } else {
-                    // Fallback: CombinationEngine original (pool muito pequeno ou NovaEra indisponível)
+                    // Fallback: CombinationEngine original (pool muito pequeno ou NovaEra indisponÃ­vel)
                     if (typeof CombinationEngine === 'undefined') {
-                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">❌ Motor de Combinação (CombinationEngine) não carregado.<br><small>Recarregue a página com Ctrl+Shift+R</small></div>';
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">âŒ Motor de CombinaÃ§Ã£o (CombinationEngine) nÃ£o carregado.<br><small>Recarregue a pÃ¡gina com Ctrl+Shift+R</small></div>';
                         return;
                     }
                     result = CombinationEngine.generate(
@@ -1849,7 +1849,7 @@ class UI {
                 this.renderGames(result, this.currentGameKey);
             if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
 
-            // ★ v9.5: Banner premium do Motor Híbrido
+            // â˜… v9.5: Banner premium do Motor HÃ­brido
             if (useHybridEngine && result.smartAnalysis) {
                 const sa = result.smartAnalysis;
                 const confPct = sa.confidence || 0;
@@ -1859,10 +1859,10 @@ class UI {
                 hybridBanner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(245,158,11,0.12),rgba(15,23,42,0.95));border:1px solid #F59E0B40;';
                 hybridBanner.innerHTML = `
                     <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                        <div style="font-size:1.4rem;filter:drop-shadow(0 0 8px rgba(245,158,11,0.4));">🎯</div>
+                        <div style="font-size:1.4rem;filter:drop-shadow(0 0 8px rgba(245,158,11,0.4));">ðŸŽ¯</div>
                         <div>
-                            <div style="font-weight:900;color:#F59E0B;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">MOTOR HÍBRIDO — Quantum + Sniper</div>
-                            <div style="font-size:0.72rem;color:#94A3B8;">Seus ${selectedArr.length} números → 21 Camadas IA → Tiers → Filtros Quantum</div>
+                            <div style="font-weight:900;color:#F59E0B;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">MOTOR HÃBRIDO â€” Quantum + Sniper</div>
+                            <div style="font-size:0.72rem;color:#94A3B8;">Seus ${selectedArr.length} nÃºmeros â†’ 21 Camadas IA â†’ Tiers â†’ Filtros Quantum</div>
                         </div>
                     </div>
                     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;font-size:0.75rem;">
@@ -1876,19 +1876,19 @@ class UI {
                         </div>
                         <div style="text-align:center;padding:6px;background:rgba(255,255,255,0.04);border-radius:8px;">
                             <div style="color:#94A3B8;font-size:0.6rem;">TIERS</div>
-                            <div style="color:#EF4444;font-weight:800;font-size:1.1rem;">${sa.candidatesGenerated || '—'}</div>
+                            <div style="color:#EF4444;font-weight:800;font-size:1.1rem;">${sa.candidatesGenerated || 'â€”'}</div>
                         </div>
                         <div style="text-align:center;padding:6px;background:rgba(255,255,255,0.04);border-radius:8px;">
                             <div style="color:#94A3B8;font-size:0.6rem;">COBERTURA</div>
                             <div style="color:#10B981;font-weight:800;font-size:1.1rem;">${sa.coveragePct || 0}%</div>
                         </div>
                         <div style="text-align:center;padding:6px;background:rgba(255,255,255,0.04);border-radius:8px;">
-                            <div style="color:#94A3B8;font-size:0.6rem;">CONFIANÇA</div>
+                            <div style="color:#94A3B8;font-size:0.6rem;">CONFIANÃ‡A</div>
                             <div style="color:${confColor};font-weight:800;font-size:1.1rem;">${confPct}%</div>
                         </div>
                     </div>
                     <div style="margin-top:8px;padding:6px 10px;background:rgba(245,158,11,0.08);border-radius:8px;font-size:0.72rem;color:#D97706;">
-                        💡 <strong>Números do apostador:</strong> Cada jogo usa ${game.minBet} dos seus ${selectedArr.length} números, alinhados simetricamente via Tiers de probabilidade das 21 camadas Quantum IA + filtros anti-sequência, paridade e soma.
+                        ðŸ’¡ <strong>NÃºmeros do apostador:</strong> Cada jogo usa ${game.minBet} dos seus ${selectedArr.length} nÃºmeros, alinhados simetricamente via Tiers de probabilidade das 21 camadas Quantum IA + filtros anti-sequÃªncia, paridade e soma.
                     </div>`;
                 this.gamesContainer.parentNode.insertBefore(hybridBanner, this.gamesContainer);
                 hybridBanner.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1897,10 +1897,10 @@ class UI {
             // Info se o motor expandiu automaticamente o pool
             const qtdSolicitada = parseInt(this.gamesQuantityInput.value);
             if (result.games.length < qtdSolicitada) {
-                console.log(`[B2B] ℹ️ Gerados ${result.games.length}/${qtdSolicitada} jogos (pool auto-expandido)`);
+                console.log(`[B2B] â„¹ï¸ Gerados ${result.games.length}/${qtdSolicitada} jogos (pool auto-expandido)`);
             }
 
-            // Painel de análise inteligente
+            // Painel de anÃ¡lise inteligente
             if (result.smartAnalysis) {
                 const sa = result.smartAnalysis;
                 const allNums = new Set();
@@ -1908,7 +1908,7 @@ class UI {
 
                 let html = `
                     <div class="smart-gen-analysis" style="margin-top:8px;margin-bottom:8px;padding:10px 14px;border-radius:10px;background:linear-gradient(145deg,rgba(16,185,129,0.08),rgba(15,23,42,0.95));border:1px solid #10B98130;">
-                        <div style="color:#10B981;font-weight:700;font-size:0.85rem;margin-bottom:6px;">🧠 Motor ${sa.engineVersion || 'v4.0'}</div>
+                        <div style="color:#10B981;font-weight:700;font-size:0.85rem;margin-bottom:6px;">ðŸ§  Motor ${sa.engineVersion || 'v4.0'}</div>
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:0.68rem;">
                             <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
                                 <span style="color:#94A3B8;">Sorteios</span><br>
@@ -1916,78 +1916,78 @@ class UI {
                             </div>
                             <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
                                 <span style="color:#94A3B8;">Candidatos</span><br>
-                                <span style="color:#E2E8F0;font-weight:700;">${sa.candidatesGenerated || '—'}</span>
+                                <span style="color:#E2E8F0;font-weight:700;">${sa.candidatesGenerated || 'â€”'}</span>
                             </div>
                             <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
-                                <span style="color:#94A3B8;">Score médio</span><br>
-                                <span style="color:#10B981;font-weight:700;">${sa.avgScore || '—'}</span>
+                                <span style="color:#94A3B8;">Score mÃ©dio</span><br>
+                                <span style="color:#10B981;font-weight:700;">${sa.avgScore || 'â€”'}</span>
                             </div>
                         </div>
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:0.68rem;margin-top:4px;">
                             <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
                                 <span style="color:#94A3B8;">Soma esperada</span><br>
-                                <span style="color:#E2E8F0;font-weight:600;">${sa.sumRange || '—'}</span>
+                                <span style="color:#E2E8F0;font-weight:600;">${sa.sumRange || 'â€”'}</span>
                             </div>
                             <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
-                                <span style="color:#94A3B8;">Par/Ímpar</span><br>
-                                <span style="color:#E2E8F0;font-weight:600;">${sa.parImparRatio || '—'}</span>
+                                <span style="color:#94A3B8;">Par/Ãmpar</span><br>
+                                <span style="color:#E2E8F0;font-weight:600;">${sa.parImparRatio || 'â€”'}</span>
                             </div>
                             <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
-                                <span style="color:#94A3B8;">Nº Únicos</span><br>
+                                <span style="color:#94A3B8;">NÂº Ãšnicos</span><br>
                                 <span style="color:#E2E8F0;font-weight:700;">${allNums.size}</span>
                             </div>
                         </div>`;
                 
                 if (sa.pairsUsed && sa.pairsUsed.length > 0) {
                     html += `<div style="margin-top:6px;font-size:0.68rem;">
-                        <span style="color:#F59E0B;font-weight:600;">🔗 Duplas:</span>
+                        <span style="color:#F59E0B;font-weight:600;">ðŸ”— Duplas:</span>
                         <span style="color:#CBD5E1;">${sa.pairsUsed.join(' | ')}</span>
                     </div>`;
                 }
                 if (sa.triosUsed && sa.triosUsed.length > 0) {
                     html += `<div style="margin-top:3px;font-size:0.68rem;">
-                        <span style="color:#8B5CF6;font-weight:600;">🔺 Trios:</span>
+                        <span style="color:#8B5CF6;font-weight:600;">ðŸ”º Trios:</span>
                         <span style="color:#CBD5E1;">${sa.triosUsed.join(' | ')}</span>
                     </div>`;
                 }
 
-                // Padrões Ocultos
+                // PadrÃµes Ocultos
                 let hasPatterns = false;
                 let patternHtml = '<div style="margin-top:6px;padding:6px 8px;border-radius:6px;background:rgba(139,92,246,0.08);border:1px solid #8B5CF620;">';
-                patternHtml += '<div style="color:#A78BFA;font-weight:700;font-size:0.72rem;margin-bottom:4px;">🔍 Padrões Ocultos Detectados</div>';
+                patternHtml += '<div style="color:#A78BFA;font-weight:700;font-size:0.72rem;margin-bottom:4px;">ðŸ” PadrÃµes Ocultos Detectados</div>';
 
                 if (sa.cycleNumbers && sa.cycleNumbers.length > 0) {
                     hasPatterns = true;
                     patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
-                        <span style="color:#F59E0B;">⏰ Ciclos:</span>
+                        <span style="color:#F59E0B;">â° Ciclos:</span>
                         <span style="color:#CBD5E1;">${sa.cycleNumbers.join(', ')}</span>
                     </div>`;
                 }
                 if (sa.mirrorsDetected && sa.mirrorsDetected.length > 0) {
                     hasPatterns = true;
                     patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
-                        <span style="color:#EC4899;">🪞 Espelhos:</span>
+                        <span style="color:#EC4899;">ðŸªž Espelhos:</span>
                         <span style="color:#CBD5E1;">${sa.mirrorsDetected.join(', ')}</span>
                     </div>`;
                 }
                 if (sa.fibonacciRatio) {
                     hasPatterns = true;
                     patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
-                        <span style="color:#14B8A6;">🌀 Fibonacci:</span>
+                        <span style="color:#14B8A6;">ðŸŒ€ Fibonacci:</span>
                         <span style="color:#CBD5E1;">${sa.fibonacciRatio} dos gaps</span>
                     </div>`;
                 }
                 if (sa.sumModPatterns && sa.sumModPatterns.length > 0) {
                     hasPatterns = true;
                     patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
-                        <span style="color:#6366F1;">🔢 Soma mod:</span>
+                        <span style="color:#6366F1;">ðŸ”¢ Soma mod:</span>
                         <span style="color:#CBD5E1;">${sa.sumModPatterns.join(', ')}</span>
                     </div>`;
                 }
                 if (sa.delayedNumbers && sa.delayedNumbers.length > 0) {
                     hasPatterns = true;
                     patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
-                        <span style="color:#EF4444;">⏳ Atrasados:</span>
+                        <span style="color:#EF4444;">â³ Atrasados:</span>
                         <span style="color:#CBD5E1;">${sa.delayedNumbers.join(', ')}</span>
                     </div>`;
                 }
@@ -2002,7 +2002,7 @@ class UI {
                 this.gamesContainer.parentNode.insertBefore(analysisDiv.firstElementChild, this.gamesContainer);
             }
 
-            // ── BOTÃO APOSTE ONLINE — TODAS AS LOTERIAS ──
+            // â”€â”€ BOTÃƒO APOSTE ONLINE â€” TODAS AS LOTERIAS â”€â”€
             this._insertCaixaPanel(result.games, this.currentGameKey);
 
             // Feedback
@@ -2011,7 +2011,7 @@ class UI {
             feedback.style.textAlign = 'center';
             feedback.style.padding = '10px';
             feedback.style.fontWeight = 'bold';
-            feedback.textContent = `🧠 ${result.games.length} jogos inteligentes gerados!`;
+            feedback.textContent = `ðŸ§  ${result.games.length} jogos inteligentes gerados!`;
             feedback.classList.add('generation-feedback');
             feedback.style.marginTop = '10px';
             feedback.style.marginBottom = '10px';
@@ -2021,28 +2021,28 @@ class UI {
             feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } catch (combErr) {
                 console.error('[CombEngine] ERRO:', combErr);
-                this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:12px;padding:20px;">❌ Erro na Geração: ' + combErr.message + '<br><small>Verifique o console (F12) para detalhes.<br>Tente recarregar com Ctrl+Shift+R</small></div>';
+                this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:12px;padding:20px;">âŒ Erro na GeraÃ§Ã£o: ' + combErr.message + '<br><small>Verifique o console (F12) para detalhes.<br>Tente recarregar com Ctrl+Shift+R</small></div>';
             }
         };
 
         // Generate (IA Smart Bets)
         if (this.generateSmartBtn) {
             this.generateSmartBtn.onclick = () => this.runSmartGeneration();
-            // Remover lógica do botão legado
+            // Remover lÃ³gica do botÃ£o legado
             if (this.btnPrecisionPlay) {
                 this.btnPrecisionPlay.remove();
             }
 
-            // ── LINHA SEPARADA: Pool de Precisão (aparece ABAIXO dos botões) ──
+            // â”€â”€ LINHA SEPARADA: Pool de PrecisÃ£o (aparece ABAIXO dos botÃµes) â”€â”€
             const precisionPoolRow = document.createElement('div');
             precisionPoolRow.id = 'precision-pool-row';
             precisionPoolRow.style.cssText = 'display:none; align-items:center; gap:10px; margin-top:8px; padding:10px 14px; background:linear-gradient(145deg,rgba(245,158,11,0.08),rgba(15,23,42,0.95)); border:1px solid rgba(245,158,11,0.3); border-radius:10px;';
             precisionPoolRow.innerHTML = `
-                <span style="color:#F59E0B;font-size:0.85rem;font-weight:700;white-space:nowrap;">🎯 Pool de Precisão:</span>
+                <span style="color:#F59E0B;font-size:0.85rem;font-weight:700;white-space:nowrap;">ðŸŽ¯ Pool de PrecisÃ£o:</span>
                 <input type="number" id="precision-pool-size" min="7" max="60" value="20" 
                     style="width:70px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,215,0,0.5);background:rgba(0,0,0,0.4);color:#FFD700;font-weight:800;font-size:0.95rem;text-align:center;outline:none;height:36px;"
                 >
-                <span id="precision-pool-info" style="color:#94A3B8;font-size:0.75rem;flex:1;">números no pool</span>
+                <span id="precision-pool-info" style="color:#94A3B8;font-size:0.75rem;flex:1;">nÃºmeros no pool</span>
             `;
             
             const smartNumbersRow = document.getElementById('smart-numbers-row');
@@ -2050,18 +2050,18 @@ class UI {
                 smartNumbersRow.parentNode.insertBefore(precisionPoolRow, smartNumbersRow.nextSibling);
             }
 
-            // Lógica para toggle nativo do HTML (switch)
+            // LÃ³gica para toggle nativo do HTML (switch)
             const toggle = document.getElementById('precision-mode-toggle');
             if (toggle) {
                 const _applyPrecisionUI = (checked) => {
                     if (checked) {
-                        this.generateSmartBtn.innerHTML = '🎯 JOGAR PRECISÃO';
+                        this.generateSmartBtn.innerHTML = 'ðŸŽ¯ JOGAR PRECISÃƒO';
                         this.generateSmartBtn.style.background = 'linear-gradient(135deg, #EF4444, #991B1B)';
                         this.generateSmartBtn.style.boxShadow = '0 6px 25px rgba(239, 68, 68, 0.5)';
                         precisionPoolRow.style.display = 'flex';
                         this._updatePrecisionPoolLimits();
                     } else {
-                        this.generateSmartBtn.innerHTML = '⚡ QUANTUM L99';
+                        this.generateSmartBtn.innerHTML = 'âš¡ QUANTUM L99';
                         this.generateSmartBtn.style.background = 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
                         this.generateSmartBtn.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.35)';
                         precisionPoolRow.style.display = 'none';
@@ -2071,13 +2071,13 @@ class UI {
                     localStorage.setItem('l99_precision_on', toggle.checked ? '1' : '0');
                     _applyPrecisionUI(toggle.checked);
                 });
-                // ★ Restaurar estado do toggle após refresh
+                // â˜… Restaurar estado do toggle apÃ³s refresh
                 const savedPrecision = localStorage.getItem('l99_precision_on');
                 if (savedPrecision === '1') {
                     toggle.checked = true;
                     _applyPrecisionUI(true);
                 }
-                // ★ Restaurar valor do pool após refresh
+                // â˜… Restaurar valor do pool apÃ³s refresh
                 const savedPool = localStorage.getItem('l99_precision_pool');
                 const poolInput = document.getElementById('precision-pool-size');
                 if (savedPool && poolInput) {
@@ -2101,7 +2101,7 @@ class UI {
         // Atualizar custo em tempo real ao mudar quantidade de jogos
         this.gamesQuantityInput.addEventListener('input', () => this.updateCurrentCostDisplay());
 
-        // Atualizar custo ao mudar nº por jogo IA
+        // Atualizar custo ao mudar nÂº por jogo IA
         if (this.smartDrawSizeSelect) {
             this.smartDrawSizeSelect.addEventListener('change', () => this.updateCurrentCostDisplay());
         }
@@ -2117,7 +2117,7 @@ class UI {
                 this.copyToClipboard(text).then(success => {
                     if (success === true) {
                         const original = copyBtn.innerHTML;
-                        copyBtn.innerHTML = '✅';
+                        copyBtn.innerHTML = 'âœ…';
                         setTimeout(() => copyBtn.innerHTML = original, 1000);
                     }
                 });
@@ -2162,8 +2162,8 @@ class UI {
         this.initStatisticsPanel();
     }
 
-    // [REMOVIDO] runPrecisionPlay() — código morto, botão foi removido do DOM
-    // Toda geração de precisão agora passa por runSmartGeneration() com isPrecisionMode=true
+    // [REMOVIDO] runPrecisionPlay() â€” cÃ³digo morto, botÃ£o foi removido do DOM
+    // Toda geraÃ§Ã£o de precisÃ£o agora passa por runSmartGeneration() com isPrecisionMode=true
 
 
     initQuantum() {
@@ -2174,7 +2174,7 @@ class UI {
             this.btnUseQuantum.onclick = () => this.useQuantumNumbers();
         }
 
-        // ── Botão de Análise Manual da Seleção ──────────────────────────────
+        // â”€â”€ BotÃ£o de AnÃ¡lise Manual da SeleÃ§Ã£o â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         const btnAnalyse = document.getElementById('btn-analyse-selection');
         if (btnAnalyse) {
             btnAnalyse.onclick = () => {
@@ -2183,11 +2183,11 @@ class UI {
 
                 const nums = [...this.selectedNumbers].sort((a, b) => a - b);
                 if (nums.length < 2) {
-                    container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Selecione pelo menos 2 números no grid para analisar.</div>';
+                    container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">âš ï¸ Selecione pelo menos 2 nÃºmeros no grid para analisar.</div>';
                     return;
                 }
 
-                container.innerHTML = '<div style="color:#8B5CF6;font-size:0.72rem;padding:8px;text-align:center;">🔬 Analisando ' + nums.length + ' números em 12 dimensões...</div>';
+                container.innerHTML = '<div style="color:#8B5CF6;font-size:0.72rem;padding:8px;text-align:center;">ðŸ”¬ Analisando ' + nums.length + ' nÃºmeros em 12 dimensÃµes...</div>';
 
                 setTimeout(() => {
                     try {
@@ -2196,28 +2196,28 @@ class UI {
                         if (analysis) {
                             AnalysisEngine.renderPanel(analysis, container);
                         } else {
-                            container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Histórico insuficiente para análise.</div>';
+                            container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">âš ï¸ HistÃ³rico insuficiente para anÃ¡lise.</div>';
                         }
                     } catch (e) {
-                        container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Erro: ' + e.message + '</div>';
-                        console.error('[AE] Erro análise manual:', e);
+                        container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">âš ï¸ Erro: ' + e.message + '</div>';
+                        console.error('[AE] Erro anÃ¡lise manual:', e);
                     }
                 }, 150);
             };
         }
 
-        // ── Botão de Análise por Grupos (Lotofácil exclusivo) ────────────────
+        // â”€â”€ BotÃ£o de AnÃ¡lise por Grupos (LotofÃ¡cil exclusivo) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         const btnGroup = document.getElementById('btn-group-analysis');
         if (btnGroup) {
             btnGroup.onclick = () => {
                 const container = document.getElementById('lge-group-container');
                 if (!container) return;
-                container.innerHTML = '<div style="color:#c026d3;font-size:0.72rem;padding:8px;text-align:center;">🎯 Carregando análise de grupos...</div>';
+                container.innerHTML = '<div style="color:#c026d3;font-size:0.72rem;padding:8px;text-align:center;">ðŸŽ¯ Carregando anÃ¡lise de grupos...</div>';
                 setTimeout(() => {
                     try {
                         const history = StatsService.getRecentResults(this.currentGameKey, 200) || [];
                         if (history.length < 5) {
-                            container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Histórico insuficiente.</div>';
+                            container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">âš ï¸ HistÃ³rico insuficiente.</div>';
                             return;
                         }
                         // Usar UniversalGroupEngine para todas as loterias
@@ -2226,22 +2226,22 @@ class UI {
                             container.innerHTML = '';
                             UniversalGroupEngine.renderPanel(result.analysis, container, result);
                         } else if (this.currentGameKey === 'lotofacil' && typeof LotofacilGroupEngine !== 'undefined') {
-                            // Fallback para o motor específico da Lotofácil
+                            // Fallback para o motor especÃ­fico da LotofÃ¡cil
                             const result = LotofacilGroupEngine.generate(history, 15, true);
                             container.innerHTML = '';
                             LotofacilGroupEngine.renderPanel(result.analysis, container, result);
                         } else {
-                            container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Motor de grupos não disponível.</div>';
+                            container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">âš ï¸ Motor de grupos nÃ£o disponÃ­vel.</div>';
                         }
                     } catch (e) {
-                        container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">⚠️ Erro: ' + e.message + '</div>';
-                        console.error('[UGE] Erro análise por grupos:', e);
+                        container.innerHTML = '<div style="color:#EF4444;font-size:0.72rem;padding:8px;text-align:center;">âš ï¸ Erro: ' + e.message + '</div>';
+                        console.error('[UGE] Erro anÃ¡lise por grupos:', e);
                     }
                 }, 100);
             };
         }
 
-        // ── Botão Estratégia Dual 2 Grupos (Lotofácil exclusivo) ────────────────
+        // â”€â”€ BotÃ£o EstratÃ©gia Dual 2 Grupos (LotofÃ¡cil exclusivo) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         const btnDualStrat = document.getElementById('btn-dual-strategy');
         if (btnDualStrat) {
             btnDualStrat.onclick = () => {
@@ -2252,9 +2252,9 @@ class UI {
                 const gameCount = Math.max(1, Math.min(100, parseInt(this.gamesQuantityInput?.value) || 10));
 
                 container.innerHTML = `<div style="background:linear-gradient(135deg,rgba(124,58,237,0.15),rgba(76,29,149,0.1));border:1px solid #7c3aed60;border-radius:10px;padding:14px;text-align:center;margin-top:8px;">
-                    <div style="font-size:1.5rem;margin-bottom:6px;">⚡</div>
-                    <div style="color:#a78bfa;font-weight:700;font-size:0.88rem;">Analisando Estratégia Dual 2G...</div>
-                    <div style="color:#6d28d9;font-size:0.72rem;margin-top:4px;">Calculando melhor divisão dos 25 números em 2 macro-grupos para ${gameCount} jogo${gameCount>1?'s':''}...</div>
+                    <div style="font-size:1.5rem;margin-bottom:6px;">âš¡</div>
+                    <div style="color:#a78bfa;font-weight:700;font-size:0.88rem;">Analisando EstratÃ©gia Dual 2G...</div>
+                    <div style="color:#6d28d9;font-size:0.72rem;margin-top:4px;">Calculando melhor divisÃ£o dos 25 nÃºmeros em 2 macro-grupos para ${gameCount} jogo${gameCount>1?'s':''}...</div>
                     <div style="margin-top:10px;height:3px;background:rgba(124,58,237,0.2);border-radius:2px;overflow:hidden;">
                         <div style="height:100%;background:linear-gradient(90deg,#7c3aed,#a855f7,#c084fc);border-radius:2px;animation:dualProgress 1.2s ease-in-out infinite;width:40%;"></div>
                     </div>
@@ -2264,7 +2264,7 @@ class UI {
                 setTimeout(() => {
                     try {
                         if (typeof LotofacilDualStrategy === 'undefined') {
-                            container.innerHTML = '<div style="color:#EF4444;padding:10px;text-align:center;">⚠️ Motor LDSE-V1 não carregado. Recarregue (Ctrl+Shift+R).</div>';
+                            container.innerHTML = '<div style="color:#EF4444;padding:10px;text-align:center;">âš ï¸ Motor LDSE-V1 nÃ£o carregado. Recarregue (Ctrl+Shift+R).</div>';
                             return;
                         }
 
@@ -2274,21 +2274,21 @@ class UI {
                             history = REAL_HISTORY_DB.lotofacil.slice(0, 300);
                         }
                         if (history.length < 5) {
-                            container.innerHTML = '<div style="color:#EF4444;padding:10px;text-align:center;">⚠️ Histórico insuficiente para análise dual.</div>';
+                            container.innerHTML = '<div style="color:#EF4444;padding:10px;text-align:center;">âš ï¸ HistÃ³rico insuficiente para anÃ¡lise dual.</div>';
                             return;
                         }
 
                         const result = LotofacilDualStrategy.generate(history, gameCount);
 
                         if (!result || !result.games || result.games.length === 0) {
-                            container.innerHTML = '<div style="color:#EF4444;padding:10px;text-align:center;">⚠️ Não foi possível gerar jogos com a estratégia dual.</div>';
+                            container.innerHTML = '<div style="color:#EF4444;padding:10px;text-align:center;">âš ï¸ NÃ£o foi possÃ­vel gerar jogos com a estratÃ©gia dual.</div>';
                             return;
                         }
 
                         container.innerHTML = '';
                         LotofacilDualStrategy.renderPanel(result.analysis, result, container);
 
-                        // Renderizar jogos na área principal
+                        // Renderizar jogos na Ã¡rea principal
                         const gamesData = {
                             games: result.games.map(g => g.numbers),
                             analysis: {
@@ -2305,16 +2305,16 @@ class UI {
                         const fb = document.createElement('div');
                         fb.className = 'generation-feedback';
                         fb.style.cssText = 'color:#a78bfa;text-align:center;padding:10px;font-weight:bold;margin-top:8px;font-size:0.88rem;';
-                        fb.textContent = `⚡ ${result.games.length} jogos gerados via Estratégia Dual 2G — Split: ${result.bestSplit?.id || 'S4'}`;
+                        fb.textContent = `âš¡ ${result.games.length} jogos gerados via EstratÃ©gia Dual 2G â€” Split: ${result.bestSplit?.id || 'S4'}`;
                         const oldFb = this.gamesContainer.parentNode.querySelector('.generation-feedback');
                         if (oldFb) oldFb.remove();
                         this.gamesContainer.parentNode.insertBefore(fb, this.gamesContainer);
 
                         container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        console.log(`[LDSE] ✅ ${result.games.length} jogos | Split: ${result.bestSplit?.name}`);
+                        console.log(`[LDSE] âœ… ${result.games.length} jogos | Split: ${result.bestSplit?.name}`);
 
                     } catch (e) {
-                        container.innerHTML = `<div style="color:#EF4444;padding:10px;text-align:center;">⚠️ Erro LDSE: ${e.message}</div>`;
+                        container.innerHTML = `<div style="color:#EF4444;padding:10px;text-align:center;">âš ï¸ Erro LDSE: ${e.message}</div>`;
                         console.error('[LDSE] Erro:', e);
                     }
                 }, 150);
@@ -2372,7 +2372,7 @@ class UI {
     }
 
     addInstallButton() {
-        // Carregar prêmios nos botões de navegação
+        // Carregar prÃªmios nos botÃµes de navegaÃ§Ã£o
         this.loadAllNavPrizes();
     }
 
@@ -2397,16 +2397,16 @@ class UI {
                     if (amount > 0) {
                         elem.textContent = this._formatPrizeShort(amount);
                         if (prizeInfo.accumulated) {
-                            elem.textContent += ' 🔥';
+                            elem.textContent += ' ðŸ”¥';
                         }
                         // Also update main prize display if this is the currently active game
                         if (key === this.currentGameKey) {
                             this.updatePrizeDisplay(key);
                         }
                     }
-                    // Se API não retornou nada, mantém o fallback já exibido
+                    // Se API nÃ£o retornou nada, mantÃ©m o fallback jÃ¡ exibido
                 } catch (e) {
-                    // Mantém o fallback já exibido
+                    // MantÃ©m o fallback jÃ¡ exibido
                 }
             })();
         }
@@ -2429,14 +2429,14 @@ class UI {
         this.currentGameKey = gameKey;
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         if (!game) {
-            console.error('[UI] Dados da loteria não encontrados para: ' + gameKey);
+            console.error('[UI] Dados da loteria nÃ£o encontrados para: ' + gameKey);
             return;
         }
 
         this.updateTheme(game.color);
         this.updateCountdown(gameKey);
 
-        // Botão de análise de grupos: disponível para TODAS as loterias via UniversalGroupEngine
+        // BotÃ£o de anÃ¡lise de grupos: disponÃ­vel para TODAS as loterias via UniversalGroupEngine
         const btnGroup = document.getElementById('btn-group-analysis');
         const lgeContainer = document.getElementById('lge-group-container');
         if (btnGroup) {
@@ -2445,12 +2445,12 @@ class UI {
             btnGroup.style.display = hasConfig ? 'block' : 'none';
             if (hasConfig) {
                 const groupCount = UniversalGroupEngine.CONFIGS[gameKey].groups.length;
-                btnGroup.textContent = `🎯 Análise por Grupos (${groupCount}G) — ${game.name}`;
+                btnGroup.textContent = `ðŸŽ¯ AnÃ¡lise por Grupos (${groupCount}G) â€” ${game.name}`;
             }
         }
         if (lgeContainer) lgeContainer.innerHTML = '';
 
-        // Botão Estratégia Dual 2G — exclusivo Lotofácil
+        // BotÃ£o EstratÃ©gia Dual 2G â€” exclusivo LotofÃ¡cil
         const btnDual = document.getElementById('btn-dual-strategy');
         const dualContainer = document.getElementById('dual-strategy-container');
         if (btnDual) {
@@ -2485,10 +2485,10 @@ class UI {
             this.recentResultsContainer.innerHTML = '<div class="sync-loader">Sincronizando com a Caixa...</div>';
         }
 
-        // ━━ DROPDOWN DINÂMICO v3.0 ━━
-        this._rebuildClosingDropdown(gameKey, true); // true = forçar 'generate'
+        // â”â” DROPDOWN DINÃ‚MICO v3.0 â”â”
+        this._rebuildClosingDropdown(gameKey, true); // true = forÃ§ar 'generate'
 
-        // ━━ EVENTO: Preview do Fechamento em tempo real ━━
+        // â”â” EVENTO: Preview do Fechamento em tempo real â”â”
         this.closingSelect.onchange = () => this._updateClosingPreview();
 
         this.maxSelectionElem.textContent = game.maxBet;
@@ -2496,26 +2496,26 @@ class UI {
         this.fixedNumbers.clear();
         this.isFixedMode = false;
         this.btnFixedMode.classList.remove('active');
-        this.btnFixedMode.textContent = '📌 Fixar';
+        this.btnFixedMode.textContent = 'ðŸ“Œ Fixar';
         this.fixedInfoPanel.style.display = 'none';
 
-        // ━━ MÊS DA SORTE — visível apenas para Dia de Sorte ━━
+        // â”â” MÃŠS DA SORTE â€” visÃ­vel apenas para Dia de Sorte â”â”
         const mesSorteRow = document.getElementById('mes-sorte-row');
         if (mesSorteRow) {
             mesSorteRow.style.display = gameKey === 'diadesorte' ? 'grid' : 'none';
         }
 
-        // Mostrar toggle Modo Precisão APENAS para Lotofácil
+        // Mostrar toggle Modo PrecisÃ£o APENAS para LotofÃ¡cil
         const precisionEl = document.getElementById('precision-mode-label');
         if (precisionEl) {
-            // ★ v7.0: Botão Precisão visível para TODAS as loterias
+            // â˜… v7.0: BotÃ£o PrecisÃ£o visÃ­vel para TODAS as loterias
             precisionEl.style.display = 'flex';
-            // ★ v9.0: Atualizar limites do pool para a loteria selecionada
+            // â˜… v9.0: Atualizar limites do pool para a loteria selecionada
             this._updatePrecisionPoolLimits();
         }
 
         if (this.quantumCountInput) {
-            // Sugestão IA: padrão = 50% dos números da loteria, mas mínimo é minBet
+            // SugestÃ£o IA: padrÃ£o = 50% dos nÃºmeros da loteria, mas mÃ­nimo Ã© minBet
             const qConstraints = QuantumGodEngine.getConstraints(gameKey);
             const totalNums = qConstraints ? qConstraints.totalNumbers : (game.range[1] - game.range[0] + 1);
             const defaultSuggestion = Math.ceil(totalNums * 0.5);
@@ -2524,10 +2524,10 @@ class UI {
             this.quantumCountInput.max = totalNums;
         }
         if (this.quantumResults) {
-            this.quantumResults.innerHTML = '<div class="quantum-placeholder">Clique em "Gerar Sugestão" para começar</div>';
+            this.quantumResults.innerHTML = '<div class="quantum-placeholder">Clique em "Gerar SugestÃ£o" para comeÃ§ar</div>';
         }
 
-        // Atualizar seletor de números por jogo IA
+        // Atualizar seletor de nÃºmeros por jogo IA
         this.updateSmartDrawSizeSelect(gameKey, game);
 
         // RENDER GRID IMMEDIATELY
@@ -2535,7 +2535,7 @@ class UI {
         this.updateSelectionInfo();
         this.updateCurrentCostDisplay();
 
-        // Mostrar prêmio fallback IMEDIATAMENTE (sem depender da API)
+        // Mostrar prÃªmio fallback IMEDIATAMENTE (sem depender da API)
         this.updatePrizeDisplayWithFallback(gameKey);
 
         // ASYNC LOAD FOR DATA
@@ -2557,65 +2557,65 @@ class UI {
                 this.updatePrizeDisplay(gameKey);
             } catch (e) {
                 console.warn("Async history load failed:", e);
-                // Mantém o fallback exibido
+                // MantÃ©m o fallback exibido
                 if (this.recentResultsContainer) {
                     this.recentResultsContainer.innerHTML = '<div class="empty-state">Usando dados offline.</div>';
                 }
             }
         })();
 
-        this.gamesContainer.innerHTML = '<div class="empty-state">Selecione as opções e clique em Gerar Jogos</div>';
+        this.gamesContainer.innerHTML = '<div class="empty-state">Selecione as opÃ§Ãµes e clique em Gerar Jogos</div>';
     }
 
-    // ╔══════════════════════════════════════════════════════════╗
-    // ║  ATUALIZAR SELECT DE NÚMEROS POR JOGO IA              ║
-    // ╚══════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  ATUALIZAR SELECT DE NÃšMEROS POR JOGO IA              â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     updateSmartDrawSizeSelect(gameKey, game) {
         if (!this.smartDrawSizeSelect) return;
 
         this.smartDrawSizeSelect.innerHTML = '';
         const min = game.minBet;
-        // Limitar max a algo razoável para o select
-        const maxDisplay = Math.min(game.maxBet, min + 14); // Até 15 opções iniciais
+        // Limitar max a algo razoÃ¡vel para o select
+        const maxDisplay = Math.min(game.maxBet, min + 14); // AtÃ© 15 opÃ§Ãµes iniciais
         
         for (let i = min; i <= maxDisplay; i++) {
             const opt = document.createElement('option');
             opt.value = i;
-            opt.textContent = i + ' núm.';
-            if (i === min) opt.textContent += ' ★'; // Marcar padrão
+            opt.textContent = i + ' nÃºm.';
+            if (i === min) opt.textContent += ' â˜…'; // Marcar padrÃ£o
             this.smartDrawSizeSelect.appendChild(opt);
         }
 
-        // ★ v9.5: Para loterias com range grande (Lotomania), adicionar opções extras
-        // de 5 em 5 até 90% do range total
+        // â˜… v9.5: Para loterias com range grande (Lotomania), adicionar opÃ§Ãµes extras
+        // de 5 em 5 atÃ© 90% do range total
         if (game.maxBet > maxDisplay + 5) {
             const extendedMax = Math.min(game.maxBet, Math.round((game.range[1] - game.range[0] + 1) * 0.90));
             for (let i = maxDisplay + 5; i <= extendedMax; i += 5) {
                 const opt = document.createElement('option');
                 opt.value = i;
-                opt.textContent = i + ' núm.';
+                opt.textContent = i + ' nÃºm.';
                 this.smartDrawSizeSelect.appendChild(opt);
             }
         }
 
-        // Se max for maior que a última opção, adicionar como última opção
+        // Se max for maior que a Ãºltima opÃ§Ã£o, adicionar como Ãºltima opÃ§Ã£o
         const lastOpt = parseInt(this.smartDrawSizeSelect.lastChild?.value || 0);
         if (game.maxBet > lastOpt) {
             const optMax = document.createElement('option');
             optMax.value = game.maxBet;
-            optMax.textContent = game.maxBet + ' núm. (máx)';
+            optMax.textContent = game.maxBet + ' nÃºm. (mÃ¡x)';
             this.smartDrawSizeSelect.appendChild(optMax);
         }
 
-        // Definir padrão como minBet
+        // Definir padrÃ£o como minBet
         this.smartDrawSizeSelect.value = min;
 
         // Atualizar info
         if (this.smartDrawInfo) {
             if (min === game.maxBet) {
-                this.smartDrawInfo.textContent = `Fixo: ${min} números`;
+                this.smartDrawInfo.textContent = `Fixo: ${min} nÃºmeros`;
             } else {
-                this.smartDrawInfo.textContent = `Mín: ${min} | Máx: ${game.maxBet}`;
+                this.smartDrawInfo.textContent = `MÃ­n: ${min} | MÃ¡x: ${game.maxBet}`;
             }
         }
     }
@@ -2625,18 +2625,18 @@ class UI {
         this.renderRecentResults(results);
     }
 
-    // Exibe prêmio fallback IMEDIATAMENTE (sem precisar de API)
+    // Exibe prÃªmio fallback IMEDIATAMENTE (sem precisar de API)
     updatePrizeDisplayWithFallback(gameKey) {
         if (!this.prizeDisplay) return;
         
-        // Primeiro tenta dados reais da API (se já tiver carregado)
+        // Primeiro tenta dados reais da API (se jÃ¡ tiver carregado)
         const prizeInfo = StatsService.getPrizeInfo(gameKey);
         if (prizeInfo && (prizeInfo.estimatedPrize > 0 || prizeInfo.accumulatedPrize > 0)) {
             this.updatePrizeDisplay(gameKey);
             return;
         }
 
-        // Se não tem dados da API, usa o fallback definido em games.js
+        // Se nÃ£o tem dados da API, usa o fallback definido em games.js
         const game = GAMES[gameKey];
         const fallbackAmount = game ? (game.estimatedPrizeFallback || 0) : 0;
         
@@ -2683,12 +2683,12 @@ class UI {
                 this.prizeBadge.style.display = 'none';
             }
 
-            // Sincronizar botão de navegação com valor real da API
+            // Sincronizar botÃ£o de navegaÃ§Ã£o com valor real da API
             const navElem = document.getElementById(`prize-nav-${gameKey}`);
             if (navElem) {
                 navElem.textContent = this._formatPrizeShort(prizeAmount);
                 if (prizeInfo.accumulated) {
-                    navElem.textContent += ' 🔥';
+                    navElem.textContent += ' ðŸ”¥';
                 }
             }
         } else {
@@ -2715,12 +2715,12 @@ class UI {
         this.isFixedMode = !this.isFixedMode;
         if (this.isFixedMode) {
             this.btnFixedMode.classList.add('active');
-            this.btnFixedMode.textContent = '📌 Modo Fixo (ON)';
+            this.btnFixedMode.textContent = 'ðŸ“Œ Modo Fixo (ON)';
             // Visual Hint
-            // alert("Clique nos números para FIXÁ-LOS (Borda Dourada). Eles aparecerão em TODOS os jogos.");
+            // alert("Clique nos nÃºmeros para FIXÃ-LOS (Borda Dourada). Eles aparecerÃ£o em TODOS os jogos.");
         } else {
             this.btnFixedMode.classList.remove('active');
-            this.btnFixedMode.textContent = '📌 Fixar';
+            this.btnFixedMode.textContent = 'ðŸ“Œ Fixar';
         }
     }
 
@@ -2741,14 +2741,14 @@ class UI {
                 // Validation: Limit Fixed Numbers (50% minBet or maxFixed)
                 const limit = game.maxFixed || Math.floor(game.minBet / 2);
                 if (this.fixedNumbers.size >= limit) {
-                    alert(`Máximo de ${limit} números fixos permitidos para ${game.name}.`);
+                    alert(`MÃ¡ximo de ${limit} nÃºmeros fixos permitidos para ${game.name}.`);
                     return;
                 }
 
                 // If fixing, ensure it's selected
                 if (!this.selectedNumbers.has(number)) {
                     if (this.selectedNumbers.size >= game.maxBet) {
-                        alert("Limite de números selecionados atingido! Remove alguns para fixar este.");
+                        alert("Limite de nÃºmeros selecionados atingido! Remove alguns para fixar este.");
                         return;
                     }
                     this.selectedNumbers.add(number);
@@ -2766,14 +2766,14 @@ class UI {
         if (this.selectedNumbers.has(number)) {
             // Prevent unselecting if fixed (unless in fixed mode)
             if (this.fixedNumbers.has(number)) {
-                alert("Este número está FIXO. Desative o 'Modo Fixo' ou clique em 'Fixar' para removê-lo.");
+                alert("Este nÃºmero estÃ¡ FIXO. Desative o 'Modo Fixo' ou clique em 'Fixar' para removÃª-lo.");
                 return;
             }
             this.selectedNumbers.delete(number);
             if (element) element.classList.remove('selected');
         } else {
             if (this.selectedNumbers.size >= game.maxBet) {
-                alert(`Máximo de ${game.maxBet} números permitidos.`);
+                alert(`MÃ¡ximo de ${game.maxBet} nÃºmeros permitidos.`);
                 return;
             }
             this.selectedNumbers.add(number);
@@ -2787,7 +2787,7 @@ class UI {
         this.fixedNumbersList.textContent = list;
         this.fixedInfoPanel.style.display = this.fixedNumbers.size > 0 ? 'block' : 'none';
         this.updateSelectionInfo(); // Updates cost too
-        // v3.0: Reconstruir dropdown de fechamento com níveis dinâmicos
+        // v3.0: Reconstruir dropdown de fechamento com nÃ­veis dinÃ¢micos
         this._rebuildClosingDropdown(this.currentGameKey);
     }
 
@@ -2830,7 +2830,7 @@ class UI {
         this.isFixedMode = false;
         if (this.btnFixedMode) {
             this.btnFixedMode.classList.remove('active');
-            this.btnFixedMode.textContent = '📌 Fixar';
+            this.btnFixedMode.textContent = 'ðŸ“Œ Fixar';
         }
         if (this.fixedInfoPanel) this.fixedInfoPanel.style.display = 'none';
 
@@ -2845,7 +2845,7 @@ class UI {
 
         // Clear generated games
         this.currentGeneratedGames = [];
-        this.gamesContainer.innerHTML = '<div class="empty-state">Selecione as opções e clique em Gerar Jogos</div>';
+        this.gamesContainer.innerHTML = '<div class="empty-state">Selecione as opÃ§Ãµes e clique em Gerar Jogos</div>';
 
         // Clear check summary
         if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
@@ -2870,21 +2870,21 @@ class UI {
         const game = GAMES[this.currentGameKey];
         const qty = parseInt(this.gamesQuantityInput.value) || 10;
 
-        // Calcular preço por jogo baseado no número de números selecionados
+        // Calcular preÃ§o por jogo baseado no nÃºmero de nÃºmeros selecionados
         let pricePerGame = game.price;
         const smartDrawSize = this.smartDrawSizeSelect 
             ? parseInt(this.smartDrawSizeSelect.value) || game.minBet
             : game.minBet;
 
-        // ★ v9.5: Se Sniper ativo, dropdown = pool size, cada jogo custa minBet
+        // â˜… v9.5: Se Sniper ativo, dropdown = pool size, cada jogo custa minBet
         const precisionCheckbox = document.getElementById('precision-mode-toggle');
         const isSniperActive = precisionCheckbox && precisionCheckbox.checked;
         
         if (isSniperActive) {
-            // Sniper: cada jogo é minBet números → preço base
+            // Sniper: cada jogo Ã© minBet nÃºmeros â†’ preÃ§o base
             pricePerGame = game.price;
         } else if (smartDrawSize > game.minBet) {
-            // Normal: se jogador escolheu mais números, calcular combinações
+            // Normal: se jogador escolheu mais nÃºmeros, calcular combinaÃ§Ãµes
             const combinations = this._calcCombinations(smartDrawSize, game.minBet);
             pricePerGame = combinations * game.price;
         }
@@ -2900,12 +2900,12 @@ class UI {
         if (this.costUserGamesDetail) {
             const priceFormatted = pricePerGame.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             const detail = smartDrawSize > game.minBet
-                ? `${qty} jogo${qty > 1 ? 's' : ''} × ${priceFormatted} (${smartDrawSize} núm.)`
-                : `${qty} jogo${qty > 1 ? 's' : ''} × ${priceFormatted}`;
+                ? `${qty} jogo${qty > 1 ? 's' : ''} Ã— ${priceFormatted} (${smartDrawSize} nÃºm.)`
+                : `${qty} jogo${qty > 1 ? 's' : ''} Ã— ${priceFormatted}`;
             this.costUserGamesDetail.textContent = detail;
         }
 
-        // Atualizar info de preço no painel IA
+        // Atualizar info de preÃ§o no painel IA
         if (this.smartDrawInfo) {
             if (smartDrawSize > game.minBet) {
                 const priceFormatted = pricePerGame.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -2921,7 +2921,7 @@ class UI {
         }
     }
 
-    // Calcular C(n, k) = n! / (k! × (n-k)!)
+    // Calcular C(n, k) = n! / (k! Ã— (n-k)!)
     _calcCombinations(n, k) {
         if (k > n) return 0;
         if (k === 0 || k === n) return 1;
@@ -2932,8 +2932,8 @@ class UI {
         return Math.round(result);
     }
 
-    // ━━ PREVIEW DO FECHAMENTO v3.1 (CONDICIONAL) ━━
-    // ━━ CÁLCULO SEGURO C(n,k) ━━
+    // â”â” PREVIEW DO FECHAMENTO v3.1 (CONDICIONAL) â”â”
+    // â”â” CÃLCULO SEGURO C(n,k) â”â”
     _nCrSafe(n, k) {
         if (k > n || k < 0) return 0;
         if (k === 0 || k === n) return 1;
@@ -2968,23 +2968,23 @@ class UI {
             if (!preview.possible || numSelected < game.minBet) {
                 this.closingEstimatesContainer.innerHTML = '<p class="helper-text" style="color:#F59E0B;">' + preview.msg + '</p>';
             } else {
-                const guaranteeIcons = { 20: '🎯', 19: '⭐', 18: '🔥', 17: '✅', 15: '🎯', 14: '⭐', 13: '🔥', 12: '💎', 11: '💎', 10: '👑', 9: '👑', 8: '🔥', 7: '🎯', 6: '🎯', 5: '⭐', 4: '🔥', 3: '✅' };
+                const guaranteeIcons = { 20: 'ðŸŽ¯', 19: 'â­', 18: 'ðŸ”¥', 17: 'âœ…', 15: 'ðŸŽ¯', 14: 'â­', 13: 'ðŸ”¥', 12: 'ðŸ’Ž', 11: 'ðŸ’Ž', 10: 'ðŸ‘‘', 9: 'ðŸ‘‘', 8: 'ðŸ”¥', 7: 'ðŸŽ¯', 6: 'ðŸŽ¯', 5: 'â­', 4: 'ðŸ”¥', 3: 'âœ…' };
                 const effG = preview.effectiveGuarantee || (guarantee - fixedCount);
                 const fixedBadge = fixedCount > 0
-                    ? '<div style="font-size:0.75em;color:#10B981;margin-top:4px;font-weight:600;">📌 ' + fixedCount + ' fixos → efetivo: ' + effG + ' variáveis a cobrir (↓ menos jogos!)</div>'
+                    ? '<div style="font-size:0.75em;color:#10B981;margin-top:4px;font-weight:600;">ðŸ“Œ ' + fixedCount + ' fixos â†’ efetivo: ' + effG + ' variÃ¡veis a cobrir (â†“ menos jogos!)</div>'
                     : '';
                 this.closingEstimatesContainer.innerHTML =
                     '<div style="padding:8px 12px;border-radius:8px;background:rgba(234,179,8,0.1);border:1px solid #EAB30830;">' +
-                    '<div style="font-weight:700;color:#EAB308;">' + (guaranteeIcons[guarantee] || '🎯') + ' ' + preview.msg + '</div>' +
+                    '<div style="font-weight:700;color:#EAB308;">' + (guaranteeIcons[guarantee] || 'ðŸŽ¯') + ' ' + preview.msg + '</div>' +
                     fixedBadge +
                     '<div style="font-size:0.8em;color:#9CA3AF;margin-top:4px;">Subconjuntos: C(' + numSelected + ',' + guarantee + ') = ' + preview.subsets.toLocaleString('pt-BR') + '</div>' +
-                    '<div style="font-size:0.75em;color:' + (preview.possible ? '#10B981' : '#F59E0B') + ';margin-top:3px;">Confiança: ' + (preview.possible ? '✅ Alta' : '⚠️ Muitos jogos') + '</div>' +
+                    '<div style="font-size:0.75em;color:' + (preview.possible ? '#10B981' : '#F59E0B') + ';margin-top:3px;">ConfianÃ§a: ' + (preview.possible ? 'âœ… Alta' : 'âš ï¸ Muitos jogos') + '</div>' +
                     '</div>';
             }
         }
     }
 
-    // ━━ RECONSTRUIR DROPDOWN DE FECHAMENTO v3.0 ━━
+    // â”â” RECONSTRUIR DROPDOWN DE FECHAMENTO v3.0 â”â”
     _rebuildClosingDropdown(gameKey, forceGenerate = false) {
         if (!gameKey) gameKey = this.currentGameKey;
         const game = GAMES[gameKey];
@@ -2995,20 +2995,20 @@ class UI {
 
         this.closingSelect.innerHTML = '';
 
-        // v3.2 FIX: Opção padrão "Gerar Jogos" — respeita a quantidade solicitada
+        // v3.2 FIX: OpÃ§Ã£o padrÃ£o "Gerar Jogos" â€” respeita a quantidade solicitada
         const defaultOpt = document.createElement('option');
         defaultOpt.value = 'generate';
-        defaultOpt.textContent = '🎲 Gerar Jogos (Quantidade)';
+        defaultOpt.textContent = 'ðŸŽ² Gerar Jogos (Quantidade)';
         defaultOpt.style.fontWeight = '700';
         this.closingSelect.appendChild(defaultOpt);
 
-        // v3.1: TODOS os níveis são viáveis (fixos REDUZEM jogos)
+        // v3.1: TODOS os nÃ­veis sÃ£o viÃ¡veis (fixos REDUZEM jogos)
         if (typeof ClosingEngine !== 'undefined' && game.closingLevels && game.closingLevels.length > 0) {
             const dynamicLevels = ClosingEngine.getDynamicClosingLevels(gameKey, fixedCount);
             const optGroup1 = document.createElement('optgroup');
             optGroup1.label = fixedCount > 0
-                ? '🎯 Fechamento (' + fixedCount + ' fixos → menos jogos!)'
-                : '🎯 Fechamento Objetivo (Garantido)';
+                ? 'ðŸŽ¯ Fechamento (' + fixedCount + ' fixos â†’ menos jogos!)'
+                : 'ðŸŽ¯ Fechamento Objetivo (Garantido)';
             dynamicLevels.forEach(cl => {
                 const option = document.createElement('option');
                 option.value = 'close_' + cl.guarantee;
@@ -3019,7 +3019,7 @@ class UI {
             this.closingSelect.appendChild(optGroup1);
         } else if (game.closingLevels && game.closingLevels.length > 0) {
             const optGroup1 = document.createElement('optgroup');
-            optGroup1.label = '🎯 Fechamento Objetivo (Garantido)';
+            optGroup1.label = 'ðŸŽ¯ Fechamento Objetivo (Garantido)';
             game.closingLevels.forEach(cl => {
                 const option = document.createElement('option');
                 option.value = 'close_' + cl.guarantee;
@@ -3067,7 +3067,7 @@ class UI {
         if (!result.valid) {
             this.costTotalCombinations.textContent = "0";
             this.costTotalValue.textContent = "R$ 0,00";
-            this.closingEstimatesContainer.innerHTML = '<p class="helper-text">Selecione mais números...</p>';
+            this.closingEstimatesContainer.innerHTML = '<p class="helper-text">Selecione mais nÃºmeros...</p>';
             return;
         }
 
@@ -3083,7 +3083,7 @@ class UI {
                 const item = document.createElement('div');
                 item.className = 'estimate-item';
                 item.style.cursor = 'pointer';
-                item.title = "Clique para aplicar esta configuração";
+                item.title = "Clique para aplicar esta configuraÃ§Ã£o";
 
                 item.onclick = () => {
                     this.gamesQuantityInput.value = est.qty;
@@ -3123,10 +3123,10 @@ class UI {
             const recents = StatsService.getRecentResults(this.currentGameKey, 5);
             this.renderRecentResults(recents);
 
-            // ── Painel de Frequência Multi-Faixa ──
+            // â”€â”€ Painel de FrequÃªncia Multi-Faixa â”€â”€
             this.renderFrequencyPanel();
         } catch(e) {
-            console.warn('[UI] Erro ao atualizar estatísticas:', e.message);
+            console.warn('[UI] Erro ao atualizar estatÃ­sticas:', e.message);
         }
     }
 
@@ -3161,7 +3161,7 @@ class UI {
             label.textContent = `Concurso ${item.drawNumber}`;
             row.appendChild(label);
 
-            // Função auxiliar para criar linha de bolas
+            // FunÃ§Ã£o auxiliar para criar linha de bolas
             function createBallsRow(numbers, labelText) {
                 if (labelText) {
                     const sortLabel = document.createElement('span');
@@ -3199,8 +3199,8 @@ class UI {
 
             // Dupla Sena: exibir Sorteio 1 e Sorteio 2 separados
             if (item.numbers2 && item.numbers2.length > 0) {
-                createBallsRow(item.numbers, '1º Sorteio');
-                createBallsRow(item.numbers2, '2º Sorteio');
+                createBallsRow(item.numbers, '1Âº Sorteio');
+                createBallsRow(item.numbers2, '2Âº Sorteio');
             } else {
                 createBallsRow(item.numbers, null);
             }
@@ -3219,18 +3219,18 @@ class UI {
         const statsHeader = document.querySelector('.stats-header h3');
         if (statsHeader) {
             const label = stats.totalDraws
-                ? `Estatísticas <span style="font-size:0.7em;color:#94A3B8;font-weight:400;">(${stats.totalDraws} sorteios analisados — 50% hot / 50% cold)</span>`
-                : 'Estatísticas';
+                ? `EstatÃ­sticas <span style="font-size:0.7em;color:#94A3B8;font-weight:400;">(${stats.totalDraws} sorteios analisados â€” 50% hot / 50% cold)</span>`
+                : 'EstatÃ­sticas';
             statsHeader.innerHTML = label;
         }
 
-        // Atualizar títulos das seções com contagem
+        // Atualizar tÃ­tulos das seÃ§Ãµes com contagem
         const hotHeader = document.querySelector('.stat-box.hot h4');
         const coldHeader = document.querySelector('.stat-box.cold h4');
         if (hotHeader) hotHeader.textContent = `Mais Sorteados (${stats.hot.length})`;
         if (coldHeader) coldHeader.textContent = `Menos Sorteados (${stats.cold.length})`;
 
-        // Container sem scroll — todos os números visíveis
+        // Container sem scroll â€” todos os nÃºmeros visÃ­veis
         const listStyle = 'display:flex;flex-wrap:wrap;gap:8px;padding:4px 2px;';
         if (this.hotNumbersContainer)  this.hotNumbersContainer.setAttribute('style', listStyle);
         if (this.coldNumbersContainer) this.coldNumbersContainer.setAttribute('style', listStyle);
@@ -3244,22 +3244,22 @@ class UI {
             const ball = this.createBall(stat.number);
             ball.classList.add('stat-ball');
 
-            // Estado inicial baseado na seleção atual
+            // Estado inicial baseado na seleÃ§Ã£o atual
             if (this.selectedNumbers.has(stat.number)) {
                 ball.classList.add('selected');
             }
 
-            // Badge de frequência
+            // Badge de frequÃªncia
             if (stat.count > 0) {
                 const badge = document.createElement('span');
                 badge.style.cssText = 'position:absolute;top:-4px;right:-4px;background:#F59E0B;color:#000;font-size:0.6rem;font-weight:800;padding:1px 3px;border-radius:6px;min-width:14px;text-align:center;line-height:1.2;z-index:2;pointer-events:none;';
-                badge.textContent = stat.count + '×';
+                badge.textContent = stat.count + 'Ã—';
                 container.appendChild(badge);
             }
 
             const addIcon = document.createElement('div');
             addIcon.className = 'stat-add-icon';
-            addIcon.innerHTML = this.selectedNumbers.has(stat.number) ? '✓' : '+';
+            addIcon.innerHTML = this.selectedNumbers.has(stat.number) ? 'âœ“' : '+';
             addIcon.title = 'Adicionar ao jogo';
 
             // Click: adicionar/remover do grid de jogo acima
@@ -3269,7 +3269,7 @@ class UI {
                 const isSelected = this.selectedNumbers.has(stat.number);
                 if (isSelected) {
                     ball.classList.add('selected');
-                    addIcon.innerHTML = '✓';
+                    addIcon.innerHTML = 'âœ“';
                     addIcon.style.background = '#10B981';
                     // Pulsar para confirmar
                     ball.style.transform = 'scale(1.3)';
@@ -3289,16 +3289,16 @@ class UI {
                 const delayBadge = document.createElement('span');
                 const delayColor = stat.delay >= 10 ? '#EF4444' : stat.delay >= 5 ? '#F59E0B' : '#64748B';
                 const delayBg    = stat.delay >= 10 ? 'rgba(239,68,68,0.12)' : stat.delay >= 5 ? 'rgba(245,158,11,0.12)' : 'rgba(100,116,139,0.10)';
-                const delayIcon  = stat.delay >= 10 ? '⏳' : stat.delay >= 5 ? '🕑' : '•';
+                const delayIcon  = stat.delay >= 10 ? 'â³' : stat.delay >= 5 ? 'ðŸ•‘' : 'â€¢';
                 delayBadge.style.cssText = `font-size:0.58rem;font-weight:700;color:${delayColor};background:${delayBg};padding:1px 4px;border-radius:4px;line-height:1.3;white-space:nowrap;margin-top:1px;pointer-events:none;`;
                 delayBadge.textContent = `${delayIcon} ${stat.delay}d`;
-                delayBadge.title = `Há ${stat.delay} sorteio${stat.delay !== 1 ? 's' : ''} sem sair`;
+                delayBadge.title = `HÃ¡ ${stat.delay} sorteio${stat.delay !== 1 ? 's' : ''} sem sair`;
                 container.appendChild(delayBadge);
             } else if (stat.delay === 0) {
                 const freshBadge = document.createElement('span');
                 freshBadge.style.cssText = 'font-size:0.58rem;font-weight:700;color:#22C55E;background:rgba(34,197,94,0.10);padding:1px 4px;border-radius:4px;line-height:1.3;margin-top:1px;pointer-events:none;';
-                freshBadge.textContent = '✔ recente';
-                freshBadge.title = 'Saiu no último sorteio';
+                freshBadge.textContent = 'âœ” recente';
+                freshBadge.title = 'Saiu no Ãºltimo sorteio';
                 container.appendChild(freshBadge);
             }
 
@@ -3314,10 +3314,10 @@ class UI {
         });
     }
 
-    // ╔══════════════════════════════════════════════════════════════════╗
-    // ║  PAINEL DE FREQUÊNCIA MULTI-FAIXA — 3, 5, 10 e 15 Sorteios   ║
-    // ║  Mostra os números mais e menos sorteados em 4 faixas         ║
-    // ╚══════════════════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  PAINEL DE FREQUÃŠNCIA MULTI-FAIXA â€” 3, 5, 10 e 15 Sorteios   â•‘
+    // â•‘  Mostra os nÃºmeros mais e menos sorteados em 4 faixas         â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     renderFrequencyPanel() {
         const container = document.getElementById('freq-content');
         if (!container) return;
@@ -3326,7 +3326,7 @@ class UI {
         if (!game) return;
 
         const ranges = [3, 5, 10, 15];
-        // Exibir no máximo 15 números por seção (hot/cold) — compacto para todas as loterias
+        // Exibir no mÃ¡ximo 15 nÃºmeros por seÃ§Ã£o (hot/cold) â€” compacto para todas as loterias
         const totalNumbers = game.range[1] - game.range[0] + 1;
         const topNDisplay = Math.min(15, Math.ceil(totalNumbers * 0.25));
 
@@ -3334,12 +3334,12 @@ class UI {
         const history = StatsService.historyStore ? StatsService.historyStore[this.currentGameKey] : null;
         if (!history || history.length === 0) {
             container.innerHTML = '<div class="freq-loading"><span class="freq-spinner"></span>Aguardando dados da API da Caixa...</div>';
-            // Tentar novamente em 2s — COM LIMITE de 3 retries
+            // Tentar novamente em 2s â€” COM LIMITE de 3 retries
             const retryKey = 'freqPanel_' + this.currentGameKey;
             if (typeof Guardian !== 'undefined' && Guardian.canRetry(retryKey, 3)) {
                 Guardian.setTimeout(retryKey, () => this.renderFrequencyPanel(), 2000);
             } else {
-                container.innerHTML = '<div class="freq-loading" style="color:#94A3B8;">Dados indisponíveis — usando modo offline</div>';
+                container.innerHTML = '<div class="freq-loading" style="color:#94A3B8;">Dados indisponÃ­veis â€” usando modo offline</div>';
             }
             return;
         }
@@ -3360,30 +3360,30 @@ class UI {
             html += `<span class="freq-range-sub">${actualDraws} analisados</span>`;
             html += '</div>';
 
-            // ── HOT ──
+            // â”€â”€ HOT â”€â”€
             html += '<div class="freq-section">';
-            html += '<div class="freq-section-title hot">🔥 Mais Sorteados</div>';
+            html += '<div class="freq-section-title hot">ðŸ”¥ Mais Sorteados</div>';
             html += '<div class="freq-nums">';
             hotSlice.forEach((stat, idx) => {
                 const tier = idx < 3 ? 'hot-1' : idx < 6 ? 'hot-2' : 'hot-3';
                 const num = String(stat.number).padStart(2, '0');
                 html += `<div class="freq-ball ${tier}" title="${stat.number}: ${stat.count}x em ${actualDraws} sorteios">`;
                 html += `${num}`;
-                html += `<span class="freq-tooltip">${stat.number}: ${stat.count}× (atraso: ${stat.delay})</span>`;
+                html += `<span class="freq-tooltip">${stat.number}: ${stat.count}Ã— (atraso: ${stat.delay})</span>`;
                 html += '</div>';
             });
             html += '</div></div>';
 
-            // ── COLD ──
+            // â”€â”€ COLD â”€â”€
             html += '<div class="freq-section">';
-            html += '<div class="freq-section-title cold">❄️ Menos Sorteados</div>';
+            html += '<div class="freq-section-title cold">â„ï¸ Menos Sorteados</div>';
             html += '<div class="freq-nums">';
             coldSlice.forEach((stat, idx) => {
                 const tier = idx < 3 ? 'cold-1' : idx < 6 ? 'cold-2' : 'cold-3';
                 const num = String(stat.number).padStart(2, '0');
                 html += `<div class="freq-ball ${tier}" title="${stat.number}: ${stat.count}x em ${actualDraws} sorteios">`;
                 html += `${num}`;
-                html += `<span class="freq-tooltip">${stat.number}: ${stat.count}× (atraso: ${stat.delay})</span>`;
+                html += `<span class="freq-tooltip">${stat.number}: ${stat.count}Ã— (atraso: ${stat.delay})</span>`;
                 html += '</div>';
             });
             html += '</div></div>';
@@ -3393,10 +3393,10 @@ class UI {
 
         html += '</div>'; // freq-grid
 
-        // ── LEGENDA ──
+        // â”€â”€ LEGENDA â”€â”€
         html += '<div style="margin-top:10px;display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:0.6rem;color:#64748B;">';
-        html += '<span>🔥 <span style="color:#FACC15;">■</span> Top 3 | <span style="color:#FCD34D;">■</span> Top 6 | <span style="color:#F59E0B;">■</span> Top 10</span>';
-        html += '<span>❄️ <span style="color:#60A5FA;">■</span> Top 3 | <span style="color:#93C5FD;">■</span> Top 6 | <span style="color:#BFDBFE;">■</span> Top 10</span>';
+        html += '<span>ðŸ”¥ <span style="color:#FACC15;">â– </span> Top 3 | <span style="color:#FCD34D;">â– </span> Top 6 | <span style="color:#F59E0B;">â– </span> Top 10</span>';
+        html += '<span>â„ï¸ <span style="color:#60A5FA;">â– </span> Top 3 | <span style="color:#93C5FD;">â– </span> Top 6 | <span style="color:#BFDBFE;">â– </span> Top 10</span>';
         html += '</div>';
 
         container.innerHTML = html;
@@ -3430,12 +3430,12 @@ class UI {
     }
 
     renderGames(result, gameKey, updateHash = true) {
-        // Validação defensiva de dados de entrada
+        // ValidaÃ§Ã£o defensiva de dados de entrada
         if (!result) result = { games: [] };
         if (!result.games) result.games = [];
         this.currentGeneratedGames = result.games;
         
-        // Gerar múltiplos times/meses distribuídos com máxima cobertura (sem repetição precoce)
+        // Gerar mÃºltiplos times/meses distribuÃ­dos com mÃ¡xima cobertura (sem repetiÃ§Ã£o precoce)
         if (gameKey === 'timemania' || gameKey === 'diadesorte') {
             this.currentGeneratedExtras = this._generateExtras(gameKey, result.games.length);
         } else {
@@ -3456,7 +3456,7 @@ class UI {
         const gameName = GAMES[gameKey] ? GAMES[gameKey].name : 'Loteria';
 
         // OTIMIZACAO BULK: Para >100 jogos, usar innerHTML em bloco
-        // v3.2 FIX: Destacar números fixos em amarelo/dourado no modo bulk
+        // v3.2 FIX: Destacar nÃºmeros fixos em amarelo/dourado no modo bulk
         if (result.games.length > 100) {
             const fixedSet = this.fixedNumbers || new Set();
             const hasFixed = fixedSet.size > 0;
@@ -3473,9 +3473,9 @@ class UI {
                 let extraHtml = '';
                 if (this.currentGeneratedExtras && this.currentGeneratedExtras[index] !== undefined) {
                     if (gameKey === 'diadesorte') {
-                        extraHtml = `<span style="font-size:0.75em;color:#F59E0B;background:rgba(245,158,11,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;">📅 ${L99_MESES[this.currentGeneratedExtras[index]]}</span>`;
+                        extraHtml = `<span style="font-size:0.75em;color:#F59E0B;background:rgba(245,158,11,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;">ðŸ“… ${L99_MESES[this.currentGeneratedExtras[index]]}</span>`;
                     } else if (gameKey === 'timemania') {
-                        extraHtml = `<span style="font-size:0.75em;color:#10B981;background:rgba(16,185,129,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;">⚽ ${L99_TIMES[this.currentGeneratedExtras[index]]}</span>`;
+                        extraHtml = `<span style="font-size:0.75em;color:#10B981;background:rgba(16,185,129,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;">âš½ ${L99_TIMES[this.currentGeneratedExtras[index]]}</span>`;
                     }
                 }
                 chunks.push(`<div class="game-card"><div style="display:flex;align-items:center;margin-bottom:5px"><div class="game-index-badge" style="position:static">Jogo ${index + 1}</div>${extraHtml}</div><div class="game-numbers-wrapper">${nums}</div></div>`);
@@ -3515,11 +3515,11 @@ class UI {
                 if (gameKey === 'diadesorte') {
                     extraBadge.style.color = '#F59E0B';
                     extraBadge.style.background = 'rgba(245,158,11,0.1)';
-                    extraBadge.textContent = '📅 ' + L99_MESES[this.currentGeneratedExtras[index]];
+                    extraBadge.textContent = 'ðŸ“… ' + L99_MESES[this.currentGeneratedExtras[index]];
                 } else if (gameKey === 'timemania') {
                     extraBadge.style.color = '#10B981';
                     extraBadge.style.background = 'rgba(16,185,129,0.1)';
-                    extraBadge.textContent = '⚽ ' + L99_TIMES[this.currentGeneratedExtras[index]];
+                    extraBadge.textContent = 'âš½ ' + L99_TIMES[this.currentGeneratedExtras[index]];
                 }
                 leftGroup.appendChild(extraBadge);
             }
@@ -3527,7 +3527,7 @@ class UI {
 
             const copySingleBtn = document.createElement('button');
             copySingleBtn.className = 'card-copy-btn copy-single-btn';
-            copySingleBtn.innerHTML = '<span>📋</span> Copiar';
+            copySingleBtn.innerHTML = '<span>ðŸ“‹</span> Copiar';
             copySingleBtn.title = "Copiar este jogo";
             copySingleBtn.dataset.numbers = gameNumbers.map(n => n.toString().padStart(2, '0')).join(' - ');
             header.appendChild(copySingleBtn);
@@ -3664,7 +3664,7 @@ class UI {
 
         // 4. Absolute Last Resort: window.prompt
         try {
-            window.prompt("O navegador bloqueou a cópia automática. \nPressione Ctrl+C para copiar:", text);
+            window.prompt("O navegador bloqueou a cÃ³pia automÃ¡tica. \nPressione Ctrl+C para copiar:", text);
             return true;
         } catch (err) {
             console.error('Window prompt failed:', err);
@@ -3708,7 +3708,7 @@ class UI {
             setTimeout(() => this.copyBtn.textContent = originalText, 2000);
             return true;
         } else {
-            alert("Erro ao copiar. Seu navegador pode estar bloqueando o acesso à área de transferência.");
+            alert("Erro ao copiar. Seu navegador pode estar bloqueando o acesso Ã  Ã¡rea de transferÃªncia.");
             return false;
         }
     }
@@ -3722,24 +3722,24 @@ class UI {
 
         const games = this._lastGeneratedGames || this.currentGeneratedGames || [];
 
-        // ══════ MOBILE: Modal com jogos formatados ══════
+        // â•â•â•â•â•â• MOBILE: Modal com jogos formatados â•â•â•â•â•â•
         if (this._isMobile()) {
             if (games.length > 0 && cfg) {
                 this._openMobileBetModal(games, this.currentGameKey);
             } else {
-                // Sem jogos — abrir direto o site da Caixa
+                // Sem jogos â€” abrir direto o site da Caixa
                 window.open(caixaUrl, '_blank');
             }
             return;
         }
 
-        // ══════ DESKTOP: Fluxo de script (Console F12) ══════
+        // â•â•â•â•â•â• DESKTOP: Fluxo de script (Console F12) â•â•â•â•â•â•
         if (games.length > 0 && cfg) {
             const freshScript = this._generateCaixaScript_LEGACY(cfg, games);
 
             try {
                 await navigator.clipboard.writeText(freshScript);
-                console.log('[B2B] ✅ ' + games.length + ' jogos de ' + cfg.name + ' copiados!');
+                console.log('[B2B] âœ… ' + games.length + ' jogos de ' + cfg.name + ' copiados!');
             } catch(e) {
                 var ta = document.createElement('textarea');
                 ta.value = freshScript;
@@ -3754,12 +3754,12 @@ class UI {
                 detail: { games: games, config: cfg }
             }));
 
-            alert('✅ ' + games.length + ' jogos de ' + cfg.name + ' copiados!\n\n' +
-                'O site da Caixa abrirá em ' + cfg.name + '.\n' +
-                'No site: pressione F12 → Console → Ctrl+V → Enter\n\n' +
-                'Os jogos serão preenchidos automaticamente!');
+            alert('âœ… ' + games.length + ' jogos de ' + cfg.name + ' copiados!\n\n' +
+                'O site da Caixa abrirÃ¡ em ' + cfg.name + '.\n' +
+                'No site: pressione F12 â†’ Console â†’ Ctrl+V â†’ Enter\n\n' +
+                'Os jogos serÃ£o preenchidos automaticamente!');
         } else {
-            alert('Atenção: Nenhum jogo foi gerado para copiar.\nO site da Caixa abrirá em ' + (cfg ? cfg.name : 'Loterias Online') + '.');
+            alert('AtenÃ§Ã£o: Nenhum jogo foi gerado para copiar.\nO site da Caixa abrirÃ¡ em ' + (cfg ? cfg.name : 'Loterias Online') + '.');
         }
 
         setTimeout(() => {
@@ -3771,11 +3771,11 @@ class UI {
         return Array.from(this.selectedNumbers);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // 💾 SALVAR JOGOS — DIRETO na pasta da loteria (sem diálogo)
-    //    POST /salvar → server.js grava em:
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ðŸ’¾ SALVAR JOGOS â€” DIRETO na pasta da loteria (sem diÃ¡logo)
+    //    POST /salvar â†’ server.js grava em:
     //    Desktop/LOTERIAS JOGOS SALVOS L99/<Loteria>/arquivo.txt
-    // ═══════════════════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     async saveGames() {
         if (!this.currentGeneratedGames || this.currentGeneratedGames.length === 0) {
@@ -3794,26 +3794,26 @@ class UI {
         const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
         const fileName = `${gameName}_${dateStr}_${timeStr}.txt`;
 
-        // Mês da Sorte (apenas para Dia de Sorte)
+        // MÃªs da Sorte (apenas para Dia de Sorte)
         const mesSorteSelect = document.getElementById('mes-sorte-select');
         const mesSorte = (this.currentGameKey === 'diadesorte' && mesSorteSelect) ? mesSorteSelect.value : null;
 
-        let content = `═══════════════════════════════════════\n`;
-        content += `  JOGOS — ${gameName.toUpperCase()}\n`;
-        if (mesSorte) content += `  Mês da Sorte: ${mesSorte}\n`;
+        let content = `â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n`;
+        content += `  JOGOS â€” ${gameName.toUpperCase()}\n`;
+        if (mesSorte) content += `  MÃªs da Sorte: ${mesSorte}\n`;
         content += `  Data: ${now.toLocaleString('pt-BR')}\n`;
         content += `  Total de Jogos: ${this.currentGeneratedGames.length}\n`;
-        content += `═══════════════════════════════════════\n\n`;
+        content += `â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n\n`;
 
         this.currentGeneratedGames.forEach((game, index) => {
             content += `Jogo ${String(index + 1).padStart(3, '0')}: ${game.map(n => n.toString().padStart(2, '0')).join(' - ')}\n`;
         });
 
-        content += `\n═══════════════════════════════════════\n`;
-        content += `  B2B Loterias — Boa Sorte! 🍀\n`;
-        content += `═══════════════════════════════════════\n`;
+        content += `\nâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n`;
+        content += `  B2B Loterias â€” Boa Sorte! ðŸ€\n`;
+        content += `â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n`;
 
-        // ══════ SALVAR DIRETO VIA SERVIDOR LOCAL ══════
+        // â•â•â•â•â•â• SALVAR DIRETO VIA SERVIDOR LOCAL â•â•â•â•â•â•
         try {
             const response = await fetch('/salvar', {
                 method: 'POST',
@@ -3828,10 +3828,10 @@ class UI {
             const result = await response.json();
 
             if (result.ok) {
-                // ✅ Feedback visual — salvou direto na pasta!
+                // âœ… Feedback visual â€” salvou direto na pasta!
                 const btn = this.saveBtn;
                 const originalHTML = btn.innerHTML;
-                btn.innerHTML = '✅ Salvo!';
+                btn.innerHTML = 'âœ… Salvo!';
                 btn.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
                 btn.style.transform = 'scale(1.05)';
                 setTimeout(() => {
@@ -3843,9 +3843,9 @@ class UI {
                 // Toast com o caminho da pasta onde foi salvo
                 const pastaRelativa = result.relativePath || result.path || 'Jogos_Salvos';
                 if (typeof Guardian !== 'undefined' && Guardian.toast) {
-                    Guardian.toast(`✅ Jogo salvo em:\n📁 ${pastaRelativa}`, 'success', 5000);
+                    Guardian.toast(`âœ… Jogo salvo em:\nðŸ“ ${pastaRelativa}`, 'success', 5000);
                 } else {
-                    // Notificação nativa como fallback
+                    // NotificaÃ§Ã£o nativa como fallback
                     const toast = document.createElement('div');
                     toast.style.cssText = `
                         position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
@@ -3855,22 +3855,22 @@ class UI {
                         max-width:420px; text-align:center; line-height:1.5;
                         animation: fadeInUp 0.3s ease;
                     `;
-                    toast.innerHTML = `✅ <strong>Jogo salvo automaticamente!</strong><br>
-                        <span style="font-size:11px;opacity:0.85">📁 ${pastaRelativa}</span>`;
+                    toast.innerHTML = `âœ… <strong>Jogo salvo automaticamente!</strong><br>
+                        <span style="font-size:11px;opacity:0.85">ðŸ“ ${pastaRelativa}</span>`;
                     document.body.appendChild(toast);
                     setTimeout(() => toast.remove(), 5000);
                 }
 
-                console.log(`[B2B] ✅ Salvo direto: ${result.path}`);
+                console.log(`[B2B] âœ… Salvo direto: ${result.path}`);
                 return;
             } else {
                 console.error('[Save] Servidor retornou erro:', result.error);
             }
         } catch (err) {
-            console.warn('[Save] Servidor local indisponível, usando fallback:', err.message);
+            console.warn('[Save] Servidor local indisponÃ­vel, usando fallback:', err.message);
         }
 
-        // ══════ FALLBACK: Download direto (se servidor não estiver rodando) ══════
+        // â•â•â•â•â•â• FALLBACK: Download direto (se servidor nÃ£o estiver rodando) â•â•â•â•â•â•
         const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
         const urlObj = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -3884,7 +3884,7 @@ class UI {
         // Feedback visual fallback
         const btn = this.saveBtn;
         const originalHTML = btn.innerHTML;
-        btn.innerHTML = '⬇️ Baixado!';
+        btn.innerHTML = 'â¬‡ï¸ Baixado!';
         btn.style.background = 'linear-gradient(135deg, #2563EB, #1D4ED8)';
         setTimeout(() => {
             btn.innerHTML = originalHTML;
@@ -3917,39 +3917,39 @@ class UI {
 
         this.inputCheckNumbers.focus();
 
-        // ── L99: Botão para listar jogos salvos da pasta ──
+        // â”€â”€ L99: BotÃ£o para listar jogos salvos da pasta â”€â”€
         const self = this;
         const listarBtn = document.getElementById('btn-listar-jogos-salvos');
         const listArea = document.getElementById('saved-games-list');
         if (listarBtn && listArea) {
             listarBtn.onclick = async function() {
-                listarBtn.innerHTML = '⏳ Carregando...';
+                listarBtn.innerHTML = 'â³ Carregando...';
                 try {
                     const resp = await fetch('/listar-jogos?gameKey=' + self.currentGameKey);
                     const data = await resp.json();
                     if (data.ok && data.files && data.files.length > 0) {
-                        // Filtrar apenas arquivos de jogos (não relatórios CONFERIDO_...Concurso)
+                        // Filtrar apenas arquivos de jogos (nÃ£o relatÃ³rios CONFERIDO_...Concurso)
                         const gameFiles = data.files.filter(function(f) {
                             return !f.name.includes('Concurso_');
                         });
                         listArea.style.display = 'block';
                         listArea.innerHTML = '';
                         if (gameFiles.length === 0) {
-                            listArea.innerHTML = '<div style="padding:12px;color:#94A3B8;text-align:center;">Nenhum arquivo de jogo encontrado (apenas relatórios de conferência)</div>';
-                            listarBtn.innerHTML = '📂 Carregar da Pasta LOTERIAS JOGOS SALVOS L99';
+                            listArea.innerHTML = '<div style="padding:12px;color:#94A3B8;text-align:center;">Nenhum arquivo de jogo encontrado (apenas relatÃ³rios de conferÃªncia)</div>';
+                            listarBtn.innerHTML = 'ðŸ“‚ Carregar da Pasta LOTERIAS JOGOS SALVOS L99';
                             return;
                         }
                         gameFiles.forEach(function(file) {
                             var modified = new Date(file.modified).toLocaleDateString('pt-BR') + ' ' + new Date(file.modified).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
                             var isChecked = file.name.includes('CONFERIDO');
-                            var icon = isChecked ? '✅' : '📄';
+                            var icon = isChecked ? 'âœ…' : 'ðŸ“„';
                             var item = document.createElement('div');
                             item.style.cssText = 'padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.2s;font-size:0.8rem;';
                             item.innerHTML = '<span style="color:#E2E8F0;font-weight:600;">' + icon + ' ' + file.name + '</span><span style="color:#64748b;font-size:0.7rem;">' + modified + '</span>';
                             item.onmouseenter = function() { item.style.background = 'rgba(59,130,246,0.15)'; };
                             item.onmouseleave = function() { item.style.background = ''; };
                             item.onclick = async function() {
-                                item.innerHTML = '<span style="color:#22C55E;">⏳ Carregando...</span>';
+                                item.innerHTML = '<span style="color:#22C55E;">â³ Carregando...</span>';
                                 try {
                                     var readResp = await fetch('/ler-jogo', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ gameKey: self.currentGameKey, fileName: file.name }) });
                                     var readData = await readResp.json();
@@ -3960,11 +3960,11 @@ class UI {
                                             self._lastLoadedFileName = file.name;
                                             self.renderGames({ games: parsedGames }, self.currentGameKey);
                                             listArea.style.display = 'none';
-                                            listarBtn.innerHTML = '✅ ' + parsedGames.length + ' jogos carregados de ' + file.name;
-                                            setTimeout(function() { listarBtn.innerHTML = '📂 Carregar da Pasta LOTERIAS JOGOS SALVOS L99'; }, 3000);
+                                            listarBtn.innerHTML = 'âœ… ' + parsedGames.length + ' jogos carregados de ' + file.name;
+                                            setTimeout(function() { listarBtn.innerHTML = 'ðŸ“‚ Carregar da Pasta LOTERIAS JOGOS SALVOS L99'; }, 3000);
                                         } else {
                                             alert('Nenhum jogo encontrado no arquivo: ' + file.name);
-                                            item.innerHTML = '<span style="color:#EF4444;">❌ Formato inválido</span>';
+                                            item.innerHTML = '<span style="color:#EF4444;">âŒ Formato invÃ¡lido</span>';
                                         }
                                     }
                                 } catch(e) {
@@ -3978,9 +3978,9 @@ class UI {
                         listArea.innerHTML = '<div style="padding:12px;color:#94A3B8;text-align:center;">Nenhum jogo salvo encontrado para esta loteria.<br><small>Pasta: ' + (data.path || '') + '</small></div>';
                     }
                 } catch(e) {
-                    alert('Erro ao listar jogos: ' + e.message + '\nVerifique se o servidor está rodando.');
+                    alert('Erro ao listar jogos: ' + e.message + '\nVerifique se o servidor estÃ¡ rodando.');
                 }
-                listarBtn.innerHTML = '📂 Carregar da Pasta LOTERIAS JOGOS SALVOS L99';
+                listarBtn.innerHTML = 'ðŸ“‚ Carregar da Pasta LOTERIAS JOGOS SALVOS L99';
             };
         }
     }
@@ -3994,7 +3994,7 @@ class UI {
         const input = this.inputCheckNumbers ? this.inputCheckNumbers.value.trim() : '';
         const game = typeof GAMES !== 'undefined' ? GAMES[this.currentGameKey] : null;
         if (!game) {
-            alert('Erro: jogo não carregado.');
+            alert('Erro: jogo nÃ£o carregado.');
             return;
         }
 
@@ -4010,15 +4010,15 @@ class UI {
             // 1. Primeiro tenta o cache local (historyStore)
             let result = StatsService.getResultByDrawNumber(this.currentGameKey, drawNum);
 
-            // 2. Se não encontrou, busca da API em tempo real
+            // 2. Se nÃ£o encontrou, busca da API em tempo real
             if (!result) {
-                console.log('[CONFERIR] Concurso ' + drawNum + ' não encontrado no cache. Buscando da API...');
+                console.log('[CONFERIR] Concurso ' + drawNum + ' nÃ£o encontrado no cache. Buscando da API...');
                 
                 // Feedback visual: buscando...
                 const confirmBtn = document.getElementById('confirm-check-btn');
                 const originalText = confirmBtn ? confirmBtn.innerHTML : '';
                 if (confirmBtn) {
-                    confirmBtn.innerHTML = '⏳ Buscando resultado do Concurso ' + drawNum + '...';
+                    confirmBtn.innerHTML = 'â³ Buscando resultado do Concurso ' + drawNum + '...';
                     confirmBtn.disabled = true;
                 }
 
@@ -4031,13 +4031,13 @@ class UI {
                         }
                         StatsService.historyStore[this.currentGameKey].push(fetched);
                         result = fetched;
-                        console.log('[CONFERIR] ✅ Resultado obtido da API: Concurso ' + drawNum + ' → [' + fetched.numbers.join(', ') + ']');
+                        console.log('[CONFERIR] âœ… Resultado obtido da API: Concurso ' + drawNum + ' â†’ [' + fetched.numbers.join(', ') + ']');
                     }
                 } catch(apiErr) {
                     console.warn('[CONFERIR] API falhou:', apiErr.message);
                 }
 
-                // Restaurar botão
+                // Restaurar botÃ£o
                 if (confirmBtn) {
                     confirmBtn.innerHTML = originalText;
                     confirmBtn.disabled = false;
@@ -4060,14 +4060,14 @@ class UI {
                 targetNumbers = result.numbers;
                 drawInfo = `Concurso ${result.drawNumber}`;
             } else {
-                // Concurso realmente não encontrado em nenhuma fonte
-                alert(`❌ Concurso ${drawNum} não encontrado.\n\nVerifique se o número do concurso está correto ou digite os números sorteados manualmente separados por espaço ou vírgula.\n\nExemplo: 08 24 27 37 47 55`);
+                // Concurso realmente nÃ£o encontrado em nenhuma fonte
+                alert(`âŒ Concurso ${drawNum} nÃ£o encontrado.\n\nVerifique se o nÃºmero do concurso estÃ¡ correto ou digite os nÃºmeros sorteados manualmente separados por espaÃ§o ou vÃ­rgula.\n\nExemplo: 08 24 27 37 47 55`);
                 return;
             }
         } else {
             targetNumbers = input.split(/[\s,-]+/).map(n => parseInt(n)).filter(n => !isNaN(n));
             if (targetNumbers.length < game.draw) {
-                alert(`Por favor, insira o Número do Concurso OU pelo menos ${game.draw} números.`);
+                alert(`Por favor, insira o NÃºmero do Concurso OU pelo menos ${game.draw} nÃºmeros.`);
                 return;
             }
         }
@@ -4124,16 +4124,16 @@ class UI {
         const cards = document.querySelectorAll('.game-card');
         const game = GAMES[this.currentGameKey];
 
-        // ═══ V10: Conferência Completa — Todas as Faixas ═══
+        // â•â•â• V10: ConferÃªncia Completa â€” Todas as Faixas â•â•â•
         const paidStrategies = game.strategies.filter(s => s.paid !== false);
         const awardCounts = {};
         paidStrategies.forEach(s => awardCounts[s.id] = 0);
 
-        // Distribuição de acertos para gráfico
+        // DistribuiÃ§Ã£o de acertos para grÃ¡fico
         const hitDistribution = {};
         let maxPossibleHits = 0;
 
-        // V11: Coletar jogos ganhadores para exibição agrupada
+        // V11: Coletar jogos ganhadores para exibiÃ§Ã£o agrupada
         const winningGames = [];
 
         // V12 FIX: Computar hits usando apenas DADOS (evita congelamento de UI em lotes grandes)
@@ -4161,8 +4161,8 @@ class UI {
             }
         });
 
-        // Atualização Visual Otimizada (DOM)
-        // Se houver muitos jogos (>500), faremos atualizações assíncronas para não travar a UI
+        // AtualizaÃ§Ã£o Visual Otimizada (DOM)
+        // Se houver muitos jogos (>500), faremos atualizaÃ§Ãµes assÃ­ncronas para nÃ£o travar a UI
         const CHUNK_SIZE = 250;
         let currentChunk = 0;
 
@@ -4220,13 +4220,13 @@ class UI {
                     summary.style.color = isJackpot ? '#FFD700' : '#22C55E';
                     summary.style.background = isJackpot ? 'rgba(255,215,0,0.08)' : 'rgba(34,197,94,0.08)';
                     const prizeHint = matchedStrat.prize > 100
-                        ? ` ≈ ${matchedStrat.prize.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
-                        : (matchedStrat.prize > 0 ? ` ≈ R$ ${matchedStrat.prize.toFixed(2).replace('.', ',')}` : '');
-                    summary.innerHTML = `🏆 ${displayHits} acertos — <strong>${matchedStrat.label}</strong>${prizeHint}`;
+                        ? ` â‰ˆ ${matchedStrat.prize.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+                        : (matchedStrat.prize > 0 ? ` â‰ˆ R$ ${matchedStrat.prize.toFixed(2).replace('.', ',')}` : '');
+                    summary.innerHTML = `ðŸ† ${displayHits} acertos â€” <strong>${matchedStrat.label}</strong>${prizeHint}`;
                 } else if (hits > 0) {
                     summary.style.color = '#94A3B8';
                     summary.style.background = 'rgba(255,255,255,0.03)';
-                    summary.textContent = `${hits} acerto${hits > 1 ? 's' : ''} — sem premiação nesta faixa`;
+                    summary.textContent = `${hits} acerto${hits > 1 ? 's' : ''} â€” sem premiaÃ§Ã£o nesta faixa`;
                 } else {
                     summary.style.color = '#475569';
                     summary.style.background = '';
@@ -4240,10 +4240,10 @@ class UI {
             }
         };
 
-        // Iniciar atualização visual
+        // Iniciar atualizaÃ§Ã£o visual
         requestAnimationFrame(updateCardsChunk);
 
-        // ═══ RESUMO DA CONFERÊNCIA V10 — COMPLETO E DETALHADO ═══
+        // â•â•â• RESUMO DA CONFERÃŠNCIA V10 â€” COMPLETO E DETALHADO â•â•â•
         const currency = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         const totalJogos = this.currentGeneratedGames.length;
         const totalGanhos = Object.values(awardCounts).reduce((s, v) => s + v, 0);
@@ -4253,29 +4253,29 @@ class UI {
         let summaryHTML = `<div style="font-family:'Outfit','Inter',sans-serif;">`;
 
         
-// ── CABEÇALHO ──
+// â”€â”€ CABEÃ‡ALHO â”€â”€
         summaryHTML += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">`;
-        summaryHTML += `<div style="font-size:1.8rem;">🔍</div>`;
+        summaryHTML += `<div style="font-size:1.8rem;">ðŸ”</div>`;
         summaryHTML += `<div>`;
-        summaryHTML += `<h4 style="margin:0;color:${game.color};font-size:1rem;font-weight:800;">CONFERÊNCIA — ${game.name.toUpperCase()}</h4>`;
-        summaryHTML += `<div style="font-size:0.72rem;color:#94A3B8;">${drawInfo || 'Resultado informado manualmente'} · Faixas premiadas: ${minStrat} a ${maxStrat} acertos</div>`;
+        summaryHTML += `<h4 style="margin:0;color:${game.color};font-size:1rem;font-weight:800;">CONFERÃŠNCIA â€” ${game.name.toUpperCase()}</h4>`;
+        summaryHTML += `<div style="font-size:0.72rem;color:#94A3B8;">${drawInfo || 'Resultado informado manualmente'} Â· Faixas premiadas: ${minStrat} a ${maxStrat} acertos</div>`;
         summaryHTML += `</div></div>`;
 
         
-// ── RESUMO RÁPIDO ──
+// â”€â”€ RESUMO RÃPIDO â”€â”€
         summaryHTML += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">`;
         summaryHTML += `<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;font-size:0.82rem;"><strong>${totalJogos}</strong> jogo${totalJogos > 1 ? 's' : ''} conferidos</div>`;
         if (totalGanhos > 0) {
-            summaryHTML += `<div style="background:rgba(34,197,94,0.15);border:1px solid #22C55E50;border-radius:8px;padding:6px 12px;color:#22C55E;font-size:0.82rem;font-weight:700;">🏆 ${totalGanhos} prêmio${totalGanhos > 1 ? 's' : ''} ganho${totalGanhos > 1 ? 's' : ''}!</div>`;
+            summaryHTML += `<div style="background:rgba(34,197,94,0.15);border:1px solid #22C55E50;border-radius:8px;padding:6px 12px;color:#22C55E;font-size:0.82rem;font-weight:700;">ðŸ† ${totalGanhos} prÃªmio${totalGanhos > 1 ? 's' : ''} ganho${totalGanhos > 1 ? 's' : ''}!</div>`;
         } else {
             summaryHTML += `<div style="background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:8px;padding:6px 12px;color:#EF4444;font-size:0.82rem;">Nenhuma faixa premiada desta vez</div>`;
         }
         summaryHTML += `</div>`;
 
         
-// ── DISTRIBUIÇÃO DE ACERTOS (gráfico de barras) ──
+// â”€â”€ DISTRIBUIÃ‡ÃƒO DE ACERTOS (grÃ¡fico de barras) â”€â”€
         summaryHTML += `<div style="margin-bottom:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;">`;
-        summaryHTML += `<div style="font-size:0.68rem;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Distribuição de Acertos</div>`;
+        summaryHTML += `<div style="font-size:0.68rem;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">DistribuiÃ§Ã£o de Acertos</div>`;
         const maxHitCount = Math.max(...Object.values(hitDistribution), 1);
         for (let h = maxPossibleHits; h >= 0; h--) {
             const count = hitDistribution[h] || 0;
@@ -4292,18 +4292,18 @@ class UI {
                 summaryHTML += `<div style="height:100%;width:${barW}%;background:${barColor};border-radius:4px;transition:width 0.5s;min-width:${count>0?'2px':'0'};"></div>`;
                 summaryHTML += `</div>`;
                 summaryHTML += `<span style="min-width:50px;font-size:0.72rem;color:${textColor};font-weight:600;">${count}x (${pct.toFixed(0)}%)</span>`;
-                summaryHTML += `${isPrized ? '<span style="font-size:0.65rem;">💰</span>' : ''}`;
+                summaryHTML += `${isPrized ? '<span style="font-size:0.65rem;">ðŸ’°</span>' : ''}`;
                 summaryHTML += `</div>`;
             }
         }
         summaryHTML += `</div>`;
 
         
-// ── TABELA DE FAIXAS PREMIADAS ──
-        summaryHTML += `<div style="font-size:0.72rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">💎 Faixas de Premiação — ${game.name}</div>`;
+// â”€â”€ TABELA DE FAIXAS PREMIADAS â”€â”€
+        summaryHTML += `<div style="font-size:0.72rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">ðŸ’Ž Faixas de PremiaÃ§Ã£o â€” ${game.name}</div>`;
         summaryHTML += `<div style="display:flex;flex-direction:column;gap:4px;">`;
 
-        // ── Buscar prêmios REAIS da API (se disponíveis) ──
+        // â”€â”€ Buscar prÃªmios REAIS da API (se disponÃ­veis) â”€â”€
         let realPrizes = {};
         try {
             const prizeInfo = StatsService.getPrizeInfo(this.currentGameKey);
@@ -4320,7 +4320,7 @@ class UI {
                     }
                 });
             }
-        } catch(e) { /* fallback para valores estáticos */ }
+        } catch(e) { /* fallback para valores estÃ¡ticos */ }
 
         let estimatedTotal = 0;
         let faixaIndex = 0;
@@ -4329,15 +4329,15 @@ class UI {
             const count = awardCounts[strat.id] || 0;
             const isJackpot = strat.match === game.draw;
 
-            // Usar prêmio real da API se disponível, senão fallback estático
+            // Usar prÃªmio real da API se disponÃ­vel, senÃ£o fallback estÃ¡tico
             const realPrize = realPrizes[faixaIndex];
             const prizeValue = realPrize ? realPrize.valor : (strat.prize || 0);
 
-            // Para prêmio principal: NÃO multiplicar por count (é o valor total do rateio)
-            // Para faixas menores: prêmio é por volante
+            // Para prÃªmio principal: NÃƒO multiplicar por count (Ã© o valor total do rateio)
+            // Para faixas menores: prÃªmio Ã© por volante
             let subtotal;
             if (isJackpot) {
-                // Jackpot: se temos count ganhadores nossos, o valor é prizeValue dividido
+                // Jackpot: se temos count ganhadores nossos, o valor Ã© prizeValue dividido
                 // entre TODOS os ganhadores (nossos + outros). Usamos como estimativa.
                 subtotal = count > 0 ? prizeValue : 0;
             } else {
@@ -4368,15 +4368,15 @@ class UI {
 
             summaryHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:${rowBg};border:1px solid ${borderCol};border-radius:8px;transition:all 0.3s;">`;
             summaryHTML += `<div style="display:flex;align-items:center;gap:8px;">`;
-            summaryHTML += `<span style="font-size:0.9rem;">${count > 0 ? (isJackpot ? '🥇' : '✅') : '◻️'}</span>`;
+            summaryHTML += `<span style="font-size:0.9rem;">${count > 0 ? (isJackpot ? 'ðŸ¥‡' : 'âœ…') : 'â—»ï¸'}</span>`;
             summaryHTML += `<div>`;
             summaryHTML += `<div style="font-size:0.82rem;font-weight:${count > 0 ? '700' : '400'};color:${count > 0 ? '#f1f5f9' : '#64748b'};">${strat.label}</div>`;
-            summaryHTML += `<div style="font-size:0.66rem;color:#64748b;">${strat.match === 0 ? 'Nenhum número acertado' : strat.match + ' acertos'} · ${prizeStr}</div>`;
+            summaryHTML += `<div style="font-size:0.66rem;color:#64748b;">${strat.match === 0 ? 'Nenhum nÃºmero acertado' : strat.match + ' acertos'} Â· ${prizeStr}</div>`;
             summaryHTML += `</div></div>`;
             summaryHTML += `<div style="text-align:right;">`;
-            summaryHTML += `<div style="font-size:0.9rem;font-weight:800;color:${textCol};">${count > 0 ? count + 'x' : '—'}</div>`;
+            summaryHTML += `<div style="font-size:0.9rem;font-weight:800;color:${textCol};">${count > 0 ? count + 'x' : 'â€”'}</div>`;
             if (count > 0 && prizeValue > 0) {
-                summaryHTML += `<div style="font-size:0.68rem;color:${textCol};opacity:0.85;">≈ ${currency(subtotal)}</div>`;
+                summaryHTML += `<div style="font-size:0.68rem;color:${textCol};opacity:0.85;">â‰ˆ ${currency(subtotal)}</div>`;
             }
             summaryHTML += `</div></div>`;
         });
@@ -4384,16 +4384,16 @@ class UI {
         summaryHTML += `</div>`;
 
         
-// ── TOTAL ESTIMADO ──
+// â”€â”€ TOTAL ESTIMADO â”€â”€
         if (estimatedTotal > 0) {
             summaryHTML += `<div style="margin-top:12px;padding:12px 16px;background:linear-gradient(135deg,rgba(34,197,94,0.2),rgba(16,185,129,0.1));border:2px solid #22C55E80;border-radius:12px;display:flex;justify-content:space-between;align-items:center;">`;
-            summaryHTML += `<span style="color:#86efac;font-weight:700;font-size:0.88rem;">💰 Prêmio Estimado Total</span>`;
+            summaryHTML += `<span style="color:#86efac;font-weight:700;font-size:0.88rem;">ðŸ’° PrÃªmio Estimado Total</span>`;
             summaryHTML += `<span style="color:#22C55E;font-weight:900;font-size:1.1rem;">${currency(estimatedTotal)}</span>`;
             summaryHTML += `</div>`;
         }
 
         
-// ── NÚMEROS SORTEADOS ──
+// â”€â”€ NÃšMEROS SORTEADOS â”€â”€
         const sortedDrawn = [...drawnNumbers].sort((a, b) => a - b);
         summaryHTML += `<div style="margin-bottom:12px;padding:10px 14px;background:linear-gradient(145deg,rgba(0,0,0,0.4),rgba(0,0,0,0.2));border:1px solid ${game.color}50;border-radius:10px;">`;
         summaryHTML += `<div style="font-size:0.68rem;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Resultado Oficial</div>`;
@@ -4404,29 +4404,29 @@ class UI {
         summaryHTML += `</div></div>`;
 
         
-// ── V11: JOGOS GANHADORES — Agrupados do maior ao menor prêmio ──
+// â”€â”€ V11: JOGOS GANHADORES â€” Agrupados do maior ao menor prÃªmio â”€â”€
         if (winningGames.length > 0) {
-            // Ordenar do maior prêmio (mais acertos) para o menor
+            // Ordenar do maior prÃªmio (mais acertos) para o menor
             winningGames.sort((a, b) => b.hits - a.hits || b.prize - a.prize);
 
             summaryHTML += `<div style="margin-bottom:12px;padding:12px 14px;background:linear-gradient(145deg,rgba(34,197,94,0.06),rgba(0,0,0,0.2));border:2px solid #22C55E40;border-radius:12px;">`;
             summaryHTML += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">`;
-            summaryHTML += `<span style="font-size:1.2rem;">🏆</span>`;
+            summaryHTML += `<span style="font-size:1.2rem;">ðŸ†</span>`;
             summaryHTML += `<div style="font-size:0.78rem;color:#22C55E;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Jogos Ganhadores (${winningGames.length})</div>`;
             summaryHTML += `</div>`;
 
             let currentTier = null;
             winningGames.forEach(wg => {
-                // Separador por faixa de prêmio
+                // Separador por faixa de prÃªmio
                 if (currentTier !== wg.strat.id) {
                     currentTier = wg.strat.id;
                     const isJP = wg.strat.match === game.draw;
                     const tierColor = isJP ? '#FFD700' : '#22C55E';
                     summaryHTML += `<div style="display:flex;align-items:center;gap:6px;margin:${currentTier === winningGames[0].strat.id ? '0' : '8px'} 0 6px 0;">`;
-                    summaryHTML += `<span style="font-size:0.7rem;">${isJP ? '🥇' : '✅'}</span>`;
+                    summaryHTML += `<span style="font-size:0.7rem;">${isJP ? 'ðŸ¥‡' : 'âœ…'}</span>`;
                     summaryHTML += `<span style="font-size:0.72rem;font-weight:700;color:${tierColor};">${wg.strat.label}</span>`;
                     summaryHTML += `<div style="flex:1;height:1px;background:${tierColor}30;"></div>`;
-                    const tierPrize = wg.prize > 100 ? ` ≈ ${currency(wg.prize)}` : (wg.prize > 0 ? ` ≈ R$ ${wg.prize.toFixed(2).replace('.',',')}` : '');
+                    const tierPrize = wg.prize > 100 ? ` â‰ˆ ${currency(wg.prize)}` : (wg.prize > 0 ? ` â‰ˆ R$ ${wg.prize.toFixed(2).replace('.',',')}` : '');
                     summaryHTML += `<span style="font-size:0.62rem;color:${tierColor};opacity:0.8;">${tierPrize}/jogo</span>`;
                     summaryHTML += `</div>`;
                 }
@@ -4438,14 +4438,14 @@ class UI {
                 summaryHTML += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:4px;background:${cardBg};border:1px solid ${cardBorder};border-radius:8px;flex-wrap:wrap;">`;
                 summaryHTML += `<span style="font-size:0.68rem;color:#94A3B8;font-weight:600;min-width:42px;">Jogo ${wg.index + 1}</span>`;
                 
-                // ★ v9.5: Badge de Time (Timemania) ou Mês (Dia de Sorte) no jogo ganhador
+                // â˜… v9.5: Badge de Time (Timemania) ou MÃªs (Dia de Sorte) no jogo ganhador
                 if (this.currentGeneratedExtras && this.currentGeneratedExtras[wg.index] !== undefined) {
                     if (this.currentGameKey === 'timemania' && typeof L99_TIMES !== 'undefined') {
                         const timeName = L99_TIMES[this.currentGeneratedExtras[wg.index]] || '?';
-                        summaryHTML += `<span style="font-size:0.62rem;color:#10B981;background:rgba(16,185,129,0.15);padding:1px 5px;border-radius:4px;font-weight:600;">⚽ ${timeName}</span>`;
+                        summaryHTML += `<span style="font-size:0.62rem;color:#10B981;background:rgba(16,185,129,0.15);padding:1px 5px;border-radius:4px;font-weight:600;">âš½ ${timeName}</span>`;
                     } else if (this.currentGameKey === 'diadesorte') {
                         const mesName = L99_MESES[this.currentGeneratedExtras[wg.index]] || '?';
-                        summaryHTML += `<span style="font-size:0.62rem;color:#F59E0B;background:rgba(245,158,11,0.15);padding:1px 5px;border-radius:4px;font-weight:600;">📅 ${mesName}</span>`;
+                        summaryHTML += `<span style="font-size:0.62rem;color:#F59E0B;background:rgba(245,158,11,0.15);padding:1px 5px;border-radius:4px;font-weight:600;">ðŸ“… ${mesName}</span>`;
                     }
                 }
                 
@@ -4459,7 +4459,7 @@ class UI {
                 });
                 summaryHTML += `</div>`;
                 
-                // ★ v9.5: Mostrar acertos e valor estimado do prêmio por jogo
+                // â˜… v9.5: Mostrar acertos e valor estimado do prÃªmio por jogo
                 const prizePerGame = wg.prize || 0;
                 summaryHTML += `<div style="text-align:right;min-width:60px;">`;
                 summaryHTML += `<div style="font-size:0.68rem;font-weight:700;color:${isJP ? '#FFD700' : '#22C55E'};">${wg.hits}/${game.draw}</div>`;
@@ -4467,7 +4467,7 @@ class UI {
                     const prizeDisplay = prizePerGame >= 100 
                         ? prizePerGame.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
                         : 'R$ ' + prizePerGame.toFixed(2).replace('.', ',');
-                    summaryHTML += `<div style="font-size:0.58rem;color:${isJP ? '#FFD70090' : '#22C55E90'};">≈ ${prizeDisplay}</div>`;
+                    summaryHTML += `<div style="font-size:0.58rem;color:${isJP ? '#FFD70090' : '#22C55E90'};">â‰ˆ ${prizeDisplay}</div>`;
                 }
                 summaryHTML += `</div>`;
                 summaryHTML += `</div>`;
@@ -4476,10 +4476,10 @@ class UI {
         }
 
         
-// ── DISCLAIMER ──
+// â”€â”€ DISCLAIMER â”€â”€
         summaryHTML += `<div style="margin-top:10px;padding:8px 12px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.2);border-radius:8px;font-size:0.65rem;color:#EAB308;">`;
-        summaryHTML += `⚠️ <strong>Importante:</strong> Os valores de prêmios exibidos são estimativas médias baseadas nos sorteios recentes da Caixa. `;
-        summaryHTML += `O prêmio real depende do rateio oficial (número de ganhadores em cada faixa). `;
+        summaryHTML += `âš ï¸ <strong>Importante:</strong> Os valores de prÃªmios exibidos sÃ£o estimativas mÃ©dias baseadas nos sorteios recentes da Caixa. `;
+        summaryHTML += `O prÃªmio real depende do rateio oficial (nÃºmero de ganhadores em cada faixa). `;
         summaryHTML += `Confira sempre o resultado oficial em <strong>loterias.caixa.gov.br</strong>`;
         summaryHTML += `</div>`;
 
@@ -4491,9 +4491,9 @@ class UI {
             this.checkSummaryContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // ═══════════════════════════════════════════════════════
-        // AUTO-SALVAR ESTATÍSTICAS (StatisticsTracker)
-        // ═══════════════════════════════════════════════════════
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // AUTO-SALVAR ESTATÃSTICAS (StatisticsTracker)
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         try {
             if (typeof StatisticsTracker !== 'undefined') {
                 // Detectar drawSize real dos jogos gerados
@@ -4502,7 +4502,7 @@ class UI {
                     : (this._lastDrawSize || game.minBet);
                 const pricePerGame = game.price || 3.00;
 
-                // Calcular fator de combinação para jogos com mais números
+                // Calcular fator de combinaÃ§Ã£o para jogos com mais nÃºmeros
                 let priceFactor = 1;
                 if (actualDrawSize > game.minBet) {
                     const _comb = (n, k) => { let r = 1; for (let i = 0; i < k; i++) r *= (n - i) / (i + 1); return r; };
@@ -4510,7 +4510,7 @@ class UI {
                 }
                 const valorInvestido = totalJogos * pricePerGame * priceFactor;
 
-                // Construir faixas detalhadas com prêmios reais
+                // Construir faixas detalhadas com prÃªmios reais
                 const faixasDetail = {};
                 let fIdx = 0;
                 paidStrategies.forEach(s => {
@@ -4524,12 +4524,12 @@ class UI {
                     };
                 });
 
-                // Extrair número do concurso do drawInfo
+                // Extrair nÃºmero do concurso do drawInfo
                 let concursoNum = 0;
                 const concursoMatch = drawInfo.match(/(\d+)/);
                 if (concursoMatch) concursoNum = parseInt(concursoMatch[1]);
 
-                // Precisão: ler rastreamento + fallback do checkbox (para QUALQUER modo)
+                // PrecisÃ£o: ler rastreamento + fallback do checkbox (para QUALQUER modo)
                 let isPrecisao = this._lastPrecisionMode === true;
                 if (!isPrecisao) {
                     const pc = document.getElementById('precision-mode-toggle');
@@ -4538,7 +4538,7 @@ class UI {
                     }
                 }
 
-                // ★ v9.5: Coletar times/meses dos jogos ganhadores
+                // â˜… v9.5: Coletar times/meses dos jogos ganhadores
                 let extrasGanhadores = [];
                 if ((this.currentGameKey === 'timemania' || this.currentGameKey === 'diadesorte') && this.currentGeneratedExtras) {
                     winningGames.forEach(wg => {
@@ -4581,13 +4581,483 @@ class UI {
                     ls_mode: localStorage.getItem('l99_lastMode')
                 });
                 StatisticsTracker.save(record);
-                // ALERTA VISUAL de confirmação
+                // ALERTA VISUAL de confirmaÃ§Ã£o
                 var modoSalvo = record.modoGeracao;
                 var toast = document.createElement('div');
                 toast.style.cssText = 'position:fixed;top:20px;right:20px;background:#22C55E;color:#fff;padding:12px 20px;border-radius:12px;z-index:999999;font-size:14px;font-weight:bold;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
-                toast.textContent = '📊 Estatística salva! Modo: ' + modoSalvo + ' | Jogos: ' + record.qtdJogos;
+                toast.textContent = 'ðŸ“Š EstatÃ­stica salva! Modo: ' + modoSalvo + ' | Jogos: ' + record.qtdJogos;
                 document.body.appendChild(toast);
                 setTimeout(function() { toast.remove(); }, 5000);
                 console.log('%c[L99-STATS] RECORD SALVO COM SUCESSO', 'color: #22C55E; font-weight: bold;');
- Erro: Cannot read properties of undefined (reading 'numbers')
-Verifique o console (F12)
+                console.log('%c[L99-STATS] RECORD SALVO COM SUCESSO', 'color: #22C55E; font-weight: bold;');
+
+                var self = this;
+                // ÔöÇÔöÇ SALVAR CONFER├èNCIA NA PASTA (async para n├úo travar) ÔöÇÔöÇ
+                setTimeout(function() { try {
+                    var reportText = 'ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ\n';
+                    reportText += '  ­ƒôè CONFER├èNCIA L99 ÔÇö ' + game.name + '\n';
+                    reportText += '  Concurso ' + concursoNum + '\n';
+                    reportText += '  Data: ' + new Date().toLocaleString('pt-BR') + '\n';
+                    reportText += 'ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ\n\n';
+                    reportText += '­ƒôè RESUMO\n';
+                    reportText += '  Jogos Conferidos: ' + totalJogos + '\n';
+                    reportText += '  Modo: ' + (localStorage.getItem('l99_lastMode') || document.body.getAttribute('data-l99-mode') || self._lastGenerationMode || 'manual') + '\n';
+                    reportText += '  N┬║ por Jogo: ' + actualDrawSize + '\n\n';
+                    reportText += '­ƒöó N├ÜMEROS SORTEADOS: ' + drawnNumbers.join(' - ') + '\n\n';
+                    reportText += '­ƒÅà FAIXAS DE PREMIA├ç├âO\n';
+                    paidStrategies.forEach(function(s) {
+                        var count = awardCounts[s.id] || 0;
+                        reportText += '  ' + s.label + ': ' + count + ' volante(s)\n';
+                    });
+                    reportText += '\n  Total Premiados: ' + totalGanhos + ' volante(s)\n';
+                    reportText += '  Valor Estimado: R$ ' + estimatedTotal.toLocaleString('pt-BR', {minimumFractionDigits:2}) + '\n\n';
+                    if (winningGames.length > 0) {
+                        reportText += '­ƒÅå JOGOS GANHADORES\n';
+                        winningGames.forEach(function(w) {
+                            reportText += '  Jogo ' + (w.index + 1) + ': ' + w.numbers.join(' - ') + ' ÔåÆ ' + w.hits + ' acertos (' + w.strat.label + ')\n';
+                        });
+                    }
+                    var maxListJogos = Math.min(self.currentGeneratedGames.length, 200);
+                    reportText += '\n­ƒôï JOGOS CONFERIDOS (' + maxListJogos + ' de ' + self.currentGeneratedGames.length + ')\n';
+                    var drawnS2 = new Set(drawnNumbers);
+                    var minPrize = paidStrategies.length > 0 ? paidStrategies[paidStrategies.length-1].match : 3;
+                    self.currentGeneratedGames.slice(0, maxListJogos).forEach(function(nums, idx) {
+                        var h2 = 0;
+                        nums.forEach(function(n) { if (drawnS2.has(n)) h2++; });
+                        var sinal = h2 >= minPrize ? 'Ô£à' : '  ';
+                        reportText += sinal + ' Jogo ' + String(idx+1).padStart(4,' ') + ': ' + nums.map(function(n){return String(n).padStart(2,'0')}).join(' - ') + ' = ' + h2 + ' acertos\n';
+                    });
+                    reportText += '\nÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ\n';
+                    reportText += '  L99 B2B Loterias ÔÇö Relat├│rio Autom├ítico\n';
+                    reportText += 'ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ\n';
+                    fetch('/salvar-conferencia', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ gameKey: self.currentGameKey, concurso: concursoNum, content: reportText })
+                    }).then(function(r) { return r.json(); }).then(function(result) {
+                        if (result.ok) console.log('[L99] Ô£à Confer├¬ncia salva em: ' + result.fileName);
+                    }).catch(function() {});
+                    // Marcar arquivo original como conferido
+                    if (self._lastLoadedFileName && !self._lastLoadedFileName.startsWith('Ô£à')) {
+                        fetch('/marcar-conferido', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ gameKey: self.currentGameKey, fileName: self._lastLoadedFileName })
+                        }).catch(function() {});
+                    }
+                } catch(saveErr) {
+                    console.warn('[L99] Erro ao salvar confer├¬ncia:', saveErr);
+                } }, 100); // setTimeout
+            }
+        } catch(statsErr) {
+            console.warn('[Stats] Erro ao salvar estat├¡stica:', statsErr);
+        }
+    }
+    exportBackup() {
+        if (this.currentGeneratedGames.length === 0) {
+            alert('Nenhum jogo gerado para fazer backup.\nGere seus jogos primeiro!');
+            return;
+        }
+
+        const game = GAMES[this.currentGameKey];
+        const gameName = game ? game.name : 'Loteria';
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('pt-BR');
+        const timeStr = now.toLocaleTimeString('pt-BR');
+        const dateFile = now.toISOString().slice(0, 10).replace(/-/g, '');
+
+        let content = 'ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ\n';
+        content += `  BACKUP - B2B LOTERIAS\n`;
+        content += 'ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ\n';
+        content += `  Jogo: ${gameName}\n`;
+        content += `  Data: ${dateStr} ├ás ${timeStr}\n`;
+        content += `  Total de Jogos: ${this.currentGeneratedGames.length}\n`;
+
+        // N├║meros fixos
+        if (this.fixedNumbers.size > 0) {
+            const fixedArr = Array.from(this.fixedNumbers).sort((a, b) => a - b);
+            content += `  N├║meros Fixos: ${fixedArr.map(n => n.toString().padStart(2, '0')).join(' ')}\n`;
+        }
+
+        content += 'ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ\n\n';
+
+        this.currentGeneratedGames.forEach((nums, i) => {
+            const formatted = nums.map(n => n.toString().padStart(2, '0')).join('  ');
+            content += `Jogo ${(i + 1).toString().padStart(3, '0')}:  ${formatted}\n`;
+        });
+
+        content += '\nÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ\n';
+        content += '  Gerado por B2B Loterias - Boa Sorte!\n';
+        content += 'ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ\n';
+
+        // Download como arquivo
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_${gameName.replace(/\s+/g, '_')}_${dateFile}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // Feedback visual no bot├úo
+        const h3 = this.btnBackup.querySelector('h3');
+        if (h3) {
+            const original = h3.textContent;
+            h3.textContent = 'Ô£à BACKUP SALVO!';
+            h3.style.color = '#10B981';
+            setTimeout(() => {
+                h3.textContent = original;
+                h3.style.color = '';
+            }, 2500);
+        }
+    }
+
+    // ÔòöÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòù
+    // Ôòæ  PAINEL ESTAT├ìSTICAS ÔÇö Confer├¬ncia de Resultados & ROI     Ôòæ
+    // Ôòæ  Rastreia performance de apostas para calibrar o motor      Ôòæ
+    // ÔòÜÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòØ
+
+    initStatisticsPanel() {
+        const statsBtn = document.getElementById('btn-statistics');
+        const overlay = document.getElementById('stats-modal-overlay');
+        const closeBtn = document.getElementById('stats-modal-close');
+        if (!statsBtn || !overlay) return;
+
+        const _self = this;
+        this._statsActiveLottery = null;
+
+        // ÔöÇÔöÇ Abrir Modal ÔöÇÔöÇ
+        statsBtn.addEventListener('click', () => {
+            overlay.classList.add('active');
+            this._buildStatsLotteryGrid();
+        });
+
+        // ÔöÇÔöÇ Fechar Modal ÔöÇÔöÇ
+        if (closeBtn) closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
+
+        // ÔöÇÔöÇ Filtros ÔöÇÔöÇ
+        ['stats-filter-modo', 'stats-filter-precisao', 'stats-filter-qtd', 'stats-filter-numjogo'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('change', () => _self._applyStatsFilters());
+        });
+
+        // ÔöÇÔöÇ Exportar CSV ÔöÇÔöÇ
+        const exportBtn = document.getElementById('stats-export-csv');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                try {
+                    const csv = StatisticsTracker.exportCSV(this._statsActiveLottery);
+                    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    const lName = this._statsActiveLottery || 'todas';
+                    a.href = url;
+                    a.download = `b2b_estatisticas_${lName}_${new Date().toISOString().slice(0,10)}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    exportBtn.textContent = 'Ô£à Exportado!';
+                    setTimeout(() => exportBtn.textContent = '­ƒôÑ Exportar CSV', 2000);
+                } catch(e) {
+                    alert('Erro ao exportar: ' + e.message);
+                }
+            });
+        }
+
+        // ÔöÇÔöÇ Importar CSV ÔöÇÔöÇ
+        const importBtn = document.getElementById('stats-import-csv');
+        const importInput = document.getElementById('stats-import-input');
+        if (importBtn && importInput) {
+            importBtn.addEventListener('click', () => importInput.click());
+            importInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        const count = StatisticsTracker.importCSV(ev.target.result);
+                        alert(`Ô£à ${count} registros importados com sucesso!`);
+                        this._buildStatsLotteryGrid();
+                        if (this._statsActiveLottery) this.renderStatisticsTable(this._statsActiveLottery);
+                    } catch(err) {
+                        alert('Erro ao importar: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+                importInput.value = '';
+            });
+        }
+
+        // ÔöÇÔöÇ Limpar Dados ÔöÇÔöÇ
+        const clearBtn = document.getElementById('stats-clear');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                const lName = this._statsActiveLottery
+                    ? (GAMES[this._statsActiveLottery]?.name || this._statsActiveLottery)
+                    : 'TODAS AS LOTERIAS';
+                if (confirm(`ÔÜá´©Å Tem certeza que deseja limpar TODOS os dados de estat├¡sticas de ${lName}?\n\nEsta a├º├úo n├úo pode ser desfeita.`)) {
+                    StatisticsTracker.clear(this._statsActiveLottery);
+                    this._buildStatsLotteryGrid();
+                    if (this._statsActiveLottery) this.renderStatisticsTable(this._statsActiveLottery);
+                }
+            });
+        }
+    }
+
+    // ÔöÇÔöÇ Construir Grid de Loterias ÔöÇÔöÇ
+    _buildStatsLotteryGrid() {
+        const grid = document.getElementById('stats-lottery-grid');
+        if (!grid) return;
+
+        const counts = typeof StatisticsTracker !== 'undefined' ? StatisticsTracker.getCounts() : {};
+        const gameKeys = ['megasena', 'lotofacil', 'quina', 'duplasena', 'lotomania', 'timemania', 'diadesorte'];
+
+        grid.innerHTML = '';
+        gameKeys.forEach(key => {
+            const game = GAMES[key];
+            if (!game) return;
+            const count = counts[key] || 0;
+            const btn = document.createElement('button');
+            btn.className = 'stats-lottery-btn' + (this._statsActiveLottery === key ? ' active' : '');
+            btn.style.setProperty('--stats-lottery-color', game.color);
+            btn.innerHTML = `
+                <div class="stats-lot-dot" style="background:${game.color};"></div>
+                <div class="stats-lot-name">${game.name}</div>
+                <div class="stats-lot-count">${count} registro${count !== 1 ? 's' : ''}</div>
+            `;
+            btn.addEventListener('click', () => {
+                this._statsActiveLottery = key;
+                grid.querySelectorAll('.stats-lottery-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.renderStatisticsTable(key);
+            });
+            grid.appendChild(btn);
+        });
+    }
+
+    // ÔöÇÔöÇ Aplicar Filtros ÔöÇÔöÇ
+    _applyStatsFilters() {
+        if (!this._statsActiveLottery) return;
+        this.renderStatisticsTable(this._statsActiveLottery);
+    }
+
+    // ÔöÇÔöÇ Renderizar Tabela de Estat├¡sticas ÔöÇÔöÇ
+    renderStatisticsTable(lotteryKey) {
+        const tableArea = document.getElementById('stats-table-area');
+        const filterBar = document.getElementById('stats-filter-bar');
+        const totalsBar = document.getElementById('stats-totals');
+        const actionsBar = document.getElementById('stats-actions');
+        if (!tableArea) return;
+
+        const game = GAMES[lotteryKey];
+        if (!game) return;
+
+        // Mostrar controles
+        if (filterBar) filterBar.style.display = 'flex';
+        if (actionsBar) actionsBar.style.display = 'flex';
+
+        // Ler filtros
+        const filters = {
+            modoGeracao: document.getElementById('stats-filter-modo')?.value || 'todos',
+            precisao: document.getElementById('stats-filter-precisao')?.value || 'todos',
+            qtdJogos: document.getElementById('stats-filter-qtd')?.value || 'todos',
+            numPorJogo: document.getElementById('stats-filter-numjogo')?.value || 'todos'
+        };
+
+        // Ajustar filtro de precis├úo
+        if (filters.precisao === 'sim') filters.precisao = true;
+        else if (filters.precisao === 'nao') filters.precisao = false;
+        else filters.precisao = 'todos';
+
+        const records = StatisticsTracker.filter(lotteryKey, filters);
+
+        // Popular filtros din├ómicos
+        const allRecords = StatisticsTracker.getAll(lotteryKey);
+        this._populateStatsFilter('stats-filter-qtd', 'Qtd Jogos', allRecords.map(r => r.qtdJogos), filters.qtdJogos);
+        this._populateStatsFilter('stats-filter-numjogo', 'N┬║/Jogo', allRecords.map(r => r.numPorJogo), filters.numPorJogo);
+
+        // ÔöÇÔöÇ Sem dados ÔöÇÔöÇ
+        if (records.length === 0) {
+            tableArea.innerHTML = `
+                <div class="stats-empty">
+                    <div class="stats-empty-icon">­ƒô¡</div>
+                    <div class="stats-empty-title">Nenhum registro encontrado</div>
+                    <div class="stats-empty-desc">
+                        ${allRecords.length > 0
+                            ? 'Nenhum resultado corresponde aos filtros selecionados. Tente alterar os filtros.'
+                            : `Ainda n├úo h├í confer├¬ncias registradas para <strong>${game.name}</strong>.<br>Gere jogos, depois use o bot├úo <strong>"Conferir"</strong> para verificar os resultados.`}
+                    </div>
+                </div>`;
+            if (totalsBar) { totalsBar.style.display = 'none'; totalsBar.innerHTML = ''; }
+            return;
+        }
+
+        // ÔöÇÔöÇ Aggregates ÔöÇÔöÇ
+        const agg = StatisticsTracker.aggregate(records);
+        if (totalsBar) {
+            totalsBar.style.display = 'grid';
+            const currency = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
+            const retClass = agg.pctRetornoMedio >= 0 ? 'positive' : 'negative';
+            totalsBar.innerHTML = `
+                <div class="stats-total-card"><div class="stats-total-label">Confer├¬ncias</div><div class="stats-total-value">${agg.total}</div></div>
+                <div class="stats-total-card"><div class="stats-total-label">Total Jogos</div><div class="stats-total-value">${agg.totalJogos}</div></div>
+                <div class="stats-total-card"><div class="stats-total-label">Investido</div><div class="stats-total-value">${currency(agg.totalInvestido)}</div></div>
+                <div class="stats-total-card"><div class="stats-total-label">Premiado</div><div class="stats-total-value stats-cell-prize">${currency(agg.totalPremio)}</div></div>
+                <div class="stats-total-card"><div class="stats-total-label">Volantes Premiados</div><div class="stats-total-value">${agg.totalVolantesPremiados}</div></div>
+                <div class="stats-total-card"><div class="stats-total-label">Retorno M├®dio</div><div class="stats-total-value ${retClass}">${agg.pctRetornoMedio >= 0 ? '+' : ''}${agg.pctRetornoMedio.toFixed(1)}%</div></div>
+            `;
+        }
+
+        // ÔöÇÔöÇ Tabela ÔöÇÔöÇ
+        const paidStrats = game.strategies.filter(s => s.paid !== false);
+        const currency = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
+
+        // ÔöÇÔöÇ Adicionar Banner de Premia├º├úo (Timemania / Dia de Sorte) ÔöÇÔöÇ
+        let prizeBannerHtml = '';
+        if (lotteryKey === 'timemania' || lotteryKey === 'diadesorte') {
+            const prizeInfo = typeof StatsService !== 'undefined' ? StatsService.getPrizeInfo(lotteryKey) : null;
+            if (prizeInfo && prizeInfo.estimatedPrize) {
+                const prizeFormatted = prizeInfo.estimatedPrize.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                prizeBannerHtml = `
+                    <div style="margin-bottom:15px;padding:12px 16px;background:linear-gradient(145deg,rgba(16,185,129,0.1),rgba(15,23,42,0.9));border:1px solid #10B98150;border-radius:8px;display:flex;align-items:center;gap:12px;">
+                        <div style="font-size:2rem;">­ƒÆ░</div>
+                        <div>
+                            <div style="color:#10B981;font-weight:700;font-size:1.1rem;">Premia├º├úo Estimada ${game.name}</div>
+                            <div style="color:#E2E8F0;font-size:0.9rem;">Pr├│ximo Concurso: <span style="font-weight:800;color:#FFD700;">${prizeFormatted}</span></div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        const isTimemania = lotteryKey === 'timemania';
+        const isDiaDeSorte = lotteryKey === 'diadesorte';
+        const hasExtrasCol = isTimemania || isDiaDeSorte;
+        const extrasColLabel = isTimemania ? 'ÔÜ¢ Time' : '­ƒôà M├¬s';
+
+        let html = prizeBannerHtml + '<div class="stats-table-wrapper"><table class="stats-table"><thead><tr>';
+        html += '<th>Data</th>';
+        html += '<th>Concurso</th>';
+        html += '<th>Jogos</th>';
+        html += '<th>Modo</th>';
+        html += '<th>Precis├úo</th>';
+        html += '<th>N┬║/Jogo</th>';
+
+        paidStrats.forEach(s => {
+            html += `<th>${s.label.replace(/\(.+?\)/, '').trim()}</th>`;
+        });
+
+        html += '<th>Premiados</th>';
+        // Ôÿà v9.5: Coluna Time/M├¬s para Timemania e Dia de Sorte
+        if (hasExtrasCol) html += `<th>${extrasColLabel}</th>`;
+        html += '<th>Valor Pr├¬mio</th>';
+        html += '<th>Investido</th>';
+        html += '<th>% Retorno</th>';
+        html += '<th></th>';
+        html += '</tr></thead><tbody>';
+
+        records.forEach(r => {
+            const data = r.data ? new Date(r.data).toLocaleDateString('pt-BR') : 'ÔÇö';
+
+            // Badge de modo
+            const modoBadgeClass = {
+                'quantum_l99': 'quantum',
+                'gerar_jogos': 'gerar',
+                'dual_2g': 'dual',
+                'fechamento': 'fech',
+                'manual': 'manual'
+            }[r.modoGeracao] || 'manual';
+            const modoLabel = StatisticsTracker.getModoLabel(r.modoGeracao);
+
+            // Badge de precis├úo
+            const precBadge = r.precisao
+                ? '<span class="stats-badge sim">Sim</span>'
+                : '<span class="stats-badge nao">N├úo</span>';
+
+            // Retorno
+            const retorno = r.pctRetorno || 0;
+            const retClass = retorno > 0 ? 'stats-cell-positive' : (retorno < 0 ? 'stats-cell-negative' : 'stats-cell-neutral');
+            const retStr = (retorno >= 0 ? '+' : '') + retorno.toFixed(1) + '%';
+
+            // Valor pr├¬mio
+            const premioStr = r.valorPremio > 0 ? currency(r.valorPremio) : 'ÔÇö';
+            const premioClass = r.valorPremio > 0 ? 'stats-cell-prize' : 'stats-cell-neutral';
+
+            html += '<tr>';
+            html += `<td>${data}</td>`;
+            html += `<td>${r.concurso || 'ÔÇö'}</td>`;
+            html += `<td>${r.qtdJogos || 0}</td>`;
+            html += `<td><span class="stats-badge ${modoBadgeClass}">${modoLabel}</span></td>`;
+            html += `<td>${precBadge}</td>`;
+            html += `<td>${r.numPorJogo || 'ÔÇö'}</td>`;
+
+            // Faixas de premia├º├úo
+            paidStrats.forEach(s => {
+                const faixa = r.faixas && r.faixas[s.id];
+                const count = faixa ? faixa.count : 0;
+                if (count > 0) {
+                    html += `<td><strong style="color:#22C55E;">${count}x</strong></td>`;
+                } else {
+                    html += `<td style="color:#334155;">ÔÇö</td>`;
+                }
+            });
+
+            html += `<td>${r.volantesPremiados > 0 ? '<strong style="color:#22C55E;">' + r.volantesPremiados + '</strong>' : '0'}</td>`;
+
+            // Ôÿà v9.5: Coluna Time/M├¬s com badges dos ganhadores
+            if (hasExtrasCol) {
+                if (r.extrasGanhadores && r.extrasGanhadores.length > 0) {
+                    const badgeColor = isTimemania ? '#10B981' : '#F59E0B';
+                    const badgeBg = isTimemania ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)';
+                    const icon = isTimemania ? 'ÔÜ¢' : '­ƒôà';
+                    const badges = r.extrasGanhadores.map(eg =>
+                        `<span style="display:inline-block;font-size:0.58rem;color:${badgeColor};background:${badgeBg};padding:1px 4px;border-radius:3px;margin:1px;white-space:nowrap;" title="Jogo ${eg.jogo}: ${eg.acertos} acertos Ôëê R$${(eg.premio||0).toFixed(2)}">${icon} ${eg.extra}</span>`
+                    ).join('');
+                    html += `<td style="max-width:120px;">${badges}</td>`;
+                } else {
+                    html += `<td style="color:#334155;">ÔÇö</td>`;
+                }
+            }
+
+            html += `<td class="${premioClass}">${premioStr}</td>`;
+            html += `<td>${currency(r.valorInvestido || 0)}</td>`;
+            html += `<td class="${retClass}">${retStr}</td>`;
+            html += `<td><button class="stats-delete-btn" data-id="${r.id}" data-lottery="${lotteryKey}" title="Excluir registro">­ƒùæ´©Å</button></td>`;
+            html += '</tr>';
+        });
+
+        html += '</tbody></table></div>';
+        tableArea.innerHTML = html;
+
+        // ÔöÇÔöÇ Delete handlers ÔöÇÔöÇ
+        tableArea.querySelectorAll('.stats-delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const lk = btn.dataset.lottery;
+                if (confirm('Excluir este registro?')) {
+                    StatisticsTracker.remove(lk, id);
+                    this._buildStatsLotteryGrid();
+                    this.renderStatisticsTable(lk);
+                }
+            });
+        });
+    }
+
+    // ÔöÇÔöÇ Popular filtro din├ómico ÔöÇÔöÇ
+    _populateStatsFilter(selectId, label, values, currentValue) {
+        const sel = document.getElementById(selectId);
+        if (!sel) return;
+        const unique = [...new Set(values.filter(v => v != null))].sort((a, b) => a - b);
+        const oldVal = currentValue || sel.value;
+        sel.innerHTML = `<option value="todos">${label}: Todos</option>`;
+        unique.forEach(v => {
+            sel.innerHTML += `<option value="${v}" ${String(v) === String(oldVal) ? 'selected' : ''}>${v}</option>`;
+        });
+    }
+}
+
+// Export removed for global script compatibility
