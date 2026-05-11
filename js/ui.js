@@ -706,9 +706,12 @@ class UI {
                         if (isPrecisionMode && typeof NovaEraEngine !== 'undefined' && typeof NovaEraEngine.generateSniper === 'function') {
                             // ── SNIPER QUANTUM v9.5: Pool pré-selecionado + Tiers + Cross-combo ──
                             try {
-                                const poolSize = customDrawSize || game.minBet * 5;
+                                // ★ FIX: Ler pool do campo CORRETO (precision-pool-size)
+                                const precisionPoolInput = document.getElementById('precision-pool-size');
+                                const precisionPoolValue = precisionPoolInput ? parseInt(precisionPoolInput.value) : 0;
+                                const poolSize = precisionPoolValue > 0 ? precisionPoolValue : (customDrawSize || game.minBet * 5);
                                 const actualDrawSize = game.minBet;
-                                console.log('%c[UI] ★ SNIPER QUANTUM ATIVADO — pool=' + poolSize + ' | jogos=' + quantity + ' | drawSize=' + actualDrawSize, 'color: #EF4444; font-weight: bold;');
+                                console.log('%c[UI] ★ SNIPER QUANTUM ATIVADO — pool=' + poolSize + ' (precision-pool-size=' + precisionPoolValue + ') | jogos=' + quantity + ' | drawSize=' + actualDrawSize, 'color: #EF4444; font-weight: bold;');
                                 result = NovaEraEngine.generateSniper(
                                     this.currentGameKey,
                                     Math.min(quantity, 10000),
