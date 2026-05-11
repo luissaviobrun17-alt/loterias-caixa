@@ -148,9 +148,31 @@ class PrecisionEngine {
         for (const n of selected) consensusScores[n] = (consensusScores[n] || 0.5) * 1.2;
 
         // ── 7. Rankear + log de consenso ──────────────────────────────────
-        const ranked = [];
+        let ranked = [];
         for (let n = startNum; n <= endNum; n++) ranked.push({ n, score: consensusScores[n] || 0 });
         ranked.sort((a, b) => b.score - a.score);
+
+        // ★ FIX CRÍTICO: Respeitar pool de precisão do DOM
+        // Quando o toggle de precisão está ativo, limitar o ranked ao top N do pool
+        if (typeof document !== 'undefined') {
+            const precToggle = document.getElementById('precision-mode-toggle');
+            const precPoolInput = document.getElementById('precision-pool-size');
+            if (precToggle && precToggle.checked && precPoolInput) {
+                const precPoolSize = parseInt(precPoolInput.value) || 0;
+                if (precPoolSize > 0 && precPoolSize >= drawSize && precPoolSize < ranked.length) {
+                    console.log('%c[PRECISION-L99] ★ POOL DE PRECISÃO ATIVO: limitando de ' + ranked.length + ' → ' + precPoolSize + ' números', 'color: #EF4444; font-weight: bold;');
+                    // Garantir que números fixos estejam no pool
+                    const fixedSet = new Set(fixedNumbers || []);
+                    const fixedInRanked = ranked.filter(r => fixedSet.has(r.n));
+                    const nonFixedRanked = ranked.filter(r => !fixedSet.has(r.n));
+                    const slotsForNonFixed = precPoolSize - fixedInRanked.length;
+                    ranked = [...fixedInRanked, ...nonFixedRanked.slice(0, Math.max(0, slotsForNonFixed))];
+                    ranked.sort((a, b) => b.score - a.score);
+                    console.log('[PRECISION-L99] Pool final: [' + ranked.slice(0, 15).map(r => r.n).join(', ') + (ranked.length > 15 ? '...' : '') + '] (' + ranked.length + ' números)');
+                }
+            }
+        }
+
         // Candidatos de consenso alto (votados por múltiplas fontes)
         const topThreshold = ranked[Math.floor(ranked.length * 0.15)].score;
         const consensusCandidates = ranked.filter(r => r.score >= topThreshold).map(r => r.n);
