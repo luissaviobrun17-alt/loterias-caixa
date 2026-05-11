@@ -2803,8 +2803,15 @@ class UI {
             ? parseInt(this.smartDrawSizeSelect.value) || game.minBet
             : game.minBet;
 
-        // Se o jogador escolheu mais números que o mínimo, calcular combinações
-        if (smartDrawSize > game.minBet) {
+        // ★ v9.5: Se Sniper ativo, dropdown = pool size, cada jogo custa minBet
+        const precisionCheckbox = document.getElementById('precision-mode-toggle');
+        const isSniperActive = precisionCheckbox && precisionCheckbox.checked;
+        
+        if (isSniperActive) {
+            // Sniper: cada jogo é minBet números → preço base
+            pricePerGame = game.price;
+        } else if (smartDrawSize > game.minBet) {
+            // Normal: se jogador escolheu mais números, calcular combinações
             const combinations = this._calcCombinations(smartDrawSize, game.minBet);
             pricePerGame = combinations * game.price;
         }
