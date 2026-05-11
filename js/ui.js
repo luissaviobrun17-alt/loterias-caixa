@@ -701,61 +701,54 @@ class UI {
                 } catch(e) {}
 
                 setTimeout(() => {
+                    // ★ Identificar motor para rastreamento
+                    let _engineUsed = 'SmartBets';
                     try {
                         let result;
                         if (isPrecisionMode && typeof NovaEraEngine !== 'undefined' && typeof NovaEraEngine.generateSniper === 'function') {
                             // ── SNIPER QUANTUM v9.5: Pool pré-selecionado + Tiers + Cross-combo ──
-                            try {
-                                // ★ FIX: Ler pool do campo CORRETO (precision-pool-size)
-                                const precisionPoolInput = document.getElementById('precision-pool-size');
-                                const precisionPoolValue = precisionPoolInput ? parseInt(precisionPoolInput.value) : 0;
-                                const poolSize = precisionPoolValue > 0 ? precisionPoolValue : (customDrawSize || game.minBet * 5);
-                                const actualDrawSize = game.minBet;
-                                console.log('%c[UI] ★ SNIPER QUANTUM ATIVADO — pool=' + poolSize + ' (precision-pool-size=' + precisionPoolValue + ') | jogos=' + quantity + ' | drawSize=' + actualDrawSize, 'color: #EF4444; font-weight: bold;');
-                                result = NovaEraEngine.generateSniper(
-                                    this.currentGameKey,
-                                    Math.min(quantity, 10000),
-                                    poolSize,
-                                    fixedArr,
-                                    actualDrawSize
-                                );
-                                // Se o resultado veio sem métricas completas, recalcular via NovaEraEngine
-                                if (result && result.analysis && (result.analysis.pairsCovered == null || result.analysis.pairsCovered === '-')) {
-                                    if (typeof NovaEraEngine !== 'undefined' && result.games && result.games.length > 0) {
-                                        try {
-                                            const profile = NovaEraEngine.getProfile(this.currentGameKey);
-                                            const history = (typeof REAL_HISTORY_DB !== 'undefined' ? REAL_HISTORY_DB[this.currentGameKey] : null) || StatsService.getHistory(this.currentGameKey);
-                                            const neAnalysis = NovaEraEngine._backtestHonest(result.games, history, profile, this.currentGameKey, profile.range[1] - profile.range[0] + 1, result.games[0].length);
-                                            // Mesclar análise do NovaEraEngine com a do Precisão
-                                            result.analysis.confidence = Math.max(result.analysis.confidence, neAnalysis.confidence);
-                                            result.analysis.pairsCovered = neAnalysis.pairsCovered;
-                                            result.analysis.triosCovered = neAnalysis.triosCovered;
-                                            result.analysis.backtestScore = neAnalysis.backtestScore;
-                                            result.analysis.uniqueNumbers = neAnalysis.uniqueNumbers || result.analysis.uniqueNumbers;
-                                            console.log('[Precisão] ✅ Métricas enriquecidas via NovaEraEngine');
-                                        } catch(neErr) {
-                                            console.warn('[Precisão] NovaEraEngine backtest falhou:', neErr.message);
-                                        }
+                            // ★ FIX: Ler pool do campo CORRETO (precision-pool-size)
+                            const precisionPoolInput = document.getElementById('precision-pool-size');
+                            const precisionPoolValue = precisionPoolInput ? parseInt(precisionPoolInput.value) : 0;
+                            const poolSize = precisionPoolValue > 0 ? precisionPoolValue : (customDrawSize || game.minBet * 5);
+                            const actualDrawSize = game.minBet;
+                            console.log('%c[UI] ★ SNIPER QUANTUM ATIVADO — pool=' + poolSize + ' (precision-pool-size=' + precisionPoolValue + ') | jogos=' + quantity + ' | drawSize=' + actualDrawSize, 'color: #EF4444; font-weight: bold;');
+                            result = NovaEraEngine.generateSniper(
+                                this.currentGameKey,
+                                Math.min(quantity, 10000),
+                                poolSize,
+                                fixedArr,
+                                actualDrawSize
+                            );
+                            _engineUsed = 'Sniper Quantum (Pool: ' + poolSize + ')';
+                            // Se o resultado veio sem métricas completas, recalcular via NovaEraEngine
+                            if (result && result.analysis && (result.analysis.pairsCovered == null || result.analysis.pairsCovered === '-')) {
+                                if (typeof NovaEraEngine !== 'undefined' && result.games && result.games.length > 0) {
+                                    try {
+                                        const profile = NovaEraEngine.getProfile(this.currentGameKey);
+                                        const history = (typeof REAL_HISTORY_DB !== 'undefined' ? REAL_HISTORY_DB[this.currentGameKey] : null) || StatsService.getHistory(this.currentGameKey);
+                                        const neAnalysis = NovaEraEngine._backtestHonest(result.games, history, profile, this.currentGameKey, profile.range[1] - profile.range[0] + 1, result.games[0].length);
+                                        result.analysis.confidence = Math.max(result.analysis.confidence, neAnalysis.confidence);
+                                        result.analysis.pairsCovered = neAnalysis.pairsCovered;
+                                        result.analysis.triosCovered = neAnalysis.triosCovered;
+                                        result.analysis.backtestScore = neAnalysis.backtestScore;
+                                        result.analysis.uniqueNumbers = neAnalysis.uniqueNumbers || result.analysis.uniqueNumbers;
+                                        console.log('[Precisão] ✅ Métricas enriquecidas via NovaEraEngine');
+                                    } catch(neErr) {
+                                        console.warn('[Precisão] NovaEraEngine backtest falhou:', neErr.message);
                                     }
                                 }
-                            } catch(precErr) {
-                                console.error('[Precisão] Erro:', precErr.message);
-                                // Fallback para modo padrão
-                                result = SmartBetsEngine.generate(
-                                    this.currentGameKey, quantity, selectedArr, fixedArr, customDrawSize
-                                );
                             }
                         } else {
                             // ── MODO PADRÃO: Geração com diversidade V9 ──
-                            // V9 BUG FIX: sempre passa selectedArr ao motor
-                            // O motor decide como usar (pool completo ou preferencial)
                             result = SmartBetsEngine.generate(
                                 this.currentGameKey,
                                 quantity,
-                                selectedArr, // V9: SEMPRE passar, motor gerencia o uso
+                                selectedArr,
                                 fixedArr,
                                 customDrawSize
                             );
+                            _engineUsed = isPrecisionMode ? 'PrecisionEngine (Pool via DOM)' : 'SmartBets IA';
                         }
 
                         if (!result || !result.games || result.games.length === 0) {
@@ -785,9 +778,12 @@ class UI {
 
                             let analysisHTML = `
                                 <div class="smart-analysis-panel" style="margin-top:10px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(15,23,42,0.95),rgba(30,41,59,0.9));border:1px solid ${confColor}40;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
-                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:6px;">
                                         <span style="color:${confColor};font-weight:800;font-size:0.9rem;">${confEmoji} Confiança IA: ${analysis.confidence}% (${confLabel})</span>
                                         <span style="color:${analysis.mode === 'PRECISÃO' ? '#F59E0B' : '#8B5CF6'};font-weight:700;font-size:0.78rem;">${modeLabel}</span>
+                                    </div>
+                                    <div style="text-align:right;margin-bottom:6px;">
+                                        <span style="color:#64748B;font-size:0.65rem;font-style:italic;">Motor: ${_engineUsed}</span>
                                     </div>
                                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;font-size:0.75rem;">
                                         <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
@@ -2161,88 +2157,8 @@ class UI {
         this.initStatisticsPanel();
     }
 
-    // ====================================================================
-    // JOGAR L99 - PRECISION ENGINE - 1 clique, maxima assertividade
-    // ====================================================================
-    // JOGAR L99 - PRECISION ENGINE - 1 clique, maxima assertividade
-    // ====================================================================
-    runPrecisionPlay() {
-        const game = GAMES[this.currentGameKey];
-        if (!game || this._isGenerating) return;
-        this._isGenerating = true;
-        this._lastGenerationMode = 'precision_l99'; localStorage.setItem('l99_lastMode','precision_l99'); document.body.setAttribute('data-l99-mode','precision_l99');
-        const btn = this.btnPrecisionPlay;
-        if (btn) { btn.disabled = true; btn.textContent = 'Calculando...'; }
-
-        const quantity    = parseInt(this.gamesQuantityInput ? this.gamesQuantityInput.value : 10) || 10;
-        const drawSize    = this.smartDrawSizeSelect ? parseInt(this.smartDrawSizeSelect.value) || game.minBet : game.minBet;
-        const fixedArr    = Array.from(this.fixedNumbers || []);
-        const selectedArr = Array.from(this.selectedNumbers || []);
-
-        console.log('[JOGAR-L99] PRECISION ENGINE: ' + quantity + ' jogos | ' + this.currentGameKey + ' | draw=' + drawSize);
-
-        if (this.gamesContainer) {
-            this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#F59E0B;">'
-                + '<div style="font-size:1.8rem;margin-bottom:10px;">&#127919;</div>'
-                + '<div style="font-size:1rem;font-weight:700;color:#FEF3C7;margin-bottom:6px;">PRECISION ENGINE L99 v3.0</div>'
-                + '<div style="color:#94A3B8;font-size:0.82rem;">Calculando Jogo 1 Perfeito...<br>10 Dimens\u00f5es Anal\u00edticas Ativas</div>'
-                + '</div>';
-        }
-
-        setTimeout(() => {
-            try {
-                let result = null;
-
-                // ★ v9.0: Delegar ao SmartBetsEngine que já tem prioridade correta
-                // NovaEraEngine para volumes >=10, PrecisionEngine apenas para <=10
-                if (typeof SmartBetsEngine !== 'undefined') {
-                    result = SmartBetsEngine.generate(this.currentGameKey, quantity, selectedArr, fixedArr, drawSize);
-                }
-
-                if (!result || !result.games || result.games.length === 0) {
-                    throw new Error('Nenhum jogo gerado pelo motor');
-                }
-
-                // Usar renderGames com a assinatura correta: (result, gameKey)
-                this.renderGames(result, this.currentGameKey);
-
-                // Badge de resultados
-                const an = result.analysis || {};
-                setTimeout(() => {
-                    const existing = document.querySelector('.smart-analysis-panel');
-                    if (existing) existing.remove();
-                    const bd = document.createElement('div');
-                    bd.className = 'smart-analysis-panel';
-                    bd.style.cssText = 'border-color:rgba(251,191,36,0.4);background:linear-gradient(135deg,rgba(245,158,11,0.10),rgba(15,23,42,0.95));margin-bottom:10px;';
-                    bd.innerHTML = '<div class="analysis-header" style="color:#F59E0B;">'
-                        + '<span style="font-size:1.3rem;">&#127919;</span>'
-                        + '<strong>PRECISION ENGINE L99 v3.0</strong>'
-                        + '<span class="confidence-badge" style="background:linear-gradient(135deg,#D97706,#92400E);color:#FEF3C7;">' + (an.confidence || 60) + '% confian\u00e7a</span>'
-                        + '</div>'
-                        + '<div style="margin-top:8px;font-size:0.72rem;color:#94A3B8;text-align:center;">'
-                        + '&#9733; Jogo 1: [' + (result.games[0] || []).join(', ') + '] &mdash; ' + result.games.length + ' jogos gerados em ' + (an.elapsedMs || 0) + 'ms'
-                        + '</div>';
-                    if (this.gamesContainer && this.gamesContainer.parentNode) {
-                        this.gamesContainer.parentNode.insertBefore(bd, this.gamesContainer);
-                    }
-                    if (this.gamesContainer) {
-                        this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                }, 50);
-
-                console.log('[JOGAR-L99] OK: ' + result.games.length + ' jogos | confian\u00e7a=' + (an.confidence || 60) + '%');
-
-            } catch (err) {
-                console.error('[JOGAR-L99] ERRO:', err);
-                if (this.gamesContainer) {
-                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">&#10060; Erro: ' + err.message + '</div>';
-                }
-            } finally {
-                this._isGenerating = false;
-                if (btn) { btn.disabled = false; btn.textContent = '\uD83C\uDFAF JOGAR L99'; }
-            }
-        }, 200);
-    }
+    // [REMOVIDO] runPrecisionPlay() — código morto, botão foi removido do DOM
+    // Toda geração de precisão agora passa por runSmartGeneration() com isPrecisionMode=true
 
 
     initQuantum() {

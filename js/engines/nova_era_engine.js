@@ -456,6 +456,29 @@ class NovaEraEngine {
             console.log('[NE-V1] 📌 ' + fixedNumbers.length + ' números fixos garantidos no pool: [' + fixedNumbers.sort((a,b)=>a-b).join(', ') + ']');
         }
 
+        // ★ FIX CRÍTICO: Respeitar pool de precisão do DOM
+        // Quando o toggle de precisão está ativo, limitar o pool ao TOP N números por score
+        if (typeof document !== 'undefined' && !hasUserSelection) {
+            const precToggle = document.getElementById('precision-mode-toggle');
+            const precPoolInput = document.getElementById('precision-pool-size');
+            if (precToggle && precToggle.checked && precPoolInput) {
+                const precPoolSize = parseInt(precPoolInput.value) || 0;
+                if (precPoolSize > 0 && precPoolSize >= drawSize && precPoolSize < pool.length) {
+                    console.log('%c[NE-V1] ★ POOL DE PRECISÃO ATIVO: limitando de ' + pool.length + ' → ' + precPoolSize + ' números', 'color: #EF4444; font-weight: bold;');
+                    // Rankear pool por scores e manter TOP N
+                    const fixedSet = new Set(fixedNumbers || []);
+                    const fixedInPool = pool.filter(n => fixedSet.has(n));
+                    const nonFixedPool = pool.filter(n => !fixedSet.has(n));
+                    // Ordenar não-fixos por score decrescente
+                    nonFixedPool.sort((a, b) => (scores[b] || 0) - (scores[a] || 0));
+                    const slotsForNonFixed = precPoolSize - fixedInPool.length;
+                    pool = [...fixedInPool, ...nonFixedPool.slice(0, Math.max(0, slotsForNonFixed))];
+                    pool.sort((a, b) => a - b);
+                    console.log('[NE-V1] Pool precisão: [' + pool.slice(0, 15).join(', ') + (pool.length > 15 ? '...' : '') + '] (' + pool.length + ' números)');
+                }
+            }
+        }
+
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // FASE 3: CALIBRAÇÃO ADAPTATIVA + GERAÇÃO
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
