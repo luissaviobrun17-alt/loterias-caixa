@@ -2502,8 +2502,8 @@ class UI {
 
         this.smartDrawSizeSelect.innerHTML = '';
         const min = game.minBet;
-        // Limitar max a algo razoável para o select (ex: Mega Sena não precisa até 60)
-        const maxDisplay = Math.min(game.maxBet, min + 14); // Até 15 opções
+        // Limitar max a algo razoável para o select
+        const maxDisplay = Math.min(game.maxBet, min + 14); // Até 15 opções iniciais
         
         for (let i = min; i <= maxDisplay; i++) {
             const opt = document.createElement('option');
@@ -2513,8 +2513,21 @@ class UI {
             this.smartDrawSizeSelect.appendChild(opt);
         }
 
-        // Se max for maior que maxDisplay, adicionar como última opção
-        if (game.maxBet > maxDisplay) {
+        // ★ v9.5: Para loterias com range grande (Lotomania), adicionar opções extras
+        // de 5 em 5 até 90% do range total
+        if (game.maxBet > maxDisplay + 5) {
+            const extendedMax = Math.min(game.maxBet, Math.round((game.range[1] - game.range[0] + 1) * 0.90));
+            for (let i = maxDisplay + 5; i <= extendedMax; i += 5) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = i + ' núm.';
+                this.smartDrawSizeSelect.appendChild(opt);
+            }
+        }
+
+        // Se max for maior que a última opção, adicionar como última opção
+        const lastOpt = parseInt(this.smartDrawSizeSelect.lastChild?.value || 0);
+        if (game.maxBet > lastOpt) {
             const optMax = document.createElement('option');
             optMax.value = game.maxBet;
             optMax.textContent = game.maxBet + ' núm. (máx)';
