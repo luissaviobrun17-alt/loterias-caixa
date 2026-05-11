@@ -2122,16 +2122,76 @@ class NovaEraEngine {
                     testLayers.push({});
                 }
 
-                // Camada 18: Pattern DNA (simplificado para cross-validation)
-                testLayers.push({}); // Placeholder — DNA é pesado demais para CV
+                // Camada 18: Pattern DNA (simplificado para CV — frequência de co-ocorrência)
+                try {
+                    const cvDna = {};
+                    for (let n = startNum; n <= endNum; n++) cvDna[n] = 0.5;
+                    if (testHistory.length >= 5) {
+                        const last5 = testHistory.slice(0, 5);
+                        for (const d of last5) {
+                            const nums = (d.numbers || []).filter(x => x >= startNum && x <= endNum);
+                            nums.forEach(n => { cvDna[n] = (cvDna[n] || 0.5) + 0.08; });
+                        }
+                    }
+                    testLayers.push(this._normalizeScores(cvDna, startNum, endNum));
+                } catch(e) { testLayers.push({}); }
 
-                // Camada 19: Duplas+Trios (simplificado para CV)
-                testLayers.push({}); // Placeholder — pairs/trios são pesados demais para CV
+                // Camada 19: Duplas+Trios (simplificado para CV — top pares)
+                try {
+                    const cvPair = {};
+                    for (let n = startNum; n <= endNum; n++) cvPair[n] = 0.5;
+                    if (testHistory.length >= 5) {
+                        const pFreq = {};
+                        for (let t = 0; t < Math.min(20, testHistory.length); t++) {
+                            const nums = (testHistory[t].numbers || []).filter(x => x >= startNum && x <= endNum).sort((a,b) => a-b);
+                            for (let i = 0; i < nums.length; i++) {
+                                for (let j = i+1; j < nums.length; j++) {
+                                    const pk = nums[i] + '-' + nums[j];
+                                    pFreq[pk] = (pFreq[pk] || 0) + 1;
+                                }
+                            }
+                        }
+                        const topP = Object.entries(pFreq).sort((a,b) => b[1]-a[1]).slice(0,15);
+                        for (const [pk, freq] of topP) {
+                            const [a,b] = pk.split('-').map(Number);
+                            const boost = freq * 0.05;
+                            cvPair[a] = (cvPair[a] || 0.5) + boost;
+                            cvPair[b] = (cvPair[b] || 0.5) + boost;
+                        }
+                    }
+                    testLayers.push(this._normalizeScores(cvPair, startNum, endNum));
+                } catch(e) { testLayers.push({}); }
 
-                // Camada 20: Ciclo Individual (placeholder para CV)
-                testLayers.push({});
-                // Camada 21: Superposição Quântica (placeholder para CV)
-                testLayers.push({});
+                // Camada 20: Ciclo Individual (simplificado — atraso individual)
+                try {
+                    const cvCycle = {};
+                    for (let n = startNum; n <= endNum; n++) {
+                        let lastSeen = testHistory.length;
+                        for (let t = 0; t < testHistory.length; t++) {
+                            if ((testHistory[t].numbers || []).includes(n)) { lastSeen = t; break; }
+                        }
+                        const avgGap = drawSize / (endNum - startNum + 1);
+                        const expectedReturn = Math.round(1 / avgGap);
+                        cvCycle[n] = lastSeen >= expectedReturn ? 0.7 + Math.min(0.3, lastSeen * 0.02) : 0.4;
+                    }
+                    testLayers.push(this._normalizeScores(cvCycle, startNum, endNum));
+                } catch(e) { testLayers.push({}); }
+
+                // Camada 21: Superposição Quântica (simplificado — consenso das outras camadas)
+                try {
+                    const cvQuantum = {};
+                    for (let n = startNum; n <= endNum; n++) {
+                        let layerSum = 0, layerCount = 0;
+                        for (let L = 0; L < testLayers.length; L++) {
+                            if (testLayers[L] && testLayers[L][n] !== undefined) {
+                                layerSum += testLayers[L][n];
+                                layerCount++;
+                            }
+                        }
+                        cvQuantum[n] = layerCount > 0 ? layerSum / layerCount : 0.5;
+                    }
+                    testLayers.push(this._normalizeScores(cvQuantum, startNum, endNum));
+                } catch(e) { testLayers.push({}); }
 
                 for (let L = 0; L < NUM_LAYERS; L++) {
                     const layerTop = Object.entries(testLayers[L] || {})
@@ -2451,18 +2511,26 @@ class NovaEraEngine {
         const usedKeys = new Set();
         const startTime = Date.now();
         
-        // ★ v10: Anti-sobreposição — controlar overlap máximo entre jogos
+        // ★ v10 FIX: Anti-sobreposição ADAPTATIVA ao pool
         const _overlapWith = (newT, existing) => {
             let maxO = 0;
-            const last = existing.slice(-30); // checar últimos 30
-            for (const g of last) {
+            const checkCount = Math.min(30, existing.length);
+            for (let i = existing.length - checkCount; i < existing.length; i++) {
                 let o = 0;
-                for (const n of newT) { if (g.includes(n)) o++; }
+                for (const n of newT) { if (existing[i].includes(n)) o++; }
                 if (o > maxO) maxO = o;
             }
             return maxO;
         };
-        const maxOverlapAllowed = Math.max(2, actualDrawSize - 2);
+        // FIX: Adaptar ao tamanho do pool — pools pequenos permitem mais overlap
+        // Fórmula: poolRatio = pool/drawSize. Se ratio < 3, relaxar muito. Se ratio > 5, apertar.
+        const poolRatio = selectedPool.length / actualDrawSize;
+        const maxOverlapAllowed = poolRatio <= 2.5
+            ? actualDrawSize  // Pool muito pequeno: sem filtro de overlap (ex: 15 nums / 6 draw = 2.5)
+            : poolRatio <= 4
+                ? Math.max(3, actualDrawSize - 1) // Pool médio: overlap generoso
+                : Math.max(2, actualDrawSize - 2); // Pool grande: overlap restrito
+        console.log('[SNIPER-QUANTUM] Anti-overlap: poolRatio=' + poolRatio.toFixed(1) + ' → maxOverlap=' + maxOverlapAllowed);
         
         // ★ v10: Filtro de distribuição por zonas
         const numZones = profile.zones || Math.ceil((endNum - startNum + 1) / 10);

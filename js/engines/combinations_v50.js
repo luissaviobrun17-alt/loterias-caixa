@@ -811,7 +811,34 @@ class CombinationEngine {
             }
         }
 
-        console.log(`[CombEngine v4] 🎲 ${bestCandidates.length} candidatos gerados, selecionando top ${safeQuantity}`);
+        console.log(`[CombEngine v4] 🎲 ${bestCandidates.length} candidatos gerados, filtrando...`);
+
+        // ★ FIX CRÍTICO: Filtro HARD de anti-sequência + zone balance
+        // Antes: sequências longas eram apenas penalizadas (-8 pts), podiam passar
+        // Agora: REJEITADAS se tiverem 4+ números consecutivos
+        const _hardFilter = (ticket) => {
+            const sorted = [...ticket].sort((a, b) => a - b);
+            // Anti-sequência: rejeitar 4+ consecutivos
+            let run = 1;
+            for (let i = 1; i < sorted.length; i++) {
+                if (sorted[i] === sorted[i-1] + 1) { run++; if (run >= 4) return false; }
+                else run = 1;
+            }
+            // Zone balance: nenhuma dezena concentra > 60% dos números
+            const decCounts = {};
+            for (const n of sorted) {
+                const dec = Math.floor(n / 10);
+                decCounts[dec] = (decCounts[dec] || 0) + 1;
+            }
+            const maxInDec = Math.max(...Object.values(decCounts));
+            if (maxInDec > Math.ceil(sorted.length * 0.6)) return false;
+            return true;
+        };
+        
+        // Filtrar candidatos antes de ordenar
+        bestCandidates = bestCandidates.filter(c => _hardFilter(c.ticket));
+        
+        console.log(`[CombEngine v4] ✅ ${bestCandidates.length} após filtro HARD (anti-seq + zona)`);
 
         // Ordenar por score
         bestCandidates.sort((a, b) => b.score - a.score);
