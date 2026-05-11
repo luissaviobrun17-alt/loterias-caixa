@@ -2039,15 +2039,10 @@ class UI {
             try {
                 let result = null;
 
-                // Tentar PrecisionEngine primeiro
-                if (typeof PrecisionEngine !== 'undefined') {
-                    result = PrecisionEngine.generate(this.currentGameKey, quantity, selectedArr, fixedArr, drawSize);
-                }
-                // Fallback SmartBetsEngine
-                if (!result || !result.games || result.games.length === 0) {
-                    if (typeof SmartBetsEngine !== 'undefined') {
-                        result = SmartBetsEngine.generate(this.currentGameKey, quantity, selectedArr, fixedArr, drawSize);
-                    }
+                // ★ v9.0: Delegar ao SmartBetsEngine que já tem prioridade correta
+                // NovaEraEngine para volumes >=10, PrecisionEngine apenas para <=10
+                if (typeof SmartBetsEngine !== 'undefined') {
+                    result = SmartBetsEngine.generate(this.currentGameKey, quantity, selectedArr, fixedArr, drawSize);
                 }
 
                 if (!result || !result.games || result.games.length === 0) {

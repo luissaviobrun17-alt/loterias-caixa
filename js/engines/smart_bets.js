@@ -282,9 +282,11 @@ class SmartBetsEngine {
         // â•‘  Cobertura Total + Diversidade MÃ¡xima + Backtesting Honesto      â•‘
         // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         if (['megasena','lotofacil','quina','duplasena','lotomania','diadesorte','timemania'].includes(gameKey)) {
-            // PRECISION ENGINE L99 - Jogo 1 Perfeito + Expansao Incremental
-            if (typeof PrecisionEngine !== 'undefined') {
-                console.log('%c[SmartBets] PRECISION ENGINE L99 - ' + gameKey + ' | ' + numGames + ' jogos', 'color: gold; font-weight: bold;');
+            // v9.0 RECALIBRADO: PRIORIDADE INVERTIDA
+            // NovaEraEngine PRIMEIRO (diversidade maxima)
+            // PrecisionEngine apenas para <=10 jogos (sniper cirurgico)
+            if (numGames <= 10 && typeof PrecisionEngine !== 'undefined') {
+                console.log('%c[SmartBets] PRECISION SNIPER - ' + gameKey + ' | ' + numGames + ' jogos (<=10)', 'color: gold; font-weight: bold;');
                 try {
                     var peResult = PrecisionEngine.generate(gameKey, numGames, selectedNumbers || [], fixedNumbers || [], drawSize);
                     if (peResult && peResult.games && peResult.games.length > 0) {
