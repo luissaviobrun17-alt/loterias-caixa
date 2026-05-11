@@ -660,21 +660,21 @@ class UI {
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px auto;max-width:450px;">
                     <div id="q-phase-1" style="padding:10px 8px;border-radius:10px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);transition:all 0.5s;">
                         <div style="font-size:1.2rem;margin-bottom:4px;">⚛️</div>
-                        <div style="color:#C4B5FD;font-size:0.7rem;font-weight:700;">COMPUTAÇÃO</div>
-                        <div style="color:#8B5CF6;font-size:0.6rem;">QUÂNTICA</div>
+                        <div style="color:#C4B5FD;font-size:0.7rem;font-weight:700;">ANÁLISE</div>
+                        <div style="color:#8B5CF6;font-size:0.6rem;">21 CAMADAS</div>
                     </div>
                     <div id="q-phase-2" style="padding:10px 8px;border-radius:10px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);transition:all 0.5s;opacity:0.4;">
                         <div style="font-size:1.2rem;margin-bottom:4px;">🔮</div>
-                        <div style="color:#6EE7B7;font-size:0.7rem;font-weight:700;">FUTUROLOGIA</div>
-                        <div style="color:#10B981;font-size:0.6rem;">PREDITIVA</div>
+                        <div style="color:#6EE7B7;font-size:0.7rem;font-weight:700;">WALK-FORWARD</div>
+                        <div style="color:#10B981;font-size:0.6rem;">CALIBRAÇÃO</div>
                     </div>
                     <div id="q-phase-3" style="padding:10px 8px;border-radius:10px;background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.15);transition:all 0.5s;opacity:0.4;">
                         <div style="font-size:1.2rem;margin-bottom:4px;">🧿</div>
-                        <div style="color:#F9A8D4;font-size:0.7rem;font-weight:700;">CLARIVIDÊNCIA</div>
-                        <div style="color:#EC4899;font-size:0.6rem;">COMPUTACIONAL</div>
+                        <div style="color:#F9A8D4;font-size:0.7rem;font-weight:700;">MONTE CARLO</div>
+                        <div style="color:#EC4899;font-size:0.6rem;">VALIDAÇÃO</div>
                     </div>
                 </div>
-                <div id="q-status" style="color:#C4B5FD;font-weight:600;font-size:0.82rem;margin-top:8px;">⚛️ Processando entrelaçamento quântico...</div>
+                <div id="q-status" style="color:#C4B5FD;font-weight:600;font-size:0.82rem;margin-top:8px;">⚛️ Analisando 21 camadas estatísticas...</div>
                 <div style="margin-top:12px;width:70%;height:4px;background:rgba(139,92,246,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
                     <div style="width:30%;height:100%;background:linear-gradient(90deg,#8B5CF6,#FFD700,#EC4899);border-radius:4px;animation:smartProgress 2s ease-in-out infinite;"></div>
                 </div>
@@ -784,7 +784,7 @@ class UI {
                             let analysisHTML = `
                                 <div class="smart-analysis-panel" style="margin-top:10px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(15,23,42,0.95),rgba(30,41,59,0.9));border:1px solid ${confColor}40;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
                                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:6px;">
-                                        <span style="color:${confColor};font-weight:800;font-size:0.9rem;">${confEmoji} Confiança IA: ${analysis.confidence}% (${confLabel})</span>
+                                        <span style="color:${confColor};font-weight:800;font-size:0.9rem;">${confEmoji} Walk-Forward: ${analysis.confidence}% (${confLabel}) ${analysis.monteCarlo != null ? (analysis.monteCarlo > 0 ? '<span style="color:#22C55E;font-size:0.75rem;">📊 MC +' + analysis.monteCarlo + '% vs acaso</span>' : '<span style="color:#EAB308;font-size:0.75rem;">📊 MC ' + analysis.monteCarlo + '% vs acaso</span>') : ''}</span>
                                         <span style="color:${analysis.mode === 'PRECISÃO' ? '#F59E0B' : '#8B5CF6'};font-weight:700;font-size:0.78rem;">${modeLabel}</span>
                                     </div>
                                     <div style="text-align:right;margin-bottom:6px;">
@@ -844,7 +844,7 @@ class UI {
                         const feedback = document.createElement('div');
                         feedback.className = 'generation-feedback';
                         feedback.style.cssText = 'text-align:center;padding:14px 16px;font-weight:800;margin-top:10px;margin-bottom:10px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border:1px solid rgba(255,215,0,0.3);border-radius:12px;';
-                        feedback.innerHTML = `<span style="color:#FFD700;font-size:1rem;">⚡ QUANTUM L99</span><br><span style="color:#C4B5FD;font-size:0.9rem;">${result.games.length} jogos gerados — Computação Quântica + Futurologia + Clarividência</span>`;
+                        feedback.innerHTML = `<span style="color:#FFD700;font-size:1rem;">⚡ L99 v10.0</span><br><span style="color:#C4B5FD;font-size:0.9rem;">${result.games.length} jogos — 21 Camadas + Walk-Forward + Monte Carlo</span>`;
                         this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
 
                         // ── APOSTAR NA CAIXA — PAINEL UNIVERSAL ──
