@@ -2433,7 +2433,7 @@ class NovaEraEngine {
         numGames = Math.min(numGames, MAX_GAMES);
         
         // ━━━ FASE 1: Obter scores de TODAS as 21 camadas ━━━
-        const profile = this._getProfileForGame(gameKey);
+        const profile = this.getProfile(gameKey);
         if (!profile) {
             console.error('[SNIPER] Perfil não encontrado:', gameKey);
             return { games: [], analysis: { confidence: 0, engine: 'SniperQuantum-ERROR' } };
