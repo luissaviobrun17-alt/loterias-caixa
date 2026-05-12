@@ -1399,6 +1399,7 @@
                     }
                     html += '</div>';
                     container.innerHTML = html;
+                    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                     // Salvar jogos para conferência/cópia
                     if (app && app.generatedGames !== undefined) {
