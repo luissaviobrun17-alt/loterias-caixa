@@ -317,11 +317,11 @@ class UI {
                                 const totalRange = game.range[1] - game.range[0] + 1;
                                 const expectedRandom = suggestion.length * actualDrawn / totalRange;
                                 const improvement = avgHits / Math.max(0.01, expectedRandom);
-                                // v10.0: Confian�a = Walk-Forward + B�nus Estrutural
-                                // Multiplicador 55 (era 40) � calibrado para sugest�es
+                                // v10.0: Confian�a = Walk-Forward + B�nus Estrutural
+                                // Multiplicador 55 (era 40) � calibrado para sugest�es
                                 let wfConfidence = _usedRandomFallback ? 10 : Math.round(Math.min(96, Math.max(25, improvement * 55)));
                                 
-                                // B�nus estrutural: zonas cobertas + paridade equilibrada
+                                // B�nus estrutural: zonas cobertas + paridade equilibrada
                                 const zones = new Set(suggestion.map(n => Math.floor((n - game.range[0]) / ((game.range[1] - game.range[0] + 1) / 5))));
                                 const evens = suggestion.filter(n => n % 2 === 0).length;
                                 const parityRatio = evens / suggestion.length;
@@ -1738,6 +1738,64 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 const fixedArr = Array.from(this.fixedNumbers);
                 const qty = parseInt(this.gamesQuantityInput.value) || 10;
                 
+                // ═══ GERAR MANUAL: EXIGIR SELEÇÃO DE NÚMEROS ═══
+                if (selectedArr.length < game.minBet) {
+                    const msg = '⚠️ MODO MANUAL: Selecione pelo menos ' + game.minBet + ' números no grid para gerar jogos manualmente.\n\nVocê selecionou: ' + selectedArr.length + ' números.\nMínimo necessário: ' + game.minBet + ' números.';
+                    if (typeof Guardian !== 'undefined') {
+                        Guardian.toast('Selecione pelo menos ' + game.minBet + ' números no grid para o modo Manual.', 'warning', 5000);
+                    }
+                    alert(msg);
+                    return;
+                }
+                
+                // ═══ GERAR MANUAL: USAR COVERAGEENGINE COM POOL DO APOSTADOR ═══
+                if (typeof CoverageEngine !== 'undefined') {
+                    console.log('%c[MANUAL] 📐 CoverageEngine: Pool=' + selectedArr.length + ' | Jogos=' + qty + ' | DrawSize=' + game.minBet, 'color: #10B981; font-weight: bold;');
+                    
+                    const drawSizeSelect = document.getElementById('smart-draw-size');
+                    const customDraw = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
+                    const drawSize = (customDraw && customDraw >= game.minBet) ? customDraw : game.minBet;
+                    
+                    const coverResult = CoverageEngine.generate(this.currentGameKey, qty, selectedArr, fixedArr);
+                    const cm = coverResult.analysis.metrics;
+                    
+                    this.currentGeneratedGames = coverResult.games;
+                    this._lastGeneratedGames = coverResult.games;
+                    this.renderGames({ pool: selectedArr, games: coverResult.games, smartAnalysis: null }, this.currentGameKey);
+                    
+                    // Banner de métricas do CoverageEngine
+                    const coverBanner = document.createElement('div');
+                    coverBanner.className = 'smart-gen-analysis';
+                    coverBanner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(4,120,87,0.12),rgba(15,23,42,0.95));border:1px solid rgba(16,185,129,0.3);';
+                    const ccfg = CoverageEngine.getConfig(this.currentGameKey);
+                    let probHtml = '';
+                    for (let pi = 0; pi < ccfg.prizeThresholds.length; pi++) {
+                        const pt = ccfg.prizeThresholds[pi];
+                        const pPct = ((cm.probWithNGames[pt] || 0) * 100).toFixed(4);
+                        const bW = Math.min(100, parseFloat(pPct));
+                        probHtml += '<div style="display:flex;align-items:center;gap:6px;margin:3px 0;"><span style="color:#94A3B8;font-size:0.68rem;min-width:50px;">' + ccfg.prizeLabels[pi] + '</span><div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + bW + '%;background:linear-gradient(90deg,#10B981,#FFD700);border-radius:3px;"></div></div><span style="color:#E2E8F0;font-size:0.68rem;font-weight:700;min-width:65px;text-align:right;">' + pPct + '%</span></div>';
+                    }
+                    const pAnyM = ((cm.probWithNGames.anyPrize || 0) * 100).toFixed(2);
+                    coverBanner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">📐</span><div><div style="font-weight:900;color:#10B981;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">MODO MANUAL — Cobertura Combinatória</div><div style="font-size:0.72rem;color:#94A3B8;">Seus ' + selectedArr.length + ' números → Greedy Set Cover → ' + qty + ' jogos otimizados</div></div></div>' +
+                        '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:0.75rem;">' +
+                        '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">PARES COBERTOS</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + cm.pairCoveragePct + '%</div><div style="color:#64748b;font-size:0.55rem;">' + cm.pairCoverage + '/' + cm.totalPairs + '</div></div>' +
+                        '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">NÚMEROS USADOS</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + cm.numberCoveragePct + '%</div><div style="color:#64748b;font-size:0.55rem;">' + cm.numberCoverage + '/' + selectedArr.length + '</div></div>' +
+                        '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + cm.avgHamming + '</div><div style="color:#64748b;font-size:0.55rem;">Hamming</div></div>' +
+                        '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">INVESTIMENTO</div><div style="color:#FFD700;font-weight:900;font-size:1.2rem;">R$ ' + cm.investment.toFixed(2) + '</div><div style="color:#64748b;font-size:0.55rem;">' + cm.numGames + ' jogos</div></div></div>' +
+                        '<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.25);border-radius:10px;border:1px solid rgba(255,215,0,0.15);"><div style="color:#FFD700;font-size:0.7rem;font-weight:800;margin-bottom:6px;">📊 PROBABILIDADES EXATAS (Hipergeométrica)</div>' + probHtml +
+                        '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(16,185,129,0.2);color:#10B981;font-weight:900;font-size:0.8rem;">★ Chance QUALQUER prêmio com ' + qty + ' jogos: ' + pAnyM + '%</div></div>';
+                    this.gamesContainer.parentNode.insertBefore(coverBanner, this.gamesContainer);
+                    coverBanner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                    // Painel Aposte Online
+                    if (typeof this._insertCaixaPanel === 'function') {
+                        this._insertCaixaPanel(coverResult.games, this.currentGameKey);
+                    }
+                    
+                    if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
+                    return;
+                }
+                
                 // ★ v9.5 GOD MODE: Motor Híbrido — Quantum IA + Sniper para geração manual
                 // Se o pool é grande o suficiente e NovaEraEngine está disponível, usar motor de alta precisão
                 const useHybridEngine = typeof NovaEraEngine !== 'undefined' 
@@ -2847,7 +2905,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         const game = GAMES[this.currentGameKey];
         const qty = parseInt(this.gamesQuantityInput.value) || 10;
 
-        // Calcular preço por jogo baseado no número de números selecionados
+                // Calcular preço por jogo baseado no número de números selecionados
         let pricePerGame = game.price;
         const smartDrawSize = this.smartDrawSizeSelect 
             ? parseInt(this.smartDrawSizeSelect.value) || game.minBet
