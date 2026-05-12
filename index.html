@@ -1415,13 +1415,27 @@
                         html += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(16,185,129,0.2);color:#10B981;font-weight:900;font-size:0.8rem;">★ Chance QUALQUER prêmio: ' + pAny + '%</div>';
                         html += '</div></div>';
 
-                        // Gerar extras (Times/Meses) para Timemania e Dia de Sorte
+                        // Gerar extras (Times/Meses) — implementação inline (sem depender de UI)
                         var extras = null;
                         var isTimemania = (gameKey === 'timemania');
                         var isDiaDeSorte = (gameKey === 'diadesorte');
-                        if ((isTimemania || isDiaDeSorte) && uiInstance && typeof uiInstance._generateExtras === 'function') {
-                            extras = uiInstance._generateExtras(gameKey, result.games.length);
-                            uiInstance.currentGeneratedExtras = extras;
+                        if (isTimemania || isDiaDeSorte) {
+                            var poolSize = isTimemania ? L99_TIMES.length : L99_MESES.length;
+                            extras = [];
+                            var available = [];
+                            for (var ei = 0; ei < result.games.length; ei++) {
+                                if (available.length === 0) {
+                                    available = [];
+                                    for (var pi = 0; pi < poolSize; pi++) available.push(pi);
+                                    // Fisher-Yates shuffle
+                                    for (var si = available.length - 1; si > 0; si--) {
+                                        var sj = Math.floor(Math.random() * (si + 1));
+                                        var tmp = available[si]; available[si] = available[sj]; available[sj] = tmp;
+                                    }
+                                }
+                                extras.push(available.pop());
+                            }
+                            if (uiInstance) uiInstance.currentGeneratedExtras = extras;
                         }
 
                         // Jogos gerados — mesmo modelo dos demais botões
