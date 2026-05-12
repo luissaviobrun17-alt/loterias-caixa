@@ -1386,15 +1386,18 @@
                     html += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(16,185,129,0.2);color:#10B981;font-weight:900;font-size:0.8rem;">★ Chance QUALQUER prêmio: ' + pAny + '%</div>';
                     html += '</div></div>';
 
-                    // Jogos gerados
+                    // Jogos gerados — layout compacto horizontal
                     var gameColor = game.color || '#10B981';
+                    html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;">';
                     for (var g = 0; g < result.games.length; g++) {
-                        html += '<div class="game-card"><div class="game-number">Jogo ' + (g + 1) + '</div><div class="numbers-row">';
+                        html += '<div style="display:flex;align-items:center;gap:4px;padding:4px 8px;background:rgba(0,0,0,0.25);border-radius:8px;border:1px solid rgba(255,255,255,0.06);flex:1 1 100%;">';
+                        html += '<span style="color:#64748b;font-size:0.65rem;font-weight:700;min-width:28px;">J' + (g + 1) + '</span>';
                         for (var n = 0; n < result.games[g].length; n++) {
-                            html += '<span class="ball" style="background:' + gameColor + ';">' + String(result.games[g][n]).padStart(2, '0') + '</span>';
+                            html += '<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:' + gameColor + ';color:#fff;font-size:0.65rem;font-weight:700;">' + String(result.games[g][n]).padStart(2, '0') + '</span>';
                         }
-                        html += '</div></div>';
+                        html += '</div>';
                     }
+                    html += '</div>';
                     container.innerHTML = html;
 
                     // Salvar jogos para conferência/cópia
