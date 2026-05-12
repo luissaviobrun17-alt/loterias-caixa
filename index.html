@@ -1447,11 +1447,10 @@
                         container.innerHTML = html;
                         container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-                        // Salvar jogos para conferência/cópia
-                        if (uiInstance && uiInstance.generatedGames !== undefined) {
-                            uiInstance.generatedGames = result.games.map(function(gg) {
-                                return { numbers: gg, mode: 'CoverageEngine' };
-                            });
+                        // Salvar jogos para conferência/cópia/salvar
+                        if (uiInstance) {
+                            uiInstance.currentGeneratedGames = result.games;
+                            uiInstance._lastGeneratedGames = result.games;
                         }
 
                         // Inserir painel "Aposte Online" da Caixa
