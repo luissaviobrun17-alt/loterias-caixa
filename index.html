@@ -1406,6 +1406,11 @@
                             return { numbers: g, mode: 'CoverageEngine' };
                         });
                     }
+
+                    // Inserir painel "Aposte Online" da Caixa
+                    if (app && typeof app._insertCaixaPanel === 'function') {
+                        app._insertCaixaPanel(result.games, gameKey);
+                    }
                 } catch(e) {
                     container.innerHTML = '<div style="color:#F87171;padding:20px;">Erro: ' + e.message + '</div>';
                     console.error('[COVERAGE] Erro:', e);
