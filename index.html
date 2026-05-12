@@ -1449,14 +1449,38 @@
 
                         // Salvar jogos para conferência/cópia
                         if (uiInstance && uiInstance.generatedGames !== undefined) {
-                            uiInstance.generatedGames = result.games.map(function(g) {
-                                return { numbers: g, mode: 'CoverageEngine' };
+                            uiInstance.generatedGames = result.games.map(function(gg) {
+                                return { numbers: gg, mode: 'CoverageEngine' };
                             });
                         }
 
                         // Inserir painel "Aposte Online" da Caixa
                         if (uiInstance && typeof uiInstance._insertCaixaPanel === 'function') {
-                            uiInstance._insertCaixaPanel(result.games, gameKey);
+                            try {
+                                uiInstance._lastGeneratedGames = result.games;
+                                uiInstance._lastGameKey = gameKey;
+                                uiInstance._insertCaixaPanel(result.games, gameKey);
+                            } catch(caixaErr) {
+                                console.warn('[COVERAGE] Erro ao inserir painel Caixa via UI:', caixaErr);
+                            }
+                        }
+                        // Fallback: criar botão Caixa inline se UI não encontrada
+                        if (!uiInstance || typeof uiInstance._insertCaixaPanel !== 'function') {
+                            var caixaUrls = { megasena:'mega-sena', lotofacil:'lotofacil', quina:'quina', duplasena:'dupla-sena', lotomania:'lotomania', timemania:'timemania', diadesorte:'dia-de-sorte' };
+                            var caixaUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + (caixaUrls[gameKey] || 'mega-sena');
+                            var caixaDiv = document.createElement('div');
+                            caixaDiv.id = 'caixa-panel';
+                            caixaDiv.style.cssText = 'margin:16px 0;text-align:center;';
+                            var caixaBtn = document.createElement('button');
+                            caixaBtn.style.cssText = 'width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:18px;border-radius:14px;font-size:1rem;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(0,102,204,0.4);';
+                            caixaBtn.textContent = '🏦 APOSTE ONLINE — ' + result.games.length + ' jogos de ' + game.name;
+                            caixaBtn.addEventListener('click', function() {
+                                window.open(caixaUrl, '_blank');
+                            });
+                            caixaDiv.appendChild(caixaBtn);
+                            var oldCp = document.getElementById('caixa-panel');
+                            if (oldCp) oldCp.remove();
+                            container.parentNode.insertBefore(caixaDiv, container);
                         }
                     } catch(e) {
                         container.innerHTML = '<div style="color:#F87171;padding:20px;">Erro: ' + e.message + '</div>';
