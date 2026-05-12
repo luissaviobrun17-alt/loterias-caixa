@@ -1311,130 +1311,162 @@
         var coverBtn = document.getElementById('generate-coverage-btn');
         if (!coverBtn) return;
         coverBtn.addEventListener('click', function() {
-            if (typeof CoverageEngine === 'undefined') { alert('CoverageEngine não carregou.'); return; }
-            if (typeof GAMES === 'undefined') { alert('GAMES não carregou.'); return; }
+            try {
+                if (typeof CoverageEngine === 'undefined') { alert('CoverageEngine não carregou. Recarregue (Ctrl+Shift+R).'); return; }
+                if (typeof GAMES === 'undefined') { alert('GAMES não carregou.'); return; }
 
-            var app = window.lotteryApp || window.app;
-            var gameKey = (app && app.currentGameKey) ? app.currentGameKey : 'megasena';
-            var game = GAMES[gameKey];
-            if (!game) { alert('Loteria não encontrada.'); return; }
-
-            var qtyInput = document.getElementById('games-quantity');
-            var quantity = qtyInput ? parseInt(qtyInput.value) || 10 : 10;
-
-            // Ler Sniper toggle e tamanho do jogo customizado
-            var sniperToggle = document.getElementById('precision-mode-toggle');
-            var isSniper = sniperToggle ? sniperToggle.checked : false;
-            var drawSizeSelect = document.getElementById('smart-draw-size');
-            var customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
-            var drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
-
-            // Ler números selecionados no grid
-            var selectedNums = [];
-            document.querySelectorAll('#number-selection-grid .num-btn.selected').forEach(function(b) {
-                var n = parseInt(b.textContent); if (!isNaN(n)) selectedNums.push(n);
-            });
-            var fixedNums = [];
-            document.querySelectorAll('#number-selection-grid .num-btn.fixed').forEach(function(b) {
-                var n = parseInt(b.textContent); if (!isNaN(n)) fixedNums.push(n);
-            });
-
-            var modeLabel = isSniper ? '🎯 SNIPER: ' + drawSize + ' números/jogo' : '📐 Cobertura: ' + drawSize + ' números/jogo';
-            if (selectedNums.length > 0) modeLabel += ' | Pool: ' + selectedNums.length + ' números';
-
-            var container = document.getElementById('games-container');
-            container.innerHTML = '<div style="text-align:center;padding:30px;background:linear-gradient(145deg,rgba(4,120,87,0.15),rgba(15,23,42,0.95));border-radius:16px;border:1px solid rgba(16,185,129,0.3);"><div style="font-size:2rem;margin-bottom:8px;">📐</div><div style="color:#10B981;font-weight:900;font-size:1.1rem;">MOTOR DE COBERTURA COMBINATÓRIA</div><div style="color:#94A3B8;font-size:0.8rem;margin-top:6px;">' + modeLabel + ' | ' + quantity + ' jogos</div></div>';
-
-            // Atualizar config temporariamente com drawSize customizado
-            var origConfig = CoverageEngine.getConfig(gameKey);
-            if (drawSize !== origConfig.drawSize) {
-                var customCfg = Object.assign({}, origConfig);
-                customCfg.drawSize = drawSize;
-                CoverageEngine._tempConfig = customCfg;
-                CoverageEngine._tempGameKey = gameKey;
-            }
-
-            setTimeout(function() {
-                try {
-                    var pool = selectedNums.length >= drawSize ? selectedNums : null;
-                    var result = CoverageEngine.generate(gameKey, quantity, pool, fixedNums);
-                    var m = result.analysis.metrics;
-
-                    // Montar HTML dos jogos
-                    var html = '';
-                    // Painel de métricas
-                    html += '<div style="background:linear-gradient(145deg,rgba(4,120,87,0.12),rgba(15,23,42,0.95));border:2px solid rgba(16,185,129,0.3);border-radius:14px;padding:16px;margin-bottom:16px;">';
-                    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span style="font-size:1.2rem;">📐</span><span style="color:#10B981;font-weight:900;font-size:0.95rem;letter-spacing:0.5px;">COBERTURA COMBINATÓRIA — MÉTRICAS EXATAS</span></div>';
-                    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;">';
-                    html += '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.65rem;font-weight:700;text-transform:uppercase;">Pares Cobertos</div><div style="color:#10B981;font-size:1.3rem;font-weight:900;">' + m.pairCoveragePct + '%</div><div style="color:#64748b;font-size:0.6rem;">' + m.pairCoverage + '/' + m.totalPairs + '</div></div>';
-                    html += '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.65rem;font-weight:700;text-transform:uppercase;">Números Usados</div><div style="color:#10B981;font-size:1.3rem;font-weight:900;">' + m.numberCoveragePct + '%</div><div style="color:#64748b;font-size:0.6rem;">' + m.numberCoverage + '/' + game.range[1] + '</div></div>';
-                    html += '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.65rem;font-weight:700;text-transform:uppercase;">Diversidade</div><div style="color:#10B981;font-size:1.3rem;font-weight:900;">' + m.avgHamming + '</div><div style="color:#64748b;font-size:0.6rem;">Hamming médio</div></div>';
-                    html += '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.65rem;font-weight:700;text-transform:uppercase;">Investimento</div><div style="color:#FFD700;font-size:1.3rem;font-weight:900;">R$ ' + m.investment.toFixed(2) + '</div><div style="color:#64748b;font-size:0.6rem;">' + m.numGames + ' jogos</div></div>';
-                    html += '</div>';
-                    // Probabilidades
-                    var cfg = CoverageEngine.getConfig(gameKey);
-                    html += '<div style="margin-top:12px;padding:10px;background:rgba(0,0,0,0.25);border-radius:10px;border:1px solid rgba(255,215,0,0.15);">';
-                    html += '<div style="color:#FFD700;font-size:0.7rem;font-weight:800;margin-bottom:6px;">📊 PROBABILIDADES EXATAS (Hipergeométrica)</div>';
-                    for (var i = 0; i < cfg.prizeThresholds.length; i++) {
-                        var t = cfg.prizeThresholds[i];
-                        var pN = ((m.probWithNGames[t] || 0) * 100).toFixed(4);
-                        var pS = ((m.cumProb[t] || 0) * 100).toFixed(6);
-                        var barW = Math.min(100, parseFloat(pN));
-                        html += '<div style="display:flex;align-items:center;gap:6px;margin:3px 0;"><span style="color:#94A3B8;font-size:0.68rem;min-width:50px;">' + cfg.prizeLabels[i] + '</span><div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + barW + '%;background:linear-gradient(90deg,#10B981,#FFD700);border-radius:3px;"></div></div><span style="color:#E2E8F0;font-size:0.68rem;font-weight:700;min-width:65px;text-align:right;">' + pN + '%</span></div>';
-                    }
-                    var pAny = ((m.probWithNGames.anyPrize || 0) * 100).toFixed(2);
-                    html += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(16,185,129,0.2);color:#10B981;font-weight:900;font-size:0.8rem;">★ Chance QUALQUER prêmio: ' + pAny + '%</div>';
-                    html += '</div></div>';
-
-
-                    // Gerar extras (Times/Meses) para Timemania e Dia de Sorte
-                    var extras = null;
-                    var isTimemania = (gameKey === 'timemania');
-                    var isDiaDeSorte = (gameKey === 'diadesorte');
-                    if ((isTimemania || isDiaDeSorte) && app && typeof app._generateExtras === 'function') {
-                        extras = app._generateExtras(gameKey, result.games.length);
-                        if (app) app.currentGeneratedExtras = extras;
-                    }
-
-                    // Jogos gerados — layout compacto horizontal
-                    var gameColor = game.color || '#10B981';
-                    html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;">';
-                    for (var g = 0; g < result.games.length; g++) {
-                        html += '<div style="display:flex;align-items:center;gap:4px;padding:4px 8px;background:rgba(0,0,0,0.25);border-radius:8px;border:1px solid rgba(255,255,255,0.06);flex:1 1 100%;">';
-                        html += '<span style="color:#64748b;font-size:0.65rem;font-weight:700;min-width:28px;">J' + (g + 1) + '</span>';
-                        for (var n = 0; n < result.games[g].length; n++) {
-                            html += '<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:' + gameColor + ';color:#fff;font-size:0.65rem;font-weight:700;">' + String(result.games[g][n]).padStart(2, '0') + '</span>';
+                // Detectar loteria atual pelo botão ativo do nav
+                var gameKey = 'megasena';
+                var navBtns = document.querySelectorAll('.nav-btn.active, .nav-btn[data-active="true"]');
+                if (navBtns.length > 0) {
+                    var key = navBtns[0].getAttribute('data-game') || navBtns[0].getAttribute('data-lottery');
+                    if (key && GAMES[key]) gameKey = key;
+                }
+                // Fallback: tentar ler do body ou de variáveis globais
+                if (gameKey === 'megasena') {
+                    var bodyGame = document.body.getAttribute('data-current-game');
+                    if (bodyGame && GAMES[bodyGame]) gameKey = bodyGame;
+                }
+                // Fallback: procurar instância UI
+                var uiInstance = null;
+                if (typeof document._b2bUI !== 'undefined') uiInstance = document._b2bUI;
+                if (!uiInstance) {
+                    // Procurar na janela
+                    var keys = Object.keys(window);
+                    for (var k = 0; k < keys.length; k++) {
+                        var obj = window[keys[k]];
+                        if (obj && obj.currentGameKey && obj.gamesContainer) {
+                            uiInstance = obj;
+                            break;
                         }
-                        // Mostrar time/mês se aplicável
-                        if (extras && extras[g] !== undefined) {
-                            if (isTimemania && typeof L99_TIMES !== 'undefined') {
-                                html += '<span style="font-size:0.65rem;color:#10B981;background:rgba(16,185,129,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;white-space:nowrap;">⚽ ' + L99_TIMES[extras[g]] + '</span>';
-                            } else if (isDiaDeSorte && typeof L99_MESES !== 'undefined') {
-                                html += '<span style="font-size:0.65rem;color:#F59E0B;background:rgba(245,158,11,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;white-space:nowrap;">📅 ' + L99_MESES[extras[g]] + '</span>';
+                    }
+                }
+                if (uiInstance && uiInstance.currentGameKey) gameKey = uiInstance.currentGameKey;
+
+                var game = GAMES[gameKey];
+                if (!game) { alert('Loteria "' + gameKey + '" não encontrada.'); return; }
+
+                console.log('[COVERAGE-UI] Loteria detectada: ' + gameKey + ' (' + game.name + ')');
+
+                var qtyInput = document.getElementById('games-quantity');
+                var quantity = qtyInput ? parseInt(qtyInput.value) || 10 : 10;
+
+                // Ler Sniper toggle e tamanho do jogo customizado
+                var drawSizeSelect = document.getElementById('smart-draw-size');
+                var customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
+                var drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
+
+                // Ler números selecionados no grid
+                var selectedNums = [];
+                document.querySelectorAll('#number-selection-grid .num-btn.selected').forEach(function(b) {
+                    var n = parseInt(b.textContent); if (!isNaN(n)) selectedNums.push(n);
+                });
+                var fixedNums = [];
+                document.querySelectorAll('#number-selection-grid .num-btn.fixed').forEach(function(b) {
+                    var n = parseInt(b.textContent); if (!isNaN(n)) fixedNums.push(n);
+                });
+
+                var modeLabel = '📐 ' + game.name + ': ' + drawSize + ' números/jogo';
+                if (selectedNums.length > 0) modeLabel += ' | Pool: ' + selectedNums.length;
+
+                var container = document.getElementById('games-container');
+                if (!container) { alert('Container de jogos não encontrado.'); return; }
+
+                container.innerHTML = '<div style="text-align:center;padding:30px;background:linear-gradient(145deg,rgba(4,120,87,0.15),rgba(15,23,42,0.95));border-radius:16px;border:1px solid rgba(16,185,129,0.3);"><div style="font-size:2rem;margin-bottom:8px;">📐</div><div style="color:#10B981;font-weight:900;font-size:1.1rem;">MOTOR DE COBERTURA COMBINATÓRIA</div><div style="color:#94A3B8;font-size:0.8rem;margin-top:6px;">' + modeLabel + ' | ' + quantity + ' jogos</div></div>';
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Atualizar config temporariamente com drawSize customizado
+                var origConfig = CoverageEngine.getConfig(gameKey);
+                if (drawSize !== origConfig.drawSize) {
+                    var customCfg = Object.assign({}, origConfig);
+                    customCfg.drawSize = drawSize;
+                    CoverageEngine._tempConfig = customCfg;
+                    CoverageEngine._tempGameKey = gameKey;
+                }
+
+                setTimeout(function() {
+                    try {
+                        var pool = selectedNums.length >= drawSize ? selectedNums : null;
+                        var result = CoverageEngine.generate(gameKey, quantity, pool, fixedNums);
+                        var m = result.analysis.metrics;
+
+                        // Montar HTML dos jogos
+                        var html = '';
+                        // Painel de métricas
+                        html += '<div style="background:linear-gradient(145deg,rgba(4,120,87,0.12),rgba(15,23,42,0.95));border:2px solid rgba(16,185,129,0.3);border-radius:14px;padding:16px;margin-bottom:16px;">';
+                        html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span style="font-size:1.2rem;">📐</span><span style="color:#10B981;font-weight:900;font-size:0.95rem;letter-spacing:0.5px;">COBERTURA COMBINATÓRIA — MÉTRICAS EXATAS</span></div>';
+                        html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;">';
+                        html += '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.65rem;font-weight:700;text-transform:uppercase;">Pares Cobertos</div><div style="color:#10B981;font-size:1.3rem;font-weight:900;">' + m.pairCoveragePct + '%</div><div style="color:#64748b;font-size:0.6rem;">' + m.pairCoverage + '/' + m.totalPairs + '</div></div>';
+                        html += '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.65rem;font-weight:700;text-transform:uppercase;">Números Usados</div><div style="color:#10B981;font-size:1.3rem;font-weight:900;">' + m.numberCoveragePct + '%</div><div style="color:#64748b;font-size:0.6rem;">' + m.numberCoverage + '/' + game.range[1] + '</div></div>';
+                        html += '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.65rem;font-weight:700;text-transform:uppercase;">Diversidade</div><div style="color:#10B981;font-size:1.3rem;font-weight:900;">' + m.avgHamming + '</div><div style="color:#64748b;font-size:0.6rem;">Hamming médio</div></div>';
+                        html += '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.65rem;font-weight:700;text-transform:uppercase;">Investimento</div><div style="color:#FFD700;font-size:1.3rem;font-weight:900;">R$ ' + m.investment.toFixed(2) + '</div><div style="color:#64748b;font-size:0.6rem;">' + m.numGames + ' jogos</div></div>';
+                        html += '</div>';
+                        // Probabilidades
+                        var cfg = CoverageEngine.getConfig(gameKey);
+                        html += '<div style="margin-top:12px;padding:10px;background:rgba(0,0,0,0.25);border-radius:10px;border:1px solid rgba(255,215,0,0.15);">';
+                        html += '<div style="color:#FFD700;font-size:0.7rem;font-weight:800;margin-bottom:6px;">📊 PROBABILIDADES EXATAS (Hipergeométrica)</div>';
+                        for (var i = 0; i < cfg.prizeThresholds.length; i++) {
+                            var t = cfg.prizeThresholds[i];
+                            var pN = ((m.probWithNGames[t] || 0) * 100).toFixed(4);
+                            var barW = Math.min(100, parseFloat(pN));
+                            html += '<div style="display:flex;align-items:center;gap:6px;margin:3px 0;"><span style="color:#94A3B8;font-size:0.68rem;min-width:50px;">' + cfg.prizeLabels[i] + '</span><div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + barW + '%;background:linear-gradient(90deg,#10B981,#FFD700);border-radius:3px;"></div></div><span style="color:#E2E8F0;font-size:0.68rem;font-weight:700;min-width:65px;text-align:right;">' + pN + '%</span></div>';
+                        }
+                        var pAny = ((m.probWithNGames.anyPrize || 0) * 100).toFixed(2);
+                        html += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(16,185,129,0.2);color:#10B981;font-weight:900;font-size:0.8rem;">★ Chance QUALQUER prêmio: ' + pAny + '%</div>';
+                        html += '</div></div>';
+
+                        // Gerar extras (Times/Meses) para Timemania e Dia de Sorte
+                        var extras = null;
+                        var isTimemania = (gameKey === 'timemania');
+                        var isDiaDeSorte = (gameKey === 'diadesorte');
+                        if ((isTimemania || isDiaDeSorte) && uiInstance && typeof uiInstance._generateExtras === 'function') {
+                            extras = uiInstance._generateExtras(gameKey, result.games.length);
+                            uiInstance.currentGeneratedExtras = extras;
+                        }
+
+                        // Jogos gerados — layout compacto horizontal
+                        var gameColor = game.color || '#10B981';
+                        html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;">';
+                        for (var g = 0; g < result.games.length; g++) {
+                            html += '<div style="display:flex;align-items:center;gap:4px;padding:4px 8px;background:rgba(0,0,0,0.25);border-radius:8px;border:1px solid rgba(255,255,255,0.06);flex:1 1 100%;">';
+                            html += '<span style="color:#64748b;font-size:0.65rem;font-weight:700;min-width:28px;">J' + (g + 1) + '</span>';
+                            for (var n = 0; n < result.games[g].length; n++) {
+                                html += '<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:' + gameColor + ';color:#fff;font-size:0.65rem;font-weight:700;">' + String(result.games[g][n]).padStart(2, '0') + '</span>';
                             }
+                            // Mostrar time/mês se aplicável
+                            if (extras && extras[g] !== undefined) {
+                                if (isTimemania && typeof L99_TIMES !== 'undefined') {
+                                    html += '<span style="font-size:0.65rem;color:#10B981;background:rgba(16,185,129,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;white-space:nowrap;">⚽ ' + L99_TIMES[extras[g]] + '</span>';
+                                } else if (isDiaDeSorte && typeof L99_MESES !== 'undefined') {
+                                    html += '<span style="font-size:0.65rem;color:#F59E0B;background:rgba(245,158,11,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;white-space:nowrap;">📅 ' + L99_MESES[extras[g]] + '</span>';
+                                }
+                            }
+                            html += '</div>';
                         }
                         html += '</div>';
-                    }
-                    html += '</div>';
-                    container.innerHTML = html;
-                    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        container.innerHTML = html;
+                        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-                    // Salvar jogos para conferência/cópia
-                    if (app && app.generatedGames !== undefined) {
-                        app.generatedGames = result.games.map(function(g) {
-                            return { numbers: g, mode: 'CoverageEngine' };
-                        });
-                    }
+                        // Salvar jogos para conferência/cópia
+                        if (uiInstance && uiInstance.generatedGames !== undefined) {
+                            uiInstance.generatedGames = result.games.map(function(g) {
+                                return { numbers: g, mode: 'CoverageEngine' };
+                            });
+                        }
 
-                    // Inserir painel "Aposte Online" da Caixa
-                    if (app && typeof app._insertCaixaPanel === 'function') {
-                        app._insertCaixaPanel(result.games, gameKey);
+                        // Inserir painel "Aposte Online" da Caixa
+                        if (uiInstance && typeof uiInstance._insertCaixaPanel === 'function') {
+                            uiInstance._insertCaixaPanel(result.games, gameKey);
+                        }
+                    } catch(e) {
+                        container.innerHTML = '<div style="color:#F87171;padding:20px;">Erro: ' + e.message + '</div>';
+                        console.error('[COVERAGE] Erro:', e);
                     }
-                } catch(e) {
-                    container.innerHTML = '<div style="color:#F87171;padding:20px;">Erro: ' + e.message + '</div>';
-                    console.error('[COVERAGE] Erro:', e);
-                }
-            }, 100);
+                }, 150);
+            } catch(outerErr) {
+                alert('Erro no CoverageEngine: ' + outerErr.message);
+                console.error('[COVERAGE] Erro externo:', outerErr);
+            }
         });
     })();
     </script>
