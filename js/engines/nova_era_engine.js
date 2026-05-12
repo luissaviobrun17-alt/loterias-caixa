@@ -1012,11 +1012,123 @@ class NovaEraEngine {
                 break;
             }
 
-            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            // LOTOFÃCIL: RepetiÃ§Ã£o ALTÃSSIMA (~8-12/15)
-            // EstratÃ©gia: MANTER a maioria do Ãºltimo sorteio
-            // Foco: quais 3-7 nÃºmeros TROCAR
-            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ──────────────────────────────────────────────────────────────────────────────
+            // TIMEMANIA: Jogador marca 10 de 80, loteria sorteia 7
+            // Chave: COBERTURA DE ZONAS (8 zonas de 10) + ciclos longos (~11 sorteios)
+            // Com 10 números, o ideal é cobrir 5-7 zonas diferentes
+            // ──────────────────────────────────────────────────────────────────────────────
+            case 'timemania': {
+                // ★★★ GOD MODE v11: TIMEMANIA RECONSTRUÇÃO TOTAL ★★★
+                const TM_ZONES = 8;
+                const TM_ZONE_SIZE = 10;
+                const tmExpectedCycle = 80 / 7; // ~11.4 sorteios por número
+                
+                // ── PASSO 1: MAPA DE ZONAS NOS ÚLTIMOS 5 SORTEIOS ──
+                const tmZoneHeat = new Array(TM_ZONES).fill(0);
+                const tmZoneWindow = Math.min(5, N);
+                for (let i = 0; i < tmZoneWindow; i++) {
+                    const decay = Math.pow(0.75, i);
+                    for (const n of (history[i].numbers || [])) {
+                        if (n >= startNum && n <= endNum) {
+                            const z = Math.min(TM_ZONES - 1, Math.floor((n - startNum) / TM_ZONE_SIZE));
+                            tmZoneHeat[z] += decay;
+                        }
+                    }
+                }
+                const avgTmZoneHeat = tmZoneHeat.reduce((a, b) => a + b, 0) / TM_ZONES;
+                
+                // ── PASSO 2: DÉFICIT DE ZONAS NO ÚLTIMO SORTEIO ──
+                const tmLastZoneCount = new Array(TM_ZONES).fill(0);
+                for (const n of lastDraw) {
+                    const z = Math.min(TM_ZONES - 1, Math.floor((n - startNum) / TM_ZONE_SIZE));
+                    tmLastZoneCount[z]++;
+                }
+                const tmExpPerZone = 7 / TM_ZONES; // ~0.875
+                
+                // ── PASSO 3: FREQUÊNCIA MULTI-JANELA (3 + 7 + 15) ──
+                const tmFreq3 = {}, tmFreq7 = {}, tmFreq15 = {};
+                for (let n = startNum; n <= endNum; n++) { tmFreq3[n] = 0; tmFreq7[n] = 0; tmFreq15[n] = 0; }
+                for (let i = 0; i < Math.min(15, N); i++) {
+                    for (const n of (history[i].numbers || [])) {
+                        if (n >= startNum && n <= endNum) {
+                            if (i < 3) tmFreq3[n]++;
+                            if (i < 7) tmFreq7[n]++;
+                            tmFreq15[n]++;
+                        }
+                    }
+                }
+                
+                // ── PASSO 4: CO-OCORRÊNCIA COM ÚLTIMO SORTEIO ──
+                const tmPairBonus = {};
+                for (let n = startNum; n <= endNum; n++) tmPairBonus[n] = 0;
+                if (N >= 5) {
+                    const tmPairLimit = Math.min(20, N);
+                    const tmPairFreq = {};
+                    for (let i = 0; i < tmPairLimit; i++) {
+                        const nums = (history[i].numbers || []).filter(x => x >= startNum && x <= endNum);
+                        const decay = Math.pow(0.9, i);
+                        for (let a = 0; a < nums.length; a++) {
+                            for (let b = a + 1; b < nums.length; b++) {
+                                const pk = Math.min(nums[a], nums[b]) + '-' + Math.max(nums[a], nums[b]);
+                                tmPairFreq[pk] = (tmPairFreq[pk] || 0) + decay;
+                            }
+                        }
+                    }
+                    for (const lastN of lastDraw) {
+                        for (const [pk, freq] of Object.entries(tmPairFreq)) {
+                            if (freq < 1.5) continue; 
+                            const [a, b] = pk.split('-').map(Number);
+                            if (a === lastN && !lastDraw.has(b)) tmPairBonus[b] += freq * 0.05;
+                            else if (b === lastN && !lastDraw.has(a)) tmPairBonus[a] += freq * 0.05;
+                        }
+                    }
+                }
+                
+                // ── PASSO 5: SCORE COMPOSTO ──
+                for (let n = startNum; n <= endNum; n++) {
+                    const z = Math.min(TM_ZONES - 1, Math.floor((n - startNum) / TM_ZONE_SIZE));
+                    let score = 0.45;
+                    if (lastDraw.has(n)) {
+                        score = 0.35;
+                    } else {
+                        let lastSeen = N;
+                        for (let i = 0; i < N; i++) {
+                            if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
+                        }
+                        const ratio = lastSeen / tmExpectedCycle;
+                        if (ratio >= 0.85 && ratio <= 1.3) score = 0.92;
+                        else if (ratio > 1.3 && ratio <= 2.5) score = 0.85;
+                        else if (ratio > 2.5 && ratio <= 4.0) score = 0.75;
+                        else if (ratio > 4.0) score = 0.65;
+                        else if (ratio >= 0.5 && ratio < 0.85) score = 0.55;
+                        else score = 0.35;
+                    }
+                    const zoneDeficit = tmExpPerZone - tmLastZoneCount[z];
+                    if (zoneDeficit > 0.3) score += 0.10;
+                    if (tmZoneHeat[z] < avgTmZoneHeat * 0.6) {
+                        score += 0.12;
+                    } else if (tmZoneHeat[z] < avgTmZoneHeat * 0.8) {
+                        score += 0.06;
+                    }
+                    const freqRecent = tmFreq3[n] / 3;
+                    const freqGeneral = tmFreq15[n] / Math.min(15, N);
+                    if (freqRecent > freqGeneral * 1.5 && freqRecent > 0) {
+                        score += 0.08;
+                    }
+                    score += Math.min(0.15, tmPairBonus[n]);
+                    scores[n] = Math.max(0.15, Math.min(1.0, score));
+                }
+                
+                const tmHungryZones = tmLastZoneCount.map((c, i) => c === 0 ? (i+1)*10 + '-' + ((i+1)*10+9) : null).filter(Boolean);
+                console.log('[NE-V1] 🎯 TIMEMANIA v11 | Zonas famintas: ' + (tmHungryZones.length > 0 ? tmHungryZones.join(', ') : 'nenhuma'));
+                break;
+            }
+
+            // ──────────────────────────────────────────────────────────────────────────────
+            // LOTOFÁCIL: Repetição ALTÍSSIMA (~8-12/15)
+            // Estratégia: MANTER a maioria do último sorteio
+            // Foco: quais 3-7 números TROCAR
+            // ──────────────────────────────────────────────────────────────────────────────
             case 'lotofacil': {
                 // Na Lotofácil, ~8-12 números repetem do sorteio anterior!
                 // Estratégia invertida: ALTA probabilidade de repetição
@@ -1131,9 +1243,57 @@ class NovaEraEngine {
             // EstratÃ©gia: cobrir o mÃ¡ximo das zonas que "devem"
             // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             case 'lotomania': {
+                // ★★★ GOD MODE v11: LOTOMANIA RECONSTRUÇÃO TOTAL ★★★
+                // 50 números de 100, loteria sorteia 20
+                // A chave é: EQUILÍBRIO POR DÉCADAS (0-9, 10-19, ..., 90-99)
+                // Cada década DEVE ter ~5 números na seleção e ~2 no sorteio
+                
+                const NUM_DECADES = 10;
+                const decadeStart = startNum; // 0 para Lotomania
+                
+                // ── PASSO 1: MAPA DE CALOR POR DÉCADA (últimos 5 sorteios) ──
+                const decadeHeat = new Array(NUM_DECADES).fill(0);
+                const decadeHist5 = Math.min(5, N);
+                for (let i = 0; i < decadeHist5; i++) {
+                    const decay = Math.pow(0.8, i); // Recentes pesam mais
+                    for (const n of (history[i].numbers || [])) {
+                        if (n >= startNum && n <= endNum) {
+                            const dec = Math.floor((n - decadeStart) / 10);
+                            decadeHeat[dec] += decay;
+                        }
+                    }
+                }
+                // Normalizar: qual é a "temperatura" média de cada década?
+                const avgDecadeHeat = decadeHeat.reduce((a, b) => a + b, 0) / NUM_DECADES;
+                
+                // ── PASSO 2: DÉFICIT DE DÉCADAS NO ÚLTIMO SORTEIO ──
+                const lastDecadeCount = new Array(NUM_DECADES).fill(0);
+                for (const n of lastDraw) {
+                    const dec = Math.floor((n - decadeStart) / 10);
+                    if (dec >= 0 && dec < NUM_DECADES) lastDecadeCount[dec]++;
+                }
+                const expectedPerDecade = 20 / NUM_DECADES; // = 2 por década
+                
+                // ── PASSO 3: FREQUÊNCIA INDIVIDUAL NOS ÚLTIMOS 10 ──
+                const lotomFreq10 = {};
+                const lotomW10 = Math.min(10, N);
+                for (let n = startNum; n <= endNum; n++) lotomFreq10[n] = 0;
+                for (let i = 0; i < lotomW10; i++) {
+                    const decay = Math.pow(0.9, i);
+                    for (const n of (history[i].numbers || [])) {
+                        if (n >= startNum && n <= endNum) lotomFreq10[n] += decay;
+                    }
+                }
+                
+                // ── PASSO 4: SCORE COMPOSTO ──
                 for (let n = startNum; n <= endNum; n++) {
+                    const dec = Math.floor((n - decadeStart) / 10);
+                    let score = 0.50; // Base
+                    
+                    // A) Pressão de retorno individual
                     if (lastDraw.has(n)) {
-                        scores[n] = 0.40; // RepetiÃ§Ã£o moderada (4/20)
+                        // Repetição moderada (4-6 repetem dos 20)
+                        score = 0.45;
                     } else {
                         let lastSeen = N;
                         for (let i = 0; i < N; i++) {
@@ -1141,39 +1301,43 @@ class NovaEraEngine {
                         }
                         const expectedCycle = 100 / 20; // = 5
                         const ratio = lastSeen / expectedCycle;
-                        if (ratio >= 1.0 && ratio <= 2.5) scores[n] = 0.85;
-                        else if (ratio >= 0.5) scores[n] = 0.60;
-                        else scores[n] = 0.35;
+                        if (ratio >= 1.0 && ratio <= 2.0) score = 0.88; // Zona ótima
+                        else if (ratio > 2.0 && ratio <= 3.5) score = 0.80; // Atrasado
+                        else if (ratio >= 0.5 && ratio < 1.0) score = 0.60;
+                        else if (ratio > 3.5) score = 0.70; // Muito atrasado
+                        else score = 0.40;
                     }
+                    
+                    // B) BOOST/PENALIDADE POR DÉCADA
+                    // Décadas que tiveram MENOS números no último sorteio = "famintas"
+                    const decadeDeficit = expectedPerDecade - lastDecadeCount[dec];
+                    if (decadeDeficit > 0.5) score += 0.12; // Década faminta
+                    else if (decadeDeficit < -0.5) score -= 0.08; // Década saturada
+                    
+                    // C) MAPA DE CALOR — décadas "frias" nos últimos 5 recebem boost
+                    if (decadeHeat[dec] < avgDecadeHeat * 0.7) {
+                        score += 0.10; // Década consistentemente fria = pressão
+                    } else if (decadeHeat[dec] > avgDecadeHeat * 1.4) {
+                        score -= 0.05; // Década super-quente = possível descanso
+                    }
+                    
+                    // D) NÚMERO "ÂNCORA" — apareceu em 3+ dos últimos 5 sorteios
+                    if (lotomFreq10[n] >= 3.5) score = Math.min(1.0, score + 0.15);
+                    else if (lotomFreq10[n] >= 2.5) score = Math.min(1.0, score + 0.08);
+                    
+                    // E) RESGATE DE NÚMEROS FRIOS de décadas produtivas
+                    if (lotomFreq10[n] < 0.5 && decadeHeat[dec] >= avgDecadeHeat) {
+                        score = Math.min(1.0, score + 0.08); // Frio em década quente = vai voltar
+                    }
+                    
+                    scores[n] = Math.max(0.15, Math.min(1.0, score));
                 }
+                
+                console.log('[NE-V1] 🎯 LOTOMANIA v11 | Décadas famintas: ' + 
+                    lastDecadeCount.map((c, i) => i + '0s=' + c).filter((_, i) => lastDecadeCount[i] < 2).join(', '));
                 break;
             }
 
-            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            // TIMEMANIA: Loteria sorteia 7 de 80, jogador marca 10
-            // RepetiÃ§Ã£o muito baixa (~0.6/7)
-            // Foco: espalhar por zonas, evitar repetiÃ§Ãµes
-            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            case 'timemania': {
-                // â˜… v7.0: PenalizaÃ§Ã£o MODERADA â€” 0.45 (era 0.12)
-                // Loteria Ã© aleatÃ³ria: nÃ£o penalizar demais o Ãºltimo sorteio
-                for (let n = startNum; n <= endNum; n++) {
-                    if (lastDraw.has(n)) {
-                        scores[n] = 0.45;
-                    } else {
-                        let lastSeen = N;
-                        for (let i = 0; i < N; i++) {
-                            if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
-                        }
-                        const expectedCycle = 80 / 7; // ~11.4
-                        const ratio = lastSeen / expectedCycle;
-                        if (ratio >= 1.2 && ratio <= 2.5) scores[n] = 0.85;
-                        else if (ratio >= 0.6) scores[n] = 0.60;
-                        else scores[n] = 0.40;
-                    }
-                }
-                break;
-            }
 
             // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             // DIA DE SORTE V2.0: 7 de 31 â€” RECONSTRUÃ‡ÃƒO TOTAL
