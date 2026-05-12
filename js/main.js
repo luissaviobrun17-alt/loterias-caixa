@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         var ui = new UI();
+        window._b2bUI = ui; // Expor globalmente para CoverageEngine e outros handlers
         ui.initEvents();
         ui.updateGameInfo('megasena');
         ui.addInstallButton();

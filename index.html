@@ -1327,20 +1327,8 @@
                     var bodyGame = document.body.getAttribute('data-current-game');
                     if (bodyGame && GAMES[bodyGame]) gameKey = bodyGame;
                 }
-                // Fallback: procurar instância UI
-                var uiInstance = null;
-                if (typeof document._b2bUI !== 'undefined') uiInstance = document._b2bUI;
-                if (!uiInstance) {
-                    // Procurar na janela
-                    var keys = Object.keys(window);
-                    for (var k = 0; k < keys.length; k++) {
-                        var obj = window[keys[k]];
-                        if (obj && obj.currentGameKey && obj.gamesContainer) {
-                            uiInstance = obj;
-                            break;
-                        }
-                    }
-                }
+                // Buscar instância UI exposta globalmente
+                var uiInstance = window._b2bUI || null;
                 if (uiInstance && uiInstance.currentGameKey) gameKey = uiInstance.currentGameKey;
 
                 var game = GAMES[gameKey];
