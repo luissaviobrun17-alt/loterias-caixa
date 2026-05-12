@@ -1436,9 +1436,9 @@
                                     html += ' <span style="font-size:0.75em;color:#F59E0B;background:rgba(245,158,11,0.1);padding:2px 6px;border-radius:4px;">📅 ' + L99_MESES[extras[g]] + '</span>';
                                 }
                             }
-                            html += '</div><div class="numbers-row">';
+                            html += '</div><div class="game-numbers-wrapper">';
                             for (var n = 0; n < result.games[g].length; n++) {
-                                html += '<span class="ball" style="background:' + gameColor + ';">' + String(result.games[g][n]).padStart(2, '0') + '</span>';
+                                html += '<span class="ball" style="background:' + gameColor + ';color:#fff;">' + String(result.games[g][n]).padStart(2, '0') + '</span>';
                             }
                             html += '</div></div>';
                         }
