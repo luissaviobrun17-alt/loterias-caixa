@@ -62,7 +62,7 @@ class NovaEraEngine {
                     entropy: 0.08,
                     noise: 0.07
                 },
-                scoreClamp: [0.3, 2.5]
+                scoreClamp: [0.2, 3.0]
             },
 
             // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
@@ -96,7 +96,7 @@ class NovaEraEngine {
                     entropy: 0.10,
                     noise: 0.10
                 },
-                scoreClamp: [0.3, 2.5]
+                scoreClamp: [0.5, 1.8]
             },
 
             // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
@@ -129,7 +129,7 @@ class NovaEraEngine {
                     entropy: 0.08,
                     noise: 0.07
                 },
-                scoreClamp: [0.3, 2.5]
+                scoreClamp: [0.2, 3.0]
             },
 
             // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
@@ -161,7 +161,7 @@ class NovaEraEngine {
                     entropy: 0.08,
                     noise: 0.07
                 },
-                scoreClamp: [0.3, 2.5]
+                scoreClamp: [0.25, 2.8]
             },
 
             // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
@@ -195,7 +195,7 @@ class NovaEraEngine {
                     entropy: 0.13,
                     noise: 0.12
                 },
-                scoreClamp: [0.4, 2.2]
+                scoreClamp: [0.4, 2.0]
             },
 
             // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
@@ -227,7 +227,7 @@ class NovaEraEngine {
                     entropy: 0.08,
                     noise: 0.07
                 },
-                scoreClamp: [0.3, 2.5]
+                scoreClamp: [0.2, 3.0]
             },
 
             // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
@@ -261,7 +261,7 @@ class NovaEraEngine {
                     entropy: 0.08,
                     noise: 0.07
                 },
-                scoreClamp: [0.3, 2.5]
+                scoreClamp: [0.3, 2.2]
             }
         };
         return profiles[gameKey] || profiles.megasena;
@@ -970,24 +970,39 @@ class NovaEraEngine {
             // Foco: nÃºmeros atrasados + tendÃªncia recente
             // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             case 'megasena': {
+                // ★ GOD MODE v11: ZONE DEFICIT ANALYSIS
+                // Zonas que NÃO tiveram números no último sorteio = zona "faminta"
+                const msZones = 6;
+                const msZoneSize = 10;
+                const lastZones = new Set();
+                for (const n of lastDraw) {
+                    lastZones.add(Math.floor((n - startNum) / msZoneSize));
+                }
+                const hungryZones = new Set();
+                for (let z = 0; z < msZones; z++) {
+                    if (!lastZones.has(z)) hungryZones.add(z);
+                }
+
                 for (let n = startNum; n <= endNum; n++) {
                     if (lastDraw.has(n)) {
-                        // NÃºmeros que acabaram de sair: penalidade MODERADA (v7.0)
                         scores[n] = 0.35;
                     } else {
-                        // Calcular "pressÃ£o de retorno" individual
                         let lastSeen = N;
                         for (let i = 0; i < N; i++) {
                             if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
                         }
-                        // NÃºmeros entre 5-15 sorteios sem sair sÃ£o os mais provÃ¡veis
                         if (lastSeen >= 8 && lastSeen <= 18) scores[n] = 0.88;
                         else if (lastSeen >= 4 && lastSeen <= 25) scores[n] = 0.70;
                         else if (lastSeen < 4) scores[n] = 0.45;
                         else scores[n] = 0.58;
                     }
+                    // ★ v11: Boost para números em zonas "famintas"
+                    const nZone = Math.floor((n - startNum) / msZoneSize);
+                    if (hungryZones.has(nZone) && !lastDraw.has(n)) {
+                        scores[n] = Math.min(1.0, scores[n] + 0.10);
+                    }
                 }
-                // Bonus: nÃºmeros que saÃ­ram no penÃºltimo mas NÃƒO no Ãºltimo
+                // Bonus: penúltimo
                 if (N >= 2) {
                     const penultimo = new Set(history[1].numbers || []);
                     for (const n of penultimo) {
@@ -1003,33 +1018,57 @@ class NovaEraEngine {
             // Foco: quais 3-7 nÃºmeros TROCAR
             // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             case 'lotofacil': {
-                // Na LotofÃ¡cil, ~8-12 nÃºmeros repetem do sorteio anterior!
-                // EstratÃ©gia invertida: ALTA probabilidade de repetiÃ§Ã£o
+                // Na Lotofácil, ~8-12 números repetem do sorteio anterior!
+                // Estratégia invertida: ALTA probabilidade de repetição
+                
+                // ★ GOD MODE v11: MULTI-WINDOW frequency analysis
+                const lotofFreq5 = {};
+                const lotofWindow5 = Math.min(5, N);
+                for (let n = startNum; n <= endNum; n++) lotofFreq5[n] = 0;
+                for (let i = 0; i < lotofWindow5; i++) {
+                    for (const n of (history[i].numbers || [])) {
+                        if (n >= startNum && n <= endNum) lotofFreq5[n]++;
+                    }
+                }
+                
                 for (let n = startNum; n <= endNum; n++) {
                     if (lastDraw.has(n)) {
-                        // NÃºmeros do Ãºltimo: BOA chance de repetir
+                        // Números do último: BOA chance de repetir
                         scores[n] = 0.80;
                     } else {
-                        // NÃºmeros que NÃƒO saÃ­ram: avaliar "pressÃ£o de entrada"
+                        // Números que NÃO saíram: avaliar "pressão de entrada"
                         let lastSeen = N;
                         for (let i = 0; i < N; i++) {
                             if ((history[i].numbers || []).includes(n)) { lastSeen = i; break; }
                         }
-                        if (lastSeen >= 3) scores[n] = 0.85; // 3+ sem sair = provÃ¡vel entrar
+                        // ★ v11: ENTRY PRESSURE baseada na freq dos últimos 5
+                        if (lastSeen >= 3 && lotofFreq5[n] >= 3) scores[n] = 0.92; // Hot + ausente = MUITO provável
+                        else if (lastSeen >= 3) scores[n] = 0.85; // 3+ sem sair = provável entrar
                         else if (lastSeen === 2) scores[n] = 0.65;
                         else scores[n] = 0.45; // Saiu recentemente, fora agora
                     }
                 }
-                // Identificar quais do Ãºltimo sÃ£o mais provÃ¡veis de SAIR (exclusÃ£o)
+                // ★ v11: STREAK FATIGUE GRADUADA — fadiga de aparição
                 if (N >= 3) {
                     for (const n of lastDraw) {
                         let consecAppears = 0;
-                        for (let i = 0; i < Math.min(5, N); i++) {
+                        for (let i = 0; i < Math.min(7, N); i++) {
                             if ((history[i].numbers || []).includes(n)) consecAppears++;
                             else break;
                         }
-                        // NÃºmeros que apareceram em 4-5 consecutivos: podem "descansar"
-                        if (consecAppears >= 4) scores[n] = Math.max(0.3, scores[n] - 0.25);
+                        // Números que apareceram muitas vezes: fadiga GRADUADA
+                        if (consecAppears >= 6) scores[n] = Math.max(0.25, scores[n] - 0.35);
+                        else if (consecAppears >= 5) scores[n] = Math.max(0.30, scores[n] - 0.25);
+                        else if (consecAppears >= 4) scores[n] = Math.max(0.35, scores[n] - 0.15);
+                    }
+                }
+                // ★ v11: PENÚLTIMO BOOST — números do penúltimo que saíram do último tendem a voltar
+                if (N >= 2) {
+                    const penultimo = new Set(history[1].numbers || []);
+                    for (const n of penultimo) {
+                        if (!lastDraw.has(n) && scores[n] !== undefined) {
+                            scores[n] = Math.min(1.0, scores[n] + 0.12);
+                        }
                     }
                 }
                 break;
