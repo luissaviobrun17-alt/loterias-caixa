@@ -109,7 +109,15 @@ class CoverageEngine {
     // ═══════════════════════════════════════════════════════
     static generate(gameKey, numGames, selectedNumbers, fixedNumbers) {
         const t0 = Date.now();
-        const cfg = this.getConfig(gameKey);
+        // Suporte a config customizada (Sniper mode com drawSize diferente)
+        let cfg;
+        if (this._tempConfig && this._tempGameKey === gameKey) {
+            cfg = this._tempConfig;
+            this._tempConfig = null;
+            this._tempGameKey = null;
+        } else {
+            cfg = this.getConfig(gameKey);
+        }
         const [startNum, endNum] = cfg.range;
         const drawSize = cfg.drawSize;
 

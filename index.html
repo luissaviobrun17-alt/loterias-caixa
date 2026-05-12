@@ -1322,6 +1322,13 @@
             var qtyInput = document.getElementById('games-quantity');
             var quantity = qtyInput ? parseInt(qtyInput.value) || 10 : 10;
 
+            // Ler Sniper toggle e tamanho do jogo customizado
+            var sniperToggle = document.getElementById('precision-mode-toggle');
+            var isSniper = sniperToggle ? sniperToggle.checked : false;
+            var drawSizeSelect = document.getElementById('smart-draw-size');
+            var customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
+            var drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
+
             // Ler números selecionados no grid
             var selectedNums = [];
             document.querySelectorAll('#number-selection-grid .num-btn.selected').forEach(function(b) {
@@ -1332,12 +1339,24 @@
                 var n = parseInt(b.textContent); if (!isNaN(n)) fixedNums.push(n);
             });
 
+            var modeLabel = isSniper ? '🎯 SNIPER: ' + drawSize + ' números/jogo' : '📐 Cobertura: ' + drawSize + ' números/jogo';
+            if (selectedNums.length > 0) modeLabel += ' | Pool: ' + selectedNums.length + ' números';
+
             var container = document.getElementById('games-container');
-            container.innerHTML = '<div style="text-align:center;padding:30px;background:linear-gradient(145deg,rgba(4,120,87,0.15),rgba(15,23,42,0.95));border-radius:16px;border:1px solid rgba(16,185,129,0.3);"><div style="font-size:2rem;margin-bottom:8px;">📐</div><div style="color:#10B981;font-weight:900;font-size:1.1rem;">MOTOR DE COBERTURA COMBINATÓRIA</div><div style="color:#94A3B8;font-size:0.8rem;margin-top:6px;">Otimizando cobertura de pares para ' + quantity + ' jogos...</div></div>';
+            container.innerHTML = '<div style="text-align:center;padding:30px;background:linear-gradient(145deg,rgba(4,120,87,0.15),rgba(15,23,42,0.95));border-radius:16px;border:1px solid rgba(16,185,129,0.3);"><div style="font-size:2rem;margin-bottom:8px;">📐</div><div style="color:#10B981;font-weight:900;font-size:1.1rem;">MOTOR DE COBERTURA COMBINATÓRIA</div><div style="color:#94A3B8;font-size:0.8rem;margin-top:6px;">' + modeLabel + ' | ' + quantity + ' jogos</div></div>';
+
+            // Atualizar config temporariamente com drawSize customizado
+            var origConfig = CoverageEngine.getConfig(gameKey);
+            if (drawSize !== origConfig.drawSize) {
+                var customCfg = Object.assign({}, origConfig);
+                customCfg.drawSize = drawSize;
+                CoverageEngine._tempConfig = customCfg;
+                CoverageEngine._tempGameKey = gameKey;
+            }
 
             setTimeout(function() {
                 try {
-                    var pool = selectedNums.length >= game.minBet ? selectedNums : null;
+                    var pool = selectedNums.length >= drawSize ? selectedNums : null;
                     var result = CoverageEngine.generate(gameKey, quantity, pool, fixedNums);
                     var m = result.analysis.metrics;
 
