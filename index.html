@@ -1386,6 +1386,16 @@
                     html += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(16,185,129,0.2);color:#10B981;font-weight:900;font-size:0.8rem;">★ Chance QUALQUER prêmio: ' + pAny + '%</div>';
                     html += '</div></div>';
 
+
+                    // Gerar extras (Times/Meses) para Timemania e Dia de Sorte
+                    var extras = null;
+                    var isTimemania = (gameKey === 'timemania');
+                    var isDiaDeSorte = (gameKey === 'diadesorte');
+                    if ((isTimemania || isDiaDeSorte) && app && typeof app._generateExtras === 'function') {
+                        extras = app._generateExtras(gameKey, result.games.length);
+                        if (app) app.currentGeneratedExtras = extras;
+                    }
+
                     // Jogos gerados — layout compacto horizontal
                     var gameColor = game.color || '#10B981';
                     html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;">';
@@ -1394,6 +1404,14 @@
                         html += '<span style="color:#64748b;font-size:0.65rem;font-weight:700;min-width:28px;">J' + (g + 1) + '</span>';
                         for (var n = 0; n < result.games[g].length; n++) {
                             html += '<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:' + gameColor + ';color:#fff;font-size:0.65rem;font-weight:700;">' + String(result.games[g][n]).padStart(2, '0') + '</span>';
+                        }
+                        // Mostrar time/mês se aplicável
+                        if (extras && extras[g] !== undefined) {
+                            if (isTimemania && typeof L99_TIMES !== 'undefined') {
+                                html += '<span style="font-size:0.65rem;color:#10B981;background:rgba(16,185,129,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;white-space:nowrap;">⚽ ' + L99_TIMES[extras[g]] + '</span>';
+                            } else if (isDiaDeSorte && typeof L99_MESES !== 'undefined') {
+                                html += '<span style="font-size:0.65rem;color:#F59E0B;background:rgba(245,158,11,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;white-space:nowrap;">📅 ' + L99_MESES[extras[g]] + '</span>';
+                            }
                         }
                         html += '</div>';
                     }
