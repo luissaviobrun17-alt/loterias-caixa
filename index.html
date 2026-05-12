@@ -1424,26 +1424,24 @@
                             uiInstance.currentGeneratedExtras = extras;
                         }
 
-                        // Jogos gerados — layout compacto horizontal
+                        // Jogos gerados — mesmo modelo dos demais botões
                         var gameColor = game.color || '#10B981';
-                        html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;">';
                         for (var g = 0; g < result.games.length; g++) {
-                            html += '<div style="display:flex;align-items:center;gap:4px;padding:4px 8px;background:rgba(0,0,0,0.25);border-radius:8px;border:1px solid rgba(255,255,255,0.06);flex:1 1 100%;">';
-                            html += '<span style="color:#64748b;font-size:0.65rem;font-weight:700;min-width:28px;">J' + (g + 1) + '</span>';
-                            for (var n = 0; n < result.games[g].length; n++) {
-                                html += '<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:' + gameColor + ';color:#fff;font-size:0.65rem;font-weight:700;">' + String(result.games[g][n]).padStart(2, '0') + '</span>';
-                            }
+                            html += '<div class="game-card"><div class="game-number">Jogo ' + (g + 1);
                             // Mostrar time/mês se aplicável
                             if (extras && extras[g] !== undefined) {
                                 if (isTimemania && typeof L99_TIMES !== 'undefined') {
-                                    html += '<span style="font-size:0.65rem;color:#10B981;background:rgba(16,185,129,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;white-space:nowrap;">⚽ ' + L99_TIMES[extras[g]] + '</span>';
+                                    html += ' <span style="font-size:0.75em;color:#10B981;background:rgba(16,185,129,0.1);padding:2px 6px;border-radius:4px;">⚽ ' + L99_TIMES[extras[g]] + '</span>';
                                 } else if (isDiaDeSorte && typeof L99_MESES !== 'undefined') {
-                                    html += '<span style="font-size:0.65rem;color:#F59E0B;background:rgba(245,158,11,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;white-space:nowrap;">📅 ' + L99_MESES[extras[g]] + '</span>';
+                                    html += ' <span style="font-size:0.75em;color:#F59E0B;background:rgba(245,158,11,0.1);padding:2px 6px;border-radius:4px;">📅 ' + L99_MESES[extras[g]] + '</span>';
                                 }
                             }
-                            html += '</div>';
+                            html += '</div><div class="numbers-row">';
+                            for (var n = 0; n < result.games[g].length; n++) {
+                                html += '<span class="ball" style="background:' + gameColor + ';">' + String(result.games[g][n]).padStart(2, '0') + '</span>';
+                            }
+                            html += '</div></div>';
                         }
-                        html += '</div>';
                         container.innerHTML = html;
                         container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
