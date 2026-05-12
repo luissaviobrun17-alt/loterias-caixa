@@ -1,4 +1,4 @@
-﻿console.log('%c[QUANTUM-L99] â•â•â• MOTOR QUANTUM L99 v7.0 ATIVADO â•â•â•', 'color: #FFD700; font-size: 20px; background: #0a0a1a; font-weight: bold; text-shadow: 0 0 10px gold;');
+console.log('%c[QUANTUM-L99] â•â•â• MOTOR QUANTUM L99 v7.0 ATIVADO â•â•â•', 'color: #FFD700; font-size: 20px; background: #0a0a1a; font-weight: bold; text-shadow: 0 0 10px gold;');
 /**
  * â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
  * â•‘  â˜…â˜…â˜… QUANTUM L99 v5.0 â€” ASSERTIVIDADE MÃXIMA â˜…â˜…â˜…                     â•‘
@@ -286,7 +286,7 @@ class NovaEraEngine {
     // â•‘  100-500 jogos â†’ CIRÃšRGICO: IA focada + filtros rigorosos           â•‘
     // â•‘  1K-5K jogos   â†’ INTELIGENTE: EquilÃ­brio prediÃ§Ã£o + cobertura      â•‘
     // â•‘  10K+ jogos    â†’ COBERTURA: Diversidade mÃ¡xima com IA ativa         â•‘
-    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // â•šâ• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• 
     static _getAdaptiveParams(numGames, profile) {
         const drawSize = profile.drawSize;
         const totalRange = profile.range[1] - profile.range[0] + 1;
@@ -295,38 +295,24 @@ class NovaEraEngine {
 
         let overlapAdj, usageAdj, checkRadius, mode;
 
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-        // TIER 1: SNIPER (10-50 jogos) â€” MÃXIMA ASSERTIVIDADE
-        // Cada jogo deve ser uma previsÃ£o cirÃºrgica
-        // Overlap MÃNIMO = jogos MUITO diferentes entre si
-        // Usage MÃNIMO = foco nos melhores nÃºmeros
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-        // â˜… V8.0 GOD MODE: ADAPTIVE PARAMS â€” SNIPER EXTREMO
-        // O usuÃ¡rio solicitou "ir direto ao ponto" e "ser incisivo".
-        // Isso significa que para volumes curtos, os jogos devem ser QUASE IDENTICOS (Overlap altÃ­ssimo)
-        // e o uso de nÃºmeros (Usage) restritÃ­ssimo para focar no "core" de confianÃ§a mÃ¡xima.
-        // EXCEÃ‡ÃƒO: Lotomania (50 nÃºmeros) e Timemania exigem variÃ¢ncia maior para nÃ£o jogar dinheiro fora.
         let isLotomania = drawSize === 50;
         let isTimemania = profile.name && profile.name.toLowerCase().includes('timemania');
 
         if (numGames <= 10) {
             mode = 'GODMODE-SNIPER-10';
-            // Permite que os jogos sejam atÃ© 90% idÃªnticos, EXCETO lotomania/timemania
-            if (isTimemania) overlapAdj = Math.floor(drawSize * 0.50); // MÃ­nimo 50% diferente
-            else if (isLotomania) overlapAdj = Math.floor(drawSize * 0.70); // Max 35 idÃªnticos
+            if (isTimemania) overlapAdj = Math.floor(drawSize * 0.50); 
+            else if (isLotomania) overlapAdj = Math.floor(drawSize * 0.70); 
             else overlapAdj = Math.max(drawSize - 2, Math.floor(drawSize * 0.85));
             
-            // ForÃ§a a IA a usar no mÃ¡ximo 25% a 35% do total de nÃºmeros disponÃ­veis
             usageAdj = Math.min(0.35, Math.max(0.20, baseUsage));
-            // Lotomania e Timemania precisam de um pool ligeiramente maior para respirar
             if (isLotomania || isTimemania) usageAdj = Math.min(0.50, Math.max(0.35, baseUsage));
             
             checkRadius = numGames;
         }
         else if (numGames <= 50) {
             mode = 'GODMODE-SNIPER-50';
-            if (isTimemania) overlapAdj = Math.floor(drawSize * 0.40); // 60% diferente
-            else if (isLotomania) overlapAdj = Math.floor(drawSize * 0.60); // Max 30 idÃªnticos
+            if (isTimemania) overlapAdj = Math.floor(drawSize * 0.40); 
+            else if (isLotomania) overlapAdj = Math.floor(drawSize * 0.60); 
             else overlapAdj = Math.max(drawSize - 3, Math.floor(drawSize * 0.75));
             
             usageAdj = Math.min(0.40, Math.max(0.25, baseUsage));
@@ -365,7 +351,7 @@ class NovaEraEngine {
             checkRadius = 15;
         }
 
-        console.log('[NE-L99] â˜… v5.0 TIER: ' + mode + ' | ' + numGames + ' jogos');
+        console.log('[NE-L99] ★ v5.0 TIER: ' + mode + ' | ' + numGames + ' jogos');
         console.log('[NE-L99]    overlap=' + overlapAdj + '/' + drawSize + ' | usage=' + (usageAdj*100).toFixed(0) + '% | check=' + checkRadius);
 
         return {
@@ -379,9 +365,9 @@ class NovaEraEngine {
 
     static generate(gameKey, numGames, selectedNumbers, fixedNumbers, customDrawSize) {
 
-        // â˜… V4.0: BULK TURBO ELIMINADO â€” Todos os volumes usam IA completa
+        // ★ V4.0: BULK TURBO ELIMINADO — Todos os volumes usam IA completa
         // Volumes grandes (5K+) usam a mesma pipeline de 17 camadas
-        // com calibraÃ§Ã£o adaptativa que escala overlap/usage proporcionalmente
+        // com calibração adaptativa que escala overlap/usage proporcionalmente
 
         const profile = this.getProfile(gameKey);
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
@@ -432,6 +418,8 @@ class NovaEraEngine {
                 if (!existingFixed.has(n)) {
                     fixedNumbers = [...(fixedNumbers || []), n];
                 }
+                // GOD MODE: Boost 3x no score para IA priorizar
+                if (scores[n] !== undefined) scores[n] *= 3.0;
             }
             pool = [];
             for (let n = startNum; n <= endNum; n++) pool.push(n);
@@ -459,6 +447,7 @@ class NovaEraEngine {
         // â˜… FIX CRÃTICO: Respeitar pool de precisÃ£o do DOM
         // Quando o toggle de precisÃ£o estÃ¡ ativo, limitar o pool ao TOP N nÃºmeros por score
         if (typeof document !== 'undefined' && !hasUserSelection) {
+          try { // GOD MODE: try/catch para server-side
             const precToggle = document.getElementById('precision-mode-toggle');
             const precPoolInput = document.getElementById('precision-pool-size');
             if (precToggle && precToggle.checked && precPoolInput) {
@@ -477,6 +466,7 @@ class NovaEraEngine {
                     console.log('[NE-V1] Pool precisÃ£o: [' + pool.slice(0, 15).join(', ') + (pool.length > 15 ? '...' : '') + '] (' + pool.length + ' nÃºmeros)');
                 }
             }
+          } catch(e) { /* DOM indisponível */ }
         }
 
         // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
@@ -665,14 +655,17 @@ class NovaEraEngine {
                 if (nums.includes(n)) { lastSeen = i; break; }
             }
 
-            // Score baseado em quÃ£o "atrasado" o nÃºmero estÃ¡
+            // GOD MODE: Substituir Falácia do Jogador por distribuição uniforme
+            // Números NÃO "devem" sair. O RNG não tem memória.
+            // Scoring baseado em RECÊNCIA (leve), não em "dívida"
             const ratio = lastSeen / expectedReturn;
-            if (ratio >= 2.5) scores[n] = 1.0;       // Muito atrasado
-            else if (ratio >= 1.8) scores[n] = 0.85;
-            else if (ratio >= 1.2) scores[n] = 0.70;
-            else if (ratio >= 0.8) scores[n] = 0.50;  // No ciclo esperado
-            else if (ratio >= 0.3) scores[n] = 0.30;  // Saiu recentemente
-            else scores[n] = 0.15;                     // Acabou de sair
+            // Distribuição suave: números recentes = score médio, antigos = score médio
+            // Leve preferência por não-recentes para diversidade, MAS sem extremos
+            if (ratio >= 2.5) scores[n] = 0.65;       // Não visto há muito (leve boost)
+            else if (ratio >= 1.5) scores[n] = 0.60;
+            else if (ratio >= 0.8) scores[n] = 0.55;   // Ciclo normal
+            else if (ratio >= 0.3) scores[n] = 0.45;   // Saiu recentemente (leve penalty)
+            else scores[n] = 0.40;                      // Acabou de sair
         }
 
         return this._normalizeScores(scores, startNum, endNum);
@@ -1977,8 +1970,8 @@ class NovaEraEngine {
 
         console.log('%c[QUANTUM-L99] â˜…â˜…â˜… 21 CAMADAS ATIVADAS â€” ' + gameKey + ' â˜…â˜…â˜…', 'color: gold; font-weight: bold;');
 
-        // â”â”â” CAMADA 20: CICLO INDIVIDUAL DE RETORNO â€” Futurologia Temporal â”â”â”
-        // Cada nÃºmero tem seu PRÃ“PRIO RITMO. Score MÃXIMO no ponto Ã³timo de retorno.
+        // â” â” â”  CAMADA 20: CICLO INDIVIDUAL DE RETORNO â€” Futurologia Temporal â” â” â” 
+        // Cada nÃºmero tem seu PRÃ“PRIO RITMO. Score MÃ XIMO no ponto Ã³timo de retorno.
         let cycleReturnScores = {};
         for (let n = startNum; n <= endNum; n++) cycleReturnScores[n] = 0.5;
         if (N >= 10) {
@@ -2325,79 +2318,79 @@ class NovaEraEngine {
 
             megasena: {
                 frequency: 0.01, delay: 0.01, trend: 0.01,
-                zone: 0.08, markov: 0.01, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.03,
-                bayesian: 0.02, positional: 0.01,
+                zone: 0.12, markov: 0.01, phase: 0.01,
+                clairvoyance: 0.02, nextDraw: 0.04,
+                bayesian: 0.03, positional: 0.02,
                 sequential: 0.01, momentum: 0.01,
-                mirror: 0.02, gap: 0.08, cluster: 0.07, reversion: 0.02,
-                precision: 0.10, patternDna: 0.12, pairTrio: 0.15,
-                cycleReturn: 0.12, quantumSuper: 0.09
+                mirror: 0.02, gap: 0.14, cluster: 0.06, reversion: 0.01,
+                precision: 0.08, patternDna: 0.15, pairTrio: 0.08,
+                cycleReturn: 0.08, quantumSuper: 0.08
             },
 
             lotofacil: {
                 frequency: 0.01, delay: 0.01, trend: 0.01,
-                zone: 0.10, markov: 0.01, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.02,
-                bayesian: 0.02, positional: 0.01,
-                sequential: 0.01, momentum: 0.01,
-                mirror: 0.02, gap: 0.06, cluster: 0.07, reversion: 0.02,
-                precision: 0.11, patternDna: 0.12, pairTrio: 0.16,
-                cycleReturn: 0.10, quantumSuper: 0.11
+                zone: 0.05, markov: 0.02, phase: 0.01,
+                clairvoyance: 0.02, nextDraw: 0.12,
+                bayesian: 0.03, positional: 0.01,
+                sequential: 0.02, momentum: 0.01,
+                mirror: 0.01, gap: 0.03, cluster: 0.10, reversion: 0.01,
+                precision: 0.08, patternDna: 0.10, pairTrio: 0.18,
+                cycleReturn: 0.06, quantumSuper: 0.11
             },
 
             quina: {
                 frequency: 0.01, delay: 0.01, trend: 0.01,
-                zone: 0.08, markov: 0.01, phase: 0.01,
+                zone: 0.12, markov: 0.01, phase: 0.01,
                 clairvoyance: 0.01, nextDraw: 0.02,
-                bayesian: 0.02, positional: 0.01,
+                bayesian: 0.02, positional: 0.03,
                 sequential: 0.01, momentum: 0.01,
-                mirror: 0.02, gap: 0.10, cluster: 0.07, reversion: 0.02,
-                precision: 0.09, patternDna: 0.12, pairTrio: 0.14,
-                cycleReturn: 0.13, quantumSuper: 0.09
+                mirror: 0.01, gap: 0.18, cluster: 0.08, reversion: 0.01,
+                precision: 0.07, patternDna: 0.10, pairTrio: 0.05,
+                cycleReturn: 0.14, quantumSuper: 0.09
             },
 
             duplasena: {
                 frequency: 0.01, delay: 0.01, trend: 0.01,
-                zone: 0.08, markov: 0.01, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.02,
-                bayesian: 0.02, positional: 0.01,
+                zone: 0.07, markov: 0.02, phase: 0.01,
+                clairvoyance: 0.01, nextDraw: 0.04,
+                bayesian: 0.03, positional: 0.01,
                 sequential: 0.01, momentum: 0.01,
-                mirror: 0.02, gap: 0.07, cluster: 0.07, reversion: 0.02,
-                precision: 0.10, patternDna: 0.13, pairTrio: 0.16,
-                cycleReturn: 0.11, quantumSuper: 0.10
+                mirror: 0.06, gap: 0.08, cluster: 0.05, reversion: 0.01,
+                precision: 0.08, patternDna: 0.14, pairTrio: 0.18,
+                cycleReturn: 0.08, quantumSuper: 0.08
             },
 
             lotomania: {
                 frequency: 0.01, delay: 0.01, trend: 0.01,
-                zone: 0.10, markov: 0.01, phase: 0.01,
+                zone: 0.18, markov: 0.01, phase: 0.01,
                 clairvoyance: 0.01, nextDraw: 0.02,
                 bayesian: 0.02, positional: 0.01,
                 sequential: 0.01, momentum: 0.01,
-                mirror: 0.02, gap: 0.08, cluster: 0.09, reversion: 0.02,
-                precision: 0.09, patternDna: 0.14, pairTrio: 0.12,
-                cycleReturn: 0.11, quantumSuper: 0.10
+                mirror: 0.01, gap: 0.04, cluster: 0.14, reversion: 0.01,
+                precision: 0.06, patternDna: 0.10, pairTrio: 0.05,
+                cycleReturn: 0.10, quantumSuper: 0.18
             },
 
             timemania: {
                 frequency: 0.01, delay: 0.01, trend: 0.01,
-                zone: 0.08, markov: 0.01, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.02,
-                bayesian: 0.02, positional: 0.01,
+                zone: 0.11, markov: 0.01, phase: 0.01,
+                clairvoyance: 0.01, nextDraw: 0.03,
+                bayesian: 0.02, positional: 0.05,
                 sequential: 0.01, momentum: 0.01,
-                mirror: 0.02, gap: 0.09, cluster: 0.07, reversion: 0.02,
-                precision: 0.09, patternDna: 0.13, pairTrio: 0.15,
-                cycleReturn: 0.12, quantumSuper: 0.09
+                mirror: 0.01, gap: 0.15, cluster: 0.08, reversion: 0.01,
+                precision: 0.07, patternDna: 0.11, pairTrio: 0.08,
+                cycleReturn: 0.12, quantumSuper: 0.08
             },
 
             diadesorte: {
-                frequency: 0.01, delay: 0.01, trend: 0.01,
-                zone: 0.09, markov: 0.01, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.02,
-                bayesian: 0.02, positional: 0.01,
-                sequential: 0.01, momentum: 0.01,
-                mirror: 0.02, gap: 0.06, cluster: 0.08, reversion: 0.02,
-                precision: 0.10, patternDna: 0.15, pairTrio: 0.14,
-                cycleReturn: 0.11, quantumSuper: 0.10
+                frequency: 0.01, delay: 0.01, trend: 0.02,
+                zone: 0.05, markov: 0.02, phase: 0.01,
+                clairvoyance: 0.02, nextDraw: 0.10,
+                bayesian: 0.03, positional: 0.01,
+                sequential: 0.02, momentum: 0.01,
+                mirror: 0.02, gap: 0.04, cluster: 0.06, reversion: 0.01,
+                precision: 0.09, patternDna: 0.18, pairTrio: 0.14,
+                cycleReturn: 0.07, quantumSuper: 0.08
             }
         };
 

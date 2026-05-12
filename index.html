@@ -475,6 +475,25 @@
                     </div>
                 </div>
 
+                <!-- ═══ ROI GUARDIAN v1.0 ═══ -->
+                <div id="roi-guardian-panel" class="sidebar-card" style="margin-top: 0.15rem; background: linear-gradient(145deg, rgba(15,23,42,0.98), rgba(30,41,59,0.95)); border: 2px solid rgba(239,68,68,0.25); border-radius: var(--radius-sm); padding: 0; box-shadow: 0 0 15px rgba(239,68,68,0.1); overflow: hidden;">
+                    <div style="padding: 12px 16px 6px; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.1rem;">🛡️</span>
+                        <h3 style="font-size: 0.9rem; color: #F87171; margin: 0; font-weight: 800; letter-spacing: 0.5px;">ROI GUARDIAN</h3>
+                        <span style="margin-left: auto; font-size: 0.6rem; color: #475569; font-weight: 600;">v1.0</span>
+                    </div>
+                    <div id="roi-guardian-content" style="padding: 0 8px 8px;">
+                        <div style="text-align: center; padding: 16px; color: #64748b; font-size: 0.75rem;">Selecione a loteria e quantidade de jogos para ver a análise ROI</div>
+                    </div>
+                </div>
+
+                <!-- ═══ SMART ADVISOR v1.0 ═══ -->
+                <div id="smart-advisor-panel" class="sidebar-card" style="margin-top: 0.15rem; background: linear-gradient(145deg, rgba(15,23,42,0.98), rgba(30,41,59,0.95)); border: 2px solid rgba(251,191,36,0.25); border-radius: var(--radius-sm); padding: 0; box-shadow: 0 0 15px rgba(251,191,36,0.1); overflow: hidden;">
+                    <div id="smart-advisor-content" style="padding:0;">
+                        <div style="text-align: center; padding: 16px; color: #64748b; font-size: 0.75rem;">Carregando ranking de loterias...</div>
+                    </div>
+                </div>
+
                 <div class="sidebar-card recent-results-card"
                     style="margin-top: 0.15rem; background: var(--bg-main); border: 2px solid #FFD700; border-radius: var(--radius-sm); padding: 1rem; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);">
                     <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--primary-accent);">Últimos Resultados
@@ -1271,6 +1290,8 @@
             <script src="js/engines/nova_era_engine.js?v=1778013500?v=1778273672"></script>
             <script src="js/engines/smart_bets.js?v=1778013500?v=1778273672"></script>
             <script src="js/engines/backtesting.js?v=1778013500?v=1778273672"></script>
+            <script src="js/engines/roi_guardian.js?v=1778273672"></script>
+            <script src="js/engines/smart_advisor.js?v=1778273672"></script>
             <script src="js/engines/analysis_engine.js?v=1778013500?v=1778273672"></script>
             <script src="js/engines/lotofacil_group_engine.js?v=1778013500?v=1778273672"></script>
             <script src="js/engines/universal_group_engine.js?v=1778013500?v=1778273672"></script>
@@ -1309,6 +1330,94 @@
         } else {
             console.error('[L99-DIAG] ❌ SmartBetsEngine NÃO ENCONTRADO!');
         }
+    })();
+    </script>
+
+    <!-- ROI GUARDIAN — Auto-update hook -->
+    <script>
+    (function() {
+        function updateROIGuardian() {
+            if (typeof ROIGuardian === 'undefined') return;
+            var container = document.getElementById('roi-guardian-content');
+            if (!container) return;
+            
+            // Detectar loteria ativa
+            var activeBtn = document.querySelector('.nav-btn.active');
+            var gameKey = activeBtn ? activeBtn.dataset.game : 'megasena';
+            
+            // Detectar quantidade de jogos
+            var qtyInput = document.getElementById('games-quantity');
+            var numGames = qtyInput ? parseInt(qtyInput.value) || 10 : 10;
+            
+            // Detectar betSize (Nº por Jogo do painel IA)
+            var smartDrawInput = document.getElementById('smart-draw-size');
+            var betSize = smartDrawInput ? parseInt(smartDrawInput.value) || null : null;
+            
+            try {
+                container.innerHTML = ROIGuardian.renderPanel(gameKey, numGames, betSize);
+            } catch(e) {
+                console.warn('[ROI Guardian] Erro ao renderizar:', e.message);
+            }
+        }
+        
+        // Atualizar ao mudar de loteria (clique nos botões nav)
+        document.querySelectorAll('.nav-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                setTimeout(updateROIGuardian, 100);
+            });
+        });
+        
+        // Atualizar ao mudar quantidade de jogos
+        var qtyInput = document.getElementById('games-quantity');
+        if (qtyInput) {
+            qtyInput.addEventListener('input', function() {
+                clearTimeout(window._roiDebounce);
+                window._roiDebounce = setTimeout(updateROIGuardian, 300);
+            });
+        }
+        
+        // Atualizar ao mudar Nº por Jogo
+        var smartDraw = document.getElementById('smart-draw-size');
+        if (smartDraw) {
+            smartDraw.addEventListener('change', function() {
+                setTimeout(updateROIGuardian, 100);
+            });
+        }
+        
+        // Render inicial após 500ms (esperar engines carregarem)
+        setTimeout(updateROIGuardian, 500);
+
+        // ═══ SMART ADVISOR AUTO-UPDATE ═══
+        function updateSmartAdvisor() {
+            if (typeof SmartAdvisor === 'undefined') return;
+            var container = document.getElementById('smart-advisor-content');
+            if (!container) return;
+
+            var qtyInput = document.getElementById('games-quantity');
+            var numGames = qtyInput ? parseInt(qtyInput.value) || 10 : 10;
+
+            try {
+                container.innerHTML = SmartAdvisor.renderPanel(numGames, 300);
+            } catch(e) {
+                console.warn('[Smart Advisor] Erro ao renderizar:', e.message);
+            }
+        }
+
+        // Atualizar Smart Advisor junto com ROI Guardian
+        document.querySelectorAll('.nav-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                setTimeout(updateSmartAdvisor, 200);
+            });
+        });
+
+        // Render inicial do Smart Advisor
+        setTimeout(updateSmartAdvisor, 800);
+
+        // Re-atualizar após dados da API (5s delay para API responder)
+        setTimeout(function() {
+            updateROIGuardian();
+            updateSmartAdvisor();
+        }, 5000);
     })();
     </script>
 

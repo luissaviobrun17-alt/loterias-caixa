@@ -59,9 +59,11 @@ class BacktestingEngine {
             let games = [];
             
             if (engine === 'smart') {
-                // Temporariamente sobrescrever o histórico do StatsService
-                const savedHistory = StatsService.historyStore[gameKey];
-                StatsService.historyStore[gameKey] = trainingHistory;
+                // ★ GOD MODE FIX: Clonar historyStore ao invés de sobrescrever
+                // Bug anterior: sobrescrever causava race condition se outro código
+                // acessasse StatsService durante o backtest
+                const savedHistory = StatsService.historyStore[gameKey] ? [...StatsService.historyStore[gameKey]] : [];
+                StatsService.historyStore[gameKey] = [...trainingHistory];
                 
                 try {
                     const result = SmartBetsEngine.generate(gameKey, numGames, [], [], betSize);
@@ -70,7 +72,7 @@ class BacktestingEngine {
                     console.warn('[Backtest] Erro na geração:', e.message);
                 }
                 
-                // Restaurar
+                // Restaurar (com cópia segura)
                 StatsService.historyStore[gameKey] = savedHistory;
             } else if (engine === 'quantum') {
                 try {
@@ -194,19 +196,20 @@ class BacktestingEngine {
         const expectedRandom = actualBetSize * drawnPerGame / totalRange;
         const improvement = expectedRandom > 0 ? ((avgHits - expectedRandom) / expectedRandom) * 100 : 0;
 
-        // Determinar nível de confiança — com nota de significância estatística
-        // N<15 sorteios: impossível estabelecer significância, mostrar aviso
-        const sampleTooSmall = results.length < 15;
+        // ★ GOD MODE FIX: Critérios de confiança mais rigorosos
+        // N<30: nenhuma significância possível (lei dos grandes números)
+        const sampleTooSmall = results.length < 30;
         let confidenceLevel = 'baixa';
         let confidenceColor = '#EF4444';
         if (sampleTooSmall) {
-            // Amosta pequena: classificar pela direção mas avisar
-            if (improvement >= 0) { confidenceLevel = 'indeterminada (amostra pequena)'; confidenceColor = '#94a3b8'; }
-            else { confidenceLevel = 'indeterminada (amostra pequena)'; confidenceColor = '#94a3b8'; }
+            confidenceLevel = 'indeterminada (amostra < 30)';
+            confidenceColor = '#94a3b8';
         } else {
-            if (improvement >= 10) { confidenceLevel = 'alta'; confidenceColor = '#10B981'; }
-            else if (improvement >= 3) { confidenceLevel = 'média'; confidenceColor = '#F59E0B'; }
-            else if (improvement >= 0) { confidenceLevel = 'marginal'; confidenceColor = '#F97316'; }
+            // GOD MODE: Thresholds mais rigorosos
+            // 25%+ melhoria = alta (antes era 10% - muito fácil)
+            if (improvement >= 25) { confidenceLevel = 'alta'; confidenceColor = '#10B981'; }
+            else if (improvement >= 10) { confidenceLevel = 'média'; confidenceColor = '#F59E0B'; }
+            else if (improvement >= 3) { confidenceLevel = 'marginal'; confidenceColor = '#F97316'; }
             else { confidenceLevel = 'baixa'; confidenceColor = '#EF4444'; }
         }
 

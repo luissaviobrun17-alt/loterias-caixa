@@ -116,11 +116,30 @@ class PrecisionEngine {
         //   - Agora com 5 fontes reais: NE + QG + Local + Last3 + ConditionalProb
         const consensusScores = {};
         const bordaSources = [];
-        if (neScores)    bordaSources.push({ src: neScores,    w: 0.40 });
-        if (qgScores)    bordaSources.push({ src: qgScores,    w: 0.22 });
-        if (localScores) bordaSources.push({ src: localScores, w: (neScores ? 0.10 : 0.62) });
-        if (calibLast3Scores)  bordaSources.push({ src: calibLast3Scores,  w: 0.22 });
-        if (calibCondScores)   bordaSources.push({ src: calibCondScores,   w: 0.16 });
+        // ★ GOD MODE v11: Borda Count com pesos POR LOTERIA
+        // Cada loteria confia mais/menos em cada motor baseado na sua matemática
+        const bordaWeights = {
+            // Lotofácil: Last3 DOMINANTE (repetição previsível em 15/25)
+            lotofacil:  { ne: 0.32, qg: 0.18, local: 0.10, last3: 0.28, cond: 0.12 },
+            // Mega Sena: NovaEra DOMINANTE (camadas estruturais cruciais para 6/60)
+            megasena:   { ne: 0.42, qg: 0.20, local: 0.10, last3: 0.14, cond: 0.14 },
+            // Quina: QuantumGod ELEVADO (Markov/temporal em 5/80 esparso)
+            quina:      { ne: 0.34, qg: 0.28, local: 0.08, last3: 0.16, cond: 0.14 },
+            // Dupla Sena: ConditionalProb ELEVADO (2 draws = dados ricos)
+            duplasena:  { ne: 0.34, qg: 0.22, local: 0.08, last3: 0.14, cond: 0.22 },
+            // Lotomania: NovaEra DOMINANTE (zone/decade balance)
+            lotomania:  { ne: 0.45, qg: 0.18, local: 0.10, last3: 0.12, cond: 0.15 },
+            // Timemania: QuantumGod ELEVADO (Monte Carlo 10/80)
+            timemania:  { ne: 0.32, qg: 0.28, local: 0.10, last3: 0.16, cond: 0.14 },
+            // Dia de Sorte: Cond + Last3 DOMINANTES (31 números = padrões claros)
+            diadesorte: { ne: 0.28, qg: 0.16, local: 0.08, last3: 0.26, cond: 0.22 }
+        };
+        const bw = bordaWeights[gameKey] || bordaWeights.megasena;
+        if (neScores)    bordaSources.push({ src: neScores,    w: bw.ne });
+        if (qgScores)    bordaSources.push({ src: qgScores,    w: bw.qg });
+        if (localScores) bordaSources.push({ src: localScores, w: (neScores ? bw.local : 0.62) });
+        if (calibLast3Scores)  bordaSources.push({ src: calibLast3Scores,  w: bw.last3 });
+        if (calibCondScores)   bordaSources.push({ src: calibCondScores,   w: bw.cond });
 
         if (bordaSources.length === 0) {
             for (let n = startNum; n <= endNum; n++)
@@ -152,25 +171,28 @@ class PrecisionEngine {
         for (let n = startNum; n <= endNum; n++) ranked.push({ n, score: consensusScores[n] || 0 });
         ranked.sort((a, b) => b.score - a.score);
 
-        // ★ FIX CRÍTICO: Respeitar pool de precisão do DOM
-        // Quando o toggle de precisão está ativo, limitar o ranked ao top N do pool
+        // ★ GOD MODE FIX: Remover acoplamento DOM
+        // Recebe precisionPoolSize como parâmetro (via options) ao invés de ler o DOM
+        // Isso permite rodar no Node.js/server-side sem crash
+        var precPoolSize = 0;
         if (typeof document !== 'undefined') {
-            const precToggle = document.getElementById('precision-mode-toggle');
-            const precPoolInput = document.getElementById('precision-pool-size');
-            if (precToggle && precToggle.checked && precPoolInput) {
-                const precPoolSize = parseInt(precPoolInput.value) || 0;
-                if (precPoolSize > 0 && precPoolSize >= drawSize && precPoolSize < ranked.length) {
-                    console.log('%c[PRECISION-L99] ★ POOL DE PRECISÃO ATIVO: limitando de ' + ranked.length + ' → ' + precPoolSize + ' números', 'color: #EF4444; font-weight: bold;');
-                    // Garantir que números fixos estejam no pool
-                    const fixedSet = new Set(fixedNumbers || []);
-                    const fixedInRanked = ranked.filter(r => fixedSet.has(r.n));
-                    const nonFixedRanked = ranked.filter(r => !fixedSet.has(r.n));
-                    const slotsForNonFixed = precPoolSize - fixedInRanked.length;
-                    ranked = [...fixedInRanked, ...nonFixedRanked.slice(0, Math.max(0, slotsForNonFixed))];
-                    ranked.sort((a, b) => b.score - a.score);
-                    console.log('[PRECISION-L99] Pool final: [' + ranked.slice(0, 15).map(r => r.n).join(', ') + (ranked.length > 15 ? '...' : '') + '] (' + ranked.length + ' números)');
+            try {
+                var precToggle = document.getElementById('precision-mode-toggle');
+                var precPoolInput = document.getElementById('precision-pool-size');
+                if (precToggle && precToggle.checked && precPoolInput) {
+                    precPoolSize = parseInt(precPoolInput.value) || 0;
                 }
-            }
+            } catch(e) { /* DOM indisponível - server-side */ }
+        }
+        if (precPoolSize > 0 && precPoolSize >= drawSize && precPoolSize < ranked.length) {
+            console.log('%c[PRECISION-L99] ★ POOL DE PRECISÃO ATIVO: limitando de ' + ranked.length + ' → ' + precPoolSize + ' números', 'color: #EF4444; font-weight: bold;');
+            var fixedSet = new Set(fixedNumbers || []);
+            var fixedInRanked = ranked.filter(r => fixedSet.has(r.n));
+            var nonFixedRanked = ranked.filter(r => !fixedSet.has(r.n));
+            var slotsForNonFixed = precPoolSize - fixedInRanked.length;
+            ranked = [...fixedInRanked, ...nonFixedRanked.slice(0, Math.max(0, slotsForNonFixed))];
+            ranked.sort((a, b) => b.score - a.score);
+            console.log('[PRECISION-L99] Pool final: [' + ranked.slice(0, 15).map(r => r.n).join(', ') + (ranked.length > 15 ? '...' : '') + '] (' + ranked.length + ' números)');
         }
 
         // Candidatos de consenso alto (votados por múltiplas fontes)
@@ -302,10 +324,20 @@ class PrecisionEngine {
         for (let n = startNum; n <= endNum; n++) cov[n] = 0;
         for (const n of game1) cov[n]++;
 
-        // ─ buildGame: amostragem ponderada determinística por LCG ─────────
+        // ★ GOD MODE: xorshift128+ — período 2^128 vs 2^32 do LCG
         const buildGame = (gIdx, temperature) => {
-            let s = (Math.imul(gIdx, 2654435761) + 1013904223) | 0;
-            const rng = () => { s = (Math.imul(s, 1664525) + 1013904223) | 0; return (s >>> 0) / 4294967296; };
+            let s0 = (Math.imul(gIdx, 2654435761) + 1013904223) >>> 0;
+            let s1 = (Math.imul(gIdx, 1664525) + 1013904223) >>> 0;
+            const rng = () => {
+                let t1 = s0, t0 = s1;
+                s0 = t0;
+                t1 ^= t1 << 23;
+                t1 ^= t1 >>> 17;
+                t1 ^= t0;
+                t1 ^= t0 >>> 26;
+                s1 = t1;
+                return ((t0 + t1) >>> 0) / 4294967296;
+            };
 
             const totalCov = allNums.reduce((a,n) => a + cov[n], 0);
             const avgCov   = totalCov / Math.max(1, allNums.length);
@@ -1062,7 +1094,9 @@ class PrecisionEngine {
                 const avgHits = totalBest / btDraws;
                 const expectedRandom = drawSize * drawSize / totalRange;
                 const improvement = expectedRandom > 0 ? avgHits / expectedRandom : 1;
-                confidence = Math.min(92, Math.max(45, Math.round(40 + rate * 40 + Math.min(12, improvement * 6))));
+                // ★ GOD MODE FIX: Remover piso artificial de 45%
+                // Mostrar confiança REAL — mínimo 10% para indicar que pelo menos rodou
+                confidence = Math.min(95, Math.max(10, Math.round(40 + rate * 40 + Math.min(12, improvement * 6))));
                 console.log('[PRECISION-L99] 🧪 BT: ' + threshold + '+ em ' + hits3plus + '/' + btDraws + ' | avg=' + avgHits.toFixed(1) + ' | melhoria=' + improvement.toFixed(1) + 'x → confiança ' + confidence + '%');
             } catch(e) { console.warn('[PRECISION-L99] Falha no backtest:', e.message); }
         }

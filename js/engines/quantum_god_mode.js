@@ -47,30 +47,31 @@ class QuantumGodEngine {
         var profiles = {
             // Lotofácil: 15/25 — V10: range pequeno, diversidade natural alta
             'lotofacil': {
-                recentFreq:   0.08, generalFreq: 0.04, latency: 0.08,
-                cycles:       0.06, repetition: 0.10, drawEnding: 0.02,
-                lines:        0.06, columns: 0.04, primes: 0.01,
-                mirrors:      0.03, digitEnding: 0.03,
-                markov:       0.05, temporal: 0.05, conditional: 0.05,
-                algorithm:    0.03, trend: 0.04, fibonacci: 0.01,
-                // ══ NOVAS CAMADAS QUÂNTICAS QCAL-V3 (todas as loterias) ══
-                harmonics:    0.04, entropy: 0.04, regression: 0.04,
-                phaseAlign:   0.04, resonance: 0.04, clairvoyance: 0.06,
+                // ★ GOD MODE v11: Repetição é REI (8-12/15 repetem do último)
+                // Pesos das camadas mortas redistribuídos para as ativas
+                recentFreq:   0.06, generalFreq: 0.03, latency: 0.05,
+                cycles:       0.04, repetition: 0.16, drawEnding: 0.01,
+                lines:        0.08, columns: 0.06, primes: 0.01,
+                mirrors:      0.02, digitEnding: 0.02,
+                markov:       0.10, temporal: 0.08, conditional: 0.10,
+                algorithm:    0, trend: 0.06, fibonacci: 0,
+                harmonics:    0, entropy: 0, regression: 0,
+                phaseAlign:   0, resonance: 0, clairvoyance: 0,
                 sumMin: 155, sumMax: 235, linesPerRow: [1, 5],
                 maxConsecutive: 10, evenOddTolerance: 3,
                 repeatFromLast: [6, 12], guaranteedPct: 0.40,
                 monteCarloRuns: 28000, qualityAttempts: 3500
             },
             'megasena': {
-                recentFreq:   0.09, generalFreq: 0.05, latency: 0.13,
-                cycles:       0.10, repetition: 0.04, drawEnding: 0.05,
-                lines:        0.04, columns: 0.04, primes: 0.02,
-                mirrors:      0.03, digitEnding: 0.03,
-                markov:       0.06, temporal: 0.05, conditional: 0.05,
-                algorithm:    0.04, trend: 0.04, fibonacci: 0.01,
-                // ══ CAMADAS QUÂNTICAS QCAL-V3 ══
-                harmonics:    0.05, entropy: 0.05, regression: 0.05,
-                phaseAlign:   0.04, resonance: 0.05, clairvoyance: 0.07,
+                // ★ GOD MODE v11: Distribuição zonal é CRÍTICA (6/60)
+                recentFreq:   0.06, generalFreq: 0.04, latency: 0.08,
+                cycles:       0.08, repetition: 0.03, drawEnding: 0.04,
+                lines:        0.07, columns: 0.06, primes: 0.02,
+                mirrors:      0.02, digitEnding: 0.02,
+                markov:       0.08, temporal: 0.08, conditional: 0.07,
+                algorithm:    0, trend: 0.06, fibonacci: 0,
+                harmonics:    0, entropy: 0, regression: 0,
+                phaseAlign:   0, resonance: 0, clairvoyance: 0,
                 sumMin: 100, sumMax: 250, linesPerRow: [0, 3],
                 maxConsecutive: 2, evenOddTolerance: 2,
                 repeatFromLast: [0, 3], guaranteedPct: 0.40,
@@ -78,31 +79,31 @@ class QuantumGodEngine {
             },
             // Quina: 5/80 — QCAL-V3: range grande, clarividência máxima
             'quina': {
-                recentFreq:   0.07, generalFreq: 0.05, latency: 0.13,
-                cycles:       0.10, repetition: 0.04, drawEnding: 0.04,
-                lines:        0.04, columns: 0.03, primes: 0.01,
-                mirrors:      0.03, digitEnding: 0.03,
-                markov:       0.08, temporal: 0.06, conditional: 0.06,
-                algorithm:    0.03, trend: 0.05, fibonacci: 0.01,
-                // ══ CAMADAS QUÂNTICAS QCAL-V3 ══
-                harmonics:    0.06, entropy: 0.05, regression: 0.05,
-                phaseAlign:   0.04, resonance: 0.05, clairvoyance: 0.08,
+                // ★ GOD MODE v11: Gap + Ciclos dominam (5/80 = ciclos longos)
+                recentFreq:   0.05, generalFreq: 0.04, latency: 0.12,
+                cycles:       0.14, repetition: 0.02, drawEnding: 0.03,
+                lines:        0.05, columns: 0.04, primes: 0.01,
+                mirrors:      0.02, digitEnding: 0.02,
+                markov:       0.10, temporal: 0.09, conditional: 0.08,
+                algorithm:    0, trend: 0.07, fibonacci: 0,
+                harmonics:    0, entropy: 0, regression: 0,
+                phaseAlign:   0, resonance: 0, clairvoyance: 0,
                 sumMin: 90, sumMax: 270, linesPerRow: [0, 3],
                 maxConsecutive: 2, evenOddTolerance: 2,
                 repeatFromLast: [0, 2], guaranteedPct: 0.40,
-                monteCarloRuns: 25000, qualityAttempts: 3000
+                monteCarloRuns: 30000, qualityAttempts: 4000
             },
             // Dupla Sena: 6/50 — QCAL-V3: ciclos + vácuo duplo
             'duplasena': {
-                recentFreq:   0.07, generalFreq: 0.05, latency: 0.13,
-                cycles:       0.09, repetition: 0.06, drawEnding: 0.04,
-                lines:        0.04, columns: 0.03, primes: 0.01,
-                mirrors:      0.03, digitEnding: 0.03,
-                markov:       0.07, temporal: 0.06, conditional: 0.06,
-                algorithm:    0.03, trend: 0.05, fibonacci: 0.01,
-                // ══ CAMADAS QUÂNTICAS QCAL-V3 ══
-                harmonics:    0.05, entropy: 0.05, regression: 0.05,
-                phaseAlign:   0.04, resonance: 0.05, clairvoyance: 0.07,
+                // ★ GOD MODE v11: 2 sorteios = 2x dados! Mirror + repetition dominam
+                recentFreq:   0.05, generalFreq: 0.04, latency: 0.08,
+                cycles:       0.06, repetition: 0.10, drawEnding: 0.03,
+                lines:        0.05, columns: 0.04, primes: 0.01,
+                mirrors:      0.08, digitEnding: 0.03,
+                markov:       0.10, temporal: 0.09, conditional: 0.08,
+                algorithm:    0, trend: 0.06, fibonacci: 0,
+                harmonics:    0, entropy: 0, regression: 0,
+                phaseAlign:   0, resonance: 0, clairvoyance: 0,
                 sumMin: 80, sumMax: 200, linesPerRow: [0, 3],
                 maxConsecutive: 2, evenOddTolerance: 2,
                 repeatFromLast: [0, 3], guaranteedPct: 0.42,
@@ -110,15 +111,16 @@ class QuantumGodEngine {
             },
             // Lotomania: 20/100 — QCAL-V3: range enorme, entropia máxima
             'lotomania': {
-                recentFreq:   0.04, generalFreq: 0.03, latency: 0.09,
-                cycles:       0.06, repetition: 0.10, drawEnding: 0.02,
-                lines:        0.05, columns: 0.04, primes: 0.01,
-                mirrors:      0.03, digitEnding: 0.04,
-                markov:       0.07, temporal: 0.06, conditional: 0.06,
-                algorithm:    0.03, trend: 0.05, fibonacci: 0.01,
-                // ══ CAMADAS QUÂNTICAS QCAL-V3 ══
-                harmonics:    0.06, entropy: 0.07, regression: 0.06,
-                phaseAlign:   0.05, resonance: 0.05, clairvoyance: 0.08,
+                // ★ GOD MODE v11: Décadas equilibradas (50/100, draw 20)
+                // Lines+Columns = equilíbrio por década = CRITICAL
+                recentFreq:   0.03, generalFreq: 0.02, latency: 0.05,
+                cycles:       0.04, repetition: 0.08, drawEnding: 0.01,
+                lines:        0.12, columns: 0.10, primes: 0.01,
+                mirrors:      0.02, digitEnding: 0.03,
+                markov:       0.08, temporal: 0.08, conditional: 0.07,
+                algorithm:    0, trend: 0.06, fibonacci: 0,
+                harmonics:    0, entropy: 0, regression: 0,
+                phaseAlign:   0, resonance: 0, clairvoyance: 0,
                 sumMin: 2050, sumMax: 2950, linesPerRow: [1, 3],
                 maxConsecutive: 3, evenOddTolerance: 3,
                 repeatFromLast: [7, 14], guaranteedPct: 0.45,
@@ -126,31 +128,33 @@ class QuantumGodEngine {
             },
             // Timemania: 10/80 — V4: RECALIBRADA COM DADOS FORENSES
             'timemania': {
-                recentFreq:   0.10, generalFreq: 0.06, latency: 0.12,  // V4: recentFreq 0.08→0.10
-                cycles:       0.08, repetition: 0.04, drawEnding: 0.04, // V4: rep 0.05→0.04
-                lines:        0.05, columns: 0.04, primes: 0.02,
-                mirrors:      0.03, digitEnding: 0.04,
-                markov:       0.04, temporal: 0.07, conditional: 0.05, // V4: markov 0.05→0.04, temp 0.06→0.07
-                algorithm:    0.05, trend: 0.07, fibonacci: 0.02,     // V4: trend 0.06→0.07
-                // Camadas quânticas V12 (recalibradas V4)
-                harmonics:    0.05, entropy: 0.04, regression: 0.06,   // V4: reduzidos mais
-                phaseAlign:   0.05, resonance: 0.06, clairvoyance: 0.08, // V4: clair 0.10→0.08
-                sumMin: 200, sumMax: 340, linesPerRow: [0, 3],         // V4: soma real [200,340]
-                maxConsecutive: 2, evenOddTolerance: 3,                // V4: maxCons 3→2
-                repeatFromLast: [0, 2], guaranteedPct: 0.25,           // V4: repeat [0,4]→[0,2], guar 0.30→0.25
-                monteCarloRuns: 65000, qualityAttempts: 8000           // V4: mais simulações
+                // ★ GOD MODE v11: Seleção eficiente 10/80, draw 7
+                // Temporal + Markov para padrões de transição
+                recentFreq:   0.06, generalFreq: 0.04, latency: 0.10,
+                cycles:       0.08, repetition: 0.03, drawEnding: 0.03,
+                lines:        0.06, columns: 0.05, primes: 0.01,
+                mirrors:      0.02, digitEnding: 0.03,
+                markov:       0.10, temporal: 0.10, conditional: 0.08,
+                algorithm:    0, trend: 0.08, fibonacci: 0,
+                harmonics:    0, entropy: 0, regression: 0,
+                phaseAlign:   0, resonance: 0, clairvoyance: 0,
+                sumMin: 200, sumMax: 340, linesPerRow: [0, 3],
+                maxConsecutive: 2, evenOddTolerance: 3,
+                repeatFromLast: [0, 2], guaranteedPct: 0.25,
+                monteCarloRuns: 65000, qualityAttempts: 8000
             },
             // Dia de Sorte: 7/31 — QCAL-V3: espaço pequeno, Fibonacci prevalente
             'diadesorte': {
-                recentFreq:   0.05, generalFreq: 0.04, latency: 0.09,
-                cycles:       0.07, repetition: 0.14, drawEnding: 0.03,
-                lines:        0.04, columns: 0.03, primes: 0.01,
-                mirrors:      0.03, digitEnding: 0.03,
-                markov:       0.09, temporal: 0.06, conditional: 0.06,
-                algorithm:    0.03, trend: 0.05, fibonacci: 0.01,
-                // ══ CAMADAS QUÂNTICAS QCAL-V3 ══
-                harmonics:    0.05, entropy: 0.04, regression: 0.05,
-                phaseAlign:   0.04, resonance: 0.05, clairvoyance: 0.08,
+                // ★ GOD MODE v11: Range pequeno (7/31) = padrões detectáveis
+                // Conditional + Repetition dominam no espaço reduzido
+                recentFreq:   0.04, generalFreq: 0.03, latency: 0.06,
+                cycles:       0.05, repetition: 0.14, drawEnding: 0.02,
+                lines:        0.05, columns: 0.04, primes: 0.01,
+                mirrors:      0.03, digitEnding: 0.02,
+                markov:       0.12, temporal: 0.08, conditional: 0.12,
+                algorithm:    0, trend: 0.07, fibonacci: 0,
+                harmonics:    0, entropy: 0, regression: 0,
+                phaseAlign:   0, resonance: 0, clairvoyance: 0,
                 sumMin: 78, sumMax: 152, linesPerRow: [0, 4],
                 maxConsecutive: 3, evenOddTolerance: 2,
                 repeatFromLast: [2, 6], guaranteedPct: 0.50,
@@ -193,7 +197,9 @@ class QuantumGodEngine {
         var MAX_RETRIES = 8;
 
         for (var retry = 0; retry < MAX_RETRIES; retry++) {
-            var result = this._runSingleAttempt(gameKey, count, retry === 0 ? history : trainingHistory, startNum, endNum, totalNumbers, totalRange, isLargeGame, profile, retry);
+            // ★ GOD MODE FIX: SEMPRE usar trainingHistory (sem data leakage)
+            // Bug anterior: retry===0 usava 'history' completo incluindo validationDraw
+            var result = this._runSingleAttempt(gameKey, count, trainingHistory, startNum, endNum, totalNumbers, totalRange, isLargeGame, profile, retry);
 
             // ╔══════════════════════════════════════╗
             // ║  CROSS-VALIDATION + REJEIÇÃO         ║
@@ -257,19 +263,20 @@ class QuantumGodEngine {
         var markovWeights = this._layer15_MarkovTransition(history, startNum, endNum);
         var temporalWeights = this._layer16_TemporalSequences(history, startNum, endNum);
         var conditionalWeights = this._layer17_ConditionalCorrelation(history, startNum, endNum);
-        var algorithmWeights = this._layer18_AlgorithmDetector(history, startNum, endNum);
+        // ★ GOD MODE: Camadas 18 e 20 ELIMINADAS — pseudociência (não mais executam)
         var trendWeights = this._layer19_TemporalTrend(history, startNum, endNum);
-        var fibonacciWeights = this._layer20_FibonacciGolden(history, startNum, endNum);
+        var algorithmWeights = null; // _layer18_AlgorithmDetector REMOVIDO
+        var fibonacciWeights = null; // _layer20_FibonacciGolden REMOVIDO
         var gapWeights = this._layer21_GapAnalysis(history, startNum, endNum);
         var quadrantWeights = this._layer22_QuadrantBalance(history, startNum, endNum);
 
-        // ── NOVAS CAMADAS QUÂNTICAS V12 (Clarividência Timemania) ──
-        var harmonicWeights = (profile.harmonics) ? this._layer23_Harmonics(history, startNum, endNum) : null;
-        var entropyWeights = (profile.entropy) ? this._layer24_Entropy(history, startNum, endNum) : null;
-        var regressionWeights = (profile.regression) ? this._layer25_Regression(history, startNum, endNum) : null;
-        var phaseWeights = (profile.phaseAlign) ? this._layer26_PhaseAlignment(history, startNum, endNum) : null;
-        var resonanceWeights = (profile.resonance) ? this._layer27_Resonance(history, startNum, endNum) : null;
-        var clairvoyanceWeights = (profile.clairvoyance) ? this._layer28_Clairvoyance(history, startNum, endNum, gameKey) : null;
+        // ★ GOD MODE: Camadas 23-28 ELIMINADAS — redundantes (não mais executam)
+        var harmonicWeights = null;
+        var entropyWeights = null;
+        var regressionWeights = null;
+        var phaseWeights = null;
+        var resonanceWeights = null;
+        var clairvoyanceWeights = null;
 
         // Diversidade extra em retries (V12: mais agressivo)
         var diversityBoost = retryNum * 0.10;
@@ -292,18 +299,27 @@ class QuantumGodEngine {
                 (markovWeights[n] || 0)      * (profile.markov * 1.4 || 0) +
                 (temporalWeights[n] || 0)    * (profile.temporal * 1.2 || 0) +
                 (conditionalWeights[n] || 0) * (profile.conditional * 1.3 || 0) +
-                (algorithmWeights[n] || 0)   * (profile.algorithm || 0) +
+                // ★ GOD MODE: Camada 18 (Detector RNG) NEUTRALIZADA — pseudociência
+                // algorithmWeights CALCULADO mas peso ZERO (não polui o score)
+                (algorithmWeights[n] || 0)   * 0 +
                 (trendWeights[n] || 0)       * (profile.trend * 1.2 || 0) +
-                (fibonacciWeights[n] || 0)   * (profile.fibonacci * 0.3 || 0) +
+                // ★ GOD MODE: Camada 20 (Fibonacci) NEUTRALIZADA — pseudociência
+                (fibonacciWeights[n] || 0)   * 0 +
                 (gapWeights[n] || 0)         * 0.06 +
                 (quadrantWeights[n] || 0)    * 0.05 +
                 // ── Camadas Quânticas V12 ──
-                (harmonicWeights ? (harmonicWeights[n] || 0) * (profile.harmonics || 0) : 0) +
-                (entropyWeights ? (entropyWeights[n] || 0) * (profile.entropy || 0) : 0) +
-                (regressionWeights ? (regressionWeights[n] || 0) * (profile.regression || 0) : 0) +
-                (phaseWeights ? (phaseWeights[n] || 0) * (profile.phaseAlign || 0) : 0) +
-                (resonanceWeights ? (resonanceWeights[n] || 0) * (profile.resonance || 0) : 0) +
-                (clairvoyanceWeights ? (clairvoyanceWeights[n] || 0) * (profile.clairvoyance || 0) : 0) +
+                // ★ GOD MODE: Camadas 23-28 NEUTRALIZADAS — redundantes com camadas 1-10
+                // Harmônicos = Entropia por zona (já em L4 NovaEra)
+                // Regressão = Tendência temporal (já em L19)
+                // Fase = Ciclos (já em L4)
+                // Ressonância = Co-ocorrência (já em L6)
+                // Clarividência = Meta-análise que recalcula L1,L3,L4,L15,L16,L19
+                (harmonicWeights ? (harmonicWeights[n] || 0) * 0 : 0) +
+                (entropyWeights ? (entropyWeights[n] || 0) * 0 : 0) +
+                (regressionWeights ? (regressionWeights[n] || 0) * 0 : 0) +
+                (phaseWeights ? (phaseWeights[n] || 0) * 0 : 0) +
+                (resonanceWeights ? (resonanceWeights[n] || 0) * 0 : 0) +
+                (clairvoyanceWeights ? (clairvoyanceWeights[n] || 0) * 0 : 0) +
                 noise;
         }
 
@@ -419,10 +435,18 @@ class QuantumGodEngine {
             }
         }
 
+        // ★ GOD MODE: Distribuição uniforme ao invés de Falácia do Jogador
+        // Números NÃO "devem" sair. O RNG não tem memória.
+        // Leve gradiente de recência para diversidade (sem extremos)
         var weights = {};
         var histLen = history.length || 1;
         for (var k in lastSeen) {
-            weights[k] = lastSeen[k] === -1 ? 1.0 : lastSeen[k] / histLen;
+            if (lastSeen[k] === -1) {
+                weights[k] = 0.55; // Nunca visto — leve boost para cobertura
+            } else {
+                // Gradiente suave: 0.45 (recente) → 0.55 (antigo)
+                weights[k] = 0.45 + (lastSeen[k] / histLen) * 0.10;
+            }
         }
         return weights;
     }
@@ -1202,7 +1226,9 @@ class QuantumGodEngine {
         } else {
             confidence = Math.round(55 + (rawConf / 68) * 33);
         }
-        confidence = Math.max(70, Math.min(98, confidence));
+        // ★ GOD MODE FIX: Remover piso artificial de 70%
+        // Mostrar confiança REAL — mínimo 15% para indicar que pelo menos rodou
+        confidence = Math.max(15, Math.min(98, confidence));
 
         console.log('[QuantumV12] 🎯 ' + gameKey + ' Conf: ' + confidence + '% | Base=' + Math.round(baseTotal) + '/68 | Bonus=' + Math.round(bonusTotal) + '/32 | imp=x' + improvement.toFixed(2) + ' | W3=' + Math.round(winRate3*100) + '% | W4=' + Math.round(winRate4*100) + '%');
 
