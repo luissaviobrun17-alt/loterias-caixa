@@ -192,50 +192,48 @@ class UI {
             };
         }
 
-        // === BOTAO QUANTUM L99 ===
+        // === BOTAO QUANTUM L99 (SmartBetsEngine IA) ===
         if (this.generateSmartBtn) {
             this.generateSmartBtn.onclick = () => {
                 const game = GAMES[this.currentGameKey];
+                if (!game) return;
                 const qty = parseInt(this.gamesQuantityInput.value) || 10;
                 let selectedArr = Array.from(this.selectedNumbers);
                 const fixedArr = Array.from(this.fixedNumbers);
                 const drawSizeSelect = document.getElementById('smart-draw-size');
                 const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
                 const drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
-                this._lastGenerationMode = 'precision';
-                localStorage.setItem('l99_lastMode', 'precision');
-                document.body.setAttribute('data-l99-mode', 'precision');
-                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Otimizando Cobertura (Greedy Set Cover)...</div></div>';
+                this._lastGenerationMode = 'quantum_l99';
+                localStorage.setItem('l99_lastMode', 'quantum_l99');
+                document.body.setAttribute('data-l99-mode', 'quantum_l99');
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">QUANTUM L99: Analise IA em 21 camadas...</div></div>';
                 setTimeout(() => {
                     try {
-                        if (typeof CoverageEngine === 'undefined') { alert('CoverageEngine nao carregado.'); return; }
-                        var origConfig = CoverageEngine.getConfig(this.currentGameKey);
-                        if (drawSize !== origConfig.drawSize) {
-                            var customCfg = Object.assign({}, origConfig);
-                            customCfg.drawSize = drawSize;
-                            CoverageEngine._tempConfig = customCfg;
-                            CoverageEngine._tempGameKey = this.currentGameKey;
+                        if (typeof SmartBetsEngine === 'undefined') { alert('SmartBetsEngine nao carregado. Recarregue a pagina.'); return; }
+                        const smartResult = SmartBetsEngine.generate(this.currentGameKey, qty, selectedArr.length >= drawSize ? selectedArr : null, fixedArr, drawSize);
+                        if (!smartResult || !smartResult.games || smartResult.games.length === 0) {
+                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Tente novamente.</div>';
+                            return;
                         }
-                        const coverResult = CoverageEngine.generate(this.currentGameKey, qty, selectedArr.length >= drawSize ? selectedArr : null, fixedArr);
-                        const m = coverResult.analysis.metrics;
-                        this.currentGeneratedGames = coverResult.games;
-                        this._lastGeneratedGames = coverResult.games;
-                        this.renderGames({ pool: selectedArr, games: coverResult.games, smartAnalysis: null }, this.currentGameKey);
-
-                        const banner = document.createElement('div');
+                        this.currentGeneratedGames = smartResult.games;
+                        this._lastGeneratedGames = smartResult.games;
+                        this.renderGames(smartResult, this.currentGameKey);
+                        // Banner IA
+                        var smartAnalysis = smartResult.analysis || {};
+                        var conf = smartAnalysis.confidence || 0;
+                        var cov = smartAnalysis.coverage || 0;
+                        var divScore = smartAnalysis.diversity || 0;
+                        var eng = smartResult.internalEngine || 'SmartBetsEngine';
+                        var banner = document.createElement('div');
                         banner.className = 'smart-gen-analysis';
                         banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(139,92,246,0.12),rgba(15,23,42,0.95));border:1px solid rgba(139,92,246,0.3);';
-                        const conf = sa.confidence || 0;
-                        const cov = sa.coverage || 0;
-                        const div = sa.diversity || 0;
-                        const eng = this._lastInternalEngine || smartResult.internalEngine || 'SmartBetsEngine';
-                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">&#x26A1;</span><div><div style="font-weight:900;color:#A78BFA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">QUANTUM L99 — ANALISE IA</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: ' + eng + ' | ' + qty + ' jogos gerados</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">CONFIANCA IA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + conf + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">COBERTURA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + cov + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + div + '%</div></div></div>';
-                        const oldBanner = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">&#x26A1;</span><div><div style="font-weight:900;color:#A78BFA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">QUANTUM L99 — ANALISE IA</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: ' + eng + ' | ' + qty + ' jogos gerados</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">CONFIANCA IA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + conf + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">COBERTURA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + cov + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + divScore + '%</div></div></div>';
+                        var oldBanner = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
                         if (oldBanner) oldBanner.remove();
                         this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
                         banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     } catch(e) {
-                        console.error('Erro na geracao coverage', e);
+                        console.error('Erro QUANTUM L99:', e);
                         this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
                     }
                 }, 50);
