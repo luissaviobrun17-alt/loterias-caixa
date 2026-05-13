@@ -1,4 +1,4 @@
-/* Component Styles for Modern Glassmorphism UI */
+﻿/* Component Styles for Modern Glassmorphism UI */
 
 /* Buttons */
 /* Buttons */
@@ -1215,3 +1215,43 @@ select:focus {
         padding: 12px 10px;
     }
 }
+/* ── NOVO VISUAL DOS BOTÕES (REFORMA MEGA SENA) ── */
+.random-btn {
+    background: linear-gradient(135deg, #4B5563, #374151) !important;
+    box-shadow: 0 4px 15px rgba(75, 85, 99, 0.3) !important;
+    border: 1px solid rgba(156, 163, 175, 0.2);
+}
+.random-btn:hover {
+    background: linear-gradient(135deg, #6B7280, #4B5563) !important;
+    box-shadow: 0 6px 20px rgba(75, 85, 99, 0.5) !important;
+}
+
+.coverage-btn {
+    background: linear-gradient(135deg, #059669, #047857) !important;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35) !important;
+    border: 1px solid rgba(52, 211, 153, 0.3);
+}
+.coverage-btn:hover {
+    background: linear-gradient(135deg, #10B981, #059669) !important;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5) !important;
+}
+
+.closure-btn {
+    background: linear-gradient(135deg, #D97706, #B45309) !important;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    color: #FFF !important;
+    font-weight: 800;
+    animation: closurePulse 2s infinite;
+}
+.closure-btn:hover {
+    background: linear-gradient(135deg, #F59E0B, #D97706) !important;
+    box-shadow: 0 6px 25px rgba(245, 158, 11, 0.6) !important;
+    animation: none;
+}
+@keyframes closurePulse {
+    0%, 100% { box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+    50% { box-shadow: 0 6px 22px rgba(245, 158, 11, 0.7); }
+}
+
+/* Fim Novo Visual */

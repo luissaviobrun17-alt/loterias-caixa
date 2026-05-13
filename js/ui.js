@@ -12,6 +12,10 @@ class UI {
         this.gamesQuantityInput = _el('games-quantity');
         this.generateBtn = _el('generate-btn');
         this.generateSmartBtn = _el('generate-smart-btn');
+        this.generateClosureBtn = _el('generate-closure-btn');
+        this.closurePanel = _el('closure-panel');
+        this.btnRunClosure = _el('btn-run-closure');
+        this.closureGuarantee = _el('closure-guarantee');
         this.btnPrecisionPlay = _el('btn-precision-play');
         this.smartDrawSizeSelect = _el('smart-draw-size');
         this.smartDrawInfo = _el('smart-draw-info');
@@ -107,6 +111,243 @@ class UI {
         this.prizeDisplay = _el('prize-display');
         this.prizeValue = _el('prize-value');
         this.prizeBadge = _el('prize-badge');
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  INICIALIZACAO DE EVENTOS — CHAMADO POR main.js
+    // ════════════════════════════════════════════════════════════
+    initEvents() {
+        // === NAVEGACAO ENTRE LOTERIAS ===
+        this.navButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const gameKey = btn.dataset.game;
+                if (gameKey && typeof GAMES !== 'undefined' && GAMES[gameKey]) {
+                    this.updateGameInfo(gameKey);
+                }
+            });
+        });
+
+        // === BOTOES DE SELECAO ===
+        const btnRandom = document.getElementById('btn-random-select');
+        if (btnRandom) btnRandom.onclick = () => this.selectRandom();
+
+        const btnClear = document.getElementById('btn-clear-selection');
+        if (btnClear) btnClear.onclick = () => this.clearSelection();
+
+        if (this.btnFixedMode) {
+            this.btnFixedMode.onclick = () => this.toggleFixedMode();
+        }
+
+        // === BOTAO GERAR MANUAL ===
+        if (this.generateBtn) {
+            this.generateBtn.onclick = () => {
+                const game = GAMES[this.currentGameKey];
+                if (!game) return;
+                const qty = parseInt(this.gamesQuantityInput.value) || 10;
+                let selectedArr = Array.from(this.selectedNumbers);
+                const fixedArr = Array.from(this.fixedNumbers);
+                const drawSizeSelect = document.getElementById('smart-draw-size');
+                const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
+                const drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
+                this._lastGenerationMode = 'manual';
+                localStorage.setItem('l99_lastMode', 'manual');
+                document.body.setAttribute('data-l99-mode', 'manual');
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Gerando jogos...</div></div>';
+                setTimeout(() => {
+                    try {
+                        if (typeof CoverageEngine !== 'undefined') {
+                            var origConfig = CoverageEngine.getConfig(this.currentGameKey);
+                            if (drawSize !== origConfig.drawSize) {
+                                var customCfg = Object.assign({}, origConfig);
+                                customCfg.drawSize = drawSize;
+                                CoverageEngine._tempConfig = customCfg;
+                                CoverageEngine._tempGameKey = this.currentGameKey;
+                            }
+                            const coverResult = CoverageEngine.generate(this.currentGameKey, qty, selectedArr.length >= drawSize ? selectedArr : null, fixedArr);
+                            this.currentGeneratedGames = coverResult.games;
+                            this._lastGeneratedGames = coverResult.games;
+                            this.renderGames({ pool: selectedArr, games: coverResult.games, smartAnalysis: null }, this.currentGameKey);
+                        } else {
+                            const games = [];
+                            for (let g = 0; g < qty; g++) {
+                                const pool = [];
+                                for (let i = game.range[0]; i <= game.range[1]; i++) pool.push(i);
+                                for (let i = pool.length - 1; i > 0; i--) {
+                                    const j = Math.floor(Math.random() * (i + 1));
+                                    [pool[i], pool[j]] = [pool[j], pool[i]];
+                                }
+                                const nums = pool.slice(0, drawSize).sort((a, b) => a - b);
+                                fixedArr.forEach(fn => { if (!nums.includes(fn)) { nums.pop(); nums.push(fn); nums.sort((a, b) => a - b); } });
+                                games.push(nums);
+                            }
+                            this.currentGeneratedGames = games;
+                            this._lastGeneratedGames = games;
+                            this.renderGames({ pool: selectedArr, games: games, smartAnalysis: null }, this.currentGameKey);
+                        }
+                    } catch(e) {
+                        console.error('Erro na geracao manual:', e);
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
+                    }
+                }, 50);
+            };
+        }
+
+        // === BOTAO QUANTUM L99 ===
+        if (this.generateSmartBtn) {
+            this.generateSmartBtn.onclick = () => {
+                const game = GAMES[this.currentGameKey];
+                const qty = parseInt(this.gamesQuantityInput.value) || 10;
+                let selectedArr = Array.from(this.selectedNumbers);
+                const fixedArr = Array.from(this.fixedNumbers);
+                const drawSizeSelect = document.getElementById('smart-draw-size');
+                const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
+                const drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
+                this._lastGenerationMode = 'precision';
+                localStorage.setItem('l99_lastMode', 'precision');
+                document.body.setAttribute('data-l99-mode', 'precision');
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Otimizando Cobertura (Greedy Set Cover)...</div></div>';
+                setTimeout(() => {
+                    try {
+                        if (typeof CoverageEngine === 'undefined') { alert('CoverageEngine nao carregado.'); return; }
+                        var origConfig = CoverageEngine.getConfig(this.currentGameKey);
+                        if (drawSize !== origConfig.drawSize) {
+                            var customCfg = Object.assign({}, origConfig);
+                            customCfg.drawSize = drawSize;
+                            CoverageEngine._tempConfig = customCfg;
+                            CoverageEngine._tempGameKey = this.currentGameKey;
+                        }
+                        const coverResult = CoverageEngine.generate(this.currentGameKey, qty, selectedArr.length >= drawSize ? selectedArr : null, fixedArr);
+                        const m = coverResult.analysis.metrics;
+                        this.currentGeneratedGames = coverResult.games;
+                        this._lastGeneratedGames = coverResult.games;
+                        this.renderGames({ pool: selectedArr, games: coverResult.games, smartAnalysis: null }, this.currentGameKey);
+
+                        const banner = document.createElement('div');
+                        banner.className = 'smart-gen-analysis';
+                        banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(4,120,87,0.12),rgba(15,23,42,0.95));border:1px solid rgba(16,185,129,0.3);';
+                        let probHtml = '';
+                        const cfg = CoverageEngine.getConfig(this.currentGameKey);
+                        for (let pi = 0; pi < cfg.prizeThresholds.length; pi++) {
+                            const pt = cfg.prizeThresholds[pi];
+                            const pPct = ((m.probWithNGames[pt] || 0) * 100).toFixed(4);
+                            const bW = Math.min(100, parseFloat(pPct));
+                            probHtml += '<div style="display:flex;align-items:center;gap:6px;margin:3px 0;"><span style="color:#94A3B8;font-size:0.68rem;min-width:50px;">' + cfg.prizeLabels[pi] + '</span><div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + bW + '%;background:linear-gradient(90deg,#10B981,#FFD700);border-radius:3px;"></div></div><span style="color:#E2E8F0;font-size:0.68rem;font-weight:700;min-width:65px;text-align:right;">' + pPct + '%</span></div>';
+                        }
+                        const pAnyM = ((m.probWithNGames.anyPrize || 0) * 100).toFixed(2);
+                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">&#x1f4d0;</span><div><div style="font-weight:900;color:#10B981;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">COBERTURA MAXIMA COMBINATORIA</div><div style="font-size:0.72rem;color:#94A3B8;">Otimizado via Greedy Set Cover para ' + qty + ' jogos</div></div></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:0.75rem;"><div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">PARES COBERTOS</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + m.pairCoveragePct + '%</div></div><div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">NUMEROS USADOS</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + m.numberCoveragePct + '%</div></div><div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + m.avgHamming + '</div></div><div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">INVESTIMENTO</div><div style="color:#FFD700;font-weight:900;font-size:1.2rem;">R$ ' + m.investment.toFixed(2) + '</div></div></div><div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.25);border-radius:10px;border:1px solid rgba(255,215,0,0.15);"><div style="color:#FFD700;font-size:0.7rem;font-weight:800;margin-bottom:6px;">PROBABILIDADES EXATAS (Hipergeometrica)</div>' + probHtml + '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(16,185,129,0.2);color:#10B981;font-weight:900;font-size:0.8rem;">Chance QUALQUER premio: ' + pAnyM + '%</div></div>';
+                        const oldBanner = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                        if (oldBanner) oldBanner.remove();
+                        this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
+                        banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } catch(e) {
+                        console.error('Erro na geracao coverage', e);
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
+                    }
+                }, 50);
+            };
+        }
+
+        // Pool de Precisao (Sniper)
+        const precisionPoolRow = document.createElement('div');
+        precisionPoolRow.id = 'precision-pool-row';
+        precisionPoolRow.style.cssText = 'display:none; align-items:center; gap:10px; margin-top:8px; padding:10px 14px; background:linear-gradient(145deg,rgba(245,158,11,0.08),rgba(15,23,42,0.95)); border:1px solid rgba(245,158,11,0.3); border-radius:10px;';
+        precisionPoolRow.innerHTML = '<span style="color:#F59E0B;font-size:0.85rem;font-weight:700;white-space:nowrap;">Pool de Precisao:</span><input type="number" id="precision-pool-size" min="7" max="100" value="20" style="width:70px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,215,0,0.5);background:rgba(0,0,0,0.4);color:#FFD700;font-weight:800;font-size:0.95rem;text-align:center;outline:none;height:36px;"><span id="precision-pool-info" style="color:#94A3B8;font-size:0.75rem;flex:1;">numeros no pool</span>';
+        const smartNumbersRow = document.getElementById('smart-numbers-row');
+        if (smartNumbersRow && smartNumbersRow.parentNode) {
+            smartNumbersRow.parentNode.insertBefore(precisionPoolRow, smartNumbersRow.nextSibling);
+        }
+
+        // Toggle Sniper
+        const toggle = document.getElementById('precision-mode-toggle');
+        if (toggle && this.generateSmartBtn) {
+            const _self = this;
+            const _applyPrecisionUI = (checked) => {
+                if (checked) {
+                    _self.generateSmartBtn.innerHTML = 'JOGAR PRECISAO';
+                    _self.generateSmartBtn.style.background = 'linear-gradient(135deg, #EF4444, #991B1B)';
+                    _self.generateSmartBtn.style.boxShadow = '0 6px 25px rgba(239, 68, 68, 0.5)';
+                    precisionPoolRow.style.display = 'flex';
+                    _self._updatePrecisionPoolLimits();
+                } else {
+                    _self.generateSmartBtn.innerHTML = 'QUANTUM L99';
+                    _self.generateSmartBtn.style.background = 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
+                    _self.generateSmartBtn.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.35)';
+                    precisionPoolRow.style.display = 'none';
+                }
+            };
+            toggle.addEventListener('change', () => {
+                localStorage.setItem('l99_precision_on', toggle.checked ? '1' : '0');
+                _applyPrecisionUI(toggle.checked);
+            });
+            const savedPrecision = localStorage.getItem('l99_precision_on');
+            if (savedPrecision === '1') { toggle.checked = true; _applyPrecisionUI(true); }
+            const savedPool = localStorage.getItem('l99_precision_pool');
+            const poolInput = document.getElementById('precision-pool-size');
+            if (savedPool && poolInput) { poolInput.value = savedPool; }
+            if (poolInput) {
+                poolInput.addEventListener('change', () => localStorage.setItem('l99_precision_pool', poolInput.value));
+                poolInput.addEventListener('input', () => localStorage.setItem('l99_precision_pool', poolInput.value));
+            }
+        }
+
+        // === ACOES SECUNDARIAS ===
+        if (this.copyBtn) this.copyBtn.onclick = () => this.copyGames();
+        if (this.saveBtn) this.saveBtn.onclick = () => this.saveGames();
+        if (this.gamesQuantityInput) this.gamesQuantityInput.addEventListener('input', () => this.updateCurrentCostDisplay());
+        if (this.smartDrawSizeSelect) this.smartDrawSizeSelect.addEventListener('change', () => this.updateCurrentCostDisplay());
+        if (this.checkBtn) this.checkBtn.onclick = () => this.openCheckModal();
+        if (this.playCaixaBtn) this.playCaixaBtn.onclick = () => this.openCaixa();
+
+        // Individual Game Copy (Delegation)
+        if (this.gamesContainer) {
+            this.gamesContainer.addEventListener('click', (e) => {
+                const copyBtn = e.target.closest('.copy-single-btn');
+                if (copyBtn) {
+                    const text = copyBtn.dataset.numbers;
+                    this.copyToClipboard(text).then(success => {
+                        if (success === true) {
+                            const original = copyBtn.innerHTML;
+                            copyBtn.innerHTML = 'OK';
+                            setTimeout(() => copyBtn.innerHTML = original, 1000);
+                        }
+                    });
+                }
+            });
+        }
+
+        // Check Modal Events
+        if (this.confirmCheckBtn) this.confirmCheckBtn.onclick = () => this.confirmCheck();
+        if (this.closeCheckModalBtn) this.closeCheckModalBtn.onclick = () => this.closeCheckModal();
+
+        // Print Button
+        const btnPrint = document.getElementById('btn-print');
+        if (btnPrint) btnPrint.onclick = () => window.print();
+
+        // Stats Range Toggles
+        this.statsButtons.forEach(btn => {
+            btn.onclick = () => {
+                this.currentStatsRange = parseInt(btn.dataset.range);
+                this.statsButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.updateStats();
+            };
+        });
+
+        // Clean Header for Print
+        window.addEventListener('beforeprint', () => {
+            document.title = '\u200B';
+            this.insertPrintTimestamp();
+        });
+
+        // Initialize Modules
+        this.initTutorialEvents();
+        this.initInstallEvents();
+        this.initQuantum();
+        this.initCopyEvents();
+        this.initShareEvents();
+        this.initStatisticsPanel();
+
+        console.log('[UI] initEvents() concluido com sucesso');
     }
 
     debounce(func, wait) {
@@ -661,1601 +902,66 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         `;
 
         if (this.generateSmartBtn) {
-            this.generateSmartBtn.disabled = true;
-            this.generateSmartBtn.style.opacity = '0.6';
-        }
-
-        // ★ FIX: Animação reduzida de 1200ms → 400ms total (era teatro puro)
-        setTimeout(() => {
-            try {
-                const p2 = document.getElementById('q-phase-2');
-                const st = document.getElementById('q-status');
-                if (p2) { p2.style.opacity = '1'; p2.style.background = 'rgba(16,185,129,0.2)'; p2.style.borderColor = 'rgba(16,185,129,0.5)'; }
-                if (st) st.innerHTML = '🔮 Análise preditiva multi-camada...';
-            } catch(e) {}
-
-            setTimeout(() => {
-                try {
-                    const p3 = document.getElementById('q-phase-3');
-                    const st = document.getElementById('q-status');
-                    if (p3) { p3.style.opacity = '1'; p3.style.background = 'rgba(236,72,153,0.2)'; p3.style.borderColor = 'rgba(236,72,153,0.5)'; }
-                    if (st) st.innerHTML = '🧿 Convergência de camadas → Gerando jogos...';
-                } catch(e) {}
-
-                setTimeout(() => {
-                    // ★ Identificar motor para rastreamento
-                    let _engineUsed = 'SmartBets';
-                    try {
-                        let result;
-                        if (isPrecisionMode && typeof NovaEraEngine !== 'undefined' && typeof NovaEraEngine.generateSniper === 'function') {
-                            // ── SNIPER QUANTUM v9.5: Pool pré-selecionado + Tiers + Cross-combo ──
-                            // ★ FIX: Ler pool do campo CORRETO (precision-pool-size)
-                            const precisionPoolInput = document.getElementById('precision-pool-size');
-                            const precisionPoolValue = precisionPoolInput ? parseInt(precisionPoolInput.value) : 0;
-                            const poolSize = precisionPoolValue > 0 ? precisionPoolValue : (customDrawSize || game.minBet * 5);
-                            // ★ FIX #6: usar customDrawSize (dropdown) em vez de game.minBet fixo
-                            const actualDrawSize = customDrawSize || game.minBet;
-                            console.log('%c[UI] ★ SNIPER QUANTUM ATIVADO — pool=' + poolSize + ' (precision-pool-size=' + precisionPoolValue + ') | jogos=' + quantity + ' | drawSize=' + actualDrawSize, 'color: #EF4444; font-weight: bold;');
-                            result = NovaEraEngine.generateSniper(
-                                this.currentGameKey,
-                                Math.min(quantity, 10000),
-                                poolSize,
-                                fixedArr,
-                                actualDrawSize
-                            );
-                            _engineUsed = 'Sniper Quantum (Pool: ' + poolSize + ')';
-                            // Se o resultado veio sem métricas completas, recalcular via NovaEraEngine
-                            if (result && result.analysis && (result.analysis.pairsCovered == null || result.analysis.pairsCovered === '-')) {
-                                if (typeof NovaEraEngine !== 'undefined' && result.games && result.games.length > 0) {
-                                    try {
-                                        const profile = NovaEraEngine.getProfile(this.currentGameKey);
-                                        const history = (typeof REAL_HISTORY_DB !== 'undefined' ? REAL_HISTORY_DB[this.currentGameKey] : null) || StatsService.getHistory(this.currentGameKey);
-                                        const neAnalysis = NovaEraEngine._backtestHonest(result.games, history, profile, this.currentGameKey, profile.range[1] - profile.range[0] + 1, result.games[0].length);
-                                        result.analysis.confidence = Math.max(result.analysis.confidence, neAnalysis.confidence);
-                                        result.analysis.pairsCovered = neAnalysis.pairsCovered;
-                                        result.analysis.triosCovered = neAnalysis.triosCovered;
-                                        result.analysis.backtestScore = neAnalysis.backtestScore;
-                                        result.analysis.uniqueNumbers = neAnalysis.uniqueNumbers || result.analysis.uniqueNumbers;
-                                        console.log('[Precisão] ✅ Métricas enriquecidas via NovaEraEngine');
-                                    } catch(neErr) {
-                                        console.warn('[Precisão] NovaEraEngine backtest falhou:', neErr.message);
-                                    }
-                                }
-                            }
-                        } else {
-                            // ── MODO PADRÃO: Geração com diversidade V9 ──
-                            result = SmartBetsEngine.generate(
-                                this.currentGameKey,
-                                quantity,
-                                selectedArr,
-                                fixedArr,
-                                customDrawSize
-                            );
-                            _engineUsed = isPrecisionMode ? 'PrecisionEngine (Pool via DOM)' : 'SmartBets IA';
-                        }
-
-                        if (!result || !result.games || result.games.length === 0) {
-                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">❌ Não foi possível gerar jogos. Tente selecionar mais números.</div>';
-                            return;
-                        }
-
-                        // ── LIMPEZA COMPLETA antes de renderizar (FIX: painéis do fechamento anterior) ──
-                        const _parent = this.gamesContainer.parentNode;
-                        if (_parent) {
-                            _parent.querySelectorAll('.generation-feedback, .smart-analysis-panel, .smart-gen-analysis').forEach(el => el.remove());
-                            const _oldCaixa = document.getElementById('caixa-panel');
-                            if (_oldCaixa) _oldCaixa.remove();
-                        }
-
-                        // Renderizar jogos (mesmo visual do CombinationEngine)
-                        this.renderGames(result, this.currentGameKey);
-                        if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
-
-                        // ── PAINEL DE ANÁLISE IA ──
-                        const analysis = result.analysis;
-                        if (analysis) {
-                            const confColor = analysis.confidence >= 70 ? '#22C55E' : analysis.confidence >= 50 ? '#EAB308' : '#EF4444';
-                            const confEmoji = analysis.confidence >= 70 ? '🟢' : analysis.confidence >= 50 ? '🟡' : '🔴';
-                            const confLabel = analysis.confidence >= 70 ? 'ALTA' : analysis.confidence >= 50 ? 'MODERADA' : 'BAIXA';
-                            const modeLabel = analysis.mode === 'PRECISÃO' ? '🎯 Modo Precisão' : '🧠 Smart Bets';
-
-                            let analysisHTML = `
-                                <div class="smart-analysis-panel" style="margin-top:10px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(15,23,42,0.95),rgba(30,41,59,0.9));border:1px solid ${confColor}40;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
-                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:6px;">
-                                        <span style="color:${confColor};font-weight:800;font-size:0.9rem;">${confEmoji} Walk-Forward: ${analysis.confidence}% (${confLabel}) ${analysis.monteCarlo != null ? (analysis.monteCarlo > 0 ? '<span style="color:#22C55E;font-size:0.75rem;">📊 MC +' + analysis.monteCarlo + '% vs acaso</span>' : '<span style="color:#EAB308;font-size:0.75rem;">📊 MC ' + analysis.monteCarlo + '% vs acaso</span>') : ''}</span>
-                                        <span style="color:${analysis.mode === 'PRECISÃO' ? '#F59E0B' : '#8B5CF6'};font-weight:700;font-size:0.78rem;">${modeLabel}</span>
-                                    </div>
-                                    <div style="text-align:right;margin-bottom:6px;">
-                                        <span style="color:#64748B;font-size:0.65rem;font-style:italic;">Motor: ${_engineUsed}</span>
-                                    </div>
-                                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;font-size:0.75rem;">
-                                        <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
-                                            <div style="color:#94A3B8;">Cobertura</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.coverage}%</div>
-                                        </div>
-                                        <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
-                                            <div style="color:#94A3B8;">Diversidade</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.diversity}%</div>
-                                        </div>
-                                        <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
-                                            <div style="color:#94A3B8;">Duplas Top</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.pairsCovered != null ? analysis.pairsCovered + '%' : '-'}</div>
-                                        </div>
-                                        <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
-                                            <div style="color:#94A3B8;">Trios Top</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.triosCovered != null ? analysis.triosCovered + '%' : '-'}</div>
-                                        </div>
-                                        <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
-                                            <div style="color:#94A3B8;">Backtest</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.backtestScore != null ? analysis.backtestScore : '-'}%</div>
-                                        </div>
-                                        <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;text-align:center;">
-                                            <div style="color:#94A3B8;">Nº Únicos</div>
-                                            <div style="color:#E2E8F0;font-weight:700;">${analysis.uniqueNumbers != null ? analysis.uniqueNumbers : '-'}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-
-                            // ── PAINEL EXTRA MODO PRECISÃO ──
-                            if (analysis.mode === 'PRECISÃO' && analysis.precisionPool) {
-                                analysisHTML += `
-                                <div class="smart-analysis-panel" style="margin-top:6px;margin-bottom:10px;padding:10px 14px;border-radius:10px;background:linear-gradient(145deg,rgba(245,158,11,0.08),rgba(15,23,42,0.95));border:1px solid #F59E0B30;">
-                                    <div style="color:#F59E0B;font-weight:700;font-size:0.82rem;margin-bottom:6px;">🎯 Pool de Precisão: ${analysis.poolSize} números</div>
-                                    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">
-                                        ${analysis.precisionPool.map(n => '<span style="background:#F59E0B22;color:#F59E0B;padding:2px 7px;border-radius:12px;font-size:0.75rem;font-weight:700;">' + String(n).padStart(2,'0') + '</span>').join('')}
-                                    </div>
-                                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:0.72rem;">
-                                        <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:4px;text-align:center;"><span style="color:#94A3B8;">14+ hits</span><br><span style="color:#22C55E;font-weight:700;">${(analysis.backtestHits && analysis.backtestHits['14+']) || 0}/10</span></div>
-                                        <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:4px;text-align:center;"><span style="color:#94A3B8;">13+ hits</span><br><span style="color:#EAB308;font-weight:700;">${(analysis.backtestHits && analysis.backtestHits['13+']) || 0}/10</span></div>
-                                        <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:4px;text-align:center;"><span style="color:#94A3B8;">Pool Match</span><br><span style="color:#E2E8F0;font-weight:700;">${analysis.avgPoolMatch || '—'}</span></div>
-                                    </div>
-                                </div>`;
-                            }
-
-                            const analysisDiv = document.createElement('div');
-                            analysisDiv.innerHTML = analysisHTML;
-                            this.gamesContainer.parentNode.insertBefore(analysisDiv.firstElementChild, this.gamesContainer);
-                        }
-
-                        // Feedback
-                        const feedback = document.createElement('div');
-                        feedback.className = 'generation-feedback';
-                        feedback.style.cssText = 'text-align:center;padding:14px 16px;font-weight:800;margin-top:10px;margin-bottom:10px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border:1px solid rgba(255,215,0,0.3);border-radius:12px;';
-                        feedback.innerHTML = `<span style="color:#FFD700;font-size:1rem;">⚡ L99 v10.0</span><br><span style="color:#C4B5FD;font-size:0.9rem;">${result.games.length} jogos — 21 Dimensões + Cross-Validação + Filtros Estruturais</span>`;
-                        this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
-
-                        // ── APOSTAR NA CAIXA — PAINEL UNIVERSAL ──
-                        this._insertCaixaPanel(result.games, this.currentGameKey);
-
-                        // ── BACKTESTING AUTOMÁTICO V3 ──
-                        try {
-                            if (typeof BacktestingEngine !== 'undefined') {
-                                const btMetrics = BacktestingEngine.run(this.currentGameKey, 'smart', 10, 8);
-                                if (btMetrics) {
-                                    const btHTML = BacktestingEngine.formatForUI(btMetrics);
-                                    const btDiv = document.createElement('div');
-                                    btDiv.className = 'smart-analysis-panel';
-                                    btDiv.innerHTML = btHTML;
-                                    this.gamesContainer.parentNode.insertBefore(btDiv, this.gamesContainer);
-                                }
-                            }
-                        } catch(btErr) {
-                            console.warn('[Backtest] Erro no backtesting:', btErr.message);
-                        }
-
-                        // v10.5 PAINEL FECHAMENTO GARANTIDO - EXCLUSIVO MEGA SENA + CLOSUREENGINE
-                        if (this.currentGameKey === 'megasena' && analysis && analysis.closure) {
-                            try {
-                                var cl = analysis.closure;
-                                var closureDiv = document.createElement('div');
-                                closureDiv.className = 'smart-analysis-panel';
-                                closureDiv.id = 'mega-closure-panel';
-                                closureDiv.style.cssText = 'margin-top:8px;margin-bottom:10px;padding:14px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(255,215,0,0.08),rgba(15,23,42,0.95));border:2px solid #FFD70060;box-shadow:0 4px 25px rgba(255,215,0,0.15);';
-                                var closureHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:1.3rem;">🔒</span><span style="color:#FFD700;font-weight:900;font-size:1rem;letter-spacing:0.5px;">FECHAMENTO GARANTIDO (Covering Design)</span></div>';
-                                closureHTML += '<div style="background:linear-gradient(135deg,rgba(255,215,0,0.12),rgba(16,185,129,0.08));border:1px solid #FFD70040;border-radius:10px;padding:12px;margin-bottom:10px;"><div style="color:#FFD700;font-weight:800;font-size:0.95rem;margin-bottom:4px;">✅ GARANTIA MATEMÁTICA</div><div style="color:#E2E8F0;font-size:0.85rem;">Se <strong style="color:#22C55E;">' + cl.t + '</strong> dos seus <strong style="color:#FFD700;">' + cl.v + '</strong> números forem sorteados → <strong style="color:#22C55E;">' + cl.guaranteeLabel + ' GARANTIDA</strong> em pelo menos 1 jogo.</div></div>';
-                                closureHTML += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:0.75rem;">';
-                                closureHTML += '<div style="background:rgba(0,0,0,0.3);padding:8px;border-radius:8px;text-align:center;border:1px solid #FFD70020;"><div style="color:#FCD34D;font-size:0.6rem;font-weight:700;">JOGOS</div><div style="color:#FFD700;font-weight:900;font-size:1.2rem;">' + cl.gamesNeeded + '</div></div>';
-                                closureHTML += '<div style="background:rgba(0,0,0,0.3);padding:8px;border-radius:8px;text-align:center;border:1px solid #FFD70020;"><div style="color:#FCD34D;font-size:0.6rem;font-weight:700;">INVESTIMENTO</div><div style="color:#FFD700;font-weight:900;font-size:1.2rem;">R$' + cl.investimento + '</div></div>';
-                                closureHTML += '<div style="background:rgba(0,0,0,0.3);padding:8px;border-radius:8px;text-align:center;border:1px solid #10B98120;"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">COBERTURA</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + cl.coveredPct + '%</div></div>';
-                                closureHTML += '<div style="background:rgba(0,0,0,0.3);padding:8px;border-radius:8px;text-align:center;border:1px solid #10B98120;"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">t-SUBSETS</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + cl.coveredTSubsets + '/' + cl.totalTSubsets + '</div></div>';
-                                closureHTML += '</div>';
-                                closureHTML += '<div style="margin-top:8px;padding:6px 10px;background:rgba(255,215,0,0.05);border-radius:6px;border:1px solid #FFD70015;"><div style="color:#94A3B8;font-size:0.68rem;">⏱️ ' + cl.elapsed + 'ms | Covering Design C(' + cl.v + ',6,' + cl.t + ') — La Jolla Repository</div></div>';
-                                closureDiv.innerHTML = closureHTML;
-                                if (this.gamesContainer && this.gamesContainer.parentNode) {
-                                    this.gamesContainer.parentNode.insertBefore(closureDiv, this.gamesContainer);
-                                }
-                            } catch(clErr) {
-                                console.warn('[Closure Panel] Erro:', clErr.message);
-                            }
-                        }
-
-                        
-                        // v10.3 AUDITORIA COMPARATIVA - EXCLUSIVO MEGA SENA
-                        if (this.currentGameKey === 'megasena' && typeof NovaEraEngine !== 'undefined' && typeof NovaEraEngine.backtestComparative === 'function') {
-                            try {
-                            var auditDiv = document.createElement('div');
-                            auditDiv.className = 'smart-analysis-panel';
-                            auditDiv.id = 'mega-audit-panel';
-                            auditDiv.style.cssText = 'margin-top:8px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(239,68,68,0.08),rgba(15,23,42,0.95));border:1px solid #EF444430;';
-                            auditDiv.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
-                                + '<span style="color:#EF4444;font-weight:800;font-size:0.85rem;">\uD83D\uDD2C AUDITORIA: IA vs Aleatorio</span>'
-                                + '<button id="btn-run-mega-audit" style="background:linear-gradient(135deg,#EF4444,#DC2626);color:white;border:none;padding:6px 14px;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.3s;">'
-                                + '\u25B6 Auditar Motor</button></div>'
-                                + '<div id="mega-audit-result" style="color:#94A3B8;font-size:0.75rem;">'
-                                + 'Compara 10 jogos IA vs 10 jogos aleatorios (mesmos filtros) contra os ultimos 30 concursos reais da Mega Sena.</div>';
-                            this.gamesContainer.parentNode.insertBefore(auditDiv, this.gamesContainer);
-                            var auditBtn = document.getElementById('btn-run-mega-audit');
-                            var auditResultDiv = document.getElementById('mega-audit-result');
-                            if (auditBtn) {
-                                auditBtn.addEventListener('click', function() {
-                                    auditBtn.disabled = true;
-                                    auditBtn.textContent = '\u23F3 Analisando...';
-                                    auditBtn.style.opacity = '0.6';
-                                    auditResultDiv.innerHTML = '<div style="color:#EAB308;font-size:0.8rem;">Executando backtest em 30 concursos... aguarde.</div>';
-                                    setTimeout(function() {
-                                        try {
-                                            var r = NovaEraEngine.backtestComparative('megasena');
-                                            if (r && r.error) {
-                                                auditResultDiv.innerHTML = '<div style="color:#EF4444;">' + r.error + '</div>';
-                                            } else if (r) {
-                                                var vColor = r.veredito === 'IA SUPERIOR' ? '#22C55E' : r.veredito === 'ALEATORIO SUPERIOR' ? '#EF4444' : '#EAB308';
-                                                auditResultDiv.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'
-                                                    + '<div style="background:rgba(139,92,246,0.12);padding:10px;border-radius:8px;border:1px solid #8B5CF630;">'
-                                                    + '<div style="color:#A78BFA;font-weight:700;font-size:0.8rem;margin-bottom:6px;">\uD83E\uDD16 MOTOR IA</div>'
-                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#22C55E;font-size:1.1rem;">' + r.ia.quadra + '</strong> Quadras</div>'
-                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#EAB308;font-size:1.1rem;">' + r.ia.terno + '</strong> Ternos</div>'
-                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#94A3B8;font-size:1.1rem;">' + r.ia.duque + '</strong> Duques</div>'
-                                                    + '<div style="color:#64748B;font-size:0.7rem;margin-top:4px;">' + r.ia.total + ' jogos</div></div>'
-                                                    + '<div style="background:rgba(100,116,139,0.12);padding:10px;border-radius:8px;border:1px solid #64748B30;">'
-                                                    + '<div style="color:#94A3B8;font-weight:700;font-size:0.8rem;margin-bottom:6px;">\uD83C\uDFB2 ALEATORIO</div>'
-                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#22C55E;font-size:1.1rem;">' + r.random.quadra + '</strong> Quadras</div>'
-                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#EAB308;font-size:1.1rem;">' + r.random.terno + '</strong> Ternos</div>'
-                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#94A3B8;font-size:1.1rem;">' + r.random.duque + '</strong> Duques</div>'
-                                                    + '<div style="color:#64748B;font-size:0.7rem;margin-top:4px;">' + r.random.total + ' jogos</div></div></div>'
-                                                    + '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:8px;">'
-                                                    + '<div style="color:' + vColor + ';font-weight:800;font-size:1rem;">' + r.veredito + '</div>'
-                                                    + '<div style="color:#94A3B8;font-size:0.75rem;">' + r.concursosTested + ' concursos | ' + r.gamesPerConcurso + ' jogos/grupo | Vantagem: ' + r.vantagem + '</div></div>';
-                                            }
-                                        } catch(auditErr) {
-                                            auditResultDiv.innerHTML = '<div style="color:#EF4444;">Erro: ' + auditErr.message + '</div>';
-                                        }
-                                        auditBtn.disabled = false;
-                                        auditBtn.textContent = '\u25B6 Auditar Novamente';
-                                        auditBtn.style.opacity = '1';
-                                    }, 100);
-                                });
-                            }
-                            } catch(auditSetupErr) { console.warn('[Audit] Setup error:', auditSetupErr.message); }
-
-                        // v10.4 CALCULADORA DE ORCAMENTO — EXCLUSIVO MEGA SENA
-                        if (this.currentGameKey === 'megasena' && typeof CoverageEngine !== 'undefined') {
-                            try {
-                            var calcDiv = document.createElement('div');
-                            calcDiv.className = 'smart-analysis-panel';
-                            calcDiv.style.cssText = 'margin-top:8px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(34,197,94,0.08),rgba(15,23,42,0.95));border:1px solid #22C55E30;';
-                            var pQuadra = 1/2332;
-                            var pQuina = 1/154518;
-                            var pSena = 1/50063860;
-                            var nj = result.games.length;
-                            var chQuadra = (1 - Math.pow(1 - pQuadra, nj)) * 100;
-                            var chQuina = (1 - Math.pow(1 - pQuina, nj)) * 100;
-                            var chSena = (1 - Math.pow(1 - pSena, nj)) * 100;
-                            var investimento = nj * 5;
-                            calcDiv.innerHTML = '<div style="margin-bottom:8px;"><span style="color:#22C55E;font-weight:800;font-size:0.85rem;">\uD83D\uDCCA CHANCES REAIS (Hipergeom\u00e9trica)</span></div>'
-                                + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;">'
-                                + '<div style="background:rgba(34,197,94,0.1);padding:8px;border-radius:8px;text-align:center;"><div style="color:#94A3B8;font-size:0.7rem;">QUADRA+</div><div style="color:#22C55E;font-weight:800;font-size:1.1rem;">' + chQuadra.toFixed(2) + '%</div></div>'
-                                + '<div style="background:rgba(234,179,8,0.1);padding:8px;border-radius:8px;text-align:center;"><div style="color:#94A3B8;font-size:0.7rem;">QUINA+</div><div style="color:#EAB308;font-weight:800;font-size:1.1rem;">' + chQuina.toFixed(4) + '%</div></div>'
-                                + '<div style="background:rgba(239,68,68,0.1);padding:8px;border-radius:8px;text-align:center;"><div style="color:#94A3B8;font-size:0.7rem;">SENA</div><div style="color:#EF4444;font-weight:800;font-size:1.1rem;">' + chSena.toFixed(6) + '%</div></div></div>'
-                                + '<div style="color:#64748B;font-size:0.72rem;text-align:center;">' + nj + ' jogos | Investimento: R$ ' + investimento.toFixed(2) + ' | Probabilidade exata por distribui\u00e7\u00e3o hipergeom\u00e9trica</div>';
-                            this.gamesContainer.parentNode.insertBefore(calcDiv, this.gamesContainer);
-                            } catch(calcErr) { console.warn('[Calc] Setup error:', calcErr.message); }
-                        }
-                        }
-                        feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                    } catch (err) {
-                        console.error('[SmartBets] ERRO:', err);
-                        this.gamesContainer.innerHTML = `<div class="empty-state" style="color:#EF4444;">❌ Erro: ${err.message}<br><small>Verifique o console (F12)</small></div>`;
-                    } finally {
-                        this._isGenerating = false;
-                        if (this.generateSmartBtn) {
-                            this.generateSmartBtn.disabled = false;
-                            this.generateSmartBtn.style.opacity = '1';
-                        }
-                    }
-                }, 50);
-            }, 150);
-        }, 200);
-    }
-
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  SISTEMA DE APOSTA ONLINE — CAIXA LOTERIAS                  ║
-    // ║  Gera script de automação para preencher jogos no site      ║
-    // ║  da Caixa Econômica Federal (Loterias Online)               ║
-    // ╚══════════════════════════════════════════════════════════════╝
-    // [REMOVIDO] _generateBookmarklet — obsoleto, usava alert('Pronto!') que conflitava com v5.0
-
-    _generateCaixaScript_LEGACY(config, games) {
-        const gamesJSON = JSON.stringify(games);
-        const lName = config.name;
-        const isTimemania = config.url === 'timemania';
-        const isDiaDeSorte = config.url === 'dia-de-sorte';
-
-        // ═══════════════════════════════════════════════════════════════
-        // B2B v9.0 TURBO — Script de Automação COMPLETO
-        // Suporta: Mega Sena, Lotofácil, Quina, Dupla Sena, Lotomania,
-        //          Timemania (com Time do Coração), Dia de Sorte (com Mês)
-        // ═══════════════════════════════════════════════════════════════
-        let script = '(async function(){';
-        script += 'var JOGOS=' + gamesJSON + ';';
-        script += 'var TOTAL=JOGOS.length;var OK=0;var ERROS=0;var BLOCO=10;';
-        script += 'var IS_TIMEMANIA=' + (isTimemania ? 'true' : 'false') + ';';
-        script += 'var IS_DIADESORTE=' + (isDiaDeSorte ? 'true' : 'false') + ';';
-        script += 'var EXTRAS=' + JSON.stringify(this.currentGeneratedExtras || []) + ';';
-        script += 'console.clear();';
-        script += 'console.log("%c[B2B v9.0 TURBO] "+TOTAL+" jogos de ' + lName + '","color:#22C55E;font-size:14px;font-weight:bold");';
-        script += 'if(IS_TIMEMANIA)console.log("%c⚽ Modo TIMEMANIA: Seleção automática múltipla ativada","color:#F59E0B;font-weight:bold");';
-        script += 'if(IS_DIADESORTE)console.log("%c📅 Modo DIA DE SORTE: Seleção de meses múltiplos ativada","color:#F59E0B;font-weight:bold");';
-        script += 'console.log("%cProcessando em blocos de "+BLOCO+"...","color:#60A5FA");';
-        script += 'var t0=Date.now();';
-        script += 'var delay=function(ms){return new Promise(function(r){setTimeout(r,ms)})};';
-        script += 'var CURRENT_IDX=0;'; // Track current game index globally
-
-        // ── realClick: simula clique real com todos os eventos + Angular ──
-        script += 'function realClick(el){if(!el)return false;try{el.scrollIntoView({block:"center",behavior:"smooth"});var r=el.getBoundingClientRect();var cx=r.left+r.width/2;var cy=r.top+r.height/2;var evts=["pointerdown","mousedown","pointerup","mouseup"];for(var i=0;i<evts.length;i++){el.dispatchEvent(new MouseEvent(evts[i],{view:window,bubbles:true,cancelable:true,clientX:cx,clientY:cy,button:0}))}el.click();try{var scope=angular.element(el).scope();if(scope&&scope.$apply)scope.$apply()}catch(ae){}return true}catch(e){try{el.click();return true}catch(e2){return false}}}';
-
-        // ── fecharModais: fecha alertas/modais do site ──
-        script += 'function fecharModais(){var ids=["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","botaosim","btnFecharModal","btnOk","btnConfirmar"];for(var k=0;k<ids.length;k++){var el=document.getElementById(ids[k]);if(el&&el.offsetParent!==null&&el.offsetWidth>0){try{realClick(el)}catch(e){}}}var bts=document.querySelectorAll("button,a");for(var j=0;j<bts.length;j++){var t=bts[j].textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="sim"||t==="continuar")&&bts[j].offsetParent!==null&&bts[j].offsetWidth>0){var isCart=bts[j].id&&(bts[j].id.toLowerCase().indexOf("carrinho")>=0||bts[j].id.toLowerCase().indexOf("pagamento")>=0);if(!isCart){try{realClick(bts[j])}catch(e){}}}}}';
-
-        // ── clicarNumero: seleciona um número no volante ──
-        script += 'function clicarNumero(num){var p=String(num).padStart(2,"0");var el=document.getElementById("n"+p);if(el)return realClick(el);el=document.querySelector("a#n"+p)||document.querySelector("#n"+p);if(el)return realClick(el);var todos=document.querySelectorAll("a[role=button],a.dezena,a.numero,a[id^=n]");for(var i=0;i<todos.length;i++){if(todos[i].textContent.trim()===p)return realClick(todos[i])}var allN=document.querySelectorAll(".number,.dezena,.num,[class*=number],[class*=dezena]");for(var k=0;k<allN.length;k++){var txt=allN[k].textContent.trim();if(txt===p||txt===String(num))return realClick(allN[k])}return false}';
-
-        // ── limpar: limpa a seleção atual ──
-        script += 'function limpar(){fecharModais();var btn=document.getElementById("limparvolante");if(btn)return realClick(btn);btn=document.querySelector("[id*=limpar]");if(btn)return realClick(btn);var bts=document.querySelectorAll("button");for(var k=0;k<bts.length;k++){if(bts[k].textContent.toLowerCase().indexOf("limpar")>=0)return realClick(bts[k])}return false}';
-
-        // ═══════════════════════════════════════════════════════
-        // ⚽ TIMEMANIA: Selecionar Time do Coração (OBRIGATÓRIO)
-        // Site da Caixa usa AngularJS: li[ng-repeat="equipe in listaEquipe"]
-        // e img[name="btnTime"] com classe .data-selecionar-time-do-coracao
-        // ═══════════════════════════════════════════════════════
-        script += 'async function selecionarTime(){if(!IS_TIMEMANIA)return true;';
-        script += 'console.log("[B2B] ⚽ Selecionando Time do Coração (Jogo "+(CURRENT_IDX+1)+")...");';
-        script += 'await delay(300);';
-        // Seletores REAIS do site da Caixa (AngularJS)
-        script += 'var times=document.querySelectorAll("img[name=btnTime],.data-selecionar-time-do-coracao,li[ng-repeat*=listaEquipe] img,li[ng-click*=Time] img,li[ng-click*=time] img");';
-        // Fallback: procurar LIs com ng-repeat de equipes
-        script += 'if(times.length===0){var tLis=document.querySelectorAll("li[ng-repeat*=listaEquipe],li[ng-repeat*=equipe]");if(tLis.length>0){var tImgs=[];for(var q=0;q<tLis.length;q++){var tImg=tLis[q].querySelector("img");if(tImg)tImgs.push(tImg)}if(tImgs.length>0)times=tImgs}}';
-        // Fallback 2: UL com muitas imagens (>20 = lista de times)
-        script += 'if(times.length===0){var allUls=document.querySelectorAll("ul");for(var u=0;u<allUls.length;u++){var uImgs=allUls[u].querySelectorAll("img");if(uImgs.length>20){times=uImgs;console.log("[B2B] ⚽ Encontrada lista de "+uImgs.length+" times");break}}}';
-        // Clicar no time
-        script += 'if(times.length>0){';
-        script += 'var idx = EXTRAS[CURRENT_IDX] !== undefined ? (EXTRAS[CURRENT_IDX] % times.length) : Math.floor(Math.random()*times.length);';
-        script += 'var chosen=times[idx];';
-        // Garantir visibilidade e clique Angular
-        script += 'chosen.scrollIntoView({block:"center",behavior:"smooth"});';
-        script += 'await delay(150);';
-        script += 'realClick(chosen);';
-        script += 'await delay(250);';
-        // Também clica no LI pai para garantir trigger Angular
-        script += 'if(chosen.parentElement&&chosen.parentElement.tagName==="LI"){realClick(chosen.parentElement);await delay(200)}';
-        // Forçar digest cycle do AngularJS se disponível
-        script += 'try{var scope=angular.element(chosen).scope();if(scope&&scope.$apply)scope.$apply()}catch(e){}';
-        script += 'await delay(200);';
-        script += 'var nome=chosen.alt||chosen.title||(chosen.parentElement?chosen.parentElement.textContent.trim().substring(0,30):"Time #"+(idx+1));';
-        script += 'console.log("[B2B] ⚽ Time selecionado: "+nome);return true}';
-        script += 'console.warn("[B2B] ⚠️ Nenhum time encontrado!");return false}';
-
-        // ═══════════════════════════════════════════════════════
-        // 📅 DIA DE SORTE: Selecionar Mês da Sorte (OBRIGATÓRIO)
-        // Site da Caixa usa AngularJS: li[ng-repeat*="listaMeses"]
-        // e ng-click="configurarMes(mes)" para cada mês
-        // ═══════════════════════════════════════════════════════
-        script += 'async function selecionarMes(){if(!IS_DIADESORTE)return true;';
-        script += 'console.log("[B2B] 📅 Selecionando Mês da Sorte (Jogo "+(CURRENT_IDX+1)+")...");';
-        script += 'await delay(300);';
-        // Seletores REAIS do site da Caixa (AngularJS)
-        script += 'var meses=document.querySelectorAll("li[ng-repeat*=listaMeses],li[ng-click*=configurarMes],[id=mes] li,ul.meses li,.meses-list li");';
-        // Fallback: procurar meses por nome em português
-        script += 'if(meses.length===0){var nomesMeses=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];var allLi=document.querySelectorAll("li,a,span,div");var found=[];for(var q=0;q<allLi.length;q++){var tx=allLi[q].textContent.trim().toLowerCase();for(var m=0;m<nomesMeses.length;m++){if(tx===nomesMeses[m]&&allLi[q].children.length<=1){found.push(allLi[q]);break}}}if(found.length>0)meses=found}';
-        // Fallback 2: select/option
-        script += 'if(meses.length===0){var sel=document.querySelector("select");if(sel&&sel.options.length>1){var selIdx = EXTRAS[CURRENT_IDX] !== undefined ? (EXTRAS[CURRENT_IDX] % (sel.options.length-1)) + 1 : Math.floor(Math.random()*(sel.options.length-1))+1;sel.selectedIndex=selIdx;sel.dispatchEvent(new Event("change",{bubbles:true}));console.log("[B2B] 📅 Mês (select): "+sel.options[sel.selectedIndex].text);return true}}';
-        // Clicar no mês
-        script += 'if(meses.length>0){';
-        script += 'var idx = EXTRAS[CURRENT_IDX] !== undefined ? (EXTRAS[CURRENT_IDX] % meses.length) : Math.floor(Math.random()*meses.length);';
-        script += 'var mesEl=meses[idx];';
-        script += 'realClick(mesEl);';
-        script += 'await delay(400);';
-        // Se clicou em um filho, também clica no LI pai
-        script += 'if(mesEl.tagName!=="LI"&&mesEl.parentElement&&mesEl.parentElement.tagName==="LI"){realClick(mesEl.parentElement);await delay(200)}';
-        // Forçar digest cycle do AngularJS
-        script += 'try{var scope=angular.element(mesEl).scope();if(scope&&scope.$apply)scope.$apply()}catch(e){}';
-        script += 'await delay(200);';
-        // Verificar se o mês ficou selecionado
-        script += 'var mesNome=mesEl.textContent.trim()||"Mês #"+(idx+1);';
-        script += 'console.log("[B2B] 📅 Mês selecionado: "+mesNome);';
-        script += 'return true}';
-        script += 'console.warn("[B2B] ⚠️ Nenhum mês encontrado na página!");return false}';
-
-        // ── carrinho: coloca no carrinho com retry ──
-        script += 'async function carrinho(){fecharModais();await delay(100);';
-        script += 'if(IS_TIMEMANIA){await selecionarTime();await delay(300)}';
-        script += 'if(IS_DIADESORTE){await selecionarMes();await delay(300)}';
-        script += 'for(var t=0;t<8;t++){var btn=document.getElementById("colocarnocarrinho") || document.querySelector("button.btn-add-carrinho") || document.querySelector("button[id*=\'carrinho\' i]") || document.querySelector("a.btn-add-carrinho");if(btn&&btn.offsetParent!==null){';
-        script += 'if(btn.disabled||btn.classList.contains("disabled")){console.log("[B2B] ⏳ Carrinho desabilitado, aguardando...");await delay(800);';
-        script += 'if(IS_TIMEMANIA){await selecionarTime();await delay(400)}';
-        script += 'if(IS_DIADESORTE){await selecionarMes();await delay(400)}';
-        script += 'continue}';
-        script += 'realClick(btn);await delay(800);fecharModais();await delay(300);fecharModais();return true}';
-        script += 'var allB=document.querySelectorAll("button,a");for(var k=0;k<allB.length;k++){var tx=allB[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar")>=0&&tx.indexOf("carrinho")>=0)||(tx.indexOf("adicionar")>=0&&tx.indexOf("carrinho")>=0)){if(allB[k].offsetParent!==null&&allB[k].offsetWidth>0){realClick(allB[k]);await delay(800);fecharModais();await delay(300);fecharModais();return true}}}';
-        script += 'fecharModais();await delay(400)}return false}';
-
-        // ── LOOP PRINCIPAL: processar todos os jogos ──
-        script += 'fecharModais();await delay(400);';
-        script += 'for(var i=0;i<TOTAL;i++){';
-        script += 'CURRENT_IDX = i;';
-        script += 'var jogo=JOGOS[i];var blocoN=Math.floor(i/BLOCO)+1;var blocoT=Math.ceil(TOTAL/BLOCO);';
-        script += 'if(i%BLOCO===0)console.log("%c=== BLOCO "+blocoN+"/"+blocoT+" ===","color:#F59E0B;font-weight:bold;font-size:12px");';
-        script += 'console.log("[B2B] "+(i+1)+"/"+TOTAL+" ["+jogo.join(",")+"]");';
-        script += 'fecharModais();';
-        script += 'if(i>0){limpar();await delay(500);fecharModais();await delay(200)}';
-        script += 'var ac=0;for(var n=0;n<jogo.length;n++){if(clicarNumero(jogo[n])){ac++}else{await delay(150);if(clicarNumero(jogo[n]))ac++}await delay(120)}';
-        script += 'if(ac<jogo.length)console.warn("[B2B] Jogo "+(i+1)+": "+ac+"/"+jogo.length+" nums");';
-        script += 'try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}await delay(400);fecharModais();await delay(200);';
-        script += 'var ok=await carrinho();';
-        script += 'if(ok){OK++;console.log("[B2B] ✅ "+(i+1)+" ("+OK+"/"+TOTAL+")")}else{ERROS++;console.error("[B2B] ❌ "+(i+1)+"'+(isTimemania ? ' — Verifique se o Time do Coração foi selecionado' : '')+'")}';
-        script += 'if(i<TOTAL-1){await delay(600);fecharModais()}';
-        script += 'if((i+1)%BLOCO===0){var el=((Date.now()-t0)/1000).toFixed(0);var sp=((i+1)/el*60).toFixed(0);console.log("%c[B2B] Bloco "+blocoN+" OK! "+OK+"/"+TOTAL+" | "+el+"s | ~"+sp+" jogos/min","color:#22C55E;font-weight:bold");if(i+1<TOTAL){console.log("[B2B] Proximo bloco em 1s...");await delay(1000)}}';
-        script += '}';
-
-        // ── RESULTADO FINAL ──
-        script += 'var tt=((Date.now()-t0)/1000).toFixed(1);';
-        script += 'console.log("%c[B2B v9.0] ✅ PRONTO! "+OK+"/"+TOTAL+" de ' + lName + ' em "+tt+"s","color:#22C55E;font-size:16px;font-weight:bold");';
-        script += 'console.log("%c[B2B] 💳 Clique no carrinho (🛒) no topo da pagina para finalizar.","color:#F59E0B;font-size:13px");';
-        script += 'alert("[B2B v9.0 TURBO] ✅ "+OK+"/"+TOTAL+" jogos de ' + lName + ' em "+tt+"s!"+(ERROS>0?"\\n"+ERROS+" erro(s).":"")+"\\n\\n💳 PRÓXIMO PASSO:\\nClique no ícone do carrinho (🛒) no topo da página\\ne finalize o pagamento.")';
-        script += '})()';
-
-        return script;
-    }
-
-    // ╔══════════════════════════════════════════════════════════════╗
-    // ║  PAINEL APOSTE ONLINE — UNIVERSAL (TODAS AS LOTERIAS)       ║
-    // ║  Insere botão de aposta automática após qualquer geração    ║
-    // ╚══════════════════════════════════════════════════════════════╝
-    _getCaixaLotteryConfig() {
-        return {
-            megasena:   { name: 'Mega-Sena',   url: 'mega-sena' },
-            lotofacil:  { name: 'Lotofácil',    url: 'lotofacil' },
-            quina:      { name: 'Quina',        url: 'quina' },
-            lotomania:  { name: 'Lotomania',    url: 'lotomania' },
-            duplasena:  { name: 'Dupla Sena',   url: 'dupla-sena' },
-            timemania:  { name: 'Timemania',    url: 'timemania' },
-            diadesorte: { name: 'Dia de Sorte', url: 'dia-de-sorte' }
-        };
-    }
-
-    // ── Detectar se é mobile ──
-    _isMobile() {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-            || (window.innerWidth <= 768)
-            || ('ontouchstart' in window);
-    }
-
-    // ══════════════════════════════════════════════════════════════════
-    // ║  MODAL MOBILE v2.0 — COM AUTOMAÇÃO VIA BOOKMARKLET            ║
-    // ║  Resolve o problema de não ter F12 no celular                  ║
-    // ║  Duas abas: ⚡ Automático (bookmarklet) e 📋 Manual (copiar)  ║
-    // ══════════════════════════════════════════════════════════════════
-
-    // ── Gerar o bookmarklet de automação (minificado, cabe num bookmark) ──
-    _generateMobileBookmarklet(games, config) {
-        const gamesJSON = JSON.stringify(games);
-        const isTimemania = config.url === 'timemania';
-        const isDiaDeSorte = config.url === 'dia-de-sorte';
-        // Minified automation script embedded in bookmarklet
-        const script = `javascript:void((async function(){var J=${gamesJSON};var T=J.length;var OK=0;var ER=0;var TM=${isTimemania};var DS=${isDiaDeSorte};function d(ms){return new Promise(function(r){setTimeout(r,ms)})}function rc(e){if(!e)return!1;try{e.scrollIntoView({block:"center",behavior:"instant"});var r=e.getBoundingClientRect();var x=r.left+r.width/2;var y=r.top+r.height/2;["pointerdown","mousedown","pointerup","mouseup","click"].forEach(function(ev){e.dispatchEvent(new MouseEvent(ev,{view:window,bubbles:!0,cancelable:!0,clientX:x,clientY:y,button:0}))});try{var sc=angular.element(e).scope();if(sc&&sc.$apply)sc.$apply()}catch(ae){}return!0}catch(x){try{e.click();return!0}catch(x2){return!1}}}function fm(){["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","botaosim","btnFecharModal","btnOk","btnConfirmar"].forEach(function(id){var e=document.getElementById(id);if(e&&e.offsetParent!==null)try{rc(e)}catch(x){}});document.querySelectorAll("button,a").forEach(function(b){var t=b.textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="sim"||t==="continuar")&&b.offsetParent!==null&&b.offsetWidth>0){var ic=b.id&&(b.id.toLowerCase().indexOf("carrinho")>=0||b.id.toLowerCase().indexOf("pagamento")>=0);if(!ic)try{rc(b)}catch(x){}}})}function cn(n){var p=String(n).padStart(2,"0");var e=document.getElementById("n"+p);if(e)return rc(e);e=document.querySelector("a#n"+p)||document.querySelector("#n"+p);if(e)return rc(e);var all=document.querySelectorAll("a[role=button],a.dezena,a.numero,a[id^=n]");for(var i=0;i<all.length;i++)if(all[i].textContent.trim()===p)return rc(all[i]);var allN=document.querySelectorAll(".number,.dezena,.num,[class*=number],[class*=dezena]");for(var k=0;k<allN.length;k++){var t=allN[k].textContent.trim();if(t===p||t===String(n))return rc(allN[k])}return!1}function lmp(){fm();var b=document.getElementById("limparvolante");if(b)return rc(b);b=document.querySelector("[id*=limpar]");if(b)return rc(b);var bs=document.querySelectorAll("button");for(var k=0;k<bs.length;k++)if(bs[k].textContent.toLowerCase().indexOf("limpar")>=0)return rc(bs[k]);return!1}async function selTime(){if(!TM)return!0;await d(500);var ts=document.querySelectorAll("[data-selecionar-time-do-coracao],img[name=btnTime],.time-coracao img,li img[src*=time],.times-list img,.team-item img");if(ts.length===0){var al=document.querySelectorAll("li");for(var k=0;k<al.length;k++){var im=al[k].querySelectorAll("img");if(im.length>0&&al[k].querySelector("span")){ts=im;break}}}if(ts.length===0){var tb=document.querySelectorAll("a[class*=time],button[class*=time],div[class*=time]");if(tb.length>0)ts=tb}if(ts.length>0){var idx=Math.floor(Math.random()*ts.length);rc(ts[idx]);await d(400);if(ts[idx].parentElement&&ts[idx].parentElement.tagName==="LI"&&!ts[idx].parentElement.classList.contains("active")){rc(ts[idx].parentElement);await d(200)}return!0}return!1}async function selMes(){if(!DS)return!0;await d(500);var ms=document.querySelectorAll("[data-selecionar-mes],select#mes option,.mes-sorte,.month-item");if(ms.length===0){var s=document.querySelector("select");if(s&&s.options.length>1){s.selectedIndex=Math.floor(Math.random()*(s.options.length-1))+1;s.dispatchEvent(new Event("change",{bubbles:!0}));return!0}}if(ms.length>0){var idx=Math.floor(Math.random()*ms.length);rc(ms[idx]);await d(250);return!0}return!1}async function car(){fm();await d(100);if(TM){await selTime();await d(300)}if(DS){await selMes();await d(300)}for(var t=0;t<8;t++){var b=document.getElementById("colocarnocarrinho");if(b&&b.offsetParent!==null){if(b.disabled||b.classList.contains("disabled")){await d(800);if(TM){await selTime();await d(400)}if(DS){await selMes();await d(400)}continue}rc(b);await d(800);fm();await d(300);fm();return!0}var ab=document.querySelectorAll("button,a");for(var k=0;k<ab.length;k++){var tx=ab[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar no carrinho")>=0||(tx.indexOf("carrinho")>=0&&tx.indexOf("ir para")<0&&tx.indexOf("ver")<0))&&ab[k].offsetParent!==null&&ab[k].offsetWidth>0){rc(ab[k]);await d(800);fm();await d(300);fm();return!0}}fm();await d(400)}return!1}var pg=document.createElement("div");pg.id="b2b-mob-progress";pg.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(145deg,#0F172A,#1E293B);border-bottom:2px solid #FFD700;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.6);font-family:Inter,sans-serif;";pg.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#FFD700;font-weight:800;font-size:0.85rem;">⚡ B2B TURBO</span><span id="b2b-pg-txt" style="color:#E2E8F0;font-size:0.8rem;font-weight:600;">0/'+T+'</span><button onclick="this.parentNode.parentNode.remove()" style="background:none;border:none;color:#94A3B8;font-size:1.2rem;cursor:pointer;">✕</button></div><div style="margin-top:6px;background:rgba(255,255,255,0.1);border-radius:4px;height:6px;overflow:hidden;"><div id="b2b-pg-bar" style="width:0%;height:100%;background:linear-gradient(90deg,#FFD700,#22C55E);border-radius:4px;transition:width 0.3s;"></div></div>';document.body.appendChild(pg);fm();await d(400);for(var i=0;i<T;i++){var j=J[i];var pt=document.getElementById("b2b-pg-txt");var pb=document.getElementById("b2b-pg-bar");if(pt)pt.textContent=(i+1)+"/"+T+" ["+j.join(",")+"]";if(pb)pb.style.width=((i+1)/T*100).toFixed(0)+"%";fm();if(i>0){lmp();await d(500);fm();await d(200)}var ac=0;for(var n=0;n<j.length;n++){if(cn(j[n]))ac++;else{await d(150);if(cn(j[n]))ac++}await d(120)}try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}await d(400);fm();await d(200);var ok=await car();if(ok){OK++}else{ER++}if(i<T-1){await d(600);fm()}}var pp=document.getElementById("b2b-mob-progress");if(pp){pp.style.borderColor="#22C55E";pp.innerHTML='<div style="text-align:center;padding:8px;"><div style="color:#22C55E;font-weight:800;font-size:1rem;">✅ PRONTO! '+OK+'/'+T+' jogos no carrinho!</div><div style="color:#E2E8F0;font-size:0.8rem;margin-top:4px;">💳 Toque no carrinho (🛒) para finalizar o pagamento.</div><button onclick="this.parentNode.parentNode.remove()" style="margin-top:8px;background:#22C55E;color:white;border:none;padding:8px 20px;border-radius:8px;font-weight:700;cursor:pointer;">OK</button></div>'}alert("✅ "+OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\n\\n💳 Toque no carrinho (🛒) para finalizar.")})())`;
-        return script;
-    }
-
-    // ── Modal MOBILE v2.0: Abas Automático + Manual ──
-    _openMobileBetModal(games, gameKey) {
-        const allConfigs = this._getCaixaLotteryConfig();
-        const cfg = allConfigs[gameKey];
-        if (!cfg) return;
-        const caixaUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfg.url;
-
-        // Remover modal anterior
-        const old = document.getElementById('mobile-bet-modal');
-        if (old) old.remove();
-
-        // ═══ SALVAR JOGOS NO LOCALSTORAGE ═══
-        try {
-            localStorage.setItem('b2b_mobile_games', JSON.stringify(games));
-            localStorage.setItem('b2b_mobile_config', JSON.stringify(cfg));
-            localStorage.setItem('b2b_mobile_timestamp', Date.now().toString());
-        } catch(e) { console.warn('[B2B] localStorage indisponível:', e); }
-
-        // ═══ GERAR BOOKMARKLET ═══
-        const bookmarkletCode = this._generateMobileBookmarklet(games, cfg);
-
-        // ═══ GERAR HTML DOS JOGOS (aba manual) ═══
-        let jogosHTML = '';
-        games.forEach((g, i) => {
-            const nums = g.map(n => String(n).padStart(2, '0')).join('  ');
-            const numsCSV = g.map(n => String(n).padStart(2, '0')).join(', ');
-            jogosHTML += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.06);"><div style="flex:1;"><div style="color:#60A5FA;font-weight:700;font-size:0.72rem;margin-bottom:3px;">Jogo ' + (i+1) + '</div><div style="color:#E2E8F0;font-size:1rem;font-weight:600;font-family:monospace;letter-spacing:1px;">' + nums + '</div></div><button class="mobile-copy-game-btn" data-nums="' + numsCSV + '" style="background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;padding:10px 14px;border-radius:10px;font-size:0.8rem;font-weight:800;cursor:pointer;white-space:nowrap;min-width:70px;">📋 Copiar</button></div>';
-        });
-
-        const allFormatted = games.map((g, i) =>
-            'Jogo ' + (i+1) + ': ' + g.map(n => String(n).padStart(2,'0')).join(' - ')
-        ).join('\n');
-
-        const modal = document.createElement('div');
-        modal.id = 'mobile-bet-modal';
-        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding:10px;box-sizing:border-box;overflow-y:auto;-webkit-overflow-scrolling:touch;';
-
-        modal.innerHTML = `
-        <div style="background:linear-gradient(145deg,#0F172A,#1E293B);border-radius:16px;border:1px solid #FFD70040;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;padding:18px;color:#E2E8F0;box-shadow:0 20px 60px rgba(0,0,0,0.6);">
-            <!-- HEADER -->
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-                <h2 style="margin:0;font-size:1.1rem;color:#FFD700;">📱 Apostar no Celular</h2>
-                <button id="close-mobile-bet-modal" style="background:none;border:none;color:#94A3B8;font-size:1.8rem;cursor:pointer;padding:4px 8px;">✕</button>
-            </div>
-
-            <!-- INFO BAR -->
-            <div style="background:linear-gradient(135deg,rgba(255,215,0,0.12),rgba(0,60,120,0.1));border:1px solid #FFD70030;border-radius:12px;padding:12px;margin-bottom:14px;">
-                <div style="font-weight:800;color:#FFD700;font-size:0.95rem;margin-bottom:4px;">🎰 ${games.length} jogos de ${cfg.name}</div>
-                <div style="font-size:0.75rem;color:#94A3B8;line-height:1.4;">Escolha como apostar: automático (recomendado) ou copiar manualmente.</div>
-            </div>
-
-            <!-- TABS -->
-            <div style="display:flex;gap:4px;margin-bottom:14px;">
-                <button id="tab-auto-btn" style="flex:1;padding:12px 8px;border-radius:10px;border:2px solid #FFD700;background:linear-gradient(135deg,#FFD70020,#FFD70008);color:#FFD700;font-weight:800;font-size:0.82rem;cursor:pointer;transition:all 0.2s;">⚡ AUTOMÁTICO</button>
-                <button id="tab-manual-btn" style="flex:1;padding:12px 8px;border-radius:10px;border:1px solid #47556940;background:transparent;color:#94A3B8;font-weight:700;font-size:0.82rem;cursor:pointer;transition:all 0.2s;">📋 Manual</button>
-            </div>
-
-            <!-- ═══════════ ABA AUTOMÁTICO ═══════════ -->
-            <div id="tab-auto-content">
-                <div style="background:linear-gradient(145deg,rgba(34,197,94,0.1),rgba(0,60,120,0.08));border:1px solid #22C55E30;border-radius:12px;padding:14px;margin-bottom:12px;">
-                    <div style="color:#22C55E;font-weight:800;font-size:0.9rem;margin-bottom:8px;">⚡ Preenchimento Automático — Sem F12!</div>
-                    <div style="font-size:0.78rem;color:#CBD5E1;line-height:1.6;">
-                        O sistema preenche seus jogos automaticamente no site da Caixa.<br>
-                        <strong style="color:#FFD700;">Nenhum conhecimento técnico necessário.</strong>
-                    </div>
-                </div>
-
-                <!-- PASSO A PASSO -->
-                <div style="margin-bottom:14px;">
-                    <div style="color:#FFD700;font-weight:800;font-size:0.82rem;margin-bottom:10px;">📝 Passo a Passo (uma vez só!):</div>
-
-                    <!-- PASSO 1: Copiar o Bookmarklet -->
-                    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
-                        <span style="background:#FFD700;color:#000;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">1</span>
-                        <div style="flex:1;">
-                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:6px;">Copie o link de automação:</div>
-                            <button id="btn-copy-bookmarklet" style="width:100%;background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;padding:12px;border-radius:10px;font-size:0.88rem;font-weight:800;cursor:pointer;box-shadow:0 4px 15px rgba(34,197,94,0.35);">📋 COPIAR LINK DE AUTOMAÇÃO</button>
-                        </div>
-                    </div>
-
-                    <!-- PASSO 2: Abrir Site da Caixa -->
-                    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
-                        <span style="background:#0066CC;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">2</span>
-                        <div style="flex:1;">
-                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:6px;">Abra o site da Caixa e faça login:</div>
-                            <a href="${caixaUrl}" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:12px;border-radius:10px;font-size:0.85rem;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;box-sizing:border-box;">🌐 ABRIR ${cfg.name.toUpperCase()}</a>
-                        </div>
-                    </div>
-
-                    <!-- PASSO 3: Criar o Bookmark -->
-                    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
-                        <span style="background:#8B5CF6;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">3</span>
-                        <div style="flex:1;">
-                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:4px;">No site da Caixa, crie um favorito:</div>
-                            <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;">
-                                <div style="margin-bottom:4px;"><strong style="color:#60A5FA;">Chrome:</strong> ⋮ → ☆ (Adicionar favorito) → OK</div>
-                                <div><strong style="color:#60A5FA;">Safari:</strong> 📤 Compartilhar → "Adicionar Favorito"</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- PASSO 4: Editar o Favorito -->
-                    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:10px;background:rgba(255,215,0,0.06);border-radius:10px;border:1px solid rgba(255,215,0,0.15);">
-                        <span style="background:#F59E0B;color:#000;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">4</span>
-                        <div style="flex:1;">
-                            <div style="font-size:0.8rem;font-weight:700;color:#E2E8F0;margin-bottom:4px;">Edite o favorito recém-criado:</div>
-                            <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;">
-                                <div>• Abra os favoritos do navegador</div>
-                                <div>• Toque e segure no favorito recém-criado</div>
-                                <div>• Toque em <strong style="color:#FFD700;">"Editar"</strong></div>
-                                <div>• No campo <strong style="color:#FFD700;">URL / Endereço</strong>:</div>
-                                <div style="padding:4px 0;">  → Apague tudo que estiver lá</div>
-                                <div style="padding:4px 0;">  → <strong style="color:#22C55E;">Cole</strong> o link copiado no passo 1</div>
-                                <div>• Renomeie para <strong style="color:#FFD700;">"⚡ B2B Apostar"</strong></div>
-                                <div>• Salve</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- PASSO 5: Executar -->
-                    <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:rgba(34,197,94,0.08);border-radius:10px;border:1px solid rgba(34,197,94,0.2);">
-                        <span style="background:#22C55E;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:900;flex-shrink:0;">5</span>
-                        <div style="flex:1;">
-                            <div style="font-size:0.8rem;font-weight:700;color:#22C55E;margin-bottom:4px;">Execute! 🚀</div>
-                            <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;">
-                                <div>Na página do jogo da Caixa (já logado):</div>
-                                <div style="margin-top:3px;"><strong style="color:#FFD700;">Abra seus favoritos e toque em "⚡ B2B Apostar"</strong></div>
-                                <div style="margin-top:3px;color:#22C55E;font-weight:600;">✅ Os ${games.length} jogos serão preenchidos automaticamente!</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ALTERNATIVA RÁPIDA: Cole na barra de endereço -->
-                <div style="background:rgba(139,92,246,0.08);border:1px solid #8B5CF640;border-radius:12px;padding:12px;margin-bottom:12px;">
-                    <div style="color:#C4B5FD;font-weight:800;font-size:0.82rem;margin-bottom:8px;">🚀 Alternativa Rápida (Sem criar favorito):</div>
-                    <div style="font-size:0.72rem;color:#CBD5E1;line-height:1.6;margin-bottom:8px;">
-                        <div>① Copie o link acima (passo 1)</div>
-                        <div>② No site da Caixa, toque na <strong style="color:#C4B5FD;">barra de endereço</strong></div>
-                        <div>③ Apague o endereço atual</div>
-                        <div>④ Cole o link e toque <strong style="color:#C4B5FD;">Ir / Enter</strong></div>
-                    </div>
-                    <div style="font-size:0.68rem;color:#F59E0B;line-height:1.4;">
-                        ⚠️ <strong>Importante:</strong> Alguns navegadores removem o "javascript:" do início ao colar. Se não funcionar, digite <strong style="color:#FFD700;">javascript:</strong> manualmente antes de colar.
-                    </div>
-                </div>
-
-                <!-- LISTA RESUMIDA DOS JOGOS -->
-                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px;margin-bottom:12px;">
-                    <div style="color:#94A3B8;font-size:0.72rem;font-weight:700;margin-bottom:6px;">🎰 Jogos que serão apostados:</div>
-                    <div style="font-size:0.7rem;color:#CBD5E1;font-family:monospace;line-height:1.8;max-height:120px;overflow-y:auto;">
-                        ${games.map((g, i) => '<div><span style="color:#60A5FA;">' + (i+1) + '.</span> ' + g.map(n => String(n).padStart(2,'0')).join(' ') + '</div>').join('')}
-                    </div>
-                </div>
-
-                <div style="text-align:center;font-size:0.65rem;color:#475569;line-height:1.4;">
-                    💡 O script seleciona números e coloca no carrinho automaticamente.<br>
-                    O pagamento é feito manualmente por você.
-                </div>
-            </div>
-
-            <!-- ═══════════ ABA MANUAL ═══════════ -->
-            <div id="tab-manual-content" style="display:none;">
-                <div style="background:linear-gradient(135deg,rgba(0,102,204,0.1),rgba(0,60,120,0.08));border:1px solid #0066CC20;border-radius:12px;padding:10px;margin-bottom:12px;">
-                    <div style="font-size:0.78rem;color:#94A3B8;line-height:1.5;">Copie cada jogo e preencha manualmente no site da Caixa.</div>
-                </div>
-                <div style="margin-bottom:12px;">${jogosHTML}</div>
-                <button id="mobile-copy-all-btn" style="width:100%;background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:white;border:none;padding:14px;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 15px rgba(139,92,246,0.4);">📋 COPIAR TODOS OS ${games.length} JOGOS</button>
-                <a href="${caixaUrl}" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:14px;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 4px 15px rgba(0,102,204,0.4);box-sizing:border-box;">🌐 ABRIR SITE DA CAIXA — ${cfg.name}</a>
-                <div style="margin-top:12px;padding:10px;background:rgba(245,158,11,0.08);border:1px solid #F59E0B30;border-radius:10px;">
-                    <div style="color:#F59E0B;font-weight:700;font-size:0.82rem;margin-bottom:6px;">📝 Como apostar manualmente:</div>
-                    <div style="font-size:0.75rem;color:#CBD5E1;line-height:1.7;">
-                        <div>① Copie os números de um jogo acima</div>
-                        <div>② Toque em "Abrir Site da Caixa"</div>
-                        <div>③ Faça login na sua conta</div>
-                        <div>④ Selecione os números manualmente</div>
-                        <div>⑤ Toque em "Colocar no Carrinho"</div>
-                        <div>⑥ Repita para cada jogo</div>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-
-        document.body.appendChild(modal);
-
-        // ═══ EVENT HANDLERS ═══
-
-        // Fechar modal
-        document.getElementById('close-mobile-bet-modal').addEventListener('click', () => modal.remove());
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-
-        // ── Abas ──
-        const tabAutoBtn = document.getElementById('tab-auto-btn');
-        const tabManualBtn = document.getElementById('tab-manual-btn');
-        const tabAutoContent = document.getElementById('tab-auto-content');
-        const tabManualContent = document.getElementById('tab-manual-content');
-
-        tabAutoBtn.addEventListener('click', () => {
-            tabAutoContent.style.display = 'block';
-            tabManualContent.style.display = 'none';
-            tabAutoBtn.style.border = '2px solid #FFD700';
-            tabAutoBtn.style.background = 'linear-gradient(135deg,#FFD70020,#FFD70008)';
-            tabAutoBtn.style.color = '#FFD700';
-            tabManualBtn.style.border = '1px solid #47556940';
-            tabManualBtn.style.background = 'transparent';
-            tabManualBtn.style.color = '#94A3B8';
-        });
-
-        tabManualBtn.addEventListener('click', () => {
-            tabAutoContent.style.display = 'none';
-            tabManualContent.style.display = 'block';
-            tabManualBtn.style.border = '2px solid #0066CC';
-            tabManualBtn.style.background = 'linear-gradient(135deg,#0066CC20,#0066CC08)';
-            tabManualBtn.style.color = '#60A5FA';
-            tabAutoBtn.style.border = '1px solid #47556940';
-            tabAutoBtn.style.background = 'transparent';
-            tabAutoBtn.style.color = '#94A3B8';
-        });
-
-        // ── Copiar Bookmarklet ──
-        const bookmarkletBtn = document.getElementById('btn-copy-bookmarklet');
-        if (bookmarkletBtn) {
-            bookmarkletBtn.addEventListener('click', async () => {
-                try {
-                    await navigator.clipboard.writeText(bookmarkletCode);
-                } catch(e) {
-                    const ta = document.createElement('textarea');
-                    ta.value = bookmarkletCode;
-                    ta.style.cssText = 'position:fixed;left:-9999px;';
-                    document.body.appendChild(ta);
-                    ta.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(ta);
-                }
-                bookmarkletBtn.textContent = '✅ LINK COPIADO!';
-                bookmarkletBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-                setTimeout(() => {
-                    bookmarkletBtn.textContent = '📋 COPIAR LINK DE AUTOMAÇÃO';
-                    bookmarkletBtn.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)';
-                }, 3000);
-            });
-        }
-
-        // ── Copiar jogo individual ──
-        modal.querySelectorAll('.mobile-copy-game-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const nums = btn.getAttribute('data-nums');
-                try { await navigator.clipboard.writeText(nums); } catch(e) {
-                    const ta = document.createElement('textarea'); ta.value = nums; ta.style.cssText = 'position:fixed;left:-9999px;';
-                    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-                }
-                btn.textContent = '✅ Copiado!'; btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-                setTimeout(() => { btn.textContent = '📋 Copiar'; btn.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)'; }, 2000);
-            });
-        });
-
-        // ── Copiar todos ──
-        const copyAllBtn = document.getElementById('mobile-copy-all-btn');
-        if (copyAllBtn) {
-            copyAllBtn.addEventListener('click', async () => {
-                try { await navigator.clipboard.writeText(allFormatted); } catch(e) {
-                    const ta = document.createElement('textarea'); ta.value = allFormatted; ta.style.cssText = 'position:fixed;left:-9999px;';
-                    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-                }
-                copyAllBtn.textContent = '✅ TODOS COPIADOS!'; copyAllBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-                setTimeout(() => { copyAllBtn.textContent = '📋 COPIAR TODOS OS ' + games.length + ' JOGOS'; copyAllBtn.style.background = 'linear-gradient(135deg,#8B5CF6,#7C3AED)'; }, 3000);
-            });
-        }
-    }
-
-    _insertCaixaPanel(games, gameKey) {
-        if (!games || games.length === 0) return;
-        this._lastGeneratedGames = games;
-        this._lastGameKey = gameKey;
-        const allConfigs = this._getCaixaLotteryConfig();
-        const lotteryConfig = allConfigs[gameKey];
-        if (!lotteryConfig) return;
-        const isMobile = this._isMobile();
-
-        var oldPanel = document.getElementById('caixa-panel');
-        if (oldPanel) oldPanel.remove();
-
-        var _self = this;
-        var _cp = document.createElement('div');
-        _cp.id = 'caixa-panel';
-        _cp.style.cssText = 'margin:16px 0;text-align:center;';
-
-        var _btn = document.createElement('button');
-        _btn.id = 'btn-aposte-online';
-        _btn.style.cssText = 'width:100%;background:linear-gradient(135deg,#0066CC,#003D80);color:white;border:none;padding:18px 28px;border-radius:14px;font-size:1.1rem;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(0,102,204,0.4);transition:all 0.3s ease;letter-spacing:0.3px;';
-        _btn.textContent = '\u{1F3E6} APOSTE ONLINE \u{2014} ' + games.length + ' jogos de ' + lotteryConfig.name;
-        _btn.onmouseenter = function() { this.style.transform = 'translateY(-2px)'; this.style.boxShadow = '0 8px 28px rgba(0,102,204,0.5)'; };
-        _btn.onmouseleave = function() { this.style.transform = 'translateY(0)'; this.style.boxShadow = '0 6px 20px rgba(0,102,204,0.4)'; };
-
-        var _st = document.createElement('div');
-        _st.id = 'caixa-status';
-        _st.style.cssText = 'display:none;margin-top:12px;padding:14px;background:linear-gradient(145deg,rgba(34,197,94,0.15),rgba(0,60,120,0.1));border:1px solid #22C55E50;border-radius:12px;';
-
-        var _info = document.createElement('div');
-        _info.style.cssText = 'margin-top:8px;font-size:0.72rem;color:#94A3B8;line-height:1.5;';
-        if (isMobile) {
-            _info.innerHTML = '📱 <strong style="color:#60A5FA;">Celular:</strong> Toque para ver seus jogos formatados e copiar para o site da Caixa.';
-        } else {
-            _info.innerHTML = '💡 <strong style="color:#60A5FA;">Como funciona:</strong> O script é copiado automaticamente. No site da Caixa, pressione <kbd style="background:#1E293B;padding:2px 6px;border-radius:4px;border:1px solid #475569;color:#E2E8F0;font-size:0.7rem;">F12</kbd> → aba <strong>Console</strong> → cole com <kbd style="background:#1E293B;padding:2px 6px;border-radius:4px;border:1px solid #475569;color:#E2E8F0;font-size:0.7rem;">Ctrl+V</kbd> → pressione <kbd style="background:#1E293B;padding:2px 6px;border-radius:4px;border:1px solid #475569;color:#E2E8F0;font-size:0.7rem;">Enter</kbd>';
-        }
-
-        _cp.appendChild(_btn);
-        _cp.appendChild(_st);
-        _cp.appendChild(_info);
-
-        if (this.gamesContainer && this.gamesContainer.parentNode) {
-            this.gamesContainer.parentNode.insertBefore(_cp, this.gamesContainer);
-        }
-
-        // Handler — DETECTA MOBILE vs DESKTOP
-        _btn.addEventListener('click', async function() {
-            var currentGames = _self._lastGeneratedGames || _self.currentGeneratedGames || games;
-            var currentKey = _self._lastGameKey || gameKey;
-            var cfg = allConfigs[currentKey] || lotteryConfig;
-
-            if (_self._isMobile()) {
-                // ══════ MOBILE: Abrir modal com jogos formatados ══════
-                _self._openMobileBetModal(currentGames, currentKey);
-            } else {
-                // ══════ DESKTOP: Fluxo de script (Console F12) ══════
-                console.log('[B2B] Enviando ' + currentGames.length + ' jogos para ' + currentKey);
-                var freshUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfg.url;
-                var freshScript = _self._generateCaixaScript_LEGACY(cfg, currentGames);
-
-                try {
-                    await navigator.clipboard.writeText(freshScript);
-                    console.log('[B2B] ✅ ' + currentGames.length + ' jogos de ' + cfg.name + ' copiados!');
-                } catch(e) {
-                    var ta = document.createElement('textarea'); ta.value = freshScript; ta.style.cssText = 'position:fixed;left:-9999px;';
-                    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-                }
-
-                document.dispatchEvent(new CustomEvent('b2b-aposte-online', { detail: { games: currentGames, config: cfg } }));
-
-                alert('✅ Script v7.0 TURBO copiado! ' + currentGames.length + ' jogos de ' + cfg.name + '\n\n⚠️ IMPORTANTE:\n1. Na Caixa, pressione F12\n2. Clique na aba "Console"\n3. Cole com Ctrl+V\n4. Pressione Enter');
-                setTimeout(function() { if (!window._b2bExtensionOpened) window.open(freshUrl, '_blank'); }, 300);
-
-                _st.style.display = 'block';
-                _st.innerHTML = '<div style="color:#22C55E;font-weight:800;font-size:1.1rem;margin-bottom:8px;">✅ ' + currentGames.length + ' jogos de ' + cfg.name + ' copiados!</div><div style="color:#E2E8F0;font-size:0.88rem;">Site da Caixa abrindo em <strong>' + cfg.name + '</strong>... cole com <strong>Ctrl+V</strong> no Console (F12).</div>';
-                _btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-                _btn.textContent = '✅ ' + currentGames.length + ' JOGOS DE ' + cfg.name.toUpperCase() + ' COPIADOS — Cole no Console (F12)';
-                setTimeout(function() {
-                    _btn.style.background = 'linear-gradient(135deg,#0066CC,#003D80)';
-                    _btn.textContent = '\u{1F3E6} APOSTE ONLINE \u{2014} ' + currentGames.length + ' jogos de ' + cfg.name;
-                }, 5000);
-            }
-        });
-    }
-
-
-    // Mantido como fallback — não usado diretamente
-    _showCaixaAutomationPanel_LEGACY(config, games) {
-        // Remover modal anterior se existir
-        const existing = document.getElementById('caixa-automation-modal');
-        if (existing) existing.remove();
-
-        // Gerar o script de automação
-        const gamesJSON = JSON.stringify(games);
-        const automationScript = this._generateCaixaScript(config, games);
-
-        // Criar modal
-        const modal = document.createElement('div');
-        modal.id = 'caixa-automation-modal';
-        modal.style.cssText = `
-            position:fixed;top:0;left:0;width:100%;height:100%;
-            background:rgba(0,0,0,0.85);z-index:10000;
-            display:flex;align-items:center;justify-content:center;
-            padding:20px;box-sizing:border-box;
-        `;
-        modal.innerHTML = `
-            <div style="
-                background:linear-gradient(145deg,#0F172A,#1E293B);
-                border-radius:16px;border:1px solid #0066CC40;
-                max-width:520px;width:100%;max-height:90vh;overflow-y:auto;
-                padding:24px;color:#E2E8F0;
-                box-shadow:0 20px 60px rgba(0,0,0,0.5);
-            ">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                    <h2 style="margin:0;font-size:1.2rem;color:#0066CC;">
-                        🏦 Apostar na Caixa Online
-                    </h2>
-                    <button id="close-caixa-modal" style="
-                        background:none;border:none;color:#94A3B8;font-size:1.5rem;cursor:pointer;
-                    ">✕</button>
-                </div>
-
-                <div style="background:rgba(0,102,204,0.1);border:1px solid #0066CC30;border-radius:10px;padding:14px;margin-bottom:16px;">
-                    <div style="font-weight:700;color:#60A5FA;margin-bottom:8px;">📋 ${games.length} jogos de ${config.name} prontos</div>
-                    <div style="font-size:0.8rem;color:#94A3B8;">
-                        ${games.map((g, i) => '<span style="color:#E2E8F0;font-weight:600;">Jogo ' + (i+1) + ':</span> ' + g.map(n => String(n).padStart(2,'0')).join(', ')).join('<br>')}
-                    </div>
-                </div>
-
-                <div style="margin-bottom:16px;">
-                    <div style="font-weight:700;color:#F59E0B;margin-bottom:10px;">📝 Passo a passo:</div>
-                    <div style="font-size:0.85rem;line-height:1.8;">
-                        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
-                            <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">1</span>
-                            <span>Abra: <a href="https://www.loteriasonline.caixa.gov.br/silce-web/#/${config.url}" target="_blank" style="color:#60A5FA;text-decoration:underline;">Loterias Online — ${config.name}</a></span>
-                        </div>
-                        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
-                            <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">2</span>
-                            <span>Faça login na sua conta da Caixa</span>
-                        </div>
-                        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
-                            <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">3</span>
-                            <span>Na página do jogo, pressione <kbd style="background:#334155;padding:2px 6px;border-radius:4px;font-size:0.75rem;">F12</kbd> para abrir o Console</span>
-                        </div>
-                        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
-                            <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">4</span>
-                            <span>Clique em <strong>"Copiar Script"</strong> abaixo</span>
-                        </div>
-                        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
-                            <span style="background:#0066CC;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">5</span>
-                            <span>Cole <kbd style="background:#334155;padding:2px 6px;border-radius:4px;font-size:0.75rem;">Ctrl+V</kbd> no Console e pressione <kbd style="background:#334155;padding:2px 6px;border-radius:4px;font-size:0.75rem;">Enter</kbd></span>
-                        </div>
-                        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
-                            <span style="background:#22C55E;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">✓</span>
-                            <span style="color:#22C55E;font-weight:700;">O script preenche cada jogo automaticamente!</span>
-                        </div>
-                        <div style="display:flex;gap:8px;align-items:flex-start;">
-                            <span style="background:#F59E0B;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">6</span>
-                            <span>Após todos os jogos, finalize o pagamento manualmente</span>
-                        </div>
-                    </div>
-                </div>
-
-                <button id="copy-caixa-script" style="
-                    background: linear-gradient(135deg, #22C55E, #16A34A);
-                    color: white;
-                    border: none;
-                    padding: 14px 24px;
-                    border-radius: 10px;
-                    font-size: 1rem;
-                    font-weight: 800;
-                    cursor: pointer;
-                    width: 100%;
-                    margin-bottom: 10px;
-                    transition: all 0.3s ease;
-                ">📋 Copiar Script de Automação</button>
-
-                <button id="open-caixa-site" style="
-                    background: linear-gradient(135deg, #0066CC, #003D80);
-                    color: white;
-                    border: none;
-                    padding: 12px 24px;
-                    border-radius: 10px;
-                    font-size: 0.9rem;
-                    font-weight: 700;
-                    cursor: pointer;
-                    width: 100%;
-                    transition: all 0.3s ease;
-                ">🌐 Abrir Loterias Online da Caixa</button>
-
-                <div style="margin-top:12px;padding:10px;background:rgba(245,158,11,0.08);border:1px solid #F59E0B30;border-radius:8px;font-size:0.72rem;color:#F59E0B;">
-                    ⚠️ O script seleciona os números e adiciona ao carrinho automaticamente. O pagamento é feito manualmente por você. Delay entre jogos: 3 segundos.
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(modal);
-
-        // Event listeners
-        document.getElementById('close-caixa-modal').addEventListener('click', () => modal.remove());
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-
-        document.getElementById('copy-caixa-script').addEventListener('click', () => {
-            navigator.clipboard.writeText(automationScript).then(() => {
-                const btn = document.getElementById('copy-caixa-script');
-                btn.textContent = '✅ Script Copiado!';
-                btn.style.background = 'linear-gradient(135deg, #059669, #047857)';
-                setTimeout(() => {
-                    btn.textContent = '📋 Copiar Script de Automação';
-                    btn.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
-                }, 3000);
-            }).catch(() => {
-                // Fallback: mostrar textarea
-                const ta = document.createElement('textarea');
-                ta.value = automationScript;
-                ta.style.cssText = 'width:100%;height:200px;margin-top:10px;background:#0F172A;color:#E2E8F0;border:1px solid #334155;border-radius:8px;padding:10px;font-family:monospace;font-size:0.7rem;';
-                document.getElementById('copy-caixa-script').parentNode.insertBefore(ta, document.getElementById('open-caixa-site'));
-                ta.select();
-            });
-        });
-
-        document.getElementById('open-caixa-site').addEventListener('click', () => {
-            window.open('https://www.loteriasonline.caixa.gov.br/silce-web/#/' + config.url, '_blank');
-        });
-    }
-
-    // Gerar o script JavaScript para automação no site da Caixa
-    // Redireciona para o script TURBO que funciona com AngularJS
-    _generateCaixaScript(config, games) {
-        return this._generateCaixaScript_LEGACY(config, games);
-    }
-
-    initHeaderAnimations() {
-        // Disabled to improve performance and prevent server crashes
-        /*
-        const container = document.createElement('div');
-        ...
-        */
-    }
-
-    initEvents() {
-        // Navigation Buttons — apply game color gradients
-        this.navButtons.forEach(btn => {
-            const gameKey = btn.dataset.game;
-            const game = GAMES[gameKey];
-            if (game) {
-                const c1 = game.color || '#10B981';
-                const c2 = game.colorGrad || '#065f35';
-                btn.style.setProperty('--btn-gradient', `linear-gradient(135deg, ${c1}, ${c2})`);
-                // Set subtle colored border
-                btn.style.borderColor = `${c1}55`;
-            }
-            btn.onclick = () => {
-                this.updateGameInfo(gameKey);
-            };
-        });
-
-        // Grid Controls
-        document.getElementById('btn-random-select').onclick = () => this.selectRandom();
-        document.getElementById('btn-clear-selection').onclick = () => this.clearSelection();
-
-        // Fixed Mode Toggle
-        this.btnFixedMode.onclick = () => this.toggleFixedMode();
-
-        // Generate (Fechamento) — Motor Inteligente v3 + Fechamento Objetivo L99
-        this.generateBtn.onclick = async () => {
-            // ── RASTREAMENTO DE MODO ──
-            const precisionCb = document.getElementById('precision-mode-toggle');
-            this._lastPrecisionMode = !!(precisionCb && precisionCb.checked);
-            let closingVal = this.closingSelect.value;
-
-            // ═══ PROTEÇÃO v3.4: Quantidade solicitada tem PRIORIDADE ═══
-            // Se a quantidade solicitada é ≤50000 e o dropdown está em close_,
-            // o usuário pode ter o dropdown errado (cache antigo, troca de loteria).
-            // Verificar e redirecionar para CombinationEngine.
-            const requestedQty = parseInt(this.gamesQuantityInput.value) || 10;
-            if (closingVal && closingVal.startsWith('close_') && requestedQty <= 50000) {
+            this.generateSmartBtn.onclick = () => {
                 const game = GAMES[this.currentGameKey];
-                const selectedCount = this.selectedNumbers.size;
-                const betSize = typeof ClosingEngine !== 'undefined' ? ClosingEngine.getBetSize(this.currentGameKey) : (game ? game.minBet : 6);
-                // Estimar quantos jogos o fechamento geraria
-                const estClosureGames = this._nCrSafe(selectedCount, betSize);
-                
-                // Se o fechamento geraria MUITO mais do que o solicitado, avisar
-                if (estClosureGames > requestedQty * 2 && requestedQty < estClosureGames) {
-                    const confirmMsg = `⚠️ ATENÇÃO: O Fechamento Objetivo vai gerar ~${estClosureGames.toLocaleString('pt-BR')} jogos.\n\nVocê solicitou apenas ${requestedQty} jogos.\n\n▶ OK = Gerar ${requestedQty} jogos (modo inteligente)\n▶ Cancelar = Gerar fechamento completo (${estClosureGames.toLocaleString('pt-BR')} jogos)`;
-                    if (confirm(confirmMsg)) {
-                        closingVal = 'generate'; // Forçar CombinationEngine
-                        this.closingSelect.value = 'generate';
-                    }
-                }
-            }
-
-            if (closingVal && closingVal.startsWith('close_')) {
-                this._lastGenerationMode = 'fechamento'; localStorage.setItem('l99_lastMode','fechamento'); document.body.setAttribute('data-l99-mode','fechamento');
-            } else {
-                var _sniperOn = document.getElementById('precision-mode-toggle')?.checked || false;
-                var _manualMode = _sniperOn ? 'manual_sniper' : 'manual';
-                this._lastGenerationMode = _manualMode; localStorage.setItem('l99_lastMode', _manualMode); document.body.setAttribute('data-l99-mode', _manualMode);
-            }
-            this._lastDrawSize = parseInt(this.smartDrawSizeSelect?.value) || GAMES[this.currentGameKey]?.minBet || 6;
-
-            // ━━ FECHAMENTO OBJETIVO (ClosingEngine v3.0) ━━
-            if (closingVal && closingVal.startsWith('close_')) {
-                const guarantee = parseInt(closingVal.replace('close_', ''));
+                const qty = parseInt(this.gamesQuantityInput.value) || 10;
                 let selectedArr = Array.from(this.selectedNumbers);
                 const fixedArr = Array.from(this.fixedNumbers);
-                const game = GAMES[this.currentGameKey];
-                const closingBetSize = typeof ClosingEngine !== 'undefined' ? ClosingEngine.getBetSize(this.currentGameKey) : game.draw;
-
-                // V10 FIX: Expand pool to full board if user only selected fixed numbers
-                if (fixedArr.length > 0 && selectedArr.length === fixedArr.length) {
-                    selectedArr = [];
-                    for (let i = game.range[0]; i <= game.range[1]; i++) selectedArr.push(i);
-                }
-
-                if (selectedArr.length < closingBetSize) {
-                    alert('Selecione pelo menos ' + closingBetSize + ' números para o fechamento objetivo de ' + game.name + '.');
-                    return;
-                }
-
-                // Limpar painéis anteriores (incluindo painéis do QUANTUM L99)
-                const _clParent = this.gamesContainer.parentNode;
-                if (_clParent) {
-                    _clParent.querySelectorAll('.generation-feedback, .smart-analysis-panel, .smart-gen-analysis').forEach(el => el.remove());
-                    const _oldCaixaCl = document.getElementById('caixa-panel');
-                    if (_oldCaixaCl) _oldCaixaCl.remove();
-                }
-
-                // Mostrar loading
-                const fixedInfo = fixedArr.length > 0 ? '<br><small style="color:#F59E0B;">📌 ' + fixedArr.length + ' números fixos: ' + fixedArr.sort((a,b)=>a-b).join(', ') + '</small>' : '';
-                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">🎯 Calculando Fechamento Objetivo v3.0...<br><small>Garantia de ' + guarantee + ' acertos | ' + selectedArr.length + ' números | ' + game.name + '</small>' + fixedInfo + '</div></div>';
-
+                const drawSizeSelect = document.getElementById('smart-draw-size');
+                const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
+                const drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
+                
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">📐 Otimizando Cobertura (Greedy Set Cover)...</div></div>';
+                
                 setTimeout(() => {
-                  try {
-                    // v3.0: Passar fixedNumbers ao ClosingEngine
-                    if (typeof ClosingEngine === 'undefined') {
-                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">❌ Motor de Fechamento (ClosingEngine) não carregado.<br><small>Recarregue a página com Ctrl+Shift+R</small></div>';
-                        return;
+                    try {
+                        if (typeof CoverageEngine === 'undefined') { alert('CoverageEngine não carregado.'); return; }
+                        
+                        var origConfig = CoverageEngine.getConfig(this.currentGameKey);
+                        if (drawSize !== origConfig.drawSize) {
+                            var customCfg = Object.assign({}, origConfig);
+                            customCfg.drawSize = drawSize;
+                            CoverageEngine._tempConfig = customCfg;
+                            CoverageEngine._tempGameKey = this.currentGameKey;
+                        }
+                        
+                        const coverResult = CoverageEngine.generate(this.currentGameKey, qty, selectedArr.length >= drawSize ? selectedArr : null, fixedArr);
+                        const m = coverResult.analysis.metrics;
+                        
+                        this.currentGeneratedGames = coverResult.games;
+                        this._lastGeneratedGames = coverResult.games;
+                        this.renderGames({ pool: selectedArr, games: coverResult.games, smartAnalysis: null }, this.currentGameKey);
+                        
+                        const banner = document.createElement('div');
+                        banner.className = 'smart-gen-analysis';
+                        banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(4,120,87,0.12),rgba(15,23,42,0.95));border:1px solid rgba(16,185,129,0.3);';
+                        
+                        let probHtml = '';
+                        const cfg = CoverageEngine.getConfig(this.currentGameKey);
+                        for (let pi = 0; pi < cfg.prizeThresholds.length; pi++) {
+                            const pt = cfg.prizeThresholds[pi];
+                            const pPct = ((m.probWithNGames[pt] || 0) * 100).toFixed(4);
+                            const bW = Math.min(100, parseFloat(pPct));
+                            probHtml += '<div style="display:flex;align-items:center;gap:6px;margin:3px 0;"><span style="color:#94A3B8;font-size:0.68rem;min-width:50px;">' + cfg.prizeLabels[pi] + '</span><div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + bW + '%;background:linear-gradient(90deg,#10B981,#FFD700);border-radius:3px;"></div></div><span style="color:#E2E8F0;font-size:0.68rem;font-weight:700;min-width:65px;text-align:right;">' + pPct + '%</span></div>';
+                        }
+                        const pAnyM = ((m.probWithNGames.anyPrize || 0) * 100).toFixed(2);
+                        
+                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">📐</span><div><div style="font-weight:900;color:#10B981;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">COBERTURA MÁXIMA COMBINATÓRIA</div><div style="font-size:0.72rem;color:#94A3B8;">Otimizado via Greedy Set Cover para ' + qty + ' jogos</div></div></div>' +
+                            '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:0.75rem;">' +
+                            '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">PARES COBERTOS</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + m.pairCoveragePct + '%</div><div style="color:#64748b;font-size:0.55rem;">' + m.pairCoverage + '/' + m.totalPairs + '</div></div>' +
+                            '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">NÚMEROS USADOS</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + m.numberCoveragePct + '%</div><div style="color:#64748b;font-size:0.55rem;">' + m.numberCoverage + ' n°s únicos</div></div>' +
+                            '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + m.avgHamming + '</div><div style="color:#64748b;font-size:0.55rem;">Hamming</div></div>' +
+                            '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">INVESTIMENTO</div><div style="color:#FFD700;font-weight:900;font-size:1.2rem;">R$ ' + m.investment.toFixed(2) + '</div><div style="color:#64748b;font-size:0.55rem;">' + m.numGames + ' jogos</div></div></div>' +
+                            '<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.25);border-radius:10px;border:1px solid rgba(255,215,0,0.15);"><div style="color:#FFD700;font-size:0.7rem;font-weight:800;margin-bottom:6px;">📊 PROBABILIDADES EXATAS (Hipergeométrica)</div>' + probHtml +
+                            '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(16,185,129,0.2);color:#10B981;font-weight:900;font-size:0.8rem;">★ Chance QUALQUER prêmio: ' + pAnyM + '%</div></div>';
+                        this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
+                        banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } catch(e) {
+                        console.error('Erro na geracao coverage', e);
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
                     }
-
-                    const closingResult = ClosingEngine.generateClosure(
-                        selectedArr, guarantee, closingBetSize, this.currentGameKey, fixedArr
-                    );
-
-                    if (closingResult.error) {
-                        const errorStyle = closingResult.impossible
-                            ? 'background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:12px;padding:20px;color:#F87171;text-align:center;'
-                            : '';
-                        this.gamesContainer.innerHTML = '<div class="empty-state" style="' + errorStyle + 'color:#EF4444;">❌ ' + closingResult.error + '</div>';
-                        return;
-                    }
-
-                    // Converter para formato do renderGames
-                    const result = {
-                        pool: closingResult.selectedNumbers,
-                        games: closingResult.games,
-                        smartAnalysis: null
-                    };
-
-                    this.renderGames(result, this.currentGameKey);
-
-                    // Inserir banner de resultado do fechamento
-                    const banner = document.createElement('div');
-                    banner.className = 'smart-gen-analysis';
-                    banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(234,179,8,0.12),rgba(15,23,42,0.95));border:1px solid #EAB30840;';
-                    const guaranteeLabels = { 20: '20 PONTOS', 19: '19 PONTOS', 18: '18 PONTOS', 17: '17 PONTOS', 15: '15 PONTOS', 14: '14 PONTOS', 13: '13 PONTOS', 12: '12 PONTOS', 11: '11 PONTOS', 10: '10 PONTOS', 9: '9 PONTOS', 8: '8 PONTOS', 7: '7 PONTOS', 6: 'SENA', 5: 'QUINA', 4: 'QUADRA', 3: 'TERNO' };
-                    const guaranteeIcons = { 20: '🎯', 19: '⭐', 18: '🔥', 17: '✅', 15: '🎯', 14: '⭐', 13: '🔥', 12: '💎', 11: '💎', 10: '👑', 9: '👑', 8: '🔥', 7: '⭐', 6: '🎯', 5: '⭐', 4: '🔥', 3: '✅' };
-                    const modeLabel = closingResult.mode ? ' <span style="font-size:0.7em;color:#94A3B8;">(' + closingResult.mode + ')</span>' : '';
-
-                    // v3.0: Badge de confiança
-                    const confPct = closingResult.confidence || closingResult.coveragePct;
-                    const confColor = confPct >= 99 ? '#10B981' : confPct >= 95 ? '#22C55E' : confPct >= 80 ? '#F59E0B' : '#EF4444';
-                    const confBadge = '<div style="margin-top:8px;padding:6px 10px;background:rgba(16,185,129,0.08);border:1px solid ' + confColor + '30;border-radius:8px;font-size:0.82em;color:' + confColor + ';font-weight:600;">🔒 Confiança: ' + confPct.toFixed(1) + '% | Modo: ' + (closingResult.mode || 'EXATO') + '</div>';
-
-                    // v3.0: Badge de números fixos
-                    const fixedBadge = fixedArr.length > 0 ? '<div style="margin-top:8px;padding:6px 10px;background:rgba(245,158,11,0.12);border:1px solid #F59E0B30;border-radius:8px;font-size:0.8em;color:#F59E0B;">📌 <strong>Números Fixos (' + fixedArr.length + '):</strong> ' + fixedArr.sort((a,b)=>a-b).map(n => '<span style="background:#F59E0B22;padding:1px 6px;border-radius:10px;font-weight:700;">' + String(n).padStart(2,'0') + '</span>').join(' ') + ' — presentes em TODOS os ' + closingResult.totalGames + ' jogos</div>' : '';
-
-                    banner.innerHTML = '<div style="font-size:1.1em;font-weight:700;color:#EAB308;margin-bottom:6px;">' + (guaranteeIcons[guarantee] || '🎯') + ' FECHAMENTO OBJETIVO — ' + (guaranteeLabels[guarantee] || guarantee) + modeLabel + '</div>' +
-                        '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:0.85em;">' +
-                        '<div style="text-align:center;"><div style="color:#9CA3AF;">Jogos</div><div style="font-weight:700;color:#F59E0B;font-size:1.3em;">' + closingResult.totalGames + '</div></div>' +
-                        '<div style="text-align:center;"><div style="color:#9CA3AF;">Cobertura</div><div style="font-weight:700;color:#10B981;font-size:1.3em;">' + closingResult.coveragePct + '%</div></div>' +
-                        '<div style="text-align:center;"><div style="color:#9CA3AF;">Custo</div><div style="font-weight:700;color:#F59E0B;font-size:1.3em;">R$ ' + closingResult.cost.toLocaleString('pt-BR', {minimumFractionDigits:2}) + '</div></div>' +
-                        '<div style="text-align:center;"><div style="color:#9CA3AF;">Tempo</div><div style="font-weight:700;color:#94A3B8;font-size:1.3em;">' + (closingResult.elapsed / 1000).toFixed(1) + 's</div></div>' +
-                        '</div>' +
-                        confBadge +
-                        fixedBadge +
-                        '<div style="margin-top:8px;padding:6px 10px;background:rgba(234,179,8,0.1);border-radius:8px;font-size:0.8em;color:#D97706;">💡 <strong>Garantia matemática:</strong> Se ' + guarantee + ' dos números sorteados estiverem entre os ' + selectedArr.length + ' selecionados, pelo menos 1 jogo terá ' + guarantee + ' acertos.</div>' +
-                    (closingResult.note ? '<div style="margin-top:6px;padding:6px 10px;background:rgba(148,163,184,0.08);border-radius:8px;font-size:0.75em;color:#94A3B8;">ℹ️ ' + closingResult.note + '</div>' : '');
-                    this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
-
-                    // ★ V4.0: Scroll automático para os resultados
-                    banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-                    // v3.0: Painel Aposte Online
-                    if (typeof this._insertCaixaPanel === 'function') {
-                        this._insertCaixaPanel(closingResult.games, this.currentGameKey);
-                    }
-                  } catch (closingErr) {
-                    console.error('[ClosingEngine] ERRO FATAL:', closingErr);
-                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:12px;padding:20px;">❌ Erro no Fechamento: ' + closingErr.message + '<br><small>Verifique o console (F12) para detalhes.<br>Tente recarregar com Ctrl+Shift+R</small></div>';
-                  }
                 }, 50);
-
-                if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
-                return;
-            }
-
-            // ━━ MODO PADRÃO — MOTOR HÍBRIDO (Quantum IA + Sniper + CombinationEngine) ━━
-            // ── LIMPEZA COMPLETA antes de renderizar (FIX: painéis do QUANTUM anterior) ──
-            const _cgParent = this.gamesContainer.parentNode;
-            if (_cgParent) {
-                _cgParent.querySelectorAll('.generation-feedback, .smart-analysis-panel, .smart-gen-analysis').forEach(el => el.remove());
-                const _oldCaixaP = document.getElementById('caixa-panel');
-                if (_oldCaixaP) _oldCaixaP.remove();
-            }
-
-            try {
-                const game = GAMES[this.currentGameKey];
-                const selectedArr = Array.from(this.selectedNumbers);
-                const fixedArr = Array.from(this.fixedNumbers);
-                const qty = parseInt(this.gamesQuantityInput.value) || 10;
-                
-                // ═══ GERAR MANUAL: EXIGIR SELEÇÃO DE NÚMEROS ═══
-                if (selectedArr.length < game.minBet) {
-                    const msg = '⚠️ MODO MANUAL: Selecione pelo menos ' + game.minBet + ' números no grid para gerar jogos manualmente.\n\nVocê selecionou: ' + selectedArr.length + ' números.\nMínimo necessário: ' + game.minBet + ' números.';
-                    if (typeof Guardian !== 'undefined') {
-                        Guardian.toast('Selecione pelo menos ' + game.minBet + ' números no grid para o modo Manual.', 'warning', 5000);
-                    }
-                    alert(msg);
-                    return;
-                }
-                
-                // ═══ GERAR MANUAL: USAR COVERAGEENGINE COM POOL DO APOSTADOR ═══
-                if (typeof CoverageEngine !== 'undefined') {
-                    console.log('%c[MANUAL] 📐 CoverageEngine: Pool=' + selectedArr.length + ' | Jogos=' + qty + ' | DrawSize=' + game.minBet, 'color: #10B981; font-weight: bold;');
-                    
-                    const drawSizeSelect = document.getElementById('smart-draw-size');
-                    const customDraw = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
-                    const drawSize = (customDraw && customDraw >= game.minBet) ? customDraw : game.minBet;
-                    
-                    const coverResult = CoverageEngine.generate(this.currentGameKey, qty, selectedArr, fixedArr);
-                    const cm = coverResult.analysis.metrics;
-                    
-                    this.currentGeneratedGames = coverResult.games;
-                    this._lastGeneratedGames = coverResult.games;
-                    this.renderGames({ pool: selectedArr, games: coverResult.games, smartAnalysis: null }, this.currentGameKey);
-                    
-                    // Banner de métricas do CoverageEngine
-                    const coverBanner = document.createElement('div');
-                    coverBanner.className = 'smart-gen-analysis';
-                    coverBanner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(4,120,87,0.12),rgba(15,23,42,0.95));border:1px solid rgba(16,185,129,0.3);';
-                    const ccfg = CoverageEngine.getConfig(this.currentGameKey);
-                    let probHtml = '';
-                    for (let pi = 0; pi < ccfg.prizeThresholds.length; pi++) {
-                        const pt = ccfg.prizeThresholds[pi];
-                        const pPct = ((cm.probWithNGames[pt] || 0) * 100).toFixed(4);
-                        const bW = Math.min(100, parseFloat(pPct));
-                        probHtml += '<div style="display:flex;align-items:center;gap:6px;margin:3px 0;"><span style="color:#94A3B8;font-size:0.68rem;min-width:50px;">' + ccfg.prizeLabels[pi] + '</span><div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + bW + '%;background:linear-gradient(90deg,#10B981,#FFD700);border-radius:3px;"></div></div><span style="color:#E2E8F0;font-size:0.68rem;font-weight:700;min-width:65px;text-align:right;">' + pPct + '%</span></div>';
-                    }
-                    const pAnyM = ((cm.probWithNGames.anyPrize || 0) * 100).toFixed(2);
-                    coverBanner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">📐</span><div><div style="font-weight:900;color:#10B981;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">MODO MANUAL — Cobertura Combinatória</div><div style="font-size:0.72rem;color:#94A3B8;">Seus ' + selectedArr.length + ' números → Greedy Set Cover → ' + qty + ' jogos otimizados</div></div></div>' +
-                        '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:0.75rem;">' +
-                        '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">PARES COBERTOS</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + cm.pairCoveragePct + '%</div><div style="color:#64748b;font-size:0.55rem;">' + cm.pairCoverage + '/' + cm.totalPairs + '</div></div>' +
-                        '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">NÚMEROS USADOS</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + cm.numberCoveragePct + '%</div><div style="color:#64748b;font-size:0.55rem;">' + cm.numberCoverage + '/' + selectedArr.length + '</div></div>' +
-                        '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + cm.avgHamming + '</div><div style="color:#64748b;font-size:0.55rem;">Hamming</div></div>' +
-                        '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">INVESTIMENTO</div><div style="color:#FFD700;font-weight:900;font-size:1.2rem;">R$ ' + cm.investment.toFixed(2) + '</div><div style="color:#64748b;font-size:0.55rem;">' + cm.numGames + ' jogos</div></div></div>' +
-                        '<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.25);border-radius:10px;border:1px solid rgba(255,215,0,0.15);"><div style="color:#FFD700;font-size:0.7rem;font-weight:800;margin-bottom:6px;">📊 PROBABILIDADES EXATAS (Hipergeométrica)</div>' + probHtml +
-                        '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(16,185,129,0.2);color:#10B981;font-weight:900;font-size:0.8rem;">★ Chance QUALQUER prêmio com ' + qty + ' jogos: ' + pAnyM + '%</div></div>';
-                    this.gamesContainer.parentNode.insertBefore(coverBanner, this.gamesContainer);
-                    coverBanner.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    
-                    // Painel Aposte Online
-                    if (typeof this._insertCaixaPanel === 'function') {
-                        this._insertCaixaPanel(coverResult.games, this.currentGameKey);
-                    }
-                    
-                    if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
-                    return;
-                }
-                
-                // ★ v9.5 GOD MODE: Motor Híbrido — Quantum IA + Sniper para geração manual
-                // Se o pool é grande o suficiente e NovaEraEngine está disponível, usar motor de alta precisão
-                const useHybridEngine = typeof NovaEraEngine !== 'undefined' 
-                    && typeof NovaEraEngine.generateSniper === 'function'
-                    && selectedArr.length >= game.minBet * 2
-                    && qty <= 10000;
-                
-                let result;
-                
-                if (useHybridEngine) {
-                    console.log('%c[MANUAL-HYBRID] ★ MOTOR HÍBRIDO ATIVADO — Pool=' + selectedArr.length + ' | Jogos=' + qty, 'color: #F59E0B; font-weight: bold; font-size: 13px;');
-                    
-                    // Loading premium
-                    this.gamesContainer.innerHTML = `
-                        <div style="text-align:center;padding:30px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border-radius:16px;border:1px solid rgba(245,158,11,0.3);">
-                            <div style="font-size:2.5rem;margin-bottom:8px;filter:drop-shadow(0 0 15px rgba(245,158,11,0.5));">🎯</div>
-                            <div style="color:#F59E0B;font-weight:900;font-size:1.1rem;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 10px rgba(245,158,11,0.4);">MOTOR HÍBRIDO — Quantum + Sniper</div>
-                            <div style="color:#94A3B8;font-size:0.8rem;margin-top:6px;margin-bottom:15px;">🎯 ${selectedArr.length} números selecionados → Tiers + Filtros IA</div>
-                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px auto;max-width:450px;">
-                                <div style="padding:10px 8px;border-radius:10px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);">
-                                    <div style="font-size:1.2rem;margin-bottom:4px;">⚛️</div>
-                                    <div style="color:#FCD34D;font-size:0.7rem;font-weight:700;">21 CAMADAS</div>
-                                    <div style="color:#F59E0B;font-size:0.6rem;">SCORING</div>
-                                </div>
-                                <div style="padding:10px 8px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);">
-                                    <div style="font-size:1.2rem;margin-bottom:4px;">🎯</div>
-                                    <div style="color:#FCA5A5;font-size:0.7rem;font-weight:700;">SNIPER</div>
-                                    <div style="color:#EF4444;font-size:0.6rem;">TIERS</div>
-                                </div>
-                                <div style="padding:10px 8px;border-radius:10px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);">
-                                    <div style="font-size:1.2rem;margin-bottom:4px;">🔮</div>
-                                    <div style="color:#6EE7B7;font-size:0.7rem;font-weight:700;">FILTROS</div>
-                                    <div style="color:#10B981;font-size:0.6rem;">QUANTUM IA</div>
-                                </div>
-                            </div>
-                            <div style="margin-top:12px;width:70%;height:4px;background:rgba(245,158,11,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
-                                <div style="width:30%;height:100%;background:linear-gradient(90deg,#F59E0B,#EF4444,#10B981);border-radius:4px;animation:smartProgress 2s ease-in-out infinite;"></div>
-                            </div>
-                        </div>`;
-                    
-                    // Executar com timeout para dar tempo ao loading
-                    await new Promise(r => setTimeout(r, 100));
-                    
-                    const sniperResult = NovaEraEngine.generateSniper(
-                        this.currentGameKey,
-                        qty,
-                        selectedArr.length,  // Pool = todos os números selecionados pelo apostador
-                        fixedArr,
-                        game.minBet,  // Cada jogo usa o drawSize mínimo da loteria
-                        selectedArr   // ★ HYBRID: Pool fornecido pelo apostador (customPool)
-                    );
-                    
-                    result = {
-                        pool: selectedArr,
-                        games: sniperResult.games,
-                        smartAnalysis: {
-                            engineVersion: 'Hybrid v9.5 (Quantum+Sniper)',
-                            historySize: 100,
-                            candidatesGenerated: sniperResult.analysis.tiersCreated + ' tiers',
-                            avgScore: sniperResult.analysis.avgPoolScore,
-                            confidence: sniperResult.analysis.confidence,
-                            poolSize: sniperResult.analysis.poolSize,
-                            uniqueNumbers: sniperResult.analysis.uniqueNumbers,
-                            coveragePct: sniperResult.analysis.coveragePct,
-                            generationTime: sniperResult.analysis.generationTime
-                        }
-                    };
-                    
-                    console.log('%c[MANUAL-HYBRID] ★ RESULTADO: ' + result.games.length + '/' + qty + ' jogos | Confiança: ' + sniperResult.analysis.confidence + '%', 'color: #F59E0B; font-weight: bold;');
-                    
-                } else {
-                    // Fallback: CombinationEngine original (pool muito pequeno ou NovaEra indisponível)
-                    if (typeof CombinationEngine === 'undefined') {
-                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">❌ Motor de Combinação (CombinationEngine) não carregado.<br><small>Recarregue a página com Ctrl+Shift+R</small></div>';
-                        return;
-                    }
-                    result = CombinationEngine.generate(
-                        this.currentGameKey,
-                        closingVal,
-                        qty,
-                        selectedArr,
-                        fixedArr
-                    );
-                }
-                
-                this.renderGames(result, this.currentGameKey);
-            if (this.checkSummaryContainer) this.checkSummaryContainer.style.display = 'none';
-
-            // ★ v9.5: Banner premium do Motor Híbrido
-            if (useHybridEngine && result.smartAnalysis) {
-                const sa = result.smartAnalysis;
-                const confPct = sa.confidence || 0;
-                const confColor = confPct >= 90 ? '#22C55E' : confPct >= 70 ? '#F59E0B' : '#EF4444';
-                const hybridBanner = document.createElement('div');
-                hybridBanner.className = 'smart-gen-analysis';
-                hybridBanner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(245,158,11,0.12),rgba(15,23,42,0.95));border:1px solid #F59E0B40;';
-                hybridBanner.innerHTML = `
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                        <div style="font-size:1.4rem;filter:drop-shadow(0 0 8px rgba(245,158,11,0.4));">🎯</div>
-                        <div>
-                            <div style="font-weight:900;color:#F59E0B;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">MOTOR HÍBRIDO — Quantum + Sniper</div>
-                            <div style="font-size:0.72rem;color:#94A3B8;">Seus ${selectedArr.length} números → 21 Camadas IA → Tiers → Filtros Quantum</div>
-                        </div>
-                    </div>
-                    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;font-size:0.75rem;">
-                        <div style="text-align:center;padding:6px;background:rgba(255,255,255,0.04);border-radius:8px;">
-                            <div style="color:#94A3B8;font-size:0.6rem;">JOGOS</div>
-                            <div style="color:#F59E0B;font-weight:800;font-size:1.1rem;">${result.games.length}</div>
-                        </div>
-                        <div style="text-align:center;padding:6px;background:rgba(255,255,255,0.04);border-radius:8px;">
-                            <div style="color:#94A3B8;font-size:0.6rem;">POOL</div>
-                            <div style="color:#FCD34D;font-weight:800;font-size:1.1rem;">${sa.poolSize || selectedArr.length}</div>
-                        </div>
-                        <div style="text-align:center;padding:6px;background:rgba(255,255,255,0.04);border-radius:8px;">
-                            <div style="color:#94A3B8;font-size:0.6rem;">TIERS</div>
-                            <div style="color:#EF4444;font-weight:800;font-size:1.1rem;">${sa.candidatesGenerated || '—'}</div>
-                        </div>
-                        <div style="text-align:center;padding:6px;background:rgba(255,255,255,0.04);border-radius:8px;">
-                            <div style="color:#94A3B8;font-size:0.6rem;">COBERTURA</div>
-                            <div style="color:#10B981;font-weight:800;font-size:1.1rem;">${sa.coveragePct || 0}%</div>
-                        </div>
-                        <div style="text-align:center;padding:6px;background:rgba(255,255,255,0.04);border-radius:8px;">
-                            <div style="color:#94A3B8;font-size:0.6rem;">CONFIANÇA</div>
-                            <div style="color:${confColor};font-weight:800;font-size:1.1rem;">${confPct}%</div>
-                        </div>
-                    </div>
-                    <div style="margin-top:8px;padding:6px 10px;background:rgba(245,158,11,0.08);border-radius:8px;font-size:0.72rem;color:#D97706;">
-                        💡 <strong>Números do apostador:</strong> Cada jogo usa ${game.minBet} dos seus ${selectedArr.length} números, alinhados simetricamente via Tiers de probabilidade das 21 camadas Quantum IA + filtros anti-sequência, paridade e soma.
-                    </div>`;
-                this.gamesContainer.parentNode.insertBefore(hybridBanner, this.gamesContainer);
-                hybridBanner.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-
-            // Info se o motor expandiu automaticamente o pool
-            const qtdSolicitada = parseInt(this.gamesQuantityInput.value);
-            if (result.games.length < qtdSolicitada) {
-                console.log(`[B2B] ℹ️ Gerados ${result.games.length}/${qtdSolicitada} jogos (pool auto-expandido)`);
-            }
-
-            // Painel de análise inteligente
-            if (result.smartAnalysis) {
-                const sa = result.smartAnalysis;
-                const allNums = new Set();
-                result.games.forEach(g => g.forEach(n => allNums.add(n)));
-
-                let html = `
-                    <div class="smart-gen-analysis" style="margin-top:8px;margin-bottom:8px;padding:10px 14px;border-radius:10px;background:linear-gradient(145deg,rgba(16,185,129,0.08),rgba(15,23,42,0.95));border:1px solid #10B98130;">
-                        <div style="color:#10B981;font-weight:700;font-size:0.85rem;margin-bottom:6px;">🧠 Motor ${sa.engineVersion || 'v4.0'}</div>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:0.68rem;">
-                            <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
-                                <span style="color:#94A3B8;">Sorteios</span><br>
-                                <span style="color:#E2E8F0;font-weight:700;">${sa.historySize}</span>
-                            </div>
-                            <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
-                                <span style="color:#94A3B8;">Candidatos</span><br>
-                                <span style="color:#E2E8F0;font-weight:700;">${sa.candidatesGenerated || '—'}</span>
-                            </div>
-                            <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
-                                <span style="color:#94A3B8;">Score médio</span><br>
-                                <span style="color:#10B981;font-weight:700;">${sa.avgScore || '—'}</span>
-                            </div>
-                        </div>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:0.68rem;margin-top:4px;">
-                            <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
-                                <span style="color:#94A3B8;">Soma esperada</span><br>
-                                <span style="color:#E2E8F0;font-weight:600;">${sa.sumRange || '—'}</span>
-                            </div>
-                            <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
-                                <span style="color:#94A3B8;">Par/Ímpar</span><br>
-                                <span style="color:#E2E8F0;font-weight:600;">${sa.parImparRatio || '—'}</span>
-                            </div>
-                            <div style="background:rgba(255,255,255,0.04);padding:4px 6px;border-radius:6px;">
-                                <span style="color:#94A3B8;">Nº Únicos</span><br>
-                                <span style="color:#E2E8F0;font-weight:700;">${allNums.size}</span>
-                            </div>
-                        </div>`;
-                
-                if (sa.pairsUsed && sa.pairsUsed.length > 0) {
-                    html += `<div style="margin-top:6px;font-size:0.68rem;">
-                        <span style="color:#F59E0B;font-weight:600;">🔗 Duplas:</span>
-                        <span style="color:#CBD5E1;">${sa.pairsUsed.join(' | ')}</span>
-                    </div>`;
-                }
-                if (sa.triosUsed && sa.triosUsed.length > 0) {
-                    html += `<div style="margin-top:3px;font-size:0.68rem;">
-                        <span style="color:#8B5CF6;font-weight:600;">🔺 Trios:</span>
-                        <span style="color:#CBD5E1;">${sa.triosUsed.join(' | ')}</span>
-                    </div>`;
-                }
-
-                // Padrões Ocultos
-                let hasPatterns = false;
-                let patternHtml = '<div style="margin-top:6px;padding:6px 8px;border-radius:6px;background:rgba(139,92,246,0.08);border:1px solid #8B5CF620;">';
-                patternHtml += '<div style="color:#A78BFA;font-weight:700;font-size:0.72rem;margin-bottom:4px;">🔍 Padrões Ocultos Detectados</div>';
-
-                if (sa.cycleNumbers && sa.cycleNumbers.length > 0) {
-                    hasPatterns = true;
-                    patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
-                        <span style="color:#F59E0B;">⏰ Ciclos:</span>
-                        <span style="color:#CBD5E1;">${sa.cycleNumbers.join(', ')}</span>
-                    </div>`;
-                }
-                if (sa.mirrorsDetected && sa.mirrorsDetected.length > 0) {
-                    hasPatterns = true;
-                    patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
-                        <span style="color:#EC4899;">🪞 Espelhos:</span>
-                        <span style="color:#CBD5E1;">${sa.mirrorsDetected.join(', ')}</span>
-                    </div>`;
-                }
-                if (sa.fibonacciRatio) {
-                    hasPatterns = true;
-                    patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
-                        <span style="color:#14B8A6;">🌀 Fibonacci:</span>
-                        <span style="color:#CBD5E1;">${sa.fibonacciRatio} dos gaps</span>
-                    </div>`;
-                }
-                if (sa.sumModPatterns && sa.sumModPatterns.length > 0) {
-                    hasPatterns = true;
-                    patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
-                        <span style="color:#6366F1;">🔢 Soma mod:</span>
-                        <span style="color:#CBD5E1;">${sa.sumModPatterns.join(', ')}</span>
-                    </div>`;
-                }
-                if (sa.delayedNumbers && sa.delayedNumbers.length > 0) {
-                    hasPatterns = true;
-                    patternHtml += `<div style="font-size:0.66rem;margin-top:2px;">
-                        <span style="color:#EF4444;">⏳ Atrasados:</span>
-                        <span style="color:#CBD5E1;">${sa.delayedNumbers.join(', ')}</span>
-                    </div>`;
-                }
-
-                patternHtml += '</div>';
-                if (hasPatterns) html += patternHtml;
-
-                html += `</div>`;
-
-                const analysisDiv = document.createElement('div');
-                analysisDiv.innerHTML = html;
-                this.gamesContainer.parentNode.insertBefore(analysisDiv.firstElementChild, this.gamesContainer);
-            }
-
-            // ── BOTÃO APOSTE ONLINE — TODAS AS LOTERIAS ──
-            this._insertCaixaPanel(result.games, this.currentGameKey);
-
-            // Feedback
-            const feedback = document.createElement('div');
-            feedback.style.color = '#10B981';
-            feedback.style.textAlign = 'center';
-            feedback.style.padding = '10px';
-            feedback.style.fontWeight = 'bold';
-            feedback.textContent = `🧠 ${result.games.length} jogos inteligentes gerados!`;
-            feedback.classList.add('generation-feedback');
-            feedback.style.marginTop = '10px';
-            feedback.style.marginBottom = '10px';
-            if (this.gamesContainer.parentNode) {
-                this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
-            }
-            
-                        // v10.3 AUDITORIA COMPARATIVA - EXCLUSIVO MEGA SENA
-                        if (this.currentGameKey === 'megasena' && typeof NovaEraEngine !== 'undefined' && typeof NovaEraEngine.backtestComparative === 'function') {
-                            try {
-                            var auditDiv = document.createElement('div');
-                            auditDiv.className = 'smart-analysis-panel';
-                            auditDiv.id = 'mega-audit-panel';
-                            auditDiv.style.cssText = 'margin-top:8px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(239,68,68,0.08),rgba(15,23,42,0.95));border:1px solid #EF444430;';
-                            auditDiv.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
-                                + '<span style="color:#EF4444;font-weight:800;font-size:0.85rem;">\uD83D\uDD2C AUDITORIA: IA vs Aleatorio</span>'
-                                + '<button id="btn-run-mega-audit" style="background:linear-gradient(135deg,#EF4444,#DC2626);color:white;border:none;padding:6px 14px;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.3s;">'
-                                + '\u25B6 Auditar Motor</button></div>'
-                                + '<div id="mega-audit-result" style="color:#94A3B8;font-size:0.75rem;">'
-                                + 'Compara 10 jogos IA vs 10 jogos aleatorios (mesmos filtros) contra os ultimos 30 concursos reais da Mega Sena.</div>';
-                            this.gamesContainer.parentNode.insertBefore(auditDiv, this.gamesContainer);
-                            var auditBtn = document.getElementById('btn-run-mega-audit');
-                            var auditResultDiv = document.getElementById('mega-audit-result');
-                            if (auditBtn) {
-                                auditBtn.addEventListener('click', function() {
-                                    auditBtn.disabled = true;
-                                    auditBtn.textContent = '\u23F3 Analisando...';
-                                    auditBtn.style.opacity = '0.6';
-                                    auditResultDiv.innerHTML = '<div style="color:#EAB308;font-size:0.8rem;">Executando backtest em 30 concursos... aguarde.</div>';
-                                    setTimeout(function() {
-                                        try {
-                                            var r = NovaEraEngine.backtestComparative('megasena');
-                                            if (r && r.error) {
-                                                auditResultDiv.innerHTML = '<div style="color:#EF4444;">' + r.error + '</div>';
-                                            } else if (r) {
-                                                var vColor = r.veredito === 'IA SUPERIOR' ? '#22C55E' : r.veredito === 'ALEATORIO SUPERIOR' ? '#EF4444' : '#EAB308';
-                                                auditResultDiv.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'
-                                                    + '<div style="background:rgba(139,92,246,0.12);padding:10px;border-radius:8px;border:1px solid #8B5CF630;">'
-                                                    + '<div style="color:#A78BFA;font-weight:700;font-size:0.8rem;margin-bottom:6px;">\uD83E\uDD16 MOTOR IA</div>'
-                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#22C55E;font-size:1.1rem;">' + r.ia.quadra + '</strong> Quadras</div>'
-                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#EAB308;font-size:1.1rem;">' + r.ia.terno + '</strong> Ternos</div>'
-                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#94A3B8;font-size:1.1rem;">' + r.ia.duque + '</strong> Duques</div>'
-                                                    + '<div style="color:#64748B;font-size:0.7rem;margin-top:4px;">' + r.ia.total + ' jogos</div></div>'
-                                                    + '<div style="background:rgba(100,116,139,0.12);padding:10px;border-radius:8px;border:1px solid #64748B30;">'
-                                                    + '<div style="color:#94A3B8;font-weight:700;font-size:0.8rem;margin-bottom:6px;">\uD83C\uDFB2 ALEATORIO</div>'
-                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#22C55E;font-size:1.1rem;">' + r.random.quadra + '</strong> Quadras</div>'
-                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#EAB308;font-size:1.1rem;">' + r.random.terno + '</strong> Ternos</div>'
-                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#94A3B8;font-size:1.1rem;">' + r.random.duque + '</strong> Duques</div>'
-                                                    + '<div style="color:#64748B;font-size:0.7rem;margin-top:4px;">' + r.random.total + ' jogos</div></div></div>'
-                                                    + '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:8px;">'
-                                                    + '<div style="color:' + vColor + ';font-weight:800;font-size:1rem;">' + r.veredito + '</div>'
-                                                    + '<div style="color:#94A3B8;font-size:0.75rem;">' + r.concursosTested + ' concursos | ' + r.gamesPerConcurso + ' jogos/grupo | Vantagem: ' + r.vantagem + '</div></div>';
-                                            }
-                                        } catch(auditErr) {
-                                            auditResultDiv.innerHTML = '<div style="color:#EF4444;">Erro: ' + auditErr.message + '</div>';
-                                        }
-                                        auditBtn.disabled = false;
-                                        auditBtn.textContent = '\u25B6 Auditar Novamente';
-                                        auditBtn.style.opacity = '1';
-                                    }, 100);
-                                });
-                            }
-                            } catch(auditSetupErr) { console.warn('[Audit] Setup error:', auditSetupErr.message); }
-
-                        // v10.4 CALCULADORA DE ORCAMENTO — EXCLUSIVO MEGA SENA
-                        if (this.currentGameKey === 'megasena' && typeof CoverageEngine !== 'undefined') {
-                            try {
-                            var calcDiv = document.createElement('div');
-                            calcDiv.className = 'smart-analysis-panel';
-                            calcDiv.style.cssText = 'margin-top:8px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(34,197,94,0.08),rgba(15,23,42,0.95));border:1px solid #22C55E30;';
-                            var pQuadra = 1/2332;
-                            var pQuina = 1/154518;
-                            var pSena = 1/50063860;
-                            var nj = result.games.length;
-                            var chQuadra = (1 - Math.pow(1 - pQuadra, nj)) * 100;
-                            var chQuina = (1 - Math.pow(1 - pQuina, nj)) * 100;
-                            var chSena = (1 - Math.pow(1 - pSena, nj)) * 100;
-                            var investimento = nj * 5;
-                            calcDiv.innerHTML = '<div style="margin-bottom:8px;"><span style="color:#22C55E;font-weight:800;font-size:0.85rem;">\uD83D\uDCCA CHANCES REAIS (Hipergeom\u00e9trica)</span></div>'
-                                + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;">'
-                                + '<div style="background:rgba(34,197,94,0.1);padding:8px;border-radius:8px;text-align:center;"><div style="color:#94A3B8;font-size:0.7rem;">QUADRA+</div><div style="color:#22C55E;font-weight:800;font-size:1.1rem;">' + chQuadra.toFixed(2) + '%</div></div>'
-                                + '<div style="background:rgba(234,179,8,0.1);padding:8px;border-radius:8px;text-align:center;"><div style="color:#94A3B8;font-size:0.7rem;">QUINA+</div><div style="color:#EAB308;font-weight:800;font-size:1.1rem;">' + chQuina.toFixed(4) + '%</div></div>'
-                                + '<div style="background:rgba(239,68,68,0.1);padding:8px;border-radius:8px;text-align:center;"><div style="color:#94A3B8;font-size:0.7rem;">SENA</div><div style="color:#EF4444;font-weight:800;font-size:1.1rem;">' + chSena.toFixed(6) + '%</div></div></div>'
-                                + '<div style="color:#64748B;font-size:0.72rem;text-align:center;">' + nj + ' jogos | Investimento: R$ ' + investimento.toFixed(2) + ' | Probabilidade exata por distribui\u00e7\u00e3o hipergeom\u00e9trica</div>';
-                            this.gamesContainer.parentNode.insertBefore(calcDiv, this.gamesContainer);
-                            } catch(calcErr) { console.warn('[Calc] Setup error:', calcErr.message); }
-                        }
-                        }
-                        feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            } catch (combErr) {
-                console.error('[CombEngine] ERRO:', combErr);
-                this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:12px;padding:20px;">❌ Erro na Geração: ' + combErr.message + '<br><small>Verifique o console (F12) para detalhes.<br>Tente recarregar com Ctrl+Shift+R</small></div>';
-            }
-        };
-
-        // Generate (IA Smart Bets)
-        if (this.generateSmartBtn) {
-            this.generateSmartBtn.onclick = () => this.runSmartGeneration();
+            };
             // Remover lógica do botão legado
             if (this.btnPrecisionPlay) {
                 this.btnPrecisionPlay.remove();
@@ -5326,6 +4032,10 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
 // Export removed for global script compatibility
 /* Cache bust: 20260511171042 */
+
+
+
+
 
 
 
