@@ -1334,6 +1334,14 @@
                 var game = GAMES[gameKey];
                 if (!game) { alert('Loteria "' + gameKey + '" não encontrada.'); return; }
 
+                // Rastrear modo de geração
+                var sniperToggle = document.getElementById('precision-mode-toggle');
+                var isSniperOn = sniperToggle && sniperToggle.checked;
+                var covMode = isSniperOn ? 'cobertura_sniper' : 'cobertura';
+                localStorage.setItem('l99_lastMode', covMode);
+                document.body.setAttribute('data-l99-mode', covMode);
+                if (window._b2bUI) window._b2bUI._lastGenerationMode = covMode;
+
                 console.log('[COVERAGE-UI] Loteria detectada: ' + gameKey + ' (' + game.name + ')');
 
                 var qtyInput = document.getElementById('games-quantity');

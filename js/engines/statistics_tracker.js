@@ -328,28 +328,46 @@ const StatisticsTracker = (function() {
     // ── Helpers internos ────────────────────────────────────────
     function _modoLabel(modo) {
         const labels = {
+            'manual': '✋ Manual',
+            'manual_sniper': '✋🎯 Manual+Sniper',
+            'cobertura': '📐 Cobertura',
+            'cobertura_sniper': '📐🎯 Cobertura+Sniper',
+            'precision': '🎯 Precisão',
+            'precision_sniper': '🎯🔫 Precisão+Sniper',
+            // Retrocompatibilidade
             'quantum_l99': '⚡ QUANTUM L99',
             'precision_l99': '🎯 JOGAR L99',
-            'gerar_jogos': '🎲 Gerar Jogos',
+            'gerar_jogos': '✋ Manual',
             'dual_2g': '⚡ Dual 2G',
-            'fechamento': '🔒 Fechamento',
-            'manual': '✋ Manual'
+            'fechamento': '🔒 Fechamento'
         };
         return labels[modo] || modo || '✋ Manual';
     }
 
     function _modoFromLabel(label) {
         const map = {
+            'manual': 'manual',
+            'manual+sniper': 'manual_sniper',
+            'manual sniper': 'manual_sniper',
+            'cobertura': 'cobertura',
+            'cobertura+sniper': 'cobertura_sniper',
+            'cobertura sniper': 'cobertura_sniper',
+            'precisão': 'precision',
+            'precisao': 'precision',
+            'precisão+sniper': 'precision_sniper',
+            'precisao+sniper': 'precision_sniper',
+            'precisão sniper': 'precision_sniper',
+            'precisao sniper': 'precision_sniper',
+            // Retrocompatibilidade
             'quantum l99': 'quantum_l99',
             'jogar l99': 'precision_l99',
             'precision l99': 'precision_l99',
-            'gerar jogos': 'gerar_jogos',
+            'gerar jogos': 'manual',
             'dual 2g': 'dual_2g',
-            'fechamento': 'fechamento',
-            'manual': 'manual'
+            'fechamento': 'fechamento'
         };
         // Strip emoji prefixes for matching
-        const clean = (label || '').toLowerCase().replace(/[⚡🎯🎲🔒✋]/g, '').trim();
+        const clean = (label || '').toLowerCase().replace(/[⚡🎯🎲🔒✋📐🔫]/g, '').trim();
         return map[clean] || 'manual';
     }
 

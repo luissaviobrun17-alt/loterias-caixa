@@ -567,7 +567,8 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         const isPrecisionMode = precisionCheckbox && precisionCheckbox.checked;
 
         // ── RASTREAMENTO DE MODO ── ★ FIX: diferenciar precision vs quantum
-        const _modeKey = isPrecisionMode ? 'precision' : 'quantum_l99';
+        const sniperActive = document.getElementById('precision-mode-toggle')?.checked || false;
+        const _modeKey = sniperActive ? 'precision_sniper' : 'precision';
         this._lastGenerationMode = _modeKey; localStorage.setItem('l99_lastMode', _modeKey); document.body.setAttribute('data-l99-mode', _modeKey);
         this._lastPrecisionMode = isPrecisionMode;
         this._lastDrawSize = this.smartDrawSizeSelect ? parseInt(this.smartDrawSizeSelect.value) || game.minBet : game.minBet;
@@ -1613,7 +1614,9 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             if (closingVal && closingVal.startsWith('close_')) {
                 this._lastGenerationMode = 'fechamento'; localStorage.setItem('l99_lastMode','fechamento'); document.body.setAttribute('data-l99-mode','fechamento');
             } else {
-                this._lastGenerationMode = 'gerar_jogos'; localStorage.setItem('l99_lastMode','gerar_jogos'); document.body.setAttribute('data-l99-mode','gerar_jogos');
+                var _sniperOn = document.getElementById('precision-mode-toggle')?.checked || false;
+                var _manualMode = _sniperOn ? 'manual_sniper' : 'manual';
+                this._lastGenerationMode = _manualMode; localStorage.setItem('l99_lastMode', _manualMode); document.body.setAttribute('data-l99-mode', _manualMode);
             }
             this._lastDrawSize = parseInt(this.smartDrawSizeSelect?.value) || GAMES[this.currentGameKey]?.minBet || 6;
 
@@ -5028,11 +5031,17 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
             // Badge de modo
             const modoBadgeClass = {
+                'manual': 'manual',
+                'manual_sniper': 'manual',
+                'cobertura': 'gerar',
+                'cobertura_sniper': 'gerar',
+                'precision': 'quantum',
+                'precision_sniper': 'quantum',
                 'quantum_l99': 'quantum',
-                'gerar_jogos': 'gerar',
+                'precision_l99': 'quantum',
+                'gerar_jogos': 'manual',
                 'dual_2g': 'dual',
-                'fechamento': 'fech',
-                'manual': 'manual'
+                'fechamento': 'fech'
             }[r.modoGeracao] || 'manual';
             const modoLabel = StatisticsTracker.getModoLabel(r.modoGeracao);
 
