@@ -68,7 +68,11 @@ class NovaEraEngine {
                 },
                 // v10: scoreClamp achatado (era [0.2, 3.0]) — distribuição mais uniforme para range esparso
                 scoreClamp: [0.3, 2.0],
-                _confidenceCeiling: 72  // v10: realista (P(quadra+) ≈ 0.26% por jogo)
+                _confidenceCeiling: 72,  // v10: realista (P(quadra+) ≈ 0.26% por jogo)
+                // v10.4 FILTROS REFINADOS (exclusivo Mega Sena)
+                sumRangeTight: [110, 250],     // P10-P90 real (era [95,265] = P5-P95)
+                maxSameEnding: 2,              // Max 2 numeros com mesmo final (77% dos sorteios reais)
+                highLowBalance: [2, 4]         // 2-4 numeros <= 30 (equilibrio alto/baixo)
             },
 
             // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”

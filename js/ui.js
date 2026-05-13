@@ -901,6 +901,30 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                                 });
                             }
                             } catch(auditSetupErr) { console.warn('[Audit] Setup error:', auditSetupErr.message); }
+
+                        // v10.4 CALCULADORA DE ORCAMENTO — EXCLUSIVO MEGA SENA
+                        if (this.currentGameKey === 'megasena' && typeof CoverageEngine !== 'undefined') {
+                            try {
+                            var calcDiv = document.createElement('div');
+                            calcDiv.className = 'smart-analysis-panel';
+                            calcDiv.style.cssText = 'margin-top:8px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(34,197,94,0.08),rgba(15,23,42,0.95));border:1px solid #22C55E30;';
+                            var pQuadra = 1/2332;
+                            var pQuina = 1/154518;
+                            var pSena = 1/50063860;
+                            var nj = result.games.length;
+                            var chQuadra = (1 - Math.pow(1 - pQuadra, nj)) * 100;
+                            var chQuina = (1 - Math.pow(1 - pQuina, nj)) * 100;
+                            var chSena = (1 - Math.pow(1 - pSena, nj)) * 100;
+                            var investimento = nj * 5;
+                            calcDiv.innerHTML = '<div style="margin-bottom:8px;"><span style="color:#22C55E;font-weight:800;font-size:0.85rem;">\uD83D\uDCCA CHANCES REAIS (Hipergeom\u00e9trica)</span></div>'
+                                + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;">'
+                                + '<div style="background:rgba(34,197,94,0.1);padding:8px;border-radius:8px;text-align:center;"><div style="color:#94A3B8;font-size:0.7rem;">QUADRA+</div><div style="color:#22C55E;font-weight:800;font-size:1.1rem;">' + chQuadra.toFixed(2) + '%</div></div>'
+                                + '<div style="background:rgba(234,179,8,0.1);padding:8px;border-radius:8px;text-align:center;"><div style="color:#94A3B8;font-size:0.7rem;">QUINA+</div><div style="color:#EAB308;font-weight:800;font-size:1.1rem;">' + chQuina.toFixed(4) + '%</div></div>'
+                                + '<div style="background:rgba(239,68,68,0.1);padding:8px;border-radius:8px;text-align:center;"><div style="color:#94A3B8;font-size:0.7rem;">SENA</div><div style="color:#EF4444;font-weight:800;font-size:1.1rem;">' + chSena.toFixed(6) + '%</div></div></div>'
+                                + '<div style="color:#64748B;font-size:0.72rem;text-align:center;">' + nj + ' jogos | Investimento: R$ ' + investimento.toFixed(2) + ' | Probabilidade exata por distribui\u00e7\u00e3o hipergeom\u00e9trica</div>';
+                            this.gamesContainer.parentNode.insertBefore(calcDiv, this.gamesContainer);
+                            } catch(calcErr) { console.warn('[Calc] Setup error:', calcErr.message); }
+                        }
                         }
                         feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
@@ -2171,6 +2195,30 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                                 });
                             }
                             } catch(auditSetupErr) { console.warn('[Audit] Setup error:', auditSetupErr.message); }
+
+                        // v10.4 CALCULADORA DE ORCAMENTO — EXCLUSIVO MEGA SENA
+                        if (this.currentGameKey === 'megasena' && typeof CoverageEngine !== 'undefined') {
+                            try {
+                            var calcDiv = document.createElement('div');
+                            calcDiv.className = 'smart-analysis-panel';
+                            calcDiv.style.cssText = 'margin-top:8px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(34,197,94,0.08),rgba(15,23,42,0.95));border:1px solid #22C55E30;';
+                            var pQuadra = 1/2332;
+                            var pQuina = 1/154518;
+                            var pSena = 1/50063860;
+                            var nj = result.games.length;
+                            var chQuadra = (1 - Math.pow(1 - pQuadra, nj)) * 100;
+                            var chQuina = (1 - Math.pow(1 - pQuina, nj)) * 100;
+                            var chSena = (1 - Math.pow(1 - pSena, nj)) * 100;
+                            var investimento = nj * 5;
+                            calcDiv.innerHTML = '<div style="margin-bottom:8px;"><span style="color:#22C55E;font-weight:800;font-size:0.85rem;">\uD83D\uDCCA CHANCES REAIS (Hipergeom\u00e9trica)</span></div>'
+                                + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;">'
+                                + '<div style="background:rgba(34,197,94,0.1);padding:8px;border-radius:8px;text-align:center;"><div style="color:#94A3B8;font-size:0.7rem;">QUADRA+</div><div style="color:#22C55E;font-weight:800;font-size:1.1rem;">' + chQuadra.toFixed(2) + '%</div></div>'
+                                + '<div style="background:rgba(234,179,8,0.1);padding:8px;border-radius:8px;text-align:center;"><div style="color:#94A3B8;font-size:0.7rem;">QUINA+</div><div style="color:#EAB308;font-weight:800;font-size:1.1rem;">' + chQuina.toFixed(4) + '%</div></div>'
+                                + '<div style="background:rgba(239,68,68,0.1);padding:8px;border-radius:8px;text-align:center;"><div style="color:#94A3B8;font-size:0.7rem;">SENA</div><div style="color:#EF4444;font-weight:800;font-size:1.1rem;">' + chSena.toFixed(6) + '%</div></div></div>'
+                                + '<div style="color:#64748B;font-size:0.72rem;text-align:center;">' + nj + ' jogos | Investimento: R$ ' + investimento.toFixed(2) + ' | Probabilidade exata por distribui\u00e7\u00e3o hipergeom\u00e9trica</div>';
+                            this.gamesContainer.parentNode.insertBefore(calcDiv, this.gamesContainer);
+                            } catch(calcErr) { console.warn('[Calc] Setup error:', calcErr.message); }
+                        }
                         }
                         feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } catch (combErr) {

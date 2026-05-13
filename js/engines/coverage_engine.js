@@ -43,7 +43,11 @@ class CoverageEngine {
                 prizeThresholds: [4, 5, 6],
                 prizeLabels: ['Quadra', 'Quina', 'Sena'],
                 candidatesPerSlot: 800,
-                ticketPrice: 5.00
+                ticketPrice: 5.00,
+                // v10.4 Filtros refinados exclusivos Mega Sena
+                sumRangeTight: [110, 250],
+                maxSameEnding: 2,
+                highLowBalance: [2, 4]
             },
             quina: {
                 name: 'Quina', drawSize: 5, lotteryDraw: 5,
@@ -139,10 +143,21 @@ class CoverageEngine {
         // ── 2. Calcular espaço combinatório ──
         const totalPairs = this._comb(pool.length, 2);
         const pairsPerGame = this._comb(drawSize, 2);
+
+        // v10.4 ANTI-REPETICAO: Carregar jogos do ultimo concurso (Mega Sena)
+        let previousGames = [];
+        if (gameKey === 'megasena' && typeof localStorage !== 'undefined') {
+            try {
+                var prevRaw = localStorage.getItem('l99_megasena_lastgames');
+                if (prevRaw) previousGames = JSON.parse(prevRaw);
+            } catch(e) { /* sem dados anteriores */ }
+        }
         console.log('[COVERAGE] Espaço: ' + pool.length + ' números | ' + totalPairs + ' pares | ' + pairsPerGame + ' pares/jogo');
 
-        // ── 3. Greedy Set Cover — maximizar cobertura de pares ──
+        // ── 3. Greedy Set Cover — maximizar cobertura de pares + triplas (v10.4) ──
         const coveredPairs = new Set();
+        const coveredTriples = new Set();  // v10.4: triplas para Mega Sena
+        const useTriples = (gameKey === 'megasena'); // v10.4: apenas Mega Sena
         const games = [];
         const usedKeys = new Set();
         const numberUsage = {};
@@ -169,6 +184,19 @@ class CoverageEngine {
                     }
                 }
 
+                // v10.4: Contar triplas NOVAS (Mega Sena)
+                let newTriples = 0;
+                if (useTriples) {
+                    for (let i = 0; i < candidate.length; i++) {
+                        for (let j = i + 1; j < candidate.length; j++) {
+                            for (let k = j + 1; k < candidate.length; k++) {
+                                const tk = candidate[i] * 10000 + candidate[j] * 100 + candidate[k];
+                                if (!coveredTriples.has(tk)) newTriples++;
+                            }
+                        }
+                    }
+                }
+
                 // Bonus: preferir números menos usados (diversidade)
                 let diversityBonus = 0;
                 for (const n of candidate) {
@@ -176,7 +204,22 @@ class CoverageEngine {
                     else if (numberUsage[n] < g * drawSize / pool.length) diversityBonus += 1;
                 }
 
-                const score = newPairs * 10 + diversityBonus;
+                // v10.4 ANTI-REPETICAO: penalizar candidatos muito parecidos com jogos anteriores
+                let antiRepeatPenalty = 0;
+                if (previousGames.length > 0) {
+                    var candSet = new Set(candidate);
+                    for (var pi = 0; pi < previousGames.length; pi++) {
+                        var overlap = 0;
+                        var prevGame = previousGames[pi];
+                        for (var pj = 0; pj < prevGame.length; pj++) {
+                            if (candSet.has(prevGame[pj])) overlap++;
+                        }
+                        if (overlap > 4) antiRepeatPenalty += 15;
+                        else if (overlap > 3) antiRepeatPenalty += 5;
+                    }
+                }
+
+                const score = newPairs * 10 + newTriples * 5 + diversityBonus - antiRepeatPenalty;
                 if (score > bestNewPairs) {
                     bestNewPairs = score;
                     bestGame = candidate;
@@ -195,9 +238,23 @@ class CoverageEngine {
                 for (let i = 0; i < bestGame.length; i++) {
                     for (let j = i + 1; j < bestGame.length; j++) {
                         coveredPairs.add(bestGame[i] * 1000 + bestGame[j]);
+                        // v10.4: Rastrear triplas cobertas
+                        if (useTriples) {
+                            for (let k = j + 1; k < bestGame.length; k++) {
+                                coveredTriples.add(bestGame[i] * 10000 + bestGame[j] * 100 + bestGame[k]);
+                            }
+                        }
                     }
                 }
             }
+        }
+
+        // v10.4 ANTI-REPETICAO: Salvar jogos atuais para o proximo concurso
+        if (gameKey === 'megasena' && typeof localStorage !== 'undefined' && games.length > 0) {
+            try {
+                localStorage.setItem('l99_megasena_lastgames', JSON.stringify(games.slice(0, 100)));
+                console.log('[COVERAGE] v10.4 Anti-repeticao: ' + Math.min(games.length, 100) + ' jogos salvos para proximo concurso');
+            } catch(e) { /* localStorage cheio */ }
         }
 
         // ── 4. Calcular métricas EXATAS ──
@@ -281,6 +338,30 @@ class CoverageEngine {
             zones.add(Math.min(cfg.zones - 1, Math.floor((num - startNum) / cfg.zoneSize)));
         }
         if (zones.size < cfg.minZones) return false;
+
+        // v10.4 FILTROS REFINADOS — Mega Sena exclusivo (params opcionais)
+        // 5. Max numeros com mesmo terminal (ultimo digito)
+        if (cfg.maxSameEnding) {
+            const endings = {};
+            for (const num of game) {
+                const e = num % 10;
+                endings[e] = (endings[e] || 0) + 1;
+                if (endings[e] > cfg.maxSameEnding) return false;
+            }
+        }
+
+        // 6. Equilibrio alto/baixo (numeros <= metade do range)
+        if (cfg.highLowBalance) {
+            const midpoint = Math.floor((cfg.range[0] + cfg.range[1]) / 2);
+            let lowCount = 0;
+            for (const num of game) { if (num <= midpoint) lowCount++; }
+            if (lowCount < cfg.highLowBalance[0] || lowCount > cfg.highLowBalance[1]) return false;
+        }
+
+        // 7. Soma apertada P10-P90 (mais restritivo que sumRange P5-P95)
+        if (cfg.sumRangeTight) {
+            if (sum < cfg.sumRangeTight[0] || sum > cfg.sumRangeTight[1]) return false;
+        }
 
         return true;
     }

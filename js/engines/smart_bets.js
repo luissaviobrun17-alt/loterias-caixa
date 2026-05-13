@@ -282,6 +282,22 @@ class SmartBetsEngine {
         // â•‘  Cobertura Total + Diversidade MÃ¡xima + Backtesting Honesto      â•‘
         // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         if (['megasena','lotofacil','quina','duplasena','lotomania','diadesorte','timemania'].includes(gameKey)) {
+            // v10.4 MEGA SENA HIBRIDO: Coverage + IA scoring para QUALQUER volume
+            // Combina cobertura de pares/triplas (CoverageEngine) com filtros IA (NovaEraEngine)
+            if (gameKey === 'megasena' && typeof CoverageEngine !== 'undefined' && numGames > 5) {
+                console.log('%c[SmartBets] v10.4 MEGA SENA HIBRIDO: ' + numGames + ' jogos -> CoverageEngine + filtros v10.4', 'color: #FF6B6B; font-weight: bold;');
+                try {
+                    var hybridResult = CoverageEngine.generate(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
+                    if (hybridResult && hybridResult.games && hybridResult.games.length > 0) {
+                        console.log('[SmartBets] v10.4 Hibrido OK! ' + hybridResult.games.length + ' jogos | cobertura=' + (hybridResult.analysis ? hybridResult.analysis.coveragePct : 'N/A') + '%');
+                        hybridResult.internalEngine = 'CoverageEngine-Hibrido-v10.4';
+                        return hybridResult;
+                    }
+                } catch(hybridErr) {
+                    console.error('[SmartBets] Hibrido CRASHED, fallback NovaEra:', hybridErr.message);
+                }
+            }
+
             // ★ v10.0 ROTEAMENTO POR DENSIDADE — Auditoria Maio/2026
             // Loterias esparsas (density < 15%): CoverageEngine para volumes > 50
             // Motivo: scoring preditivo é ruído em ranges amplos (6/60, 5/80, 10/80)
