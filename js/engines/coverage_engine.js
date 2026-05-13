@@ -271,6 +271,10 @@ class CoverageEngine {
                 engine: 'CoverageEngine',
                 confidence: metrics.pairCoveragePct,
                 coveragePct: metrics.pairCoveragePct,
+                // v10.4 FIX: campos que o painel SmartBets espera
+                coverage: metrics.pairCoveragePct,
+                diversity: metrics.numberCoveragePct || Math.round(metrics.numberCoverage / cfg.totalNumbers * 100),
+                uniqueNumbers: metrics.numberCoverage,
                 metrics: metrics
             }
         };
