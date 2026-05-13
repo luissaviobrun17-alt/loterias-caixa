@@ -4420,6 +4420,29 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         
 // ── TOTAL ESTIMADO ──
+        // Somar prêmio dos extras (Time do Coração / Mês da Sorte) ao total visual
+        if ((this.currentGameKey === 'timemania' || this.currentGameKey === 'diadesorte') && this.currentGeneratedExtras) {
+            let extrasHitCount = 0;
+            const extraPrizeUnit = this.currentGameKey === 'timemania' ? 7.50 : 3.00;
+            const extrasLabel = this.currentGameKey === 'timemania' ? 'Time' : 'Mês';
+            this.currentGeneratedGames.forEach((nums, idx) => {
+                if (this.currentGeneratedExtras[idx] !== undefined) {
+                    extrasHitCount++;
+                }
+            });
+            if (extrasHitCount > 0) {
+                const extrasTotalPrize = extrasHitCount * extraPrizeUnit;
+                estimatedTotal += extrasTotalPrize;
+                summaryHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:8px;margin-top:6px;">`
+                + `<div style="display:flex;align-items:center;gap:8px;">`
+                + `<span style="font-size:0.9rem;">${this.currentGameKey === 'timemania' ? '⚽' : '📅'}</span>`
+                + `<div><div style="font-size:0.82rem;font-weight:700;color:#f1f5f9;">${extrasLabel} Acertado</div>`
+                + `<div style="font-size:0.66rem;color:#64748b;">${extrasHitCount}x acertos → R$ ${extraPrizeUnit.toFixed(2).replace('.',',')} cada</div></div></div>`
+                + `<div style="text-align:right;"><div style="font-size:0.9rem;font-weight:800;color:#10B981;">${extrasHitCount}x</div>`
+                + `<div style="font-size:0.68rem;color:#10B981;opacity:0.85;">→ R$ ${extrasTotalPrize.toFixed(2).replace('.',',')}</div></div></div>`;
+            }
+        }
+
         if (estimatedTotal > 0) {
             summaryHTML += `<div style="margin-top:12px;padding:12px 16px;background:linear-gradient(135deg,rgba(34,197,94,0.2),rgba(16,185,129,0.1));border:2px solid #22C55E80;border-radius:12px;display:flex;justify-content:space-between;align-items:center;">`;
             summaryHTML += `<span style="color:#86efac;font-weight:700;font-size:0.88rem;">💰 Prêmio Estimado Total</span>`;
@@ -4476,11 +4499,11 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 // ★ v9.5: Badge de Time (Timemania) ou Mês (Dia de Sorte) no jogo ganhador
                 if (this.currentGeneratedExtras && this.currentGeneratedExtras[wg.index] !== undefined) {
                     if (this.currentGameKey === 'timemania' && typeof L99_TIMES !== 'undefined') {
-                        const timeName = L99_TIMES[this.currentGeneratedExtras[wg.index]] || '?';
-                        summaryHTML += `<span style="font-size:0.62rem;color:#10B981;background:rgba(16,185,129,0.15);padding:1px 5px;border-radius:4px;font-weight:600;">⚽ ${timeName}</span>`;
+                        // Time do Coração - contagem apenas (sem nome)
+                        summaryHTML += `<span style="font-size:0.62rem;color:#10B981;background:rgba(16,185,129,0.15);padding:1px 5px;border-radius:4px;font-weight:600;">⚽ Time ✓</span>`;
                     } else if (this.currentGameKey === 'diadesorte') {
-                        const mesName = L99_MESES[this.currentGeneratedExtras[wg.index]] || '?';
-                        summaryHTML += `<span style="font-size:0.62rem;color:#F59E0B;background:rgba(245,158,11,0.15);padding:1px 5px;border-radius:4px;font-weight:600;">📅 ${mesName}</span>`;
+                        // Mês da Sorte - contagem apenas (sem nome)
+                        summaryHTML += `<span style="font-size:0.62rem;color:#F59E0B;background:rgba(245,158,11,0.15);padding:1px 5px;border-radius:4px;font-weight:600;">📅 Mês ✓</span>`;
                     }
                 }
                 
@@ -4580,12 +4603,18 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                         const extraIdx = this.currentGeneratedExtras[wg.index];
                         if (extraIdx !== undefined) {
                             if (this.currentGameKey === 'timemania' && typeof L99_TIMES !== 'undefined') {
-                                extrasGanhadores.push({ jogo: wg.index + 1, extra: L99_TIMES[extraIdx] || '?', acertos: wg.hits, premio: wg.prize });
+                                extrasGanhadores.push({ jogo: wg.index + 1, extra: extraIdx, acertos: wg.hits, premio: wg.prize, premioExtra: 7.50 });
                             } else if (this.currentGameKey === 'diadesorte') {
-                                extrasGanhadores.push({ jogo: wg.index + 1, extra: L99_MESES[extraIdx] || '?', acertos: wg.hits, premio: wg.prize });
+                                extrasGanhadores.push({ jogo: wg.index + 1, extra: extraIdx, acertos: wg.hits, premio: wg.prize, premioExtra: 3.00 });
                             }
                         }
                     });
+                }
+
+                // Somar prêmio dos extras (Time do Coração / Mês da Sorte) ao total
+                if (extrasGanhadores.length > 0) {
+                    const extrasPrizeTotal = extrasGanhadores.reduce((sum, eg) => sum + (eg.premioExtra || 0), 0);
+                    estimatedTotal += extrasPrizeTotal;
                 }
 
                 const record = {
@@ -4971,7 +5000,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         const isTimemania = lotteryKey === 'timemania';
         const isDiaDeSorte = lotteryKey === 'diadesorte';
         const hasExtrasCol = isTimemania || isDiaDeSorte;
-        const extrasColLabel = isTimemania ? '⚽ Time' : '📅 Mês';
+        const extrasColLabel = isTimemania ? 'Time' : 'Mês';
 
         let html = prizeBannerHtml + '<div class="stats-table-wrapper"><table class="stats-table"><thead><tr>';
         html += '<th>Data</th>';
@@ -5048,10 +5077,10 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                     const badgeColor = isTimemania ? '#10B981' : '#F59E0B';
                     const badgeBg = isTimemania ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)';
                     const icon = isTimemania ? '⚽' : '📅';
-                    const badges = r.extrasGanhadores.map(eg =>
-                        `<span style="display:inline-block;font-size:0.58rem;color:${badgeColor};background:${badgeBg};padding:1px 4px;border-radius:3px;margin:1px;white-space:nowrap;" title="Jogo ${eg.jogo}: ${eg.acertos} acertos ≈ R$${(eg.premio||0).toFixed(2)}">${icon} ${eg.extra}</span>`
-                    ).join('');
-                    html += `<td style="max-width:120px;">${badges}</td>`;
+                    const extrasCount = r.extrasGanhadores.length;
+                    const extrasTotal = r.extrasGanhadores.reduce((sum, eg) => sum + (eg.premioExtra || 0), 0);
+                    const extrasTotalStr = extrasTotal > 0 ? `<div style="font-size:0.55rem;color:${badgeColor};margin-top:2px;">+R$ ${extrasTotal.toFixed(2).replace('.',',')}</div>` : '';
+                    html += `<td style="text-align:center;"><strong style="color:${badgeColor};font-size:0.85rem;">${extrasCount}x</strong>${extrasTotalStr}</td>`;
                 } else {
                     html += `<td style="color:#334155;">—</td>`;
                 }
