@@ -122,7 +122,9 @@
         fecharModalIdade();
 
         // Procurar números do volante - múltiplos seletores
-        var grid = document.getElementById('n01') ||
+        // FIX: n00 adicionado para Lotomania (range 0-99)
+        var grid = document.getElementById('n00') ||
+                   document.getElementById('n01') ||
                    document.getElementById('n02') ||
                    document.getElementById('n05') ||
                    document.getElementById('n10') ||
@@ -289,6 +291,9 @@
             // Clicar em cada número
             var acertos = 0;
             var nums = jogo.slice(); // Cópia para não modificar original
+            // FIX LOTOMANIA: jogos com 50+ números precisam de mais tempo
+            var isLargeGame = nums.length >= 20;
+            var clickDelay = isLargeGame ? Math.max(DELAY_CLICK, 80) : DELAY_CLICK;
             
             for (var j = 0; j < nums.length; j++) {
                 var clicked = clicarNumero(nums[j]);
@@ -301,14 +306,20 @@
                     if (clicked) acertos++;
                     else addLog('⚠️ Num ' + nums[j] + ' não encontrado');
                 }
-                await delay(DELAY_CLICK);
+                await delay(clickDelay);
+                // FIX: Angular digest intermediário a cada 10 cliques para jogos grandes
+                if (isLargeGame && j > 0 && j % 10 === 0) {
+                    try { var rsi = angular.element(document.body).scope(); if (rsi && rsi.$apply) rsi.$apply(); } catch(aei) {}
+                }
             }
 
             addLog('🔢 Jogo ' + (i+1) + ': ' + acertos + '/' + nums.length + ' [' + nums.join(',') + ']');
 
             // Force Angular digest IMMEDIATELY after number selection (BEFORE delay)
             try { var rs = angular.element(document.body).scope(); if (rs && rs.$apply) rs.$apply(); } catch(ae) {}
-            await delay(400);
+            // FIX LOTOMANIA: jogos com muitos números precisam de mais tempo para Angular processar
+            var digestDelay = isLargeGame ? 1500 : 400;
+            await delay(digestDelay);
             fecharModais();
             await delay(DELAY_MODAL);
 
