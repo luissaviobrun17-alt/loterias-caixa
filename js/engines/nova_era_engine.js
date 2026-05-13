@@ -52,15 +52,16 @@ class NovaEraEngine {
                 maxUsagePct: 0.22,
                 maxOverlap: 2,
                 repeatFromLast: [0, 2],
+                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
                 weights: {
-                    frequency: 0.18,
-                    delay: 0.28,
-                    trend: 0.14,
-                    zone: 0.14,
-                    markov: 0.06,
-                    phase: 0.05,
-                    entropy: 0.08,
-                    noise: 0.07
+                    frequency: 0.01, delay: 0.01, trend: 0.01,
+                    zone: 0.12, markov: 0.01, phase: 0.01,
+                    clairvoyance: 0.02, nextDraw: 0.04,
+                    bayesian: 0.03, positional: 0.02,
+                    sequential: 0.01, momentum: 0.01,
+                    mirror: 0.02, gap: 0.14, cluster: 0.06, reversion: 0.01,
+                    precision: 0.08, patternDna: 0.15, pairTrio: 0.08,
+                    cycleReturn: 0.08, quantumSuper: 0.08
                 },
                 // v10: scoreClamp achatado (era [0.2, 3.0]) — distribuição mais uniforme para range esparso
                 scoreClamp: [0.3, 2.0],
@@ -88,15 +89,16 @@ class NovaEraEngine {
                 maxOverlap: 13,
                 // â˜… v9.0: Ampliado â€” dados reais variam 5-13 repetiÃ§Ãµes
                 repeatFromLast: [5, 13],
+                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
                 weights: {
-                    frequency: 0.20,
-                    delay: 0.22,
-                    trend: 0.15,
-                    zone: 0.12,
-                    markov: 0.06,
-                    phase: 0.05,
-                    entropy: 0.10,
-                    noise: 0.10
+                    frequency: 0.01, delay: 0.01, trend: 0.01,
+                    zone: 0.05, markov: 0.02, phase: 0.01,
+                    clairvoyance: 0.02, nextDraw: 0.12,
+                    bayesian: 0.03, positional: 0.01,
+                    sequential: 0.02, momentum: 0.01,
+                    mirror: 0.01, gap: 0.03, cluster: 0.10, reversion: 0.01,
+                    precision: 0.08, patternDna: 0.10, pairTrio: 0.18,
+                    cycleReturn: 0.06, quantumSuper: 0.11
                 },
                 scoreClamp: [0.5, 1.8],
                 _confidenceCeiling: 85  // v10.1: P(11+) ≈ 25.1%
@@ -122,15 +124,16 @@ class NovaEraEngine {
                 maxUsagePct: 0.15,
                 maxOverlap: 2,
                 repeatFromLast: [0, 1],
+                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
                 weights: {
-                    frequency: 0.18,
-                    delay: 0.28,
-                    trend: 0.14,
-                    zone: 0.14,
-                    markov: 0.06,
-                    phase: 0.05,
-                    entropy: 0.08,
-                    noise: 0.07
+                    frequency: 0.01, delay: 0.01, trend: 0.01,
+                    zone: 0.12, markov: 0.01, phase: 0.01,
+                    clairvoyance: 0.01, nextDraw: 0.02,
+                    bayesian: 0.02, positional: 0.03,
+                    sequential: 0.01, momentum: 0.01,
+                    mirror: 0.01, gap: 0.18, cluster: 0.08, reversion: 0.01,
+                    precision: 0.07, patternDna: 0.10, pairTrio: 0.05,
+                    cycleReturn: 0.14, quantumSuper: 0.09
                 },
                 // v10: scoreClamp achatado — scoring é ruído com 5/80
                 scoreClamp: [0.3, 2.0],
@@ -156,15 +159,18 @@ class NovaEraEngine {
                 maxUsagePct: 0.20,
                 maxOverlap: 3,
                 repeatFromLast: [0, 2],
+                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
+                // + crossDraw: camada quântica exclusiva Dupla Sena (2º sorteio)
                 weights: {
-                    frequency: 0.18,
-                    delay: 0.28,
-                    trend: 0.14,
-                    zone: 0.14,
-                    markov: 0.06,
-                    phase: 0.05,
-                    entropy: 0.08,
-                    noise: 0.07
+                    frequency: 0.01, delay: 0.01, trend: 0.01,
+                    zone: 0.07, markov: 0.02, phase: 0.01,
+                    clairvoyance: 0.01, nextDraw: 0.04,
+                    bayesian: 0.03, positional: 0.01,
+                    sequential: 0.01, momentum: 0.01,
+                    mirror: 0.03, gap: 0.08, cluster: 0.05, reversion: 0.01,
+                    precision: 0.08, patternDna: 0.14, pairTrio: 0.15,
+                    cycleReturn: 0.08, quantumSuper: 0.05,
+                    crossDraw: 0.09
                 },
                 scoreClamp: [0.25, 2.8],
                 _confidenceCeiling: 75  // v10.1: P(terno+) com 2 sorteios
@@ -191,15 +197,16 @@ class NovaEraEngine {
                 maxOverlap: 40,
                 // â˜… v9.0: Ampliado para aceitar mais variaÃ§Ã£o
                 repeatFromLast: [5, 15],
+                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
                 weights: {
-                    frequency: 0.16,
-                    delay: 0.20,
-                    trend: 0.12,
-                    zone: 0.16,
-                    markov: 0.06,
-                    phase: 0.05,
-                    entropy: 0.13,
-                    noise: 0.12
+                    frequency: 0.01, delay: 0.01, trend: 0.01,
+                    zone: 0.18, markov: 0.01, phase: 0.01,
+                    clairvoyance: 0.01, nextDraw: 0.02,
+                    bayesian: 0.02, positional: 0.01,
+                    sequential: 0.01, momentum: 0.01,
+                    mirror: 0.01, gap: 0.04, cluster: 0.14, reversion: 0.01,
+                    precision: 0.06, patternDna: 0.10, pairTrio: 0.05,
+                    cycleReturn: 0.10, quantumSuper: 0.18
                 },
                 scoreClamp: [0.4, 2.0],
                 _confidenceCeiling: 78  // v10.1: P(15+) ≈ 4.6%
@@ -224,15 +231,16 @@ class NovaEraEngine {
                 maxUsagePct: 0.18,
                 maxOverlap: 5,
                 repeatFromLast: [0, 4],
+                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
                 weights: {
-                    frequency: 0.18,
-                    delay: 0.28,
-                    trend: 0.14,
-                    zone: 0.14,
-                    markov: 0.06,
-                    phase: 0.05,
-                    entropy: 0.08,
-                    noise: 0.07
+                    frequency: 0.01, delay: 0.01, trend: 0.01,
+                    zone: 0.11, markov: 0.01, phase: 0.01,
+                    clairvoyance: 0.01, nextDraw: 0.03,
+                    bayesian: 0.02, positional: 0.05,
+                    sequential: 0.01, momentum: 0.01,
+                    mirror: 0.01, gap: 0.15, cluster: 0.08, reversion: 0.01,
+                    precision: 0.07, patternDna: 0.11, pairTrio: 0.08,
+                    cycleReturn: 0.12, quantumSuper: 0.08
                 },
                 // v10: scoreClamp achatado — scoring é ruído com 10/80
                 scoreClamp: [0.3, 2.0],
@@ -260,15 +268,16 @@ class NovaEraEngine {
                 maxUsagePct: 0.30,
                 maxOverlap: 3,
                 repeatFromLast: [0, 3],
+                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
                 weights: {
-                    frequency: 0.20,
-                    delay: 0.26,
-                    trend: 0.15,
-                    zone: 0.13,
-                    markov: 0.06,
-                    phase: 0.05,
-                    entropy: 0.08,
-                    noise: 0.07
+                    frequency: 0.01, delay: 0.01, trend: 0.02,
+                    zone: 0.05, markov: 0.02, phase: 0.01,
+                    clairvoyance: 0.02, nextDraw: 0.10,
+                    bayesian: 0.03, positional: 0.01,
+                    sequential: 0.02, momentum: 0.01,
+                    mirror: 0.02, gap: 0.04, cluster: 0.06, reversion: 0.01,
+                    precision: 0.09, patternDna: 0.18, pairTrio: 0.14,
+                    cycleReturn: 0.07, quantumSuper: 0.08
                 },
                 scoreClamp: [0.3, 2.2],
                 _confidenceCeiling: 80  // v10.1: P(3+) ≈ 27%
@@ -1955,6 +1964,15 @@ class NovaEraEngine {
         const clusterScores = this._quantumClusters(history, startNum, endNum, N, drawSize);
         const reversionScores = this._quantumMeanReversion(history, startNum, endNum, N, drawSize, totalRange);
 
+        // ━━━ CAMADA 22: CROSS-SORTEIO QUANTICO — EXCLUSIVO DUPLA SENA ━━━
+        // Analisa assimetria entre 1o e 2o sorteio para injetar Quantum Boost
+        let crossDrawScores = {};
+        for (let n = startNum; n <= endNum; n++) crossDrawScores[n] = 0.5;
+        if (gameKey === 'duplasena' && N >= 5) {
+            crossDrawScores = this._quantumDuplaCrossDraw(history, startNum, endNum, N);
+            console.log('[QUANTUM-L99] ★ CAMADA 22 (Cross-Sorteio Dupla Sena) — Assimetria 1o/2o sorteio ativada');
+        }
+
         // â”â”â” CAMADA 17: PRECISION CALIBRATOR â€” Futurologia dos Ãšltimos 3 â”â”â”
         let precisionScores = {};
         for (let n = startNum; n <= endNum; n++) precisionScores[n] = 0.5;
@@ -2489,7 +2507,8 @@ class NovaEraEngine {
                     + (patternDnaScores[n] || 0) * dnaWeight * dynamicBoosts[17]
                     + (pairTrioScores[n] || 0) * pairTrioWeight * dynamicBoosts[18]
                     + (cycleReturnScores[n] || 0) * cycleWeight * dynamicBoosts[19]
-                    + (quantumSuperScores[n] || 0) * quantumSuperWeight * dynamicBoosts[20];
+                    + (quantumSuperScores[n] || 0) * quantumSuperWeight * dynamicBoosts[20]
+                    + (crossDrawScores[n] || 0) * (weights.crossDraw || 0) * 1.0; // Camada 22: so ativa na Dupla Sena
 
             // â˜… v9.5: CONSENSO para 21 camadas
             const votes = voteCount[n] || 0;
@@ -2514,6 +2533,97 @@ class NovaEraEngine {
         return scores;
     }
 
+    // ======================================================================
+    // CAMADA 22: CROSS-SORTEIO QUANTICO v10.2 — EXCLUSIVO DUPLA SENA
+    // Analisa assimetria entre 1o e 2o Sorteio.
+    // Numeros fortes no 2o sorteio recebem Quantum Boost proporcional.
+    // ======================================================================
+    static _quantumDuplaCrossDraw(history, startNum, endNum, N) {
+        let scores = {};
+        for (let n = startNum; n <= endNum; n++) scores[n] = 0.5;
+
+        const analysisWindow = Math.min(50, N);
+
+        // Contar frequencia de cada numero no 1o e 2o sorteio separadamente
+        const freq1 = {};
+        const freq2 = {};
+        for (let n = startNum; n <= endNum; n++) { freq1[n] = 0; freq2[n] = 0; }
+
+        let validDraws1 = 0, validDraws2 = 0;
+        for (let i = 0; i < analysisWindow; i++) {
+            const nums1 = history[i].numbers || [];
+            const nums2 = history[i].numbers2 || [];
+
+            if (nums1.length > 0) {
+                validDraws1++;
+                for (const n of nums1) {
+                    if (n >= startNum && n <= endNum) freq1[n]++;
+                }
+            }
+            if (nums2.length > 0) {
+                validDraws2++;
+                for (const n of nums2) {
+                    if (n >= startNum && n <= endNum) freq2[n]++;
+                }
+            }
+        }
+
+        // Se nao temos dados suficientes do 2o sorteio, retornar neutro
+        if (validDraws2 < 3) {
+            console.log('[CROSS-DRAW] Dados insuficientes do 2o sorteio (' + validDraws2 + ' registros)');
+            return scores;
+        }
+
+        // Calcular ASSIMETRIA: ratio = freq2 / (freq1 + freq2 + epsilon)
+        const epsilon = 0.001;
+        let maxAsym = 0;
+        const asymmetry = {};
+
+        for (let n = startNum; n <= endNum; n++) {
+            const f1 = freq1[n] / Math.max(1, validDraws1);
+            const f2 = freq2[n] / Math.max(1, validDraws2);
+            const total = f1 + f2 + epsilon;
+            const ratio = f2 / total;
+
+            // Positivo = forte no 2o sorteio, Negativo = forte no 1o
+            asymmetry[n] = ratio - 0.5;
+            const absAsym = Math.abs(asymmetry[n]);
+            if (absAsym > maxAsym) maxAsym = absAsym;
+        }
+
+        // Normalizar e aplicar scores
+        const boostFactor = 0.35;
+        const penaltyFactor = 0.10;
+        let boostedCount = 0;
+
+        for (let n = startNum; n <= endNum; n++) {
+            const asym = asymmetry[n];
+            const normalizedAsym = maxAsym > 0 ? asym / maxAsym : 0;
+
+            if (normalizedAsym > 0.1) {
+                scores[n] = 0.5 + normalizedAsym * boostFactor;
+                boostedCount++;
+            } else if (normalizedAsym < -0.1) {
+                scores[n] = 0.5 + normalizedAsym * penaltyFactor;
+            }
+        }
+
+        // Normalizar para [0, 1]
+        scores = this._normalizeScores(scores, startNum, endNum);
+
+        console.log('[CROSS-DRAW] Dupla Sena: ' + validDraws1 + ' sorteios 1o | ' + validDraws2 + ' sorteios 2o | ' + boostedCount + ' nums com boost');
+
+        // Log top 5 numeros com mais assimetria positiva
+        const top5 = Object.entries(asymmetry)
+            .sort(function(a, b) { return b[1] - a[1]; })
+            .slice(0, 5)
+            .map(function(e) { return e[0] + '(+' + (e[1]*100).toFixed(1) + '%)'; })
+            .join(', ');
+        console.log('[CROSS-DRAW] Top5 2o-Sorteio: ' + top5);
+
+        return scores;
+    }
+
     // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
     // â•‘  â˜…â˜…â˜… PESOS QUANTUM L99 v9.5 â€” 22 DIMENSÃ•ES POR LOTERIA â˜…â˜…â˜…            â•‘
     // â•‘  + Camada 17: PRECISION (Futurologia dos Ãºltimos 3)                    â•‘
@@ -2523,94 +2633,14 @@ class NovaEraEngine {
     // â•‘  + Camada 21: QUANTUM SUPER (SuperposiÃ§Ã£o Multi-CenÃ¡rio)               â•‘
     // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _getGodModeWeights(gameKey) {
-        // â˜… v10.0 RECALIBRADO: Pesos baseados em valor estatÃ­stico REAL
-        // Camadas estruturais (zone, gap, cluster, pairTrio, DNA, precision) = ~73%
-        // Camadas falaciais (freq, delay, markov, phase, reversion) = ~12% (ruÃ­do para diversidade)
-        // Camadas ensemble (cycleReturn, quantumSuper, nextDraw) = ~15%
-        const calibrations = {
+        // v10.2 CONSOLIDADO: Pesos vivem APENAS em profile.weights
+        // Eliminadas ~90 linhas de calibracoes duplicadas
+        const profile = this.getProfile(gameKey);
+        const w = profile.weights;
 
-            megasena: {
-                frequency: 0.01, delay: 0.01, trend: 0.01,
-                zone: 0.12, markov: 0.01, phase: 0.01,
-                clairvoyance: 0.02, nextDraw: 0.04,
-                bayesian: 0.03, positional: 0.02,
-                sequential: 0.01, momentum: 0.01,
-                mirror: 0.02, gap: 0.14, cluster: 0.06, reversion: 0.01,
-                precision: 0.08, patternDna: 0.15, pairTrio: 0.08,
-                cycleReturn: 0.08, quantumSuper: 0.08
-            },
-
-            lotofacil: {
-                frequency: 0.01, delay: 0.01, trend: 0.01,
-                zone: 0.05, markov: 0.02, phase: 0.01,
-                clairvoyance: 0.02, nextDraw: 0.12,
-                bayesian: 0.03, positional: 0.01,
-                sequential: 0.02, momentum: 0.01,
-                mirror: 0.01, gap: 0.03, cluster: 0.10, reversion: 0.01,
-                precision: 0.08, patternDna: 0.10, pairTrio: 0.18,
-                cycleReturn: 0.06, quantumSuper: 0.11
-            },
-
-            quina: {
-                frequency: 0.01, delay: 0.01, trend: 0.01,
-                zone: 0.12, markov: 0.01, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.02,
-                bayesian: 0.02, positional: 0.03,
-                sequential: 0.01, momentum: 0.01,
-                mirror: 0.01, gap: 0.18, cluster: 0.08, reversion: 0.01,
-                precision: 0.07, patternDna: 0.10, pairTrio: 0.05,
-                cycleReturn: 0.14, quantumSuper: 0.09
-            },
-
-            duplasena: {
-                frequency: 0.01, delay: 0.01, trend: 0.01,
-                zone: 0.07, markov: 0.02, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.04,
-                bayesian: 0.03, positional: 0.01,
-                sequential: 0.01, momentum: 0.01,
-                mirror: 0.06, gap: 0.08, cluster: 0.05, reversion: 0.01,
-                precision: 0.08, patternDna: 0.14, pairTrio: 0.18,
-                cycleReturn: 0.08, quantumSuper: 0.08
-            },
-
-            lotomania: {
-                frequency: 0.01, delay: 0.01, trend: 0.01,
-                zone: 0.18, markov: 0.01, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.02,
-                bayesian: 0.02, positional: 0.01,
-                sequential: 0.01, momentum: 0.01,
-                mirror: 0.01, gap: 0.04, cluster: 0.14, reversion: 0.01,
-                precision: 0.06, patternDna: 0.10, pairTrio: 0.05,
-                cycleReturn: 0.10, quantumSuper: 0.18
-            },
-
-            timemania: {
-                frequency: 0.01, delay: 0.01, trend: 0.01,
-                zone: 0.11, markov: 0.01, phase: 0.01,
-                clairvoyance: 0.01, nextDraw: 0.03,
-                bayesian: 0.02, positional: 0.05,
-                sequential: 0.01, momentum: 0.01,
-                mirror: 0.01, gap: 0.15, cluster: 0.08, reversion: 0.01,
-                precision: 0.07, patternDna: 0.11, pairTrio: 0.08,
-                cycleReturn: 0.12, quantumSuper: 0.08
-            },
-
-            diadesorte: {
-                frequency: 0.01, delay: 0.01, trend: 0.02,
-                zone: 0.05, markov: 0.02, phase: 0.01,
-                clairvoyance: 0.02, nextDraw: 0.10,
-                bayesian: 0.03, positional: 0.01,
-                sequential: 0.02, momentum: 0.01,
-                mirror: 0.02, gap: 0.04, cluster: 0.06, reversion: 0.01,
-                precision: 0.09, patternDna: 0.18, pairTrio: 0.14,
-                cycleReturn: 0.07, quantumSuper: 0.08
-            }
-        };
-
-        const w = calibrations[gameKey] || calibrations.megasena;
         const structPct = ((w.zone + w.gap + w.cluster + w.pairTrio + w.patternDna + w.precision) * 100).toFixed(0);
-        const fallacyPct = ((w.frequency + w.delay + w.trend + w.markov + w.phase + w.clairvoyance + w.reversion + w.mirror) * 100).toFixed(0);
-        console.log('[v10.0] â˜… ' + gameKey + ': Estrutural=' + structPct + '% | FalÃ¡cia=' + fallacyPct + '%');
+        const fallacyPct = ((w.frequency + w.delay + w.trend + w.markov + w.phase + (w.clairvoyance||0) + w.reversion + (w.mirror||0)) * 100).toFixed(0);
+        console.log('[v10.2] ' + gameKey + ': Estrutural=' + structPct + '% | Falacia=' + fallacyPct + '% [CONSOLIDADO]');
         return w;
     }
 

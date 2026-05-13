@@ -55,6 +55,7 @@ const StatisticsTracker = (function() {
      * @param {number} record.valorPremio    - Valor total estimado ganho
      * @param {number} record.valorInvestido - Custo total investido
      * @param {number} record.pctRetorno     - Percentual de retorno (%)
+     * @param {string} record.internalEngine - Motor que gerou os jogos (CoverageEngine, etc)
      * @param {number[]} record.drawnNumbers - Números sorteados
      */
     function save(record) {
@@ -219,7 +220,7 @@ const StatisticsTracker = (function() {
         const all = _loadAll();
         const keys = lotteryKey ? [lotteryKey] : Object.keys(all);
         
-        let csv = 'Loteria;Concurso;Data;Qtd Jogos;Modo Geração;Precisão;Nº/Jogo;Volantes Premiados;Valor Prêmio;Valor Investido;% Retorno;Faixas Detalhadas\n';
+        let csv = 'Loteria;Concurso;Data;Qtd Jogos;Modo Geração;Motor Real;Precisão;Nº/Jogo;Volantes Premiados;Valor Prêmio;Valor Investido;% Retorno;Faixas Detalhadas\n';
 
         keys.forEach(key => {
             const records = all[key] || [];
@@ -232,6 +233,7 @@ const StatisticsTracker = (function() {
                     data,
                     r.qtdJogos || 0,
                     _modoLabel(r.modoGeracao),
+                    r.internalEngine || 'Desconhecido',
                     r.precisao ? 'Sim' : 'Não',
                     r.numPorJogo || '',
                     r.volantesPremiados || 0,
@@ -277,12 +279,13 @@ const StatisticsTracker = (function() {
                 data: cols[2] || new Date().toISOString(),
                 qtdJogos: parseInt(cols[3]) || 0,
                 modoGeracao: _modoFromLabel(cols[4].trim()),
-                precisao: cols[5].trim().toLowerCase() === 'sim',
-                numPorJogo: parseInt(cols[6]) || 0,
-                volantesPremiados: parseInt(cols[7]) || 0,
-                valorPremio: parseFloat(cols[8]) || 0,
-                valorInvestido: parseFloat(cols[9]) || 0,
-                pctRetorno: parseFloat(cols[10]) || 0,
+                internalEngine: cols[5] ? cols[5].trim() : 'Desconhecido',
+                precisao: cols[6] ? cols[6].trim().toLowerCase() === 'sim' : false,
+                numPorJogo: parseInt(cols[7]) || 0,
+                volantesPremiados: parseInt(cols[8]) || 0,
+                valorPremio: parseFloat(cols[9]) || 0,
+                valorInvestido: parseFloat(cols[10]) || 0,
+                pctRetorno: parseFloat(cols[11]) || 0,
                 timestamp: Date.now(),
                 version: VERSION,
                 imported: true

@@ -3472,6 +3472,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         if (!result) result = { games: [] };
         if (!result.games) result.games = [];
         this.currentGeneratedGames = result.games;
+        this._lastInternalEngine = result.internalEngine || 'Desconhecido';
         
         // Gerar múltiplos times/meses distribuídos com máxima cobertura (sem repetição precoce)
         if (gameKey === 'timemania' || gameKey === 'diadesorte') {
@@ -4628,6 +4629,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                     data: new Date().toISOString(),
                     qtdJogos: totalJogos,
                     modoGeracao: localStorage.getItem('l99_lastMode') || document.body.getAttribute('data-l99-mode') || this._lastGenerationMode || 'manual',
+                    internalEngine: this._lastInternalEngine || 'Desconhecido',
                     precisao: isPrecisao,
                     numPorJogo: actualDrawSize,
                     faixas: faixasDetail,

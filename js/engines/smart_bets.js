@@ -297,6 +297,7 @@ class SmartBetsEngine {
                     var covResult = CoverageEngine.generate(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
                     if (covResult && covResult.games && covResult.games.length > 0) {
                         console.log('[SmartBets] ★ CoverageEngine OK! ' + covResult.games.length + ' jogos gerados');
+                        covResult.internalEngine = 'CoverageEngine';
                         return covResult;
                     }
                 } catch(covErr) {
@@ -314,6 +315,7 @@ class SmartBetsEngine {
                     var peResult = PrecisionEngine.generate(gameKey, numGames, selectedNumbers || [], fixedNumbers || [], drawSize);
                     if (peResult && peResult.games && peResult.games.length > 0) {
                         console.log('[DEBUG-L99] PrecisionEngine OK! ' + peResult.games.length + ' jogos | confianca=' + (peResult.analysis ? peResult.analysis.confidence : 'N/A') + '%');
+                        peResult.internalEngine = 'PrecisionEngine';
                         return peResult;
                     }
                 } catch(peErr) {
@@ -325,11 +327,14 @@ class SmartBetsEngine {
                 try {
                     var neResult = NovaEraEngine.generate(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
                     console.log('%c[DEBUG-L99] NovaEraEngine SUCCESS! confidence=' + (neResult.analysis ? neResult.analysis.confidence : 'N/A'), 'color: #00FF00; font-size: 14px;');
+                    neResult.internalEngine = 'NovaEraEngine';
                     return neResult;
                 } catch(neErr) {
                     console.error('[SmartBets] NovaEraEngine CRASHED:', neErr.message, neErr.stack);
                     console.warn('[SmartBets] Falling back to _generateQuantumUniversal');
-                    return this._generateQuantumUniversal(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
+                    var fallbackResult = this._generateQuantumUniversal(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
+                    if(fallbackResult) fallbackResult.internalEngine = 'QuantumUniversal';
+                    return fallbackResult;
                 }
             } else {
                 console.warn('[SmartBets] âš ï¸ NovaEraEngine nÃ£o carregado, usando motor legado');
