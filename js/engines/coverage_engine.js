@@ -42,7 +42,7 @@ class CoverageEngine {
                 maxConsecutive: 2, minZones: 3,
                 prizeThresholds: [4, 5, 6],
                 prizeLabels: ['Quadra', 'Quina', 'Sena'],
-                candidatesPerSlot: 300,
+                candidatesPerSlot: 800,
                 ticketPrice: 5.00
             },
             quina: {
@@ -53,7 +53,7 @@ class CoverageEngine {
                 maxConsecutive: 2, minZones: 3,
                 prizeThresholds: [2, 3, 4, 5],
                 prizeLabels: ['Duque', 'Terno', 'Quadra', 'Quina'],
-                candidatesPerSlot: 400,
+                candidatesPerSlot: 1000,
                 ticketPrice: 2.50
             },
             duplasena: {
@@ -64,7 +64,7 @@ class CoverageEngine {
                 maxConsecutive: 2, minZones: 3,
                 prizeThresholds: [3, 4, 5, 6],
                 prizeLabels: ['Terno', 'Quadra', 'Quina', 'Sena'],
-                candidatesPerSlot: 250,
+                candidatesPerSlot: 600,
                 ticketPrice: 2.50
             },
             lotomania: {
@@ -75,7 +75,7 @@ class CoverageEngine {
                 maxConsecutive: 5, minZones: 8,
                 prizeThresholds: [15, 16, 17, 18, 19, 20],
                 prizeLabels: ['15 ac.', '16 ac.', '17 ac.', '18 ac.', '19 ac.', '20 ac.'],
-                candidatesPerSlot: 60,
+                candidatesPerSlot: 120,
                 ticketPrice: 3.00
             },
             timemania: {
@@ -86,7 +86,7 @@ class CoverageEngine {
                 maxConsecutive: 2, minZones: 4,
                 prizeThresholds: [3, 4, 5, 6, 7],
                 prizeLabels: ['3 ac.', '4 ac.', '5 ac.', '6 ac.', '7 ac.'],
-                candidatesPerSlot: 350,
+                candidatesPerSlot: 1000,
                 ticketPrice: 3.00
             },
             diadesorte: {

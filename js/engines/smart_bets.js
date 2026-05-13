@@ -54,8 +54,8 @@ class SmartBetsEngine {
                 maxConcentration: 0.08,   // V9: 0.10->0.08
                 forceNewEvery: 1,         // V9: 2->1 rotacao total
                 maxOverlapBetweenGames: 2,// V9: 3->2
-                maxSeedRatio: 0.10,       // V9: 0.17->0.10
-                noiseLevel: 0.55,         // V9: 0.35->0.55 MUITO mais exploracao
+                maxSeedRatio: 0.06,       // v10: 0.10→0.06 seeds menos dominantes
+                noiseLevel: 0.40,         // v10: 0.55→0.40 equilibrar ruído vs sinal
                 hotRatio: 0.34,           // V9: equilibrio 1/3
                 warmRatio: 0.33,
                 coldRatio: 0.33
@@ -119,12 +119,12 @@ class SmartBetsEngine {
                 zoneMinCover: 3,                        // Cobrir 3 de 8 zonas
                 hotNumbers: [],
                 coldNumbers: [],
-                diversityPenalty: 0.85,                 // v2.3: 0.45Ã¢â€ â€™0.85 Ã¢â‚¬â€ penalidade SEVERA
+                diversityPenalty: 1.00,                 // v2.3: 0.45Ã¢â€ â€™0.85 Ã¢â‚¬â€ penalidade SEVERA
                 maxConcentration: 0.08,                 // v2.3: 0.35Ã¢â€ â€™0.08 (5/80=6.25%, +2% margem)
                 forceNewEvery: 2,                       // v2.3: 3Ã¢â€ â€™2
                 maxOverlapBetweenGames: 2,              // NOVO: max 2/5 overlap
                 maxSeedRatio: 0.20,                     // NOVO
-                noiseLevel: 0.50,                       // NOVO: ruÃƒÂ­do ALTO (range 80)
+                noiseLevel: 0.35,                       // v10: ruÃƒÂ­do ALTO (range 80)
                 // Camadas de temperatura
                 hotRatio: 0.40,                         // ~2/5 do pool HOT
                 warmRatio: 0.35,                        // ~2/5 do warm
@@ -214,12 +214,12 @@ class SmartBetsEngine {
                 coldNumbers: [],
                 useExclusionStrategy: false,
                 // DIVERSIDADE V9: MAXIMA ANTI-CONCENTRACAO
-                diversityPenalty: 2.50,      // V9: 0.55->2.50 PENALIDADE BRUTAL
-                maxConcentration: 0.10,      // V9: 0.20->0.10 (10/80=12.5% maximo)
+                diversityPenalty: 1.20,      // V9: 0.55->2.50 PENALIDADE BRUTAL
+                maxConcentration: 0.16,      // v10: 0.10→0.16 (10/80=12.5% + margem real) (10/80=12.5% maximo)
                 forceNewEvery: 1,            // V9: rotacao TOTAL a cada jogo
                 maxOverlapBetweenGames: 3,   // V9: 5->3 max 3/10 overlap
                 maxSeedRatio: 0.05,          // V9: 0.25->0.05 seeds NAO dominam
-                noiseLevel: 0.90,            // V9: 0.30->0.90 exploracao MAXIMA
+                noiseLevel: 0.40,            // v10: 0.90→0.40 equilibrar sinal vs ruído
                 hotRatio: 0.34,              // V9: equilibrio perfeito 1/3 cada
                 warmRatio: 0.33,
                 coldRatio: 0.33
@@ -282,6 +282,26 @@ class SmartBetsEngine {
         // â•‘  Cobertura Total + Diversidade MÃ¡xima + Backtesting Honesto      â•‘
         // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         if (['megasena','lotofacil','quina','duplasena','lotomania','diadesorte','timemania'].includes(gameKey)) {
+            // ★ v10.0 ROTEAMENTO POR DENSIDADE — Auditoria Maio/2026
+            // Loterias esparsas (density < 15%): CoverageEngine para volumes > 50
+            // Motivo: scoring preditivo é ruído em ranges amplos (6/60, 5/80, 10/80)
+            const density = drawSize / (endNum - startNum + 1);
+            const isSparseLottery = density < 0.15; // Mega(10%), Quina(6.25%), Timemania(12.5%)
+            
+            if (isSparseLottery && numGames > 50 && typeof CoverageEngine !== 'undefined') {
+                console.log('%c[SmartBets] ★ ROTEAMENTO v10: ' + gameKey + ' density=' + (density*100).toFixed(1) + '% + ' + numGames + ' jogos → CoverageEngine (cobertura > predição)', 'color: #22D3EE; font-weight: bold;');
+                try {
+                    var covResult = CoverageEngine.generate(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
+                    if (covResult && covResult.games && covResult.games.length > 0) {
+                        console.log('[SmartBets] ★ CoverageEngine OK! ' + covResult.games.length + ' jogos gerados');
+                        return covResult;
+                    }
+                } catch(covErr) {
+                    console.error('[SmartBets] CoverageEngine CRASHED:', covErr.message);
+                    // Fallback para NovaEraEngine
+                }
+            }
+            
             // v9.0 RECALIBRADO: PRIORIDADE INVERTIDA
             // NovaEraEngine PRIMEIRO (diversidade maxima)
             // PrecisionEngine apenas para <=10 jogos (sniper cirurgico)

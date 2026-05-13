@@ -62,7 +62,9 @@ class NovaEraEngine {
                     entropy: 0.08,
                     noise: 0.07
                 },
-                scoreClamp: [0.2, 3.0]
+                // v10: scoreClamp achatado (era [0.2, 3.0]) — distribuição mais uniforme para range esparso
+                scoreClamp: [0.3, 2.0],
+                _confidenceCeiling: 72  // v10: realista (P(quadra+) ≈ 0.26% por jogo)
             },
 
             // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
@@ -129,7 +131,9 @@ class NovaEraEngine {
                     entropy: 0.08,
                     noise: 0.07
                 },
-                scoreClamp: [0.2, 3.0]
+                // v10: scoreClamp achatado — scoring é ruído com 5/80
+                scoreClamp: [0.3, 2.0],
+                _confidenceCeiling: 65  // v10: realista (P(duque+) ≈ 8% por jogo)
             },
 
             // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
@@ -227,7 +231,9 @@ class NovaEraEngine {
                     entropy: 0.08,
                     noise: 0.07
                 },
-                scoreClamp: [0.2, 3.0]
+                // v10: scoreClamp achatado — scoring é ruído com 10/80
+                scoreClamp: [0.3, 2.0],
+                _confidenceCeiling: 68  // v10: realista (P(3+) ≈ 11.2% por jogo)
             },
 
             // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
@@ -2644,6 +2650,28 @@ class NovaEraEngine {
         // Agora: mÃ­nimo = drawSize + 1 para respeitar o pool do usuÃ¡rio
         poolSize = Math.max(actualDrawSize + 1, Math.min(poolSize, totalRange));
         
+        // ★ v10.0 POOL MÍNIMO ADAPTATIVO POR DENSIDADE — Auditoria Maio/2026
+        // Loterias esparsas: não eliminar números que têm a MESMA chance de sair
+        // density < 15%: pool mínimo 70% do range (Mega, Quina, Timemania)
+        // density 15-40%: pool mínimo 50% do range (Dupla Sena, Dia de Sorte)
+        // density > 40%: manter poolSize original (Lotofácil, Lotomania)
+        if (!customPool) {
+            const density = actualDrawSize / totalRange;
+            let minPoolRatio;
+            if (density < 0.15) {
+                minPoolRatio = 0.70; // Mega(10%), Quina(6.25%), Timemania(12.5%)
+            } else if (density < 0.40) {
+                minPoolRatio = 0.50; // Dupla Sena(12%), Dia de Sorte(22.6%)
+            } else {
+                minPoolRatio = 0; // Lotofácil(60%), Lotomania(50%) — manter original
+            }
+            const minPool = Math.ceil(totalRange * minPoolRatio);
+            if (minPool > 0 && poolSize < minPool) {
+                console.log('%c[SNIPER-QUANTUM] ★ v10 POOL ADAPTATIVO: density=' + (density*100).toFixed(1) + '% → pool mínimo ' + minPool + ' (era ' + poolSize + ')', 'color: #F59E0B; font-weight: bold;');
+                poolSize = Math.min(minPool, totalRange);
+            }
+        }
+        
         // Obter histÃ³rico
         let history = [];
         try {
@@ -3588,7 +3616,7 @@ class NovaEraEngine {
             improvement: improvement.toFixed(2) + 'x',
             monteCarlo: monteCarloAdvantage,
             engine: 'L99 v10.0 â€” ' + (profile.name || gameKey),
-            mode: 'L99 v10.0 â€” 21 Camadas | Walk-Forward | Monte Carlo'
+            mode: 'L99 v10.0 â€” 21 Dimensões | Cross-Validação | Filtros Estruturais'
         };
     }
 
