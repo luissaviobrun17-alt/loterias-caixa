@@ -98,7 +98,8 @@ class NovaEraEngine {
                     entropy: 0.10,
                     noise: 0.10
                 },
-                scoreClamp: [0.5, 1.8]
+                scoreClamp: [0.5, 1.8],
+                _confidenceCeiling: 85  // v10.1: P(11+) ≈ 25.1%
             },
 
             // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
@@ -165,7 +166,8 @@ class NovaEraEngine {
                     entropy: 0.08,
                     noise: 0.07
                 },
-                scoreClamp: [0.25, 2.8]
+                scoreClamp: [0.25, 2.8],
+                _confidenceCeiling: 75  // v10.1: P(terno+) com 2 sorteios
             },
 
             // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
@@ -199,7 +201,8 @@ class NovaEraEngine {
                     entropy: 0.13,
                     noise: 0.12
                 },
-                scoreClamp: [0.4, 2.0]
+                scoreClamp: [0.4, 2.0],
+                _confidenceCeiling: 78  // v10.1: P(15+) ≈ 4.6%
             },
 
             // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
@@ -267,7 +270,8 @@ class NovaEraEngine {
                     entropy: 0.08,
                     noise: 0.07
                 },
-                scoreClamp: [0.3, 2.2]
+                scoreClamp: [0.3, 2.2],
+                _confidenceCeiling: 80  // v10.1: P(3+) ≈ 27%
             }
         };
         return profiles[gameKey] || profiles.megasena;
@@ -3498,8 +3502,10 @@ class NovaEraEngine {
         // improvement = 1.0 â†’ igual ao acaso â†’ confianÃ§a ~40%
         // improvement = 1.5 â†’ 50% melhor que acaso â†’ confianÃ§a ~60%
         // improvement = 2.0 â†’ 2x melhor que acaso â†’ confianÃ§a ~75%
-        // v10.0: Multiplicador 55 + teto 96 — calibrado para filtros estruturais
-        let confidence = Math.round(Math.min(96, Math.max(25, improvement * 55)));
+        // v10.1: Multiplicador 55 + teto DINÂMICO por loteria (_confidenceCeiling)
+        // Mega=72, Quina=65, Timemania=68, Lotofácil=85, Dia=80, Lotomania=78, Dupla=75
+        const _ceiling = profile._confidenceCeiling || 94;
+        let confidence = Math.round(Math.min(_ceiling, Math.max(25, improvement * 55)));
 
         // â˜… v10.0 MONTE CARLO INLINE: Comparar IA vs AleatÃ³rio com mesmos filtros
         let monteCarloAdvantage = 0;

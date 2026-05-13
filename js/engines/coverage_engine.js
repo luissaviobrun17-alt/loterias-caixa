@@ -107,7 +107,7 @@ class CoverageEngine {
     // ═══════════════════════════════════════════════════════
     //  PONTO DE ENTRADA PRINCIPAL
     // ═══════════════════════════════════════════════════════
-    static generate(gameKey, numGames, selectedNumbers, fixedNumbers) {
+    static generate(gameKey, numGames, selectedNumbers, fixedNumbers, customDrawSize) {
         const t0 = Date.now();
         // Suporte a config customizada (Sniper mode com drawSize diferente)
         let cfg;
@@ -119,7 +119,8 @@ class CoverageEngine {
             cfg = this.getConfig(gameKey);
         }
         const [startNum, endNum] = cfg.range;
-        const drawSize = cfg.drawSize;
+        // v10.1: Respeitar drawSize customizado do dropdown (5º param)
+        const drawSize = (customDrawSize && customDrawSize >= cfg.drawSize) ? customDrawSize : cfg.drawSize;
 
         console.log('%c[COVERAGE] ══════════════════════════════════════', 'color: #00ff88; font-weight: bold; font-size: 14px;');
         console.log('%c[COVERAGE] MOTOR DE COBERTURA COMBINATÓRIA', 'color: #00ff88; font-weight: bold; font-size: 14px;');
