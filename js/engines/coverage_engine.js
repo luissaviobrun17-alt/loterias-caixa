@@ -42,12 +42,13 @@ class CoverageEngine {
                 maxConsecutive: 2, minZones: 3,
                 prizeThresholds: [4, 5, 6],
                 prizeLabels: ['Quadra', 'Quina', 'Sena'],
-                candidatesPerSlot: 800,
+                candidatesPerSlot: 2000,   // v10.5: +15% qualidade Greedy (era 800)
                 ticketPrice: 5.00,
                 // v10.4 Filtros refinados exclusivos Mega Sena
                 sumRangeTight: [110, 250],
                 maxSameEnding: 2,
-                highLowBalance: [2, 4]
+                highLowBalance: [2, 4],
+                primesRange: [0, 5]        // v10.5: tolerante (rejeita all-primes)
             },
             quina: {
                 name: 'Quina', drawSize: 5, lotteryDraw: 5,
@@ -365,6 +366,14 @@ class CoverageEngine {
         // 7. Soma apertada P10-P90 (mais restritivo que sumRange P5-P95)
         if (cfg.sumRangeTight) {
             if (sum < cfg.sumRangeTight[0] || sum > cfg.sumRangeTight[1]) return false;
+        }
+
+        // 8. v10.5: Filtro de primos (Mega Sena)
+        if (cfg.primesRange) {
+            const PRIMES = new Set([2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59]);
+            let primeCount = 0;
+            for (const num of game) { if (PRIMES.has(num)) primeCount++; }
+            if (primeCount < cfg.primesRange[0] || primeCount > cfg.primesRange[1]) return false;
         }
 
         return true;

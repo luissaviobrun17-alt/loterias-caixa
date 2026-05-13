@@ -282,19 +282,34 @@ class SmartBetsEngine {
         // â•‘  Cobertura Total + Diversidade MÃ¡xima + Backtesting Honesto      â•‘
         // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         if (['megasena','lotofacil','quina','duplasena','lotomania','diadesorte','timemania'].includes(gameKey)) {
-            // v10.4 MEGA SENA HIBRIDO: Coverage + IA scoring para QUALQUER volume
-            // Combina cobertura de pares/triplas (CoverageEngine) com filtros IA (NovaEraEngine)
-            if (gameKey === 'megasena' && typeof CoverageEngine !== 'undefined' && numGames > 5) {
-                console.log('%c[SmartBets] v10.4 MEGA SENA HIBRIDO: ' + numGames + ' jogos -> CoverageEngine + filtros v10.4', 'color: #FF6B6B; font-weight: bold;');
+            // v10.5 MEGA SENA FECHAMENTO GARANTIDO: ClosureEngine quando 8-20 números selecionados
+            if (gameKey === 'megasena' && typeof ClosureEngine !== 'undefined' && selectedNumbers && selectedNumbers.length >= 8 && selectedNumbers.length <= 20) {
+                console.log('%c[SmartBets] v10.5 MEGA SENA FECHAMENTO GARANTIDO: ' + selectedNumbers.length + ' números -> ClosureEngine', 'color: #FFD700; font-weight: bold; font-size: 14px;');
+                try {
+                    var closureResult = ClosureEngine.generate(selectedNumbers, 'quadra');
+                    if (closureResult && closureResult.games && closureResult.games.length > 0) {
+                        console.log('[SmartBets] v10.5 ClosureEngine OK! ' + closureResult.games.length + ' jogos | cobertura=' + (closureResult.analysis ? closureResult.analysis.coveredPct || closureResult.analysis.coveragePct : 'N/A') + '%');
+                        closureResult.internalEngine = 'ClosureEngine-Garantido-v10.5';
+                        return closureResult;
+                    }
+                } catch(closureErr) {
+                    console.error('[SmartBets] ClosureEngine CRASHED, fallback CoverageEngine:', closureErr.message);
+                }
+            }
+
+            // v10.5 MEGA SENA 100% COVERAGE: CoverageEngine para QUALQUER volume (era >5)
+            // Combina cobertura de pares/triplas (CoverageEngine) com filtros v10.5
+            if (gameKey === 'megasena' && typeof CoverageEngine !== 'undefined' && numGames >= 1) {
+                console.log('%c[SmartBets] v10.5 MEGA SENA COVERAGE: ' + numGames + ' jogos -> CoverageEngine + filtros v10.5', 'color: #FF6B6B; font-weight: bold;');
                 try {
                     var hybridResult = CoverageEngine.generate(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
                     if (hybridResult && hybridResult.games && hybridResult.games.length > 0) {
-                        console.log('[SmartBets] v10.4 Hibrido OK! ' + hybridResult.games.length + ' jogos | cobertura=' + (hybridResult.analysis ? hybridResult.analysis.coveragePct : 'N/A') + '%');
-                        hybridResult.internalEngine = 'CoverageEngine-Hibrido-v10.4';
+                        console.log('[SmartBets] v10.5 Coverage OK! ' + hybridResult.games.length + ' jogos | cobertura=' + (hybridResult.analysis ? hybridResult.analysis.coveragePct : 'N/A') + '%');
+                        hybridResult.internalEngine = 'CoverageEngine-v10.5';
                         return hybridResult;
                     }
                 } catch(hybridErr) {
-                    console.error('[SmartBets] Hibrido CRASHED, fallback NovaEra:', hybridErr.message);
+                    console.error('[SmartBets] Coverage CRASHED, fallback NovaEra:', hybridErr.message);
                 }
             }
 

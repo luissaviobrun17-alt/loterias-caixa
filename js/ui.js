@@ -1,4 +1,4 @@
-const L99_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+﻿const L99_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 const L99_TIMES = ["ABC/RN", "América/MG", "América/RJ", "América/RN", "Atlético/GO", "Atlético/MG", "Atlético/PR", "Avaí/SC", "Bahia/BA", "Bangu/RJ", "Barueri/SP", "Botafogo/PB", "Botafogo/RJ", "Botafogo/SP", "Bragantino/SP", "Brasiliense/DF", "Campinense/PB", "Ceará/CE", "Corinthians/SP", "Coritiba/PR", "CRB/AL", "Criciúma/SC", "Cruzeiro/MG", "CSA/AL", "Desportiva/ES", "Figueirense/SC", "Flamengo/RJ", "Fluminense/RJ", "Fortaleza/CE", "Gama/DF", "Goiás/GO", "Grêmio/RS", "Guarani/SP", "Inter Limeira/SP", "Internacional/RS", "Ipatinga/MG", "Ituano/SP", "Ji-Paraná/RO", "Joinville/SC", "Juventude/RS", "Juventus/SP", "Londrina/PR", "Marília/SP", "Mixto/MT", "Moto Clube/MA", "Náutico/PE", "Nacional/AM", "Olaria/RJ", "Operário/MS", "Palmeiras/SP", "Paraná/PR", "Paulista/SP", "Paysandu/PA", "Ponte Preta/SP", "Portuguesa/SP", "Remo/PA", "Rio Branco/AC", "Rio Branco/ES", "River/PI", "Roraima/RR", "Sampaio Corrêa/MA", "Santa Cruz/PE", "Santo André/SP", "Santos/SP", "São Caetano/SP", "São Paulo/SP", "São Raimundo/AM", "Sergipe/SE", "Sport/PE", "Treze/PB", "Tuna Luso/PA", "Uberlândia/MG", "União Bandeirante/PR", "União São João/SP", "Vasco/RJ", "Vila Nova/GO", "Villa Nova/MG", "Vitória/BA", "Volta Redonda/RJ", "Ypiranga/AP"];
 
 class UI {
@@ -842,6 +842,32 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                             }
                         } catch(btErr) {
                             console.warn('[Backtest] Erro no backtesting:', btErr.message);
+                        }
+
+                        // v10.5 PAINEL FECHAMENTO GARANTIDO - EXCLUSIVO MEGA SENA + CLOSUREENGINE
+                        if (this.currentGameKey === 'megasena' && analysis && analysis.closure) {
+                            try {
+                                var cl = analysis.closure;
+                                var closureDiv = document.createElement('div');
+                                closureDiv.className = 'smart-analysis-panel';
+                                closureDiv.id = 'mega-closure-panel';
+                                closureDiv.style.cssText = 'margin-top:8px;margin-bottom:10px;padding:14px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(255,215,0,0.08),rgba(15,23,42,0.95));border:2px solid #FFD70060;box-shadow:0 4px 25px rgba(255,215,0,0.15);';
+                                var closureHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:1.3rem;">🔒</span><span style="color:#FFD700;font-weight:900;font-size:1rem;letter-spacing:0.5px;">FECHAMENTO GARANTIDO (Covering Design)</span></div>';
+                                closureHTML += '<div style="background:linear-gradient(135deg,rgba(255,215,0,0.12),rgba(16,185,129,0.08));border:1px solid #FFD70040;border-radius:10px;padding:12px;margin-bottom:10px;"><div style="color:#FFD700;font-weight:800;font-size:0.95rem;margin-bottom:4px;">✅ GARANTIA MATEMÁTICA</div><div style="color:#E2E8F0;font-size:0.85rem;">Se <strong style="color:#22C55E;">' + cl.t + '</strong> dos seus <strong style="color:#FFD700;">' + cl.v + '</strong> números forem sorteados → <strong style="color:#22C55E;">' + cl.guaranteeLabel + ' GARANTIDA</strong> em pelo menos 1 jogo.</div></div>';
+                                closureHTML += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:0.75rem;">';
+                                closureHTML += '<div style="background:rgba(0,0,0,0.3);padding:8px;border-radius:8px;text-align:center;border:1px solid #FFD70020;"><div style="color:#FCD34D;font-size:0.6rem;font-weight:700;">JOGOS</div><div style="color:#FFD700;font-weight:900;font-size:1.2rem;">' + cl.gamesNeeded + '</div></div>';
+                                closureHTML += '<div style="background:rgba(0,0,0,0.3);padding:8px;border-radius:8px;text-align:center;border:1px solid #FFD70020;"><div style="color:#FCD34D;font-size:0.6rem;font-weight:700;">INVESTIMENTO</div><div style="color:#FFD700;font-weight:900;font-size:1.2rem;">R$' + cl.investimento + '</div></div>';
+                                closureHTML += '<div style="background:rgba(0,0,0,0.3);padding:8px;border-radius:8px;text-align:center;border:1px solid #10B98120;"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">COBERTURA</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + cl.coveredPct + '%</div></div>';
+                                closureHTML += '<div style="background:rgba(0,0,0,0.3);padding:8px;border-radius:8px;text-align:center;border:1px solid #10B98120;"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">t-SUBSETS</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + cl.coveredTSubsets + '/' + cl.totalTSubsets + '</div></div>';
+                                closureHTML += '</div>';
+                                closureHTML += '<div style="margin-top:8px;padding:6px 10px;background:rgba(255,215,0,0.05);border-radius:6px;border:1px solid #FFD70015;"><div style="color:#94A3B8;font-size:0.68rem;">⏱️ ' + cl.elapsed + 'ms | Covering Design C(' + cl.v + ',6,' + cl.t + ') — La Jolla Repository</div></div>';
+                                closureDiv.innerHTML = closureHTML;
+                                if (this.gamesContainer && this.gamesContainer.parentNode) {
+                                    this.gamesContainer.parentNode.insertBefore(closureDiv, this.gamesContainer);
+                                }
+                            } catch(clErr) {
+                                console.warn('[Closure Panel] Erro:', clErr.message);
+                            }
                         }
 
                         
