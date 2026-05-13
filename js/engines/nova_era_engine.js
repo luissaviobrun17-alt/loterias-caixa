@@ -52,16 +52,19 @@ class NovaEraEngine {
                 maxUsagePct: 0.22,
                 maxOverlap: 2,
                 repeatFromLast: [0, 2],
-                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
+                // ★ v10.3 AUDITORIA: Pesos recalibrados — falácias minimizadas, estruturais dominantes
+                // Camadas falácia (freq,delay,trend,markov,phase,clair,mirror,reversion,precision,dna,cycle) = 13%
+                // Camadas estruturais (zone,gap,cluster,pairTrio) = 52%
+                // Camadas ensemble (bayesian,positional,seq,momentum,nextDraw,quantumSuper) = 35%
                 weights: {
                     frequency: 0.01, delay: 0.01, trend: 0.01,
-                    zone: 0.12, markov: 0.01, phase: 0.01,
-                    clairvoyance: 0.02, nextDraw: 0.04,
-                    bayesian: 0.03, positional: 0.02,
+                    zone: 0.18, markov: 0.01, phase: 0.01,
+                    clairvoyance: 0.01, nextDraw: 0.03,
+                    bayesian: 0.02, positional: 0.02,
                     sequential: 0.01, momentum: 0.01,
-                    mirror: 0.02, gap: 0.14, cluster: 0.06, reversion: 0.01,
-                    precision: 0.08, patternDna: 0.15, pairTrio: 0.08,
-                    cycleReturn: 0.08, quantumSuper: 0.08
+                    mirror: 0.01, gap: 0.20, cluster: 0.10, reversion: 0.01,
+                    precision: 0.02, patternDna: 0.02, pairTrio: 0.04,
+                    cycleReturn: 0.02, quantumSuper: 0.25
                 },
                 // v10: scoreClamp achatado (era [0.2, 3.0]) — distribuição mais uniforme para range esparso
                 scoreClamp: [0.3, 2.0],
@@ -4010,6 +4013,201 @@ class NovaEraEngine {
             }
         }
         return freq;
+    }
+
+    // ======================================================================
+    // BACKTEST COMPARATIVO v10.3 — IA vs ALEATORIO (MEGA SENA)
+    // Gera N jogos IA + N jogos aleatorios por concurso, confere ambos
+    // contra resultados reais e retorna comparacao objetiva.
+    // Uso: NovaEraEngine.backtestComparative('megasena')
+    // ======================================================================
+    static backtestComparative(gameKey) {
+        const profile = this.getProfile(gameKey);
+        if (!profile) return null;
+
+        const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+        if (!game) return null;
+
+        const startNum = profile.range[0];
+        const endNum = profile.range[1];
+        const totalRange = endNum - startNum + 1;
+        const drawSize = game.minBet || profile.drawSize;
+
+        // Carregar historico
+        let history = [];
+        try {
+            if (typeof REAL_HISTORY_DB !== 'undefined' && REAL_HISTORY_DB[gameKey]) {
+                history = REAL_HISTORY_DB[gameKey].slice(0);
+            } else if (typeof StatsService !== 'undefined') {
+                history = StatsService.getRecentResults(gameKey, 200) || [];
+            }
+        } catch(e) { console.warn('[BACKTEST] Sem historico:', e.message); }
+
+        if (history.length < 15) {
+            return { error: 'Historico insuficiente (' + history.length + ' concursos). Minimo: 15.' };
+        }
+
+        const testWindow = Math.min(30, history.length - 10);
+        const gamesPerTest = 10;
+
+        console.log('%c[BACKTEST COMPARATIVO] Iniciando: ' + testWindow + ' concursos x ' + gamesPerTest + ' jogos/grupo', 'color: #FF6B6B; font-weight: bold; font-size: 14px;');
+
+        const results = {
+            gameKey: gameKey,
+            loteria: profile.name,
+            concursosTested: testWindow,
+            gamesPerConcurso: gamesPerTest,
+            ia: { quadra: 0, terno: 0, duque: 0, total: 0 },
+            random: { quadra: 0, terno: 0, duque: 0, total: 0 },
+            details: []
+        };
+
+        for (let c = 0; c < testWindow; c++) {
+            // Resultado real deste concurso
+            const realDraw = history[c].numbers || [];
+            const realSet = new Set(realDraw.filter(function(n) { return n >= startNum && n <= endNum; }));
+
+            if (realSet.size < drawSize) continue;
+
+            // Historico ANTES deste concurso (sem data leaking)
+            const trainingHistory = history.slice(c + 1);
+
+            // --- GRUPO IA: gerar jogos com scoring completo ---
+            let iaGames = [];
+            try {
+                const scores = this._scoreAllNumbers(gameKey, profile, trainingHistory, startNum, endNum, totalRange);
+                const pool = [];
+                for (var n = startNum; n <= endNum; n++) pool.push(n);
+
+                for (var g = 0; g < gamesPerTest; g++) {
+                    var ticket = this._generateSingleGame(
+                        profile, scores, pool, drawSize,
+                        [], {}, 999, startNum, endNum,
+                        profile.zones, profile.zoneSize, g, gamesPerTest, new Set()
+                    );
+                    if (ticket && ticket.length >= drawSize) iaGames.push(ticket);
+                }
+            } catch(e) {
+                // Fallback se scoring falhar
+                for (var g2 = 0; g2 < gamesPerTest; g2++) {
+                    iaGames.push(this._generateRandomFiltered(startNum, endNum, drawSize, profile));
+                }
+            }
+
+            // --- GRUPO ALEATORIO: mesmos filtros estruturais, sem scoring ---
+            var randomGames = [];
+            for (var r = 0; r < gamesPerTest; r++) {
+                randomGames.push(this._generateRandomFiltered(startNum, endNum, drawSize, profile));
+            }
+
+            // --- CONFERIR AMBOS ---
+            var detail = { concurso: history[c].concurso || (c + 1), resultado: Array.from(realSet), ia: [], random: [] };
+
+            for (var i = 0; i < iaGames.length; i++) {
+                var hits = 0;
+                for (var j = 0; j < iaGames[i].length; j++) {
+                    if (realSet.has(iaGames[i][j])) hits++;
+                }
+                if (hits >= 4) { results.ia.quadra++; detail.ia.push(hits); }
+                else if (hits >= 3) { results.ia.terno++; detail.ia.push(hits); }
+                else if (hits >= 2) { results.ia.duque++; detail.ia.push(hits); }
+                else { detail.ia.push(hits); }
+                results.ia.total++;
+            }
+
+            for (var i2 = 0; i2 < randomGames.length; i2++) {
+                var hits2 = 0;
+                for (var j2 = 0; j2 < randomGames[i2].length; j2++) {
+                    if (realSet.has(randomGames[i2][j2])) hits2++;
+                }
+                if (hits2 >= 4) { results.random.quadra++; detail.random.push(hits2); }
+                else if (hits2 >= 3) { results.random.terno++; detail.random.push(hits2); }
+                else if (hits2 >= 2) { results.random.duque++; detail.random.push(hits2); }
+                else { detail.random.push(hits2); }
+                results.random.total++;
+            }
+
+            results.details.push(detail);
+        }
+
+        // Calcular taxas
+        var totalIA = results.ia.total || 1;
+        var totalRand = results.random.total || 1;
+        results.ia.taxaQuadra = (results.ia.quadra / totalIA * 100).toFixed(3);
+        results.ia.taxaTerno = (results.ia.terno / totalIA * 100).toFixed(2);
+        results.ia.taxaDuque = (results.ia.duque / totalIA * 100).toFixed(1);
+        results.random.taxaQuadra = (results.random.quadra / totalRand * 100).toFixed(3);
+        results.random.taxaTerno = (results.random.terno / totalRand * 100).toFixed(2);
+        results.random.taxaDuque = (results.random.duque / totalRand * 100).toFixed(1);
+
+        // Veredito
+        var iaScore = results.ia.quadra * 100 + results.ia.terno * 10 + results.ia.duque;
+        var randScore = results.random.quadra * 100 + results.random.terno * 10 + results.random.duque;
+        if (iaScore > randScore * 1.1) {
+            results.veredito = 'IA SUPERIOR';
+            results.vantagem = '+' + ((iaScore / Math.max(1, randScore) - 1) * 100).toFixed(1) + '%';
+        } else if (randScore > iaScore * 1.1) {
+            results.veredito = 'ALEATORIO SUPERIOR';
+            results.vantagem = '-' + ((randScore / Math.max(1, iaScore) - 1) * 100).toFixed(1) + '%';
+        } else {
+            results.veredito = 'EMPATE ESTATISTICO';
+            results.vantagem = '0%';
+        }
+
+        // Log
+        console.log('%c[BACKTEST] ═══ RESULTADO FINAL ═══', 'color: #FFD700; font-weight: bold; font-size: 16px;');
+        console.log('[BACKTEST] Concursos: ' + results.concursosTested + ' | Jogos/grupo: ' + gamesPerTest);
+        console.log('[BACKTEST] IA     → Quadra: ' + results.ia.quadra + ' (' + results.ia.taxaQuadra + '%) | Terno: ' + results.ia.terno + ' (' + results.ia.taxaTerno + '%) | Duque: ' + results.ia.duque);
+        console.log('[BACKTEST] RANDOM → Quadra: ' + results.random.quadra + ' (' + results.random.taxaQuadra + '%) | Terno: ' + results.random.terno + ' (' + results.random.taxaTerno + '%) | Duque: ' + results.random.duque);
+        console.log('%c[BACKTEST] VEREDITO: ' + results.veredito + ' (' + results.vantagem + ')', 'color: #FF6B6B; font-weight: bold; font-size: 14px;');
+
+        return results;
+    }
+
+    // Gerar jogo aleatorio com filtros estruturais (sem scoring IA)
+    static _generateRandomFiltered(startNum, endNum, drawSize, profile) {
+        var maxAttempts = 500;
+        for (var a = 0; a < maxAttempts; a++) {
+            // Gerar drawSize numeros aleatorios unicos
+            var nums = [];
+            var used = {};
+            while (nums.length < drawSize) {
+                var n = startNum + Math.floor(Math.random() * (endNum - startNum + 1));
+                if (!used[n]) {
+                    nums.push(n);
+                    used[n] = true;
+                }
+            }
+            nums.sort(function(a, b) { return a - b; });
+
+            // Filtro: soma
+            var sum = 0;
+            for (var i = 0; i < nums.length; i++) sum += nums[i];
+            if (sum < profile.sumRange[0] || sum > profile.sumRange[1]) continue;
+
+            // Filtro: paridade
+            var evens = 0;
+            for (var i2 = 0; i2 < nums.length; i2++) { if (nums[i2] % 2 === 0) evens++; }
+            if (evens < profile.evenOddRange[0] || evens > profile.evenOddRange[1]) continue;
+
+            // Filtro: consecutivos
+            var maxRun = 1, curRun = 1;
+            for (var i3 = 1; i3 < nums.length; i3++) {
+                if (nums[i3] === nums[i3-1] + 1) { curRun++; if (curRun > maxRun) maxRun = curRun; }
+                else curRun = 1;
+            }
+            if (maxRun > profile.maxConsecutive) continue;
+
+            return nums;
+        }
+        // Fallback sem filtros
+        var fallback = [];
+        var usedFb = {};
+        while (fallback.length < drawSize) {
+            var fn = startNum + Math.floor(Math.random() * (endNum - startNum + 1));
+            if (!usedFb[fn]) { fallback.push(fn); usedFb[fn] = true; }
+        }
+        return fallback.sort(function(a, b) { return a - b; });
     }
 }
 

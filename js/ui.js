@@ -844,6 +844,64 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                             console.warn('[Backtest] Erro no backtesting:', btErr.message);
                         }
 
+                        
+                        // v10.3 AUDITORIA COMPARATIVA - EXCLUSIVO MEGA SENA
+                        if (this.currentGameKey === 'megasena' && typeof NovaEraEngine !== 'undefined' && typeof NovaEraEngine.backtestComparative === 'function') {
+                            try {
+                            var auditDiv = document.createElement('div');
+                            auditDiv.className = 'smart-analysis-panel';
+                            auditDiv.id = 'mega-audit-panel';
+                            auditDiv.style.cssText = 'margin-top:8px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(239,68,68,0.08),rgba(15,23,42,0.95));border:1px solid #EF444430;';
+                            auditDiv.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
+                                + '<span style="color:#EF4444;font-weight:800;font-size:0.85rem;">\uD83D\uDD2C AUDITORIA: IA vs Aleatorio</span>'
+                                + '<button id="btn-run-mega-audit" style="background:linear-gradient(135deg,#EF4444,#DC2626);color:white;border:none;padding:6px 14px;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.3s;">'
+                                + '\u25B6 Auditar Motor</button></div>'
+                                + '<div id="mega-audit-result" style="color:#94A3B8;font-size:0.75rem;">'
+                                + 'Compara 10 jogos IA vs 10 jogos aleatorios (mesmos filtros) contra os ultimos 30 concursos reais da Mega Sena.</div>';
+                            this.gamesContainer.parentNode.insertBefore(auditDiv, this.gamesContainer);
+                            var auditBtn = document.getElementById('btn-run-mega-audit');
+                            var auditResultDiv = document.getElementById('mega-audit-result');
+                            if (auditBtn) {
+                                auditBtn.addEventListener('click', function() {
+                                    auditBtn.disabled = true;
+                                    auditBtn.textContent = '\u23F3 Analisando...';
+                                    auditBtn.style.opacity = '0.6';
+                                    auditResultDiv.innerHTML = '<div style="color:#EAB308;font-size:0.8rem;">Executando backtest em 30 concursos... aguarde.</div>';
+                                    setTimeout(function() {
+                                        try {
+                                            var r = NovaEraEngine.backtestComparative('megasena');
+                                            if (r && r.error) {
+                                                auditResultDiv.innerHTML = '<div style="color:#EF4444;">' + r.error + '</div>';
+                                            } else if (r) {
+                                                var vColor = r.veredito === 'IA SUPERIOR' ? '#22C55E' : r.veredito === 'ALEATORIO SUPERIOR' ? '#EF4444' : '#EAB308';
+                                                auditResultDiv.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'
+                                                    + '<div style="background:rgba(139,92,246,0.12);padding:10px;border-radius:8px;border:1px solid #8B5CF630;">'
+                                                    + '<div style="color:#A78BFA;font-weight:700;font-size:0.8rem;margin-bottom:6px;">\uD83E\uDD16 MOTOR IA</div>'
+                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#22C55E;font-size:1.1rem;">' + r.ia.quadra + '</strong> Quadras</div>'
+                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#EAB308;font-size:1.1rem;">' + r.ia.terno + '</strong> Ternos</div>'
+                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#94A3B8;font-size:1.1rem;">' + r.ia.duque + '</strong> Duques</div>'
+                                                    + '<div style="color:#64748B;font-size:0.7rem;margin-top:4px;">' + r.ia.total + ' jogos</div></div>'
+                                                    + '<div style="background:rgba(100,116,139,0.12);padding:10px;border-radius:8px;border:1px solid #64748B30;">'
+                                                    + '<div style="color:#94A3B8;font-weight:700;font-size:0.8rem;margin-bottom:6px;">\uD83C\uDFB2 ALEATORIO</div>'
+                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#22C55E;font-size:1.1rem;">' + r.random.quadra + '</strong> Quadras</div>'
+                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#EAB308;font-size:1.1rem;">' + r.random.terno + '</strong> Ternos</div>'
+                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#94A3B8;font-size:1.1rem;">' + r.random.duque + '</strong> Duques</div>'
+                                                    + '<div style="color:#64748B;font-size:0.7rem;margin-top:4px;">' + r.random.total + ' jogos</div></div></div>'
+                                                    + '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:8px;">'
+                                                    + '<div style="color:' + vColor + ';font-weight:800;font-size:1rem;">' + r.veredito + '</div>'
+                                                    + '<div style="color:#94A3B8;font-size:0.75rem;">' + r.concursosTested + ' concursos | ' + r.gamesPerConcurso + ' jogos/grupo | Vantagem: ' + r.vantagem + '</div></div>';
+                                            }
+                                        } catch(auditErr) {
+                                            auditResultDiv.innerHTML = '<div style="color:#EF4444;">Erro: ' + auditErr.message + '</div>';
+                                        }
+                                        auditBtn.disabled = false;
+                                        auditBtn.textContent = '\u25B6 Auditar Novamente';
+                                        auditBtn.style.opacity = '1';
+                                    }, 100);
+                                });
+                            }
+                            } catch(auditSetupErr) { console.warn('[Audit] Setup error:', auditSetupErr.message); }
+                        }
                         feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
                     } catch (err) {
@@ -2056,7 +2114,65 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             if (this.gamesContainer.parentNode) {
                 this.gamesContainer.parentNode.insertBefore(feedback, this.gamesContainer);
             }
-            feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+                        // v10.3 AUDITORIA COMPARATIVA - EXCLUSIVO MEGA SENA
+                        if (this.currentGameKey === 'megasena' && typeof NovaEraEngine !== 'undefined' && typeof NovaEraEngine.backtestComparative === 'function') {
+                            try {
+                            var auditDiv = document.createElement('div');
+                            auditDiv.className = 'smart-analysis-panel';
+                            auditDiv.id = 'mega-audit-panel';
+                            auditDiv.style.cssText = 'margin-top:8px;margin-bottom:10px;padding:12px 16px;border-radius:12px;background:linear-gradient(145deg,rgba(239,68,68,0.08),rgba(15,23,42,0.95));border:1px solid #EF444430;';
+                            auditDiv.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
+                                + '<span style="color:#EF4444;font-weight:800;font-size:0.85rem;">\uD83D\uDD2C AUDITORIA: IA vs Aleatorio</span>'
+                                + '<button id="btn-run-mega-audit" style="background:linear-gradient(135deg,#EF4444,#DC2626);color:white;border:none;padding:6px 14px;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.3s;">'
+                                + '\u25B6 Auditar Motor</button></div>'
+                                + '<div id="mega-audit-result" style="color:#94A3B8;font-size:0.75rem;">'
+                                + 'Compara 10 jogos IA vs 10 jogos aleatorios (mesmos filtros) contra os ultimos 30 concursos reais da Mega Sena.</div>';
+                            this.gamesContainer.parentNode.insertBefore(auditDiv, this.gamesContainer);
+                            var auditBtn = document.getElementById('btn-run-mega-audit');
+                            var auditResultDiv = document.getElementById('mega-audit-result');
+                            if (auditBtn) {
+                                auditBtn.addEventListener('click', function() {
+                                    auditBtn.disabled = true;
+                                    auditBtn.textContent = '\u23F3 Analisando...';
+                                    auditBtn.style.opacity = '0.6';
+                                    auditResultDiv.innerHTML = '<div style="color:#EAB308;font-size:0.8rem;">Executando backtest em 30 concursos... aguarde.</div>';
+                                    setTimeout(function() {
+                                        try {
+                                            var r = NovaEraEngine.backtestComparative('megasena');
+                                            if (r && r.error) {
+                                                auditResultDiv.innerHTML = '<div style="color:#EF4444;">' + r.error + '</div>';
+                                            } else if (r) {
+                                                var vColor = r.veredito === 'IA SUPERIOR' ? '#22C55E' : r.veredito === 'ALEATORIO SUPERIOR' ? '#EF4444' : '#EAB308';
+                                                auditResultDiv.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'
+                                                    + '<div style="background:rgba(139,92,246,0.12);padding:10px;border-radius:8px;border:1px solid #8B5CF630;">'
+                                                    + '<div style="color:#A78BFA;font-weight:700;font-size:0.8rem;margin-bottom:6px;">\uD83E\uDD16 MOTOR IA</div>'
+                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#22C55E;font-size:1.1rem;">' + r.ia.quadra + '</strong> Quadras</div>'
+                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#EAB308;font-size:1.1rem;">' + r.ia.terno + '</strong> Ternos</div>'
+                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#94A3B8;font-size:1.1rem;">' + r.ia.duque + '</strong> Duques</div>'
+                                                    + '<div style="color:#64748B;font-size:0.7rem;margin-top:4px;">' + r.ia.total + ' jogos</div></div>'
+                                                    + '<div style="background:rgba(100,116,139,0.12);padding:10px;border-radius:8px;border:1px solid #64748B30;">'
+                                                    + '<div style="color:#94A3B8;font-weight:700;font-size:0.8rem;margin-bottom:6px;">\uD83C\uDFB2 ALEATORIO</div>'
+                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#22C55E;font-size:1.1rem;">' + r.random.quadra + '</strong> Quadras</div>'
+                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#EAB308;font-size:1.1rem;">' + r.random.terno + '</strong> Ternos</div>'
+                                                    + '<div style="color:#E2E8F0;font-size:0.85rem;"><strong style="color:#94A3B8;font-size:1.1rem;">' + r.random.duque + '</strong> Duques</div>'
+                                                    + '<div style="color:#64748B;font-size:0.7rem;margin-top:4px;">' + r.random.total + ' jogos</div></div></div>'
+                                                    + '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:8px;">'
+                                                    + '<div style="color:' + vColor + ';font-weight:800;font-size:1rem;">' + r.veredito + '</div>'
+                                                    + '<div style="color:#94A3B8;font-size:0.75rem;">' + r.concursosTested + ' concursos | ' + r.gamesPerConcurso + ' jogos/grupo | Vantagem: ' + r.vantagem + '</div></div>';
+                                            }
+                                        } catch(auditErr) {
+                                            auditResultDiv.innerHTML = '<div style="color:#EF4444;">Erro: ' + auditErr.message + '</div>';
+                                        }
+                                        auditBtn.disabled = false;
+                                        auditBtn.textContent = '\u25B6 Auditar Novamente';
+                                        auditBtn.style.opacity = '1';
+                                    }, 100);
+                                });
+                            }
+                            } catch(auditSetupErr) { console.warn('[Audit] Setup error:', auditSetupErr.message); }
+                        }
+                        feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } catch (combErr) {
                 console.error('[CombEngine] ERRO:', combErr);
                 this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;background:rgba(239,68,68,0.1);border:1px solid #EF444440;border-radius:12px;padding:20px;">❌ Erro na Geração: ' + combErr.message + '<br><small>Verifique o console (F12) para detalhes.<br>Tente recarregar com Ctrl+Shift+R</small></div>';
