@@ -297,21 +297,11 @@ class SmartBetsEngine {
                 }
             }
 
-            // v10.5 MEGA SENA 100% COVERAGE: CoverageEngine para QUALQUER volume (era >5)
-            // Combina cobertura de pares/triplas (CoverageEngine) com filtros v10.5
-            if (gameKey === 'megasena' && typeof CoverageEngine !== 'undefined' && numGames >= 1) {
-                console.log('%c[SmartBets] v10.5 MEGA SENA COVERAGE: ' + numGames + ' jogos -> CoverageEngine + filtros v10.5', 'color: #FF6B6B; font-weight: bold;');
-                try {
-                    var hybridResult = CoverageEngine.generate(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
-                    if (hybridResult && hybridResult.games && hybridResult.games.length > 0) {
-                        console.log('[SmartBets] v10.5 Coverage OK! ' + hybridResult.games.length + ' jogos | cobertura=' + (hybridResult.analysis ? hybridResult.analysis.coveragePct : 'N/A') + '%');
-                        hybridResult.internalEngine = 'CoverageEngine-v10.5';
-                        return hybridResult;
-                    }
-                } catch(hybridErr) {
-                    console.error('[SmartBets] Coverage CRASHED, fallback NovaEra:', hybridErr.message);
-                }
-            }
+            // v10.7: MEGA SENA SHORT-CIRCUIT REMOVIDO
+            // Antes: CoverageEngine interceptava TODA Mega Sena (numGames >= 1)
+            // Isso fazia QUANTUM IA = Cobertura (mesmos resultados)
+            // Agora: Mega Sena flui para PrecisionEngine/NovaEraEngine como as demais loterias
+            // CoverageEngine fica disponível via botão "Cobertura" dedicado
 
             // ★ v10.0 ROTEAMENTO POR DENSIDADE — Auditoria Maio/2026
             // Loterias esparsas (density < 15%): CoverageEngine para volumes > 50

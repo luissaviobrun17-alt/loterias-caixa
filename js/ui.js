@@ -1,4 +1,4 @@
-﻿const L99_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+const L99_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 const L99_TIMES = ["ABC/RN", "América/MG", "América/RJ", "América/RN", "Atlético/GO", "Atlético/MG", "Atlético/PR", "Avaí/SC", "Bahia/BA", "Bangu/RJ", "Barueri/SP", "Botafogo/PB", "Botafogo/RJ", "Botafogo/SP", "Bragantino/SP", "Brasiliense/DF", "Campinense/PB", "Ceará/CE", "Corinthians/SP", "Coritiba/PR", "CRB/AL", "Criciúma/SC", "Cruzeiro/MG", "CSA/AL", "Desportiva/ES", "Figueirense/SC", "Flamengo/RJ", "Fluminense/RJ", "Fortaleza/CE", "Gama/DF", "Goiás/GO", "Grêmio/RS", "Guarani/SP", "Inter Limeira/SP", "Internacional/RS", "Ipatinga/MG", "Ituano/SP", "Ji-Paraná/RO", "Joinville/SC", "Juventude/RS", "Juventus/SP", "Londrina/PR", "Marília/SP", "Mixto/MT", "Moto Clube/MA", "Náutico/PE", "Nacional/AM", "Olaria/RJ", "Operário/MS", "Palmeiras/SP", "Paraná/PR", "Paulista/SP", "Paysandu/PA", "Ponte Preta/SP", "Portuguesa/SP", "Remo/PA", "Rio Branco/AC", "Rio Branco/ES", "River/PI", "Roraima/RR", "Sampaio Corrêa/MA", "Santa Cruz/PE", "Santo André/SP", "Santos/SP", "São Caetano/SP", "São Paulo/SP", "São Raimundo/AM", "Sergipe/SE", "Sport/PE", "Treze/PB", "Tuna Luso/PA", "Uberlândia/MG", "União Bandeirante/PR", "União São João/SP", "Vasco/RJ", "Vila Nova/GO", "Villa Nova/MG", "Vitória/BA", "Volta Redonda/RJ", "Ypiranga/AP"];
 
 class UI {
@@ -12,6 +12,7 @@ class UI {
         this.gamesQuantityInput = _el('games-quantity');
         this.generateBtn = _el('generate-btn');
         this.generateSmartBtn = _el('generate-smart-btn');
+        this.generateCoverageBtn = _el('generate-coverage-btn');
         this.generateClosureBtn = _el('generate-closure-btn');
         this.closurePanel = _el('closure-panel');
         this.btnRunClosure = _el('btn-run-closure');
@@ -139,12 +140,16 @@ class UI {
         }
 
         // === BOTAO GERAR MANUAL ===
+        // v10.7: Lógica própria de fechamento combinatório
+        // COM números selecionados → fechamento direto (combinações do pool do apostador)
+        // SEM números selecionados → CoverageEngine no range completo
+        // Números fixos são SEMPRE incluídos em todos os jogos
         if (this.generateBtn) {
             this.generateBtn.onclick = () => {
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
                 const qty = parseInt(this.gamesQuantityInput.value) || 10;
-                let selectedArr = Array.from(this.selectedNumbers);
+                let selectedArr = Array.from(this.selectedNumbers).sort((a, b) => a - b);
                 const fixedArr = Array.from(this.fixedNumbers);
                 const drawSizeSelect = document.getElementById('smart-draw-size');
                 const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
@@ -155,35 +160,89 @@ class UI {
                 this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Gerando jogos...</div></div>';
                 setTimeout(() => {
                     try {
-                        if (typeof CoverageEngine !== 'undefined') {
-                            var origConfig = CoverageEngine.getConfig(this.currentGameKey);
-                            if (drawSize !== origConfig.drawSize) {
-                                var customCfg = Object.assign({}, origConfig);
-                                customCfg.drawSize = drawSize;
-                                CoverageEngine._tempConfig = customCfg;
-                                CoverageEngine._tempGameKey = this.currentGameKey;
-                            }
-                            const coverResult = CoverageEngine.generate(this.currentGameKey, qty, selectedArr.length >= drawSize ? selectedArr : null, fixedArr);
-                            this.currentGeneratedGames = coverResult.games;
-                            this._lastGeneratedGames = coverResult.games;
-                            this.renderGames({ pool: selectedArr, games: coverResult.games, smartAnalysis: null }, this.currentGameKey);
-                        } else {
-                            const games = [];
-                            for (let g = 0; g < qty; g++) {
-                                const pool = [];
-                                for (let i = game.range[0]; i <= game.range[1]; i++) pool.push(i);
-                                for (let i = pool.length - 1; i > 0; i--) {
+                        let games = [];
+
+                        if (selectedArr.length >= drawSize) {
+                            // ══ MODO FECHAMENTO: Gerar combinações diretas dos números do apostador ══
+                            // Garantir que fixos estão no pool
+                            const poolSet = new Set(selectedArr);
+                            fixedArr.forEach(f => { if (f >= game.range[0] && f <= game.range[1]) poolSet.add(f); });
+                            const pool = Array.from(poolSet).sort((a, b) => a - b);
+
+                            console.log('[MANUAL] Fechamento: ' + pool.length + ' números selecionados → drawSize=' + drawSize + ' | qty=' + qty);
+
+                            // Gerar TODAS as combinações C(n, drawSize) se forem poucas
+                            const totalCombos = this._manualComb(pool.length, drawSize);
+
+                            if (totalCombos <= qty * 2 && totalCombos <= 5000) {
+                                // Pool pequeno: gerar TODAS as combinações (fechamento completo)
+                                const allCombos = [];
+                                this._manualGenCombos(pool, drawSize, 0, [], allCombos, fixedArr);
+                                // Embaralhar e pegar a quantidade pedida
+                                for (let i = allCombos.length - 1; i > 0; i--) {
                                     const j = Math.floor(Math.random() * (i + 1));
-                                    [pool[i], pool[j]] = [pool[j], pool[i]];
+                                    [allCombos[i], allCombos[j]] = [allCombos[j], allCombos[i]];
                                 }
-                                const nums = pool.slice(0, drawSize).sort((a, b) => a - b);
-                                fixedArr.forEach(fn => { if (!nums.includes(fn)) { nums.pop(); nums.push(fn); nums.sort((a, b) => a - b); } });
-                                games.push(nums);
+                                games = allCombos.slice(0, qty);
+                                console.log('[MANUAL] Fechamento completo: ' + allCombos.length + ' combos totais → ' + games.length + ' jogos');
+                            } else {
+                                // Pool grande: gerar combinações aleatórias únicas
+                                const usedKeys = new Set();
+                                const maxAttempts = qty * 50;
+                                let attempts = 0;
+                                while (games.length < qty && attempts < maxAttempts) {
+                                    attempts++;
+                                    const shuffled = pool.slice();
+                                    // Fixos primeiro
+                                    const ticket = fixedArr.filter(f => poolSet.has(f)).slice();
+                                    const remaining = shuffled.filter(n => !ticket.includes(n));
+                                    // Embaralhar restantes
+                                    for (let i = remaining.length - 1; i > 0; i--) {
+                                        const j = Math.floor(Math.random() * (i + 1));
+                                        [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+                                    }
+                                    // Completar até drawSize
+                                    while (ticket.length < drawSize && remaining.length > 0) {
+                                        ticket.push(remaining.pop());
+                                    }
+                                    ticket.sort((a, b) => a - b);
+                                    const key = ticket.join(',');
+                                    if (!usedKeys.has(key)) {
+                                        usedKeys.add(key);
+                                        games.push(ticket);
+                                    }
+                                }
+                                console.log('[MANUAL] Fechamento aleatório: ' + games.length + ' jogos únicos em ' + attempts + ' tentativas');
                             }
-                            this.currentGeneratedGames = games;
-                            this._lastGeneratedGames = games;
-                            this.renderGames({ pool: selectedArr, games: games, smartAnalysis: null }, this.currentGameKey);
+                        } else {
+                            // ══ SEM SELEÇÃO (ou < drawSize): CoverageEngine no range completo ══
+                            if (typeof CoverageEngine !== 'undefined') {
+                                console.log('[MANUAL] Sem seleção → CoverageEngine range completo');
+                                const coverResult = CoverageEngine.generate(this.currentGameKey, qty, null, fixedArr, drawSize);
+                                games = coverResult.games || [];
+                            } else {
+                                // Fallback aleatório puro
+                                for (let g = 0; g < qty; g++) {
+                                    const pool = [];
+                                    for (let i = game.range[0]; i <= game.range[1]; i++) pool.push(i);
+                                    for (let i = pool.length - 1; i > 0; i--) {
+                                        const j = Math.floor(Math.random() * (i + 1));
+                                        [pool[i], pool[j]] = [pool[j], pool[i]];
+                                    }
+                                    const nums = pool.slice(0, drawSize).sort((a, b) => a - b);
+                                    fixedArr.forEach(fn => { if (!nums.includes(fn)) { nums.pop(); nums.push(fn); nums.sort((a, b) => a - b); } });
+                                    games.push(nums);
+                                }
+                            }
                         }
+
+                        if (games.length === 0) {
+                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Selecione pelo menos ' + drawSize + ' números.</div>';
+                            return;
+                        }
+                        this.currentGeneratedGames = games;
+                        this._lastGeneratedGames = games;
+                        this.renderGames({ pool: selectedArr, games: games, smartAnalysis: null }, this.currentGameKey);
                     } catch(e) {
                         console.error('Erro na geracao manual:', e);
                         this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
@@ -234,6 +293,51 @@ class UI {
                         banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     } catch(e) {
                         console.error('Erro QUANTUM L99:', e);
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
+                    }
+                }, 50);
+            };
+        }
+
+        // === BOTAO COBERTURA (CoverageEngine direto) ===
+        if (this.generateCoverageBtn) {
+            this.generateCoverageBtn.onclick = () => {
+                const game = GAMES[this.currentGameKey];
+                if (!game) return;
+                const qty = parseInt(this.gamesQuantityInput.value) || 10;
+                let selectedArr = Array.from(this.selectedNumbers);
+                const fixedArr = Array.from(this.fixedNumbers);
+                const drawSizeSelect = document.getElementById('smart-draw-size');
+                const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
+                const drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
+                this._lastGenerationMode = 'cobertura';
+                localStorage.setItem('l99_lastMode', 'cobertura');
+                document.body.setAttribute('data-l99-mode', 'cobertura');
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Motor de Cobertura Combinatória...</div></div>';
+                setTimeout(() => {
+                    try {
+                        if (typeof CoverageEngine === 'undefined') { alert('CoverageEngine não carregado.'); return; }
+                        const coverResult = CoverageEngine.generate(this.currentGameKey, qty, selectedArr.length >= drawSize ? selectedArr : null, fixedArr, drawSize);
+                        if (!coverResult || !coverResult.games || coverResult.games.length === 0) {
+                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Tente novamente.</div>';
+                            return;
+                        }
+                        this.currentGeneratedGames = coverResult.games;
+                        this._lastGeneratedGames = coverResult.games;
+                        this.renderGames(coverResult, this.currentGameKey);
+                        // Banner Cobertura
+                        var covAnalysis = coverResult.analysis || {};
+                        var covPct = covAnalysis.coveragePct || covAnalysis.pairCoveragePct || 0;
+                        var banner = document.createElement('div');
+                        banner.className = 'smart-gen-analysis';
+                        banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(16,185,129,0.12),rgba(15,23,42,0.95));border:1px solid rgba(16,185,129,0.3);';
+                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">📐</span><div><div style="font-weight:900;color:#34D399;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">COBERTURA COMBINATÓRIA</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: CoverageEngine | Greedy Set Cover | ' + qty + ' jogos</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">COBERTURA PARES</div><div style="color:#34D399;font-weight:900;font-size:1.3rem;">' + covPct + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">JOGOS GERADOS</div><div style="color:#34D399;font-weight:900;font-size:1.3rem;">' + coverResult.games.length + '</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">ESTRATÉGIA</div><div style="color:#34D399;font-weight:900;font-size:1.3rem;">Greedy</div></div></div>';
+                        var oldBanner = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                        if (oldBanner) oldBanner.remove();
+                        this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
+                        banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } catch(e) {
+                        console.error('Erro Cobertura:', e);
                         this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
                     }
                 }, 50);
@@ -748,6 +852,38 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         // Scroll para a grade
         this.gridContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // ╔══════════════════════════════════════════════════════════╗
+    // ║  MANUAL: Métodos auxiliares de fechamento combinatório   ║
+    // ╚══════════════════════════════════════════════════════════╝
+    _manualComb(n, k) {
+        if (k > n || k < 0) return 0;
+        if (k === 0 || k === n) return 1;
+        if (k > n - k) k = n - k;
+        let result = 1;
+        for (let i = 0; i < k; i++) {
+            result = result * (n - i) / (i + 1);
+        }
+        return Math.round(result);
+    }
+
+    _manualGenCombos(pool, drawSize, startIdx, current, results, fixedNumbers) {
+        if (current.length === drawSize) {
+            // Verificar se todos os fixos estão incluídos
+            const combo = current.slice();
+            const hasAllFixed = fixedNumbers.every(f => combo.includes(f));
+            if (fixedNumbers.length === 0 || hasAllFixed) {
+                results.push(combo);
+            }
+            return;
+        }
+        const remaining = drawSize - current.length;
+        for (let i = startIdx; i <= pool.length - remaining; i++) {
+            current.push(pool[i]);
+            this._manualGenCombos(pool, drawSize, i + 1, current, results, fixedNumbers);
+            current.pop();
+        }
     }
 
     // ╔══════════════════════════════════════════════════════════╗
