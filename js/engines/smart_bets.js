@@ -303,29 +303,11 @@ class SmartBetsEngine {
             // Agora: Mega Sena flui para PrecisionEngine/NovaEraEngine como as demais loterias
             // CoverageEngine fica disponível via botão "Cobertura" dedicado
 
-            // ★ v10.0 ROTEAMENTO POR DENSIDADE — Auditoria Maio/2026
-            // Loterias esparsas (density < 15%): CoverageEngine para volumes > 50
-            // Motivo: scoring preditivo é ruído em ranges amplos (6/60, 5/80, 10/80)
-            // v10.1: Dupla Sena tem 2 sorteios — density efetiva ~24%, NÃO é esparsa
-            const isDuplaSena = gameKey === 'duplasena';
-            const effectiveDraw = isDuplaSena ? drawSize * 2 : drawSize;
-            const density = effectiveDraw / (endNum - startNum + 1);
-            const isSparseLottery = density < 0.15; // Mega(10%), Quina(6.25%), Timemania(12.5%). Dupla(24%)=NÃO
-            
-            if (isSparseLottery && numGames > 50 && typeof CoverageEngine !== 'undefined') {
-                console.log('%c[SmartBets] ★ ROTEAMENTO v10: ' + gameKey + ' density=' + (density*100).toFixed(1) + '% + ' + numGames + ' jogos → CoverageEngine (cobertura > predição)', 'color: #22D3EE; font-weight: bold;');
-                try {
-                    var covResult = CoverageEngine.generate(gameKey, numGames, selectedNumbers || [], fixedNumbers, drawSize);
-                    if (covResult && covResult.games && covResult.games.length > 0) {
-                        console.log('[SmartBets] ★ CoverageEngine OK! ' + covResult.games.length + ' jogos gerados');
-                        covResult.internalEngine = 'CoverageEngine';
-                        return covResult;
-                    }
-                } catch(covErr) {
-                    console.error('[SmartBets] CoverageEngine CRASHED:', covErr.message);
-                    // Fallback para NovaEraEngine
-                }
-            }
+            // v10.8: SHORT-CIRCUIT DE DENSITY REMOVIDO
+            // Antes (v10.0): loterias esparsas + >50 jogos → CoverageEngine silencioso
+            // Isso fazia QUANTUM IA = Cobertura para qualquer volume alto (ex: 60 jogos Mega Sena)
+            // Agora: QUANTUM IA sempre usa NovaEraEngine/PrecisionEngine independente do volume
+            // CoverageEngine disponível exclusivamente via botão "Cobertura"
             
             // v9.0 RECALIBRADO: PRIORIDADE INVERTIDA
             // NovaEraEngine PRIMEIRO (diversidade maxima)

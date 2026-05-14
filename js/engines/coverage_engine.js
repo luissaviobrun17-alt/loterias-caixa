@@ -80,7 +80,7 @@ class CoverageEngine {
                 maxConsecutive: 5, minZones: 8,
                 prizeThresholds: [15, 16, 17, 18, 19, 20],
                 prizeLabels: ['15 ac.', '16 ac.', '17 ac.', '18 ac.', '19 ac.', '20 ac.'],
-                candidatesPerSlot: 120,
+                candidatesPerSlot: 500,  // v10.8: era 120 (insuficiente). 500 = cobertura real para 50/100
                 ticketPrice: 3.00
             },
             timemania: {
@@ -102,7 +102,7 @@ class CoverageEngine {
                 maxConsecutive: 3, minZones: 3,
                 prizeThresholds: [3, 4, 5, 6, 7],
                 prizeLabels: ['3 ac.', '4 ac.', '5 ac.', '6 ac.', '7 ac.'],
-                candidatesPerSlot: 150,
+                candidatesPerSlot: 800,  // v10.8: era 150 (ruído puro). C(31,7)=2.6M, 800 = greedy real
                 ticketPrice: 2.00
             }
         };
