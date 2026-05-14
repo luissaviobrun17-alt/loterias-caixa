@@ -214,8 +214,42 @@ class UI {
                                 }
                                 console.log('[MANUAL] Fechamento aleatório: ' + games.length + ' jogos únicos em ' + attempts + ' tentativas');
                             }
+                        } else if (selectedArr.length > 0) {
+                            // ══ SELEÇÃO PARCIAL (1 a drawSize-1 números): Usar como âncoras ══
+                            // O apostador selecionou menos que o mínimo → tratamos como números FIXOS
+                            // Geramos jogos do range completo garantindo que esses números apareçam
+                            const anchorSet = new Set([...selectedArr, ...fixedArr].filter(n => n >= game.range[0] && n <= game.range[1]));
+                            const anchors = Array.from(anchorSet);
+                            console.log('[MANUAL] Seleção parcial: ' + anchors.length + ' âncoras fixas → gerando do range completo');
+
+                            if (typeof CoverageEngine !== 'undefined') {
+                                const coverResult = CoverageEngine.generate(this.currentGameKey, qty, null, anchors, drawSize);
+                                games = coverResult.games || [];
+                            } else {
+                                const anchorArrFixed = anchors.slice();
+                                for (let g = 0; g < qty; g++) {
+                                    const pool = [];
+                                    for (let i = game.range[0]; i <= game.range[1]; i++) if (!anchorSet.has(i)) pool.push(i);
+                                    for (let i = pool.length - 1; i > 0; i--) {
+                                        const j = Math.floor(Math.random() * (i + 1));
+                                        [pool[i], pool[j]] = [pool[j], pool[i]];
+                                    }
+                                    const ticket = anchorArrFixed.slice();
+                                    while (ticket.length < drawSize && pool.length > 0) ticket.push(pool.pop());
+                                    games.push(ticket.sort((a, b) => a - b));
+                                }
+                            }
+                            // Banner informativo para seleção parcial
+                            setTimeout(() => {
+                                var infoBanner = document.createElement('div');
+                                infoBanner.className = 'smart-gen-analysis';
+                                infoBanner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:12px 16px;border-radius:10px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.3);font-size:0.8rem;color:#FCD34D;';
+                                infoBanner.innerHTML = '⚓ <strong>SELEÇÃO PARCIAL:</strong> Você selecionou ' + selectedArr.length + ' número(s) (mínimo é ' + drawSize + '). Eles foram usados como âncoras obrigatórias em todos os jogos. Para fechamento completo do seu pool, selecione pelo menos ' + drawSize + ' números.';
+                                var ob2 = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                                if (ob2) ob2.remove();
+                                this.gamesContainer.parentNode.insertBefore(infoBanner, this.gamesContainer);
+                            }, 100);
                         } else {
-                            // ══ SEM SELEÇÃO (ou < drawSize): CoverageEngine no range completo ══
                             if (typeof CoverageEngine !== 'undefined') {
                                 console.log('[MANUAL] Sem seleção → CoverageEngine range completo');
                                 const coverResult = CoverageEngine.generate(this.currentGameKey, qty, null, fixedArr, drawSize);
@@ -243,6 +277,12 @@ class UI {
                         this.currentGeneratedGames = games;
                         this._lastGeneratedGames = games;
                         this.renderGames({ pool: selectedArr, games: games, smartAnalysis: null }, this.currentGameKey);
+                        // Auto-scroll para mostrar jogos gerados
+                        setTimeout(() => {
+                            if (this.gamesContainer) {
+                                this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }, 150);
                     } catch(e) {
                         console.error('Erro na geracao manual:', e);
                         this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
@@ -4198,6 +4238,39 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         unique.forEach(v => {
             sel.innerHTML += `<option value="${v}" ${String(v) === String(oldVal) ? 'selected' : ''}>${v}</option>`;
         });
+    }
+
+    // ─── Métodos auxiliares para fechamento manual ─────────────────────────
+    // Calcula C(n, k) — número de combinações possíveis
+    _manualComb(n, k) {
+        if (k < 0 || k > n) return 0;
+        if (k === 0 || k === n) return 1;
+        k = Math.min(k, n - k);
+        let result = 1;
+        for (let i = 0; i < k; i++) {
+            result = result * (n - i) / (i + 1);
+        }
+        return Math.round(result);
+    }
+
+    // Gera todas as combinações C(pool, drawSize) com suporte a fixos
+    _manualGenCombos(pool, drawSize, start, current, result, fixedArr) {
+        if (result.length >= 5000) return; // Limite de segurança
+        if (current.length === drawSize) {
+            // Verificar que todos os fixos estão incluídos
+            const s = new Set(current);
+            const fixedOk = !fixedArr || fixedArr.every(f => s.has(f));
+            if (fixedOk) result.push(current.slice().sort((a, b) => a - b));
+            return;
+        }
+        const remaining = drawSize - current.length;
+        const available = pool.length - start;
+        if (available < remaining) return; // Poda: não há números suficientes
+        for (let i = start; i < pool.length; i++) {
+            current.push(pool[i]);
+            this._manualGenCombos(pool, drawSize, i + 1, current, result, fixedArr);
+            current.pop();
+        }
     }
 }
 
