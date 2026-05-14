@@ -1,4 +1,4 @@
-const L99_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+﻿const L99_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 const L99_TIMES = ["ABC/RN", "América/MG", "América/RJ", "América/RN", "Atlético/GO", "Atlético/MG", "Atlético/PR", "Avaí/SC", "Bahia/BA", "Bangu/RJ", "Barueri/SP", "Botafogo/PB", "Botafogo/RJ", "Botafogo/SP", "Bragantino/SP", "Brasiliense/DF", "Campinense/PB", "Ceará/CE", "Corinthians/SP", "Coritiba/PR", "CRB/AL", "Criciúma/SC", "Cruzeiro/MG", "CSA/AL", "Desportiva/ES", "Figueirense/SC", "Flamengo/RJ", "Fluminense/RJ", "Fortaleza/CE", "Gama/DF", "Goiás/GO", "Grêmio/RS", "Guarani/SP", "Inter Limeira/SP", "Internacional/RS", "Ipatinga/MG", "Ituano/SP", "Ji-Paraná/RO", "Joinville/SC", "Juventude/RS", "Juventus/SP", "Londrina/PR", "Marília/SP", "Mixto/MT", "Moto Clube/MA", "Náutico/PE", "Nacional/AM", "Olaria/RJ", "Operário/MS", "Palmeiras/SP", "Paraná/PR", "Paulista/SP", "Paysandu/PA", "Ponte Preta/SP", "Portuguesa/SP", "Remo/PA", "Rio Branco/AC", "Rio Branco/ES", "River/PI", "Roraima/RR", "Sampaio Corrêa/MA", "Santa Cruz/PE", "Santo André/SP", "Santos/SP", "São Caetano/SP", "São Paulo/SP", "São Raimundo/AM", "Sergipe/SE", "Sport/PE", "Treze/PB", "Tuna Luso/PA", "Uberlândia/MG", "União Bandeirante/PR", "União São João/SP", "Vasco/RJ", "Vila Nova/GO", "Villa Nova/MG", "Vitória/BA", "Volta Redonda/RJ", "Ypiranga/AP"];
 
 class UI {
@@ -876,17 +876,17 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                         <div style="color:#8B5CF6;font-size:0.6rem;">21 DIMENSÕES</div>
                     </div>
                     <div id="q-phase-2" style="padding:10px 8px;border-radius:10px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);transition:all 0.5s;opacity:0.4;">
-                        <div style="font-size:1.2rem;margin-bottom:4px;">🔮</div>
-                        <div style="color:#6EE7B7;font-size:0.7rem;font-weight:700;">CROSS-VALIDAÇÃO</div>
+                        <div style="font-size:1.2rem;margin-bottom:4px;">&#x1F52E;</div>
+                        <div style="color:#6EE7B7;font-size:0.7rem;font-weight:700;">CROSS-VALIDA&#xC7;&#xC3;O</div>
                         <div style="color:#10B981;font-size:0.6rem;">NDCG 12-FOLD</div>
                     </div>
                     <div id="q-phase-3" style="padding:10px 8px;border-radius:10px;background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.15);transition:all 0.5s;opacity:0.4;">
-                        <div style="font-size:1.2rem;margin-bottom:4px;">🧿</div>
+                        <div style="font-size:1.2rem;margin-bottom:4px;">&#x1F9FF;</div>
                         <div style="color:#F9A8D4;font-size:0.7rem;font-weight:700;">FILTROS FINAIS</div>
                         <div style="color:#EC4899;font-size:0.6rem;">ESTRUTURAIS</div>
                     </div>
                 </div>
-                <div id="q-status" style="color:#C4B5FD;font-weight:600;font-size:0.82rem;margin-top:8px;">⚛️ Analisando 21 camadas estatísticas...</div>
+                <div id="q-status" style="color:#C4B5FD;font-weight:600;font-size:0.82rem;margin-top:8px;">&#x269B;&#xFE0F; Analisando 21 camadas estat&#xED;sticas...</div>
                 <div style="margin-top:12px;width:70%;height:4px;background:rgba(139,92,246,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
                     <div style="width:30%;height:100%;background:linear-gradient(90deg,#8B5CF6,#FFD700,#EC4899);border-radius:4px;animation:smartProgress 2s ease-in-out infinite;"></div>
                 </div>
@@ -894,203 +894,59 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             <style>@keyframes smartProgress{0%{width:10%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:10%;margin-left:90%}}</style>
         `;
 
-        if (this.generateSmartBtn) {
-            this.generateSmartBtn.onclick = () => {
-                const game = GAMES[this.currentGameKey];
-                const qty = parseInt(this.gamesQuantityInput.value) || 10;
-                let selectedArr = Array.from(this.selectedNumbers);
-                const fixedArr = Array.from(this.fixedNumbers);
-                const drawSizeSelect = document.getElementById('smart-draw-size');
-                const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
-                const drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
-                
-                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">📐 Otimizando Cobertura (Greedy Set Cover)...</div></div>';
-                
-                setTimeout(() => {
-                    try {
-                        if (typeof CoverageEngine === 'undefined') { alert('CoverageEngine não carregado.'); return; }
-                        
-                        var origConfig = CoverageEngine.getConfig(this.currentGameKey);
-                        if (drawSize !== origConfig.drawSize) {
-                            var customCfg = Object.assign({}, origConfig);
-                            customCfg.drawSize = drawSize;
-                            CoverageEngine._tempConfig = customCfg;
-                            CoverageEngine._tempGameKey = this.currentGameKey;
-                        }
-                        
-                        const coverResult = CoverageEngine.generate(this.currentGameKey, qty, selectedArr.length >= drawSize ? selectedArr : null, fixedArr);
-                        const m = coverResult.analysis.metrics;
-                        
-                        this.currentGeneratedGames = coverResult.games;
-                        this._lastGeneratedGames = coverResult.games;
-                        this.renderGames({ pool: selectedArr, games: coverResult.games, smartAnalysis: null }, this.currentGameKey);
-                        
-                        const banner = document.createElement('div');
-                        banner.className = 'smart-gen-analysis';
-                        banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(4,120,87,0.12),rgba(15,23,42,0.95));border:1px solid rgba(16,185,129,0.3);';
-                        
-                        let probHtml = '';
-                        const cfg = CoverageEngine.getConfig(this.currentGameKey);
-                        for (let pi = 0; pi < cfg.prizeThresholds.length; pi++) {
-                            const pt = cfg.prizeThresholds[pi];
-                            const pPct = ((m.probWithNGames[pt] || 0) * 100).toFixed(4);
-                            const bW = Math.min(100, parseFloat(pPct));
-                            probHtml += '<div style="display:flex;align-items:center;gap:6px;margin:3px 0;"><span style="color:#94A3B8;font-size:0.68rem;min-width:50px;">' + cfg.prizeLabels[pi] + '</span><div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + bW + '%;background:linear-gradient(90deg,#10B981,#FFD700);border-radius:3px;"></div></div><span style="color:#E2E8F0;font-size:0.68rem;font-weight:700;min-width:65px;text-align:right;">' + pPct + '%</span></div>';
-                        }
-                        const pAnyM = ((m.probWithNGames.anyPrize || 0) * 100).toFixed(2);
-                        
-                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">📐</span><div><div style="font-weight:900;color:#10B981;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">COBERTURA MÁXIMA COMBINATÓRIA</div><div style="font-size:0.72rem;color:#94A3B8;">Otimizado via Greedy Set Cover para ' + qty + ' jogos</div></div></div>' +
-                            '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:0.75rem;">' +
-                            '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">PARES COBERTOS</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + m.pairCoveragePct + '%</div><div style="color:#64748b;font-size:0.55rem;">' + m.pairCoverage + '/' + m.totalPairs + '</div></div>' +
-                            '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">NÚMEROS USADOS</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + m.numberCoveragePct + '%</div><div style="color:#64748b;font-size:0.55rem;">' + m.numberCoverage + ' n°s únicos</div></div>' +
-                            '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#10B981;font-weight:900;font-size:1.2rem;">' + m.avgHamming + '</div><div style="color:#64748b;font-size:0.55rem;">Hamming</div></div>' +
-                            '<div style="text-align:center;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">INVESTIMENTO</div><div style="color:#FFD700;font-weight:900;font-size:1.2rem;">R$ ' + m.investment.toFixed(2) + '</div><div style="color:#64748b;font-size:0.55rem;">' + m.numGames + ' jogos</div></div></div>' +
-                            '<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.25);border-radius:10px;border:1px solid rgba(255,215,0,0.15);"><div style="color:#FFD700;font-size:0.7rem;font-weight:800;margin-bottom:6px;">📊 PROBABILIDADES EXATAS (Hipergeométrica)</div>' + probHtml +
-                            '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(16,185,129,0.2);color:#10B981;font-weight:900;font-size:0.8rem;">★ Chance QUALQUER prêmio: ' + pAnyM + '%</div></div>';
-                        this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
-                        banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    } catch(e) {
-                        console.error('Erro na geracao coverage', e);
-                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
-                    }
-                }, 50);
-            };
-            // Remover lógica do botão legado
-            if (this.btnPrecisionPlay) {
-                this.btnPrecisionPlay.remove();
-            }
+        // Phase animations + SmartBetsEngine execution
+        setTimeout(() => {
+            const p1 = document.getElementById('q-phase-1');
+            const p2 = document.getElementById('q-phase-2');
+            const qs = document.getElementById('q-status');
+            if (p1) p1.style.background = 'rgba(16,185,129,0.3)';
+            if (p2) p2.style.opacity = '1';
+            if (qs) qs.textContent = 'Cross-validacao e backtesting...';
+        }, 800);
 
-            // ── LINHA SEPARADA: Pool de Precisão (aparece ABAIXO dos botões) ──
-            const precisionPoolRow = document.createElement('div');
-            precisionPoolRow.id = 'precision-pool-row';
-            precisionPoolRow.style.cssText = 'display:none; align-items:center; gap:10px; margin-top:8px; padding:10px 14px; background:linear-gradient(145deg,rgba(245,158,11,0.08),rgba(15,23,42,0.95)); border:1px solid rgba(245,158,11,0.3); border-radius:10px;';
-            precisionPoolRow.innerHTML = `
-                <span style="color:#F59E0B;font-size:0.85rem;font-weight:700;white-space:nowrap;">🎯 Pool de Precisão:</span>
-                <input type="number" id="precision-pool-size" min="7" max="100" value="20" 
-                    style="width:70px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,215,0,0.5);background:rgba(0,0,0,0.4);color:#FFD700;font-weight:800;font-size:0.95rem;text-align:center;outline:none;height:36px;"
-                >
-                <span id="precision-pool-info" style="color:#94A3B8;font-size:0.75rem;flex:1;">números no pool</span>
-            `;
-            
-            const smartNumbersRow = document.getElementById('smart-numbers-row');
-            if (smartNumbersRow && smartNumbersRow.parentNode) {
-                smartNumbersRow.parentNode.insertBefore(precisionPoolRow, smartNumbersRow.nextSibling);
-            }
+        setTimeout(() => {
+            const p2 = document.getElementById('q-phase-2');
+            const p3 = document.getElementById('q-phase-3');
+            const qs = document.getElementById('q-status');
+            if (p2) p2.style.background = 'rgba(16,185,129,0.3)';
+            if (p3) { p3.style.opacity = '1'; p3.style.background = 'rgba(236,72,153,0.3)'; }
+            if (qs) qs.textContent = 'Aplicando filtros estruturais...';
+        }, 1600);
 
-            // Lógica para toggle nativo do HTML (switch)
-            const toggle = document.getElementById('precision-mode-toggle');
-            if (toggle) {
-                const _applyPrecisionUI = (checked) => {
-                    if (checked) {
-                        this.generateSmartBtn.innerHTML = '🎯 JOGAR PRECISÃO';
-                        this.generateSmartBtn.style.background = 'linear-gradient(135deg, #EF4444, #991B1B)';
-                        this.generateSmartBtn.style.boxShadow = '0 6px 25px rgba(239, 68, 68, 0.5)';
-                        precisionPoolRow.style.display = 'flex';
-                        this._updatePrecisionPoolLimits();
-                    } else {
-                        this.generateSmartBtn.innerHTML = '⚡ QUANTUM L99';
-                        this.generateSmartBtn.style.background = 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
-                        this.generateSmartBtn.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.35)';
-                        precisionPoolRow.style.display = 'none';
-                    }
-                };
-                toggle.addEventListener('change', () => {
-                    localStorage.setItem('l99_precision_on', toggle.checked ? '1' : '0');
-                    _applyPrecisionUI(toggle.checked);
-                });
-                // ★ Restaurar estado do toggle após refresh
-                const savedPrecision = localStorage.getItem('l99_precision_on');
-                if (savedPrecision === '1') {
-                    toggle.checked = true;
-                    _applyPrecisionUI(true);
+        setTimeout(() => {
+            try {
+                if (typeof SmartBetsEngine === 'undefined') {
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">SmartBetsEngine nao carregado. Recarregue (Ctrl+Shift+R).</div>';
+                    this._isGenerating = false;
+                    return;
                 }
-                // ★ Restaurar valor do pool após refresh
-                const savedPool = localStorage.getItem('l99_precision_pool');
-                const poolInput = document.getElementById('precision-pool-size');
-                if (savedPool && poolInput) {
-                    poolInput.value = savedPool;
+                const smartResult = SmartBetsEngine.generate(this.currentGameKey, quantity, selectedArr.length >= customDrawSize ? selectedArr : null, fixedArr, customDrawSize);
+                if (!smartResult || !smartResult.games || smartResult.games.length === 0) {
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Tente novamente.</div>';
+                    this._isGenerating = false;
+                    return;
                 }
-                // Salvar pool ao mudar
-                if (poolInput) {
-                    poolInput.addEventListener('change', () => {
-                        localStorage.setItem('l99_precision_pool', poolInput.value);
-                    });
-                    poolInput.addEventListener('input', () => {
-                        localStorage.setItem('l99_precision_pool', poolInput.value);
-                    });
-                }
+                this.currentGeneratedGames = smartResult.games;
+                this._lastGeneratedGames = smartResult.games;
+                this.renderGames(smartResult, this.currentGameKey);
+                // Banner IA
+                var sa = smartResult.analysis || {};
+                var banner = document.createElement('div');
+                banner.className = 'smart-gen-analysis';
+                banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(139,92,246,0.12),rgba(15,23,42,0.95));border:1px solid rgba(139,92,246,0.3);';
+                banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">&#x26A1;</span><div><div style="font-weight:900;color:#A78BFA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">QUANTUM L99 - ANALISE IA</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: ' + (smartResult.internalEngine||'SmartBetsEngine') + ' | ' + quantity + ' jogos</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">CONFIANCA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.confidence||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">COBERTURA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.coverage||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.diversity||0) + '%</div></div></div>';
+                var ob = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                if (ob) ob.remove();
+                this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
+                banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch(e) {
+                console.error('[SmartBets] Erro:', e);
+                this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
+            } finally {
+                this._isGenerating = false;
             }
-        }
-
-        this.copyBtn.onclick = () => this.copyGames();
-        this.saveBtn.onclick = () => this.saveGames();
-
-        // Atualizar custo em tempo real ao mudar quantidade de jogos
-        this.gamesQuantityInput.addEventListener('input', () => this.updateCurrentCostDisplay());
-
-        // Atualizar custo ao mudar nº por jogo IA
-        if (this.smartDrawSizeSelect) {
-            this.smartDrawSizeSelect.addEventListener('change', () => this.updateCurrentCostDisplay());
-        }
-
-        this.checkBtn.onclick = () => this.openCheckModal();
-        this.playCaixaBtn.onclick = () => this.openCaixa();
-
-        // Individual Game Copy (Delegation)
-        this.gamesContainer.addEventListener('click', (e) => {
-            const copyBtn = e.target.closest('.copy-single-btn');
-            if (copyBtn) {
-                const text = copyBtn.dataset.numbers;
-                this.copyToClipboard(text).then(success => {
-                    if (success === true) {
-                        const original = copyBtn.innerHTML;
-                        copyBtn.innerHTML = '✅';
-                        setTimeout(() => copyBtn.innerHTML = original, 1000);
-                    }
-                });
-            }
-        });
-
-        // Check Modal Events
-        if (this.confirmCheckBtn) this.confirmCheckBtn.onclick = () => this.confirmCheck();
-        if (this.closeCheckModalBtn) this.closeCheckModalBtn.onclick = () => this.closeCheckModal();
-
-        // Print Button
-        const btnPrint = document.getElementById('btn-print');
-        if (btnPrint) {
-            btnPrint.onclick = () => window.print();
-        }
-
-        // Stats Range Toggles
-        this.statsButtons.forEach(btn => {
-            btn.onclick = () => {
-                this.currentStatsRange = parseInt(btn.dataset.range);
-
-                // Update active class
-                this.statsButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-
-                this.updateStats();
-            };
-        });
-
-        // Clean Header for Print (Remove "B2B Loterias" from browser header, keep Date/Time)
-        window.addEventListener('beforeprint', () => {
-            document.title = '\u200B'; // Zero-width space to prevent filename fallback
-            this.insertPrintTimestamp();
-        });
-
-        // Initialize Modules
-        this.initTutorialEvents();
-        this.initInstallEvents();
-        this.initQuantum();
-        this.initCopyEvents();
-        this.initShareEvents();
-        this.initStatisticsPanel();
+        }, 2400);
     }
-
-    // [REMOVIDO] runPrecisionPlay() — código morto, botão foi removido do DOM
-    // Toda geração de precisão agora passa por runSmartGeneration() com isPrecisionMode=true
 
 
     initQuantum() {
