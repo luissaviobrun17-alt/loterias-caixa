@@ -155,82 +155,80 @@ class CoverageEngine {
         }
         console.log('[COVERAGE] Espaço: ' + pool.length + ' números | ' + totalPairs + ' pares | ' + pairsPerGame + ' pares/jogo');
 
-        // ── 3. Greedy Set Cover — maximizar cobertura de pares + triplas (v10.4) ──
-        const coveredPairs = new Set();
-        const coveredTriples = new Set();  // v10.4: triplas para Mega Sena
-        const useTriples = (gameKey === 'megasena'); // v10.4: apenas Mega Sena
-        const games = [];
-        const usedKeys = new Set();
-        const numberUsage = {};
+        // ── 3. Greedy Set Cover v10.9 — candidatos adaptativos ──
+        // Princípio: cobertura de pares satura exponencialmente.
+        // Após ~200 jogos (Mega Sena), >95% dos pares já estão cobertos.
+        // Avaliar 2000 candidatos para cobrir 0.1% restante é desperdício puro.
+        // Fórmula adaptativa: candidates = max(minC, base × factor / sqrt(g×0.01+1))
+        const coveredPairs   = new Set();
+        const coveredTriples = new Set();
+        const useTriples     = (gameKey === 'megasena');
+        const games          = [];
+        const usedKeys       = new Set();
+        const numberUsage    = {};
         for (const n of pool) numberUsage[n] = 0;
 
+        const baseCandidates = numGames > 1000
+            ? Math.min(cfg.candidatesPerSlot, 400)
+            : cfg.candidatesPerSlot;
+        const minCandidates = numGames > 5000 ? 8 : numGames > 1000 ? 15 : 30;
+
         for (let g = 0; g < numGames; g++) {
-            let bestGame = null;
-            let bestNewPairs = -1;
-            const candidates = cfg.candidatesPerSlot;
+            let bestGame  = null;
+            let bestScore = -1;
+
+            const coverageSat = totalPairs > 0 ? coveredPairs.size / totalPairs : 0;
+            const factor = coverageSat > 0.95 ? 0.04
+                         : coverageSat > 0.80 ? 0.12
+                         : coverageSat > 0.50 ? 0.35
+                         : 1.0;
+            const candidates  = Math.max(minCandidates,
+                Math.round(baseCandidates * factor / Math.sqrt(g * 0.01 + 1)));
+
+            // Triplas: só calcular enquanto há cobertura nova a ganhar
+            const checkTriples = useTriples && coverageSat < 0.90;
 
             for (let c = 0; c < candidates; c++) {
                 const candidate = this._generateValidCandidate(cfg, pool, fixed, startNum, endNum);
                 if (!candidate) continue;
-
                 const key = candidate.join(',');
                 if (usedKeys.has(key)) continue;
 
-                // Contar pares NOVOS que este candidato adiciona
                 let newPairs = 0;
-                for (let i = 0; i < candidate.length; i++) {
-                    for (let j = i + 1; j < candidate.length; j++) {
-                        const pk = candidate[i] * 1000 + candidate[j];
-                        if (!coveredPairs.has(pk)) newPairs++;
-                    }
-                }
+                for (let i = 0; i < candidate.length; i++)
+                    for (let j = i + 1; j < candidate.length; j++)
+                        if (!coveredPairs.has(candidate[i] * 1000 + candidate[j])) newPairs++;
 
-                // v10.4: Contar triplas NOVAS (Mega Sena)
                 let newTriples = 0;
-                if (useTriples) {
-                    for (let i = 0; i < candidate.length; i++) {
-                        for (let j = i + 1; j < candidate.length; j++) {
-                            for (let k = j + 1; k < candidate.length; k++) {
-                                const tk = candidate[i] * 10000 + candidate[j] * 100 + candidate[k];
-                                if (!coveredTriples.has(tk)) newTriples++;
-                            }
-                        }
-                    }
-                }
+                if (checkTriples)
+                    for (let i = 0; i < candidate.length; i++)
+                        for (let j = i + 1; j < candidate.length; j++)
+                            for (let k = j + 1; k < candidate.length; k++)
+                                if (!coveredTriples.has(candidate[i] * 10000 + candidate[j] * 100 + candidate[k])) newTriples++;
 
-                // Bonus: preferir números menos usados (diversidade)
                 let diversityBonus = 0;
                 for (const n of candidate) {
                     if (numberUsage[n] === 0) diversityBonus += 2;
                     else if (numberUsage[n] < g * drawSize / pool.length) diversityBonus += 1;
                 }
 
-                // v10.4 ANTI-REPETICAO: penalizar candidatos muito parecidos com jogos anteriores
-                let antiRepeatPenalty = 0;
+                let antiRepeat = 0;
                 if (previousGames.length > 0) {
-                    var candSet = new Set(candidate);
-                    for (var pi = 0; pi < previousGames.length; pi++) {
-                        var overlap = 0;
-                        var prevGame = previousGames[pi];
-                        for (var pj = 0; pj < prevGame.length; pj++) {
-                            if (candSet.has(prevGame[pj])) overlap++;
-                        }
-                        if (overlap > 4) antiRepeatPenalty += 15;
-                        else if (overlap > 3) antiRepeatPenalty += 5;
+                    const cs = new Set(candidate);
+                    for (let pi = 0; pi < previousGames.length; pi++) {
+                        let ov = 0;
+                        for (let pj = 0; pj < previousGames[pi].length; pj++)
+                            if (cs.has(previousGames[pi][pj])) ov++;
+                        if (ov > 4) antiRepeat += 15;
+                        else if (ov > 3) antiRepeat += 5;
                     }
                 }
 
-                const score = newPairs * 10 + newTriples * 5 + diversityBonus - antiRepeatPenalty;
-                if (score > bestNewPairs) {
-                    bestNewPairs = score;
-                    bestGame = candidate;
-                }
+                const score = newPairs * 10 + newTriples * 5 + diversityBonus - antiRepeat;
+                if (score > bestScore) { bestScore = score; bestGame = candidate; }
             }
 
-            if (!bestGame) {
-                // Fallback: gerar qualquer jogo válido
-                bestGame = this._generateValidCandidate(cfg, pool, fixed, startNum, endNum);
-            }
+            if (!bestGame) bestGame = this._generateValidCandidate(cfg, pool, fixed, startNum, endNum);
 
             if (bestGame) {
                 games.push(bestGame);
@@ -239,12 +237,9 @@ class CoverageEngine {
                 for (let i = 0; i < bestGame.length; i++) {
                     for (let j = i + 1; j < bestGame.length; j++) {
                         coveredPairs.add(bestGame[i] * 1000 + bestGame[j]);
-                        // v10.4: Rastrear triplas cobertas
-                        if (useTriples) {
-                            for (let k = j + 1; k < bestGame.length; k++) {
+                        if (useTriples)
+                            for (let k = j + 1; k < bestGame.length; k++)
                                 coveredTriples.add(bestGame[i] * 10000 + bestGame[j] * 100 + bestGame[k]);
-                            }
-                        }
                     }
                 }
             }
