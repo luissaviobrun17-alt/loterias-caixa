@@ -199,7 +199,6 @@ class UI {
                                     html += '✅ <strong style="color:#22C55E;">Garantia:</strong> ' + (a.guaranteeLabel || guarantee + ' acertos') + ' se os números sorteados estiverem no seu pool de ' + pool.length + '<br>';
                                     html += '📊 <strong>t-subsets:</strong> ' + (a.coveredTSubsets || 0) + '/' + (a.totalTSubsets || 0) + ' cobertos';
                                     if (a.removed > 0) html += ' | 🗜️ Redução: ' + a.removed + ' blocos removidos';
-                                    if (validFixed.length > 0) html += '<br>🔒 <strong>Fixos:</strong> ' + validFixed.join(', ') + ' (presentes em TODOS os jogos)';
                                     // Backtesting
                                     if (a.backtest && a.backtest.summary) {
                                         html += '<br><br>📈 <strong style="color:#FCD34D;">BACKTESTING</strong> (últimos ' + (a.backtest.totalDraws || 0) + ' sorteios):';
@@ -228,10 +227,7 @@ class UI {
                                     for (let g = 0; g < qty; g++) {
                                         const shuffled = pool.slice();
                                         for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; }
-                                        const ticket = validFixed.slice();
-                                        const rem = shuffled.filter(n => !ticket.includes(n));
-                                        while (ticket.length < drawSize && rem.length > 0) ticket.push(rem.pop());
-                                        ticket.sort((a,b) => a-b);
+                                        const ticket = shuffled.slice(0, drawSize).sort((a,b) => a-b);
                                         const key = ticket.join(',');
                                         if (!usedKeys.has(key)) { usedKeys.add(key); games.push(ticket); }
                                     }
