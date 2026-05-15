@@ -148,7 +148,9 @@ class UI {
             this.generateBtn.onclick = () => {
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
-                const qty = parseInt(this.gamesQuantityInput.value) || 10;
+                // Ler qty diretamente do valor do campo — evitar leituras de estado desatualizado
+                const rawQty = parseInt(this.gamesQuantityInput.value);
+                const qty = (!isNaN(rawQty) && rawQty > 0) ? Math.min(rawQty, 500) : 10;
                 let selectedArr = Array.from(this.selectedNumbers).sort((a, b) => a - b);
                 const fixedArr = Array.from(this.fixedNumbers);
                 const drawSizeSelect = document.getElementById('smart-draw-size');
@@ -157,34 +159,29 @@ class UI {
                 this._lastGenerationMode = 'manual';
                 localStorage.setItem('l99_lastMode', 'manual');
                 document.body.setAttribute('data-l99-mode', 'manual');
-                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Gerando jogos...</div></div>';
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Gerando ' + qty + ' jogos...</div></div>';
                 setTimeout(() => {
                     try {
                         let games = [];
 
                         if (selectedArr.length >= drawSize) {
-                            // ══ MODO FECHAMENTO: Gerar combinações diretas dos números do apostador ══
-                            // Garantir que fixos estão no pool
+                            // ══ MODO FECHAMENTO: Combinações diretas do pool do apostador ══
                             const poolSet = new Set(selectedArr);
                             fixedArr.forEach(f => { if (f >= game.range[0] && f <= game.range[1]) poolSet.add(f); });
                             const pool = Array.from(poolSet).sort((a, b) => a - b);
 
-                            console.log('[MANUAL] Fechamento: ' + pool.length + ' números selecionados → drawSize=' + drawSize + ' | qty=' + qty);
+                            console.log('[MANUAL] Fechamento: ' + pool.length + ' números → drawSize=' + drawSize + ' | qty=' + qty);
 
-                            // Gerar TODAS as combinações C(n, drawSize) se forem poucas
                             const totalCombos = this._manualComb(pool.length, drawSize);
 
-                            if (totalCombos <= qty * 2 && totalCombos <= 5000) {
-                                // Pool pequeno: gerar TODAS as combinações (fechamento completo)
+                            // Gerar todas as combinações APENAS se o total cabe na quantidade pedida
+                            // Se totalCombos > qty: usar amostragem aleatória (respeitar qty)
+                            if (totalCombos <= qty && totalCombos <= 5000) {
                                 const allCombos = [];
                                 this._manualGenCombos(pool, drawSize, 0, [], allCombos, fixedArr);
-                                // Embaralhar e pegar a quantidade pedida
-                                for (let i = allCombos.length - 1; i > 0; i--) {
-                                    const j = Math.floor(Math.random() * (i + 1));
-                                    [allCombos[i], allCombos[j]] = [allCombos[j], allCombos[i]];
-                                }
-                                games = allCombos.slice(0, qty);
-                                console.log('[MANUAL] Fechamento completo: ' + allCombos.length + ' combos totais → ' + games.length + ' jogos');
+                                games = allCombos;
+                                console.log('[MANUAL] Fechamento completo: ' + allCombos.length + ' combos → ' + games.length + ' jogos');
+
                             } else {
                                 // Pool grande: gerar combinações aleatórias únicas
                                 const usedKeys = new Set();
