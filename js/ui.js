@@ -139,10 +139,11 @@ class UI {
             this.btnFixedMode.onclick = () => this.toggleFixedMode();
         }
 
-        // === BOTAO GERAR MANUAL ===
-        // v10.7: Lógica própria de fechamento combinatório
-        // COM números selecionados → fechamento direto (combinações do pool do apostador)
-        // SEM números selecionados → CoverageEngine no range completo
+        // === BOTÃO 🎲 MANUAL v11.0 ===
+        // GENUINAMENTE MANUAL — respeita 100% a decisão do apostador
+        // COM seleção ≥ drawSize → Fechamento combinatório C(n,k) do pool do apostador
+        // COM seleção parcial → Números selecionados FIXOS + aleatório puro pro restante
+        // SEM seleção → Aleatório PURO (Fisher-Yates) — zero IA, zero CoverageEngine
         // Números fixos são SEMPRE incluídos em todos os jogos
         if (this.generateBtn) {
             this.generateBtn.onclick = () => {
@@ -212,28 +213,34 @@ class UI {
                                 console.log('[MANUAL] Fechamento aleatório: ' + games.length + ' jogos únicos em ' + attempts + ' tentativas');
                             }
                         } else if (selectedArr.length > 0) {
-                            // ══ SELEÇÃO PARCIAL (1 a drawSize-1 números): Usar como âncoras ══
-                            // O apostador selecionou menos que o mínimo → tratamos como números FIXOS
-                            // Geramos jogos do range completo garantindo que esses números apareçam
+                            // ══ v11: SELEÇÃO PARCIAL — Aleatório puro COM âncoras ══
+                            // Números selecionados = FIXOS em todos os jogos. Restante = aleatório puro.
+                            // NÃO usa CoverageEngine — é MANUAL genuíno.
                             const anchorSet = new Set([...selectedArr, ...fixedArr].filter(n => n >= game.range[0] && n <= game.range[1]));
                             const anchors = Array.from(anchorSet);
-                            console.log('[MANUAL] Seleção parcial: ' + anchors.length + ' âncoras fixas → gerando do range completo');
+                            console.log('[MANUAL-v11] Seleção parcial: ' + anchors.length + ' âncoras fixas → aleatório puro pro restante');
 
-                            if (typeof CoverageEngine !== 'undefined') {
-                                const coverResult = CoverageEngine.generate(this.currentGameKey, qty, null, anchors, drawSize);
-                                games = coverResult.games || [];
-                            } else {
-                                const anchorArrFixed = anchors.slice();
-                                for (let g = 0; g < qty; g++) {
+                            const usedKeys = new Set();
+                            for (let g = 0; g < qty; g++) {
+                                let attempts = 0;
+                                while (attempts < 100) {
+                                    attempts++;
                                     const pool = [];
                                     for (let i = game.range[0]; i <= game.range[1]; i++) if (!anchorSet.has(i)) pool.push(i);
+                                    // Fisher-Yates shuffle
                                     for (let i = pool.length - 1; i > 0; i--) {
                                         const j = Math.floor(Math.random() * (i + 1));
                                         [pool[i], pool[j]] = [pool[j], pool[i]];
                                     }
-                                    const ticket = anchorArrFixed.slice();
+                                    const ticket = anchors.slice();
                                     while (ticket.length < drawSize && pool.length > 0) ticket.push(pool.pop());
-                                    games.push(ticket.sort((a, b) => a - b));
+                                    ticket.sort((a, b) => a - b);
+                                    const key = ticket.join(',');
+                                    if (!usedKeys.has(key)) {
+                                        usedKeys.add(key);
+                                        games.push(ticket);
+                                        break;
+                                    }
                                 }
                             }
                             // Banner informativo para seleção parcial
@@ -241,28 +248,40 @@ class UI {
                                 var infoBanner = document.createElement('div');
                                 infoBanner.className = 'smart-gen-analysis';
                                 infoBanner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:12px 16px;border-radius:10px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.3);font-size:0.8rem;color:#FCD34D;';
-                                infoBanner.innerHTML = '⚓ <strong>SELEÇÃO PARCIAL:</strong> Você selecionou ' + selectedArr.length + ' número(s) (mínimo é ' + drawSize + '). Eles foram usados como âncoras obrigatórias em todos os jogos. Para fechamento completo do seu pool, selecione pelo menos ' + drawSize + ' números.';
+                                infoBanner.innerHTML = '⚓ <strong>SELEÇÃO PARCIAL:</strong> Seus ' + selectedArr.length + ' número(s) são FIXOS em todos os jogos. Restante preenchido por aleatório puro. Para fechamento completo, selecione pelo menos ' + drawSize + ' números.';
                                 var ob2 = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
                                 if (ob2) ob2.remove();
                                 this.gamesContainer.parentNode.insertBefore(infoBanner, this.gamesContainer);
                             }, 100);
                         } else {
-                            if (typeof CoverageEngine !== 'undefined') {
-                                console.log('[MANUAL] Sem seleção → CoverageEngine range completo');
-                                const coverResult = CoverageEngine.generate(this.currentGameKey, qty, null, fixedArr, drawSize);
-                                games = coverResult.games || [];
-                            } else {
-                                // Fallback aleatório puro
-                                for (let g = 0; g < qty; g++) {
+                            // ══ v11: SEM SELEÇÃO — Aleatório PURO (Fisher-Yates) ══
+                            // ZERO IA, ZERO CoverageEngine — é genuinamente MANUAL/ALEATÓRIO
+                            console.log('[MANUAL-v11] Sem seleção → Aleatório PURO (Fisher-Yates)');
+                            const usedKeys = new Set();
+                            for (let g = 0; g < qty; g++) {
+                                let attempts = 0;
+                                while (attempts < 100) {
+                                    attempts++;
                                     const pool = [];
                                     for (let i = game.range[0]; i <= game.range[1]; i++) pool.push(i);
+                                    // Fisher-Yates shuffle
                                     for (let i = pool.length - 1; i > 0; i--) {
                                         const j = Math.floor(Math.random() * (i + 1));
                                         [pool[i], pool[j]] = [pool[j], pool[i]];
                                     }
-                                    const nums = pool.slice(0, drawSize).sort((a, b) => a - b);
-                                    fixedArr.forEach(fn => { if (!nums.includes(fn)) { nums.pop(); nums.push(fn); nums.sort((a, b) => a - b); } });
-                                    games.push(nums);
+                                    const nums = pool.slice(0, drawSize);
+                                    // Inserir fixos se houver
+                                    const fixSet = new Set(fixedArr.filter(fn => fn >= game.range[0] && fn <= game.range[1]));
+                                    for (const fn of fixSet) {
+                                        if (!nums.includes(fn)) { nums.pop(); nums.push(fn); }
+                                    }
+                                    nums.sort((a, b) => a - b);
+                                    const key = nums.join(',');
+                                    if (!usedKeys.has(key)) {
+                                        usedKeys.add(key);
+                                        games.push(nums);
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -288,7 +307,10 @@ class UI {
             };
         }
 
-        // === BOTAO QUANTUM L99 (SmartBetsEngine IA) ===
+        // === BOTÃO 📊 ESTATÍSTICA v11.0 (PrecisionEngine direto) ===
+        // v11: Renomeado de "QUANTUM IA" → "Estatística"
+        // Motor: PrecisionEngine com Borda Count de 5 fontes (NovaEra + QuantumGod + Local + Last3 + ConditionalProb)
+        // SEM intermediário SmartBetsEngine. SEM animação fake.
         if (this.generateSmartBtn) {
             this.generateSmartBtn.onclick = () => {
                 const game = GAMES[this.currentGameKey];
@@ -299,37 +321,45 @@ class UI {
                 const drawSizeSelect = document.getElementById('smart-draw-size');
                 const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
                 const drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
-                this._lastGenerationMode = 'quantum_l99';
-                localStorage.setItem('l99_lastMode', 'quantum_l99');
-                document.body.setAttribute('data-l99-mode', 'quantum_l99');
-                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">QUANTUM L99: Analise IA em 21 camadas...</div></div>';
+                this._lastGenerationMode = 'estatistica';
+                localStorage.setItem('l99_lastMode', 'estatistica');
+                document.body.setAttribute('data-l99-mode', 'estatistica');
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">📊 Análise Estatística: Consenso Borda Count de 5 motores...</div></div>';
                 setTimeout(() => {
                     try {
-                        if (typeof SmartBetsEngine === 'undefined') { alert('SmartBetsEngine nao carregado. Recarregue a pagina.'); return; }
-                        const smartResult = SmartBetsEngine.generate(this.currentGameKey, qty, selectedArr.length >= drawSize ? selectedArr : null, fixedArr, drawSize);
-                        if (!smartResult || !smartResult.games || smartResult.games.length === 0) {
+                        // v11: Chamar PrecisionEngine DIRETO (sem SmartBetsEngine intermediário)
+                        if (typeof PrecisionEngine === 'undefined') {
+                            alert('PrecisionEngine não carregado. Recarregue a página (Ctrl+Shift+R).');
+                            return;
+                        }
+                        const precResult = PrecisionEngine.generate(
+                            this.currentGameKey, qty,
+                            selectedArr.length >= drawSize ? selectedArr : (selectedArr.length > 0 ? selectedArr : null),
+                            fixedArr, drawSize
+                        );
+                        if (!precResult || !precResult.games || precResult.games.length === 0) {
                             this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Tente novamente.</div>';
                             return;
                         }
-                        this.currentGeneratedGames = smartResult.games;
-                        this._lastGeneratedGames = smartResult.games;
-                        this.renderGames(smartResult, this.currentGameKey);
-                        // Banner IA
-                        var smartAnalysis = smartResult.analysis || {};
-                        var conf = smartAnalysis.confidence || 0;
-                        var cov = smartAnalysis.coverage || 0;
-                        var divScore = smartAnalysis.diversity || 0;
-                        var eng = smartResult.internalEngine || 'SmartBetsEngine';
+                        this.currentGeneratedGames = precResult.games;
+                        this._lastGeneratedGames = precResult.games;
+                        this.renderGames(precResult, this.currentGameKey);
+                        // Banner Estatística — métricas HONESTAS
+                        var sa = precResult.analysis || {};
+                        var covPct = sa.coveragePct || 0;
+                        var entropyPct = sa.entropyPct || 0;
+                        var hamming = sa.avgHamming || 'N/A';
+                        var sources = sa.bordaSources || 0;
                         var banner = document.createElement('div');
                         banner.className = 'smart-gen-analysis';
-                        banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(139,92,246,0.12),rgba(15,23,42,0.95));border:1px solid rgba(139,92,246,0.3);';
-                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">&#x26A1;</span><div><div style="font-weight:900;color:#A78BFA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">QUANTUM L99 — ANALISE IA</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: ' + eng + ' | ' + qty + ' jogos gerados</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">CONFIANCA IA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + conf + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">COBERTURA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + cov + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + divScore + '%</div></div></div>';
+                        banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(99,102,241,0.12),rgba(15,23,42,0.95));border:1px solid rgba(99,102,241,0.3);';
+                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">📊</span><div><div style="font-weight:900;color:#818CF8;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">ANÁLISE ESTATÍSTICA — Borda Count</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: PrecisionEngine | ' + qty + ' jogos | ' + (sources || 5) + ' fontes analíticas</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(99,102,241,0.2);" title="% de números únicos usados no range total"><div style="color:#A5B4FC;font-size:0.6rem;font-weight:700;">COBERTURA</div><div style="color:#818CF8;font-weight:900;font-size:1.3rem;">' + covPct + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(99,102,241,0.2);" title="Entropia de Shannon: 100% = distribuição perfeita entre números"><div style="color:#A5B4FC;font-size:0.6rem;font-weight:700;">ENTROPIA</div><div style="color:#818CF8;font-weight:900;font-size:1.3rem;">' + entropyPct + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(99,102,241,0.2);" title="Hamming: diferença média entre jogos adjacentes"><div style="color:#A5B4FC;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#818CF8;font-weight:900;font-size:1.3rem;">' + hamming + '</div></div></div>';
                         var oldBanner = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
                         if (oldBanner) oldBanner.remove();
                         this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
                         banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     } catch(e) {
-                        console.error('Erro QUANTUM L99:', e);
+                        console.error('Erro Estatística:', e);
                         this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
                     }
                 }, 50);
@@ -397,15 +427,15 @@ class UI {
             const _self = this;
             const _applyPrecisionUI = (checked) => {
                 if (checked) {
-                    _self.generateSmartBtn.innerHTML = 'JOGAR PRECISAO';
+                    _self.generateSmartBtn.innerHTML = '🎯 PRECISÃO';
                     _self.generateSmartBtn.style.background = 'linear-gradient(135deg, #EF4444, #991B1B)';
                     _self.generateSmartBtn.style.boxShadow = '0 6px 25px rgba(239, 68, 68, 0.5)';
                     precisionPoolRow.style.display = 'flex';
                     _self._updatePrecisionPoolLimits();
                 } else {
-                    _self.generateSmartBtn.innerHTML = 'QUANTUM L99';
-                    _self.generateSmartBtn.style.background = 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
-                    _self.generateSmartBtn.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.35)';
+                    _self.generateSmartBtn.innerHTML = '📊 Estatística';
+                    _self.generateSmartBtn.style.background = 'linear-gradient(135deg, #6366F1, #4338CA)';
+                    _self.generateSmartBtn.style.boxShadow = '0 4px 15px rgba(99, 102, 241, 0.35)';
                     precisionPoolRow.style.display = 'none';
                 }
             };
@@ -4184,6 +4214,7 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
             // Badge de modo
             const modoBadgeClass = {
                 'manual': 'manual',
+                'estatistica': 'quantum',
                 'manual_sniper': 'manual',
                 'cobertura': 'gerar',
                 'cobertura_sniper': 'gerar',
