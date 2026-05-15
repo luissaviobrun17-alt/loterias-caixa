@@ -170,31 +170,22 @@ class UI {
                     return;
                 }
 
-                if (pool.length >= drawSize) {
-                    // ═══ Apostador selecionou números suficientes ═══
-                    // Motor usa SOMENTE os números do apostador
-                    // Fixos (se houver) aparecem em TODOS os bilhetes
-                    result = MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize);
-                    const a = result.analysis || {};
-                    bannerMsg = '🎲 <strong>MANUAL</strong> — ' + result.games.length + ' jogos dos seus ' + a.poolSize + ' números';
-                    if (a.fixedCount > 0) bannerMsg += ' (fixos: ' + a.fixedNumbers.join(', ') + ')';
-                    bannerMsg += '<br>📊 Combinações possíveis: <strong>' + a.totalPossible + '</strong> | Investimento: <strong>R$ ' + a.investimento.toFixed(2) + '</strong>';
-                    if (a.isComplete) bannerMsg += '<br>✅ <strong style="color:#22C55E;">FECHAMENTO COMPLETO</strong>';
-
-                } else if (pool.length > 0) {
-                    // ═══ Pool pequeno: usar range completo, fixar os escolhidos ═══
-                    const fullPool = [];
-                    for (let n = game.range[0]; n <= game.range[1]; n++) fullPool.push(n);
-                    result = MotorFechamentoManual.generate(this.currentGameKey, fullPool, pool, qty, drawSize);
-                    bannerMsg = '⚓ <strong>SELEÇÃO PARCIAL:</strong> Seus ' + pool.length + ' número(s) estão em todos os jogos. Selecione ≥' + drawSize + ' para usar só seus números.';
-
-                } else {
-                    // ═══ Nenhuma seleção: aleatório puro ═══
-                    const fullPool = [];
-                    for (let n = game.range[0]; n <= game.range[1]; n++) fullPool.push(n);
-                    result = MotorFechamentoManual.generate(this.currentGameKey, fullPool, [], qty, drawSize);
-                    bannerMsg = '🎲 <strong>ALEATÓRIO PURO</strong> — ' + result.games.length + ' jogos. Selecione números para usar seus próprios.';
+                if (pool.length < drawSize) {
+                    // ═══ BLOQUEADO: Apostador precisa selecionar números ═══
+                    const msg = pool.length === 0
+                        ? '⚠️ <strong>Selecione seus números!</strong><br>O botão Manual usa SOMENTE os números que VOCÊ escolhe.<br>Selecione pelo menos <strong>' + drawSize + '</strong> números no grid acima.'
+                        : '⚠️ <strong>Seleção insuficiente!</strong><br>Você selecionou <strong>' + pool.length + '</strong> número(s), mas precisa de pelo menos <strong>' + drawSize + '</strong>.<br>Selecione mais <strong>' + (drawSize - pool.length) + '</strong> número(s) no grid.';
+                    this.gamesContainer.innerHTML = '<div style="text-align:center;padding:30px 20px;color:#FCD34D;font-size:0.9rem;line-height:1.6;">' + msg + '</div>';
+                    return;
                 }
+
+                // ═══ Apostador selecionou números suficientes ═══
+                result = MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize);
+                const a = result.analysis || {};
+                bannerMsg = '🎲 <strong>MANUAL</strong> — ' + result.games.length + ' jogos dos seus ' + a.poolSize + ' números';
+                if (a.fixedCount > 0) bannerMsg += ' (fixos: ' + a.fixedNumbers.join(', ') + ')';
+                bannerMsg += '<br>📊 Combinações possíveis: <strong>' + a.totalPossible + '</strong> | Investimento: <strong>R$ ' + a.investimento.toFixed(2) + '</strong>';
+                if (a.isComplete) bannerMsg += '<br>✅ <strong style="color:#22C55E;">FECHAMENTO COMPLETO</strong>';
 
                 const games = result.games || [];
                 if (games.length === 0) {
