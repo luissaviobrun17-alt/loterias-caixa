@@ -167,21 +167,20 @@ class UI {
 
                         if (selectedArr.length >= drawSize) {
                             // ══ v12: WHEEL SYSTEM — Cobertura Combinatória C(v,k,t) ══
-                            // Números do apostador = pool. Fixos = obrigatórios em todo bloco.
+                            // Números do apostador = pool (selecionados + fixos juntos, sem forçar nada)
                             const poolSet = new Set(selectedArr);
                             fixedArr.forEach(f => { if (f >= game.range[0] && f <= game.range[1]) poolSet.add(f); });
                             const pool = Array.from(poolSet).sort((a, b) => a - b);
-                            const validFixed = fixedArr.filter(f => poolSet.has(f));
 
                             // Ler nível de garantia do dropdown
                             const wheelSelect = document.getElementById('wheel-guarantee');
                             const guarantee = wheelSelect ? parseInt(wheelSelect.value) : (game.closingLevels ? game.closingLevels[game.closingLevels.length - 1].guarantee : Math.max(2, drawSize - 2));
 
-                            console.log('[MANUAL-v12] WHEEL SYSTEM: pool=' + pool.length + ' | k=' + drawSize + ' | t=' + guarantee + ' | fixos=' + validFixed.length);
+                            console.log('[MANUAL-v12] WHEEL SYSTEM: pool=' + pool.length + ' | k=' + drawSize + ' | t=' + guarantee);
 
                             if (typeof WheelEngine !== 'undefined' && pool.length > drawSize) {
                                 // WheelEngine: gera mínimo de blocos com cobertura garantida
-                                const result = WheelEngine.generate(this.currentGameKey, pool, drawSize, guarantee, qty * 3, validFixed);
+                                const result = WheelEngine.generate(this.currentGameKey, pool, drawSize, guarantee, qty * 3);
                                 games = result.games || [];
                                 const a = result.analysis || {};
 

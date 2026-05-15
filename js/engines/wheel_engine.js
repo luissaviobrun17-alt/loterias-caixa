@@ -19,14 +19,9 @@ class WheelEngine {
     // ═══════════════════════════════════════════════════════
     //  PONTO DE ENTRADA
     // ═══════════════════════════════════════════════════════
-    static generate(gameKey, pool, drawSize, guarantee, maxGamesLimit, fixedNumbers) {
+    static generate(gameKey, pool, drawSize, guarantee, maxGamesLimit) {
         const t0 = Date.now();
-        // Garantir que fixos estejam no pool
-        const fixedSet = new Set((fixedNumbers || []).filter(n => pool.includes(n)));
-        const fixedArr = Array.from(fixedSet);
-        if (fixedArr.length > 0) {
-            console.log('[WHEEL] Números FIXOS (obrigatórios em todo bloco): ' + fixedArr.join(', '));
-        }
+        // Pool = todos os números escolhidos pelo apostador (selecionados + fixos juntos)
         const v = pool.length;
         const k = drawSize;
         const t = guarantee;
@@ -77,7 +72,7 @@ class WheelEngine {
             const numCandidates = Math.max(80, Math.min(600, Math.ceil(uncovered.size / 2)));
 
             for (let c = 0; c < numCandidates; c++) {
-                const candidate = this._genFilteredCandidate(pool, k, filterCfg, fixedArr);
+                const candidate = this._genFilteredCandidate(pool, k, filterCfg);
                 if (!candidate) continue;
                 const ck = candidate.join(',');
                 if (usedKeys.has(ck)) continue;
@@ -98,7 +93,7 @@ class WheelEngine {
                 if (score > bestScore) { bestScore = score; bestBlock = candidate; }
             }
 
-            if (!bestBlock) bestBlock = this._genFilteredCandidate(pool, k, filterCfg, fixedArr);
+            if (!bestBlock) bestBlock = this._genFilteredCandidate(pool, k, filterCfg);
             if (!bestBlock) break;
 
             blocks.push(bestBlock);
@@ -170,39 +165,27 @@ class WheelEngine {
     // ═══════════════════════════════════════════════════════
     //  FASE 2: Gerar candidato com filtros Gaussianos
     // ═══════════════════════════════════════════════════════
-    static _genFilteredCandidate(pool, k, cfg, fixedArr) {
-        const fixed = fixedArr || [];
+    static _genFilteredCandidate(pool, k, cfg) {
         for (let attempt = 0; attempt < 150; attempt++) {
-            // Começar com números fixos (obrigatórios)
-            const chosen = new Set(fixed);
-            // Completar com aleatórios do pool (excluindo fixos)
-            const remaining = pool.filter(n => !chosen.has(n));
-            // Fisher-Yates shuffle nos restantes
-            for (let i = remaining.length - 1; i > 0; i--) {
+            // Fisher-Yates partial shuffle para escolher k de pool
+            const copy = pool.slice();
+            for (let i = copy.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+                [copy[i], copy[j]] = [copy[j], copy[i]];
             }
-            // Preencher até k
-            for (const n of remaining) {
-                if (chosen.size >= k) break;
-                chosen.add(n);
-            }
-            if (chosen.size < k) continue;
-            const candidate = Array.from(chosen).sort((a, b) => a - b);
+            const candidate = copy.slice(0, k).sort((a, b) => a - b);
 
             // Filtros Gaussianos
             if (!this._isGaussianValid(candidate, cfg)) continue;
             return candidate;
         }
-        // Fallback: fixos + aleatório sem filtro
-        const chosen = new Set(fixed);
-        const remaining = pool.filter(n => !chosen.has(n));
-        for (let i = remaining.length - 1; i > 0; i--) {
+        // Fallback sem filtro
+        const copy = pool.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+            [copy[i], copy[j]] = [copy[j], copy[i]];
         }
-        for (const n of remaining) { if (chosen.size >= k) break; chosen.add(n); }
-        return Array.from(chosen).sort((a, b) => a - b);
+        return copy.slice(0, k).sort((a, b) => a - b);
     }
 
     // ═══════════════════════════════════════════════════════
