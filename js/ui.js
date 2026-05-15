@@ -210,15 +210,6 @@ class UI {
             };
         }
 
-        // === BOTÃO 📊 ESTATÍSTICA v11.0 (PrecisionEngine direto) ===
-        // v11: Renomeado de "QUANTUM IA" → "Estatística"
-        // Motor: PrecisionEngine com Borda Count de 5 fontes (NovaEra + QuantumGod + Local + Last3 + ConditionalProb)
-        // SEM intermediário SmartBetsEngine. SEM animação fake.
-        if (this.generateSmartBtn) {
-            this.generateSmartBtn.onclick = () => {
-                const game = GAMES[this.currentGameKey];
-                if (!game) return;
-                const qty = parseInt(this.gamesQuantityInput.value) || 10;
         // === BOTÃO 📐 COBERTURA UNIFICADA v14 (Motor Unificado: Estatística + Cobertura + Sniper) ===
         if (this.generateCoverageBtn) {
             this.generateCoverageBtn.onclick = () => {
