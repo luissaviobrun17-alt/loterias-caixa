@@ -3202,12 +3202,15 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
             if (result && result.numbers && result.numbers.length > 0) {
                 targetNumbers = result.numbers;
                 drawInfo = `Concurso ${result.drawNumber}`;
+                // ★ v10.9: Salvar resultado completo para conferência de extras (mês/time)
+                this._lastDrawResult = result;
             } else {
                 // Concurso realmente não encontrado em nenhuma fonte
                 alert(`❌ Concurso ${drawNum} não encontrado.\n\nVerifique se o número do concurso está correto ou digite os números sorteados manualmente separados por espaço ou vírgula.\n\nExemplo: 08 24 27 37 47 55`);
                 return;
             }
         } else {
+            this._lastDrawResult = null; // v10.9: entrada manual, sem dados extras da API
             targetNumbers = input.split(/[\s,-]+/).map(n => parseInt(n)).filter(n => !isNaN(n));
             if (targetNumbers.length < game.draw) {
                 alert(`Por favor, insira o Número do Concurso OU pelo menos ${game.draw} números.`);
@@ -3226,7 +3229,7 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
                     this.currentGeneratedGames = parsedGames;
                     this.renderGames({ games: parsedGames }, this.currentGameKey);
                     this.closeCheckModal();
-                    setTimeout(() => this.highlightResults(targetNumbers, drawInfo), 100);
+                    setTimeout(() => this.highlightResults(targetNumbers, drawInfo, this._lastDrawResult), 100);
                 } else {
                     alert('Erro ao ler jogos do arquivo.');
                 }
@@ -3239,7 +3242,7 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
                 return;
             }
             this.closeCheckModal();
-            this.highlightResults(targetNumbers, drawInfo);
+            this.highlightResults(targetNumbers, drawInfo, this._lastDrawResult);
         }
     }
 
@@ -3262,7 +3265,7 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         return games;
     }
 
-    highlightResults(drawnNumbers, drawInfo = "") {
+    highlightResults(drawnNumbers, drawInfo = "", drawResult = null) {
         const drawnSet = new Set(drawnNumbers);
         const cards = document.querySelectorAll('.game-card');
         const game = GAMES[this.currentGameKey];
@@ -3529,25 +3532,58 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         
 // ── TOTAL ESTIMADO ──
         // Somar prêmio dos extras (Time do Coração / Mês da Sorte) ao total visual
+        // ★ v10.9 FIX: Prêmio de extras (Mês/Time) — SÓ contar se realmente acertou
+        // Bug anterior: contava TODOS os jogos como acerto porque todo jogo tem um mês/time gerado
         if ((this.currentGameKey === 'timemania' || this.currentGameKey === 'diadesorte') && this.currentGeneratedExtras) {
             let extrasHitCount = 0;
             const extraPrizeUnit = this.currentGameKey === 'timemania' ? 7.50 : 3.00;
             const extrasLabel = this.currentGameKey === 'timemania' ? 'Time' : 'Mês';
-            this.currentGeneratedGames.forEach((nums, idx) => {
-                if (this.currentGeneratedExtras[idx] !== undefined) {
-                    extrasHitCount++;
+
+            // Determinar o extra REAL sorteado (da API)
+            let drawnExtraIdx = -1; // -1 = desconhecido (API não retornou)
+            if (drawResult) {
+                if (this.currentGameKey === 'diadesorte' && drawResult.mesSorte) {
+                    // mesSorte vem como "Janeiro", "Fevereiro", etc.
+                    drawnExtraIdx = L99_MESES.findIndex(m => m.toLowerCase() === drawResult.mesSorte.toLowerCase());
+                } else if (this.currentGameKey === 'timemania' && drawResult.timeCoracao) {
+                    drawnExtraIdx = L99_TIMES.findIndex(t => t.toLowerCase() === drawResult.timeCoracao.toLowerCase());
                 }
-            });
+            }
+
+            if (drawnExtraIdx >= 0) {
+                // Temos o resultado real — verificar quais jogos acertaram
+                this.currentGeneratedGames.forEach((nums, idx) => {
+                    if (this.currentGeneratedExtras[idx] === drawnExtraIdx) {
+                        extrasHitCount++;
+                    }
+                });
+            }
+            // Se drawnExtraIdx === -1 (sem dados da API), não contar nenhum extra como prêmio
+
             if (extrasHitCount > 0) {
                 const extrasTotalPrize = extrasHitCount * extraPrizeUnit;
                 estimatedTotal += extrasTotalPrize;
+                const extraName = this.currentGameKey === 'diadesorte' 
+                    ? (drawnExtraIdx >= 0 ? L99_MESES[drawnExtraIdx] : '?')
+                    : (drawnExtraIdx >= 0 ? L99_TIMES[drawnExtraIdx] : '?');
                 summaryHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:8px;margin-top:6px;">`
                 + `<div style="display:flex;align-items:center;gap:8px;">`
                 + `<span style="font-size:0.9rem;">${this.currentGameKey === 'timemania' ? '⚽' : '📅'}</span>`
-                + `<div><div style="font-size:0.82rem;font-weight:700;color:#f1f5f9;">${extrasLabel} Acertado</div>`
+                + `<div><div style="font-size:0.82rem;font-weight:700;color:#f1f5f9;">${extrasLabel} Acertado: ${extraName}</div>`
                 + `<div style="font-size:0.66rem;color:#64748b;">${extrasHitCount}x acertos → R$ ${extraPrizeUnit.toFixed(2).replace('.',',')} cada</div></div></div>`
                 + `<div style="text-align:right;"><div style="font-size:0.9rem;font-weight:800;color:#10B981;">${extrasHitCount}x</div>`
                 + `<div style="font-size:0.68rem;color:#10B981;opacity:0.85;">→ R$ ${extrasTotalPrize.toFixed(2).replace('.',',')}</div></div></div>`;
+            } else if (drawnExtraIdx >= 0) {
+                // Ninguém acertou — mostrar qual era o mês/time correto
+                const extraName = this.currentGameKey === 'diadesorte'
+                    ? L99_MESES[drawnExtraIdx]
+                    : L99_TIMES[drawnExtraIdx];
+                summaryHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;margin-top:6px;">`
+                + `<div style="display:flex;align-items:center;gap:8px;">`
+                + `<span style="font-size:0.9rem;">${this.currentGameKey === 'timemania' ? '⚽' : '📅'}</span>`
+                + `<div><div style="font-size:0.82rem;font-weight:400;color:#64748b;">${extrasLabel} Sorteado: ${extraName}</div>`
+                + `<div style="font-size:0.66rem;color:#475569;">Nenhum jogo acertou o ${extrasLabel.toLowerCase()}</div></div></div>`
+                + `<div style="text-align:right;"><div style="font-size:0.9rem;font-weight:800;color:#475569;">—</div></div></div>`;
             }
         }
 
@@ -3604,14 +3640,18 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
                 summaryHTML += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:4px;background:${cardBg};border:1px solid ${cardBorder};border-radius:8px;flex-wrap:wrap;">`;
                 summaryHTML += `<span style="font-size:0.68rem;color:#94A3B8;font-weight:600;min-width:42px;">Jogo ${wg.index + 1}</span>`;
                 
-                // ★ v9.5: Badge de Time (Timemania) ou Mês (Dia de Sorte) no jogo ganhador
-                if (this.currentGeneratedExtras && this.currentGeneratedExtras[wg.index] !== undefined) {
-                    if (this.currentGameKey === 'timemania' && typeof L99_TIMES !== 'undefined') {
-                        // Time do Coração - contagem apenas (sem nome)
-                        summaryHTML += `<span style="font-size:0.62rem;color:#10B981;background:rgba(16,185,129,0.15);padding:1px 5px;border-radius:4px;font-weight:600;">⚽ Time ✓</span>`;
-                    } else if (this.currentGameKey === 'diadesorte') {
-                        // Mês da Sorte - contagem apenas (sem nome)
-                        summaryHTML += `<span style="font-size:0.62rem;color:#F59E0B;background:rgba(245,158,11,0.15);padding:1px 5px;border-radius:4px;font-weight:600;">📅 Mês ✓</span>`;
+                // ★ v10.9 FIX: Badge de Time/Mês — SÓ mostrar ✓ se realmente acertou
+                if (this.currentGeneratedExtras && this.currentGeneratedExtras[wg.index] !== undefined && drawResult) {
+                    const genExtraIdx = this.currentGeneratedExtras[wg.index];
+                    let drawnExtraIdx2 = -1;
+                    if (this.currentGameKey === 'diadesorte' && drawResult.mesSorte) {
+                        drawnExtraIdx2 = L99_MESES.findIndex(m => m.toLowerCase() === drawResult.mesSorte.toLowerCase());
+                    } else if (this.currentGameKey === 'timemania' && drawResult.timeCoracao) {
+                        drawnExtraIdx2 = L99_TIMES.findIndex(t => t.toLowerCase() === drawResult.timeCoracao.toLowerCase());
+                    }
+                    if (drawnExtraIdx2 >= 0 && genExtraIdx === drawnExtraIdx2) {
+                        const extraLabel = this.currentGameKey === 'timemania' ? '⚽ Time ✓' : '📅 Mês ✓';
+                        summaryHTML += `<span style="font-size:0.62rem;color:#10B981;background:rgba(16,185,129,0.15);padding:1px 5px;border-radius:4px;font-weight:600;">${extraLabel}</span>`;
                     }
                 }
                 
@@ -3704,22 +3744,28 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
                     }
                 }
 
-                // ★ v9.5: Coletar times/meses dos jogos ganhadores
+                // ★ v10.9 FIX: Coletar times/meses dos jogos que REALMENTE acertaram
                 let extrasGanhadores = [];
-                if ((this.currentGameKey === 'timemania' || this.currentGameKey === 'diadesorte') && this.currentGeneratedExtras) {
-                    winningGames.forEach(wg => {
-                        const extraIdx = this.currentGeneratedExtras[wg.index];
-                        if (extraIdx !== undefined) {
-                            if (this.currentGameKey === 'timemania' && typeof L99_TIMES !== 'undefined') {
-                                extrasGanhadores.push({ jogo: wg.index + 1, extra: extraIdx, acertos: wg.hits, premio: wg.prize, premioExtra: 7.50 });
-                            } else if (this.currentGameKey === 'diadesorte') {
-                                extrasGanhadores.push({ jogo: wg.index + 1, extra: extraIdx, acertos: wg.hits, premio: wg.prize, premioExtra: 3.00 });
+                if ((this.currentGameKey === 'timemania' || this.currentGameKey === 'diadesorte') && this.currentGeneratedExtras && drawResult) {
+                    let drawnExtraIdx = -1;
+                    if (this.currentGameKey === 'diadesorte' && drawResult.mesSorte) {
+                        drawnExtraIdx = L99_MESES.findIndex(m => m.toLowerCase() === drawResult.mesSorte.toLowerCase());
+                    } else if (this.currentGameKey === 'timemania' && drawResult.timeCoracao) {
+                        drawnExtraIdx = L99_TIMES.findIndex(t => t.toLowerCase() === drawResult.timeCoracao.toLowerCase());
+                    }
+
+                    if (drawnExtraIdx >= 0) {
+                        winningGames.forEach(wg => {
+                            const extraIdx = this.currentGeneratedExtras[wg.index];
+                            if (extraIdx === drawnExtraIdx) {
+                                const premioExtra = this.currentGameKey === 'timemania' ? 7.50 : 3.00;
+                                extrasGanhadores.push({ jogo: wg.index + 1, extra: extraIdx, acertos: wg.hits, premio: wg.prize, premioExtra: premioExtra });
                             }
-                        }
-                    });
+                        });
+                    }
                 }
 
-                // Somar prêmio dos extras (Time do Coração / Mês da Sorte) ao total
+                // Somar prêmio dos extras que REALMENTE acertaram ao total
                 if (extrasGanhadores.length > 0) {
                     const extrasPrizeTotal = extrasGanhadores.reduce((sum, eg) => sum + (eg.premioExtra || 0), 0);
                     estimatedTotal += extrasPrizeTotal;

@@ -243,6 +243,14 @@ class StatsService {
         var rawNumbers = data.dezenas.map(function(n) { return parseInt(n); });
         var result = { drawNumber: parseInt(data.concurso) };
 
+        // ★ v10.9 FIX: Preservar dados extras da API (Mês da Sorte / Time do Coração)
+        if (data.mesSorte) {
+            result.mesSorte = data.mesSorte; // ex: "Maio"
+        }
+        if (data.nomeTimeCoracaoMesSorte) {
+            result.timeCoracao = data.nomeTimeCoracaoMesSorte; // ex: "Corinthians/SP"
+        }
+
         if (gameType === 'duplasena') {
             // Dupla Sena: pode vir como 12 números juntos, ou em dezenas + dezenas2 separados
             if (data.dezenas2 && data.dezenas2.length > 0) {
