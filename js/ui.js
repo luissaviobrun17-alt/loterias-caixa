@@ -360,8 +360,7 @@ class UI {
                         }
                         const precResult = PrecisionEngine.generate(
                             this.currentGameKey, qty,
-                            selectedArr.length >= drawSize ? selectedArr : (selectedArr.length > 0 ? selectedArr : null),
-                            fixedArr, drawSize
+                            null, [], drawSize
                         );
                         if (!precResult || !precResult.games || precResult.games.length === 0) {
                             this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Tente novamente.</div>';
@@ -410,7 +409,7 @@ class UI {
                 setTimeout(() => {
                     try {
                         if (typeof CoverageEngine === 'undefined') { alert('CoverageEngine não carregado.'); return; }
-                        const coverResult = CoverageEngine.generate(this.currentGameKey, qty, selectedArr.length >= drawSize ? selectedArr : null, fixedArr, drawSize);
+                        const coverResult = CoverageEngine.generate(this.currentGameKey, qty, null, [], drawSize);
                         if (!coverResult || !coverResult.games || coverResult.games.length === 0) {
                             this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Tente novamente.</div>';
                             return;
