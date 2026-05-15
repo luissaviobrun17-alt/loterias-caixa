@@ -2800,9 +2800,16 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         // ══════ DESKTOP: Fluxo de script (Console F12) ══════
         if (games.length > 0 && cfg) {
             const freshScript = this._generateCaixaScript_LEGACY(cfg, games);
+            
+            // Abre a janela de forma síncrona para evitar o bloqueador de popups do navegador
+            const newWindow = window.open('about:blank', '_blank');
 
             try {
-                await navigator.clipboard.writeText(freshScript);
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(freshScript);
+                } else {
+                    throw new Error('Clipboard API not available');
+                }
                 console.log('[B2B] ✅ ' + games.length + ' jogos de ' + cfg.name + ' copiados!');
             } catch(e) {
                 var ta = document.createElement('textarea');
@@ -2822,13 +2829,17 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
                 'O site da Caixa abrirá em ' + cfg.name + '.\n' +
                 'No site: pressione F12 → Console → Ctrl+V → Enter\n\n' +
                 'Os jogos serão preenchidos automaticamente!');
+                
+            // Redireciona a janela aberta previamente
+            if (newWindow) {
+                newWindow.location.href = caixaUrl;
+            } else {
+                window.open(caixaUrl, '_blank');
+            }
         } else {
             alert('Atenção: Nenhum jogo foi gerado para copiar.\nO site da Caixa abrirá em ' + (cfg ? cfg.name : 'Loterias Online') + '.');
-        }
-
-        setTimeout(() => {
             window.open(caixaUrl, '_blank');
-        }, 200);
+        }
     }
 
     getSelectedNumbers() {
