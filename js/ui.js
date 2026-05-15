@@ -298,9 +298,9 @@ class UI {
             const _applyPrecisionUI = (checked) => {
                 if (checked) {
                     _self.generateCoverageBtn.innerHTML = '🎯 SNIPER';
-                    _self.generateCoverageBtn.style.background = 'linear-gradient(135deg, #EF4444, #991B1B)';
-                    _self.generateCoverageBtn.style.boxShadow = '0 6px 25px rgba(239, 68, 68, 0.5)';
-                    _self.generateCoverageBtn.style.borderColor = '#EF4444';
+                    _self.generateCoverageBtn.style.background = 'linear-gradient(135deg, #D97706, #92400E)';
+                    _self.generateCoverageBtn.style.boxShadow = '0 6px 25px rgba(217, 119, 6, 0.5)';
+                    _self.generateCoverageBtn.style.borderColor = '#F59E0B';
                     precisionPoolRow.style.display = 'flex';
                     _self._updatePrecisionPoolLimits();
                 } else {
