@@ -304,7 +304,7 @@ class UI {
                     precisionPoolRow.style.display = 'flex';
                     _self._updatePrecisionPoolLimits();
                 } else {
-                    _self.generateCoverageBtn.innerHTML = '📐 Cobertura';
+                    _self.generateCoverageBtn.innerHTML = '📐 Cobertura IA';
                     _self.generateCoverageBtn.style.background = 'linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%)';
                     _self.generateCoverageBtn.style.boxShadow = '';
                     _self.generateCoverageBtn.style.borderColor = '#10B981';
