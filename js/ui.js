@@ -166,51 +166,77 @@ class UI {
                         let games = [];
 
                         if (selectedArr.length >= drawSize) {
-                            // ══ MODO FECHAMENTO: Combinações diretas do pool do apostador ══
+                            // ══ v12: WHEEL SYSTEM — Cobertura Combinatória C(v,k,t) ══
+                            // Números do apostador = pool. Fixos = obrigatórios em todo bloco.
                             const poolSet = new Set(selectedArr);
                             fixedArr.forEach(f => { if (f >= game.range[0] && f <= game.range[1]) poolSet.add(f); });
                             const pool = Array.from(poolSet).sort((a, b) => a - b);
+                            const validFixed = fixedArr.filter(f => poolSet.has(f));
 
-                            console.log('[MANUAL] Fechamento: ' + pool.length + ' números → drawSize=' + drawSize + ' | qty=' + qty);
+                            // Ler nível de garantia do dropdown
+                            const wheelSelect = document.getElementById('wheel-guarantee');
+                            const guarantee = wheelSelect ? parseInt(wheelSelect.value) : (game.closingLevels ? game.closingLevels[game.closingLevels.length - 1].guarantee : Math.max(2, drawSize - 2));
 
-                            const totalCombos = this._manualComb(pool.length, drawSize);
+                            console.log('[MANUAL-v12] WHEEL SYSTEM: pool=' + pool.length + ' | k=' + drawSize + ' | t=' + guarantee + ' | fixos=' + validFixed.length);
 
-                            // Gerar todas as combinações APENAS se o total cabe na quantidade pedida
-                            // Se totalCombos > qty: usar amostragem aleatória (respeitar qty)
-                            if (totalCombos <= qty && totalCombos <= 5000) {
-                                const allCombos = [];
-                                this._manualGenCombos(pool, drawSize, 0, [], allCombos, fixedArr);
-                                games = allCombos;
-                                console.log('[MANUAL] Fechamento completo: ' + allCombos.length + ' combos → ' + games.length + ' jogos');
+                            if (typeof WheelEngine !== 'undefined' && pool.length > drawSize) {
+                                // WheelEngine: gera mínimo de blocos com cobertura garantida
+                                const result = WheelEngine.generate(this.currentGameKey, pool, drawSize, guarantee, qty * 3, validFixed);
+                                games = result.games || [];
+                                const a = result.analysis || {};
 
+                                // Banner de cobertura
+                                setTimeout(() => {
+                                    var banner = document.createElement('div');
+                                    banner.className = 'smart-gen-analysis';
+                                    banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 16px;border-radius:10px;background:linear-gradient(145deg,rgba(255,215,0,0.06),rgba(15,23,42,0.95));border:1px solid rgba(255,215,0,0.3);font-size:0.8rem;color:#E2E8F0;';
+                                    let html = '<div style="color:#FFD700;font-weight:900;font-size:0.95rem;margin-bottom:8px;">🎯 WHEEL SYSTEM — ' + a.coverageType + '</div>';
+                                    html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;">';
+                                    html += '<div style="text-align:center;padding:6px;background:rgba(255,215,0,0.08);border-radius:6px;"><div style="font-size:0.7rem;color:#94A3B8;">COBERTURA</div><div style="font-size:1.1rem;font-weight:900;color:#' + (a.coveragePct >= 100 ? '22C55E' : a.coveragePct >= 90 ? 'FCD34D' : 'EF4444') + ';">' + (a.coveragePct || 0) + '%</div></div>';
+                                    html += '<div style="text-align:center;padding:6px;background:rgba(255,215,0,0.08);border-radius:6px;"><div style="font-size:0.7rem;color:#94A3B8;">JOGOS</div><div style="font-size:1.1rem;font-weight:900;color:#38BDF8;">' + games.length + '</div></div>';
+                                    html += '<div style="text-align:center;padding:6px;background:rgba(255,215,0,0.08);border-radius:6px;"><div style="font-size:0.7rem;color:#94A3B8;">INVESTIMENTO</div><div style="font-size:1.1rem;font-weight:900;color:#F97316;">R$ ' + (a.investimento || 0).toFixed(2) + '</div></div>';
+                                    html += '</div>';
+                                    html += '<div style="font-size:0.75rem;color:#94A3B8;line-height:1.5;">';
+                                    html += '✅ <strong style="color:#22C55E;">Garantia:</strong> ' + (a.guaranteeLabel || guarantee + ' acertos') + ' se os números sorteados estiverem no seu pool de ' + pool.length + '<br>';
+                                    html += '📊 <strong>t-subsets:</strong> ' + (a.coveredTSubsets || 0) + '/' + (a.totalTSubsets || 0) + ' cobertos';
+                                    if (a.removed > 0) html += ' | 🗜️ Redução: ' + a.removed + ' blocos removidos';
+                                    if (validFixed.length > 0) html += '<br>🔒 <strong>Fixos:</strong> ' + validFixed.join(', ') + ' (presentes em TODOS os jogos)';
+                                    // Backtesting
+                                    if (a.backtest && a.backtest.summary) {
+                                        html += '<br><br>📈 <strong style="color:#FCD34D;">BACKTESTING</strong> (últimos ' + (a.backtest.totalDraws || 0) + ' sorteios):';
+                                        const entries = Object.entries(a.backtest.summary).sort((x,y) => parseInt(y[0]) - parseInt(x[0]));
+                                        for (const [hits, count] of entries) {
+                                            html += '<br>&nbsp;&nbsp;' + hits + ' acertos: <strong>' + count + 'x</strong>';
+                                        }
+                                    }
+                                    if (a.freqBalance) {
+                                        html += '<br>🔥 Quentes no pool: ' + a.freqBalance.hotInPool + ' | ❄️ Frios: ' + a.freqBalance.coldInPool;
+                                    }
+                                    html += '</div>';
+                                    banner.innerHTML = html;
+                                    var old = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                                    if (old) old.remove();
+                                    this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
+                                }, 100);
                             } else {
-                                // Pool grande: gerar combinações aleatórias únicas
-                                const usedKeys = new Set();
-                                const maxAttempts = qty * 50;
-                                let attempts = 0;
-                                while (games.length < qty && attempts < maxAttempts) {
-                                    attempts++;
-                                    const shuffled = pool.slice();
-                                    // Fixos primeiro
-                                    const ticket = fixedArr.filter(f => poolSet.has(f)).slice();
-                                    const remaining = shuffled.filter(n => !ticket.includes(n));
-                                    // Embaralhar restantes
-                                    for (let i = remaining.length - 1; i > 0; i--) {
-                                        const j = Math.floor(Math.random() * (i + 1));
-                                        [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
-                                    }
-                                    // Completar até drawSize
-                                    while (ticket.length < drawSize && remaining.length > 0) {
-                                        ticket.push(remaining.pop());
-                                    }
-                                    ticket.sort((a, b) => a - b);
-                                    const key = ticket.join(',');
-                                    if (!usedKeys.has(key)) {
-                                        usedKeys.add(key);
-                                        games.push(ticket);
+                                // Fallback se pool == drawSize (1 jogo) ou WheelEngine indisponível
+                                if (pool.length === drawSize) {
+                                    games = [pool.slice()];
+                                    console.log('[MANUAL-v12] Pool = drawSize → 1 jogo direto');
+                                } else {
+                                    // Gerar combinações aleatórias (fallback)
+                                    const usedKeys = new Set();
+                                    for (let g = 0; g < qty; g++) {
+                                        const shuffled = pool.slice();
+                                        for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; }
+                                        const ticket = validFixed.slice();
+                                        const rem = shuffled.filter(n => !ticket.includes(n));
+                                        while (ticket.length < drawSize && rem.length > 0) ticket.push(rem.pop());
+                                        ticket.sort((a,b) => a-b);
+                                        const key = ticket.join(',');
+                                        if (!usedKeys.has(key)) { usedKeys.add(key); games.push(ticket); }
                                     }
                                 }
-                                console.log('[MANUAL] Fechamento aleatório: ' + games.length + ' jogos únicos em ' + attempts + ' tentativas');
                             }
                         } else if (selectedArr.length > 0) {
                             // ══ v11: SELEÇÃO PARCIAL — Aleatório puro COM âncoras ══
@@ -1850,6 +1876,46 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         this.updateInvestmentPanel();
         this.updateCurrentCostDisplay();
         this._updateClosingPreview();
+
+        // v12: Mostrar/esconder dropdown de garantia do Wheel System
+        const wheelRow = document.getElementById('wheel-guarantee-row');
+        const wheelSelect = document.getElementById('wheel-guarantee');
+        const wheelEstimate = document.getElementById('wheel-estimate');
+        if (wheelRow && wheelSelect) {
+            const game = GAMES[this.currentGameKey];
+            const drawSizeSelect = document.getElementById('smart-draw-size');
+            const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
+            const drawSize = (customDrawSize && game && customDrawSize >= game.minBet) ? customDrawSize : (game ? game.minBet : 6);
+
+            if (count >= drawSize && count > drawSize) {
+                wheelRow.style.display = 'flex';
+                // Preencher opções se mudou a loteria
+                if (wheelSelect.dataset.gameKey !== this.currentGameKey) {
+                    wheelSelect.innerHTML = '';
+                    wheelSelect.dataset.gameKey = this.currentGameKey;
+                    if (game && game.closingLevels) {
+                        // Do menor para maior (mais econômico primeiro)
+                        const levels = [...game.closingLevels].reverse();
+                        for (const lvl of levels) {
+                            const opt = document.createElement('option');
+                            opt.value = lvl.guarantee;
+                            opt.textContent = lvl.icon + ' ' + lvl.label;
+                            wheelSelect.appendChild(opt);
+                        }
+                    }
+                }
+                // Estimar blocos
+                if (wheelEstimate && typeof WheelEngine !== 'undefined') {
+                    const t = parseInt(wheelSelect.value) || 4;
+                    const tSubsets = WheelEngine._comb(count, t);
+                    const blocksPerGame = WheelEngine._comb(drawSize, t);
+                    const estMin = Math.ceil(tSubsets / blocksPerGame);
+                    wheelEstimate.textContent = '~' + estMin + '-' + Math.ceil(estMin * 1.5) + ' jogos estimados';
+                }
+            } else {
+                wheelRow.style.display = 'none';
+            }
+        }
     }
 
     updateCurrentCostDisplay() {
