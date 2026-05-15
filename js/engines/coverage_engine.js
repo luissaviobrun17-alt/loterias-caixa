@@ -138,6 +138,13 @@ class CoverageEngine {
         if (selectedNumbers && selectedNumbers.length >= drawSize) {
             pool = selectedNumbers.filter(n => n >= startNum && n <= endNum).sort((a, b) => a - b);
         } else {
+            // v12: Seleção parcial → tratar números selecionados como FIXOS obrigatórios
+            if (selectedNumbers && selectedNumbers.length > 0) {
+                for (const n of selectedNumbers) {
+                    if (n >= startNum && n <= endNum) fixed.add(n);
+                }
+                console.log('[COVERAGE] v12: Seleção parcial → ' + fixed.size + ' números obrigatórios em todo jogo');
+            }
             for (let n = startNum; n <= endNum; n++) pool.push(n);
         }
 

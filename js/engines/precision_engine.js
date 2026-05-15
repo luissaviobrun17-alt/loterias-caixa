@@ -212,7 +212,7 @@ class PrecisionEngine {
         const hasCalibrator = typeof PrecisionCalibrator !== 'undefined' && typeof PrecisionCalibrator.scoreTicketPrecision === 'function';
 
         // Candidato 0: sem exclusão (original)
-        const candidate0 = this._buildGame1(ranked, fixed, drawSize, cfg, startNum, endNum, consensusScores, history);
+        const candidate0 = this._buildGame1(ranked, fixed, selected, drawSize, cfg, startNum, endNum, consensusScores, history);
 
         if (hasCalibrator && candidate0 && candidate0.length === drawSize && history.length >= 4) {
             // Avaliar candidato base
@@ -226,7 +226,7 @@ class PrecisionEngine {
                 const excludeNum = candidate0[ei];
                 // Criar ranking sem este número
                 const filteredRanked = ranked.filter(r => r.n !== excludeNum);
-                const candidate = this._buildGame1(filteredRanked, fixed, drawSize, cfg, startNum, endNum, consensusScores, history);
+                const candidate = this._buildGame1(filteredRanked, fixed, selected, drawSize, cfg, startNum, endNum, consensusScores, history);
                 if (!candidate || candidate.length < drawSize) continue;
 
                 const cScore = PrecisionCalibrator.scoreTicketPrecision(candidate, gameKey, history, startNum, endNum, drawSize);
@@ -344,7 +344,10 @@ class PrecisionEngine {
 
             const chosen = [];
             const inGame = new Set();
-            for (const f of fixed) {
+            // v12: Fixos + Selecionados são OBRIGATÓRIOS em todo jogo
+            // Os números que o apostador escolheu devem aparecer — isso é soberano
+            const mandatorySet = new Set([...fixed, ...selected]);
+            for (const f of mandatorySet) {
                 if (!inGame.has(f) && chosen.length < drawSize) { chosen.push(f); inGame.add(f); }
             }
 
@@ -733,10 +736,12 @@ class PrecisionEngine {
     //    G5 = paridade              (equilíbrio par/ímpar)
     //    G6 = afinidade de soma     (projeção de soma próxima da média histórica)
     //
-    static _buildGame1(ranked, fixed, drawSize, cfg, startNum, endNum, scores, history) {
+    static _buildGame1(ranked, fixed, selected, drawSize, cfg, startNum, endNum, scores, history) {
         const zoneSize  = Math.ceil((endNum - startNum + 1) / cfg.zones);
         const allNums   = ranked.map(r => r.n);
         const H         = history || [];
+        // v12: combinar fixed + selected como obrigatórios
+        const mandatory = new Set([...fixed, ...selected]);
 
         // ── G2: Matriz de afinidade de pares REAL (histórico) ────────────
         // P(b|a) = vezes que a e b saíram juntos / vezes que a saiu
@@ -804,8 +809,8 @@ class PrecisionEngine {
             const gameSet = new Set();
             const zoneCounts = new Array(cfg.zones).fill(0);
 
-            // Inserir fixos primeiro
-            for (const f of fixed) {
+            // Inserir obrigatórios primeiro (fixos + selecionados)
+            for (const f of mandatory) {
                 if (game.length < drawSize && !gameSet.has(f)) {
                     game.push(f); gameSet.add(f);
                     zoneCounts[Math.min(cfg.zones-1, Math.floor((f-startNum)/zoneSize))]++;
