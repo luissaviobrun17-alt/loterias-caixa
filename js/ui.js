@@ -145,7 +145,7 @@ class UI {
             this.generateBtn.onclick = () => {
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
-                const qty = Math.min(Math.max(1, parseInt(this.gamesQuantityInput.value) || 10), 500);
+                const qty = parseInt(this.gamesQuantityInput.value) || 10;
                 const drawSizeSelect = document.getElementById('smart-draw-size');
                 const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
                 const drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
