@@ -410,7 +410,7 @@ class UI {
                 setTimeout(() => {
                     try {
                         if (typeof CoverageEngine === 'undefined') { alert('CoverageEngine não carregado.'); return; }
-                        const coverResult = CoverageEngine.generate(this.currentGameKey, qty, selectedArr.length > 0 ? selectedArr : null, fixedArr, drawSize);
+                        const coverResult = CoverageEngine.generate(this.currentGameKey, qty, selectedArr.length >= drawSize ? selectedArr : null, fixedArr, drawSize);
                         if (!coverResult || !coverResult.games || coverResult.games.length === 0) {
                             this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Tente novamente.</div>';
                             return;
