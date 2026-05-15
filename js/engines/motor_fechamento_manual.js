@@ -131,56 +131,107 @@ class MotorFechamentoManual {
     }
 
     // ═══════════════════════════════════════════════════════
-    //  FASE 2: CRUZAMENTO GENÉTICO (v2.0 — teto 5000 + fallback agressivo)
+    //  FASE 2: CRUZAMENTO GENÉTICO (v3.0 — True Fitness GA)
     // ═══════════════════════════════════════════════════════
     static _expandByGeneticCrossover(base, pool, fixed, k, targetCount, maxPossible) {
         const allGames = base.slice();
         const usedKeys = new Set(base.map(g => g.join(',')));
         const nonFixed = pool.filter(n => !fixed.includes(n));
         const slotsPerGame = k - fixed.length;
+        
+        // v3.0: Inicializar matriz de frequência de pares
+        const pairMatrix = {};
+        for (const n1 of pool) {
+            pairMatrix[n1] = {};
+            for (const n2 of pool) pairMatrix[n1][n2] = 0;
+        }
+
+        // Popular matriz com a base perfeita
+        for (const game of allGames) {
+            for (let i = 0; i < game.length; i++) {
+                for (let j = i + 1; j < game.length; j++) {
+                    pairMatrix[game[i]][game[j]]++;
+                    pairMatrix[game[j]][game[i]]++;
+                }
+            }
+        }
+
         let generation = 0;
-        const maxGenerations = Math.min(targetCount * 20, 10000); // v2.0: proporcional ao alvo
-        const cappedTarget = Math.min(targetCount, maxPossible); // v2.0: nunca pedir mais que o possível
+        const maxGenerations = Math.min(targetCount * 20, 10000);
+        const cappedTarget = Math.min(targetCount, maxPossible);
+        const litterSize = 10; // Ninhada: gera 10 mutantes por geração e escolhe o melhor
 
         while (allGames.length < cappedTarget && generation < maxGenerations) {
             generation++;
+            let bestChild = null;
+            let bestFitness = -1;
 
-            // ── Crossover: combinar genes de 2 pais ──
-            const parent1 = allGames[Math.floor(Math.random() * allGames.length)];
-            const parent2 = allGames[Math.floor(Math.random() * allGames.length)];
+            // Gerar "Ninhada" (Litter) de candidatos
+            for (let c = 0; c < litterSize; c++) {
+                const parent1 = allGames[Math.floor(Math.random() * allGames.length)];
+                const parent2 = allGames[Math.floor(Math.random() * allGames.length)];
 
-            const genes1 = parent1.filter(n => !fixed.includes(n));
-            const genes2 = parent2.filter(n => !fixed.includes(n));
+                const genes1 = parent1.filter(n => !fixed.includes(n));
+                const genes2 = parent2.filter(n => !fixed.includes(n));
 
-            const cut = Math.floor(Math.random() * (slotsPerGame - 1)) + 1;
-            const childGenes = new Set();
+                const cut = Math.floor(Math.random() * (slotsPerGame - 1)) + 1;
+                const childGenes = new Set();
 
-            for (let i = 0; i < cut && childGenes.size < slotsPerGame; i++) {
-                if (genes1[i] !== undefined) childGenes.add(genes1[i]);
-            }
-            for (let i = cut; i < genes2.length && childGenes.size < slotsPerGame; i++) {
-                if (genes2[i] !== undefined && !childGenes.has(genes2[i])) childGenes.add(genes2[i]);
-            }
+                // Crossover
+                for (let i = 0; i < cut && childGenes.size < slotsPerGame; i++) {
+                    if (genes1[i] !== undefined) childGenes.add(genes1[i]);
+                }
+                for (let i = cut; i < genes2.length && childGenes.size < slotsPerGame; i++) {
+                    if (genes2[i] !== undefined && !childGenes.has(genes2[i])) childGenes.add(genes2[i]);
+                }
 
-            if (childGenes.size < slotsPerGame) {
-                const mutants = nonFixed.filter(n => !childGenes.has(n));
-                this._shuffle(mutants);
-                while (childGenes.size < slotsPerGame && mutants.length > 0) {
-                    childGenes.add(mutants.pop());
+                // Mutação / Preenchimento
+                if (childGenes.size < slotsPerGame) {
+                    const mutants = nonFixed.filter(n => !childGenes.has(n));
+                    this._shuffle(mutants);
+                    while (childGenes.size < slotsPerGame && mutants.length > 0) {
+                        childGenes.add(mutants.pop());
+                    }
+                }
+
+                if (childGenes.size === slotsPerGame) {
+                    const ticket = [...fixed, ...childGenes].sort((a, b) => a - b);
+                    const key = ticket.join(',');
+                    
+                    if (!usedKeys.has(key)) {
+                        // v3.0: FITNESS FUNCTION (Aptidão)
+                        // Calcula a qualidade do filho: ele é melhor se contiver pares que apareceram POUCO
+                        let fitness = 0;
+                        for (let i = 0; i < ticket.length; i++) {
+                            for (let j = i + 1; j < ticket.length; j++) {
+                                // 1 / (1 + aparições). Quanto menos aparições, maior a pontuação.
+                                fitness += 1 / (1 + pairMatrix[ticket[i]][ticket[j]]);
+                            }
+                        }
+
+                        if (fitness > bestFitness) {
+                            bestFitness = fitness;
+                            bestChild = { ticket, key };
+                        }
+                    }
                 }
             }
 
-            if (childGenes.size === slotsPerGame) {
-                const ticket = [...fixed, ...childGenes].sort((a, b) => a - b);
-                const key = ticket.join(',');
-                if (!usedKeys.has(key)) {
-                    usedKeys.add(key);
-                    allGames.push(ticket);
+            // Seleção Natural: Sobrevive o mais apto da ninhada
+            if (bestChild) {
+                usedKeys.add(bestChild.key);
+                allGames.push(bestChild.ticket);
+                
+                // Atualizar matriz de pares
+                const t = bestChild.ticket;
+                for (let i = 0; i < t.length; i++) {
+                    for (let j = i + 1; j < t.length; j++) {
+                        pairMatrix[t[i]][t[j]]++;
+                        pairMatrix[t[j]][t[i]]++;
+                    }
                 }
-            }
-
-            // v2.0: Fallback Fisher-Yates a cada 20 gerações (era 50)
-            if (generation % 20 === 0 && allGames.length < cappedTarget) {
+            } else if (generation % 20 === 0) {
+                // Fallback de estagnação: Forçar mutação aleatória severa se a ninhada falhar
                 for (let f = 0; f < 50 && allGames.length < cappedTarget; f++) {
                     const shuffled = nonFixed.slice();
                     this._shuffle(shuffled);
@@ -189,6 +240,12 @@ class MotorFechamentoManual {
                     if (!usedKeys.has(key)) {
                         usedKeys.add(key);
                         allGames.push(ticket);
+                        for (let i = 0; i < ticket.length; i++) {
+                            for (let j = i + 1; j < ticket.length; j++) {
+                                pairMatrix[ticket[i]][ticket[j]]++;
+                                pairMatrix[ticket[j]][ticket[i]]++;
+                            }
+                        }
                     }
                 }
             }
