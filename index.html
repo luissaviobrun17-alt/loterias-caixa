@@ -242,9 +242,8 @@
 
                         <!-- Botões de Ação — linha própria -->
                         <div id="action-buttons-row" style="display:flex;gap:8px;align-items:stretch;margin-top:10px;flex-wrap:wrap;">
-                            <button id="generate-btn" class="action-btn" style="flex: 1; min-width: 0;" title="Geração manual: aleatório puro ou fechamento dos seus números selecionados">🎲 Manual</button>
-                            <button id="generate-smart-btn" class="action-btn smart-ia-btn" style="flex: 1; min-width: 0;" title="Análise estatística profunda: consenso Borda Count de 5 motores analíticos com 47+ camadas">📊 Estatística</button>
-                            <button id="generate-coverage-btn" class="action-btn" style="flex: 1; min-width: 0; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5;" title="Motor de Cobertura Combinatória — Greedy Set Cover + Hipergeométrica exata">📐 Cobertura</button>
+                            <button id="generate-btn" class="action-btn" style="flex: 1; min-width: 0;" title="Geração manual: fechamento dos seus números selecionados">🎲 Manual</button>
+                            <button id="generate-coverage-btn" class="action-btn" style="flex: 1; min-width: 0; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5;" title="Motor Unificado: Estatística + Cobertura Combinatória com Sniper">📐 Cobertura</button>
                         </div>
 
                         <!-- Botão Precisão removido v11 — era alias do Cobertura -->
@@ -1307,6 +1306,7 @@
             <script src="js/engines/closing_engine.js?v=1778273672"></script>
             <script src="js/engines/statistics_tracker.js?v=1778273672"></script>
             <script src="js/engines/motor_fechamento_manual.js?v=1778870000"></script>
+            <script src="js/engines/motor_unificado.js?v=1778870000"></script>
             <script src="js/engines/auto_updater.js?v=1778273672"></script>
             <script src="js/ui.js?v=1778870000"></script>
             <script src="js/main.js?v=1778273672"></script>
