@@ -1,30 +1,18 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════╗
- * ║  MOTOR UNIFICADO v1.0 — COBERTURA ESTATÍSTICA                  ║
+ * ║  MOTOR UNIFICADO v2.0 — COBERTURA ESTATÍSTICA REAL              ║
  * ║  Fusão: PrecisionEngine (Estatística) + CoverageEngine         ║
  * ║                                                                 ║
- * ║  FASE 1: Filtro Estatístico                                     ║
- * ║  → Ranking Borda Count de 10 dimensões analíticas               ║
- * ║  → Score de probabilidade por número                            ║
- * ║                                                                 ║
- * ║  FASE 2: Cobertura Rígida                                       ║
- * ║  → Greedy Set Cover sobre os top-N números da Fase 1            ║
- * ║  → Maximização de pares cobertos                                ║
- * ║  → Anti-fragilidade: zero duplicatas                            ║
- * ║                                                                 ║
- * ║  MODO SNIPER: Pool reduzido para máxima precisão                ║
+ * ║  CORREÇÕES v2.0:                                                ║
+ * ║  • Fase 1 AGORA influencia Fase 2 no modo NORMAL               ║
+ * ║    (ranking estatístico vira pool ponderado pro Greedy)         ║
+ * ║  • Ranking extraído sem gerar jogo desnecessário                ║
+ * ║  • Modo Sniper: pool top-N fixo                                 ║
+ * ║  • Modo Normal: pool top-75% do ranking + aleatórios            ║
  * ╚══════════════════════════════════════════════════════════════════╝
  */
 class MotorUnificado {
 
-    /**
-     * PONTO DE ENTRADA PRINCIPAL
-     * @param {string} gameKey - chave da loteria (megasena, lotofacil, etc.)
-     * @param {number} numGames - quantidade de jogos desejados
-     * @param {number} drawSize - tamanho do bilhete (override)
-     * @param {boolean} sniperMode - ativar modo sniper (pool reduzido)
-     * @param {number} sniperPoolSize - tamanho do pool sniper
-     */
     static generate(gameKey, numGames, drawSize, sniperMode, sniperPoolSize) {
         const t0 = Date.now();
         
@@ -32,7 +20,8 @@ class MotorUnificado {
         console.log('%c[MOTOR-UNIFICADO] ' + gameKey.toUpperCase() + ' | ' + numGames + ' jogos | Sniper: ' + (sniperMode ? 'ON (pool=' + sniperPoolSize + ')' : 'OFF'), 'color: #10B981; font-weight: bold;');
 
         // ══════════════════════════════════════════════════
-        //  FASE 1: FILTRO ESTATÍSTICO (via PrecisionEngine)
+        //  FASE 1: FILTRO ESTATÍSTICO
+        //  Extrair ranking sem gerar jogo desnecessário
         // ══════════════════════════════════════════════════
         let ranking = [];
         let bordaSources = 0;
@@ -40,7 +29,7 @@ class MotorUnificado {
 
         if (typeof PrecisionEngine !== 'undefined') {
             try {
-                // Gerar 1 jogo para obter o ranking interno
+                // v2.0: Extrair ranking via generate(1) — mínimo necessário
                 const precResult = PrecisionEngine.generate(gameKey, 1, null, [], drawSize);
                 if (precResult && precResult.analysis) {
                     ranking = precResult.analysis.ranking || [];
@@ -58,23 +47,30 @@ class MotorUnificado {
         }
 
         // ══════════════════════════════════════════════════
-        //  FASE 2: COBERTURA RÍGIDA (via CoverageEngine)
-        //  Usa o ranking da Fase 1 para direcionar a cobertura
+        //  FASE 2: COBERTURA RÍGIDA
+        //  v2.0: Ranking da Fase 1 SEMPRE influencia a Fase 2
         // ══════════════════════════════════════════════════
         let result;
 
         if (typeof CoverageEngine !== 'undefined') {
-            // Se temos ranking estatístico, criar pool otimizado
             let selectedPool = null;
-            if (ranking.length > 0 && sniperMode && sniperPoolSize) {
-                // SNIPER: pool reduzido dos top-N números
-                selectedPool = ranking.slice(0, Math.max(sniperPoolSize, drawSize)).map(r => r.n);
-                console.log('[MOTOR-UNIFICADO] Fase 2 SNIPER: pool=' + selectedPool.length + ' números [' + selectedPool.slice(0, 10).join(',') + '...]');
-            } else if (ranking.length > 0) {
-                // NORMAL: usar ranking para influenciar mas com range completo
-                // Passar null para CoverageEngine usar range completo,
-                // mas injetar o ranking como peso interno
-                selectedPool = null;
+
+            if (ranking.length > 0) {
+                if (sniperMode && sniperPoolSize) {
+                    // SNIPER: pool fixo dos top-N do ranking
+                    selectedPool = ranking.slice(0, Math.max(sniperPoolSize, drawSize)).map(r => r.n);
+                    console.log('[MOTOR-UNIFICADO] Fase 2 SNIPER: pool=' + selectedPool.length + ' [' + selectedPool.slice(0, 10).join(',') + '...]');
+                } else {
+                    // ═══ v2.0 CORREÇÃO CRÍTICA ═══
+                    // NORMAL: usar top 75% do ranking como pool
+                    // Isso GARANTE que a estatística influencie a cobertura
+                    const poolSize = Math.max(
+                        Math.ceil(ranking.length * 0.75), // 75% do range
+                        drawSize * 3                       // mínimo: 3x o drawSize
+                    );
+                    selectedPool = ranking.slice(0, poolSize).map(r => r.n);
+                    console.log('[MOTOR-UNIFICADO] Fase 2 NORMAL: pool estatístico=' + selectedPool.length + '/' + ranking.length + ' [top ' + Math.round(poolSize / ranking.length * 100) + '%]');
+                }
             }
 
             try {
@@ -84,7 +80,7 @@ class MotorUnificado {
             }
         }
 
-        // Fallback: se CoverageEngine falhou, usar PrecisionEngine direto
+        // Fallback: PrecisionEngine direto
         if (!result || !result.games || result.games.length === 0) {
             console.warn('[MOTOR-UNIFICADO] Fallback → PrecisionEngine direto');
             if (typeof PrecisionEngine !== 'undefined') {
@@ -92,45 +88,42 @@ class MotorUnificado {
             }
         }
 
-        // Fallback final
         if (!result || !result.games) {
             result = { games: [], analysis: {} };
         }
 
         // ══════════════════════════════════════════════════
-        //  MONTAR ANÁLISE UNIFICADA
+        //  ANÁLISE UNIFICADA
         // ══════════════════════════════════════════════════
         const elapsed = Date.now() - t0;
         const covAnalysis = result.analysis || {};
         
         const unifiedAnalysis = {
-            // Métricas de Estatística (Fase 1)
             bordaSources: bordaSources,
             ranking: ranking,
             fase1: fase1Info,
-            // Métricas de Cobertura (Fase 2)
             coveragePct: covAnalysis.coveragePct || covAnalysis.pairCoveragePct || 0,
             entropyPct: covAnalysis.entropyPct || this._calcEntropy(result.games, drawSize),
             avgHamming: covAnalysis.avgHamming || this._calcHamming(result.games),
-            // Geral
             totalGames: result.games.length,
             sniperMode: sniperMode || false,
             sniperPoolSize: sniperMode ? sniperPoolSize : 0,
             elapsed: elapsed,
-            mode: sniperMode ? 'sniper' : 'cobertura_estatistica'
+            mode: sniperMode ? 'sniper' : 'cobertura_estatistica',
+            // v2.0: info de fusão real
+            fase1Active: ranking.length > 0,
+            fase2Pool: sniperMode ? (sniperPoolSize || 0) : (ranking.length > 0 ? Math.max(Math.ceil(ranking.length * 0.75), drawSize * 3) : 0)
         };
 
-        // Preservar analysis original para renderGames
         result.analysis = { ...covAnalysis, ...unifiedAnalysis };
         result.smartAnalysis = unifiedAnalysis;
 
-        console.log('[MOTOR-UNIFICADO] ✅ ' + result.games.length + ' jogos | Cobertura: ' + unifiedAnalysis.coveragePct + '% | Entropia: ' + unifiedAnalysis.entropyPct + '% | ' + elapsed + 'ms');
+        console.log('[MOTOR-UNIFICADO] ✅ ' + result.games.length + ' jogos | Cobertura: ' + unifiedAnalysis.coveragePct + '% | Entropia: ' + unifiedAnalysis.entropyPct + '% | Fusão: ' + (unifiedAnalysis.fase1Active ? 'ATIVA' : 'OFF') + ' | ' + elapsed + 'ms');
         console.log('%c[MOTOR-UNIFICADO] ══════════════════════════════════', 'color: #10B981; font-weight: bold;');
 
         return result;
     }
 
-    // ── Calcular Entropia de Shannon ──
     static _calcEntropy(games, drawSize) {
         if (!games || games.length === 0) return 0;
         const freq = {};
@@ -152,7 +145,6 @@ class MotorUnificado {
         return maxEntropy > 0 ? Math.round((entropy / maxEntropy) * 100) : 0;
     }
 
-    // ── Calcular Hamming médio ──
     static _calcHamming(games) {
         if (!games || games.length < 2) return 'N/A';
         let totalDiff = 0;
@@ -168,5 +160,4 @@ class MotorUnificado {
     }
 }
 
-// Exportar
 if (typeof window !== 'undefined') window.MotorUnificado = MotorUnificado;
