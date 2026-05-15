@@ -139,192 +139,83 @@ class UI {
             this.btnFixedMode.onclick = () => this.toggleFixedMode();
         }
 
-        // === BOTÃO 🎲 MANUAL v11.0 ===
-        // GENUINAMENTE MANUAL — respeita 100% a decisão do apostador
-        // COM seleção ≥ drawSize → Fechamento combinatório C(n,k) do pool do apostador
-        // COM seleção parcial → Números selecionados FIXOS + aleatório puro pro restante
-        // SEM seleção → Aleatório PURO (Fisher-Yates) — zero IA, zero CoverageEngine
-        // Números fixos são SEMPRE incluídos em todos os jogos
+        // === BOTÃO 🎲 MANUAL v14.0 — MotorFechamentoManual ===
+        // Delega TODA lógica ao motor. Zero lógica inline.
         if (this.generateBtn) {
             this.generateBtn.onclick = () => {
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
-                // Ler qty diretamente do valor do campo — evitar leituras de estado desatualizado
-                const rawQty = parseInt(this.gamesQuantityInput.value);
-                const qty = (!isNaN(rawQty) && rawQty > 0) ? Math.min(rawQty, 500) : 10;
-                let selectedArr = Array.from(this.selectedNumbers).sort((a, b) => a - b);
-                const fixedArr = Array.from(this.fixedNumbers);
+                const qty = Math.min(Math.max(1, parseInt(this.gamesQuantityInput.value) || 10), 500);
                 const drawSizeSelect = document.getElementById('smart-draw-size');
                 const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
                 const drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
+
+                // Coletar escolhas do apostador
+                const selectedArr = Array.from(this.selectedNumbers).filter(n => n >= game.range[0] && n <= game.range[1]);
+                const fixedArr = Array.from(this.fixedNumbers).filter(n => n >= game.range[0] && n <= game.range[1]);
+
+                // Pool = todos os números escolhidos (selecionados + fixos)
+                const poolSet = new Set([...selectedArr, ...fixedArr]);
+                const pool = Array.from(poolSet).sort((a, b) => a - b);
+
                 this._lastGenerationMode = 'manual';
                 localStorage.setItem('l99_lastMode', 'manual');
                 document.body.setAttribute('data-l99-mode', 'manual');
-                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Gerando ' + qty + ' jogos...</div></div>';
+
+                let result;
+                let bannerMsg = '';
+
+                if (typeof MotorFechamentoManual === 'undefined') {
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">MotorFechamentoManual não carregado. Recarregue (Ctrl+Shift+R).</div>';
+                    return;
+                }
+
+                if (pool.length >= drawSize) {
+                    // ═══ Apostador selecionou números suficientes ═══
+                    // Motor usa SOMENTE os números do apostador
+                    // Fixos (se houver) aparecem em TODOS os bilhetes
+                    result = MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize);
+                    const a = result.analysis || {};
+                    bannerMsg = '🎲 <strong>MANUAL</strong> — ' + result.games.length + ' jogos dos seus ' + a.poolSize + ' números';
+                    if (a.fixedCount > 0) bannerMsg += ' (fixos: ' + a.fixedNumbers.join(', ') + ')';
+                    bannerMsg += '<br>📊 Combinações possíveis: <strong>' + a.totalPossible + '</strong> | Investimento: <strong>R$ ' + a.investimento.toFixed(2) + '</strong>';
+                    if (a.isComplete) bannerMsg += '<br>✅ <strong style="color:#22C55E;">FECHAMENTO COMPLETO</strong>';
+
+                } else if (pool.length > 0) {
+                    // ═══ Pool pequeno: usar range completo, fixar os escolhidos ═══
+                    const fullPool = [];
+                    for (let n = game.range[0]; n <= game.range[1]; n++) fullPool.push(n);
+                    result = MotorFechamentoManual.generate(this.currentGameKey, fullPool, pool, qty, drawSize);
+                    bannerMsg = '⚓ <strong>SELEÇÃO PARCIAL:</strong> Seus ' + pool.length + ' número(s) estão em todos os jogos. Selecione ≥' + drawSize + ' para usar só seus números.';
+
+                } else {
+                    // ═══ Nenhuma seleção: aleatório puro ═══
+                    const fullPool = [];
+                    for (let n = game.range[0]; n <= game.range[1]; n++) fullPool.push(n);
+                    result = MotorFechamentoManual.generate(this.currentGameKey, fullPool, [], qty, drawSize);
+                    bannerMsg = '🎲 <strong>ALEATÓRIO PURO</strong> — ' + result.games.length + ' jogos. Selecione números para usar seus próprios.';
+                }
+
+                const games = result.games || [];
+                if (games.length === 0) {
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">' + (result.error || 'Nenhum jogo gerado.') + '</div>';
+                    return;
+                }
+                this.currentGeneratedGames = games;
+                this._lastGeneratedGames = games;
+                this.renderGames({ pool: pool, games: games, smartAnalysis: null }, this.currentGameKey);
+
+                // Banner informativo
                 setTimeout(() => {
-                    try {
-                        let games = [];
-
-                        if (selectedArr.length >= drawSize) {
-                            // ══ v12: WHEEL SYSTEM — Cobertura Combinatória C(v,k,t) ══
-                            // Números do apostador = pool (selecionados + fixos juntos, sem forçar nada)
-                            const poolSet = new Set(selectedArr);
-                            fixedArr.forEach(f => { if (f >= game.range[0] && f <= game.range[1]) poolSet.add(f); });
-                            const pool = Array.from(poolSet).sort((a, b) => a - b);
-
-                            // Ler nível de garantia do dropdown
-                            const wheelSelect = document.getElementById('wheel-guarantee');
-                            const guarantee = wheelSelect ? parseInt(wheelSelect.value) : (game.closingLevels ? game.closingLevels[game.closingLevels.length - 1].guarantee : Math.max(2, drawSize - 2));
-
-                            console.log('[MANUAL-v12] WHEEL SYSTEM: pool=' + pool.length + ' | k=' + drawSize + ' | t=' + guarantee);
-
-                            if (typeof WheelEngine !== 'undefined' && pool.length > drawSize) {
-                                // WheelEngine: gera mínimo de blocos com cobertura garantida
-                                const result = WheelEngine.generate(this.currentGameKey, pool, drawSize, guarantee, qty * 3);
-                                games = result.games || [];
-                                const a = result.analysis || {};
-
-                                // Banner de cobertura
-                                setTimeout(() => {
-                                    var banner = document.createElement('div');
-                                    banner.className = 'smart-gen-analysis';
-                                    banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 16px;border-radius:10px;background:linear-gradient(145deg,rgba(255,215,0,0.06),rgba(15,23,42,0.95));border:1px solid rgba(255,215,0,0.3);font-size:0.8rem;color:#E2E8F0;';
-                                    let html = '<div style="color:#FFD700;font-weight:900;font-size:0.95rem;margin-bottom:8px;">🎯 WHEEL SYSTEM — ' + a.coverageType + '</div>';
-                                    html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;">';
-                                    html += '<div style="text-align:center;padding:6px;background:rgba(255,215,0,0.08);border-radius:6px;"><div style="font-size:0.7rem;color:#94A3B8;">COBERTURA</div><div style="font-size:1.1rem;font-weight:900;color:#' + (a.coveragePct >= 100 ? '22C55E' : a.coveragePct >= 90 ? 'FCD34D' : 'EF4444') + ';">' + (a.coveragePct || 0) + '%</div></div>';
-                                    html += '<div style="text-align:center;padding:6px;background:rgba(255,215,0,0.08);border-radius:6px;"><div style="font-size:0.7rem;color:#94A3B8;">JOGOS</div><div style="font-size:1.1rem;font-weight:900;color:#38BDF8;">' + games.length + '</div></div>';
-                                    html += '<div style="text-align:center;padding:6px;background:rgba(255,215,0,0.08);border-radius:6px;"><div style="font-size:0.7rem;color:#94A3B8;">INVESTIMENTO</div><div style="font-size:1.1rem;font-weight:900;color:#F97316;">R$ ' + (a.investimento || 0).toFixed(2) + '</div></div>';
-                                    html += '</div>';
-                                    html += '<div style="font-size:0.75rem;color:#94A3B8;line-height:1.5;">';
-                                    html += '✅ <strong style="color:#22C55E;">Garantia:</strong> ' + (a.guaranteeLabel || guarantee + ' acertos') + ' se os números sorteados estiverem no seu pool de ' + pool.length + '<br>';
-                                    html += '📊 <strong>t-subsets:</strong> ' + (a.coveredTSubsets || 0) + '/' + (a.totalTSubsets || 0) + ' cobertos';
-                                    if (a.removed > 0) html += ' | 🗜️ Redução: ' + a.removed + ' blocos removidos';
-                                    // Backtesting
-                                    if (a.backtest && a.backtest.summary) {
-                                        html += '<br><br>📈 <strong style="color:#FCD34D;">BACKTESTING</strong> (últimos ' + (a.backtest.totalDraws || 0) + ' sorteios):';
-                                        const entries = Object.entries(a.backtest.summary).sort((x,y) => parseInt(y[0]) - parseInt(x[0]));
-                                        for (const [hits, count] of entries) {
-                                            html += '<br>&nbsp;&nbsp;' + hits + ' acertos: <strong>' + count + 'x</strong>';
-                                        }
-                                    }
-                                    if (a.freqBalance) {
-                                        html += '<br>🔥 Quentes no pool: ' + a.freqBalance.hotInPool + ' | ❄️ Frios: ' + a.freqBalance.coldInPool;
-                                    }
-                                    html += '</div>';
-                                    banner.innerHTML = html;
-                                    var old = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
-                                    if (old) old.remove();
-                                    this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
-                                }, 100);
-                            } else {
-                                // Fallback se pool == drawSize (1 jogo) ou WheelEngine indisponível
-                                if (pool.length === drawSize) {
-                                    games = [pool.slice()];
-                                    console.log('[MANUAL-v12] Pool = drawSize → 1 jogo direto');
-                                } else {
-                                    // Gerar combinações aleatórias (fallback)
-                                    const usedKeys = new Set();
-                                    for (let g = 0; g < qty; g++) {
-                                        const shuffled = pool.slice();
-                                        for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; }
-                                        const ticket = shuffled.slice(0, drawSize).sort((a,b) => a-b);
-                                        const key = ticket.join(',');
-                                        if (!usedKeys.has(key)) { usedKeys.add(key); games.push(ticket); }
-                                    }
-                                }
-                            }
-                        } else if (selectedArr.length > 0) {
-                            // ══ v11: SELEÇÃO PARCIAL — Aleatório puro COM âncoras ══
-                            // Números selecionados = FIXOS em todos os jogos. Restante = aleatório puro.
-                            // NÃO usa CoverageEngine — é MANUAL genuíno.
-                            const anchorSet = new Set([...selectedArr, ...fixedArr].filter(n => n >= game.range[0] && n <= game.range[1]));
-                            const anchors = Array.from(anchorSet);
-                            console.log('[MANUAL-v11] Seleção parcial: ' + anchors.length + ' âncoras fixas → aleatório puro pro restante');
-
-                            const usedKeys = new Set();
-                            for (let g = 0; g < qty; g++) {
-                                let attempts = 0;
-                                while (attempts < 100) {
-                                    attempts++;
-                                    const pool = [];
-                                    for (let i = game.range[0]; i <= game.range[1]; i++) if (!anchorSet.has(i)) pool.push(i);
-                                    // Fisher-Yates shuffle
-                                    for (let i = pool.length - 1; i > 0; i--) {
-                                        const j = Math.floor(Math.random() * (i + 1));
-                                        [pool[i], pool[j]] = [pool[j], pool[i]];
-                                    }
-                                    const ticket = anchors.slice();
-                                    while (ticket.length < drawSize && pool.length > 0) ticket.push(pool.pop());
-                                    ticket.sort((a, b) => a - b);
-                                    const key = ticket.join(',');
-                                    if (!usedKeys.has(key)) {
-                                        usedKeys.add(key);
-                                        games.push(ticket);
-                                        break;
-                                    }
-                                }
-                            }
-                            // Banner informativo para seleção parcial
-                            setTimeout(() => {
-                                var infoBanner = document.createElement('div');
-                                infoBanner.className = 'smart-gen-analysis';
-                                infoBanner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:12px 16px;border-radius:10px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.3);font-size:0.8rem;color:#FCD34D;';
-                                infoBanner.innerHTML = '⚓ <strong>SELEÇÃO PARCIAL:</strong> Seus ' + selectedArr.length + ' número(s) são FIXOS em todos os jogos. Restante preenchido por aleatório puro. Para fechamento completo, selecione pelo menos ' + drawSize + ' números.';
-                                var ob2 = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
-                                if (ob2) ob2.remove();
-                                this.gamesContainer.parentNode.insertBefore(infoBanner, this.gamesContainer);
-                            }, 100);
-                        } else {
-                            // ══ v11: SEM SELEÇÃO — Aleatório PURO (Fisher-Yates) ══
-                            // ZERO IA, ZERO CoverageEngine — é genuinamente MANUAL/ALEATÓRIO
-                            console.log('[MANUAL-v11] Sem seleção → Aleatório PURO (Fisher-Yates)');
-                            const usedKeys = new Set();
-                            for (let g = 0; g < qty; g++) {
-                                let attempts = 0;
-                                while (attempts < 100) {
-                                    attempts++;
-                                    const pool = [];
-                                    for (let i = game.range[0]; i <= game.range[1]; i++) pool.push(i);
-                                    // Fisher-Yates shuffle
-                                    for (let i = pool.length - 1; i > 0; i--) {
-                                        const j = Math.floor(Math.random() * (i + 1));
-                                        [pool[i], pool[j]] = [pool[j], pool[i]];
-                                    }
-                                    const nums = pool.slice(0, drawSize);
-                                    // Inserir fixos se houver
-                                    const fixSet = new Set(fixedArr.filter(fn => fn >= game.range[0] && fn <= game.range[1]));
-                                    for (const fn of fixSet) {
-                                        if (!nums.includes(fn)) { nums.pop(); nums.push(fn); }
-                                    }
-                                    nums.sort((a, b) => a - b);
-                                    const key = nums.join(',');
-                                    if (!usedKeys.has(key)) {
-                                        usedKeys.add(key);
-                                        games.push(nums);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (games.length === 0) {
-                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Selecione pelo menos ' + drawSize + ' números.</div>';
-                            return;
-                        }
-                        this.currentGeneratedGames = games;
-                        this._lastGeneratedGames = games;
-                        this.renderGames({ pool: selectedArr, games: games, smartAnalysis: null }, this.currentGameKey);
-                        // Auto-scroll para mostrar jogos gerados
-                        setTimeout(() => {
-                            if (this.gamesContainer) {
-                                this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            }
-                        }, 150);
-                    } catch(e) {
-                        console.error('Erro na geracao manual:', e);
-                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
-                    }
+                    var b = document.createElement('div');
+                    b.className = 'smart-gen-analysis';
+                    b.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:12px 16px;border-radius:10px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.3);font-size:0.8rem;color:#FCD34D;';
+                    b.innerHTML = bannerMsg;
+                    var old = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                    if (old) old.remove();
+                    this.gamesContainer.parentNode.insertBefore(b, this.gamesContainer);
                 }, 50);
+                setTimeout(() => { if (this.gamesContainer) this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
             };
         }
 
@@ -1871,45 +1762,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         this.updateCurrentCostDisplay();
         this._updateClosingPreview();
 
-        // v12: Mostrar/esconder dropdown de garantia do Wheel System
-        const wheelRow = document.getElementById('wheel-guarantee-row');
-        const wheelSelect = document.getElementById('wheel-guarantee');
-        const wheelEstimate = document.getElementById('wheel-estimate');
-        if (wheelRow && wheelSelect) {
-            const game = GAMES[this.currentGameKey];
-            const drawSizeSelect = document.getElementById('smart-draw-size');
-            const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
-            const drawSize = (customDrawSize && game && customDrawSize >= game.minBet) ? customDrawSize : (game ? game.minBet : 6);
-
-            if (count >= drawSize && count > drawSize) {
-                wheelRow.style.display = 'flex';
-                // Preencher opções se mudou a loteria
-                if (wheelSelect.dataset.gameKey !== this.currentGameKey) {
-                    wheelSelect.innerHTML = '';
-                    wheelSelect.dataset.gameKey = this.currentGameKey;
-                    if (game && game.closingLevels) {
-                        // Do menor para maior (mais econômico primeiro)
-                        const levels = [...game.closingLevels].reverse();
-                        for (const lvl of levels) {
-                            const opt = document.createElement('option');
-                            opt.value = lvl.guarantee;
-                            opt.textContent = lvl.icon + ' ' + lvl.label;
-                            wheelSelect.appendChild(opt);
-                        }
-                    }
-                }
-                // Estimar blocos
-                if (wheelEstimate && typeof WheelEngine !== 'undefined') {
-                    const t = parseInt(wheelSelect.value) || 4;
-                    const tSubsets = WheelEngine._comb(count, t);
-                    const blocksPerGame = WheelEngine._comb(drawSize, t);
-                    const estMin = Math.ceil(tSubsets / blocksPerGame);
-                    wheelEstimate.textContent = '~' + estMin + '-' + Math.ceil(estMin * 1.5) + ' jogos estimados';
-                }
-            } else {
-                wheelRow.style.display = 'none';
-            }
-        }
+        // v12: Wheel System removido — substituído por MotorFechamentoManual
     }
 
     updateCurrentCostDisplay() {
