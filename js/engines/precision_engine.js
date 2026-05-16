@@ -558,7 +558,7 @@ class PrecisionEngine {
     }
 
     // ─── Scores locais — 10 dimensões analíticas ─────────────────────────
-    static _computeLocalScores(gameKey, history, startNum, endNum, drawSize, totalRange) {
+    static _calcDimensions(history, startNum, endNum, drawSize, totalRange) {
         const N = history.length;
         const scores = {};
         const freq = {};
@@ -742,29 +742,75 @@ class PrecisionEngine {
             d10[n] = dev < -0.3 ? 0.90 : dev < -0.15 ? 0.75 : dev > 0.3 ? 0.20 : dev > 0.15 ? 0.35 : 0.55;
         }
 
-        // ── PESOS DAS 10 DIMENSÕES (Micro-Otimização por Loteria) ──
-        let W = { d1:0.18, d2:0.12, d3:0.14, d4:0.12, d5:0.10, d6:0.08, d7:0.08, d8:0.06, d9:0.07, d10:0.05 };
+        return { d1, d2, d3, d4, d5, d6, d7, d8, d9, d10 };
+    }
+
+    // ─── A BALA DE OURO: Otimizador Auto-Adaptativo via Backtesting ─────────────────────────
+    static _computeLocalScores(gameKey, history, startNum, endNum, drawSize, totalRange) {
+        let W = { d1:0.10, d2:0.10, d3:0.10, d4:0.10, d5:0.10, d6:0.10, d7:0.10, d8:0.10, d9:0.10, d10:0.10 };
         
-        if (gameKey === 'lotofacil') {
-            // Lotofácil: Ciclos curtos. D10 (Regressão à Média) e D3 (Ciclo de retorno) ganham mais peso.
-            W = { d1:0.15, d2:0.10, d3:0.20, d4:0.10, d5:0.05, d6:0.05, d7:0.05, d8:0.05, d9:0.05, d10:0.20 };
-        } else if (gameKey === 'megasena' || gameKey === 'quina') {
-            // Mega/Quina: Esparsas. D2 (Pressão de Vácuo) e D9 (Espelho Temporal) mais relevantes.
-            W = { d1:0.15, d2:0.20, d3:0.10, d4:0.10, d5:0.05, d6:0.05, d7:0.05, d8:0.05, d9:0.15, d10:0.10 };
-        } else if (gameKey === 'lotomania') {
-            // Lotomania: Range gigante. D7 (Equilíbrio de zonas) ganha protagonismo para forçar spread.
-            W = { d1:0.15, d2:0.15, d3:0.10, d4:0.10, d5:0.10, d6:0.05, d7:0.15, d8:0.05, d9:0.05, d10:0.10 };
+        // Treinamento Dinâmico (Sliding Window Backtest)
+        if (history && history.length > 10) {
+            let successCounts = { d1:0, d2:0, d3:0, d4:0, d5:0, d6:0, d7:0, d8:0, d9:0, d10:0 };
+            const backtestDepth = Math.min(5, history.length - 2); // Simula os últimos 5 sorteios
+            
+            for (let b = 0; b < backtestDepth; b++) {
+                const targetDraw = history[b].numbers || [];
+                const pastHist = history.slice(b + 1); // Passado relativo àquele sorteio
+                const dims = this._calcDimensions(pastHist, startNum, endNum, drawSize, totalRange);
+                
+                const keys = Object.keys(successCounts);
+                for (const key of keys) {
+                    const dimScores = dims[key];
+                    const ranked = [];
+                    for (let n = startNum; n <= endNum; n++) ranked.push({ n, s: dimScores[n] || 0 });
+                    ranked.sort((a,b) => b.s - a.s);
+                    // Pega o top N dezenas previstas por esta dimensão
+                    const topN = ranked.slice(0, Math.floor(drawSize * 1.5)).map(r => r.n);
+                    
+                    let hits = 0;
+                    for (const num of targetDraw) {
+                        if (topN.includes(num)) hits++;
+                    }
+                    successCounts[key] += hits;
+                }
+            }
+            
+            // Normaliza os acertos para criar os Pesos
+            let totalSuccess = 0;
+            const keys = Object.keys(successCounts);
+            for (const key of keys) totalSuccess += successCounts[key];
+            
+            if (totalSuccess > 0) {
+                // Piso de 0.02 para nenhuma dimensão morrer totalmente
+                for (const key of keys) {
+                    W[key] = Math.max(0.02, successCounts[key] / totalSuccess);
+                }
+                console.log('%c[PRECISION-L99] 👑 Bala de Ouro: Pesos Auto-Calibrados em Tempo Real!', 'color: #FFD700; font-weight: bold;');
+                console.log(W);
+            }
+        } else {
+            console.log('[PRECISION-L99] Histórico insuficiente para auto-calibração. Usando pesos iguais.');
         }
 
+        // Calcula as dimensões finais para o próximo sorteio (hoje)
+        const dims = this._calcDimensions(history, startNum, endNum, drawSize, totalRange);
+        
+        const scores = {};
         for (let n = startNum; n <= endNum; n++) {
-            scores[n] = d1[n]*W.d1 + d2[n]*W.d2 + d3[n]*W.d3 + d4[n]*W.d4 + d5[n]*W.d5
-                       + d6[n]*W.d6 + d7[n]*W.d7 + d8[n]*W.d8 + d9[n]*W.d9 + d10[n]*W.d10;
+            scores[n] = (dims.d1[n]*W.d1) + (dims.d2[n]*W.d2) + (dims.d3[n]*W.d3) + (dims.d4[n]*W.d4) + (dims.d5[n]*W.d5)
+                      + (dims.d6[n]*W.d6) + (dims.d7[n]*W.d7) + (dims.d8[n]*W.d8) + (dims.d9[n]*W.d9) + (dims.d10[n]*W.d10);
         }
-        // Normalizar [0.10, 1.0]
+        
+        // Normalização Final [0.10, 1.0]
         let minS=Infinity, maxS=-Infinity;
-        for (let n=startNum;n<=endNum;n++){if(scores[n]<minS)minS=scores[n];if(scores[n]>maxS)maxS=scores[n];}
+        for (let n=startNum;n<=endNum;n++) {
+            if(scores[n]<minS) minS=scores[n];
+            if(scores[n]>maxS) maxS=scores[n];
+        }
         const rng = maxS-minS||1;
-        for (let n=startNum;n<=endNum;n++) scores[n]=0.10+(scores[n]-minS)/rng*0.90;
+        for (let n=startNum;n<=endNum;n++) scores[n] = 0.10 + (scores[n]-minS)/rng * 0.90;
+        
         return scores;
     }
 
