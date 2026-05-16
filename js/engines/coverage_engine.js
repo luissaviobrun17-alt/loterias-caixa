@@ -216,6 +216,20 @@ class CoverageEngine {
         // Após ~200 jogos (Mega Sena), >95% dos pares já estão cobertos.
         // Avaliar 2000 candidatos para cobrir 0.1% restante é desperdício puro.
         // Fórmula adaptativa: candidates = max(minC, base × factor / sqrt(g×0.01+1))
+        // ── 3. A BALA DE PRATA: Injeção de Machine Learning no Greedy Set Cover ──
+        let aiScores = null;
+        if (typeof PrecisionEngine !== 'undefined' && typeof StatsService !== 'undefined') {
+            try {
+                const history = StatsService.getRecentResults(gameKey, 100) || [];
+                if (history.length >= 3) {
+                    aiScores = PrecisionEngine._computeLocalScores(gameKey, history, startNum, endNum, drawSize, pool.length);
+                    console.log('%c[COVERAGE] 🧠 IA Preditiva Conectada! Scores de Machine Learning serão usados no desempate combinatório.', 'color: #8B5CF6; font-weight: bold;');
+                }
+            } catch(e) {
+                console.warn('[COVERAGE] Falha ao conectar IA Preditiva:', e.message);
+            }
+        }
+
         const coveredPairs   = new Set();
         const coveredTriples = new Set();
         const useTriples     = (gameKey === 'megasena');
@@ -280,7 +294,15 @@ class CoverageEngine {
                     }
                 }
 
-                const score = newPairs * 10 + newTriples * 5 + diversityBonus - antiRepeat;
+                let aiBonus = 0;
+                if (aiScores) {
+                    for (const n of candidate) {
+                        aiBonus += (aiScores[n] || 0);
+                    }
+                    aiBonus = aiBonus * 0.5; // Fator de desempate, não sobrepõe a matemática pura (newPairs)
+                }
+
+                const score = newPairs * 10 + newTriples * 5 + diversityBonus + aiBonus - antiRepeat;
                 if (score > bestScore) { bestScore = score; bestGame = candidate; }
             }
 
