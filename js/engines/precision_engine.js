@@ -90,7 +90,7 @@ class PrecisionEngine {
         // Usa análise de frequência simples + atraso para dar scores diferentes
         let localScores = null;
         if (!neScores && history.length >= 3) {
-            localScores = this._computeLocalScores(history, startNum, endNum, drawSize, totalRange);
+            localScores = this._computeLocalScores(gameKey, history, startNum, endNum, drawSize, totalRange);
             console.log('[PRECISION-L99] ✓ Scores locais calculados (fallback)');
         }
 
@@ -134,7 +134,7 @@ class PrecisionEngine {
                 const perf = { ne: 0, qg: 0, local: 0, last3: 0, cond: 0 };
                 
                 // Avaliar performance do Local
-                const testLocal = this._computeLocalScores(pastHistory, startNum, endNum, drawSize, totalRange);
+                const testLocal = this._computeLocalScores(gameKey, pastHistory, startNum, endNum, drawSize, totalRange);
                 for (const n of targetDraw) perf.local += (testLocal[n] || 0);
 
                 // Avaliar performance do PrecisionCalibrator
@@ -558,7 +558,7 @@ class PrecisionEngine {
     }
 
     // ─── Scores locais — 10 dimensões analíticas ─────────────────────────
-    static _computeLocalScores(history, startNum, endNum, drawSize, totalRange) {
+    static _computeLocalScores(gameKey, history, startNum, endNum, drawSize, totalRange) {
         const N = history.length;
         const scores = {};
         const freq = {};
@@ -742,8 +742,20 @@ class PrecisionEngine {
             d10[n] = dev < -0.3 ? 0.90 : dev < -0.15 ? 0.75 : dev > 0.3 ? 0.20 : dev > 0.15 ? 0.35 : 0.55;
         }
 
-        // ── PESOS DAS 10 DIMENSÕES ──────────────────────────────────────
-        const W = { d1:0.18, d2:0.12, d3:0.14, d4:0.12, d5:0.10, d6:0.08, d7:0.08, d8:0.06, d9:0.07, d10:0.05 };
+        // ── PESOS DAS 10 DIMENSÕES (Micro-Otimização por Loteria) ──
+        let W = { d1:0.18, d2:0.12, d3:0.14, d4:0.12, d5:0.10, d6:0.08, d7:0.08, d8:0.06, d9:0.07, d10:0.05 };
+        
+        if (gameKey === 'lotofacil') {
+            // Lotofácil: Ciclos curtos. D10 (Regressão à Média) e D3 (Ciclo de retorno) ganham mais peso.
+            W = { d1:0.15, d2:0.10, d3:0.20, d4:0.10, d5:0.05, d6:0.05, d7:0.05, d8:0.05, d9:0.05, d10:0.20 };
+        } else if (gameKey === 'megasena' || gameKey === 'quina') {
+            // Mega/Quina: Esparsas. D2 (Pressão de Vácuo) e D9 (Espelho Temporal) mais relevantes.
+            W = { d1:0.15, d2:0.20, d3:0.10, d4:0.10, d5:0.05, d6:0.05, d7:0.05, d8:0.05, d9:0.15, d10:0.10 };
+        } else if (gameKey === 'lotomania') {
+            // Lotomania: Range gigante. D7 (Equilíbrio de zonas) ganha protagonismo para forçar spread.
+            W = { d1:0.15, d2:0.15, d3:0.10, d4:0.10, d5:0.10, d6:0.05, d7:0.15, d8:0.05, d9:0.05, d10:0.10 };
+        }
+
         for (let n = startNum; n <= endNum; n++) {
             scores[n] = d1[n]*W.d1 + d2[n]*W.d2 + d3[n]*W.d3 + d4[n]*W.d4 + d5[n]*W.d5
                        + d6[n]*W.d6 + d7[n]*W.d7 + d8[n]*W.d8 + d9[n]*W.d9 + d10[n]*W.d10;

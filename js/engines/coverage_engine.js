@@ -32,7 +32,12 @@ class CoverageEngine {
                 prizeThresholds: [11, 12, 13, 14, 15],
                 prizeLabels: ['11 ac.', '12 ac.', '13 ac.', '14 ac.', '15 ac.'],
                 candidatesPerSlot: 80,
-                ticketPrice: 3.00
+                ticketPrice: 3.00,
+                // Micro-Otimização Lotofácil
+                molduraRange: [8, 11],
+                primesRange: [4, 6],
+                fibonacciRange: [3, 5],
+                multiplesOf3Range: [4, 6]
             },
             megasena: {
                 name: 'Mega Sena', drawSize: 6, lotteryDraw: 6,
@@ -59,7 +64,10 @@ class CoverageEngine {
                 prizeThresholds: [2, 3, 4, 5],
                 prizeLabels: ['Duque', 'Terno', 'Quadra', 'Quina'],
                 candidatesPerSlot: 1000,
-                ticketPrice: 2.50
+                ticketPrice: 2.50,
+                // Micro-Otimização Quina
+                maxSameEnding: 2,
+                minQuadrants: 3
             },
             duplasena: {
                 name: 'Dupla Sena', drawSize: 6, lotteryDraw: 6,
@@ -70,7 +78,10 @@ class CoverageEngine {
                 prizeThresholds: [3, 4, 5, 6],
                 prizeLabels: ['Terno', 'Quadra', 'Quina', 'Sena'],
                 candidatesPerSlot: 600,
-                ticketPrice: 2.50
+                ticketPrice: 2.50,
+                // Micro-Otimização Dupla Sena
+                primesRange: [1, 3],
+                highLowBalance: [2, 4]
             },
             lotomania: {
                 name: 'Lotomania', drawSize: 50, lotteryDraw: 20,
@@ -80,8 +91,12 @@ class CoverageEngine {
                 maxConsecutive: 5, minZones: 8,
                 prizeThresholds: [15, 16, 17, 18, 19, 20],
                 prizeLabels: ['15 ac.', '16 ac.', '17 ac.', '18 ac.', '19 ac.', '20 ac.'],
-                candidatesPerSlot: 500,  // v10.8: era 120 (insuficiente). 500 = cobertura real para 50/100
-                ticketPrice: 3.00
+                candidatesPerSlot: 500,
+                ticketPrice: 3.00,
+                // Micro-Otimização Lotomania
+                mirrorBalance: [22, 28],
+                maxEmptyLines: 2,
+                maxEmptyCols: 2
             },
             timemania: {
                 name: 'Timemania', drawSize: 10, lotteryDraw: 7,
@@ -92,7 +107,9 @@ class CoverageEngine {
                 prizeThresholds: [3, 4, 5, 6, 7],
                 prizeLabels: ['3 ac.', '4 ac.', '5 ac.', '6 ac.', '7 ac.'],
                 candidatesPerSlot: 1000,
-                ticketPrice: 3.00
+                ticketPrice: 3.00,
+                // Micro-Otimização Timemania
+                maxPerColumn: 3
             },
             diadesorte: {
                 name: 'Dia de Sorte', drawSize: 7, lotteryDraw: 7,
@@ -102,8 +119,11 @@ class CoverageEngine {
                 maxConsecutive: 3, minZones: 3,
                 prizeThresholds: [3, 4, 5, 6, 7],
                 prizeLabels: ['3 ac.', '4 ac.', '5 ac.', '6 ac.', '7 ac.'],
-                candidatesPerSlot: 800,  // v10.8: era 150 (ruído puro). C(31,7)=2.6M, 800 = greedy real
-                ticketPrice: 2.00
+                candidatesPerSlot: 800,
+                ticketPrice: 2.00,
+                // Micro-Otimização Dia de Sorte
+                sumRangeTight: [100, 140],
+                weekScaleBalance: true
             }
         };
         return configs[gameKey] || configs.megasena;
@@ -399,12 +419,96 @@ class CoverageEngine {
             if (sum < cfg.sumRangeTight[0] || sum > cfg.sumRangeTight[1]) return false;
         }
 
-        // 8. v10.5: Filtro de primos (Mega Sena)
+        // 8. v10.5: Filtro de primos (Mega Sena e outros)
         if (cfg.primesRange) {
-            const PRIMES = new Set([2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59]);
+            const PRIMES = new Set([2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97]);
             let primeCount = 0;
             for (const num of game) { if (PRIMES.has(num)) primeCount++; }
             if (primeCount < cfg.primesRange[0] || primeCount > cfg.primesRange[1]) return false;
+        }
+
+        // ═══════════════════════════════════════════════════════
+        //  FILTROS MICRO-ESPECÍFICOS POR LOTERIA
+        // ═══════════════════════════════════════════════════════
+        
+        // Moldura (Especialmente para Lotofácil)
+        if (cfg.molduraRange) {
+            let molduraCount = 0;
+            for (const num of game) {
+                // Na Lotofacil (1 a 25), a moldura são os numeros da borda num grid 5x5
+                // Moldura: 1,2,3,4,5, 6,10, 11,15, 16,20, 21,22,23,24,25
+                const isMoldura = (num <= 5) || (num >= 21) || (num % 5 === 1) || (num % 5 === 0);
+                if (isMoldura) molduraCount++;
+            }
+            if (molduraCount < cfg.molduraRange[0] || molduraCount > cfg.molduraRange[1]) return false;
+        }
+
+        // Fibonacci
+        if (cfg.fibonacciRange) {
+            const FIBO = new Set([1, 2, 3, 5, 8, 13, 21, 34, 55, 89]);
+            let fiboCount = 0;
+            for (const num of game) { if (FIBO.has(num)) fiboCount++; }
+            if (fiboCount < cfg.fibonacciRange[0] || fiboCount > cfg.fibonacciRange[1]) return false;
+        }
+
+        // Múltiplos de 3
+        if (cfg.multiplesOf3Range) {
+            let mul3Count = 0;
+            for (const num of game) { if (num % 3 === 0) mul3Count++; }
+            if (mul3Count < cfg.multiplesOf3Range[0] || mul3Count > cfg.multiplesOf3Range[1]) return false;
+        }
+
+        // Quadrantes (Quina)
+        if (cfg.minQuadrants) {
+            // Grid 80 números: 4 quadrantes matematicos (1-40 divididos ao meio, 41-80 divididos)
+            // Quadrantes aproximados: Q1 (1-20, 41-60), Q2 (21-40, 61-80) - de forma abstrata
+            const q = new Set();
+            for (const num of game) {
+                const half = num <= 40 ? 0 : 1;
+                const part = (num % 10 <= 5) ? 0 : 1;
+                q.add(half + "-" + part);
+            }
+            if (q.size < cfg.minQuadrants) return false;
+        }
+
+        // Espelhamento Lotomania (00-49 vs 50-99)
+        if (cfg.mirrorBalance) {
+            let firstHalf = 0;
+            for (const num of game) { if (num <= 49) firstHalf++; }
+            if (firstHalf < cfg.mirrorBalance[0] || firstHalf > cfg.mirrorBalance[1]) return false;
+        }
+
+        // Linhas e Colunas Vazias (Lotomania)
+        if (typeof cfg.maxEmptyLines !== 'undefined') {
+            const rows = new Set();
+            const cols = new Set();
+            for (const num of game) {
+                rows.add(Math.floor(num / 10));
+                cols.add(num % 10);
+            }
+            if ((10 - rows.size) > cfg.maxEmptyLines) return false;
+            if ((10 - cols.size) > cfg.maxEmptyCols) return false;
+        }
+
+        // Dia de Sorte: Divisão da semana/mes
+        if (cfg.weekScaleBalance) {
+            let part1=0, part2=0, part3=0;
+            for (const num of game) {
+                if (num <= 10) part1++;
+                else if (num <= 20) part2++;
+                else part3++;
+            }
+            if (part1 === 0 || part2 === 0 || part3 === 0) return false; // Deve ter pelo menos 1 numero em cada "decada" do mês
+        }
+
+        // Timemania: Max por coluna
+        if (cfg.maxPerColumn) {
+            const cols = {};
+            for (const num of game) {
+                const c = num % 10;
+                cols[c] = (cols[c] || 0) + 1;
+                if (cols[c] > cfg.maxPerColumn) return false;
+            }
         }
 
         return true;
