@@ -1244,7 +1244,20 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
     }
 
     initShareEvents() {
-        // WhatsApp removed as per user request
+        const btnShare = document.getElementById('btn-share-link');
+        if (btnShare) {
+            btnShare.addEventListener('click', async () => {
+                const currentUrl = window.location.href.split('#')[0]; // Remove hash if any
+                const success = await this.copyToClipboard(currentUrl);
+                if (success === true) {
+                    if (typeof Guardian !== 'undefined' && Guardian.toast) {
+                        Guardian.toast('Link de instalação copiado para a área de transferência!', 'success');
+                    } else {
+                        alert('Link de instalação copiado!');
+                    }
+                }
+            });
+        }
     }
 
     updateUrlHash() {
