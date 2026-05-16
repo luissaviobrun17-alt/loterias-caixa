@@ -400,6 +400,9 @@ class UI {
         this.initShareEvents();
         this.initStatisticsPanel();
 
+        // Carregar Hot/Cold inicial
+        this.updateStats();
+
         console.log('[UI] initEvents() concluido com sucesso');
     }
 
@@ -409,6 +412,49 @@ class UI {
             clearTimeout(timeout);
             timeout = setTimeout(() => func.apply(this, args), wait);
         };
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  ATUALIZAR ESTATÍSTICAS (Números Quentes / Frios)
+    // ════════════════════════════════════════════════════════════
+    updateStats() {
+        if (typeof StatsService === 'undefined') {
+            console.warn('[UI] StatsService não disponível');
+            return;
+        }
+        try {
+            const stats = StatsService.getStats(this.currentGameKey, this.currentStatsRange);
+            this.renderHotCold(stats);
+        } catch (e) {
+            console.warn('[UI] Erro ao atualizar stats:', e.message);
+        }
+    }
+
+    renderHotCold(stats) {
+        const hotContainer = this.hotNumbersContainer || document.getElementById('hot-numbers');
+        const coldContainer = this.coldNumbersContainer || document.getElementById('cold-numbers');
+        if (!hotContainer || !coldContainer) return;
+
+        const gameConfig = (typeof GAMES !== 'undefined') ? GAMES[this.currentGameKey] : null;
+        const color = gameConfig ? gameConfig.color : '#10B981';
+        const statsCount = gameConfig ? (gameConfig.statsCount || 15) : 15;
+
+        const hotNums = (stats && stats.hot) ? stats.hot.slice(0, statsCount) : [];
+        const coldNums = (stats && stats.cold) ? stats.cold.slice(0, statsCount) : [];
+
+        // Render Hot
+        hotContainer.innerHTML = hotNums.map(item => {
+            const num = String(item.number).padStart(2, '0');
+            return '<span class="stat-ball hot" style="--ball-color:' + color + '" title="Saiu ' + item.count + 'x">' + num + '</span>';
+        }).join('');
+
+        // Render Cold
+        coldContainer.innerHTML = coldNums.map(item => {
+            const num = String(item.number).padStart(2, '0');
+            return '<span class="stat-ball cold" title="Saiu ' + item.count + 'x | Atraso: ' + item.delay + '">' + num + '</span>';
+        }).join('');
+
+        console.log('[UI] Hot/Cold renderizado: ' + hotNums.length + ' quentes, ' + coldNums.length + ' frios (range=' + this.currentStatsRange + ')');
     }
 
     initCopyEvents() {
