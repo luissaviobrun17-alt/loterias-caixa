@@ -235,11 +235,19 @@ class UI {
 
                 setTimeout(() => {
                     try {
-                        if (typeof MotorUnificado === 'undefined') {
-                            alert('MotorUnificado não carregado. Recarregue (Ctrl+Shift+R).');
+                        if (typeof SmartCoverageEngine === 'undefined') {
+                            alert('SmartCoverageEngine não carregado. Recarregue (Ctrl+Shift+R).');
                             return;
                         }
-                        const result = MotorUnificado.generate(this.currentGameKey, qty, drawSize, sniperMode, sniperPoolSize);
+                        const coverageOpts = { precisionMode: sniperMode, precisionPoolSize: sniperPoolSize };
+                        const result = SmartCoverageEngine.generate(
+                            this.currentGameKey, 
+                            qty, 
+                            this.getSelectedNumbers(), 
+                            this.fixedNumbers, 
+                            drawSize, 
+                            coverageOpts
+                        );
 
                         if (!result || !result.games || result.games.length === 0) {
                             this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Tente novamente.</div>';
@@ -250,41 +258,30 @@ class UI {
                         this._lastGeneratedGames = result.games;
                         this.renderGames(result, this.currentGameKey);
 
-                        // Banner Unificado
+                        // Banner Unificado com Métricas Reais
                         const a = result.analysis || {};
-                        const covPct = a.coveragePct || 0;
-                        const entropyPct = a.entropyPct || 0;
-                        const hamming = a.avgHamming || 'N/A';
-                        const sources = a.bordaSources || 5;
+                        const strategyName = a.strategy === 'CLOSURE' ? 'Fechamento Exato (Steiner)' 
+                                           : a.strategy === 'COVERAGE_FAST' ? 'Set Cover (Rápido)' 
+                                           : 'Set Cover (Greedy)';
+                        
+                        let probHtml = '';
+                        if (typeof SmartCoverageEngine !== 'undefined' && SmartCoverageEngine.calcRealMetrics) {
+                            const realMetrics = SmartCoverageEngine.calcRealMetrics(result.games, this.currentGameKey);
+                            if (realMetrics && realMetrics.prizes) {
+                                probHtml = '<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.4);border-radius:8px;font-size:0.75rem;">' +
+                                           '<div style="color:#10B981;font-weight:bold;margin-bottom:4px;">PROBABILIDADES EXATAS (HIPERGEOMÉTRICA)</div>';
+                                realMetrics.prizes.slice(0, 3).forEach(p => {
+                                    probHtml += '<div style="display:flex;justify-content:space-between;color:#D1D5DB;margin-bottom:2px;">' +
+                                                '<span>Acertar ' + p.hits + ':</span><span>' + p.probAtLeastOnePct + '% (em ' + qty + ' jogos)</span></div>';
+                                });
+                                probHtml += '<div style="color:#6B7280;font-size:0.65rem;margin-top:4px;text-align:right;">* Eventos independentes</div></div>';
+                            }
+                        }
 
                         var banner = document.createElement('div');
                         banner.className = 'smart-gen-analysis';
-                        banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(16,185,129,0.12),rgba(15,23,42,0.95));border:1px solid rgba(16,185,129,0.3);';
-
-                        let titleColor = sniperMode ? '#EF4444' : '#34D399';
-                        let titleIcon = sniperMode ? '🎯' : '📐';
-                        let titleText = sniperMode ? 'SNIPER + COBERTURA ESTATÍSTICA' : 'COBERTURA ESTATÍSTICA';
-                        let subtitle = 'Motor Unificado | ' + sources + ' fontes Borda Count + Greedy Set Cover | ' + result.games.length + ' jogos';
-                        if (sniperMode) subtitle += ' | Pool: ' + (a.sniperPoolSize || sniperPoolSize) + ' números';
-
-                        let entropyLabel = 'ENTROPIA';
-                        let entropyColor = '#34D399';
-                        let entropyValueStr = entropyPct + '%';
-                        
-                        if (sniperMode) {
-                            entropyLabel = 'CONCENTRAÇÃO';
-                            // No sniper, entropia baixa = alta concentração (O que é BOM!)
-                            const concentracao = 100 - entropyPct;
-                            entropyValueStr = concentracao + '%';
-                            entropyColor = concentracao > 50 ? '#34D399' : (concentracao > 30 ? '#FBBF24' : '#EF4444');
-                        } else {
-                            // Na cobertura normal, entropia alta = bem distribuído (O que é BOM!)
-                            entropyColor = entropyPct > 75 ? '#34D399' : (entropyPct > 50 ? '#FBBF24' : '#EF4444');
-                        }
-
-                        let covColor = covPct > 80 ? '#34D399' : (covPct > 40 ? '#FBBF24' : '#EF4444');
-
-                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">' + titleIcon + '</span><div><div style="font-weight:900;color:' + titleColor + ';font-size:1rem;text-transform:uppercase;letter-spacing:1px;">' + titleText + '</div><div style="font-size:0.72rem;color:#94A3B8;">' + subtitle + '</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">COBERTURA</div><div style="color:' + covColor + ';font-weight:900;font-size:1.3rem;">' + covPct + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">' + entropyLabel + '</div><div style="color:' + entropyColor + ';font-weight:900;font-size:1.3rem;">' + entropyValueStr + '</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#34D399;font-weight:900;font-size:1.3rem;">' + hamming + '</div></div></div>';
+                        banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(4,120,87,0.12),rgba(15,23,42,0.95));border:1px solid rgba(16,185,129,0.3);';
+                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">📐</span><div><div style="font-weight:900;color:#10B981;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">MATEMÁTICA PURA — ' + strategyName + '</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: SmartCoverageEngine | ' + qty + ' jogos</div></div></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">DIVERSIDADE (HAMMING)</div><div style="color:#10B981;font-weight:900;font-size:1.3rem;">' + (a.avgHamming || 'N/A') + '</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">TEMPO DE PROCESSAMENTO</div><div style="color:#10B981;font-weight:900;font-size:1.3rem;">' + (a.elapsed || 'N/A') + '</div></div></div>' + probHtml;
 
                         var oldBanner = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
                         if (oldBanner) oldBanner.remove();
@@ -1053,12 +1050,20 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         setTimeout(() => {
             try {
-                if (typeof SmartBetsEngine === 'undefined') {
-                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">SmartBetsEngine nao carregado. Recarregue (Ctrl+Shift+R).</div>';
+            try {
+                if (typeof NovaEraEngine === 'undefined') {
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">NovaEraEngine nao carregado. Recarregue (Ctrl+Shift+R).</div>';
                     this._isGenerating = false;
                     return;
                 }
-                const smartResult = SmartBetsEngine.generate(this.currentGameKey, quantity, selectedArr.length >= customDrawSize ? selectedArr : null, fixedArr, customDrawSize);
+                const sniperToggle = document.getElementById('precision-mode-toggle');
+                const sniperMode = sniperToggle ? sniperToggle.checked : false;
+                const poolInput = document.getElementById('precision-pool-size');
+                const sniperPoolSize = poolInput ? parseInt(poolInput.value) || 20 : 20;
+                const aiOpts = { precisionMode: sniperMode, precisionPoolSize: sniperPoolSize };
+
+                // Chamada do NovaEraEngine (substitui SmartBetsEngine) passando os parâmetros extraídos do DOM
+                const smartResult = NovaEraEngine.generate(this.currentGameKey, quantity, selectedArr.length >= customDrawSize ? selectedArr : null, fixedArr, customDrawSize, aiOpts);
                 if (!smartResult || !smartResult.games || smartResult.games.length === 0) {
                     this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Tente novamente.</div>';
                     this._isGenerating = false;
