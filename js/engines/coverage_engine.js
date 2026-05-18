@@ -131,18 +131,14 @@ class CoverageEngine {
 
     // ═══════════════════════════════════════════════════════
     //  PONTO DE ENTRADA PRINCIPAL
+    //  Bug Fix v11.1: aceita 6° param `options` (antes ignorado)
+    //  Bug Fix v11.1: removido _tempConfig (estado global mutável)
     // ═══════════════════════════════════════════════════════
-    static generate(gameKey, numGames, selectedNumbers, fixedNumbers, customDrawSize) {
+    static generate(gameKey, numGames, selectedNumbers, fixedNumbers, customDrawSize, options) {
         const t0 = Date.now();
-        // Suporte a config customizada (Sniper mode com drawSize diferente)
-        let cfg;
-        if (this._tempConfig && this._tempGameKey === gameKey) {
-            cfg = this._tempConfig;
-            this._tempConfig = null;
-            this._tempGameKey = null;
-        } else {
-            cfg = this.getConfig(gameKey);
-        }
+        const _opts = options || {};
+        // v11.1: Config vem sempre do getConfig — _tempConfig removido (race condition)
+        const cfg = this.getConfig(gameKey);
         const [startNum, endNum] = cfg.range;
         // v10.1: Respeitar drawSize customizado do dropdown (5º param)
         const drawSize = (customDrawSize && customDrawSize >= cfg.drawSize) ? customDrawSize : cfg.drawSize;
@@ -254,17 +250,19 @@ class CoverageEngine {
                 const key = candidate.join(',');
                 if (usedKeys.has(key)) continue;
 
+                // v11.1: chave de string 'a|b' — sem colisão de hash numérico
+                // Bug anterior: a*1000+b colidia para ex: (2,100) = (21,00) = 2100
                 let newPairs = 0;
                 for (let i = 0; i < candidate.length; i++)
                     for (let j = i + 1; j < candidate.length; j++)
-                        if (!coveredPairs.has(candidate[i] * 1000 + candidate[j])) newPairs++;
+                        if (!coveredPairs.has(candidate[i] + '|' + candidate[j])) newPairs++;
 
                 let newTriples = 0;
                 if (checkTriples)
                     for (let i = 0; i < candidate.length; i++)
                         for (let j = i + 1; j < candidate.length; j++)
                             for (let k = j + 1; k < candidate.length; k++)
-                                if (!coveredTriples.has(candidate[i] * 10000 + candidate[j] * 100 + candidate[k])) newTriples++;
+                                if (!coveredTriples.has(candidate[i] + '|' + candidate[j] + '|' + candidate[k])) newTriples++;
 
                 let diversityBonus = 0;
                 for (const n of candidate) {
@@ -298,12 +296,13 @@ class CoverageEngine {
                 games.push(bestGame);
                 usedKeys.add(bestGame.join(','));
                 for (const n of bestGame) numberUsage[n] = (numberUsage[n] || 0) + 1;
+                // v11.1: mesma chave de string sem colisão
                 for (let i = 0; i < bestGame.length; i++) {
                     for (let j = i + 1; j < bestGame.length; j++) {
-                        coveredPairs.add(bestGame[i] * 1000 + bestGame[j]);
+                        coveredPairs.add(bestGame[i] + '|' + bestGame[j]);
                         if (useTriples)
                             for (let k = j + 1; k < bestGame.length; k++)
-                                coveredTriples.add(bestGame[i] * 10000 + bestGame[j] * 100 + bestGame[k]);
+                                coveredTriples.add(bestGame[i] + '|' + bestGame[j] + '|' + bestGame[k]);
                     }
                 }
             }

@@ -22,7 +22,9 @@ class BacktestingEngine {
      * @param {number} numConcursos - Quantos concursos testar (default: 8)
      * @returns {Object} Resultado do backtesting
      */
-    static run(gameKey, engine = 'smart', numGames = 10, numConcursos = 20) {
+    // v11.1 Fix: numConcursos default elevado para 35 (acima do threshold de significância de 30)
+    // Bug anterior: default=20 < threshold=30, então a warning "indeterminado" era exibida SEMPRE
+    static run(gameKey, engine = 'smart', numGames = 10, numConcursos = 35) {
         const game = GAMES[gameKey];
         if (!game) return null;
 
@@ -197,8 +199,7 @@ class BacktestingEngine {
         const expectedRandom = actualBetSize * drawnPerGame / totalRange;
         const improvement = expectedRandom > 0 ? ((avgHits - expectedRandom) / expectedRandom) * 100 : 0;
 
-        // ★ GOD MODE FIX: Critérios de confiança mais rigorosos
-        // N<30: nenhuma significância possível (lei dos grandes números)
+        // v11.1: Critério de significância consistente com o default (35 > 30)
         const sampleTooSmall = results.length < 30;
         let confidenceLevel = 'baixa';
         let confidenceColor = '#EF4444';

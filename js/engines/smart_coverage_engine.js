@@ -100,37 +100,44 @@ class SmartCoverageEngine {
         return result;
     }
 
-    // ─── Distância de Hamming média entre jogos ───────────────────────────
-    // Hamming = número de elementos DIFERENTES entre dois jogos
-    // Quanto maior, mais diversificada é a apostas
+    // ─── Distância de Hamming média entre jogos ────────────────────────────────────
+    // v11.1 Fix: amostra de pares ALEATÓRIOS (não adjacentes).
+    // Pares adjacentes no Set Cover têndem a ser semelhantes, subestimando a diversidade real.
     static _calcAvgHamming(games, drawSize) {
         if (games.length < 2) return drawSize;
         let totalDiff = 0;
         let count = 0;
-        // Amostra: compara até 50 pares para não travar em volumes grandes
         const sampleSize = Math.min(games.length, 50);
-        for (let i = 0; i < sampleSize - 1; i++) {
+        // Amostra de pares aleatórios (não apenas adjacentes)
+        for (let s = 0; s < sampleSize; s++) {
+            const i = Math.floor(Math.random() * games.length);
+            let j = Math.floor(Math.random() * games.length);
+            if (j === i) j = (i + 1) % games.length;
             const setA = new Set(games[i]);
             let diff = 0;
-            for (const n of games[i + 1]) { if (!setA.has(n)) diff++; }
+            for (const n of games[j]) { if (!setA.has(n)) diff++; }
             totalDiff += diff;
             count++;
         }
         return count > 0 ? Math.round(totalDiff / count) : drawSize;
     }
 
-    // ─── Calcular métricas honestas para exibição ─────────────────────────
+    // ─── Calcular métricas honestas para exibição ──────────────────────────────
     // Retorna probabilidades hipergeométricas REAIS por faixa de prêmio
+    // v11.1 Fix: usa game.draw (bolas sorteadas) não game.minBet (aposta do jogador)
     static calcRealMetrics(games, gameKey) {
         const game = (typeof GAMES !== 'undefined') ? GAMES[gameKey] : null;
         if (!game || !games || games.length === 0) return {};
 
-        const n = game.range[1] - game.range[0] + 1; // total de números
-        const k = game.minBet;                         // números sorteados
+        const n = game.range[1] - game.range[0] + 1;  // total de números na loteria
+        // v11.1: sorteados pela loteria (ex: Timemania=7, Mega Sena=6, Lotofácil=15)
+        // game.draw é o campo correto; game.minBet é o tamanho da APOSTA
+        const K = game.draw || game.minBet;            // bolas sorteadas
         const numGames = games.length;
+        const drawSize = games[0] ? games[0].length : (game.minBet); // tamanho da aposta
 
         // Probabilidade de acertar exatamente `hits` em um jogo
-        // P(X=hits) = C(k,hits) * C(n-k, drawSize-hits) / C(n, drawSize)
+        // P(X=hits) = C(K,hits) * C(n-K, drawSize-hits) / C(n, drawSize)
         const _comb = (a, b) => {
             if (b < 0 || b > a) return 0;
             if (b === 0 || b === a) return 1;
@@ -140,14 +147,15 @@ class SmartCoverageEngine {
             return r;
         };
 
-        const drawSize = games[0] ? games[0].length : k;
         const totalCombos = _comb(n, drawSize);
         const metrics = {};
 
-        // Calcular probabilidade de acerto por jogo para as faixas principais
+        // Faixas de prêmio: do máximo ao mínimo premíado
         const prizes = [];
-        for (let hits = k; hits >= Math.max(k - 3, 0); hits--) {
-            const prob = (_comb(k, hits) * _comb(n - k, drawSize - hits)) / totalCombos;
+        const maxHits = Math.min(K, drawSize);
+        const minPrizedHits = Math.max(maxHits - 3, 0);
+        for (let hits = maxHits; hits >= minPrizedHits; hits--) {
+            const prob = (_comb(K, hits) * _comb(n - K, drawSize - hits)) / totalCombos;
             if (prob > 0) prizes.push({ hits, prob, probPct: (prob * 100).toFixed(8) });
         }
 
@@ -160,6 +168,8 @@ class SmartCoverageEngine {
         metrics.prizes = prizes;
         metrics.totalCombos = totalCombos.toExponential(2);
         metrics.numGames = numGames;
+        metrics.drawSize = drawSize;
+        metrics.K = K;
         metrics.note = 'Probabilidades hipergeométricas exatas. Loteria é independente de histórico.';
 
         return metrics;

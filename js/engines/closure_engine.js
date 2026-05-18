@@ -56,39 +56,53 @@ class ClosureEngine {
 
     // ═══════════════════════════════════════════════════════
     //  PONTO DE ENTRADA PRINCIPAL
-    //  selectedNumbers: array de números escolhidos pelo usuário
-    //  guaranteeLevel: 'quadra' (t=4) ou 'quina' (t=5)
+    //  v11.1 Fix: assinatura compatível com SmartCoverageEngine:
+    //    generate(gameKey, numGames, selectedNumbers, fixedNumbers, drawSize, guaranteeLevel)
+    //  v11.1 Fix: k dinâmico por loteria (remov. hardcode k=6 Mega Sena)
     // ═══════════════════════════════════════════════════════
 
-    static generate(selectedNumbers, guaranteeLevel = 'quadra') {
+    static generate(gameKey, numGames, selectedNumbers, fixedNumbers, drawSize, guaranteeLevel) {
         const t0 = Date.now();
-        const nums = [...selectedNumbers].sort((a, b) => a - b);
-        const v = nums.length;
-        const k = 6; // Mega Sena = 6 números por jogo
-        const t = guaranteeLevel === 'quina' ? 5 : 4;
 
-        console.log('%c[CLOSURE] ══════════════════════════════════════', 'color: #FFD700; font-weight: bold; font-size: 14px;');
-        console.log('%c[CLOSURE] MOTOR DE FECHAMENTO GARANTIDO v10.5', 'color: #FFD700; font-weight: bold; font-size: 14px;');
-        console.log('%c[CLOSURE] ' + v + ' números | Garantia: ' + guaranteeLevel.toUpperCase() + ' (t=' + t + ')', 'color: #FFD700; font-weight: bold;');
+        // v11.1: k dinâmico: usa drawSize passado pelo orquestrador (ou fallback 6)
+        const k = (drawSize && drawSize > 0) ? drawSize : 6;
+
+        // Normalizar garantia: suporta 'quadra', 'quina' e undefined
+        const gl = guaranteeLevel || 'quadra';
+        const t = gl === 'quina' ? 5 : 4;
+
+        // Para garantia t=5 em jogos com k<6, ajustar t automaticamente
+        const effectiveT = Math.min(t, k - 1);
+
+        const nums = [...(selectedNumbers || [])].sort((a, b) => a - b);
+        const v = nums.length;
+
+        console.log('%c[CLOSURE] ════════════════════════════════════════════', 'color: #FFD700; font-weight: bold; font-size: 14px;');
+        console.log('%c[CLOSURE] MOTOR DE FECHAMENTO GARANTIDO v11.1', 'color: #FFD700; font-weight: bold; font-size: 14px;');
+        console.log('%c[CLOSURE] ' + (gameKey||'') + ' | k=' + k + ' | ' + v + ' números | Garantia: t=' + effectiveT, 'color: #FFD700; font-weight: bold;');
 
         if (v < k) {
-            console.error('[CLOSURE] Números insuficientes: ' + v + ' < ' + k);
-            return { games: [], analysis: { engine: 'ClosureEngine', error: 'Selecione pelo menos 6 números' } };
+            console.warn('[CLOSURE] Números insuficientes: ' + v + ' < ' + k + ' — fallback para CoverageEngine');
+            return { games: [], analysis: { engine: 'ClosureEngine', error: 'Números insuficientes para fechamento' } };
         }
 
         if (v === k) {
             // Trivial: apenas 1 combinação
-            return this._buildResult([nums], nums, v, t, guaranteeLevel, t0);
+            return this._buildResult([nums], nums, v, effectiveT, gl, t0, null, k);
         }
 
         // Determinar número ideal de jogos
-        const table = this.COVERING_TABLES[guaranteeLevel];
-        const targetGames = table && table[v] ? table[v] : this._estimateCoveringNumber(v, k, t);
+        // Para k=6 (Mega Sena) usa tabela exata; para outros usa estimação
+        const table = k === 6 ? (this.COVERING_TABLES[gl] || this.COVERING_TABLES.quadra) : null;
+        const targetGames = (table && table[v]) ? table[v] : this._estimateCoveringNumber(v, k, effectiveT);
 
-        console.log('[CLOSURE] Target: ' + targetGames + ' jogos (C(' + v + ',6,' + t + '))');
+        // Limitar target a numGames se fornecido pelo orquestrador
+        const finalTarget = (numGames && numGames > 0) ? Math.min(targetGames, numGames * 2) : targetGames;
+
+        console.log('[CLOSURE] Target: ' + finalTarget + ' jogos (C(' + v + ',' + k + ',' + effectiveT + '))');
 
         // Gerar jogos usando Greedy Covering
-        const games = this._greedyCovering(nums, k, t, targetGames);
+        const games = this._greedyCovering(nums, k, effectiveT, finalTarget);
 
         // Validar cobertura
         const validation = this._validateCovering(games, nums, t);
@@ -278,10 +292,11 @@ class ClosureEngine {
     //  CONSTRUIR RESULTADO
     // ═══════════════════════════════════════════════════════
 
-    static _buildResult(games, nums, v, t, guaranteeLevel, t0, validation) {
+    static _buildResult(games, nums, v, t, guaranteeLevel, t0, validation, k) {
         const elapsed = Date.now() - t0;
-        const tLabel = t === 5 ? 'QUINA' : 'QUADRA';
-        const investimento = games.length * 5;
+        const tLabel = t >= 5 ? 'QUINA' : 'QUADRA';
+        const betK = k || 6;
+        const investimento = games.length * (betK === 15 ? 3 : betK === 10 ? 3 : 5); // estimativa por tamanho
 
         return {
             games: games,
