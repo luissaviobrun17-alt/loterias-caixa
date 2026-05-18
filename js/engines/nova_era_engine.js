@@ -483,6 +483,11 @@ class NovaEraEngine {
             if (gameKey === 'quina') {
                 targetPoolSize = 50;
             }
+            
+            // v12.4: Dupla Sena Amputação Estatística
+            if (gameKey === 'duplasena' && numGames >= 1000) {
+                targetPoolSize = 28;
+            }
 
             if (targetPoolSize < pool.length) {
                 const fixedSet = new Set(fixedNumbers || []);

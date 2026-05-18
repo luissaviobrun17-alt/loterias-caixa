@@ -140,6 +140,17 @@ class SmartCoverageEngine {
             }
         }
 
+        // v12.4 Amputação Topológica (Dupla Sena)
+        if (gameKey === 'duplasena' && numGames > 100 && (!selectedNumbers || selectedNumbers.length === 0)) {
+            opts.precisionMode = true;
+            if (!opts.precisionPoolSize || opts.precisionPoolSize === 20) {
+                if (numGames <= 500) opts.precisionPoolSize = 35;
+                else if (numGames <= 2000) opts.precisionPoolSize = 32;
+                else opts.precisionPoolSize = 28; // Maximo estrangulamento
+            }
+            console.log('[SmartCoverage] Auto-Sniper ativado para Dupla Sena. Pool estrangulado para', opts.precisionPoolSize);
+        }
+
         // v12.3 Amputação Topológica (Quina)
         // A Quina precisa amputar de 40 a 50 numeros em grandes volumes para ter chance
         if (gameKey === 'quina' && numGames > 100 && (!selectedNumbers || selectedNumbers.length === 0)) {
