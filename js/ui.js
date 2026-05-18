@@ -2402,7 +2402,12 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             const fixedSet = this.fixedNumbers || new Set();
             const hasFixed = fixedSet.size > 0;
             const chunks = [];
-            result.games.forEach((gameNumbers, index) => {
+            
+            // v4.0 HIGH VOLUME SPECIALIST: Cap rendering to 1000 games to prevent browser freeze
+            const renderLimit = Math.min(result.games.length, 1000);
+            const isCapped = result.games.length > 1000;
+
+            result.games.slice(0, renderLimit).forEach((gameNumbers, index) => {
                 const nums = gameNumbers.map(n => {
                     const padded = n.toString().padStart(2, '0');
                     if (hasFixed && fixedSet.has(n)) {
@@ -2423,6 +2428,16 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             });
 
             this.gamesContainer.innerHTML = chunks.join('');
+            
+            if (isCapped) {
+                this.gamesContainer.innerHTML += `
+                    <div style="padding: 15px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: #F59E0B; text-align: center; margin-top: 15px; border-radius: 8px;">
+                        <strong style="font-size: 1.1rem;">⚠️ ALTO VOLUME DE JOGOS</strong><br>
+                        Por questões de performance extrema, o sistema exibiu na tela apenas os primeiros 1.000 volantes.<br><br>
+                        Fique tranquilo: Os seus <b>${result.games.length} jogos únicos</b> foram processados com sucesso no Cérebro Matemático e estão prontos na memória.<br>
+                        Utilize os botões abaixo para <b>Copiar</b> ou <b>Exportar</b> todos os jogos de uma vez.
+                    </div>`;
+            }
             return;
         }
         

@@ -222,7 +222,19 @@ class CoverageEngine {
 
         const coveredPairs   = new Set();
         const coveredTriples = new Set();
-        const useTriples     = (gameKey === 'megasena');
+        const coveredQuads   = new Set();
+        
+        // Ativadores por volume
+        const useTriples = numGames > 100 || (gameKey === 'megasena' || gameKey === 'duplasena' || gameKey === 'quina');
+        const useQuads   = numGames > 1000;
+
+        let checkPairs   = true;
+        let checkTriples = useTriples;
+        let checkQuads   = useQuads;
+
+        const totalTriples = (pool.length * (pool.length - 1) * (pool.length - 2)) / 6;
+        const totalQuads   = (pool.length * (pool.length - 1) * (pool.length - 2) * (pool.length - 3)) / 24;
+
         const games          = [];
         const usedKeys       = new Set();
         const numberUsage    = {};
@@ -238,6 +250,9 @@ class CoverageEngine {
             let bestScore = -1;
 
             const coverageSat = totalPairs > 0 ? coveredPairs.size / totalPairs : 0;
+            const triplesSat  = totalTriples > 0 ? coveredTriples.size / totalTriples : 0;
+            const quadsSat    = totalQuads > 0 ? coveredQuads.size / totalQuads : 0;
+
             const factor = coverageSat > 0.95 ? 0.04
                          : coverageSat > 0.80 ? 0.12
                          : coverageSat > 0.50 ? 0.35
@@ -245,8 +260,10 @@ class CoverageEngine {
             const candidates  = Math.max(minCandidates,
                 Math.round(baseCandidates * factor / Math.sqrt(g * 0.01 + 1)));
 
-            // Triplas: só calcular enquanto há cobertura nova a ganhar
-            const checkTriples = useTriples && coverageSat < 0.90;
+            // ── Troca de Marchas Automática (Saturação) ──
+            // Desliga a caça por duplas se já atingimos 99% para focar o CPU em Triplas e Quadras
+            if (coverageSat > 0.99) checkPairs = false;
+            if (triplesSat > 0.99) checkTriples = false;
 
             for (let c = 0; c < candidates; c++) {
                 const candidate = this._generateValidCandidate(cfg, pool, fixed, startNum, endNum);
@@ -257,16 +274,28 @@ class CoverageEngine {
                 // v11.1: chave de string 'a|b' — sem colisão de hash numérico
                 // Bug anterior: a*1000+b colidia para ex: (2,100) = (21,00) = 2100
                 let newPairs = 0;
-                for (let i = 0; i < candidate.length; i++)
-                    for (let j = i + 1; j < candidate.length; j++)
-                        if (!coveredPairs.has(candidate[i] + '|' + candidate[j])) newPairs++;
+                if (checkPairs) {
+                    for (let i = 0; i < candidate.length; i++)
+                        for (let j = i + 1; j < candidate.length; j++)
+                            if (!coveredPairs.has(candidate[i] + '|' + candidate[j])) newPairs++;
+                }
 
                 let newTriples = 0;
-                if (checkTriples)
+                if (checkTriples) {
                     for (let i = 0; i < candidate.length; i++)
                         for (let j = i + 1; j < candidate.length; j++)
                             for (let k = j + 1; k < candidate.length; k++)
                                 if (!coveredTriples.has(candidate[i] + '|' + candidate[j] + '|' + candidate[k])) newTriples++;
+                }
+
+                let newQuads = 0;
+                if (checkQuads) {
+                    for (let i = 0; i < candidate.length; i++)
+                        for (let j = i + 1; j < candidate.length; j++)
+                            for (let k = j + 1; k < candidate.length; k++)
+                                for (let l = k + 1; l < candidate.length; l++)
+                                    if (!coveredQuads.has(candidate[i] + '|' + candidate[j] + '|' + candidate[k] + '|' + candidate[l])) newQuads++;
+                }
 
                 let diversityBonus = 0;
                 for (const n of candidate) {
@@ -286,11 +315,9 @@ class CoverageEngine {
                     }
                 }
 
-                // v11.0: Score puro — sem aiBonus de frequência histórica
-                // newPairs domina: garante máxima cobertura combinatória
-                // diversityBonus: números nunca usados recebem boost (cobertura uniforme)
-                // antiRepeat: penaliza repetir jogos já apostados no concurso anterior
-                const score = newPairs * 10 + newTriples * 5 + diversityBonus - antiRepeat;
+                // Score Multicamada (Multi-Tier): 
+                // A força gravitacional passa para triplas e quadras conforme os pares se esgotam.
+                const score = (newPairs * 100) + (newTriples * 10) + (newQuads * 2) + diversityBonus - antiRepeat;
                 if (score > bestScore) { bestScore = score; bestGame = candidate; }
             }
 
@@ -304,9 +331,16 @@ class CoverageEngine {
                 for (let i = 0; i < bestGame.length; i++) {
                     for (let j = i + 1; j < bestGame.length; j++) {
                         coveredPairs.add(bestGame[i] + '|' + bestGame[j]);
-                        if (useTriples)
-                            for (let k = j + 1; k < bestGame.length; k++)
+                        if (useTriples) {
+                            for (let k = j + 1; k < bestGame.length; k++) {
                                 coveredTriples.add(bestGame[i] + '|' + bestGame[j] + '|' + bestGame[k]);
+                                if (useQuads) {
+                                    for (let l = k + 1; l < bestGame.length; l++) {
+                                        coveredQuads.add(bestGame[i] + '|' + bestGame[j] + '|' + bestGame[k] + '|' + bestGame[l]);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
