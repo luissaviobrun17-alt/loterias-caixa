@@ -78,8 +78,11 @@ class StatsService {
                     this.historyStore[gameType][existingIndex] = latest;
                 }
 
-                // Buscar concursos anteriores (15 para estatísticas mais confiáveis)
-                await this._fetchPreviousDraws(gameType, latest.drawNumber, 15);
+                // v12.9 (Auto-Cura da Base de Dados)
+                // O sistema vai rastrear e cobrir um buraco de até 60 sorteios ausentes
+                // entre a base estática local e a API da Caixa sempre que for aberto,
+                // garantindo inteligência de escolhas sempre 100% atualizada.
+                await this._fetchPreviousDraws(gameType, latest.drawNumber, 60);
 
                 // Ordenar: mais recente primeiro
                 this.historyStore[gameType].sort(function(a, b) { return b.drawNumber - a.drawNumber; });
