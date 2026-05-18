@@ -157,6 +157,13 @@ class SmartCoverageEngine {
             console.log('[SmartCoverage] Auto-Sniper ativado para Lotomania. Pool restrito para 80.');
         }
 
+        // v12.8 Amputação Topológica Balanceada (Dia de Sorte)
+        if (gameKey === 'diadesorte' && numGames >= 1000 && (!selectedNumbers || selectedNumbers.length === 0)) {
+            opts.precisionMode = true;
+            opts.precisionPoolSize = 28; // Corta os 3 piores (Foco Extremo)
+            console.log('[SmartCoverage] Auto-Sniper ativado para Dia de Sorte. Pool restrito para 28.');
+        }
+
         // v12.7 Amputação Topológica Balanceada (Timemania)
         if (gameKey === 'timemania' && numGames >= 1000 && (!selectedNumbers || selectedNumbers.length === 0)) {
             opts.precisionMode = true;

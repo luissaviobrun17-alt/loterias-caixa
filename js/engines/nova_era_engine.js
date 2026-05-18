@@ -484,6 +484,11 @@ class NovaEraEngine {
                 targetPoolSize = 50;
             }
             
+            // v12.8: Dia de Sorte Amputação Estatística
+            if (gameKey === 'diadesorte' && numGames >= 1000) {
+                targetPoolSize = 28;
+            }
+            
             // v12.7: Timemania Amputação Estatística
             if (gameKey === 'timemania' && numGames >= 1000) {
                 targetPoolSize = 65;
