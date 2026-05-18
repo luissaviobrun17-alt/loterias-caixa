@@ -93,7 +93,7 @@ class CoverageEngine {
                 range: [0, 99], totalNumbers: 100,
                 zones: 10, zoneSize: 10,
                 sumRange: [2100, 2800], parityRange: [20, 30], // v12.5
-                maxConsecutive: 5, minZones: 8,
+                maxConsecutive: 3, minZones: 8,
                 prizeThresholds: [15, 16, 17, 18, 19, 20],
                 prizeLabels: ['15 ac.', '16 ac.', '17 ac.', '18 ac.', '19 ac.', '20 ac.'],
                 candidatesPerSlot: 500,
