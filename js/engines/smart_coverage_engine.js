@@ -237,10 +237,9 @@ class SmartCoverageEngine {
                 gameKey,
                 numGames,
                 selectedNumbers || [],
-                fixedNumbers || [],
+                lotoFixed.length > 0 ? lotoFixed : (fixedNumbers || []), // v12.9 FIX: Passa a âncora fixa pro motor
                 drawSize,
-                null, // previousGames
-                coverageOpts
+                coverageOpts // v12.9 FIX: O 6o parametro e options, nao previousGames
             );
         } catch (e) {
             console.error('[SmartCoverage] CoverageEngine falhou:', e.message);

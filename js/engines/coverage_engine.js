@@ -392,6 +392,7 @@ class CoverageEngine {
     static _generateValidCandidate(cfg, pool, fixed, startNum, endNum, opts) {
         const drawSize = cfg.drawSize;
         const maxAttempts = 200;
+        const isPoolRestricted = pool.length < cfg.totalNumbers || fixed.size > 0;
         const scores = opts && opts.quantumScores ? opts.quantumScores : null;
 
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -429,7 +430,7 @@ class CoverageEngine {
             const game = [...chosen].sort((a, b) => a - b);
 
             // Validar estrutura
-            if (!this._isStructurallyValid(game, cfg, startNum)) continue;
+            if (!this._isStructurallyValid(game, cfg, startNum, isPoolRestricted)) continue;
 
             return game;
         }
@@ -441,16 +442,18 @@ class CoverageEngine {
     //  Estes filtros removem combinações que NUNCA ou
     //  RARAMENTE ocorrem em sorteios reais.
     // ═══════════════════════════════════════════════════════
-    static _isStructurallyValid(game, cfg, startNum) {
+    static _isStructurallyValid(game, cfg, startNum, isPoolRestricted) {
         const n = game.length;
 
-        // 1. Soma dentro do range P5-P95 histórico
-        const sum = game.reduce((a, b) => a + b, 0);
-        if (sum < cfg.sumRange[0] || sum > cfg.sumRange[1]) return false;
+        if (!isPoolRestricted) {
+            // 1. Soma dentro do range P5-P95 histórico
+            const sum = game.reduce((a, b) => a + b, 0);
+            if (sum < cfg.sumRange[0] || sum > cfg.sumRange[1]) return false;
 
-        // 2. Paridade (pares) dentro do range observado
-        const evens = game.filter(x => x % 2 === 0).length;
-        if (evens < cfg.parityRange[0] || evens > cfg.parityRange[1]) return false;
+            // 2. Paridade (pares) dentro do range observado
+            const evens = game.filter(x => x % 2 === 0).length;
+            if (evens < cfg.parityRange[0] || evens > cfg.parityRange[1]) return false;
+        }
 
         // 3. Consecutivos máximos
         let maxRun = 1, curRun = 1;
@@ -479,7 +482,7 @@ class CoverageEngine {
         }
 
         // 6. Equilibrio alto/baixo (numeros <= metade do range)
-        if (cfg.highLowBalance) {
+        if (cfg.highLowBalance && !isPoolRestricted) {
             const midpoint = Math.floor((cfg.range[0] + cfg.range[1]) / 2);
             let lowCount = 0;
             for (const num of game) { if (num <= midpoint) lowCount++; }
@@ -531,7 +534,7 @@ class CoverageEngine {
 
         // 12. Geometria Fina (Linhas e Colunas)
         if (cfg.maxPerLine || cfg.maxPerColumn) {
-            const colsCount = cfg.totalNumbers === 80 ? 10 : (cfg.totalNumbers === 60 ? 10 : 5);
+            const colsCount = cfg.zoneSize || 10; // v12.9 FIX: Respeita o tamanho real da grade da loteria
             const rowDistribution = {};
             const colDistribution = {};
             for (const num of game) {
