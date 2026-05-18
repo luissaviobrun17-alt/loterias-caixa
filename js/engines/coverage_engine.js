@@ -232,9 +232,9 @@ class CoverageEngine {
         const coveredTriples = new Set();
         const coveredQuads   = new Set();
         
-        // Ativadores por volume
-        const useTriples = numGames > 100 || (gameKey === 'megasena' || gameKey === 'duplasena' || gameKey === 'quina');
-        const useQuads   = numGames > 1000;
+        // Ativadores por volume (v12.9 FIX: Proteção contra O(N^4) OOM para Lotomania)
+        const useTriples = (numGames > 100 || (gameKey === 'megasena' || gameKey === 'duplasena' || gameKey === 'quina')) && drawSize <= 15;
+        const useQuads   = numGames > 1000 && drawSize <= 10; // Quads apenas para jogos com poucos numeros por bilhete
 
         let checkPairs   = true;
         let checkTriples = useTriples;
@@ -443,6 +443,11 @@ class CoverageEngine {
     //  RARAMENTE ocorrem em sorteios reais.
     // ═══════════════════════════════════════════════════════
     static _isStructurallyValid(game, cfg, startNum, isPoolRestricted) {
+        // v12.9: Bypass absoluto em caso de amputação.
+        // O Auto-Fixador e Sniper distorcem completamente a topologia natural, 
+        // e forçar limites de geometria causa congelamento por O(N^200) falhas consecutivas.
+        if (isPoolRestricted) return true;
+
         const n = game.length;
 
         if (!isPoolRestricted) {
