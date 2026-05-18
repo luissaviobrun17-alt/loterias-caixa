@@ -140,6 +140,16 @@ class SmartCoverageEngine {
             }
         }
 
+        // v12.5 Auto-Fixador Lotomania
+        if (gameKey === 'lotomania' && numGames >= 1000 && (!selectedNumbers || selectedNumbers.length === 0) && (!fixedNumbers || fixedNumbers.length === 0)) {
+            const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+            if (game) {
+                const heatPool = this._buildSniperPool(gameKey, game, numGames, 100);
+                lotoFixed = heatPool.slice(0, 5); // Fixa as Top 5 estatísticas
+                console.log('[SmartCoverage] Auto-Fixador Lotomania ativado. Top 5 fixos:', lotoFixed);
+            }
+        }
+
         // v12.5 Amputação Topológica Balanceada (Lotomania)
         if (gameKey === 'lotomania' && numGames >= 1000 && (!selectedNumbers || selectedNumbers.length === 0)) {
             opts.precisionMode = true;
