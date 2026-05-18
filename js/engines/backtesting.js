@@ -66,7 +66,8 @@ class BacktestingEngine {
                 StatsService.historyStore[gameKey] = [...trainingHistory];
                 
                 try {
-                    const result = SmartBetsEngine.generate(gameKey, numGames, [], [], betSize);
+                    // v11.0: NovaEraEngine substitui SmartBetsEngine no backtesting
+                    const result = NovaEraEngine.generate(gameKey, numGames, null, [], betSize, { precisionMode: false, precisionPoolSize: 0 });
                     games = result.games || [];
                 } catch(e) {
                     console.warn('[Backtest] Erro na geração:', e.message);
