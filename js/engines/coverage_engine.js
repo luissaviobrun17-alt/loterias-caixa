@@ -153,6 +153,10 @@ class CoverageEngine {
 
         if (selectedNumbers && selectedNumbers.length >= drawSize) {
             pool = selectedNumbers.filter(n => n >= startNum && n <= endNum).sort((a, b) => a - b);
+        } else if (options && options.precisionPool && options.precisionPool.length >= drawSize) {
+            // v11.2: Sniper Pool (Topological Heatmap) injetado
+            pool = options.precisionPool.filter(n => n >= startNum && n <= endNum).sort((a, b) => a - b);
+            console.log('%c[COVERAGE] 🎯 Sniper Ativo! Pool restrito a ' + pool.length + ' números.', 'color: #FCD34D; font-weight: bold;');
         } else {
             for (let n = startNum; n <= endNum; n++) pool.push(n);
         }

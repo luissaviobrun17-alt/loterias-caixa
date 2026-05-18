@@ -64,195 +64,34 @@ class MotorFechamentoManual {
             return this._buildResult([fixedArr.slice()], cfg, poolArr, fixedArr, k, t0);
         }
 
-        // ── FASE 1: BASE PERFEITA ──
-        const basePerfect = this._buildBasePerfect(poolArr, fixedArr, k);
-        console.log('[MOTOR-MANUAL] Base Perfeita: ' + basePerfect.length + ' jogos');
-
-        // ── FASE 2: EXPANSÃO ──
-        let allGames;
+        // ── UNIFICAÇÃO (v3.0): Substituição do Algoritmo Genético pelo Set Cover ──
+        let allGames = [];
         const maxPossible = this._comb(poolArr.length - fixedArr.length, k - fixedArr.length);
 
-        if (numGames <= basePerfect.length) {
-            allGames = basePerfect.slice(0, numGames);
-        } else if (numGames >= maxPossible) {
+        if (numGames >= maxPossible) {
+            // Fechamento Matemático Total (Usuário pagou por todas as combinações)
             allGames = this._generateAll(poolArr, fixedArr, k);
             console.log('[MOTOR-MANUAL] Fechamento TOTAL: ' + allGames.length + ' combinações');
         } else {
-            allGames = this._expandByGeneticCrossover(basePerfect, poolArr, fixedArr, k, numGames, maxPossible);
-            console.log('[MOTOR-MANUAL] Expansão Genética: ' + allGames.length + ' jogos');
+            // Fechamento Otimizado via Set Cover
+            if (typeof SmartCoverageEngine !== 'undefined') {
+                // Passamos precisionMode: false para que o Set Cover use ESTRITAMENTE
+                // os números selecionados pelo usuário, sem inventar mapas de calor.
+                const opts = { precisionMode: false };
+                const result = SmartCoverageEngine.generate(gameKey, numGames, poolArr, fixedArr, k, opts);
+                if (result && result.games) {
+                    allGames = result.games;
+                }
+            } else {
+                console.error('[MOTOR-MANUAL] Falha: SmartCoverageEngine não encontrado.');
+            }
+            console.log('[MOTOR-MANUAL] Set Cover Aplicado: ' + allGames.length + ' jogos gerados da sua piscina manual.');
         }
 
         return this._buildResult(allGames, cfg, poolArr, fixedArr, k, t0);
     }
 
-    // ═══════════════════════════════════════════════════════
-    //  FASE 1: BASE PERFEITA (v2.0 — anti-loop)
-    // ═══════════════════════════════════════════════════════
-    static _buildBasePerfect(pool, fixed, k) {
-        const uncovered = new Set(pool.filter(n => !fixed.includes(n)));
-        const slotsPerGame = k - fixed.length;
-        const games = [];
-        const usedKeys = new Set();
-        let safetyCounter = 0;
-        const maxSafety = pool.length * 10; // v2.0: proteção anti-loop
-
-        while (uncovered.size > 0 && safetyCounter < maxSafety) {
-            safetyCounter++;
-            const remaining = Array.from(uncovered);
-
-            if (remaining.length <= slotsPerGame) {
-                const ticket = fixed.slice();
-                for (const n of remaining) ticket.push(n);
-                const fillers = pool.filter(n => !ticket.includes(n));
-                this._shuffle(fillers);
-                while (ticket.length < k && fillers.length > 0) ticket.push(fillers.pop());
-                ticket.sort((a, b) => a - b);
-                const key = ticket.join(',');
-                if (!usedKeys.has(key)) { usedKeys.add(key); games.push(ticket); }
-                break;
-            }
-
-            this._shuffle(remaining);
-            const chosen = remaining.slice(0, slotsPerGame);
-            const ticket = [...fixed, ...chosen];
-            ticket.sort((a, b) => a - b);
-            const key = ticket.join(',');
-            if (!usedKeys.has(key)) {
-                usedKeys.add(key);
-                games.push(ticket);
-                for (const n of chosen) uncovered.delete(n);
-            } else {
-                // v2.0: se ticket duplicado, forçar remoção de pelo menos 1 número
-                uncovered.delete(chosen[0]);
-            }
-        }
-
-        return games;
-    }
-
-    // ═══════════════════════════════════════════════════════
-    //  FASE 2: CRUZAMENTO GENÉTICO (v3.0 — True Fitness GA)
-    // ═══════════════════════════════════════════════════════
-    static _expandByGeneticCrossover(base, pool, fixed, k, targetCount, maxPossible) {
-        const allGames = base.slice();
-        const usedKeys = new Set(base.map(g => g.join(',')));
-        const nonFixed = pool.filter(n => !fixed.includes(n));
-        const slotsPerGame = k - fixed.length;
-        
-        // v3.0: Inicializar matriz de frequência de pares
-        const pairMatrix = {};
-        for (const n1 of pool) {
-            pairMatrix[n1] = {};
-            for (const n2 of pool) pairMatrix[n1][n2] = 0;
-        }
-
-        // Popular matriz com a base perfeita
-        for (const game of allGames) {
-            for (let i = 0; i < game.length; i++) {
-                for (let j = i + 1; j < game.length; j++) {
-                    pairMatrix[game[i]][game[j]]++;
-                    pairMatrix[game[j]][game[i]]++;
-                }
-            }
-        }
-
-        let generation = 0;
-        const maxGenerations = Math.min(targetCount * 20, 10000);
-        const cappedTarget = Math.min(targetCount, maxPossible);
-        const litterSize = 10; // Ninhada: gera 10 mutantes por geração e escolhe o melhor
-
-        while (allGames.length < cappedTarget && generation < maxGenerations) {
-            generation++;
-            let bestChild = null;
-            let bestFitness = -1;
-
-            // Gerar "Ninhada" (Litter) de candidatos
-            for (let c = 0; c < litterSize; c++) {
-                const parent1 = allGames[Math.floor(Math.random() * allGames.length)];
-                const parent2 = allGames[Math.floor(Math.random() * allGames.length)];
-
-                const genes1 = parent1.filter(n => !fixed.includes(n));
-                const genes2 = parent2.filter(n => !fixed.includes(n));
-
-                const cut = Math.floor(Math.random() * (slotsPerGame - 1)) + 1;
-                const childGenes = new Set();
-
-                // Crossover
-                for (let i = 0; i < cut && childGenes.size < slotsPerGame; i++) {
-                    if (genes1[i] !== undefined) childGenes.add(genes1[i]);
-                }
-                for (let i = cut; i < genes2.length && childGenes.size < slotsPerGame; i++) {
-                    if (genes2[i] !== undefined && !childGenes.has(genes2[i])) childGenes.add(genes2[i]);
-                }
-
-                // Mutação / Preenchimento
-                if (childGenes.size < slotsPerGame) {
-                    const mutants = nonFixed.filter(n => !childGenes.has(n));
-                    this._shuffle(mutants);
-                    while (childGenes.size < slotsPerGame && mutants.length > 0) {
-                        childGenes.add(mutants.pop());
-                    }
-                }
-
-                if (childGenes.size === slotsPerGame) {
-                    const ticket = [...fixed, ...childGenes].sort((a, b) => a - b);
-                    const key = ticket.join(',');
-                    
-                    if (!usedKeys.has(key)) {
-                        // v3.0: FITNESS FUNCTION (Aptidão)
-                        // Calcula a qualidade do filho: ele é melhor se contiver pares que apareceram POUCO
-                        let fitness = 0;
-                        for (let i = 0; i < ticket.length; i++) {
-                            for (let j = i + 1; j < ticket.length; j++) {
-                                // 1 / (1 + aparições). Quanto menos aparições, maior a pontuação.
-                                fitness += 1 / (1 + pairMatrix[ticket[i]][ticket[j]]);
-                            }
-                        }
-
-                        if (fitness > bestFitness) {
-                            bestFitness = fitness;
-                            bestChild = { ticket, key };
-                        }
-                    }
-                }
-            }
-
-            // Seleção Natural: Sobrevive o mais apto da ninhada
-            if (bestChild) {
-                usedKeys.add(bestChild.key);
-                allGames.push(bestChild.ticket);
-                
-                // Atualizar matriz de pares
-                const t = bestChild.ticket;
-                for (let i = 0; i < t.length; i++) {
-                    for (let j = i + 1; j < t.length; j++) {
-                        pairMatrix[t[i]][t[j]]++;
-                        pairMatrix[t[j]][t[i]]++;
-                    }
-                }
-            } else if (generation % 20 === 0) {
-                // Fallback de estagnação: Forçar mutação aleatória severa se a ninhada falhar
-                for (let f = 0; f < 50 && allGames.length < cappedTarget; f++) {
-                    const shuffled = nonFixed.slice();
-                    this._shuffle(shuffled);
-                    const ticket = [...fixed, ...shuffled.slice(0, slotsPerGame)].sort((a, b) => a - b);
-                    const key = ticket.join(',');
-                    if (!usedKeys.has(key)) {
-                        usedKeys.add(key);
-                        allGames.push(ticket);
-                        for (let i = 0; i < ticket.length; i++) {
-                            for (let j = i + 1; j < ticket.length; j++) {
-                                pairMatrix[ticket[i]][ticket[j]]++;
-                                pairMatrix[ticket[j]][ticket[i]]++;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return allGames;
-    }
+    // (As funções obsoletas de cruzamento genético e base perfeita foram expurgadas para garantir pureza matemática)
 
     // ═══════════════════════════════════════════════════════
     //  GERAÇÃO COMPLETA C(n,k)

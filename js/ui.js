@@ -1050,7 +1050,6 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         setTimeout(() => {
             try {
-            try {
                 if (typeof NovaEraEngine === 'undefined') {
                     this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">NovaEraEngine nao carregado. Recarregue (Ctrl+Shift+R).</div>';
                     this._isGenerating = false;

@@ -21,6 +21,77 @@ class SmartCoverageEngine {
         return 'COVERAGE_FAST';                   // Set Cover adaptativo
     }
 
+    // ─── Construção do Alvo do Sniper (KDE / Heatmap Espacial) ────────────
+    static _buildSniperPool(gameKey, game, numGames) {
+        if (typeof StatsService === 'undefined') return [];
+        const history = StatsService.historyStore[gameKey] || [];
+        if (history.length === 0) return [];
+
+        const drawsToAnalyze = Math.min(15, history.length);
+        const recentDraws = history.slice(0, drawsToAnalyze);
+
+        // Grade física do volante
+        const columns = gameKey === 'lotofacil' ? 5 : 10;
+        const start = game.range[0];
+        const end = game.range[1];
+        
+        const heat = {};
+        for (let i = start; i <= end; i++) heat[i] = 0;
+
+        // Decaimento exponencial: Dá mais peso aos sorteios recentes
+        const decay = 0.75; 
+        let weight = 1.0;
+
+        recentDraws.forEach(draw => {
+            const nums = (draw.numbers || []).concat(draw.numbers2 || []);
+            nums.forEach(n => {
+                if (n >= start && n <= end) {
+                    // Epicentro (Próprio número)
+                    heat[n] += (100 * weight);
+
+                    const adjacents = [];
+                    // Esquerda e Direita (na mesma linha)
+                    if ((n - start) % columns !== 0) adjacents.push(n - 1);
+                    if ((n - start) % columns !== (columns - 1)) adjacents.push(n + 1);
+                    // Cima e Baixo
+                    if (n - columns >= start) adjacents.push(n - columns);
+                    if (n + columns <= end) adjacents.push(n + columns);
+
+                    // Adjacência ortogonal
+                    adjacents.forEach(adj => {
+                        if (adj >= start && adj <= end) heat[adj] += (50 * weight);
+                    });
+
+                    const diagonals = [];
+                    if (n - columns >= start && (n - start) % columns !== 0) diagonals.push(n - columns - 1);
+                    if (n - columns >= start && (n - start) % columns !== (columns - 1)) diagonals.push(n - columns + 1);
+                    if (n + columns <= end && (n - start) % columns !== 0) diagonals.push(n + columns - 1);
+                    if (n + columns <= end && (n - start) % columns !== (columns - 1)) diagonals.push(n + columns + 1);
+
+                    // Adjacência diagonal
+                    diagonals.forEach(diag => {
+                         if (diag >= start && diag <= end) heat[diag] += (25 * weight);
+                    });
+                }
+            });
+            weight *= decay;
+        });
+
+        const sortedNumbers = Object.keys(heat)
+            .map(n => parseInt(n))
+            .sort((a, b) => heat[b] - heat[a]);
+
+        // Cálculo dinâmico do tamanho do alvo com base no orçamento (numGames)
+        let targetSize = game.draw * 2; 
+        if (numGames <= 10) targetSize = Math.round(game.draw * 2.8);       // Ex: Mega(10j) -> 17 dezenas
+        else if (numGames <= 30) targetSize = Math.round(game.draw * 3.8);  // Ex: Mega(30j) -> 23 dezenas
+        else if (numGames <= 100) targetSize = Math.round(game.draw * 5.0); // Ex: Mega(100j) -> 30 dezenas
+        else targetSize = Math.round(game.draw * 7.0);                      // Ex: Mega(200j+) -> 42 dezenas
+
+        targetSize = Math.min(targetSize, end - start + 1);
+        return sortedNumbers.slice(0, targetSize).sort((a, b) => a - b);
+    }
+
     // ─── Ponto de entrada ─────────────────────────────────────────────────
     static generate(gameKey, numGames, selectedNumbers, fixedNumbers, drawSize, options) {
         const t0 = Date.now();
@@ -55,10 +126,20 @@ class SmartCoverageEngine {
             return { games: [], analysis: { error: 'CoverageEngine não carregado' } };
         }
 
+        // Se o Sniper está ativo e o usuário não forçou números, calcula a Âncora Topológica
+        let sniperPool = [];
+        if (opts.precisionMode && (!selectedNumbers || selectedNumbers.length === 0)) {
+            const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+            if (game) {
+                sniperPool = this._buildSniperPool(gameKey, game, numGames);
+                console.log('[SmartCoverage] 🎯 Sniper Ativo: Alvo concentrado em', sniperPool.length, 'dezenas:', sniperPool);
+            }
+        }
+
         // Passar opções de pool para CoverageEngine (sem ler DOM)
         const coverageOpts = {
             precisionMode: opts.precisionMode || false,
-            precisionPoolSize: opts.precisionPoolSize || 0,
+            precisionPool: sniperPool.length > 0 ? sniperPool : null,
             strategy: strategy
         };
 
@@ -87,8 +168,11 @@ class SmartCoverageEngine {
         if (!result) result = { games: [], analysis: {} };
         result.analysis = result.analysis || {};
         result.analysis.strategy = strategy;
-        result.analysis.engineVersion = 'SmartCoverage-v1.0';
+        result.analysis.engineVersion = 'SmartCoverage-v1.1-Sniper';
         result.analysis.elapsed = (Date.now() - t0) + 'ms';
+        if (sniperPool.length > 0) {
+            result.analysis.sniperPoolSize = sniperPool.length;
+        }
 
         // ── Calcular Distância de Hamming média ───────────────────────────
         if (result.games && result.games.length > 1) {
