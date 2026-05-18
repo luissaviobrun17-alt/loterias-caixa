@@ -92,16 +92,19 @@ class CoverageEngine {
                 name: 'Lotomania', drawSize: 50, lotteryDraw: 20,
                 range: [0, 99], totalNumbers: 100,
                 zones: 10, zoneSize: 10,
-                sumRange: [2050, 2950], parityRange: [22, 28],
+                sumRange: [2100, 2800], parityRange: [20, 30], // v12.5
                 maxConsecutive: 5, minZones: 8,
                 prizeThresholds: [15, 16, 17, 18, 19, 20],
                 prizeLabels: ['15 ac.', '16 ac.', '17 ac.', '18 ac.', '19 ac.', '20 ac.'],
                 candidatesPerSlot: 500,
                 ticketPrice: 3.00,
-                // Micro-Otimização Lotomania
-                mirrorBalance: [22, 28],
+                // Micro-Otimização Cirúrgica Lotomania (v12.5)
+                mirrorBalance: [20, 30],
                 maxEmptyLines: 2,
-                maxEmptyCols: 2
+                maxEmptyCols: 2,
+                maxPerLine: 8,
+                maxPerColumn: 8,
+                highLowBalance: [20, 30]
             },
             timemania: {
                 name: 'Timemania', drawSize: 10, lotteryDraw: 7,

@@ -488,6 +488,11 @@ class NovaEraEngine {
             if (gameKey === 'duplasena' && numGames >= 1000) {
                 targetPoolSize = 28;
             }
+            
+            // v12.5: Lotomania Amputação Estatística
+            if (gameKey === 'lotomania' && numGames >= 1000) {
+                targetPoolSize = 80;
+            }
 
             if (targetPoolSize < pool.length) {
                 const fixedSet = new Set(fixedNumbers || []);

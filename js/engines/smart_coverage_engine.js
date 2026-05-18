@@ -140,6 +140,13 @@ class SmartCoverageEngine {
             }
         }
 
+        // v12.5 Amputação Topológica Balanceada (Lotomania)
+        if (gameKey === 'lotomania' && numGames >= 1000 && (!selectedNumbers || selectedNumbers.length === 0)) {
+            opts.precisionMode = true;
+            opts.precisionPoolSize = 80; // Corta apenas os 20 piores (Permite Hamming Distance gigante)
+            console.log('[SmartCoverage] Auto-Sniper ativado para Lotomania. Pool restrito para 80.');
+        }
+
         // v12.4 Amputação Topológica (Dupla Sena)
         if (gameKey === 'duplasena' && numGames > 100 && (!selectedNumbers || selectedNumbers.length === 0)) {
             opts.precisionMode = true;
