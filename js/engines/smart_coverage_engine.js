@@ -145,8 +145,8 @@ class SmartCoverageEngine {
             const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
             if (game) {
                 const heatPool = this._buildSniperPool(gameKey, game, numGames, 100);
-                lotoFixed = heatPool.slice(0, 5); // Fixa as Top 5 estatísticas
-                console.log('[SmartCoverage] Auto-Fixador Lotomania ativado. Top 5 fixos:', lotoFixed);
+                lotoFixed = heatPool.slice(0, 15); // Fixa as Top 15 estatísticas (v12.6)
+                console.log('[SmartCoverage] Auto-Fixador Lotomania ativado. Top 15 fixos:', lotoFixed);
             }
         }
 
