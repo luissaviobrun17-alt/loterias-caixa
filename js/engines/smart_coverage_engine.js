@@ -308,7 +308,7 @@ class SmartCoverageEngine {
             if (b === 0 || b === a) return 1;
             b = Math.min(b, a - b);
             let r = 1;
-            for (let i = 0; i < b; i++) { r = r * (a - i) / (i + 1); if (r > 1e15) return 1e15; }
+            for (let i = 0; i < b; i++) { r = r * (a - i) / (i + 1); /* Sem limite de e15 para Lotomania */ }
             return r;
         };
 

@@ -157,10 +157,12 @@ class CoverageEngine {
 
         // ── 1. Definir pool de números disponíveis ──
         let pool = [];
-        const fixed = new Set((fixedNumbers || []).filter(n => n >= startNum && n <= endNum));
+        const fixedArr = (fixedNumbers instanceof Set) ? Array.from(fixedNumbers) : (fixedNumbers || []);
+        const fixed = new Set(fixedArr.filter(n => n >= startNum && n <= endNum));
 
-        if (selectedNumbers && selectedNumbers.length >= drawSize) {
-            pool = selectedNumbers.filter(n => n >= startNum && n <= endNum).sort((a, b) => a - b);
+        const selectedArr = (selectedNumbers instanceof Set) ? Array.from(selectedNumbers) : (selectedNumbers || []);
+        if (selectedArr && selectedArr.length >= drawSize) {
+            pool = selectedArr.filter(n => n >= startNum && n <= endNum).sort((a, b) => a - b);
         } else if (options && options.precisionPool && options.precisionPool.length >= drawSize) {
             // v11.2: Sniper Pool (Topological Heatmap) injetado
             pool = options.precisionPool.filter(n => n >= startNum && n <= endNum).sort((a, b) => a - b);
