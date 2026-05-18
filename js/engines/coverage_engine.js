@@ -429,18 +429,55 @@ class CoverageEngine {
             }
 
             if (chosen.size < drawSize) continue;
-            const game = [...chosen].sort((a, b) => a - b);
+            let game = [...chosen].sort((a, b) => a - b);
 
-            // v12.10: Forçar verificação de Consecutivos MESMO em pool restrito
-            // (se houver flexibilidade mínima de 3 números extras na piscina)
-            const enforceConsecutive = !isPoolRestricted || (pool.length >= drawSize + 3);
+            // v12.13: AUTO-REPAIR para Sequências (Mágica para Lotomania)
+            // Como a chance de 50 números aleatórios terem máx 3 seguidos é 0.0000001%,
+            // em vez de rejeitar, nós CONSERTAMOS o bilhete quebrando as sequências!
+            const enforceConsecutive = (!isPoolRestricted || (pool.length >= drawSize + 3));
             if (enforceConsecutive) {
-                let maxRun = 1, curRun = 1;
-                for (let i = 1; i < game.length; i++) {
-                    if (game[i] === game[i - 1] + 1) { curRun++; maxRun = Math.max(maxRun, curRun); }
-                    else curRun = 1;
+                let attemptsFix = 0;
+                while (attemptsFix < 15) {
+                    let maxRun = 1, curRun = 1, breakIndex = -1;
+                    for (let i = 1; i < game.length; i++) {
+                        if (game[i] === game[i - 1] + 1) { 
+                            curRun++; 
+                            if (curRun > cfg.maxConsecutive) { breakIndex = i; maxRun = curRun; break; }
+                        } else { 
+                            curRun = 1; 
+                        }
+                    }
+                    if (breakIndex === -1) break; // Resolvido!
+
+                    // Temos uma sequência proibida! Remover o número e tentar buscar outro do pool
+                    const numToRemove = game[breakIndex];
+                    game.splice(breakIndex, 1);
+                    
+                    // Achar um substituto no pool que não crie nova sequência
+                    const availablePool = pool.filter(n => !game.includes(n) && !fixed.has(n));
+                    this._shuffle(availablePool);
+                    let found = false;
+                    for (const cand of availablePool) {
+                        // Verifica se colocar 'cand' quebra a regra de adjacência (heurística rápida)
+                        if (!game.includes(cand - 1) || !game.includes(cand + 1)) {
+                            game.push(cand);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found && availablePool.length > 0) game.push(availablePool[0]); // Fallback
+                    game.sort((a, b) => a - b);
+                    attemptsFix++;
                 }
-                if (maxRun > cfg.maxConsecutive) continue;
+
+                // Verificação final
+                let finalMax = 1, cur = 1;
+                for (let i = 1; i < game.length; i++) {
+                    if (game[i] === game[i - 1] + 1) { cur++; finalMax = Math.max(finalMax, cur); }
+                    else cur = 1;
+                }
+                // Se MESMO com o auto-repair não resolveu, e não estamos "lutando", descarta.
+                if (finalMax > cfg.maxConsecutive && attempt < (maxAttempts * 0.8)) continue;
             }
 
             // Validar estrutura
