@@ -47,13 +47,16 @@ class CoverageEngine {
                 maxConsecutive: 2, minZones: 3,
                 prizeThresholds: [4, 5, 6],
                 prizeLabels: ['Quadra', 'Quina', 'Sena'],
-                candidatesPerSlot: 2000,   // v10.5: +15% qualidade Greedy (era 800)
+                candidatesPerSlot: 2000,
                 ticketPrice: 5.00,
-                // v10.4 Filtros refinados exclusivos Mega Sena
-                sumRangeTight: [110, 250],
+                // v12.1 ESTRANGULAMENTO CIRURGICO MEGA SENA
+                sumRangeTight: [130, 210],
                 maxSameEnding: 2,
                 highLowBalance: [2, 4],
-                primesRange: [0, 5]        // v10.5: tolerante (rejeita all-primes)
+                primesRange: [0, 3],        
+                fibonacciRange: [0, 2],
+                minQuadrants: 3,
+                molduraBalance: [2, 4]
             },
             quina: {
                 name: 'Quina', drawSize: 5, lotteryDraw: 5,
@@ -266,7 +269,7 @@ class CoverageEngine {
             if (triplesSat > 0.99) checkTriples = false;
 
             for (let c = 0; c < candidates; c++) {
-                const candidate = this._generateValidCandidate(cfg, pool, fixed, startNum, endNum);
+                const candidate = this._generateValidCandidate(cfg, pool, fixed, startNum, endNum, _opts);
                 if (!candidate) continue;
                 const key = candidate.join(',');
                 if (usedKeys.has(key)) continue;
@@ -321,7 +324,7 @@ class CoverageEngine {
                 if (score > bestScore) { bestScore = score; bestGame = candidate; }
             }
 
-            if (!bestGame) bestGame = this._generateValidCandidate(cfg, pool, fixed, startNum, endNum);
+            if (!bestGame) bestGame = this._generateValidCandidate(cfg, pool, fixed, startNum, endNum, _opts);
 
             if (bestGame) {
                 games.push(bestGame);
@@ -381,21 +384,40 @@ class CoverageEngine {
     //  GERAR CANDIDATO ESTRUTURALMENTE VÁLIDO
     //  Sem scoring, sem previsão — apenas validação estrutural
     // ═══════════════════════════════════════════════════════
-    static _generateValidCandidate(cfg, pool, fixed, startNum, endNum) {
+    static _generateValidCandidate(cfg, pool, fixed, startNum, endNum, opts) {
         const drawSize = cfg.drawSize;
         const maxAttempts = 200;
+        const scores = opts && opts.quantumScores ? opts.quantumScores : null;
 
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
             // Começar com números fixos
             const chosen = new Set(fixed);
 
-            // Completar com números aleatórios do pool
+            // Completar com números do pool
             const available = pool.filter(n => !chosen.has(n));
-            this._shuffle(available);
-
-            for (const n of available) {
-                if (chosen.size >= drawSize) break;
-                chosen.add(n);
+            
+            if (scores) {
+                // v12.0: Seleção Baseada em Ciência (Quantum Scores)
+                while (chosen.size < drawSize && available.length > 0) {
+                    let totalScore = 0;
+                    for (const n of available) totalScore += Math.max(0.1, scores[n] || 1);
+                    
+                    let rnd = Math.random() * totalScore;
+                    let selectedIdx = 0;
+                    for (let i = 0; i < available.length; i++) {
+                        rnd -= Math.max(0.1, scores[available[i]] || 1);
+                        if (rnd <= 0) { selectedIdx = i; break; }
+                    }
+                    chosen.add(available[selectedIdx]);
+                    available.splice(selectedIdx, 1);
+                }
+            } else {
+                // Sorteio Uniforme (Padrão)
+                this._shuffle(available);
+                for (const n of available) {
+                    if (chosen.size >= drawSize) break;
+                    chosen.add(n);
+                }
             }
 
             if (chosen.size < drawSize) continue;
@@ -459,101 +481,45 @@ class CoverageEngine {
             if (lowCount < cfg.highLowBalance[0] || lowCount > cfg.highLowBalance[1]) return false;
         }
 
-        // 7. Soma apertada P10-P90 (mais restritivo que sumRange P5-P95)
-        if (cfg.sumRangeTight) {
-            if (sum < cfg.sumRangeTight[0] || sum > cfg.sumRangeTight[1]) return false;
-        }
-
-        // 8. v10.5: Filtro de primos (Mega Sena e outros)
+        // 7. Primos limit (generalizado)
         if (cfg.primesRange) {
-            const PRIMES = new Set([2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97]);
+            const primes = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97];
             let primeCount = 0;
-            for (const num of game) { if (PRIMES.has(num)) primeCount++; }
+            for (const num of game) { if (primes.includes(num)) primeCount++; }
             if (primeCount < cfg.primesRange[0] || primeCount > cfg.primesRange[1]) return false;
         }
 
-        // ═══════════════════════════════════════════════════════
-        //  FILTROS MICRO-ESPECÍFICOS POR LOTERIA
-        // ═══════════════════════════════════════════════════════
-        
-        // Moldura (Especialmente para Lotofácil)
-        if (cfg.molduraRange) {
-            let molduraCount = 0;
-            for (const num of game) {
-                // Na Lotofacil (1 a 25), a moldura são os numeros da borda num grid 5x5
-                // Moldura: 1,2,3,4,5, 6,10, 11,15, 16,20, 21,22,23,24,25
-                const isMoldura = (num <= 5) || (num >= 21) || (num % 5 === 1) || (num % 5 === 0);
-                if (isMoldura) molduraCount++;
-            }
-            if (molduraCount < cfg.molduraRange[0] || molduraCount > cfg.molduraRange[1]) return false;
-        }
-
-        // Fibonacci
+        // 8. Fibonacci limit
         if (cfg.fibonacciRange) {
-            const FIBO = new Set([1, 2, 3, 5, 8, 13, 21, 34, 55, 89]);
-            let fiboCount = 0;
-            for (const num of game) { if (FIBO.has(num)) fiboCount++; }
-            if (fiboCount < cfg.fibonacciRange[0] || fiboCount > cfg.fibonacciRange[1]) return false;
+            const fib = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89];
+            let fibCount = 0;
+            for (const num of game) { if (fib.includes(num)) fibCount++; }
+            if (fibCount < cfg.fibonacciRange[0] || fibCount > cfg.fibonacciRange[1]) return false;
         }
 
-        // Múltiplos de 3
-        if (cfg.multiplesOf3Range) {
-            let mul3Count = 0;
-            for (const num of game) { if (num % 3 === 0) mul3Count++; }
-            if (mul3Count < cfg.multiplesOf3Range[0] || mul3Count > cfg.multiplesOf3Range[1]) return false;
-        }
-
-        // Quadrantes (Quina)
-        if (cfg.minQuadrants) {
-            // Grid 80 números: 4 quadrantes matematicos (1-40 divididos ao meio, 41-80 divididos)
-            // Quadrantes aproximados: Q1 (1-20, 41-60), Q2 (21-40, 61-80) - de forma abstrata
+        // 9. Quadrantes (Mega Sena especifica)
+        if (cfg.minQuadrants && cfg.totalNumbers === 60) {
             const q = new Set();
             for (const num of game) {
-                const half = num <= 40 ? 0 : 1;
-                const part = (num % 10 <= 5) ? 0 : 1;
-                q.add(half + "-" + part);
+                const col = (num - 1) % 10 + 1;
+                const row = Math.floor((num - 1) / 10) + 1;
+                if (col <= 5 && row <= 3) q.add(1);
+                else if (col > 5 && row <= 3) q.add(2);
+                else if (col <= 5 && row > 3) q.add(3);
+                else q.add(4);
             }
             if (q.size < cfg.minQuadrants) return false;
         }
 
-        // Espelhamento Lotomania (00-49 vs 50-99)
-        if (cfg.mirrorBalance) {
-            let firstHalf = 0;
-            for (const num of game) { if (num <= 49) firstHalf++; }
-            if (firstHalf < cfg.mirrorBalance[0] || firstHalf > cfg.mirrorBalance[1]) return false;
-        }
-
-        // Linhas e Colunas Vazias (Lotomania)
-        if (typeof cfg.maxEmptyLines !== 'undefined') {
-            const rows = new Set();
-            const cols = new Set();
+        // 10. Moldura vs Miolo (Mega Sena especifica)
+        if (cfg.molduraBalance && cfg.totalNumbers === 60) {
+            let molduraCount = 0;
             for (const num of game) {
-                rows.add(Math.floor(num / 10));
-                cols.add(num % 10);
+                const col = (num - 1) % 10 + 1;
+                const row = Math.floor((num - 1) / 10) + 1;
+                if (row === 1 || row === 6 || col === 1 || col === 10) molduraCount++;
             }
-            if ((10 - rows.size) > cfg.maxEmptyLines) return false;
-            if ((10 - cols.size) > cfg.maxEmptyCols) return false;
-        }
-
-        // Dia de Sorte: Divisão da semana/mes
-        if (cfg.weekScaleBalance) {
-            let part1=0, part2=0, part3=0;
-            for (const num of game) {
-                if (num <= 10) part1++;
-                else if (num <= 20) part2++;
-                else part3++;
-            }
-            if (part1 === 0 || part2 === 0 || part3 === 0) return false; // Deve ter pelo menos 1 numero em cada "decada" do mês
-        }
-
-        // Timemania: Max por coluna
-        if (cfg.maxPerColumn) {
-            const cols = {};
-            for (const num of game) {
-                const c = num % 10;
-                cols[c] = (cols[c] || 0) + 1;
-                if (cols[c] > cfg.maxPerColumn) return false;
-            }
+            if (molduraCount < cfg.molduraBalance[0] || molduraCount > cfg.molduraBalance[1]) return false;
         }
 
         return true;

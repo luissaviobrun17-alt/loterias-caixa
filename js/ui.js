@@ -239,6 +239,10 @@ class UI {
                             alert('SmartCoverageEngine não carregado. Recarregue (Ctrl+Shift+R).');
                             return;
                         }
+                        const selectedArr = this.getSelectedNumbers() || [];
+                        if (sniperMode && selectedArr.length > 0) {
+                            alert('Aviso de Transparência:\n\nVocê ativou o Sniper, mas também selecionou números manualmente no volante.\n\nO sistema respeitará SEUS números e o Sniper automático será DESATIVADO para esta geração.');
+                        }
                         const coverageOpts = { precisionMode: sniperMode, precisionPoolSize: sniperPoolSize };
                         const result = SmartCoverageEngine.generate(
                             this.currentGameKey, 
@@ -998,56 +1002,20 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 ? `🎯 ${selectedArr.length} números selecionados → gerando variantes`
                 : '🧠 Análise IA completa do universo';
 
-        // Loading - QUANTUM L99 Premium
+        // Loading - QUANTUM L99 (Honesto)
         this.gamesContainer.innerHTML = `
-            <div style="text-align:center;padding:30px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border-radius:16px;border:1px solid rgba(139,92,246,0.3);">
-                <div style="font-size:2.5rem;margin-bottom:8px;filter:drop-shadow(0 0 15px rgba(255,215,0,0.5));">⚡</div>
-                <div style="color:#FFD700;font-weight:900;font-size:1.1rem;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 10px rgba(255,215,0,0.4);">QUANTUM L99 — Motor de Predição</div>
-                <div style="color:#94A3B8;font-size:0.8rem;margin-top:6px;margin-bottom:15px;">${modeLabel}</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px auto;max-width:450px;">
-                    <div id="q-phase-1" style="padding:10px 8px;border-radius:10px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);transition:all 0.5s;">
-                        <div style="font-size:1.2rem;margin-bottom:4px;">⚛️</div>
-                        <div style="color:#C4B5FD;font-size:0.7rem;font-weight:700;">ANÁLISE</div>
-                        <div style="color:#8B5CF6;font-size:0.6rem;">21 DIMENSÕES</div>
-                    </div>
-                    <div id="q-phase-2" style="padding:10px 8px;border-radius:10px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);transition:all 0.5s;opacity:0.4;">
-                        <div style="font-size:1.2rem;margin-bottom:4px;">&#x1F52E;</div>
-                        <div style="color:#6EE7B7;font-size:0.7rem;font-weight:700;">CROSS-VALIDA&#xC7;&#xC3;O</div>
-                        <div style="color:#10B981;font-size:0.6rem;">NDCG 12-FOLD</div>
-                    </div>
-                    <div id="q-phase-3" style="padding:10px 8px;border-radius:10px;background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.15);transition:all 0.5s;opacity:0.4;">
-                        <div style="font-size:1.2rem;margin-bottom:4px;">&#x1F9FF;</div>
-                        <div style="color:#F9A8D4;font-size:0.7rem;font-weight:700;">FILTROS FINAIS</div>
-                        <div style="color:#EC4899;font-size:0.6rem;">ESTRUTURAIS</div>
-                    </div>
-                </div>
-                <div id="q-status" style="color:#C4B5FD;font-weight:600;font-size:0.82rem;margin-top:8px;">&#x269B;&#xFE0F; Analisando 21 camadas estat&#xED;sticas...</div>
+            <div style="text-align:center;padding:40px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border-radius:16px;border:1px solid rgba(139,92,246,0.3);">
+                <div style="font-size:2.5rem;margin-bottom:8px;">⚙️</div>
+                <div style="color:#A78BFA;font-weight:900;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">PROCESSANDO ANÁLISE + SET COVER</div>
+                <div style="color:#94A3B8;font-size:0.8rem;margin-top:6px;">${modeLabel}</div>
                 <div style="margin-top:12px;width:70%;height:4px;background:rgba(139,92,246,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
-                    <div style="width:30%;height:100%;background:linear-gradient(90deg,#8B5CF6,#FFD700,#EC4899);border-radius:4px;animation:smartProgress 2s ease-in-out infinite;"></div>
+                    <div style="width:30%;height:100%;background:linear-gradient(90deg,#8B5CF6,#FFD700);border-radius:4px;animation:smartProgress 1s ease-in-out infinite;"></div>
                 </div>
             </div>
             <style>@keyframes smartProgress{0%{width:10%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:10%;margin-left:90%}}</style>
         `;
 
-        // Phase animations + SmartBetsEngine execution
-        setTimeout(() => {
-            const p1 = document.getElementById('q-phase-1');
-            const p2 = document.getElementById('q-phase-2');
-            const qs = document.getElementById('q-status');
-            if (p1) p1.style.background = 'rgba(16,185,129,0.3)';
-            if (p2) p2.style.opacity = '1';
-            if (qs) qs.textContent = 'Cross-validacao e backtesting...';
-        }, 800);
-
-        setTimeout(() => {
-            const p2 = document.getElementById('q-phase-2');
-            const p3 = document.getElementById('q-phase-3');
-            const qs = document.getElementById('q-status');
-            if (p2) p2.style.background = 'rgba(16,185,129,0.3)';
-            if (p3) { p3.style.opacity = '1'; p3.style.background = 'rgba(236,72,153,0.3)'; }
-            if (qs) qs.textContent = 'Aplicando filtros estruturais...';
-        }, 1600);
-
+        // Execução DIRETA — sem delays artificiais (50ms apenas para o DOM renderizar o spinner)
         setTimeout(() => {
             try {
                 if (typeof NovaEraEngine === 'undefined') {
@@ -1061,7 +1029,6 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 const sniperPoolSize = poolInput ? parseInt(poolInput.value) || 20 : 20;
                 const aiOpts = { precisionMode: sniperMode, precisionPoolSize: sniperPoolSize };
 
-                // Chamada do NovaEraEngine (substitui SmartBetsEngine) passando os parâmetros extraídos do DOM
                 const smartResult = NovaEraEngine.generate(this.currentGameKey, quantity, selectedArr.length >= customDrawSize ? selectedArr : null, fixedArr, customDrawSize, aiOpts);
                 if (!smartResult || !smartResult.games || smartResult.games.length === 0) {
                     this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Tente novamente.</div>';
@@ -1071,12 +1038,12 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 this.currentGeneratedGames = smartResult.games;
                 this._lastGeneratedGames = smartResult.games;
                 this.renderGames(smartResult, this.currentGameKey);
-                // Banner IA
+                // Banner HONESTO — Métricas reais do Set Cover + Ciência
                 var sa = smartResult.analysis || {};
                 var banner = document.createElement('div');
                 banner.className = 'smart-gen-analysis';
                 banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(139,92,246,0.12),rgba(15,23,42,0.95));border:1px solid rgba(139,92,246,0.3);';
-                banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">&#x26A1;</span><div><div style="font-weight:900;color:#A78BFA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">QUANTUM L99 — ANÁLISE ESTRUTURAL</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: ' + (smartResult.internalEngine||'SmartBetsEngine') + ' | ' + quantity + ' jogos</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Score de qualidade estrutural dos jogos gerados (walk-forward + Monte Carlo). NÃO é probabilidade de ganhar."><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">SCORE ESTRUTURAL</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.confidence||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="% do espaço numérico coberto pelos jogos gerados"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">COBERTURA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.coverage||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Diversidade combinatória: quanto os jogos diferem entre si"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.diversity||0) + '%</div></div></div>';
+                banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">&#x26A1;</span><div><div style="font-weight:900;color:#A78BFA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">QUANTUM L99 — ESTATÍSTICA + SET COVER</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: Ciência 21-Dim → CoverageEngine Multi-Tier | ' + quantity + ' jogos</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Cobertura de dezenas únicas sobre o universo da loteria"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">COBERTURA NUMÉRICA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.coverage||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Diversidade combinatória entre os jogos"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.diversity||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Tempo real de processamento do algoritmo"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">TEMPO REAL</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.elapsed || 'N/A') + 'ms</div></div></div>';
                 var ob = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
                 if (ob) ob.remove();
                 this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
@@ -1087,7 +1054,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             } finally {
                 this._isGenerating = false;
             }
-        }, 2400);
+        }, 50);
     }
 
 

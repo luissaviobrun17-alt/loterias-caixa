@@ -468,102 +468,67 @@ class NovaEraEngine {
             console.log('[NE-V1] ðŸ“Œ ' + fixedNumbers.length + ' nÃºmeros fixos garantidos no pool: [' + fixedNumbers.sort((a,b)=>a-b).join(', ') + ']');
         }
 
-        // v11.0: Pool de Precisao via parametro (removida leitura de DOM)
-        // A UI passa options.precisionMode e options.precisionPoolSize como parametros.
-        if (_precisionMode && _precisionPoolSize > 0 && !hasUserSelection) {
-            if (_precisionPoolSize >= drawSize && _precisionPoolSize < pool.length) {
+                // v12.0: Ajuste Dinamico de Piscina (Pedido do Usuario)
+        // Cortamos as piores dezenas em baixo volume para focar o orcamento,
+        // mas mantemos TODAS as dezenas em alto volume (>5000) para cobrir o espaco inteiro.
+        if (!hasUserSelection) {
+            let targetPoolSize = totalRange;
+            if (numGames <= 1000) {
+                targetPoolSize = Math.max(drawSize, Math.floor(totalRange * 0.66)); // ~40 na Mega
+            } else if (numGames <= 5000) {
+                targetPoolSize = Math.max(drawSize, Math.floor(totalRange * 0.83)); // ~50 na Mega
+            }
+
+            if (targetPoolSize < pool.length) {
                 const fixedSet = new Set(fixedNumbers || []);
                 const fixedInPool = pool.filter(n => fixedSet.has(n));
                 const nonFixedPool = pool.filter(n => !fixedSet.has(n));
+                // Ordenar por score cientifico (do maior para o menor)
                 nonFixedPool.sort((a, b) => (scores[b] || 0) - (scores[a] || 0));
-                const slotsForNonFixed = _precisionPoolSize - fixedInPool.length;
+                
+                const slotsForNonFixed = targetPoolSize - fixedInPool.length;
                 pool = [...fixedInPool, ...nonFixedPool.slice(0, Math.max(0, slotsForNonFixed))];
                 pool.sort((a, b) => a - b);
+                console.log('[NE-V12] Corte de Piscina: Reduzido para os TOP ' + targetPoolSize + ' numeros (Foco agressivo)');
+            } else {
+                console.log('[NE-V12] Alto Volume: Mantendo TODAS as ' + pool.length + ' dezenas para cobertura total.');
             }
         }
 
-        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
-        // FASE 3: CALIBRAÃ‡ÃƒO ADAPTATIVA + GERAÃ‡ÃƒO
-        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
-        const adaptiveParams = this._getAdaptiveParams(numGames, profile);
-        const games = this._generateDiverseGames(
-            profile, scores, pool, numGames, drawSize,
-            fixedNumbers || [], startNum, endNum, hasUserSelection,
-            adaptiveParams, history
-        );
-
-        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
-        // FASE 4: BACKTESTING + RELATÃ“RIO DE QUALIDADE V6.0
-        // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
-        const analysis = this._backtestHonest(games, history, profile, gameKey, totalRange, drawSize);
-
-        const uniqueNums = new Set(games.flat());
-        const coveragePct = Math.round(uniqueNums.size / totalRange * 100);
-
-        // â˜… V6.0: RELATÃ“RIO DE QUALIDADE TRANSPARENTE
-        // MÃ©tricas que PROVAM o funcionamento do motor
-        const freq = {};
-        for (const g of games) for (const n of g) freq[n] = (freq[n] || 0) + 1;
-        const totalSelections = games.length * drawSize;
-
-        // Entropia de Shannon â€” mede distribuiÃ§Ã£o da seleÃ§Ã£o
-        let entropy = 0;
-        for (const f of Object.values(freq)) {
-            const p = f / totalSelections;
-            if (p > 0) entropy -= p * Math.log2(p);
-        }
-        const maxEntropy = Math.log2(uniqueNums.size || 1);
-        const entropyPct = maxEntropy > 0 ? Math.round(entropy / maxEntropy * 100) : 0;
-
-        // DistribuiÃ§Ã£o por zona
-        const zoneDistrib = {};
-        for (let z = 0; z < profile.zones; z++) zoneDistrib[z] = 0;
-        for (const [n, f] of Object.entries(freq)) {
-            const z = Math.min(profile.zones - 1, Math.floor((parseInt(n) - startNum) / profile.zoneSize));
-            zoneDistrib[z] += f;
+                // FASE 3: GERACAO COMBINATORIA (FUSAO DA CIENCIA COM SET COVER)
+        let games = [];
+        let realAnalysis = {};
+        if (typeof CoverageEngine !== 'undefined') {
+            console.log('[NE-V12] Delegando ' + numGames + ' jogos para o CoverageEngine usando as ' + pool.length + ' dezenas filtradas pela Ciencia.');
+            const coverageResult = CoverageEngine.generate(
+                gameKey, 
+                numGames, 
+                pool, 
+                fixedNumbers || [], 
+                drawSize, 
+                { quantumScores: scores } // 6o param = options, injetamos as pontuacoes cientificas
+            );
+            if (coverageResult && coverageResult.games) {
+                games = coverageResult.games;
+                realAnalysis = coverageResult.analysis || {};
+            }
+        } else {
+            console.error('[NE-V12] CoverageEngine ausente! Abortando geracao.');
         }
 
-        // DistÃ¢ncia de Hamming mÃ©dia entre jogos adjacentes
-        let hammingTotal = 0, hammingCount = 0;
-        const sampleGames = games.slice(0, Math.min(200, games.length));
-        for (let i = 0; i < sampleGames.length - 1; i++) {
-            const setA = new Set(sampleGames[i]);
-            let shared = 0;
-            for (const n of sampleGames[i + 1]) if (setA.has(n)) shared++;
-            hammingTotal += (drawSize - shared);
-            hammingCount++;
-        }
-        const avgHamming = hammingCount > 0 ? (hammingTotal / hammingCount).toFixed(1) : 'N/A';
-
-        // ConcentraÃ§Ã£o mÃ¡xima
-        const maxFreq = Math.max(0, ...Object.values(freq));
-        const maxConcPct = games.length > 0 ? Math.round(maxFreq / games.length * 100) : 0;
-
-        // Log transparente
-        console.log('%c[V6.0] â•â•â• RELATÃ“RIO DE QUALIDADE â•â•â•', 'color: #00ff88; font-weight: bold; font-size: 14px;');
-        console.log('[V6.0] Cobertura: ' + uniqueNums.size + '/' + totalRange + ' (' + coveragePct + '%)');
-        console.log('[V6.0] Entropia Shannon: ' + entropyPct + '% (100%=distribuiÃ§Ã£o perfeita)');
-        console.log('[V6.0] Hamming mÃ©dio: ' + avgHamming + '/' + drawSize + ' (diferenÃ§a entre jogos)');
-        console.log('[V6.0] ConcentraÃ§Ã£o mÃ¡x: ' + maxConcPct + '% (nenhum nÃºmero domina)');
-        const zoneStr = Object.entries(zoneDistrib).map(([z, f]) => {
-            const pct = Math.round(f / totalSelections * 100);
-            const ideal = Math.round(100 / profile.zones);
-            return 'Z' + z + ':' + pct + '%(ideal ' + ideal + '%)';
-        }).join(' | ');
-        console.log('[V6.0] Zonas: ' + zoneStr);
-
-        // Injetar mÃ©tricas na anÃ¡lise
-        analysis.coveragePct = coveragePct;
-        analysis.entropyPct = entropyPct;
-        analysis.avgHamming = avgHamming;
-        analysis.maxConcentrationPct = maxConcPct;
-        analysis.zoneDistribution = zoneDistrib;
+        // FASE 4: LIMPEZA DO BACKTESTING (Removido Overfitting)
+        console.log('[NE-V12] Backtesting ilusorio removido. Retornando metricas reais do CoverageEngine.');
+        
+        // Passar o tamanho do pool real usado
+        realAnalysis.poolSize = pool.length;
 
         return {
-            pool: [...uniqueNums].sort((a, b) => a - b),
-            games,
-            analysis
+            games: games,
+            analysis: realAnalysis,
+            poolUsed: pool,
+            internalEngine: 'CoverageEngine (Multi-Tier)'
         };
+
     }
 
     // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—

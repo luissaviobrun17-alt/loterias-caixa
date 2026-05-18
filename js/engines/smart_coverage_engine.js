@@ -22,7 +22,7 @@ class SmartCoverageEngine {
     }
 
     // ─── Construção do Alvo do Sniper (KDE / Heatmap Espacial) ────────────
-    static _buildSniperPool(gameKey, game, numGames) {
+    static _buildSniperPool(gameKey, game, numGames, poolSizePreference) {
         if (typeof StatsService === 'undefined') return [];
         const history = StatsService.historyStore[gameKey] || [];
         if (history.length === 0) return [];
@@ -81,13 +81,15 @@ class SmartCoverageEngine {
             .map(n => parseInt(n))
             .sort((a, b) => heat[b] - heat[a]);
 
-        // Cálculo dinâmico do tamanho do alvo com base no orçamento (numGames)
-        let targetSize = game.draw * 2; 
-        if (numGames <= 10) targetSize = Math.round(game.draw * 2.8);       // Ex: Mega(10j) -> 17 dezenas
-        else if (numGames <= 30) targetSize = Math.round(game.draw * 3.8);  // Ex: Mega(30j) -> 23 dezenas
-        else if (numGames <= 100) targetSize = Math.round(game.draw * 5.0); // Ex: Mega(100j) -> 30 dezenas
-        else targetSize = Math.round(game.draw * 7.0);                      // Ex: Mega(200j+) -> 42 dezenas
-
+        // Tamanho do alvo definido pelo slider do usuario, com fallback dinamico apenas se necessario
+        let targetSize = poolSizePreference || 20; 
+        if (!poolSizePreference) {
+            targetSize = game.draw * 2; 
+            if (numGames <= 10) targetSize = Math.round(game.draw * 2.8);
+            else if (numGames <= 30) targetSize = Math.round(game.draw * 3.8);
+            else if (numGames <= 100) targetSize = Math.round(game.draw * 5.0);
+            else targetSize = Math.round(game.draw * 7.0);
+        }
         targetSize = Math.min(targetSize, end - start + 1);
         return sortedNumbers.slice(0, targetSize).sort((a, b) => a - b);
     }
@@ -126,12 +128,26 @@ class SmartCoverageEngine {
             return { games: [], analysis: { error: 'CoverageEngine não carregado' } };
         }
 
+        // v12.1 Auto-Sniper Cirúrgico (Mega Sena)
+        // Evita gastos desnecessarios espalhando em 60 numeros em altos volumes
+        if (gameKey === 'megasena' && numGames > 100 && (!selectedNumbers || selectedNumbers.length === 0)) {
+            opts.precisionMode = true; // Forca a reducao do espaco combinatorio
+            // Se o usuario nao mexeu no slider (opts.precisionPoolSize == 20 padrao ou null),
+            // a gente ajusta de forma progressiva e agressiva:
+            if (!opts.precisionPoolSize || opts.precisionPoolSize === 20) {
+                if (numGames <= 500) opts.precisionPoolSize = 25;
+                else if (numGames <= 2000) opts.precisionPoolSize = 32;
+                else opts.precisionPoolSize = 42;
+            }
+            console.log('[SmartCoverage] Auto-Sniper ativado para Mega Sena. Evitando gasto desnecessario. Pool =', opts.precisionPoolSize);
+        }
+
         // Se o Sniper está ativo e o usuário não forçou números, calcula a Âncora Topológica
         let sniperPool = [];
         if (opts.precisionMode && (!selectedNumbers || selectedNumbers.length === 0)) {
             const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
             if (game) {
-                sniperPool = this._buildSniperPool(gameKey, game, numGames);
+                sniperPool = this._buildSniperPool(gameKey, game, numGames, opts.precisionPoolSize);
                 console.log('[SmartCoverage] 🎯 Sniper Ativo: Alvo concentrado em', sniperPool.length, 'dezenas:', sniperPool);
             }
         }
