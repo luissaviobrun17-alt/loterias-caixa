@@ -104,7 +104,7 @@ class SmartCoverageEngine {
 
         // ── CLOSURE: Para poucos jogos, tenta fechamento via ClosureEngine ──
         if (strategy === 'CLOSURE') {
-            if (typeof ClosureEngine !== 'undefined') {
+            if (typeof ClosureEngine !== 'undefined' && drawSize <= 15) {
                 try {
                     const result = ClosureEngine.generate(gameKey, numGames, selectedNumbers, fixedNumbers, drawSize);
                     if (result && result.games && result.games.length > 0) {
