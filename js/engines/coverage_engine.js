@@ -62,15 +62,17 @@ class CoverageEngine {
                 name: 'Quina', drawSize: 5, lotteryDraw: 5,
                 range: [1, 80], totalNumbers: 80,
                 zones: 8, zoneSize: 10,
-                sumRange: [50, 340], parityRange: [1, 4],
+                sumRange: [140, 260], parityRange: [1, 4], // v12.3: Restrito
                 maxConsecutive: 2, minZones: 3,
                 prizeThresholds: [2, 3, 4, 5],
                 prizeLabels: ['Duque', 'Terno', 'Quadra', 'Quina'],
                 candidatesPerSlot: 1000,
                 ticketPrice: 2.50,
-                // Micro-Otimização Quina
+                // Micro-Otimização Cirurgica Quina (v12.3)
                 maxSameEnding: 2,
-                minQuadrants: 3
+                highLowBalance: [1, 4], // Previne tudo alto ou tudo baixo
+                maxPerLine: 3, // Max 3 na mesma linha (1-10)
+                maxPerColumn: 2 // Max 2 na mesma coluna (x1, x2)
             },
             duplasena: {
                 name: 'Dupla Sena', drawSize: 6, lotteryDraw: 6,
@@ -522,6 +524,21 @@ class CoverageEngine {
                 if (row === 1 || row === rows || col === 1 || col === cols) molduraCount++;
             }
             if (molduraCount < cfg.molduraBalance[0] || molduraCount > cfg.molduraBalance[1]) return false;
+        }
+
+        // 12. Geometria Fina (Linhas e Colunas)
+        if (cfg.maxPerLine || cfg.maxPerColumn) {
+            const colsCount = cfg.totalNumbers === 80 ? 10 : (cfg.totalNumbers === 60 ? 10 : 5);
+            const rowDistribution = {};
+            const colDistribution = {};
+            for (const num of game) {
+                const col = (num - 1) % colsCount + 1;
+                const row = Math.floor((num - 1) / colsCount) + 1;
+                rowDistribution[row] = (rowDistribution[row] || 0) + 1;
+                colDistribution[col] = (colDistribution[col] || 0) + 1;
+                if (cfg.maxPerLine && rowDistribution[row] > cfg.maxPerLine) return false;
+                if (cfg.maxPerColumn && colDistribution[col] > cfg.maxPerColumn) return false;
+            }
         }
 
         // 11. Multiplos de 3 (Exclusivo Lotofacil)

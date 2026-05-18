@@ -140,6 +140,18 @@ class SmartCoverageEngine {
             }
         }
 
+        // v12.3 Amputação Topológica (Quina)
+        // A Quina precisa amputar de 40 a 50 numeros em grandes volumes para ter chance
+        if (gameKey === 'quina' && numGames > 100 && (!selectedNumbers || selectedNumbers.length === 0)) {
+            opts.precisionMode = true; 
+            if (!opts.precisionPoolSize || opts.precisionPoolSize === 20) {
+                if (numGames <= 500) opts.precisionPoolSize = 40;
+                else if (numGames <= 2000) opts.precisionPoolSize = 35;
+                else opts.precisionPoolSize = 30; // Maximo estrangulamento
+            }
+            console.log('[SmartCoverage] Auto-Sniper ativado para Quina. Pool estrangulado para', opts.precisionPoolSize);
+        }
+
         // v12.1 Auto-Sniper Cirúrgico (Mega Sena)
         // Evita gastos desnecessarios espalhando em 60 numeros em altos volumes
         if (gameKey === 'megasena' && numGames > 100 && (!selectedNumbers || selectedNumbers.length === 0)) {
