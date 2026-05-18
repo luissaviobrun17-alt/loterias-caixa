@@ -42,7 +42,11 @@ class PrecisionEngine {
     }
 
     // ─── PONTO DE ENTRADA PRINCIPAL ──────────────────────────────────────
-    static generate(gameKey, numGames, selectedNumbers, fixedNumbers, customDrawSize) {
+    static generate(gameKey, numGames, selectedNumbers, fixedNumbers, customDrawSize, options) {
+        // options = { precisionMode: false, precisionPoolSize: 0 }
+        const _opts = options || {};
+        const _precisionMode = !!_opts.precisionMode;
+        const _precisionPoolSize = parseInt(_opts.precisionPoolSize) || 0;
         const t0 = Date.now();
         const cfg = this.getConfig(gameKey);
         const drawSize = customDrawSize || cfg.drawSize;
@@ -213,28 +217,14 @@ class PrecisionEngine {
         for (let n = startNum; n <= endNum; n++) ranked.push({ n, score: consensusScores[n] || 0 });
         ranked.sort((a, b) => b.score - a.score);
 
-        // ★ GOD MODE FIX: Remover acoplamento DOM
-        // Recebe precisionPoolSize como parâmetro (via options) ao invés de ler o DOM
-        // Isso permite rodar no Node.js/server-side sem crash
-        var precPoolSize = 0;
-        if (typeof document !== 'undefined') {
-            try {
-                var precToggle = document.getElementById('precision-mode-toggle');
-                var precPoolInput = document.getElementById('precision-pool-size');
-                if (precToggle && precToggle.checked && precPoolInput) {
-                    precPoolSize = parseInt(precPoolInput.value) || 0;
-                }
-            } catch(e) { /* DOM indisponível - server-side */ }
-        }
-        if (precPoolSize > 0 && precPoolSize >= drawSize && precPoolSize < ranked.length) {
-            console.log('%c[PRECISION-L99] ★ POOL DE PRECISÃO ATIVO: limitando de ' + ranked.length + ' → ' + precPoolSize + ' números', 'color: #EF4444; font-weight: bold;');
+        // v11.0: Pool de Precisao via parametro — sem DOM
+        if (_precisionMode && _precisionPoolSize > 0 && _precisionPoolSize >= drawSize && _precisionPoolSize < ranked.length) {
             var fixedSet = new Set(fixedNumbers || []);
             var fixedInRanked = ranked.filter(r => fixedSet.has(r.n));
             var nonFixedRanked = ranked.filter(r => !fixedSet.has(r.n));
-            var slotsForNonFixed = precPoolSize - fixedInRanked.length;
+            var slotsForNonFixed = _precisionPoolSize - fixedInRanked.length;
             ranked = [...fixedInRanked, ...nonFixedRanked.slice(0, Math.max(0, slotsForNonFixed))];
             ranked.sort((a, b) => b.score - a.score);
-            console.log('[PRECISION-L99] Pool final: [' + ranked.slice(0, 15).map(r => r.n).join(', ') + (ranked.length > 15 ? '...' : '') + '] (' + ranked.length + ' números)');
         }
 
         // Candidatos de consenso alto (votados por múltiplas fontes)

@@ -389,11 +389,10 @@ class NovaEraEngine {
         };
     }
 
-    static generate(gameKey, numGames, selectedNumbers, fixedNumbers, customDrawSize) {
-
-        // ★ V4.0: BULK TURBO ELIMINADO — Todos os volumes usam IA completa
-        // Volumes grandes (5K+) usam a mesma pipeline de 17 camadas
-        // com calibração adaptativa que escala overlap/usage proporcionalmente
+    static generate(gameKey, numGames, selectedNumbers, fixedNumbers, customDrawSize, options) {
+        const _options = options || {};
+        const _precisionMode = _options.precisionMode || false;
+        const _precisionPoolSize = parseInt(_options.precisionPoolSize) || 0;
 
         const profile = this.getProfile(gameKey);
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
@@ -404,7 +403,6 @@ class NovaEraEngine {
         const totalRange = endNum - startNum + 1;
         const drawSize = customDrawSize || game.minBet || profile.drawSize;
 
-        // Carregar histÃ³rico
         let history = historyOverride || [];
         if (history.length === 0) try {
             if (typeof StatsService !== 'undefined') {
@@ -470,29 +468,18 @@ class NovaEraEngine {
             console.log('[NE-V1] ðŸ“Œ ' + fixedNumbers.length + ' nÃºmeros fixos garantidos no pool: [' + fixedNumbers.sort((a,b)=>a-b).join(', ') + ']');
         }
 
-        // â˜… FIX CRÃTICO: Respeitar pool de precisÃ£o do DOM
-        // Quando o toggle de precisÃ£o estÃ¡ ativo, limitar o pool ao TOP N nÃºmeros por score
-        if (typeof document !== 'undefined' && !hasUserSelection) {
-          try { // GOD MODE: try/catch para server-side
-            const precToggle = document.getElementById('precision-mode-toggle');
-            const precPoolInput = document.getElementById('precision-pool-size');
-            if (precToggle && precToggle.checked && precPoolInput) {
-                const precPoolSize = parseInt(precPoolInput.value) || 0;
-                if (precPoolSize > 0 && precPoolSize >= drawSize && precPoolSize < pool.length) {
-                    console.log('%c[NE-V1] â˜… POOL DE PRECISÃƒO ATIVO: limitando de ' + pool.length + ' â†’ ' + precPoolSize + ' nÃºmeros', 'color: #EF4444; font-weight: bold;');
-                    // Rankear pool por scores e manter TOP N
-                    const fixedSet = new Set(fixedNumbers || []);
-                    const fixedInPool = pool.filter(n => fixedSet.has(n));
-                    const nonFixedPool = pool.filter(n => !fixedSet.has(n));
-                    // Ordenar nÃ£o-fixos por score decrescente
-                    nonFixedPool.sort((a, b) => (scores[b] || 0) - (scores[a] || 0));
-                    const slotsForNonFixed = precPoolSize - fixedInPool.length;
-                    pool = [...fixedInPool, ...nonFixedPool.slice(0, Math.max(0, slotsForNonFixed))];
-                    pool.sort((a, b) => a - b);
-                    console.log('[NE-V1] Pool precisÃ£o: [' + pool.slice(0, 15).join(', ') + (pool.length > 15 ? '...' : '') + '] (' + pool.length + ' nÃºmeros)');
-                }
+        // v11.0: Pool de Precisao via parametro (removida leitura de DOM)
+        // A UI passa options.precisionMode e options.precisionPoolSize como parametros.
+        if (_precisionMode && _precisionPoolSize > 0 && !hasUserSelection) {
+            if (_precisionPoolSize >= drawSize && _precisionPoolSize < pool.length) {
+                const fixedSet = new Set(fixedNumbers || []);
+                const fixedInPool = pool.filter(n => fixedSet.has(n));
+                const nonFixedPool = pool.filter(n => !fixedSet.has(n));
+                nonFixedPool.sort((a, b) => (scores[b] || 0) - (scores[a] || 0));
+                const slotsForNonFixed = _precisionPoolSize - fixedInPool.length;
+                pool = [...fixedInPool, ...nonFixedPool.slice(0, Math.max(0, slotsForNonFixed))];
+                pool.sort((a, b) => a - b);
             }
-          } catch(e) { /* DOM indisponível */ }
         }
 
         // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
