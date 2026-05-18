@@ -484,6 +484,11 @@ class NovaEraEngine {
                 targetPoolSize = 50;
             }
             
+            // v12.7: Timemania Amputação Estatística
+            if (gameKey === 'timemania' && numGames >= 1000) {
+                targetPoolSize = 65;
+            }
+            
             // v12.4: Dupla Sena Amputação Estatística
             if (gameKey === 'duplasena' && numGames >= 1000) {
                 targetPoolSize = 28;

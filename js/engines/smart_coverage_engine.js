@@ -157,6 +157,13 @@ class SmartCoverageEngine {
             console.log('[SmartCoverage] Auto-Sniper ativado para Lotomania. Pool restrito para 80.');
         }
 
+        // v12.7 Amputação Topológica Balanceada (Timemania)
+        if (gameKey === 'timemania' && numGames >= 1000 && (!selectedNumbers || selectedNumbers.length === 0)) {
+            opts.precisionMode = true;
+            opts.precisionPoolSize = 65; // Corta os 15 piores
+            console.log('[SmartCoverage] Auto-Sniper ativado para Timemania. Pool restrito para 65.');
+        }
+
         // v12.4 Amputação Topológica (Dupla Sena)
         if (gameKey === 'duplasena' && numGames > 100 && (!selectedNumbers || selectedNumbers.length === 0)) {
             opts.precisionMode = true;
