@@ -27,7 +27,7 @@ class CoverageEngine {
                 name: 'Lotofácil', drawSize: 15, lotteryDraw: 15,
                 range: [1, 25], totalNumbers: 25,
                 zones: 5, zoneSize: 5,
-                sumRange: [155, 235], parityRange: [5, 10],
+                sumRange: [160, 220], parityRange: [5, 10],
                 maxConsecutive: 10, minZones: 5,
                 prizeThresholds: [11, 12, 13, 14, 15],
                 prizeLabels: ['11 ac.', '12 ac.', '13 ac.', '14 ac.', '15 ac.'],
@@ -511,15 +511,24 @@ class CoverageEngine {
             if (q.size < cfg.minQuadrants) return false;
         }
 
-        // 10. Moldura vs Miolo (Mega Sena especifica)
-        if (cfg.molduraBalance && cfg.totalNumbers === 60) {
+        // 10. Moldura vs Miolo (Suporta Mega e Lotofacil)
+        if (cfg.molduraBalance) {
             let molduraCount = 0;
+            const cols = cfg.totalNumbers === 60 ? 10 : (cfg.totalNumbers === 25 ? 5 : 10);
+            const rows = cfg.totalNumbers === 60 ? 6 : (cfg.totalNumbers === 25 ? 5 : 8);
             for (const num of game) {
-                const col = (num - 1) % 10 + 1;
-                const row = Math.floor((num - 1) / 10) + 1;
-                if (row === 1 || row === 6 || col === 1 || col === 10) molduraCount++;
+                const col = (num - 1) % cols + 1;
+                const row = Math.floor((num - 1) / cols) + 1;
+                if (row === 1 || row === rows || col === 1 || col === cols) molduraCount++;
             }
             if (molduraCount < cfg.molduraBalance[0] || molduraCount > cfg.molduraBalance[1]) return false;
+        }
+
+        // 11. Multiplos de 3 (Exclusivo Lotofacil)
+        if (cfg.multiplesOf3Range) {
+            let m3Count = 0;
+            for (const num of game) { if (num % 3 === 0) m3Count++; }
+            if (m3Count < cfg.multiplesOf3Range[0] || m3Count > cfg.multiplesOf3Range[1]) return false;
         }
 
         return true;

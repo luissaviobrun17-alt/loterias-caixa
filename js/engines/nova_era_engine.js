@@ -495,7 +495,17 @@ class NovaEraEngine {
             }
         }
 
-                // FASE 3: GERACAO COMBINATORIA (FUSAO DA CIENCIA COM SET COVER)
+                // v12.2 Auto-Fixador Estatístico (Lotofácil)
+        // Trava os 3 melhores numeros do scoring historico como FIXOS para altos volumes
+        let lotoFixed = fixedNumbers || [];
+        if (gameKey === 'lotofacil' && numGames >= 1000 && (!fixedNumbers || fixedNumbers.length === 0) && (!hasUserSelection)) {
+            // pool já está ordenado (se houver pool restrito) ou podemos ordernar todos
+            let sortedLoto = pool.slice().sort((a, b) => (scores[b] || 0) - (scores[a] || 0));
+            lotoFixed = sortedLoto.slice(0, 3);
+            console.log('[NE-V12] Auto-Fixador Lotofácil ativado. Top 3 estatísticos fixados:', lotoFixed);
+        }
+
+        // FASE 3: GERACAO COMBINATORIA (FUSAO DA CIENCIA COM SET COVER)
         let games = [];
         let realAnalysis = {};
         if (typeof CoverageEngine !== 'undefined') {
@@ -504,7 +514,7 @@ class NovaEraEngine {
                 gameKey, 
                 numGames, 
                 pool, 
-                fixedNumbers || [], 
+                lotoFixed, 
                 drawSize, 
                 { quantumScores: scores } // 6o param = options, injetamos as pontuacoes cientificas
             );

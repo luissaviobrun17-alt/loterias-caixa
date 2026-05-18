@@ -128,6 +128,18 @@ class SmartCoverageEngine {
             return { games: [], analysis: { error: 'CoverageEngine não carregado' } };
         }
 
+        // v12.2 Auto-Fixador Cirúrgico (Lotofácil)
+        // Se alto volume, trava os 3 melhores numeros do mapa de calor espacial como FIXOS
+        let lotoFixed = fixedNumbers || [];
+        if (gameKey === 'lotofacil' && numGames >= 1000 && (!selectedNumbers || selectedNumbers.length === 0) && (!fixedNumbers || fixedNumbers.length === 0)) {
+            const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+            if (game) {
+                const heatPool = this._buildSniperPool(gameKey, game, numGames, 25);
+                lotoFixed = heatPool.slice(0, 3); // Fixa os Top 3
+                console.log('[SmartCoverage] Auto-Fixador Lotofácil ativado. Top 3 fixos:', lotoFixed);
+            }
+        }
+
         // v12.1 Auto-Sniper Cirúrgico (Mega Sena)
         // Evita gastos desnecessarios espalhando em 60 numeros em altos volumes
         if (gameKey === 'megasena' && numGames > 100 && (!selectedNumbers || selectedNumbers.length === 0)) {
