@@ -240,7 +240,7 @@ class UI {
                             return;
                         }
                         const selectedArr = this.getSelectedNumbers() || [];
-                        if (sniperMode && selectedArr.length > 0) {
+                        if (sniperMode && selectedArr.length >= drawSize) {
                             alert('Aviso de Transparência:\n\nVocê ativou o Sniper, mas também selecionou números manualmente no volante.\n\nO sistema respeitará SEUS números e o Sniper automático será DESATIVADO para esta geração.');
                         }
                         const coverageOpts = { precisionMode: sniperMode, precisionPoolSize: sniperPoolSize };
