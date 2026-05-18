@@ -104,7 +104,10 @@ class SmartCoverageEngine {
 
         // ── CLOSURE: Para poucos jogos, tenta fechamento via ClosureEngine ──
         if (strategy === 'CLOSURE') {
-            if (typeof ClosureEngine !== 'undefined' && drawSize <= 15) {
+            const v = selectedNumbers ? selectedNumbers.length : 0;
+            // v12.11: ClosureEngine é para Fechamentos Matemáticos Pequenos (v <= 25).
+            // Para v maiores (ex: 60 números da Mega Sena), a explosão combinatória O(N^t) trava o navegador.
+            if (typeof ClosureEngine !== 'undefined' && drawSize <= 15 && v > 0 && v <= 25) {
                 try {
                     const result = ClosureEngine.generate(gameKey, numGames, selectedNumbers, fixedNumbers, drawSize);
                     if (result && result.games && result.games.length > 0) {
