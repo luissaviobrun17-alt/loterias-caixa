@@ -272,8 +272,9 @@ class CoverageEngine {
 
             // ── Troca de Marchas Automática (Saturação) ──
             // Desliga a caça por duplas se já atingimos 99% para focar o CPU em Triplas e Quadras
-            if (coverageSat > 0.99) checkPairs = false;
-            if (triplesSat > 0.99) checkTriples = false;
+            // v12.14: NUNCA desligar checkPairs se checkTriples estiver desligado (evita colapso na Lotomania)
+            if (coverageSat > 0.99 && checkTriples) checkPairs = false;
+            if (triplesSat > 0.99 && checkQuads) checkTriples = false;
 
             for (let c = 0; c < candidates; c++) {
                 const candidate = this._generateValidCandidate(cfg, pool, fixed, startNum, endNum, _opts);
