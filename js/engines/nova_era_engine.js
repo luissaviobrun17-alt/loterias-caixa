@@ -478,6 +478,11 @@ class NovaEraEngine {
             } else if (numGames <= 5000) {
                 targetPoolSize = Math.max(drawSize, Math.floor(totalRange * 0.83)); // ~50 na Mega
             }
+            
+            // v12.3: Pedido expresso do usuário para Quina no Quantum L99
+            if (gameKey === 'quina') {
+                targetPoolSize = 50;
+            }
 
             if (targetPoolSize < pool.length) {
                 const fixedSet = new Set(fixedNumbers || []);
