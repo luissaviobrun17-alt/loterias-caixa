@@ -431,6 +431,18 @@ class CoverageEngine {
             if (chosen.size < drawSize) continue;
             const game = [...chosen].sort((a, b) => a - b);
 
+            // v12.10: Forçar verificação de Consecutivos MESMO em pool restrito
+            // (se houver flexibilidade mínima de 3 números extras na piscina)
+            const enforceConsecutive = !isPoolRestricted || (pool.length >= drawSize + 3);
+            if (enforceConsecutive) {
+                let maxRun = 1, curRun = 1;
+                for (let i = 1; i < game.length; i++) {
+                    if (game[i] === game[i - 1] + 1) { curRun++; maxRun = Math.max(maxRun, curRun); }
+                    else curRun = 1;
+                }
+                if (maxRun > cfg.maxConsecutive) continue;
+            }
+
             // Validar estrutura
             if (!this._isStructurallyValid(game, cfg, startNum, isPoolRestricted)) continue;
 
