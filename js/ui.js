@@ -335,12 +335,11 @@ class UI {
             });
             const savedPrecision = localStorage.getItem('l99_precision_on');
             if (savedPrecision === '1') { toggle.checked = true; _applyPrecisionUI(true); }
-            const savedPool = localStorage.getItem('l99_precision_pool');
+            // A inicialização do valor agora é feita no _updatePrecisionPoolLimits() para ser sensível à loteria atual
             const poolInput = document.getElementById('precision-pool-size');
-            if (savedPool && poolInput) { poolInput.value = savedPool; }
             if (poolInput) {
-                poolInput.addEventListener('change', () => localStorage.setItem('l99_precision_pool', poolInput.value));
-                poolInput.addEventListener('input', () => localStorage.setItem('l99_precision_pool', poolInput.value));
+                poolInput.addEventListener('change', () => localStorage.setItem('l99_precision_pool_' + _self.currentGameKey, poolInput.value));
+                poolInput.addEventListener('input', () => localStorage.setItem('l99_precision_pool_' + _self.currentGameKey, poolInput.value));
             }
         }
 
@@ -901,17 +900,31 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         const drawSize = game.minBet;
         const totalRange = game.range[1] - game.range[0] + 1;
-        const minPool = drawSize + 1; // Mínimo: drawSize + 1 (ex: Mega Sena = 7)
-        const maxPool = totalRange; // Máximo: total de números da loteria (ex: Timemania = 80)
-        const defaultPool = Math.min(totalRange, Math.max(20, drawSize + Math.ceil(drawSize * 0.45)));
+        const minPool = drawSize + 1; // Mínimo: drawSize + 1
+        const maxPool = totalRange; // Máximo: total de números
+
+        // Default inteligente por loteria
+        let defaultPool = Math.min(totalRange, Math.max(20, drawSize + Math.ceil(drawSize * 0.45)));
+        if (this.currentGameKey === 'lotomania') defaultPool = 90; // Exigência do usuário
+        if (this.currentGameKey === 'lotofacil') defaultPool = 21;
+        if (this.currentGameKey === 'megasena') defaultPool = 40;
 
         poolInput.min = minPool;
         poolInput.max = maxPool;
-        // Só atualiza o valor se estiver fora dos limites
-        const current = parseInt(poolInput.value) || defaultPool;
-        if (current < minPool || current > maxPool) {
-            poolInput.value = defaultPool;
+        
+        // Ao invés de preservar o valor da loteria anterior, 
+        // vamos carregar o valor salvo especificamente para ESTA loteria, ou usar o default inteligente!
+        const savedPool = localStorage.getItem('l99_precision_pool_' + this.currentGameKey);
+        
+        let targetValue = savedPool ? parseInt(savedPool) : defaultPool;
+        
+        // Se o valor estiver corrompido ou fora dos limites, forçar o default
+        if (targetValue < minPool || targetValue > maxPool) {
+            targetValue = defaultPool;
         }
+
+        poolInput.value = targetValue;
+        
         poolInput.title = `Mín: ${minPool} | Máx: ${maxPool} | Padrão: ${defaultPool}`;
 
         // Atualizar texto info
