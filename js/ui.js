@@ -180,33 +180,77 @@ class UI {
                 }
 
                 // ═══ Apostador selecionou números suficientes ═══
-                result = MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize);
-                const a = result.analysis || {};
-                bannerMsg = '🎲 <strong>MANUAL</strong> — ' + result.games.length + ' jogos dos seus ' + a.poolSize + ' números';
-                if (a.fixedCount > 0) bannerMsg += ' (fixos: ' + a.fixedNumbers.join(', ') + ')';
-                bannerMsg += '<br>📊 Combinações possíveis: <strong>' + a.totalPossible + '</strong> | Investimento: <strong>R$ ' + a.investimento.toFixed(2) + '</strong>';
-                if (a.isComplete) bannerMsg += '<br>✅ <strong style="color:#22C55E;">FECHAMENTO COMPLETO</strong>';
-
-                const games = result.games || [];
-                if (games.length === 0) {
-                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">' + (result.error || 'Nenhum jogo gerado.') + '</div>';
-                    return;
+                const closingVal = this.closingSelect ? this.closingSelect.value : '';
+                
+                if (closingVal.startsWith('close_')) {
+                    const guarantee = parseInt(closingVal.replace('close_', ''));
+                    if (typeof ClosingEngine === 'undefined') {
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">ClosingEngine não carregado.</div>';
+                        return;
+                    }
+                    
+                    this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Fechando ' + guarantee + ' pontos com IA...</div></div>';
+                    
+                    setTimeout(() => {
+                        result = ClosingEngine.generateClosure(poolSet, guarantee, drawSize, this.currentGameKey, fixedArr);
+                        
+                        if (result.error) {
+                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">' + result.error + '</div>';
+                            return;
+                        }
+                        
+                        bannerMsg = '🎯 <strong>FECHAMENTO HÍBRIDO (IA + STEINER)</strong> — ' + result.games.length + ' jogos<br>';
+                        bannerMsg += 'Garantia: <strong>' + guarantee + ' pontos</strong> | Cobertura Exata: <strong>' + result.coveragePct + '%</strong><br>';
+                        if (fixedArr.length > 0) bannerMsg += 'Fixos: ' + fixedArr.join(', ') + '<br>';
+                        bannerMsg += 'Investimento: <strong>R$ ' + result.cost.toFixed(2) + '</strong> | Ordenado por Sinergia IA 🔥';
+                        
+                        const games = result.games || [];
+                        this.currentGeneratedGames = games;
+                        this._lastGeneratedGames = games;
+                        this.renderGames({ pool: pool, games: games, smartAnalysis: null }, this.currentGameKey);
+                        
+                        setTimeout(() => {
+                            var b = document.createElement('div');
+                            b.className = 'smart-gen-analysis';
+                            b.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:12px 16px;border-radius:10px;background:linear-gradient(135deg, rgba(255,215,0,0.1), rgba(220,38,38,0.1));border:1px solid rgba(255,215,0,0.3);font-size:0.8rem;color:#FCD34D;';
+                            b.innerHTML = bannerMsg;
+                            var old = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                            if (old) old.remove();
+                            this.gamesContainer.parentNode.insertBefore(b, this.gamesContainer);
+                        }, 50);
+                        setTimeout(() => { if (this.gamesContainer) this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
+                    }, 50);
+                    
+                } else {
+                    // Sem fechamento exato -> Motor Genérico
+                    result = MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize);
+                    const a = result.analysis || {};
+                    bannerMsg = '🎲 <strong>MANUAL</strong> — ' + result.games.length + ' jogos dos seus ' + a.poolSize + ' números';
+                    if (a.fixedCount > 0) bannerMsg += ' (fixos: ' + a.fixedNumbers.join(', ') + ')';
+                    bannerMsg += '<br>📊 Combinações possíveis: <strong>' + a.totalPossible + '</strong> | Investimento: <strong>R$ ' + a.investimento.toFixed(2) + '</strong>';
+                    if (a.isComplete) bannerMsg += '<br>✅ <strong style="color:#22C55E;">FECHAMENTO COMPLETO</strong>';
+    
+                    const games = result.games || [];
+                    if (games.length === 0) {
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">' + (result.error || 'Nenhum jogo gerado.') + '</div>';
+                        return;
+                    }
+                    this.currentGeneratedGames = games;
+                    this._lastGeneratedGames = games;
+                    this.renderGames({ pool: pool, games: games, smartAnalysis: null }, this.currentGameKey);
+    
+                    // Banner informativo
+                    setTimeout(() => {
+                        var b = document.createElement('div');
+                        b.className = 'smart-gen-analysis';
+                        b.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:12px 16px;border-radius:10px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.3);font-size:0.8rem;color:#FCD34D;';
+                        b.innerHTML = bannerMsg;
+                        var old = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                        if (old) old.remove();
+                        this.gamesContainer.parentNode.insertBefore(b, this.gamesContainer);
+                    }, 50);
+                    setTimeout(() => { if (this.gamesContainer) this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
                 }
-                this.currentGeneratedGames = games;
-                this._lastGeneratedGames = games;
-                this.renderGames({ pool: pool, games: games, smartAnalysis: null }, this.currentGameKey);
-
-                // Banner informativo
-                setTimeout(() => {
-                    var b = document.createElement('div');
-                    b.className = 'smart-gen-analysis';
-                    b.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:12px 16px;border-radius:10px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.3);font-size:0.8rem;color:#FCD34D;';
-                    b.innerHTML = bannerMsg;
-                    var old = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
-                    if (old) old.remove();
-                    this.gamesContainer.parentNode.insertBefore(b, this.gamesContainer);
-                }, 50);
-                setTimeout(() => { if (this.gamesContainer) this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
             };
         }
 

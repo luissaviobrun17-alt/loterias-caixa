@@ -252,19 +252,25 @@ class ClosingEngine {
             };
         }
 
+        // ━━ INJEÇÃO DE INTELIGÊNCIA ARTIFICIAL (SYNERGY) ━━
+        const aiSynergy = this._getAISynergy(gameKey, nums);
+        if (aiSynergy) {
+            console.log('[CLOSING-v3.1] 🧠 IA Sinergética Ativada: ' + gameKey + ' (Scores + Duplas Históricas)');
+        }
+
         // ━━ SELECIONAR ALGORITMO ━━
         const totalVarTSubsets = this.nCr(variableCount, effG);
         console.log('[CLOSING-v3.1] Subconjuntos efetivos: C(' + variableCount + ',' + effG + ') = ' + totalVarTSubsets.toLocaleString('pt-BR'));
 
         if (totalCandidates <= 25000 && totalVarTSubsets <= 200000) {
             console.log('[CLOSING-v3.1] → GREEDY EXATO');
-            return this._greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet);
+            return this._greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy);
         } else if (totalVarTSubsets <= 1000000) {
             console.log('[CLOSING-v3.1] → GREEDY AMOSTRADO');
-            return this._greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet);
+            return this._greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy);
         } else {
             console.log('[CLOSING-v3.1] → HEURÍSTICO VERIFICADO');
-            return this._heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet);
+            return this._heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy);
         }
     }
 
@@ -276,10 +282,63 @@ class ClosingEngine {
         return variableCombos.map(combo => [...fixedArr, ...combo].sort((a, b) => a - b));
     }
 
+    // ═══════════════════════════════════════════
+    //  IA SINERGÉTICA (Scores e Duplas/Trios)
+    // ═══════════════════════════════════════════
+    static _getAISynergy(gameKey, selectedNumbers) {
+        if (typeof NovaEraEngine === 'undefined' || typeof StatsService === 'undefined') return null;
+        try {
+            const history = (StatsService.getRecentResults && typeof StatsService.getRecentResults === 'function') 
+                ? StatsService.getRecentResults(gameKey, 200) 
+                : (typeof window !== 'undefined' && window.REAL_HISTORY_DB && window.REAL_HISTORY_DB[gameKey] ? window.REAL_HISTORY_DB[gameKey] : []);
+            
+            if (!history || history.length === 0) return null;
+            const profile = NovaEraEngine.getProfile(gameKey);
+            const range = profile.range || [1, 60];
+            const scoresInfo = NovaEraEngine._scoreAllNumbers(gameKey, profile, history, range[0], range[1], range[1] - range[0] + 1);
+            
+            const pairMatrix = {};
+            selectedNumbers.forEach(n => { pairMatrix[n] = {}; selectedNumbers.forEach(m => pairMatrix[n][m] = 0); });
+            
+            history.forEach(draw => {
+                const nums = draw.numeros || draw;
+                const match = nums.filter(n => selectedNumbers.includes(n));
+                for(let i=0; i<match.length; i++) {
+                    for(let j=i+1; j<match.length; j++) {
+                        pairMatrix[match[i]][match[j]]++;
+                        pairMatrix[match[j]][match[i]]++;
+                    }
+                }
+            });
+            
+            return { scores: scoresInfo.scores, pairs: pairMatrix };
+        } catch(e) {
+            console.error('[CLOSING-AI] Erro ao injetar IA', e);
+            return null;
+        }
+    }
+
+    static _evalSynergy(vp, fixedArr, aiSynergy) {
+        let score = 0;
+        const combo = [...fixedArr, ...vp];
+        combo.forEach(n => {
+            score += (aiSynergy.scores[n] || 1.0);
+        });
+        // Peso das duplas que caem juntas
+        for(let i=0; i<combo.length; i++) {
+            for(let j=i+1; j<combo.length; j++) {
+                if (aiSynergy.pairs[combo[i]] && aiSynergy.pairs[combo[i]][combo[j]]) {
+                    score += aiSynergy.pairs[combo[i]][combo[j]] * 0.15;
+                }
+            }
+        }
+        return score;
+    }
+
     // ═══════════════════════════════════════════════════════
     //  GREEDY EXATO: Cobertura exata de effG-subconjuntos
     // ═══════════════════════════════════════════════════════
-    static _greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet) {
+    static _greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy) {
         const variableCount = variableNums.length;
 
         // 1. Enumerar TODOS os effG-subconjuntos de variáveis
@@ -296,7 +355,16 @@ class ClosingEngine {
         for (let i = 0; i < totalSubsets; i++) uncovered.add(i);
 
         // 2. Enumerar TODOS os candidatos (parte variável)
-        const allVariableParts = this._generateSubsets(variableNums, slotsVariable);
+        let allVariableParts = this._generateSubsets(variableNums, slotsVariable);
+        
+        // ORDENAÇÃO POR IA (Trios/Duplas/Calor)
+        if (aiSynergy) {
+            allVariableParts.forEach(vp => { vp._synergy = this._evalSynergy(vp, fixedArr, aiSynergy); });
+            allVariableParts.sort((a, b) => b._synergy - a._synergy);
+            // Limpa cache de sinergia para economizar memoria
+            allVariableParts.forEach(vp => delete vp._synergy);
+        }
+        
         console.log('[CLOSING-v3.1] Candidatos: ' + allVariableParts.length);
 
         // 3. Pré-calcular coberturas
@@ -363,7 +431,7 @@ class ClosingEngine {
     // ═══════════════════════════════════════════════════════
     //  GREEDY AMOSTRADO: Para espaços médios
     // ═══════════════════════════════════════════════════════
-    static _greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet) {
+    static _greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy) {
         const variableCount = variableNums.length;
         const TIMEOUT = 120000;
         const BATCH_SIZE = 15000;
@@ -392,7 +460,12 @@ class ClosingEngine {
 
         while (uncovered.size > 0 && rounds < MAX_ROUNDS && (Date.now() - t0) < TIMEOUT) {
             rounds++;
-            const candidates = this._generateRandomSubsets(variableNums, slotsVariable, BATCH_SIZE);
+            let candidates = this._generateRandomSubsets(variableNums, slotsVariable, BATCH_SIZE);
+            if (aiSynergy) {
+                candidates.forEach(vp => { vp._synergy = this._evalSynergy(vp, fixedArr, aiSynergy); });
+                candidates.sort((a, b) => b._synergy - a._synergy);
+                candidates.forEach(vp => delete vp._synergy);
+            }
 
             let bestCandidate = null;
             let bestCount = 0;
@@ -459,7 +532,7 @@ class ClosingEngine {
     // ═══════════════════════════════════════════════════════
     //  HEURÍSTICO VERIFICADO: Para espaços enormes
     // ═══════════════════════════════════════════════════════
-    static _heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet) {
+    static _heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy) {
         const variableCount = variableNums.length;
         const totalVarSubsets = this.nCr(variableCount, effG);
         const coversPerCandidate = this.nCr(slotsVariable, effG);
@@ -486,8 +559,22 @@ class ClosingEngine {
         let attempts = 0;
         while (selectedGames.length < maxGames && attempts < maxGames * 30 && (Date.now() - t0) < TIMEOUT) {
             attempts++;
-            const variablePart = this._generateDiverseCandidate(variableNums, slotsVariable, zones);
-            const candidate = [...fixedArr, ...variablePart].sort((a, b) => a - b);
+            
+            // Gerar pequeno batch e pegar o melhor via IA
+            let candidate;
+            if (aiSynergy) {
+                let bestCand = null, bestScore = -1;
+                for(let b=0; b<15; b++) {
+                    const vp = this._generateDiverseCandidate(variableNums, slotsVariable, zones);
+                    const score = this._evalSynergy(vp, fixedArr, aiSynergy);
+                    if(score > bestScore) { bestScore = score; bestCand = vp; }
+                }
+                candidate = [...fixedArr, ...bestCand].sort((a, b) => a - b);
+            } else {
+                const variablePart = this._generateDiverseCandidate(variableNums, slotsVariable, zones);
+                candidate = [...fixedArr, ...variablePart].sort((a, b) => a - b);
+            }
+            
             const key = candidate.join(',');
             if (!usedKeys.has(key)) {
                 usedKeys.add(key);
