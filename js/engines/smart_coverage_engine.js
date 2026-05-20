@@ -21,67 +21,81 @@ class SmartCoverageEngine {
         return 'COVERAGE_FAST';                   // Set Cover adaptativo
     }
 
-    // ─── Construção do Alvo do Sniper (KDE / Heatmap Espacial) ────────────
+    // ─── Construção do Alvo do Sniper (Analítico Matemático) ────────────
+    // Baseado em Ciclos, Atrasos, Tendências e Frequência de Duplas
     static _buildSniperPool(gameKey, game, numGames, poolSizePreference) {
-        if (typeof StatsService === 'undefined') return [];
-        const history = StatsService.historyStore[gameKey] || [];
+        let history = [];
+        if (typeof StatsService !== 'undefined') history = StatsService.getRecentResults(gameKey, 200) || [];
+        if (history.length === 0 && typeof REAL_HISTORY_DB !== 'undefined') history = REAL_HISTORY_DB[gameKey] || [];
         if (history.length === 0) return [];
 
-        const drawsToAnalyze = Math.min(15, history.length);
-        const recentDraws = history.slice(0, drawsToAnalyze);
-
-        // Grade física do volante
-        const columns = gameKey === 'lotofacil' ? 5 : 10;
         const start = game.range[0];
         const end = game.range[1];
-        
-        const heat = {};
-        for (let i = start; i <= end; i++) heat[i] = 0;
+        const totalRange = end - start + 1;
 
-        // Decaimento exponencial: Dá mais peso aos sorteios recentes
-        const decay = 0.75; 
-        let weight = 1.0;
+        // 1. Matriz de Scores Quânticos (Frequência, Atrasos, Ciclos)
+        let quantumScores = {};
+        if (typeof NovaEraEngine !== 'undefined') {
+            const profile = NovaEraEngine.getProfile(gameKey);
+            quantumScores = NovaEraEngine._scoreAllNumbers(gameKey, profile, history, start, end, totalRange);
+        } else {
+            for (let i = start; i <= end; i++) quantumScores[i] = 1;
+        }
+
+        // 2. Bônus adicional de DUPLAS (solicitação específica para o Sniper)
+        // Analisa as últimas 15 extrações para ver quem sai junto com mais frequência
+        const recentDraws = history.slice(0, 15);
+        const pairsFreq = {};
+        const numberPairBonus = {};
+        for (let i = start; i <= end; i++) numberPairBonus[i] = 0;
 
         recentDraws.forEach(draw => {
             const nums = (draw.numbers || []).concat(draw.numbers2 || []);
-            nums.forEach(n => {
-                if (n >= start && n <= end) {
-                    // Epicentro (Próprio número)
-                    heat[n] += (100 * weight);
-
-                    const adjacents = [];
-                    // Esquerda e Direita (na mesma linha)
-                    if ((n - start) % columns !== 0) adjacents.push(n - 1);
-                    if ((n - start) % columns !== (columns - 1)) adjacents.push(n + 1);
-                    // Cima e Baixo
-                    if (n - columns >= start) adjacents.push(n - columns);
-                    if (n + columns <= end) adjacents.push(n + columns);
-
-                    // Adjacência ortogonal
-                    adjacents.forEach(adj => {
-                        if (adj >= start && adj <= end) heat[adj] += (50 * weight);
-                    });
-
-                    const diagonals = [];
-                    if (n - columns >= start && (n - start) % columns !== 0) diagonals.push(n - columns - 1);
-                    if (n - columns >= start && (n - start) % columns !== (columns - 1)) diagonals.push(n - columns + 1);
-                    if (n + columns <= end && (n - start) % columns !== 0) diagonals.push(n + columns - 1);
-                    if (n + columns <= end && (n - start) % columns !== (columns - 1)) diagonals.push(n + columns + 1);
-
-                    // Adjacência diagonal
-                    diagonals.forEach(diag => {
-                         if (diag >= start && diag <= end) heat[diag] += (25 * weight);
-                    });
+            for (let i = 0; i < nums.length; i++) {
+                for (let j = i + 1; j < nums.length; j++) {
+                    const n1 = nums[i], n2 = nums[j];
+                    if (n1 >= start && n1 <= end && n2 >= start && n2 <= end) {
+                        const key = n1 < n2 ? `${n1}-${n2}` : `${n2}-${n1}`;
+                        pairsFreq[key] = (pairsFreq[key] || 0) + 1;
+                    }
                 }
-            });
-            weight *= decay;
+            }
         });
 
-        const sortedNumbers = Object.keys(heat)
-            .map(n => parseInt(n))
-            .sort((a, b) => heat[b] - heat[a]);
+        // Para cada dezena, soma o peso das duplas fortes que ela forma
+        Object.keys(pairsFreq).forEach(key => {
+            const freq = pairsFreq[key];
+            if (freq > 1) { // Só consideramos duplas que repetiram nos últimos 15 concursos
+                const [n1, n2] = key.split('-').map(Number);
+                numberPairBonus[n1] += freq * 2; // peso forte
+                numberPairBonus[n2] += freq * 2;
+            }
+        });
 
-        // Tamanho do alvo definido pelo slider do usuario, com fallback dinamico apenas se necessario
+        // 3. Tendência de Curto Prazo (Últimos 3 sorteios ganham impulso forte)
+        const shortTermDraws = history.slice(0, 3);
+        const shortTermBonus = {};
+        for (let i = start; i <= end; i++) shortTermBonus[i] = 0;
+        shortTermDraws.forEach(draw => {
+            const nums = (draw.numbers || []).concat(draw.numbers2 || []);
+            nums.forEach(n => {
+                if (n >= start && n <= end) shortTermBonus[n] += 15;
+            });
+        });
+
+        // 4. Combinar todos os scores para criar o RANKING FINAL DO SNIPER
+        const finalScores = {};
+        for (let i = start; i <= end; i++) {
+            finalScores[i] = (quantumScores[i] || 1) + numberPairBonus[i] + shortTermBonus[i];
+        }
+
+        // Ordenar as dezenas da mais quente/sinérgica para a mais fria
+        const sortedNumbers = Object.keys(finalScores)
+            .map(Number)
+            .sort((a, b) => finalScores[b] - finalScores[a]);
+
+        // O tamanho do alvo é DECRETADO pelo usuário via UI (precisionPoolSize).
+        // Se não fornecido, usa defaults conservadores.
         let targetSize = poolSizePreference || 20; 
         if (!poolSizePreference) {
             targetSize = game.draw * 2; 
@@ -90,8 +104,13 @@ class SmartCoverageEngine {
             else if (numGames <= 100) targetSize = Math.round(game.draw * 5.0);
             else targetSize = Math.round(game.draw * 7.0);
         }
-        targetSize = Math.min(targetSize, end - start + 1);
-        return sortedNumbers.slice(0, targetSize).sort((a, b) => a - b);
+        targetSize = Math.max(game.draw, Math.min(targetSize, totalRange));
+
+        // Pega a nata do topo
+        const sniperPool = sortedNumbers.slice(0, targetSize).sort((a, b) => a - b);
+        
+        console.log(`[SmartCoverage] 🎯 Sniper Analítico construído: ${targetSize} dezenas focadas (Duplas+Ciclos+Tendências)`);
+        return sniperPool;
     }
 
     // ─── Ponto de entrada ─────────────────────────────────────────────────
