@@ -2397,6 +2397,41 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         // Validação defensiva de dados de entrada
         if (!result) result = { games: [] };
         if (!result.games) result.games = [];
+
+        // ── ORDENAÇÃO GLOBAL POR SINERGIA IA 🔥 ──
+        // Isso garante que TODOS os motores (Sniper, Cobertura, Manual Simples, etc) 
+        // entreguem os melhores jogos estatisticamente no topo da lista.
+        if (result.games.length > 0 && typeof ClosingEngine !== 'undefined') {
+            let pool = result.pool;
+            if (!pool || pool.length === 0) {
+                pool = Array.from(this.selectedNumbers || []);
+            }
+            if (!pool || pool.length === 0) {
+                const gameConfig = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+                if (gameConfig && gameConfig.range) {
+                    pool = [];
+                    for(let i = gameConfig.range[0]; i <= gameConfig.range[1]; i++) pool.push(i);
+                }
+            }
+            
+            try {
+                if (pool && pool.length > 0) {
+                    const aiSynergy = ClosingEngine._getAISynergy(gameKey, pool);
+                    if (aiSynergy) {
+                        const fixedArr = Array.from(this.fixedNumbers || []);
+                        result.games.sort((a, b) => {
+                            const scoreA = ClosingEngine._evalSynergy(a.filter(n => !fixedArr.includes(n)), fixedArr, aiSynergy);
+                            const scoreB = ClosingEngine._evalSynergy(b.filter(n => !fixedArr.includes(n)), fixedArr, aiSynergy);
+                            return scoreB - scoreA;
+                        });
+                        console.log('[GLOBAL-SORT] 🔥 Jogos globais ordenados por Sinergia IA.');
+                    }
+                }
+            } catch(e) {
+                console.warn('[GLOBAL-SORT] Falha ao ordenar por sinergia', e);
+            }
+        }
+
         this.currentGeneratedGames = result.games;
         this._lastInternalEngine = result.internalEngine || 'Desconhecido';
         
