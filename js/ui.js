@@ -227,7 +227,7 @@ class UI {
                     const a = result.analysis || {};
                     bannerMsg = '🎲 <strong>MANUAL</strong> — ' + result.games.length + ' jogos dos seus ' + a.poolSize + ' números';
                     if (a.fixedCount > 0) bannerMsg += ' (fixos: ' + a.fixedNumbers.join(', ') + ')';
-                    bannerMsg += '<br>📊 Combinações possíveis: <strong>' + a.totalPossible + '</strong> | Investimento: <strong>R$ ' + a.investimento.toFixed(2) + '</strong>';
+                    bannerMsg += '<br>📊 Combinações possíveis: <strong>' + a.totalPossible + '</strong> | Investimento: <strong>R$ ' + a.investimento.toFixed(2) + '</strong> | Ordenado por Sinergia IA 🔥';
                     if (a.isComplete) bannerMsg += '<br>✅ <strong style="color:#22C55E;">FECHAMENTO COMPLETO</strong>';
     
                     const games = result.games || [];
