@@ -455,8 +455,8 @@ class ClosingEngine {
 
         // 2. Greedy iterativo com lotes
         const selectedGames = [];
+        const MAX_ROUNDS = 5000; // Aumentado para permitir fechamentos completos de até 5 mil jogos
         let rounds = 0;
-        const MAX_ROUNDS = 500;
 
         while (uncovered.size > 0 && rounds < MAX_ROUNDS && (Date.now() - t0) < TIMEOUT) {
             rounds++;
