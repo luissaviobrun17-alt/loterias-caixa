@@ -9,17 +9,44 @@ global.console = console;
 
 // Carregar dependências
 const fs = require('fs');
+const path = require('path');
+
+// Setup global browser-like environment
+global.window = global;
+global.document = { getElementById: () => null, querySelector: () => null, querySelectorAll: () => [], body: { setAttribute: () => {} }, createElement: () => ({ style: {}, appendChild: () => {}, innerHTML: '' }) };
+global.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+global.fetch = () => Promise.resolve({ ok: false });
+global.AbortController = class { constructor() { this.signal = {}; } abort() {} };
+global.CustomEvent = class { constructor(t, d) { this.type = t; this.detail = d; } };
+
+function loadFile(filename) {
+    const code = fs.readFileSync(filename, 'utf8');
+    eval(code);
+}
+
+loadFile('./js/data/history_db.js');
 let gamesCode = fs.readFileSync('./js/engines/games.js', 'utf8');
 gamesCode = gamesCode.replace('const GAMES', 'var GAMES');
 eval(gamesCode);
+
+let covCode = fs.readFileSync('./js/engines/coverage_engine.js', 'utf8');
+covCode = covCode.replace('class CoverageEngine', 'var CoverageEngine; CoverageEngine = class CoverageEngine');
+eval(covCode);
+
+let smartCode = fs.readFileSync('./js/engines/smart_coverage_engine.js', 'utf8');
+smartCode = smartCode.replace('class SmartCoverageEngine', 'var SmartCoverageEngine; SmartCoverageEngine = class SmartCoverageEngine');
+eval(smartCode);
+
 let statsCode = fs.readFileSync('./js/stats.js', 'utf8');
 statsCode = statsCode.replace('class StatsService', 'var StatsService; StatsService = class StatsService');
 eval(statsCode);
+
 try { 
     let precCode = fs.readFileSync('./js/engines/precision_calibrator.js', 'utf8');
     precCode = precCode.replace('class PrecisionCalibrator', 'var PrecisionCalibrator; PrecisionCalibrator = class PrecisionCalibrator');
     eval(precCode);
 } catch(e) { console.log('PrecisionCalibrator não encontrado'); }
+
 let neCode = fs.readFileSync('./js/engines/nova_era_engine.js', 'utf8');
 neCode = neCode.replace('class NovaEraEngine', 'var NovaEraEngine; NovaEraEngine = class NovaEraEngine');
 eval(neCode);

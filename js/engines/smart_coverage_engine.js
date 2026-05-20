@@ -197,18 +197,70 @@ class SmartCoverageEngine {
             console.log('[SmartCoverage] Auto-Sniper ativado para Quina. Pool estrangulado para', opts.precisionPoolSize);
         }
 
-        // v12.1 Auto-Sniper Cirúrgico (Mega Sena)
-        // Evita gastos desnecessarios espalhando em 60 numeros em altos volumes
-        if (gameKey === 'megasena' && numGames > 100 && (!selectedNumbers || selectedNumbers.length === 0)) {
-            opts.precisionMode = true; // Forca a reducao do espaco combinatorio
-            // Se o usuario nao mexeu no slider (opts.precisionPoolSize == 20 padrao ou null),
-            // a gente ajusta de forma progressiva e agressiva:
-            if (!opts.precisionPoolSize || opts.precisionPoolSize === 20) {
-                if (numGames <= 500) opts.precisionPoolSize = 25;
-                else if (numGames <= 2000) opts.precisionPoolSize = 32;
-                else opts.precisionPoolSize = 42;
+        // ══════════════════════════════════════════════════════════════
+        // v13.3: POOL ESCALONADO MULTI-LOTERIA — 21 Camadas de Inteligência
+        // Em vez de gerar aleatório, usa NovaEraEngine._scoreAllNumbers()
+        // para ranquear os números e construir as camadas de pool dinamicamente:
+        // ══════════════════════════════════════════════════════════════
+        if (!selectedNumbers || selectedNumbers.length === 0) {
+            if (typeof NovaEraEngine !== 'undefined') {
+                try {
+                    const profile = NovaEraEngine.getProfile(gameKey);
+                    const startNum = profile.range[0];
+                    const endNum = profile.range[1];
+                    const totalRange = endNum - startNum + 1;
+
+                    // Obter histórico
+                    let history = [];
+                    if (typeof StatsService !== 'undefined') {
+                        history = StatsService.getRecentResults(gameKey, 200) || [];
+                    }
+                    if (history.length === 0 && typeof REAL_HISTORY_DB !== 'undefined') {
+                        history = REAL_HISTORY_DB[gameKey] || [];
+                    }
+
+                    if (history.length > 0) {
+                        // ★ PILAR 1: 21 CAMADAS DE INTELIGÊNCIA
+                        const scores = NovaEraEngine._scoreAllNumbers(
+                            gameKey, profile, history, startNum, endNum, totalRange
+                        );
+
+                        // Ranking por score (maior → menor)
+                        const ranked = [];
+                        for (let n = startNum; n <= endNum; n++) {
+                            ranked.push({ num: n, score: scores[n] || 0 });
+                        }
+                        ranked.sort((a, b) => b.score - a.score);
+
+                        // ★ PILAR 2: POOL ESCALONADO DINÂMICO
+                        let coreSize = 12;
+                        let hotSize = 24;
+                        if (gameKey === 'lotofacil') { coreSize = 18; hotSize = 22; }
+                        else if (gameKey === 'quina') { coreSize = 10; hotSize = 20; }
+                        else if (gameKey === 'duplasena') { coreSize = 12; hotSize = 22; }
+                        else if (gameKey === 'lotomania') { coreSize = 60; hotSize = 80; }
+                        else if (gameKey === 'timemania') { coreSize = 15; hotSize = 25; }
+                        else if (gameKey === 'diadesorte') { coreSize = 12; hotSize = 18; }
+                        
+                        opts.layeredPool = {
+                            core:    ranked.slice(0, coreSize).map(r => r.num).sort((a,b) => a-b),
+                            hot:     ranked.slice(0, hotSize).map(r => r.num).sort((a,b) => a-b),
+                            full:    ranked.map(r => r.num).sort((a,b) => a-b),
+                            scores:  scores,
+                            ranked:  ranked
+                        };
+
+                        console.log('%c[SmartCoverage] v13.3 ★ 21 CAMADAS ATIVAS PARA ' + gameKey.toUpperCase(), 'color: #F59E0B; font-weight: bold;');
+                        console.log('[SmartCoverage] NÚCLEO QUENTE (Top ' + coreSize + '):', 
+                            opts.layeredPool.core.map(n => n + '(' + scores[n].toFixed(2) + ')').join(', '));
+                        console.log('[SmartCoverage] ZONA QUENTE (Top ' + hotSize + '):', 
+                            opts.layeredPool.hot.join(', '));
+                        console.log('[SmartCoverage] Histórico analisado:', history.length, 'sorteios');
+                    }
+                } catch (e) {
+                    console.warn('[SmartCoverage] v13.3 NovaEra falhou, fallback aleatório:', e.message);
+                }
             }
-            console.log('[SmartCoverage] Auto-Sniper ativado para Mega Sena. Evitando gasto desnecessario. Pool =', opts.precisionPoolSize);
         }
 
         // Se o Sniper está ativo e o usuário não forçou números, calcula a Âncora Topológica
@@ -221,18 +273,17 @@ class SmartCoverageEngine {
             }
         }
 
-        // Passar opções de pool para CoverageEngine (sem ler DOM)
+        // Passar opções de pool para CoverageEngine
         const coverageOpts = {
             precisionMode: opts.precisionMode || false,
             precisionPool: sniperPool.length > 0 ? sniperPool : null,
-            strategy: strategy
+            strategy: strategy,
+            layeredPool: opts.layeredPool || null,
+            quantumScores: opts.layeredPool ? opts.layeredPool.scores : null
         };
 
-        // Para volumes altos, reduzir candidatesPerSlot temporariamente
-        // para evitar travamento da UI (sem Web Worker)
-        if (strategy === 'COVERAGE_FAST') {
-            console.log('[SmartCoverage] Volume alto (' + numGames + ') — modo rápido ativo');
-        }
+        // v13.2: Sem modo rápido — qualidade sobre velocidade
+        console.log('[SmartCoverage] Strategy:', strategy, '| Layered:', !!opts.layeredPool);
 
         let result;
         try {

@@ -403,7 +403,7 @@ class NovaEraEngine {
         const totalRange = endNum - startNum + 1;
         const drawSize = customDrawSize || game.minBet || profile.drawSize;
 
-        let history = historyOverride || [];
+        let history = (_options && _options.history) || [];
         if (history.length === 0) try {
             if (typeof StatsService !== 'undefined') {
                 history = StatsService.getRecentResults(gameKey, 200) || [];
@@ -468,55 +468,41 @@ class NovaEraEngine {
             console.log('[NE-V1] ðŸ“Œ ' + fixedNumbers.length + ' nÃºmeros fixos garantidos no pool: [' + fixedNumbers.sort((a,b)=>a-b).join(', ') + ']');
         }
 
-                // v12.0: Ajuste Dinamico de Piscina (Pedido do Usuario)
-        // Cortamos as piores dezenas em baixo volume para focar o orcamento,
-        // mas mantemos TODAS as dezenas em alto volume (>5000) para cobrir o espaco inteiro.
+                // v13.0: Ajuste Dinamico de Piscina
+        // MEGA SENA: NUNCA amputar — pool completo de 60 é obrigatório
+        // Para outras loterias, mantém a lógica de amputação existente
         if (!hasUserSelection) {
             let targetPoolSize = totalRange;
-            if (numGames <= 1000) {
-                targetPoolSize = Math.max(drawSize, Math.floor(totalRange * 0.66)); // ~40 na Mega
-            } else if (numGames <= 5000) {
-                targetPoolSize = Math.max(drawSize, Math.floor(totalRange * 0.83)); // ~50 na Mega
-            }
-            
-            // v12.3: Pedido expresso do usuário para Quina no Quantum L99
-            if (gameKey === 'quina') {
-                targetPoolSize = 50;
-            }
-            
-            // v12.8: Dia de Sorte Amputação Estatística
-            if (gameKey === 'diadesorte' && numGames >= 1000) {
-                targetPoolSize = 28;
-            }
-            
-            // v12.7: Timemania Amputação Estatística
-            if (gameKey === 'timemania' && numGames >= 1000) {
-                targetPoolSize = 65;
-            }
-            
-            // v12.4: Dupla Sena Amputação Estatística
-            if (gameKey === 'duplasena' && numGames >= 1000) {
-                targetPoolSize = 28;
-            }
-            
-            // v12.5: Lotomania Amputação Estatística
-            if (gameKey === 'lotomania' && numGames >= 1000) {
-                targetPoolSize = 80;
-            }
 
-            if (targetPoolSize < pool.length) {
-                const fixedSet = new Set(fixedNumbers || []);
-                const fixedInPool = pool.filter(n => fixedSet.has(n));
-                const nonFixedPool = pool.filter(n => !fixedSet.has(n));
-                // Ordenar por score cientifico (do maior para o menor)
-                nonFixedPool.sort((a, b) => (scores[b] || 0) - (scores[a] || 0));
-                
-                const slotsForNonFixed = targetPoolSize - fixedInPool.length;
-                pool = [...fixedInPool, ...nonFixedPool.slice(0, Math.max(0, slotsForNonFixed))];
-                pool.sort((a, b) => a - b);
-                console.log('[NE-V12] Corte de Piscina: Reduzido para os TOP ' + targetPoolSize + ' numeros (Foco agressivo)');
+            // v13.0: Mega Sena SEMPRE usa pool completo
+            if (gameKey === 'megasena') {
+                console.log('[NE-V13] Mega Sena: Pool COMPLETO ' + pool.length + '/60 (amputação desativada)');
             } else {
-                console.log('[NE-V12] Alto Volume: Mantendo TODAS as ' + pool.length + ' dezenas para cobertura total.');
+                // Outras loterias mantêm lógica de amputação
+                if (numGames <= 1000) {
+                    targetPoolSize = Math.max(drawSize, Math.floor(totalRange * 0.66));
+                } else if (numGames <= 5000) {
+                    targetPoolSize = Math.max(drawSize, Math.floor(totalRange * 0.83));
+                }
+                
+                if (gameKey === 'quina') targetPoolSize = 50;
+                if (gameKey === 'diadesorte' && numGames >= 1000) targetPoolSize = 28;
+                if (gameKey === 'timemania' && numGames >= 1000) targetPoolSize = 65;
+                if (gameKey === 'duplasena' && numGames >= 1000) targetPoolSize = 28;
+                if (gameKey === 'lotomania' && numGames >= 1000) targetPoolSize = 80;
+
+                if (targetPoolSize < pool.length) {
+                    const fixedSet = new Set(fixedNumbers || []);
+                    const fixedInPool = pool.filter(n => fixedSet.has(n));
+                    const nonFixedPool = pool.filter(n => !fixedSet.has(n));
+                    nonFixedPool.sort((a, b) => (scores[b] || 0) - (scores[a] || 0));
+                    const slotsForNonFixed = targetPoolSize - fixedInPool.length;
+                    pool = [...fixedInPool, ...nonFixedPool.slice(0, Math.max(0, slotsForNonFixed))];
+                    pool.sort((a, b) => a - b);
+                    console.log('[NE-V13] Corte de Piscina: Reduzido para os TOP ' + targetPoolSize + ' numeros');
+                } else {
+                    console.log('[NE-V13] Alto Volume: Mantendo TODAS as ' + pool.length + ' dezenas.');
+                }
             }
         }
 

@@ -3194,6 +3194,12 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
                 drawInfo = `Concurso ${result.drawNumber}`;
                 // ★ v10.9: Salvar resultado completo para conferência de extras (mês/time)
                 this._lastDrawResult = result;
+                // ★ v13.0: Dupla Sena — incluir 2º sorteio na conferência
+                if (this.currentGameKey === 'duplasena' && result.numbers2 && result.numbers2.length > 0) {
+                    this._lastDrawNumbers2 = result.numbers2;
+                } else {
+                    this._lastDrawNumbers2 = null;
+                }
             } else {
                 // Concurso realmente não encontrado em nenhuma fonte
                 alert(`❌ Concurso ${drawNum} não encontrado.\n\nVerifique se o número do concurso está correto ou digite os números sorteados manualmente separados por espaço ou vírgula.\n\nExemplo: 08 24 27 37 47 55`);
@@ -3260,6 +3266,10 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         const cards = document.querySelectorAll('.game-card');
         const game = GAMES[this.currentGameKey];
 
+        // ═══ V13: Dupla Sena — conferir contra AMBOS os sorteios ═══
+        const isDuplaSena = this.currentGameKey === 'duplasena';
+        const drawnSet2 = (isDuplaSena && this._lastDrawNumbers2) ? new Set(this._lastDrawNumbers2) : null;
+
         // ═══ V10: Conferência Completa — Todas as Faixas ═══
         const paidStrategies = game.strategies.filter(s => s.paid !== false);
         const awardCounts = {};
@@ -3272,28 +3282,76 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         // V11: Coletar jogos ganhadores para exibição agrupada
         const winningGames = [];
 
-        // V12 FIX: Computar hits usando apenas DADOS (evita congelamento de UI em lotes grandes)
+        // V13 FIX: Para Dupla Sena, cada jogo é conferido contra AMBOS os sorteios.
+        // Regra oficial: premiações de cada sorteio são INDEPENDENTES e ACUMULAM.
+        // Um mesmo jogo pode ganhar Terno no 1º sorteio E Quadra no 2º sorteio.
         this.currentGeneratedGames.forEach((gameNumbers, index) => {
-            let hits = 0;
+            // Hits no 1º sorteio
+            let hits1 = 0;
             for (let i = 0; i < gameNumbers.length; i++) {
-                if (drawnSet.has(gameNumbers[i])) hits++;
+                if (drawnSet.has(gameNumbers[i])) hits1++;
             }
+
+            // Hits no 2º sorteio (Dupla Sena)
+            let hits2 = 0;
+            if (drawnSet2) {
+                for (let i = 0; i < gameNumbers.length; i++) {
+                    if (drawnSet2.has(gameNumbers[i])) hits2++;
+                }
+            }
+
+            // Para Dupla Sena: premiar em AMBOS os sorteios (acumula)
+            // Para outras loterias: apenas hits1
+            const hits = isDuplaSena ? Math.max(hits1, hits2) : hits1;
 
             if (hits > maxPossibleHits) maxPossibleHits = hits;
             hitDistribution[hits] = (hitDistribution[hits] || 0) + 1;
 
             const hitsToCheck = (this.currentGameKey === 'lotomania' && hits === 0) ? 0 : hits;
-            const matchedStrat = paidStrategies.find(s => s.match === hitsToCheck);
 
-            if (matchedStrat) {
-                awardCounts[matchedStrat.id]++;
-                winningGames.push({
-                    index: index,
-                    numbers: gameNumbers,
-                    hits: hits,
-                    strat: matchedStrat,
-                    prize: matchedStrat.prize || 0
-                });
+            if (isDuplaSena && drawnSet2) {
+                // Dupla Sena: conferir cada sorteio INDEPENDENTEMENTE
+                const strat1 = paidStrategies.find(s => s.match === hits1);
+                const strat2 = paidStrategies.find(s => s.match === hits2);
+
+                let totalPrize = 0;
+                let bestStrat = null;
+
+                if (strat1) {
+                    awardCounts[strat1.id]++;
+                    totalPrize += (strat1.prize || 0);
+                    bestStrat = strat1;
+                }
+                if (strat2) {
+                    awardCounts[strat2.id]++;
+                    totalPrize += (strat2.prize || 0);
+                    if (!bestStrat || strat2.match > bestStrat.match) bestStrat = strat2;
+                }
+
+                if (bestStrat) {
+                    winningGames.push({
+                        index: index,
+                        numbers: gameNumbers,
+                        hits: Math.max(hits1, hits2),
+                        hits1: hits1,
+                        hits2: hits2,
+                        strat: bestStrat,
+                        prize: totalPrize
+                    });
+                }
+            } else {
+                // Todas as outras loterias
+                const matchedStrat = paidStrategies.find(s => s.match === hitsToCheck);
+                if (matchedStrat) {
+                    awardCounts[matchedStrat.id]++;
+                    winningGames.push({
+                        index: index,
+                        numbers: gameNumbers,
+                        hits: hits,
+                        strat: matchedStrat,
+                        prize: matchedStrat.prize || 0
+                    });
+                }
             }
         });
 
@@ -3311,24 +3369,49 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
                 const gameNumbers = this.currentGeneratedGames[i];
                 if (!gameNumbers) continue;
 
-                let hits = 0;
+                // Hits no 1º sorteio
+                let hits1 = 0;
                 for (let k = 0; k < gameNumbers.length; k++) {
-                    if (drawnSet.has(gameNumbers[k])) hits++;
+                    if (drawnSet.has(gameNumbers[k])) hits1++;
                 }
 
-                const hitsToCheck = (this.currentGameKey === 'lotomania' && hits === 0) ? 0 : hits;
-                const matchedStrat = paidStrategies.find(s => s.match === hitsToCheck);
+                // Hits no 2º sorteio (Dupla Sena)
+                let hits2 = 0;
+                if (drawnSet2) {
+                    for (let k = 0; k < gameNumbers.length; k++) {
+                        if (drawnSet2.has(gameNumbers[k])) hits2++;
+                    }
+                }
 
-                // Update balls
+                const hits = isDuplaSena ? Math.max(hits1, hits2) : hits1;
+                const hitsToCheck = (this.currentGameKey === 'lotomania' && hits === 0) ? 0 : hits;
+
+                // Update balls — Dupla Sena: verde=1º, azul=2º, dourado=ambos
                 const balls = card.querySelectorAll('.ball');
                 balls.forEach((ball, bIdx) => {
-                    const num = gameNumbers[bIdx]; // Use the array directly, no textContent parsing needed
-                    if (drawnSet.has(num)) {
+                    const num = gameNumbers[bIdx];
+                    const inDraw1 = drawnSet.has(num);
+                    const inDraw2 = drawnSet2 ? drawnSet2.has(num) : false;
+
+                    if (inDraw1 && inDraw2) {
+                        // Acertou em AMBOS os sorteios
+                        ball.classList.add('hit');
+                        ball.style.backgroundColor = '#FFD700';
+                        ball.style.color = '#000';
+                        ball.style.borderColor = '#FFD700';
+                        ball.style.boxShadow = '0 0 10px rgba(255,215,0,0.6)';
+                    } else if (inDraw1) {
                         ball.classList.add('hit');
                         ball.style.backgroundColor = '#22C55E';
                         ball.style.color = '#fff';
                         ball.style.borderColor = '#22C55E';
                         ball.style.boxShadow = '0 0 8px rgba(34,197,94,0.5)';
+                    } else if (inDraw2) {
+                        ball.classList.add('hit');
+                        ball.style.backgroundColor = '#3B82F6';
+                        ball.style.color = '#fff';
+                        ball.style.borderColor = '#3B82F6';
+                        ball.style.boxShadow = '0 0 8px rgba(59,130,246,0.5)';
                     } else {
                         if (!ball.classList.contains('fixed')) {
                             ball.style.backgroundColor = '';
@@ -3349,24 +3432,52 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
                     card.appendChild(summary);
                 }
 
-                const displayHits = (this.currentGameKey === 'lotomania' && hits === 0) ? '0 (Mania!)' : hits;
+                if (isDuplaSena && drawnSet2) {
+                    // Dupla Sena: mostrar resultado de AMBOS os sorteios
+                    const strat1 = paidStrategies.find(s => s.match === hits1);
+                    const strat2 = paidStrategies.find(s => s.match === hits2);
+                    const bestStrat = strat1 || strat2;
+                    let totalPrize = (strat1 ? strat1.prize : 0) + (strat2 ? strat2.prize : 0);
 
-                if (matchedStrat) {
-                    const isJackpot = matchedStrat.match === game.draw;
-                    summary.style.color = isJackpot ? '#FFD700' : '#22C55E';
-                    summary.style.background = isJackpot ? 'rgba(255,215,0,0.08)' : 'rgba(34,197,94,0.08)';
-                    const prizeHint = matchedStrat.prize > 100
-                        ? ` ≈ ${matchedStrat.prize.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
-                        : (matchedStrat.prize > 0 ? ` ≈ R$ ${matchedStrat.prize.toFixed(2).replace('.', ',')}` : '');
-                    summary.innerHTML = `🏆 ${displayHits} acertos — <strong>${matchedStrat.label}</strong>${prizeHint}`;
-                } else if (hits > 0) {
-                    summary.style.color = '#94A3B8';
-                    summary.style.background = 'rgba(255,255,255,0.03)';
-                    summary.textContent = `${hits} acerto${hits > 1 ? 's' : ''} — sem premiação nesta faixa`;
+                    if (bestStrat) {
+                        const isJackpot = (strat1 && strat1.match === game.draw) || (strat2 && strat2.match === game.draw);
+                        summary.style.color = isJackpot ? '#FFD700' : '#22C55E';
+                        summary.style.background = isJackpot ? 'rgba(255,215,0,0.08)' : 'rgba(34,197,94,0.08)';
+                        const s1Label = strat1 ? `1º: ${hits1}ac (${strat1.label})` : `1º: ${hits1}ac`;
+                        const s2Label = strat2 ? `2º: ${hits2}ac (${strat2.label})` : `2º: ${hits2}ac`;
+                        const prizeHint = totalPrize > 0 ? ` ≈ R$ ${totalPrize.toFixed(2).replace('.', ',')}` : '';
+                        summary.innerHTML = `🏆 ${s1Label} | ${s2Label}${prizeHint}`;
+                    } else if (hits1 > 0 || hits2 > 0) {
+                        summary.style.color = '#94A3B8';
+                        summary.style.background = 'rgba(255,255,255,0.03)';
+                        summary.textContent = `1º: ${hits1}ac | 2º: ${hits2}ac — sem premiação`;
+                    } else {
+                        summary.style.color = '#475569';
+                        summary.style.background = '';
+                        summary.textContent = 'Nenhum acerto em ambos sorteios';
+                    }
                 } else {
-                    summary.style.color = '#475569';
-                    summary.style.background = '';
-                    summary.textContent = 'Nenhum acerto';
+                    // Todas as outras loterias
+                    const displayHits = (this.currentGameKey === 'lotomania' && hits1 === 0) ? '0 (Mania!)' : hits1;
+                    const matchedStrat = paidStrategies.find(s => s.match === hitsToCheck);
+
+                    if (matchedStrat) {
+                        const isJackpot = matchedStrat.match === game.draw;
+                        summary.style.color = isJackpot ? '#FFD700' : '#22C55E';
+                        summary.style.background = isJackpot ? 'rgba(255,215,0,0.08)' : 'rgba(34,197,94,0.08)';
+                        const prizeHint = matchedStrat.prize > 100
+                            ? ` ≈ ${matchedStrat.prize.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+                            : (matchedStrat.prize > 0 ? ` ≈ R$ ${matchedStrat.prize.toFixed(2).replace('.', ',')}` : '');
+                        summary.innerHTML = `🏆 ${displayHits} acertos — <strong>${matchedStrat.label}</strong>${prizeHint}`;
+                    } else if (hits1 > 0) {
+                        summary.style.color = '#94A3B8';
+                        summary.style.background = 'rgba(255,255,255,0.03)';
+                        summary.textContent = `${hits1} acerto${hits1 > 1 ? 's' : ''} — sem premiação nesta faixa`;
+                    } else {
+                        summary.style.color = '#475569';
+                        summary.style.background = '';
+                        summary.textContent = 'Nenhum acerto';
+                    }
                 }
             }
 
@@ -3395,6 +3506,12 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         summaryHTML += `<div>`;
         summaryHTML += `<h4 style="margin:0;color:${game.color};font-size:1rem;font-weight:800;">CONFERÊNCIA — ${game.name.toUpperCase()}</h4>`;
         summaryHTML += `<div style="font-size:0.72rem;color:#94A3B8;">${drawInfo || 'Resultado informado manualmente'} · Faixas premiadas: ${minStrat} a ${maxStrat} acertos</div>`;
+        if (isDuplaSena && this._lastDrawNumbers2) {
+            summaryHTML += `<div style="font-size:0.72rem;color:#94A3B8;margin-top:4px;">`;
+            summaryHTML += `<span style="color:#22C55E;">● 1º Sorteio:</span> ${drawnNumbers.map(n => String(n).padStart(2,'0')).join(' - ')} `;
+            summaryHTML += `<span style="color:#3B82F6;margin-left:8px;">● 2º Sorteio:</span> ${this._lastDrawNumbers2.map(n => String(n).padStart(2,'0')).join(' - ')}`;
+            summaryHTML += `</div>`;
+        }
         summaryHTML += `</div></div>`;
 
         

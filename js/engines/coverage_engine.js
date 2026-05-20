@@ -43,20 +43,18 @@ class CoverageEngine {
                 name: 'Mega Sena', drawSize: 6, lotteryDraw: 6,
                 range: [1, 60], totalNumbers: 60,
                 zones: 6, zoneSize: 10,
-                sumRange: [95, 265], parityRange: [2, 4],
+                sumRange: [80, 280], parityRange: [1, 5],
                 maxConsecutive: 2, minZones: 3,
                 prizeThresholds: [4, 5, 6],
                 prizeLabels: ['Quadra', 'Quina', 'Sena'],
                 candidatesPerSlot: 2000,
-                ticketPrice: 5.00,
-                // v12.1 ESTRANGULAMENTO CIRURGICO MEGA SENA
-                sumRangeTight: [130, 210],
-                maxSameEnding: 2,
-                highLowBalance: [2, 4],
-                primesRange: [0, 3],        
-                fibonacciRange: [0, 2],
-                minQuadrants: 3,
-                molduraBalance: [2, 4]
+                ticketPrice: 6.00,
+                // v13.0 FILTROS MÍNIMOS MEGA SENA
+                // Removidos: sumRangeTight, primesRange, fibonacciRange, minQuadrants, molduraBalance
+                // Motivo: sorteios reais violam esses filtros (ex: 2961 soma=253, 2969 soma=72)
+                // Mantidos apenas os que NUNCA são violados em dados reais
+                maxSameEnding: 3,
+                highLowBalance: [1, 5]
             },
             quina: {
                 name: 'Quina', drawSize: 5, lotteryDraw: 5,
@@ -221,133 +219,365 @@ class CoverageEngine {
             }
         }
 
-        // ── 3. Greedy Set Cover Puro v11.0 ──
-        // Princípio: cobertura de pares satura exponencialmente.
-        // Após ~200 jogos (Mega Sena), >95% dos pares já estão cobertos.
-        // Fórmula adaptativa: candidates = max(minC, base × factor / sqrt(g×0.01+1))
-        // v11.0: REMOÇÃO da injeção de IA como desempate.
-        // Razão: aiBonus de frequência histórica contamina a pureza matemática do Set Cover.
-        // Quando cobertura > 95%, aiBonus dominava o critério — transformando Set Cover em aleatoriedade com viés.
-        // Agora: score = pares novos + triplas novas + diversidade. Matemática pura.
+        // ══════════════════════════════════════════════════════════════
+        // v13.2: GREEDY SET COVER COM POOL ESCALONADO
+        // 3 camadas: core (15%) → hot (35%) → full (50%)
+        // Cada camada tem cobertura independente de pares/triplas
+        // Candidatos sem restrição de velocidade — qualidade máxima
+        // ══════════════════════════════════════════════════════════════
 
-        const coveredPairs   = new Set();
-        const coveredTriples = new Set();
-        const coveredQuads   = new Set();
+        let coveredPairs   = new Set();
+        let coveredTriples = new Set();
+        let coveredQuads   = new Set();
         
-        // Ativadores por volume (v12.9 FIX: Proteção contra O(N^4) OOM para Lotomania)
-        const useTriples = (numGames > 100 || (gameKey === 'megasena' || gameKey === 'duplasena' || gameKey === 'quina')) && drawSize <= 15;
-        const useQuads   = numGames > 1000 && drawSize <= 10; // Quads apenas para jogos com poucos numeros por bilhete
+        // v13.1 Triple-First: Triplas SEMPRE ativas para drawSize <= 15
+        // Quádruplas ativam quando pool é pequeno ou volume alto
+        const useTriples = drawSize <= 15;
+        const useQuads   = drawSize <= 10;
 
         let checkPairs   = true;
         let checkTriples = useTriples;
         let checkQuads   = useQuads;
 
-        const totalTriples = (pool.length * (pool.length - 1) * (pool.length - 2)) / 6;
-        const totalQuads   = (pool.length * (pool.length - 1) * (pool.length - 2) * (pool.length - 3)) / 24;
+        // v13.2: Pool escalonado
+        const layers = _opts.layeredPool;
+        const hasLayers = layers && layers.core && layers.hot && layers.full;
+        
+        // Calcular limites das camadas com cap combinatório dinâmico para evitar duplicatas
+        const maxCoreGames = hasLayers ? this._comb(layers.core.length, drawSize) : 0;
+        const maxHotGames  = hasLayers ? this._comb(layers.hot.length, drawSize) : 0;
+
+        let layer1End = hasLayers ? Math.floor(numGames * 0.15) : 0;   // 15% core
+        if (hasLayers && layer1End > maxCoreGames) {
+            console.log(`%c[COVERAGE] ⚠️ Cap aplicado na Camada CORE: Reduzido de ${layer1End} para ${maxCoreGames} (Limite Combinatório Máximo de pool de ${layers.core.length} números)`, 'color: #EF4444; font-weight: bold;');
+            layer1End = maxCoreGames;
+        }
+
+        let layer2End = hasLayers ? Math.floor(numGames * 0.50) : 0;   // 35% hot + 15% core (50% cumulative)
+        if (hasLayers && layer2End > maxHotGames) {
+            console.log(`%c[COVERAGE] ⚠️ Cap aplicado na Camada HOT: Reduzido de ${layer2End} para ${maxHotGames} (Limite Combinatório Máximo de pool de ${layers.hot.length} números)`, 'color: #EF4444; font-weight: bold;');
+            layer2End = maxHotGames;
+        }
+        // Camada 3: restante = full
+
+        let activePool = pool;
+        let currentLayer = hasLayers ? 'core' : 'full';
+        let totalPairsActive = this._comb(pool.length, 2);
+        let totalTriplesActive = (pool.length * (pool.length - 1) * (pool.length - 2)) / 6;
+        let totalQuadsActive = (pool.length * (pool.length - 1) * (pool.length - 2) * (pool.length - 3)) / 24;
+
+        // Inicializar com pool da primeira camada
+        if (hasLayers) {
+            activePool = layers.core;
+            totalPairsActive = this._comb(activePool.length, 2);
+            totalTriplesActive = (activePool.length * (activePool.length - 1) * (activePool.length - 2)) / 6;
+            totalQuadsActive = (activePool.length * (activePool.length - 1) * (activePool.length - 2) * (activePool.length - 3)) / 24;
+            console.log('%c[COVERAGE] v13.2 ★ CAMADA 1: NÚCLEO QUENTE | Pool=' + activePool.length + ' números | ' + totalPairsActive + ' pares | ' + Math.round(totalTriplesActive) + ' triplas', 'color: #F59E0B; font-weight: bold;');
+        }
 
         const games          = [];
         const usedKeys       = new Set();
         const numberUsage    = {};
         for (const n of pool) numberUsage[n] = 0;
+        // Também inicializar para pools menores
+        if (hasLayers) {
+            for (const n of layers.core) numberUsage[n] = numberUsage[n] || 0;
+            for (const n of layers.hot) numberUsage[n] = numberUsage[n] || 0;
+        }
 
-        const baseCandidates = numGames > 1000
-            ? Math.min(cfg.candidatesPerSlot, 400)
-            : cfg.candidatesPerSlot;
-        const minCandidates = numGames > 5000 ? 8 : numGames > 1000 ? 15 : 30;
+        if (hasLayers) {
+            // ======================================================================
+            // v13.3 MODO QUANTUM ENTRÓPICO DETERMINÍSTICO (QECE)
+            // ======================================================================
+            const rankedNumbers = layers.ranked.map(r => r.num);
+            const candidatesPool = [];
+            const maxCandidates = drawSize >= 20 ? Math.max(200, numGames + 50) : Math.max(3000, numGames + 500);
 
-        for (let g = 0; g < numGames; g++) {
-            let bestGame  = null;
-            let bestScore = -1;
+            // v13.4: Remoção do CombinationGenerator para TODAS as loterias.
+            // O gerador lexicográfico causava "vício" (Efeito Canhão de Vidro) nas dezenas mais quentes.
+            // Usamos o Gerador de Monte Carlo Determinístico (Mulberry32 PRG) guiado pelos Quantum Scores da IA.
+            // Isso garante que o pool inicie com números quentes e expanda organicamente para os frios.
+            const originalRandom = Math.random;
+            let seed = 0x4830eee9; // Seed base estável
+            const Mulberry32 = () => {
+                let t = seed += 0x6D2B79F5;
+                t = Math.imul(t ^ (t >>> 15), t | 1);
+                t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+                return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+            };
+            Math.random = Mulberry32;
 
-            const coverageSat = totalPairs > 0 ? coveredPairs.size / totalPairs : 0;
-            const triplesSat  = totalTriples > 0 ? coveredTriples.size / totalTriples : 0;
-            const quadsSat    = totalQuads > 0 ? coveredQuads.size / totalQuads : 0;
+            try {
+                const scoresMap = {};
+                for (const r of layers.ranked) {
+                    scoresMap[r.num] = r.score;
+                }
+                const optsWithScores = { ..._opts, quantumScores: scoresMap };
+                
+                let attempts = 0;
+                const maxAttempts = maxCandidates * 4;
+                while (candidatesPool.length < maxCandidates && attempts < maxAttempts) {
+                    attempts++;
+                    const game = this._generateValidCandidate(cfg, pool, fixed, pool[0], pool[pool.length - 1], optsWithScores);
+                    if (!game) continue;
+                    
+                    // Energia do candidato baseada na soma das posições de rank espectral
+                    const energy = game.reduce((sum, num) => sum + rankedNumbers.indexOf(num), 0);
+                    candidatesPool.push({ game, energy });
+                }
+            } finally {
+                Math.random = originalRandom;
+            }
+            console.log(`%c[COVERAGE] v13.4 QECE: Gerados ${candidatesPool.length} candidatos probabilísticos estruturalmente válidos.`, 'color: #3B82F6; font-weight: bold;');
 
-            const factor = coverageSat > 0.95 ? 0.04
-                         : coverageSat > 0.80 ? 0.12
-                         : coverageSat > 0.50 ? 0.35
-                         : 1.0;
-            const candidates  = Math.max(minCandidates,
-                Math.round(baseCandidates * factor / Math.sqrt(g * 0.01 + 1)));
+            const totalPairsFull = this._comb(rankedNumbers.length, 2);
+            const totalTriplesFull = (rankedNumbers.length * (rankedNumbers.length - 1) * (rankedNumbers.length - 2)) / 6;
 
-            // ── Troca de Marchas Automática (Saturação) ──
-            // Desliga a caça por duplas se já atingimos 99% para focar o CPU em Triplas e Quadras
-            // v12.14: NUNCA desligar checkPairs se checkTriples estiver desligado (evita colapso na Lotomania)
-            if (coverageSat > 0.99 && checkTriples) checkPairs = false;
-            if (triplesSat > 0.99 && checkQuads) checkTriples = false;
+            // v13.4 Teto de frequência para combater a superconcentração ("Efeito Canhão de Vidro")
+            const maxAllowedFreq = Math.ceil((numGames * drawSize) / pool.length) * 1.5;
 
-            for (let c = 0; c < candidates; c++) {
-                const candidate = this._generateValidCandidate(cfg, pool, fixed, startNum, endNum, _opts);
-                if (!candidate) continue;
-                const key = candidate.join(',');
-                if (usedKeys.has(key)) continue;
-
-                // v11.1: chave de string 'a|b' — sem colisão de hash numérico
-                // Bug anterior: a*1000+b colidia para ex: (2,100) = (21,00) = 2100
-                let newPairs = 0;
-                if (checkPairs) {
-                    for (let i = 0; i < candidate.length; i++)
-                        for (let j = i + 1; j < candidate.length; j++)
-                            if (!coveredPairs.has(candidate[i] + '|' + candidate[j])) newPairs++;
+            for (let g = 0; g < numGames; g++) {
+                if (candidatesPool.length === 0) {
+                    // Fallback se esgotar o pool termodinâmico
+                    const fallbackGame = this._generateValidCandidate(cfg, pool, fixed, pool[0], pool[pool.length - 1], _opts);
+                    if (fallbackGame) {
+                        games.push(fallbackGame);
+                        usedKeys.add(fallbackGame.join(','));
+                        for (const n of fallbackGame) numberUsage[n] = (numberUsage[n] || 0) + 1;
+                    }
+                    continue;
                 }
 
-                let newTriples = 0;
-                if (checkTriples) {
-                    for (let i = 0; i < candidate.length; i++)
-                        for (let j = i + 1; j < candidate.length; j++)
-                            for (let k = j + 1; k < candidate.length; k++)
-                                if (!coveredTriples.has(candidate[i] + '|' + candidate[j] + '|' + candidate[k])) newTriples++;
-                }
+                let bestIdx = -1;
+                let bestFitness = -Infinity;
+                
+                const coverageSat = totalPairsFull > 0 ? coveredPairs.size / totalPairsFull : 0;
+                const triplesSat = totalTriplesFull > 0 ? coveredTriples.size / totalTriplesFull : 0;
 
-                let newQuads = 0;
-                if (checkQuads) {
-                    for (let i = 0; i < candidate.length; i++)
-                        for (let j = i + 1; j < candidate.length; j++)
-                            for (let k = j + 1; k < candidate.length; k++)
-                                for (let l = k + 1; l < candidate.length; l++)
-                                    if (!coveredQuads.has(candidate[i] + '|' + candidate[j] + '|' + candidate[k] + '|' + candidate[l])) newQuads++;
-                }
+                const scanLimit = Math.min(candidatesPool.length, 300);
 
-                let diversityBonus = 0;
-                for (const n of candidate) {
-                    if (numberUsage[n] === 0) diversityBonus += 2;
-                    else if (numberUsage[n] < g * drawSize / pool.length) diversityBonus += 1;
-                }
+                for (let i = 0; i < scanLimit; i++) {
+                    const cand = candidatesPool[i];
+                    const candidate = cand.game;
 
-                let antiRepeat = 0;
-                if (previousGames.length > 0) {
-                    const cs = new Set(candidate);
-                    for (let pi = 0; pi < previousGames.length; pi++) {
-                        let ov = 0;
-                        for (let pj = 0; pj < previousGames[pi].length; pj++)
-                            if (cs.has(previousGames[pi][pj])) ov++;
-                        if (ov > 4) antiRepeat += 15;
-                        else if (ov > 3) antiRepeat += 5;
+                    let newPairs = 0;
+                    if (checkPairs) {
+                        for (let x = 0; x < candidate.length; x++) {
+                            for (let y = x + 1; y < candidate.length; y++) {
+                                if (!coveredPairs.has(candidate[x] + '|' + candidate[y])) newPairs++;
+                            }
+                        }
+                    }
+
+                    let newTriples = 0;
+                    if (checkTriples) {
+                        for (let x = 0; x < candidate.length; x++) {
+                            for (let y = x + 1; y < candidate.length; y++) {
+                                for (let z = y + 1; z < candidate.length; z++) {
+                                    if (!coveredTriples.has(candidate[x] + '|' + candidate[y] + '|' + candidate[z])) newTriples++;
+                                }
+                            }
+                        }
+                    }
+
+                    let newQuads = 0;
+                    if (checkQuads) {
+                        for (let x = 0; x < candidate.length; x++) {
+                            for (let y = x + 1; y < candidate.length; y++) {
+                                for (let z = y + 1; z < candidate.length; z++) {
+                                    for (let w = z + 1; w < candidate.length; w++) {
+                                        if (!coveredQuads.has(candidate[x] + '|' + candidate[y] + '|' + candidate[z] + '|' + candidate[w])) newQuads++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Hamming Distance com o anterior
+                    let diversityBonus = 0;
+                    if (games.length > 0) {
+                        const prevGame = games[games.length - 1];
+                        const setA = new Set(prevGame);
+                        let diff = 0;
+                        for (const n of candidate) { if (!setA.has(n)) diff++; }
+                        diversityBonus = diff * 2;
+                    }
+
+                    // Anti-Repeat
+                    let antiRepeat = 0;
+                    if (previousGames.length > 0) {
+                        const cs = new Set(candidate);
+                        for (let pi = 0; pi < previousGames.length; pi++) {
+                            let ov = 0;
+                            for (let pj = 0; pj < previousGames[pi].length; pj++) {
+                                if (cs.has(previousGames[pi][pj])) ov++;
+                            }
+                            if (ov > 4) antiRepeat += 15;
+                            else if (ov > 3) antiRepeat += 5;
+                        }
+                    }
+
+                    const pairWeight  = coverageSat > 0.90 ? 1   : coverageSat > 0.50 ? 10  : 100;
+                    const tripleWeight = coverageSat > 0.90 ? 100 : coverageSat > 0.50 ? 50  : 10;
+                    const quadWeight   = triplesSat  > 0.80 ? 100 : triplesSat  > 0.50 ? 50  : 5;
+
+                    let entropy = (newPairs * pairWeight) + (newTriples * tripleWeight) + (newQuads * quadWeight) + diversityBonus - antiRepeat;
+                    
+                    // v13.4 Penalidade de Vício (Teto de Frequência)
+                    for (const num of candidate) {
+                        const freq = numberUsage[num] || 0;
+                        if (freq > maxAllowedFreq) {
+                            entropy -= 5000; // Penalidade drástica para forçar expansão do pool
+                        }
+                    }
+                    
+                    // Termo de Energia Termodinâmica e Ruído Quântico
+                    const beta = 0.05;
+                    const noise = Math.random() * 0.5;
+                    const fitness = entropy - (beta * cand.energy) + noise;
+
+                    if (fitness > bestFitness) {
+                        bestFitness = fitness;
+                        bestIdx = i;
                     }
                 }
 
-                // Score Multicamada (Multi-Tier): 
-                // A força gravitacional passa para triplas e quadras conforme os pares se esgotam.
-                const score = (newPairs * 100) + (newTriples * 10) + (newQuads * 2) + diversityBonus - antiRepeat;
-                if (score > bestScore) { bestScore = score; bestGame = candidate; }
+                if (bestIdx !== -1) {
+                    const bestCand = candidatesPool.splice(bestIdx, 1)[0];
+                    const bestGame = bestCand.game;
+
+                    games.push(bestGame);
+                    usedKeys.add(bestGame.join(','));
+                    for (const n of bestGame) numberUsage[n] = (numberUsage[n] || 0) + 1;
+
+                    for (let i = 0; i < bestGame.length; i++) {
+                        for (let j = i + 1; j < bestGame.length; j++) {
+                            coveredPairs.add(bestGame[i] + '|' + bestGame[j]);
+                            if (useTriples) {
+                                for (let k = j + 1; k < bestGame.length; k++) {
+                                    coveredTriples.add(bestGame[i] + '|' + bestGame[j] + '|' + bestGame[k]);
+                                    if (useQuads) {
+                                        for (let l = k + 1; l < bestGame.length; l++) {
+                                            coveredQuads.add(bestGame[i] + '|' + bestGame[j] + '|' + bestGame[k] + '|' + bestGame[l]);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Fallback secundário
+                    const fallbackGame = this._generateValidCandidate(cfg, pool, fixed, pool[0], pool[pool.length - 1], _opts);
+                    if (fallbackGame) {
+                        games.push(fallbackGame);
+                        usedKeys.add(fallbackGame.join(','));
+                        for (const n of fallbackGame) numberUsage[n] = (numberUsage[n] || 0) + 1;
+                    }
+                }
             }
+        } else {
+            // ======================================================================
+            // MODO CLÁSSICO GREEDY SET COVER (FALLBACK / MANUAL)
+            // ======================================================================
+            const baseCandidates = cfg.candidatesPerSlot;
+            const minCandidates = Math.max(500, Math.round(cfg.candidatesPerSlot * 0.25));
 
-            if (!bestGame) bestGame = this._generateValidCandidate(cfg, pool, fixed, startNum, endNum, _opts);
+            for (let g = 0; g < numGames; g++) {
+                let bestGame  = null;
+                let bestScore = -1;
 
-            if (bestGame) {
-                games.push(bestGame);
-                usedKeys.add(bestGame.join(','));
-                for (const n of bestGame) numberUsage[n] = (numberUsage[n] || 0) + 1;
-                // v11.1: mesma chave de string sem colisão
-                for (let i = 0; i < bestGame.length; i++) {
-                    for (let j = i + 1; j < bestGame.length; j++) {
-                        coveredPairs.add(bestGame[i] + '|' + bestGame[j]);
-                        if (useTriples) {
-                            for (let k = j + 1; k < bestGame.length; k++) {
-                                coveredTriples.add(bestGame[i] + '|' + bestGame[j] + '|' + bestGame[k]);
-                                if (useQuads) {
-                                    for (let l = k + 1; l < bestGame.length; l++) {
-                                        coveredQuads.add(bestGame[i] + '|' + bestGame[j] + '|' + bestGame[k] + '|' + bestGame[l]);
+                const coverageSat = totalPairsActive > 0 ? coveredPairs.size / totalPairsActive : 0;
+                const triplesSat  = totalTriplesActive > 0 ? coveredTriples.size / totalTriplesActive : 0;
+
+                const activeSat = checkTriples ? triplesSat : coverageSat;
+                const factor = activeSat > 0.95 ? 0.15 : activeSat > 0.80 ? 0.30 : activeSat > 0.50 ? 0.50 : 1.0;
+                const candidates  = Math.max(minCandidates, Math.round(baseCandidates * factor));
+
+                if (coverageSat > 0.99 && checkTriples) checkPairs = false;
+                if (triplesSat > 0.99 && checkQuads) checkTriples = false;
+
+                for (let c = 0; c < candidates; c++) {
+                    const candidate = this._generateValidCandidate(cfg, activePool, fixed, activePool[0], activePool[activePool.length - 1], _opts);
+                    if (!candidate) continue;
+                    const key = candidate.join(',');
+                    if (usedKeys.has(key)) continue;
+
+                    let newPairs = 0;
+                    if (checkPairs) {
+                        for (let i = 0; i < candidate.length; i++)
+                            for (let j = i + 1; j < candidate.length; j++)
+                                if (!coveredPairs.has(candidate[i] + '|' + candidate[j])) newPairs++;
+                    }
+
+                    let newTriples = 0;
+                    if (checkTriples) {
+                        for (let i = 0; i < candidate.length; i++)
+                            for (let j = i + 1; j < candidate.length; j++)
+                                for (let k = j + 1; k < candidate.length; k++)
+                                    if (!coveredTriples.has(candidate[i] + '|' + candidate[j] + '|' + candidate[k])) newTriples++;
+                    }
+
+                    let newQuads = 0;
+                    if (checkQuads) {
+                        for (let i = 0; i < candidate.length; i++)
+                            for (let j = i + 1; j < candidate.length; j++)
+                                for (let k = j + 1; k < candidate.length; k++)
+                                    for (let l = k + 1; l < candidate.length; l++)
+                                        if (!coveredQuads.has(candidate[i] + '|' + candidate[j] + '|' + candidate[k] + '|' + candidate[l])) newQuads++;
+                    }
+
+                    let diversityBonus = 0;
+                    for (const n of candidate) {
+                        if (numberUsage[n] === 0) diversityBonus += 2;
+                        else if (numberUsage[n] < g * drawSize / pool.length) diversityBonus += 1;
+                    }
+
+                    let antiRepeat = 0;
+                    if (previousGames.length > 0) {
+                        const cs = new Set(candidate);
+                        for (let pi = 0; pi < previousGames.length; pi++) {
+                            let ov = 0;
+                            for (let pj = 0; pj < previousGames[pi].length; pj++)
+                                if (cs.has(previousGames[pi][pj])) ov++;
+                            if (ov > 4) antiRepeat += 15;
+                            else if (ov > 3) antiRepeat += 5;
+                        }
+                    }
+
+                    const pairWeight  = coverageSat > 0.90 ? 1   : coverageSat > 0.50 ? 10  : 100;
+                    const tripleWeight = coverageSat > 0.90 ? 100 : coverageSat > 0.50 ? 50  : 10;
+                    const quadWeight   = triplesSat  > 0.80 ? 100 : triplesSat  > 0.50 ? 50  : 5;
+                    const score = (newPairs * pairWeight) + (newTriples * tripleWeight) + (newQuads * quadWeight) + diversityBonus - antiRepeat;
+                    if (score > bestScore) { bestScore = score; bestGame = candidate; }
+                }
+
+                if (!bestGame) {
+                    for (let retry = 0; retry < 20; retry++) {
+                        const fallbackGame = this._generateValidCandidate(cfg, pool, fixed, pool[0], pool[pool.length - 1], _opts);
+                        if (fallbackGame && !usedKeys.has(fallbackGame.join(','))) {
+                            bestGame = fallbackGame;
+                            break;
+                        }
+                    }
+                    if (!bestGame) {
+                        bestGame = this._generateValidCandidate(cfg, activePool, fixed, activePool[0], activePool[activePool.length - 1], _opts);
+                    }
+                }
+
+                if (bestGame) {
+                    games.push(bestGame);
+                    usedKeys.add(bestGame.join(','));
+                    for (const n of bestGame) numberUsage[n] = (numberUsage[n] || 0) + 1;
+                    for (let i = 0; i < bestGame.length; i++) {
+                        for (let j = i + 1; j < bestGame.length; j++) {
+                            coveredPairs.add(bestGame[i] + '|' + bestGame[j]);
+                            if (useTriples) {
+                                for (let k = j + 1; k < bestGame.length; k++) {
+                                    coveredTriples.add(bestGame[i] + '|' + bestGame[j] + '|' + bestGame[k]);
+                                    if (useQuads) {
+                                        for (let l = k + 1; l < bestGame.length; l++) {
+                                            coveredQuads.add(bestGame[i] + '|' + bestGame[j] + '|' + bestGame[k] + '|' + bestGame[l]);
+                                        }
                                     }
                                 }
                             }
@@ -366,7 +596,9 @@ class CoverageEngine {
         }
 
         // ── 4. Calcular métricas EXATAS ──
-        const metrics = this._computeMetrics(games, cfg, pool, coveredPairs, totalPairs, numberUsage);
+        // v13.2: Usar pool completo para métricas gerais (não da última camada)
+        const totalPairsFull = this._comb(pool.length, 2);
+        const metrics = this._computeMetrics(games, cfg, pool, coveredPairs, totalPairsFull, numberUsage);
 
         const elapsed = Date.now() - t0;
         console.log('[COVERAGE] ✓ ' + games.length + ' jogos em ' + elapsed + 'ms');
@@ -435,7 +667,7 @@ class CoverageEngine {
             // v12.13: AUTO-REPAIR para Sequências (Mágica para Lotomania)
             // Como a chance de 50 números aleatórios terem máx 3 seguidos é 0.0000001%,
             // em vez de rejeitar, nós CONSERTAMOS o bilhete quebrando as sequências!
-            const enforceConsecutive = (!isPoolRestricted || (pool.length >= drawSize + 3));
+            const enforceConsecutive = (!isPoolRestricted || (pool.length >= Math.ceil(drawSize / 0.6)));
             if (enforceConsecutive) {
                 let attemptsFix = 0;
                 while (attemptsFix < 15) {
