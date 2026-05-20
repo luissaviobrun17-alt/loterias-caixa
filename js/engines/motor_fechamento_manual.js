@@ -64,7 +64,7 @@ class MotorFechamentoManual {
             return this._buildResult([fixedArr.slice()], cfg, poolArr, fixedArr, k, t0);
         }
 
-        // ── UNIFICAÇÃO (v3.0): Substituição do Algoritmo Genético pelo Set Cover ──
+        // ── NOVO MOTOR: Força Bruta Estatística Pura (Weighted Combinatorics) ──
         let allGames = [];
         const maxPossible = this._comb(poolArr.length - fixedArr.length, k - fixedArr.length);
 
@@ -73,22 +73,104 @@ class MotorFechamentoManual {
             allGames = this._generateAll(poolArr, fixedArr, k);
             console.log('[MOTOR-MANUAL] Fechamento TOTAL: ' + allGames.length + ' combinações');
         } else {
-            // Fechamento Otimizado via Set Cover
-            if (typeof SmartCoverageEngine !== 'undefined') {
-                // Passamos precisionMode: false para que o Set Cover use ESTRITAMENTE
-                // os números selecionados pelo usuário, sem inventar mapas de calor.
-                const opts = { precisionMode: false };
-                const result = SmartCoverageEngine.generate(gameKey, numGames, poolArr, fixedArr, k, opts);
-                if (result && result.games) {
-                    allGames = result.games;
-                }
-            } else {
-                console.error('[MOTOR-MANUAL] Falha: SmartCoverageEngine não encontrado.');
-            }
-            console.log('[MOTOR-MANUAL] Set Cover Aplicado: ' + allGames.length + ' jogos gerados da sua piscina manual.');
+            console.log('[MOTOR-MANUAL] Gerando jogos por Força Bruta Estatística...');
+            allGames = this._generateWeighted(gameKey, numGames, poolArr, fixedArr, k, cfg);
+            console.log('[MOTOR-MANUAL] Força Bruta Concluída: ' + allGames.length + ' jogos gerados.');
         }
 
         return this._buildResult(allGames, cfg, poolArr, fixedArr, k, t0);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  GERAÇÃO PESADA (FORÇA BRUTA ESTATÍSTICA)
+    // ═══════════════════════════════════════════════════════
+    static _generateWeighted(gameKey, numGames, pool, fixed, k, cfg) {
+        let aiSynergy = null;
+        if (typeof ClosingEngine !== 'undefined' && typeof ClosingEngine._getAISynergy === 'function') {
+            aiSynergy = ClosingEngine._getAISynergy(gameKey, pool);
+        }
+
+        const validPool = pool.filter(n => !fixed.includes(n));
+        const weights = validPool.map(n => {
+            let w = 1.0;
+            if (aiSynergy && aiSynergy.scores[n]) {
+                w += aiSynergy.scores[n];
+            }
+            return { n, w };
+        });
+
+        const totalWeight = weights.reduce((sum, item) => sum + item.w, 0);
+        const gamesSet = new Set();
+        const results = [];
+        let attempts = 0;
+        const maxAttempts = numGames * 100; // Tolerância para não travar
+
+        while (results.length < numGames && attempts < maxAttempts) {
+            attempts++;
+            const candidate = new Set(fixed);
+            let available = [...weights];
+            let currentTotalWeight = totalWeight;
+
+            while (candidate.size < k && available.length > 0) {
+                let r = Math.random() * currentTotalWeight;
+                let sum = 0;
+                for (let i = 0; i < available.length; i++) {
+                    sum += available[i].w;
+                    if (r <= sum) {
+                        candidate.add(available[i].n);
+                        currentTotalWeight -= available[i].w;
+                        available.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+
+            const gameArr = Array.from(candidate).sort((a, b) => a - b);
+            
+            // Filtro Básico (Paridade) - Evitar extremos absolutos se k >= 5
+            if (k >= 5) {
+                let pares = 0;
+                for(let num of gameArr) if (num % 2 === 0) pares++;
+                if (pares === 0 || pares === k) continue; // Descarta jogos 100% pares ou 100% ímpares
+            }
+
+            const sig = gameArr.join('-');
+            if (!gamesSet.has(sig)) {
+                gamesSet.add(sig);
+                results.push(gameArr);
+            }
+        }
+        
+        // Em caso de filtro restritivo impedir de alcançar numGames, completa sem filtros
+        if (results.length < numGames) {
+             console.warn('[MOTOR-MANUAL] Tolerância máxima atingida, relaxando filtros...');
+             while (results.length < numGames) {
+                const candidate = new Set(fixed);
+                let available = [...weights];
+                let currentTotalWeight = totalWeight;
+                while (candidate.size < k && available.length > 0) {
+                    let r = Math.random() * currentTotalWeight;
+                    let sum = 0;
+                    for (let i = 0; i < available.length; i++) {
+                        sum += available[i].w;
+                        if (r <= sum) {
+                            candidate.add(available[i].n);
+                            currentTotalWeight -= available[i].w;
+                            available.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+                const gameArr = Array.from(candidate).sort((a, b) => a - b);
+                const sig = gameArr.join('-');
+                if (!gamesSet.has(sig)) {
+                    gamesSet.add(sig);
+                    results.push(gameArr);
+                }
+             }
+        }
+        
+        return results;
     }
 
     // (As funções obsoletas de cruzamento genético e base perfeita foram expurgadas para garantir pureza matemática)
