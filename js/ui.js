@@ -1429,6 +1429,11 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         if (this.playCaixaBtn && cfgLink[gameKey]) {
             this.playCaixaBtn.href = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfgLink[gameKey].url;
         }
+        // Atualizar link da Caixa na sidebar também
+        var sidebarCaixaLink = document.getElementById('btn-caixa-link');
+        if (sidebarCaixaLink && cfgLink[gameKey]) {
+            sidebarCaixaLink.href = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfgLink[gameKey].url;
+        }
 
         // Botão de análise de grupos: disponível para TODAS as loterias via UniversalGroupEngine
         const btnGroup = document.getElementById('btn-group-analysis');
