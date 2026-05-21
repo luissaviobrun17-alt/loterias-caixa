@@ -2928,8 +2928,14 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
             if (games.length > 0 && cfg) {
                 this._openMobileBetModal(games, this.currentGameKey);
             } else {
-                // Sem jogos — abrir direto o site da Caixa
-                window.open(caixaUrl, '_blank');
+                // Sem jogos — navegar via link direto
+                var linkMobile = document.createElement('a');
+                linkMobile.href = caixaUrl;
+                linkMobile.target = '_blank';
+                linkMobile.rel = 'noopener';
+                document.body.appendChild(linkMobile);
+                linkMobile.click();
+                document.body.removeChild(linkMobile);
             }
             return;
         }
@@ -2938,8 +2944,7 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         if (games.length > 0 && cfg) {
             const freshScript = this._generateCaixaScript_LEGACY(cfg, games);
             
-            // Abre a janela de forma síncrona para evitar o bloqueador de popups do navegador
-            const newWindow = window.open('about:blank', '_blank');
+            // Link direto será usado após copiar o script
 
             try {
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -2962,21 +2967,20 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
                 detail: { games: games, config: cfg }
             }));
 
-            alert('✅ ' + games.length + ' jogos de ' + cfg.name + ' copiados!\n\n' +
-                'O site da Caixa abrirá em ' + cfg.name + '.\n' +
-                'No site: pressione F12 → Console → Ctrl+V → Enter\n\n' +
-                'Os jogos serão preenchidos automaticamente!');
-                
-            // Redireciona a janela aberta previamente
-            if (newWindow) {
-                newWindow.location.href = caixaUrl;
-            } else {
-                window.open(caixaUrl, '_blank');
+            // Notificação visual (sem alert bloqueante)
+            if (typeof Guardian !== 'undefined' && Guardian.toast) {
+                Guardian.toast('✅ ' + games.length + ' jogos de ' + cfg.name + ' copiados! No site da Caixa: F12 → Console → Ctrl+V → Enter', 'success', 8000);
             }
-        } else {
-            alert('Atenção: Nenhum jogo foi gerado para copiar.\nO site da Caixa abrirá em ' + (cfg ? cfg.name : 'Loterias Online') + '.');
-            window.open(caixaUrl, '_blank');
         }
+
+        // Abrir site da Caixa via link direto (nunca bloqueado pelo navegador)
+        var linkDireto = document.createElement('a');
+        linkDireto.href = caixaUrl;
+        linkDireto.target = '_blank';
+        linkDireto.rel = 'noopener';
+        document.body.appendChild(linkDireto);
+        linkDireto.click();
+        document.body.removeChild(linkDireto);
     }
 
     getSelectedNumbers() {
