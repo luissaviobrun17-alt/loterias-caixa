@@ -393,7 +393,33 @@ class UI {
         if (this.gamesQuantityInput) this.gamesQuantityInput.addEventListener('input', () => this.updateCurrentCostDisplay());
         if (this.smartDrawSizeSelect) this.smartDrawSizeSelect.addEventListener('change', () => this.updateCurrentCostDisplay());
         if (this.checkBtn) this.checkBtn.onclick = () => this.openCheckModal();
-        if (this.playCaixaBtn) this.playCaixaBtn.onclick = () => this.openCaixa();
+        if (this.playCaixaBtn) {
+            // Ao clicar, copia o script e deixa o <a href> navegar naturalmente
+            this.playCaixaBtn.addEventListener('click', (e) => {
+                var games = this._lastGeneratedGames || this.currentGeneratedGames || [];
+                var allConfigs = this._getCaixaLotteryConfig();
+                var cfg = allConfigs[this.currentGameKey];
+                if (games.length > 0 && cfg) {
+                    var freshScript = this._generateCaixaScript_LEGACY(cfg, games);
+                    try {
+                        navigator.clipboard.writeText(freshScript);
+                        console.log('[B2B] Script copiado: ' + games.length + ' jogos de ' + cfg.name);
+                        if (typeof Guardian !== 'undefined' && Guardian.toast) {
+                            Guardian.toast('\u2705 ' + games.length + ' jogos copiados! No site da Caixa: F12 \u2192 Console \u2192 Ctrl+V \u2192 Enter', 'success', 8000);
+                        }
+                    } catch(ex) {
+                        var ta = document.createElement('textarea');
+                        ta.value = freshScript;
+                        ta.style.cssText = 'position:fixed;left:-9999px;';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(ta);
+                    }
+                }
+                // N\u00e3o chamar e.preventDefault() — deixar o <a href> navegar normalmente
+            });
+        }
 
         // Individual Game Copy (Delegation)
         if (this.gamesContainer) {
@@ -1397,6 +1423,12 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         this.updateTheme(game.color);
         this.updateCountdown(gameKey);
+
+        // Atualizar link do botão Jogar Online com a loteria atual
+        var cfgLink = this._getCaixaLotteryConfig();
+        if (this.playCaixaBtn && cfgLink[gameKey]) {
+            this.playCaixaBtn.href = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfgLink[gameKey].url;
+        }
 
         // Botão de análise de grupos: disponível para TODAS as loterias via UniversalGroupEngine
         const btnGroup = document.getElementById('btn-group-analysis');
