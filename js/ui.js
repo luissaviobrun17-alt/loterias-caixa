@@ -2980,18 +2980,24 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
 
             // Notificação visual (sem alert bloqueante)
             if (typeof Guardian !== 'undefined' && Guardian.toast) {
-                Guardian.toast('✅ ' + games.length + ' jogos de ' + cfg.name + ' copiados! No site da Caixa: F12 → Console → Ctrl+V → Enter', 'success', 8000);
+                Guardian.toast('\u2705 ' + games.length + ' jogos de ' + cfg.name + ' copiados! No site da Caixa: F12 \u2192 Console \u2192 Ctrl+V \u2192 Enter', 'success', 8000);
             }
         }
 
-        // Abrir site da Caixa via link direto (nunca bloqueado pelo navegador)
-        var linkDireto = document.createElement('a');
-        linkDireto.href = caixaUrl;
-        linkDireto.target = '_blank';
-        linkDireto.rel = 'noopener';
-        document.body.appendChild(linkDireto);
-        linkDireto.click();
-        document.body.removeChild(linkDireto);
+        // Mostrar painel flutuante com link real para a Caixa
+        var oldPanel = document.getElementById('caixa-link-panel');
+        if (oldPanel) oldPanel.remove();
+        var linkPanel = document.createElement('div');
+        linkPanel.id = 'caixa-link-panel';
+        linkPanel.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99999;background:linear-gradient(135deg,#0F172A,#1E293B);border:2px solid #22C55E;border-radius:16px;padding:16px 24px;box-shadow:0 10px 40px rgba(0,0,0,0.6);text-align:center;max-width:400px;width:90%;animation:slideUp 0.3s ease;';
+        var linkHtml = '<div style="color:#22C55E;font-weight:800;font-size:1rem;margin-bottom:10px;">\u2705 Script copiado!</div>';
+        linkHtml += '<a href="' + caixaUrl + '" target="_blank" rel="noopener" style="display:block;background:linear-gradient(135deg,#22C55E,#16A34A);color:white;text-decoration:none;padding:14px 24px;border-radius:12px;font-weight:900;font-size:1rem;margin-bottom:8px;">\uD83C\uDFE6 ABRIR SITE DA CAIXA</a>';
+        linkHtml += '<div style="color:#94A3B8;font-size:0.72rem;">No site: F12 \u2192 Console \u2192 Ctrl+V \u2192 Enter</div>';
+        linkHtml += '<button onclick="this.parentNode.remove()" style="margin-top:8px;background:none;border:1px solid #475569;color:#94A3B8;padding:6px 16px;border-radius:8px;cursor:pointer;font-size:0.75rem;">Fechar</button>';
+        linkPanel.innerHTML = linkHtml;
+        document.body.appendChild(linkPanel);
+        // Auto-remover apos 15 segundos
+        setTimeout(function() { var p = document.getElementById('caixa-link-panel'); if (p) p.remove(); }, 15000);
     }
 
     getSelectedNumbers() {
