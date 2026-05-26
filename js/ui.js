@@ -256,7 +256,7 @@ class UI {
 
         // === BOTÃO 📐 COBERTURA UNIFICADA v14 (Motor Unificado: Estatística + Cobertura + Sniper) ===
         if (this.generateCoverageBtn) {
-            this.generateCoverageBtn.onclick = () => {
+            this.generateCoverageBtn.onclick = async () => {
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
                 const qty = parseInt(this.gamesQuantityInput.value) || 10;
@@ -277,6 +277,55 @@ class UI {
                 const modeLabel = sniperMode ? '🎯 SNIPER + Cobertura' : '📐 Cobertura Estatística';
                 this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">' + modeLabel + '...</div></div>';
 
+                // --- INTEGRATION: Tentar chamar o Backend IA Otimizado em Python ---
+                let backendSuccess = false;
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 1500); // 1.5s timeout
+
+                    const response = await fetch('http://127.0.0.1:5000/run-pipeline', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        signal: controller.signal,
+                        body: JSON.stringify({
+                            lottery: this.currentGameKey,
+                            use_coverage_ia: true,
+                            quantity: qty,
+                            budget: qty * (game.price || 3.50),
+                            window: this.currentStatsRange || 15
+                        })
+                    });
+                    clearTimeout(timeoutId);
+
+                    const data = await response.json();
+                    if (data.success && data.rows && data.rows.length > 0) {
+                        backendSuccess = true;
+                        
+                        // Converter dezenas em arrays de inteiros
+                        const gamesList = data.rows.map(r => r.ticket.split(' ').map(Number));
+                        this.currentGeneratedGames = gamesList;
+                        this._lastGeneratedGames = gamesList;
+
+                        // Renderizar jogos na tela
+                        this.renderGames({ pool: Array.from({length: game.range[1]-game.range[0]+1}, (_,i)=>i+game.range[0]), games: gamesList, smartAnalysis: null }, this.currentGameKey);
+
+                        // Banner Premium de Cobertura IA simplificado (sem download externo)
+                        var banner = document.createElement('div');
+                        banner.className = 'smart-gen-analysis';
+                        banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(16,185,129,0.12),rgba(15,23,42,0.95));border:1px solid rgba(16,185,129,0.3);';
+                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.3rem;">🧠</span><div><div style="font-weight:900;color:#10B981;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">COBERTURA IA PREMIUM (ILP + KELLY)</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: Otimizador Python (Flask) | ' + gamesList.length + ' jogos gerados com eficiência</div></div></div>';
+
+                        var oldBanner = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                        if (oldBanner) oldBanner.remove();
+                        this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
+                        banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        return;
+                    }
+                } catch (e) {
+                    console.log('[UI] Backend Flask offline ou erro, usando motor JavaScript local...');
+                }
+
+                // Fallback local caso o backend não esteja disponível
                 setTimeout(() => {
                     try {
                         if (typeof SmartCoverageEngine === 'undefined') {
@@ -306,7 +355,6 @@ class UI {
                         this._lastGeneratedGames = result.games;
                         this.renderGames(result, this.currentGameKey);
 
-                        // Banner Unificado com Métricas Reais
                         const a = result.analysis || {};
                         const strategyName = a.strategy === 'CLOSURE' ? 'Fechamento Exato (Steiner)' 
                                            : a.strategy === 'COVERAGE_FAST' ? 'Set Cover (Rápido)' 
@@ -615,7 +663,7 @@ class UI {
             return;
         }
 
-        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">★ MODO DEUS v9.5 — 21 Camadas + Ciclo Individual + Superposição Quântica...</div>';
+        statusDiv.innerHTML = '<div class="quantum-placeholder" style="opacity: 1; color: #8B5CF6; font-style: normal;">★ INICIALIZANDO IA L99 — 21 Camadas de Distribuição Estatística...</div>';
 
         // Phase 1: Analysis
         setTimeout(() => {
@@ -1031,7 +1079,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 if (quantumNums.length > 0) {
                     selectedArr = quantumNums;
                     _quantumInjected = true;
-                    console.log(`[SmartBets] 🔮 Usando ${quantumNums.length} números da Telepatia Quântica como pool`);
+                    console.log(`[SmartBets] 📊 Usando ${quantumNums.length} números da Predição Estatística como pool`);
                 }
             }
         }
@@ -1054,12 +1102,12 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         // V9: Indicador de modo ★ FIX: mostrar quando usa Quantum auto-injeção
         const modeLabel = _quantumInjected
-            ? `🔮 ${selectedArr.length} números da Telepatia Quântica → pool preferencial`
+            ? `📊 ${selectedArr.length} números da Predição Estatística → pool preferencial`
             : selectedArr.length > 0
                 ? `🎯 ${selectedArr.length} números selecionados → gerando variantes`
                 : '🧠 Análise IA completa do universo';
 
-        // Loading - QUANTUM L99 (Honesto)
+        // Loading - PREDIÇÃO L99 (Honesto)
         this.gamesContainer.innerHTML = `
             <div style="text-align:center;padding:40px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border-radius:16px;border:1px solid rgba(139,92,246,0.3);">
                 <div style="font-size:2.5rem;margin-bottom:8px;">⚙️</div>
@@ -1100,7 +1148,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 var banner = document.createElement('div');
                 banner.className = 'smart-gen-analysis';
                 banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(139,92,246,0.12),rgba(15,23,42,0.95));border:1px solid rgba(139,92,246,0.3);';
-                banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">&#x26A1;</span><div><div style="font-weight:900;color:#A78BFA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">QUANTUM L99 — ESTATÍSTICA + SET COVER</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: Ciência 21-Dim → CoverageEngine Multi-Tier | ' + quantity + ' jogos</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Cobertura de dezenas únicas sobre o universo da loteria"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">COBERTURA NUMÉRICA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.coverage||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Diversidade combinatória entre os jogos"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.diversity||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Tempo real de processamento do algoritmo"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">TEMPO REAL</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.elapsed || 'N/A') + 'ms</div></div></div>';
+                banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">&#x26A1;</span><div><div style="font-weight:900;color:#A78BFA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">PREDIÇÃO L99 — ESTATÍSTICA + SET COVER</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: Análise Estatística Bayesiana → CoverageEngine Multi-Tier | ' + quantity + ' jogos</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Cobertura de dezenas únicas sobre o universo da loteria"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">COBERTURA NUMÉRICA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.coverage||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Diversidade combinatória entre os jogos"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.diversity||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Tempo real de processamento do algoritmo"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">TEMPO REAL</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.elapsed || 'N/A') + 'ms</div></div></div>';
                 var ob = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
                 if (ob) ob.remove();
                 this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
@@ -2639,63 +2687,151 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
     }
 
     async copyToClipboard(text) {
-        console.log('Attempting to copy text to clipboard...');
+        console.log('[B2B] Copiando para clipboard... (' + text.length + ' chars)');
 
-        // 1. Modern API
+        // ═══ MÉTODO 1: Clipboard API moderna (precisa de foco + HTTPS/localhost) ═══
         if (navigator.clipboard && navigator.clipboard.writeText) {
             try {
                 await navigator.clipboard.writeText(text);
-                console.log('Copy successful via navigator.clipboard');
-                return true;
+                // Verificar se realmente copiou (leitura pode falhar em alguns navegadores)
+                try {
+                    const check = await navigator.clipboard.readText();
+                    if (check && check.length > 0 && check.substring(0, 50) === text.substring(0, 50)) {
+                        console.log('[B2B] ✅ Clipboard API: copiado e verificado!');
+                        return true;
+                    }
+                } catch(readErr) {
+                    // readText pode falhar por permissão, mas writeText pode ter funcionado
+                    console.log('[B2B] ✅ Clipboard API: copiado (sem verificação)');
+                    return true;
+                }
             } catch (err) {
-                console.warn('navigator.clipboard failed, trying fallback:', err);
+                console.warn('[B2B] Clipboard API falhou:', err.message);
             }
         }
 
-        // 2. Fallback document.execCommand
+        // ═══ MÉTODO 2: Textarea + execCommand (fallback robusto) ═══
         try {
-            const textArea = document.createElement("textarea");
+            const textArea = document.createElement('textarea');
             textArea.value = text;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-9999px";
-            textArea.style.top = "0";
-            textArea.style.opacity = "0";
+            // Precisa ser visível para funcionar em alguns navegadores
+            textArea.style.cssText = 'position:fixed;top:0;left:0;width:2px;height:2px;padding:0;border:none;outline:none;box-shadow:none;opacity:0.01;z-index:999999;';
+            textArea.setAttribute('readonly', '');  // Evita teclado virtual mobile
             document.body.appendChild(textArea);
+
+            // Delay mínimo para garantir renderização
+            await new Promise(r => setTimeout(r, 50));
 
             textArea.focus();
             textArea.select();
-            textArea.setSelectionRange(0, 99999);
+            textArea.setSelectionRange(0, text.length);
 
             const successful = document.execCommand('copy');
             document.body.removeChild(textArea);
 
             if (successful) {
-                console.log('Copy successful via execCommand');
+                console.log('[B2B] ✅ execCommand copy: sucesso!');
                 return true;
+            } else {
+                console.warn('[B2B] execCommand copy retornou false');
             }
         } catch (err) {
-            console.error('execCommand failed:', err);
+            console.error('[B2B] execCommand falhou:', err);
         }
 
-        // 3. Manual Copy Modal Fallback
+        // ═══ MÉTODO 3: ClipboardItem API (para navegadores que bloqueiam texto puro) ═══
+        try {
+            if (typeof ClipboardItem !== 'undefined') {
+                const blob = new Blob([text], { type: 'text/plain' });
+                const item = new ClipboardItem({ 'text/plain': blob });
+                await navigator.clipboard.write([item]);
+                console.log('[B2B] ✅ ClipboardItem API: sucesso!');
+                return true;
+            }
+        } catch(err) {
+            console.warn('[B2B] ClipboardItem falhou:', err.message);
+        }
+
+        // ═══ MÉTODO 4: Modal de cópia manual ═══
         if (this.copyModal && this.copyTextarea) {
             this.copyTextarea.value = text;
             this.copyModal.style.display = 'flex';
             this.copyTextarea.focus();
             this.copyTextarea.select();
-
-            // Return 'modal' to let the caller know the modal is handling it
             return 'modal';
         }
 
-        // 4. Absolute Last Resort: window.prompt
-        try {
-            window.prompt("O navegador bloqueou a cópia automática. \nPressione Ctrl+C para copiar:", text);
-            return true;
-        } catch (err) {
-            console.error('Window prompt failed:', err);
-            return false;
+        // ═══ MÉTODO 5: Criar modal temporário de emergência ═══
+        return this._showEmergencyCopyModal(text);
+    }
+
+    _showEmergencyCopyModal(text) {
+        const oldModal = document.getElementById('b2b-emergency-copy-modal');
+        if (oldModal) oldModal.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'b2b-emergency-copy-modal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+        modal.innerHTML = `
+            <div style="background:linear-gradient(145deg,#0F172A,#1E293B);border-radius:16px;border:2px solid #FFD700;padding:24px;max-width:600px;width:100%;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.8);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                    <h3 style="margin:0;color:#FFD700;font-size:1rem;">📋 Copie o Script Manualmente</h3>
+                    <button id="b2b-close-emergency" style="background:none;border:none;color:#94A3B8;font-size:1.5rem;cursor:pointer;">✕</button>
+                </div>
+                <div style="color:#F59E0B;font-size:0.8rem;margin-bottom:10px;padding:10px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;">
+                    ⚠️ O navegador bloqueou a cópia automática.<br>
+                    <strong>Clique no texto abaixo → Ctrl+A → Ctrl+C</strong>
+                </div>
+                <textarea id="b2b-emergency-textarea" style="flex:1;min-height:200px;background:#020617;color:#22C55E;border:1px solid #334155;border-radius:8px;padding:12px;font-family:monospace;font-size:0.75rem;resize:none;word-break:break-all;" readonly>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                <button id="b2b-try-copy-again" style="margin-top:12px;width:100%;padding:14px;background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;border-radius:10px;font-weight:800;font-size:0.95rem;cursor:pointer;">🔄 TENTAR COPIAR NOVAMENTE</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Corrigir o valor do textarea (innerHTML com escape pode não funcionar bem)
+        const ta = document.getElementById('b2b-emergency-textarea');
+        if (ta) {
+            ta.value = text;
+            ta.focus();
+            ta.select();
         }
+
+        document.getElementById('b2b-close-emergency').addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+
+        document.getElementById('b2b-try-copy-again').addEventListener('click', async () => {
+            const ta2 = document.getElementById('b2b-emergency-textarea');
+            if (ta2) {
+                ta2.focus();
+                ta2.select();
+                ta2.setSelectionRange(0, ta2.value.length);
+                try {
+                    const ok = document.execCommand('copy');
+                    if (ok) {
+                        const btn = document.getElementById('b2b-try-copy-again');
+                        if (btn) {
+                            btn.textContent = '✅ COPIADO!';
+                            btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+                            setTimeout(() => modal.remove(), 1500);
+                        }
+                        return;
+                    }
+                } catch(e) {}
+                try {
+                    await navigator.clipboard.writeText(ta2.value);
+                    const btn = document.getElementById('b2b-try-copy-again');
+                    if (btn) {
+                        btn.textContent = '✅ COPIADO!';
+                        btn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+                        setTimeout(() => modal.remove(), 1500);
+                    }
+                } catch(e2) {
+                    alert('Selecione todo o texto (Ctrl+A) e copie manualmente (Ctrl+C)');
+                }
+            }
+        });
+
+        return 'modal';
     }
 
     async copyGames() {
@@ -2891,21 +3027,59 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
             tabAutoBtn.style.cssText = inactiveStyle;
         });
 
+        // Helper robusto para cópia (reutilizado nos 3 botões)
+        const _robustCopy = async (text) => {
+            // Método 1: Clipboard API
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                }
+            } catch(e) { console.warn('[B2B] Clipboard API falhou:', e.message); }
+            // Método 2: Textarea visível + execCommand
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.cssText = 'position:fixed;top:0;left:0;width:2px;height:2px;opacity:0.01;z-index:999999;';
+                ta.setAttribute('readonly', '');
+                document.body.appendChild(ta);
+                await new Promise(r => setTimeout(r, 50));
+                ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                if (ok) return true;
+            } catch(e) { console.warn('[B2B] execCommand falhou:', e.message); }
+            // Método 3: ClipboardItem
+            try {
+                if (typeof ClipboardItem !== 'undefined') {
+                    const blob = new Blob([text], { type: 'text/plain' });
+                    await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blob })]);
+                    return true;
+                }
+            } catch(e) {}
+            return false;
+        };
+
         // Copiar script
         const copyScriptBtn = document.getElementById('btn-copy-script-m');
         if (copyScriptBtn) {
             copyScriptBtn.addEventListener('click', async () => {
-                try { await navigator.clipboard.writeText(freshScript); } catch(e) {
-                    const ta = document.createElement('textarea');
-                    ta.value = freshScript; ta.style.cssText = 'position:fixed;left:-9999px;';
-                    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+                const ok = await _robustCopy(freshScript);
+                if (ok) {
+                    copyScriptBtn.textContent = '✅ SCRIPT COPIADO!';
+                    copyScriptBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+                    setTimeout(() => {
+                        copyScriptBtn.textContent = '📋 COPIAR SCRIPT DE AUTOMAÇÃO';
+                        copyScriptBtn.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)';
+                    }, 3000);
+                } else {
+                    copyScriptBtn.textContent = '⚠️ Falhou — toque para tentar de novo';
+                    copyScriptBtn.style.background = 'linear-gradient(135deg,#DC2626,#B91C1C)';
+                    setTimeout(() => {
+                        copyScriptBtn.textContent = '📋 COPIAR SCRIPT DE AUTOMAÇÃO';
+                        copyScriptBtn.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)';
+                    }, 3000);
                 }
-                copyScriptBtn.textContent = '✅ SCRIPT COPIADO!';
-                copyScriptBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
-                setTimeout(() => {
-                    copyScriptBtn.textContent = '📋 COPIAR SCRIPT DE AUTOMAÇÃO';
-                    copyScriptBtn.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)';
-                }, 3000);
             });
         }
 
@@ -2913,12 +3087,8 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         modal.querySelectorAll('.mobile-copy-game-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const nums = btn.getAttribute('data-nums');
-                try { await navigator.clipboard.writeText(nums); } catch(e) {
-                    const ta = document.createElement('textarea');
-                    ta.value = nums; ta.style.cssText = 'position:fixed;left:-9999px;';
-                    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-                }
-                btn.textContent = '✅';
+                const ok = await _robustCopy(nums);
+                btn.textContent = ok ? '✅' : '⚠️';
                 setTimeout(() => { btn.textContent = '📋 Copiar'; }, 2000);
             });
         });
@@ -2927,13 +3097,14 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         const copyAllBtn = document.getElementById('mobile-copy-all-btn-m');
         if (copyAllBtn) {
             copyAllBtn.addEventListener('click', async () => {
-                try { await navigator.clipboard.writeText(allFmt); } catch(e) {
-                    const ta = document.createElement('textarea');
-                    ta.value = allFmt; ta.style.cssText = 'position:fixed;left:-9999px;';
-                    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+                const ok = await _robustCopy(allFmt);
+                if (ok) {
+                    copyAllBtn.textContent = '✅ TODOS COPIADOS!';
+                    copyAllBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+                } else {
+                    copyAllBtn.textContent = '⚠️ Falhou — tente novamente';
+                    copyAllBtn.style.background = 'linear-gradient(135deg,#DC2626,#B91C1C)';
                 }
-                copyAllBtn.textContent = '✅ TODOS COPIADOS!';
-                copyAllBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
                 setTimeout(() => {
                     copyAllBtn.textContent = '📋 COPIAR TODOS OS ' + games.length + ' JOGOS';
                     copyAllBtn.style.background = 'linear-gradient(135deg,#8B5CF6,#7C3AED)';
@@ -2956,7 +3127,6 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
             if (games.length > 0 && cfg) {
                 this._openMobileBetModal(games, this.currentGameKey);
             } else {
-                // Sem jogos — navegar via link direto
                 var linkMobile = document.createElement('a');
                 linkMobile.href = caixaUrl;
                 linkMobile.target = '_blank';
@@ -2972,49 +3142,102 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         if (games.length > 0 && cfg) {
             const freshScript = this._generateCaixaScript_LEGACY(cfg, games);
             
-            // Link direto será usado após copiar o script
+            // Salvar script globalmente para re-cópia
+            window._b2bLastScript = freshScript;
 
-            try {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    await navigator.clipboard.writeText(freshScript);
-                } else {
-                    throw new Error('Clipboard API not available');
-                }
-                console.log('[B2B] ✅ ' + games.length + ' jogos de ' + cfg.name + ' copiados!');
-            } catch(e) {
-                var ta = document.createElement('textarea');
-                ta.value = freshScript;
-                ta.style.cssText = 'position:fixed;left:-9999px;';
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-            }
+            // COPIAR com verificação real
+            const copyResult = await this.copyToClipboard(freshScript);
+            const copyOk = (copyResult === true);
 
+            console.log('[B2B] Resultado da cópia: ' + copyResult + ' (' + freshScript.length + ' chars)');
+
+            // Disparar evento para extensão
             document.dispatchEvent(new CustomEvent('b2b-aposte-online', {
                 detail: { games: games, config: cfg }
             }));
 
-            // Notificação visual (sem alert bloqueante)
-            if (typeof Guardian !== 'undefined' && Guardian.toast) {
-                Guardian.toast('\u2705 ' + games.length + ' jogos de ' + cfg.name + ' copiados! No site da Caixa: F12 \u2192 Console \u2192 Ctrl+V \u2192 Enter', 'success', 8000);
+            // Notificação visual
+            if (copyOk) {
+                if (typeof Guardian !== 'undefined' && Guardian.toast) {
+                    Guardian.toast('\u2705 ' + games.length + ' jogos de ' + cfg.name + ' copiados! No site da Caixa: F12 \u2192 Console \u2192 Ctrl+V \u2192 Enter', 'success', 8000);
+                }
+            } else {
+                // Se falhou e abriu modal, não mostrar outro feedback
+                if (copyResult !== 'modal') {
+                    if (typeof Guardian !== 'undefined' && Guardian.toast) {
+                        Guardian.toast('⚠️ Não foi possível copiar automaticamente. Use o painel abaixo para copiar.', 'warning', 6000);
+                    }
+                }
             }
         }
 
-        // Mostrar painel flutuante com link real para a Caixa
+        // Mostrar painel flutuante com link + botão para recopiar
         var oldPanel = document.getElementById('caixa-link-panel');
         if (oldPanel) oldPanel.remove();
         var linkPanel = document.createElement('div');
         linkPanel.id = 'caixa-link-panel';
-        linkPanel.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99999;background:linear-gradient(135deg,#0F172A,#1E293B);border:2px solid #22C55E;border-radius:16px;padding:16px 24px;box-shadow:0 10px 40px rgba(0,0,0,0.6);text-align:center;max-width:400px;width:90%;animation:slideUp 0.3s ease;';
-        var linkHtml = '<div style="color:#22C55E;font-weight:800;font-size:1rem;margin-bottom:10px;">\u2705 Script copiado!</div>';
+        linkPanel.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99999;background:linear-gradient(135deg,#0F172A,#1E293B);border:2px solid #22C55E;border-radius:16px;padding:16px 24px;box-shadow:0 10px 40px rgba(0,0,0,0.6);text-align:center;max-width:450px;width:90%;animation:slideUp 0.3s ease;';
+        var linkHtml = '<div style="color:#22C55E;font-weight:800;font-size:1rem;margin-bottom:10px;">\u2705 Script pronto!</div>';
         linkHtml += '<a href="' + caixaUrl + '" target="_blank" rel="noopener" style="display:block;background:linear-gradient(135deg,#22C55E,#16A34A);color:white;text-decoration:none;padding:14px 24px;border-radius:12px;font-weight:900;font-size:1rem;margin-bottom:8px;">\uD83C\uDFE6 ABRIR SITE DA CAIXA</a>';
-        linkHtml += '<div style="color:#94A3B8;font-size:0.72rem;">No site: F12 \u2192 Console \u2192 Ctrl+V \u2192 Enter</div>';
+        linkHtml += '<button id="b2b-recopy-btn" style="display:block;width:100%;background:linear-gradient(135deg,#3B82F6,#1D4ED8);color:white;border:none;padding:12px 24px;border-radius:12px;font-weight:800;font-size:0.9rem;margin-bottom:8px;cursor:pointer;">📋 COPIAR SCRIPT NOVAMENTE</button>';
+        linkHtml += '<div style="color:#94A3B8;font-size:0.72rem;line-height:1.5;">No site da Caixa:<br><strong>1.</strong> F12 → Console<br><strong>2.</strong> Digite <span style="color:#FFD700;font-weight:700;">allow pasting</span> + Enter<br><strong>3.</strong> Ctrl+V → Enter</div>';
         linkHtml += '<button onclick="this.parentNode.remove()" style="margin-top:8px;background:none;border:1px solid #475569;color:#94A3B8;padding:6px 16px;border-radius:8px;cursor:pointer;font-size:0.75rem;">Fechar</button>';
         linkPanel.innerHTML = linkHtml;
         document.body.appendChild(linkPanel);
-        // Auto-remover apos 15 segundos
-        setTimeout(function() { var p = document.getElementById('caixa-link-panel'); if (p) p.remove(); }, 15000);
+
+        // Handler para recopiar
+        var recopyBtn = document.getElementById('b2b-recopy-btn');
+        if (recopyBtn && window._b2bLastScript) {
+            recopyBtn.addEventListener('click', async function() {
+                try {
+                    // Tentar clipboard API primeiro
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(window._b2bLastScript);
+                    } else {
+                        throw new Error('no clipboard');
+                    }
+                    recopyBtn.textContent = '✅ COPIADO!';
+                    recopyBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+                    setTimeout(function() {
+                        recopyBtn.textContent = '📋 COPIAR SCRIPT NOVAMENTE';
+                        recopyBtn.style.background = 'linear-gradient(135deg,#3B82F6,#1D4ED8)';
+                    }, 3000);
+                } catch(e) {
+                    // Fallback: textarea
+                    var ta = document.createElement('textarea');
+                    ta.value = window._b2bLastScript;
+                    ta.style.cssText = 'position:fixed;top:0;left:0;width:2px;height:2px;opacity:0.01;z-index:999999;';
+                    document.body.appendChild(ta);
+                    await new Promise(r => setTimeout(r, 50));
+                    ta.focus();
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    var ok = document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    if (ok) {
+                        recopyBtn.textContent = '✅ COPIADO!';
+                        recopyBtn.style.background = 'linear-gradient(135deg,#059669,#047857)';
+                        setTimeout(function() {
+                            recopyBtn.textContent = '📋 COPIAR SCRIPT NOVAMENTE';
+                            recopyBtn.style.background = 'linear-gradient(135deg,#3B82F6,#1D4ED8)';
+                        }, 3000);
+                    } else {
+                        recopyBtn.textContent = '⚠️ Use Ctrl+A e Ctrl+C na caixa abaixo';
+                        // Mostrar textarea visível
+                        var visTA = document.createElement('textarea');
+                        visTA.value = window._b2bLastScript;
+                        visTA.style.cssText = 'display:block;width:100%;height:80px;margin-top:8px;background:#020617;color:#22C55E;border:1px solid #334155;border-radius:8px;padding:8px;font-family:monospace;font-size:0.65rem;resize:none;word-break:break-all;';
+                        visTA.setAttribute('readonly', '');
+                        linkPanel.insertBefore(visTA, recopyBtn.nextSibling);
+                        visTA.focus();
+                        visTA.select();
+                    }
+                }
+            });
+        }
+
+        // Auto-remover apos 30 segundos (mais tempo para copiar)
+        setTimeout(function() { var p = document.getElementById('caixa-link-panel'); if (p) p.remove(); }, 30000);
     }
 
     getSelectedNumbers() {
@@ -3351,7 +3574,7 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         } else {
             // Check Current
             if (!this.currentGeneratedGames || this.currentGeneratedGames.length === 0) {
-                alert('Nenhum jogo carregado para conferir.\n\nGere jogos primeiro usando "Gerar Jogos" ou "QUANTUM L99".');
+                alert('Nenhum jogo carregado para conferir.\n\nGere jogos primeiro usando "Gerar Jogos" ou "PREDIÇÃO L99".');
                 return;
             }
             this.closeCheckModal();
