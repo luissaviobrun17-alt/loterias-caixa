@@ -250,15 +250,19 @@ class MotorFechamentoManual {
         }
         // Bônus pela zona prioritária
         if (sum >= rules.sumPriorityMin && sum <= rules.sumPriorityMax) {
-            qualityScore += 15;
+            qualityScore += 20;
         }
 
-        // ━━ 6. PRIMOS (Correção #10) — soft constraint ━━
+        // ━━ 6. PRIMOS (Correção #10) — semi-hard constraint ━━
         const primeCount = game.filter(n => this._isPrime(n)).length;
+        // Rejeitar se muito fora da faixa (tolerância de 1)
+        if (primeCount < Math.max(0, rules.minPrimes - 1) || primeCount > rules.maxPrimes + 1) {
+            return { valid: false, reason: 'primos' };
+        }
         if (primeCount >= rules.minPrimes && primeCount <= rules.maxPrimes) {
-            qualityScore += 8;
+            qualityScore += 10;
         } else {
-            qualityScore -= 3;
+            qualityScore -= 5;
         }
 
         // ━━ 7. ANTI-REPETIÇÃO (Correção #7) ━━
@@ -327,33 +331,33 @@ class MotorFechamentoManual {
                 const n = available[i];
                 let w = weights[n] || 1.0;
 
-                // ── Ajuste PAR/ÍMPAR ──
+                // ── Ajuste PAR/ÍMPAR (v3.1: bloqueio agressivo) ──
                 const isEven = n % 2 === 0;
                 if (isEven && currentEven >= rules.maxEven) {
-                    w *= 0.02;
+                    w *= 0.001; // Bloqueio quase total
                 } else if (!isEven && currentOdd >= (k - rules.minEven)) {
-                    w *= 0.02;
+                    w *= 0.001;
                 }
                 // Urgência: se faltam poucos slots e precisamos de paridade
-                if (isEven && slotsLeft > 0 && (rules.minEven - currentEven) >= slotsLeft * 0.8) {
-                    w *= 3.0;
+                if (isEven && slotsLeft > 0 && (rules.minEven - currentEven) >= slotsLeft * 0.7) {
+                    w *= 5.0;
                 }
-                if (!isEven && slotsLeft > 0 && ((k - rules.maxEven) - currentOdd) >= slotsLeft * 0.8) {
-                    w *= 3.0;
+                if (!isEven && slotsLeft > 0 && ((k - rules.maxEven) - currentOdd) >= slotsLeft * 0.7) {
+                    w *= 5.0;
                 }
 
-                // ── Ajuste ALTO/BAIXO ──
+                // ── Ajuste ALTO/BAIXO (v3.1: bloqueio agressivo) ──
                 const isLow = n <= rules.midPoint;
                 if (isLow && currentLow >= (k - rules.minHigh)) {
-                    w *= 0.02;
+                    w *= 0.001;
                 } else if (!isLow && currentHigh >= (k - rules.minLow)) {
-                    w *= 0.02;
+                    w *= 0.001;
                 }
-                if (isLow && slotsLeft > 0 && (rules.minLow - currentLow) >= slotsLeft * 0.8) {
-                    w *= 3.0;
+                if (isLow && slotsLeft > 0 && (rules.minLow - currentLow) >= slotsLeft * 0.7) {
+                    w *= 5.0;
                 }
-                if (!isLow && slotsLeft > 0 && (rules.minHigh - currentHigh) >= slotsLeft * 0.8) {
-                    w *= 3.0;
+                if (!isLow && slotsLeft > 0 && (rules.minHigh - currentHigh) >= slotsLeft * 0.7) {
+                    w *= 5.0;
                 }
 
                 // ── Ajuste DEZENAS ──
@@ -441,24 +445,23 @@ class MotorFechamentoManual {
     static _relaxRules(rules, level) {
         const relaxed = { ...rules };
         if (level >= 1) {
-            // Nível 1: Amplia um pouco
-            relaxed.minEven = Math.max(1, rules.minEven - 1);
-            relaxed.maxEven = rules.maxEven + 1;
+            // Nível 1: Relaxa APENAS dezenas, finais e soma — NÃO toca par/ímpar nem anti-rep
             relaxed.minDecades = Math.max(2, rules.minDecades - 1);
             relaxed.minDistinctFinals = Math.max(2, rules.minDistinctFinals - 1);
-            relaxed.maxOverlap = rules.maxOverlap + 1;
+            relaxed.sumMin = Math.floor(rules.sumMin * 0.93);
+            relaxed.sumMax = Math.ceil(rules.sumMax * 1.07);
         }
         if (level >= 2) {
-            // Nível 2: Mínimo viável
-            relaxed.minEven = 1;
-            relaxed.maxEven = rules.maxEven + 2;
+            // Nível 2: Relaxa mais, mas par/ímpar só ±1 e anti-rep preservado
+            relaxed.minEven = Math.max(1, rules.minEven - 1);
+            relaxed.maxEven = rules.maxEven + 1;
             relaxed.minLow = Math.max(1, rules.minLow - 1);
             relaxed.minHigh = Math.max(1, rules.minHigh - 1);
             relaxed.minDecades = 2;
             relaxed.minDistinctFinals = 2;
-            relaxed.maxOverlap = Math.ceil(rules.maxOverlap * 1.5);
-            relaxed.sumMin = Math.floor(rules.sumMin * 0.9);
-            relaxed.sumMax = Math.ceil(rules.sumMax * 1.1);
+            relaxed.maxOverlap = rules.maxOverlap + 1;
+            relaxed.sumMin = Math.floor(rules.sumMin * 0.88);
+            relaxed.sumMax = Math.ceil(rules.sumMax * 1.12);
         }
         return relaxed;
     }
