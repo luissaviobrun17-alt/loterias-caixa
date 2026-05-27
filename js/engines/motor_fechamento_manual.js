@@ -76,9 +76,15 @@ class MotorFechamentoManual {
             poolFinals.add(n % 10);
         });
 
-        // ── CORREÇÃO #4: PAR/ÍMPAR — alvo 50%, tolerância ±20% ──
-        const minEven = Math.max(1, Math.round(k * 0.4));
-        const maxEven = Math.min(k - 1, Math.round(k * 0.6));
+        // ── CORREÇÃO #4: PAR/ÍMPAR — adapta ao pool real ──
+        const poolEvenCount = poolNumbers.filter(n => n % 2 === 0).length;
+        const poolEvenRatio = poolEvenCount / Math.max(poolNumbers.length, 1);
+        // Se pool é desbalanceado (ex: 60% par), usa limites do pool
+        // Caso contrário, usa limites ideais 40-60%
+        const idealMinEvenRatio = Math.max(0.35, Math.min(poolEvenRatio - 0.10, 0.40));
+        const idealMaxEvenRatio = Math.min(0.65, Math.max(poolEvenRatio + 0.10, 0.60));
+        const minEven = Math.max(1, Math.round(k * idealMinEvenRatio));
+        const maxEven = Math.min(k - 1, Math.round(k * idealMaxEvenRatio));
 
         // ── CORREÇÃO #5: ALTO/BAIXO — mínimo 30% de cada metade ──
         const midPoint = Math.floor((rangeMin + rangeMax) / 2);
@@ -331,33 +337,33 @@ class MotorFechamentoManual {
                 const n = available[i];
                 let w = weights[n] || 1.0;
 
-                // ── Ajuste PAR/ÍMPAR (v3.1: bloqueio agressivo) ──
+                // ── Ajuste PAR/ÍMPAR (v3.3: bloqueio ABSOLUTO) ──
                 const isEven = n % 2 === 0;
                 if (isEven && currentEven >= rules.maxEven) {
-                    w *= 0.001; // Bloqueio quase total
+                    w = 0; // Bloqueio TOTAL — impossível selecionar
                 } else if (!isEven && currentOdd >= (k - rules.minEven)) {
-                    w *= 0.001;
+                    w = 0;
                 }
                 // Urgência: se faltam poucos slots e precisamos de paridade
-                if (isEven && slotsLeft > 0 && (rules.minEven - currentEven) >= slotsLeft * 0.7) {
-                    w *= 5.0;
+                if (w > 0 && isEven && slotsLeft > 0 && (rules.minEven - currentEven) >= slotsLeft * 0.6) {
+                    w *= 8.0;
                 }
-                if (!isEven && slotsLeft > 0 && ((k - rules.maxEven) - currentOdd) >= slotsLeft * 0.7) {
-                    w *= 5.0;
+                if (w > 0 && !isEven && slotsLeft > 0 && ((k - rules.maxEven) - currentOdd) >= slotsLeft * 0.6) {
+                    w *= 8.0;
                 }
 
-                // ── Ajuste ALTO/BAIXO (v3.1: bloqueio agressivo) ──
+                // ── Ajuste ALTO/BAIXO (v3.3: bloqueio ABSOLUTO) ──
                 const isLow = n <= rules.midPoint;
-                if (isLow && currentLow >= (k - rules.minHigh)) {
-                    w *= 0.001;
-                } else if (!isLow && currentHigh >= (k - rules.minLow)) {
-                    w *= 0.001;
+                if (w > 0 && isLow && currentLow >= (k - rules.minHigh)) {
+                    w = 0;
+                } else if (w > 0 && !isLow && currentHigh >= (k - rules.minLow)) {
+                    w = 0;
                 }
-                if (isLow && slotsLeft > 0 && (rules.minLow - currentLow) >= slotsLeft * 0.7) {
-                    w *= 5.0;
+                if (w > 0 && isLow && slotsLeft > 0 && (rules.minLow - currentLow) >= slotsLeft * 0.6) {
+                    w *= 8.0;
                 }
-                if (!isLow && slotsLeft > 0 && (rules.minHigh - currentHigh) >= slotsLeft * 0.7) {
-                    w *= 5.0;
+                if (w > 0 && !isLow && slotsLeft > 0 && (rules.minHigh - currentHigh) >= slotsLeft * 0.6) {
+                    w *= 8.0;
                 }
 
                 // ── Ajuste DEZENAS ──
@@ -380,7 +386,8 @@ class MotorFechamentoManual {
                     w *= 1.5; // Boost para final novo
                 }
 
-                w = Math.max(w, 0.005); // Peso mínimo absoluto
+                // Não aplicar peso mínimo se bloqueado (w=0 é intencional)
+                if (w > 0) w = Math.max(w, 0.005);
                 adjustedItems.push({ n, w, idx: i });
                 totalWeight += w;
             }
