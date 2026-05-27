@@ -76,15 +76,10 @@ class MotorFechamentoManual {
             poolFinals.add(n % 10);
         });
 
-        // ── CORREÇÃO #4: PAR/ÍMPAR — adapta ao pool real ──
-        const poolEvenCount = poolNumbers.filter(n => n % 2 === 0).length;
-        const poolEvenRatio = poolEvenCount / Math.max(poolNumbers.length, 1);
-        // Se pool é desbalanceado (ex: 60% par), usa limites do pool
-        // Caso contrário, usa limites ideais 40-60%
-        const idealMinEvenRatio = Math.max(0.35, Math.min(poolEvenRatio - 0.10, 0.40));
-        const idealMaxEvenRatio = Math.min(0.65, Math.max(poolEvenRatio + 0.10, 0.60));
-        const minEven = Math.max(1, Math.round(k * idealMinEvenRatio));
-        const maxEven = Math.min(k - 1, Math.round(k * idealMaxEvenRatio));
+        // ── CORREÇÃO #4: PAR/ÍMPAR — regra fixa 40-60% ──
+        // O bloqueio ABSOLUTO (w=0) na geração garante conformidade
+        const minEven = Math.max(1, Math.floor(k * 0.4));   // k=10 → 4
+        const maxEven = Math.min(k - 1, Math.ceil(k * 0.6)); // k=10 → 6
 
         // ── CORREÇÃO #5: ALTO/BAIXO — mínimo 30% de cada metade ──
         const midPoint = Math.floor((rangeMin + rangeMax) / 2);
@@ -303,10 +298,11 @@ class MotorFechamentoManual {
     //    dezena recebem boost de 2.5x
     //  - Se final 7 já aparece 3x, número 27 recebe peso ~0
     // ═══════════════════════════════════════════════════════════════
-    static _generateSmartCandidate(pool, fixed, k, weights, rules) {
+    static _generateSmartCandidate(pool, fixed, k, weights, rules, previousGame) {
         const candidate = [...fixed];
         const used = new Set(fixed);
         const available = pool.filter(n => !used.has(n));
+        const prevSet = previousGame ? new Set(previousGame) : null;
 
         while (candidate.length < k && available.length > 0) {
             // Estado atual do candidato em construção
@@ -366,24 +362,34 @@ class MotorFechamentoManual {
                     w *= 8.0;
                 }
 
-                // ── Ajuste DEZENAS ──
+                // ── Ajuste DEZENAS (v3.4: bloqueio ABSOLUTO) ──
                 const decade = Math.floor((n - rules.rangeMin) / 10);
                 const inDecade = decadeCounts[decade] || 0;
-                if (inDecade >= rules.maxPerDecade) {
-                    w *= 0.02;
+                if (w > 0 && inDecade >= rules.maxPerDecade) {
+                    w = 0; // Bloqueio TOTAL
                 }
-                if (inDecade === 0 && distinctDecades < rules.minDecades) {
-                    w *= 2.5; // Boost para dezena nova quando precisamos de diversidade
+                if (w > 0 && inDecade === 0 && distinctDecades < rules.minDecades) {
+                    w *= 2.5;
                 }
 
-                // ── Ajuste FINAIS ──
+                // ── Ajuste FINAIS (v3.4: bloqueio ABSOLUTO) ──
                 const finalDigit = n % 10;
                 const sameFinal = finalCounts[finalDigit] || 0;
-                if (sameFinal >= rules.maxSameFinal) {
-                    w *= 0.02;
+                if (w > 0 && sameFinal >= rules.maxSameFinal) {
+                    w = 0; // Bloqueio TOTAL
                 }
-                if (sameFinal === 0) {
-                    w *= 1.5; // Boost para final novo
+                if (w > 0 && sameFinal === 0) {
+                    w *= 1.5;
+                }
+
+                // ── Ajuste ANTI-REPETIÇÃO (v3.4) ──
+                if (w > 0 && prevSet && prevSet.has(n)) {
+                    const overlapSoFar = candidate.filter(x => prevSet.has(x)).length;
+                    if (overlapSoFar >= rules.maxOverlap) {
+                        w *= 0.05; // Penaliza fortemente mas não bloqueia 100%
+                    } else if (overlapSoFar >= rules.maxOverlap - 1) {
+                        w *= 0.2;
+                    }
                 }
 
                 // Não aplicar peso mínimo se bloqueado (w=0 é intencional)
@@ -583,7 +589,7 @@ class MotorFechamentoManual {
                 totalAttempts++;
 
                 // Gerar candidato com seleção inteligente (Correção #11)
-                const candidate = this._generateSmartCandidate(validPool, fixed, k, weights, rules);
+                const candidate = this._generateSmartCandidate(validPool, fixed, k, weights, rules, previousGame);
                 if (!candidate) {
                     rejectionCounts['null_candidate'] = (rejectionCounts['null_candidate'] || 0) + 1;
                     continue;
