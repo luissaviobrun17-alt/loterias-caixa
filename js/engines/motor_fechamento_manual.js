@@ -76,10 +76,9 @@ class MotorFechamentoManual {
             poolFinals.add(n % 10);
         });
 
-        // ── CORREÇÃO #4: PAR/ÍMPAR — regra fixa 40-60% ──
-        // O bloqueio ABSOLUTO (w=0) na geração garante conformidade
-        const minEven = Math.max(1, Math.floor(k * 0.4));   // k=10 → 4
-        const maxEven = Math.min(k - 1, Math.ceil(k * 0.6)); // k=10 → 6
+        // ── CORREÇÃO #4: PAR/ÍMPAR — alvo 50%, tolerância ±20% ──
+        const minEven = Math.max(1, Math.round(k * 0.4));
+        const maxEven = Math.min(k - 1, Math.round(k * 0.6));
 
         // ── CORREÇÃO #5: ALTO/BAIXO — mínimo 30% de cada metade ──
         const midPoint = Math.floor((rangeMin + rangeMax) / 2);
@@ -333,56 +332,56 @@ class MotorFechamentoManual {
                 const n = available[i];
                 let w = weights[n] || 1.0;
 
-                // ── Ajuste PAR/ÍMPAR (v3.5: supressão forte) ──
+                // ── Ajuste PAR/ÍMPAR (v3.1: bloqueio agressivo) ──
                 const isEven = n % 2 === 0;
                 if (isEven && currentEven >= rules.maxEven) {
-                    w *= 0.01;
+                    w *= 0.001; // Bloqueio quase total
                 } else if (!isEven && currentOdd >= (k - rules.minEven)) {
-                    w *= 0.01;
+                    w *= 0.001;
                 }
                 // Urgência: se faltam poucos slots e precisamos de paridade
-                if (isEven && slotsLeft > 0 && (rules.minEven - currentEven) >= slotsLeft * 0.6) {
-                    w *= 8.0;
+                if (isEven && slotsLeft > 0 && (rules.minEven - currentEven) >= slotsLeft * 0.7) {
+                    w *= 5.0;
                 }
-                if (!isEven && slotsLeft > 0 && ((k - rules.maxEven) - currentOdd) >= slotsLeft * 0.6) {
-                    w *= 8.0;
+                if (!isEven && slotsLeft > 0 && ((k - rules.maxEven) - currentOdd) >= slotsLeft * 0.7) {
+                    w *= 5.0;
                 }
 
-                // ── Ajuste ALTO/BAIXO (v3.5: supressão forte) ──
+                // ── Ajuste ALTO/BAIXO (v3.1: bloqueio agressivo) ──
                 const isLow = n <= rules.midPoint;
                 if (isLow && currentLow >= (k - rules.minHigh)) {
-                    w *= 0.01;
+                    w *= 0.001;
                 } else if (!isLow && currentHigh >= (k - rules.minLow)) {
-                    w *= 0.01;
+                    w *= 0.001;
                 }
-                if (isLow && slotsLeft > 0 && (rules.minLow - currentLow) >= slotsLeft * 0.6) {
-                    w *= 8.0;
+                if (isLow && slotsLeft > 0 && (rules.minLow - currentLow) >= slotsLeft * 0.7) {
+                    w *= 5.0;
                 }
-                if (!isLow && slotsLeft > 0 && (rules.minHigh - currentHigh) >= slotsLeft * 0.6) {
-                    w *= 8.0;
+                if (!isLow && slotsLeft > 0 && (rules.minHigh - currentHigh) >= slotsLeft * 0.7) {
+                    w *= 5.0;
                 }
 
-                // ── Ajuste DEZENAS (v3.5: supressão forte) ──
+                // ── Ajuste DEZENAS ──
                 const decade = Math.floor((n - rules.rangeMin) / 10);
                 const inDecade = decadeCounts[decade] || 0;
                 if (inDecade >= rules.maxPerDecade) {
-                    w *= 0.01;
+                    w *= 0.02;
                 }
                 if (inDecade === 0 && distinctDecades < rules.minDecades) {
-                    w *= 2.5;
+                    w *= 2.5; // Boost para dezena nova quando precisamos de diversidade
                 }
 
-                // ── Ajuste FINAIS (v3.5: supressão forte) ──
+                // ── Ajuste FINAIS ──
                 const finalDigit = n % 10;
                 const sameFinal = finalCounts[finalDigit] || 0;
                 if (sameFinal >= rules.maxSameFinal) {
-                    w *= 0.01;
+                    w *= 0.02;
                 }
                 if (sameFinal === 0) {
-                    w *= 1.5;
+                    w *= 1.5; // Boost para final novo
                 }
 
-                // ── Ajuste ANTI-REPETIÇÃO (v3.4) ──
+                // ── Ajuste ANTI-REPETIÇÃO (v3.1+) ──
                 if (prevSet && prevSet.has(n)) {
                     const overlapSoFar = candidate.filter(x => prevSet.has(x)).length;
                     if (overlapSoFar >= rules.maxOverlap) {
@@ -392,7 +391,7 @@ class MotorFechamentoManual {
                     }
                 }
 
-                w = Math.max(w, 0.001); // Peso mínimo absoluto (nunca zero)
+                w = Math.max(w, 0.005); // Peso mínimo absoluto
                 adjustedItems.push({ n, w, idx: i });
                 totalWeight += w;
             }
@@ -464,7 +463,9 @@ class MotorFechamentoManual {
             relaxed.sumMax = Math.ceil(rules.sumMax * 1.07);
         }
         if (level >= 2) {
-            // Nível 2: Relaxa mais, mas par/ímpar NUNCA relaxa e anti-rep mínimo
+            // Nível 2: Relaxa mais, mas par/ímpar só ±1 e anti-rep preservado
+            relaxed.minEven = Math.max(1, rules.minEven - 1);
+            relaxed.maxEven = rules.maxEven + 1;
             relaxed.minLow = Math.max(1, rules.minLow - 1);
             relaxed.minHigh = Math.max(1, rules.minHigh - 1);
             relaxed.minDecades = 2;
@@ -573,8 +574,8 @@ class MotorFechamentoManual {
         const gamesSet = new Set();
         let previousGame = null;
         let totalAttempts = 0;
-        const maxAttempts = numGames * 500;
-        const BATCH_SIZE = Math.min(50, Math.max(15, Math.ceil(numGames / 4)));
+        const maxAttempts = numGames * 300;
+        const BATCH_SIZE = Math.min(30, Math.max(10, Math.ceil(numGames / 5)));
         let relaxLevel = 0;
         let consecutiveFailures = 0;
         const rejectionCounts = {};
@@ -628,14 +629,14 @@ class MotorFechamentoManual {
                 relaxLevel = 0; // Reset relaxação após sucesso
             } else {
                 consecutiveFailures++;
-                // Relaxamento progressivo — threshold alto para preservar qualidade
-                if (consecutiveFailures >= 8) {
+                // Relaxamento progressivo se travou
+                if (consecutiveFailures >= 3) {
                     relaxLevel = Math.min(relaxLevel + 1, 2);
                     consecutiveFailures = 0;
                     if (relaxLevel === 1) {
-                        console.log('[MOTOR-MANUAL v3.2] ⚠️ Relaxando restrições (nível 1) após ' + results.length + ' jogos...');
+                        console.log('[MOTOR-MANUAL v3.0] ⚠️ Relaxando restrições (nível 1) após ' + results.length + ' jogos...');
                     } else if (relaxLevel === 2) {
-                        console.log('[MOTOR-MANUAL v3.2] ⚠️ Restrições mínimas (nível 2) após ' + results.length + ' jogos...');
+                        console.log('[MOTOR-MANUAL v3.0] ⚠️ Restrições mínimas (nível 2) após ' + results.length + ' jogos...');
                     }
                 }
             }
