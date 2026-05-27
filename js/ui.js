@@ -222,13 +222,21 @@ class UI {
                     }, 50);
                     
                 } else {
-                    // Sem fechamento exato -> Motor Genérico
+                    // Sem fechamento exato -> Motor v3.0 com 12 Correções
                     result = MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize);
                     const a = result.analysis || {};
-                    bannerMsg = '🎲 <strong>MANUAL</strong> — ' + result.games.length + ' jogos dos seus ' + a.poolSize + ' números';
+                    bannerMsg = '🎲 <strong>MANUAL v3.0</strong> — ' + result.games.length + ' jogos dos seus ' + (a.poolSize || pool.length) + ' números';
                     if (a.fixedCount > 0) bannerMsg += ' (fixos: ' + a.fixedNumbers.join(', ') + ')';
-                    bannerMsg += '<br>📊 Combinações possíveis: <strong>' + a.totalPossible + '</strong> | Investimento: <strong>R$ ' + a.investimento.toFixed(2) + '</strong> | Ordenado por Sinergia IA 🔥';
-                    if (a.isComplete) bannerMsg += '<br>✅ <strong style="color:#22C55E;">FECHAMENTO COMPLETO</strong>';
+                    bannerMsg += '<br>💰 Investimento: <strong>R$ ' + (a.investimento || 0).toFixed(2) + '</strong> | Pool usado: <strong>' + (a.poolCoverage || '100%') + '</strong>';
+                    if (a.validationApplied) {
+                        bannerMsg += '<br>🔬 <span style="color:#10B981;">Validação v3.0:</span> Par/Ímpar(<strong>' + a.avgEven + '</strong>) Alto/Baixo(<strong>' + a.avgLow + '</strong>) Soma(<strong>' + a.avgSum + '</strong>) Primos(<strong>' + a.avgPrimes + '</strong>) Dezenas(<strong>' + a.decadesCovered + '</strong>) Finais(<strong>' + a.finalsCovered + '</strong>)';
+                        if (a.pairsCoveragePct > 0) bannerMsg += '<br>📐 Cobertura de pares: <strong>' + a.pairsCoveragePct + '%</strong>';
+                    }
+                    if (a.isComplete) {
+                        bannerMsg += '<br>✅ <strong style="color:#22C55E;">FECHAMENTO MATEMÁTICO COMPLETO</strong>';
+                    } else if (a.coverageMsg) {
+                        bannerMsg += '<br>⚠️ <span style="font-size:0.72rem;color:#FCD34D;">' + a.coverageMsg + '</span>';
+                    }
     
                     const games = result.games || [];
                     if (games.length === 0) {
