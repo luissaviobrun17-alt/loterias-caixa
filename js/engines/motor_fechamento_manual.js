@@ -452,9 +452,7 @@ class MotorFechamentoManual {
             relaxed.sumMax = Math.ceil(rules.sumMax * 1.07);
         }
         if (level >= 2) {
-            // Nível 2: Relaxa mais, mas par/ímpar só ±1 e anti-rep preservado
-            relaxed.minEven = Math.max(1, rules.minEven - 1);
-            relaxed.maxEven = rules.maxEven + 1;
+            // Nível 2: Relaxa mais, mas par/ímpar NUNCA relaxa e anti-rep mínimo
             relaxed.minLow = Math.max(1, rules.minLow - 1);
             relaxed.minHigh = Math.max(1, rules.minHigh - 1);
             relaxed.minDecades = 2;
@@ -563,8 +561,8 @@ class MotorFechamentoManual {
         const gamesSet = new Set();
         let previousGame = null;
         let totalAttempts = 0;
-        const maxAttempts = numGames * 300;
-        const BATCH_SIZE = Math.min(30, Math.max(10, Math.ceil(numGames / 5)));
+        const maxAttempts = numGames * 500;
+        const BATCH_SIZE = Math.min(50, Math.max(15, Math.ceil(numGames / 4)));
         let relaxLevel = 0;
         let consecutiveFailures = 0;
         const rejectionCounts = {};
@@ -618,14 +616,14 @@ class MotorFechamentoManual {
                 relaxLevel = 0; // Reset relaxação após sucesso
             } else {
                 consecutiveFailures++;
-                // Relaxamento progressivo se travou
-                if (consecutiveFailures >= 3) {
+                // Relaxamento progressivo — threshold alto para preservar qualidade
+                if (consecutiveFailures >= 8) {
                     relaxLevel = Math.min(relaxLevel + 1, 2);
                     consecutiveFailures = 0;
                     if (relaxLevel === 1) {
-                        console.log('[MOTOR-MANUAL v3.0] ⚠️ Relaxando restrições (nível 1) após ' + results.length + ' jogos...');
+                        console.log('[MOTOR-MANUAL v3.2] ⚠️ Relaxando restrições (nível 1) após ' + results.length + ' jogos...');
                     } else if (relaxLevel === 2) {
-                        console.log('[MOTOR-MANUAL v3.0] ⚠️ Restrições mínimas (nível 2) após ' + results.length + ' jogos...');
+                        console.log('[MOTOR-MANUAL v3.2] ⚠️ Restrições mínimas (nível 2) após ' + results.length + ' jogos...');
                     }
                 }
             }
