@@ -333,67 +333,66 @@ class MotorFechamentoManual {
                 const n = available[i];
                 let w = weights[n] || 1.0;
 
-                // ── Ajuste PAR/ÍMPAR (v3.3: bloqueio ABSOLUTO) ──
+                // ── Ajuste PAR/ÍMPAR (v3.5: supressão forte) ──
                 const isEven = n % 2 === 0;
                 if (isEven && currentEven >= rules.maxEven) {
-                    w = 0; // Bloqueio TOTAL — impossível selecionar
+                    w *= 0.01;
                 } else if (!isEven && currentOdd >= (k - rules.minEven)) {
-                    w = 0;
+                    w *= 0.01;
                 }
                 // Urgência: se faltam poucos slots e precisamos de paridade
-                if (w > 0 && isEven && slotsLeft > 0 && (rules.minEven - currentEven) >= slotsLeft * 0.6) {
+                if (isEven && slotsLeft > 0 && (rules.minEven - currentEven) >= slotsLeft * 0.6) {
                     w *= 8.0;
                 }
-                if (w > 0 && !isEven && slotsLeft > 0 && ((k - rules.maxEven) - currentOdd) >= slotsLeft * 0.6) {
+                if (!isEven && slotsLeft > 0 && ((k - rules.maxEven) - currentOdd) >= slotsLeft * 0.6) {
                     w *= 8.0;
                 }
 
-                // ── Ajuste ALTO/BAIXO (v3.3: bloqueio ABSOLUTO) ──
+                // ── Ajuste ALTO/BAIXO (v3.5: supressão forte) ──
                 const isLow = n <= rules.midPoint;
-                if (w > 0 && isLow && currentLow >= (k - rules.minHigh)) {
-                    w = 0;
-                } else if (w > 0 && !isLow && currentHigh >= (k - rules.minLow)) {
-                    w = 0;
+                if (isLow && currentLow >= (k - rules.minHigh)) {
+                    w *= 0.01;
+                } else if (!isLow && currentHigh >= (k - rules.minLow)) {
+                    w *= 0.01;
                 }
-                if (w > 0 && isLow && slotsLeft > 0 && (rules.minLow - currentLow) >= slotsLeft * 0.6) {
+                if (isLow && slotsLeft > 0 && (rules.minLow - currentLow) >= slotsLeft * 0.6) {
                     w *= 8.0;
                 }
-                if (w > 0 && !isLow && slotsLeft > 0 && (rules.minHigh - currentHigh) >= slotsLeft * 0.6) {
+                if (!isLow && slotsLeft > 0 && (rules.minHigh - currentHigh) >= slotsLeft * 0.6) {
                     w *= 8.0;
                 }
 
-                // ── Ajuste DEZENAS (v3.4: bloqueio ABSOLUTO) ──
+                // ── Ajuste DEZENAS (v3.5: supressão forte) ──
                 const decade = Math.floor((n - rules.rangeMin) / 10);
                 const inDecade = decadeCounts[decade] || 0;
-                if (w > 0 && inDecade >= rules.maxPerDecade) {
-                    w = 0; // Bloqueio TOTAL
+                if (inDecade >= rules.maxPerDecade) {
+                    w *= 0.01;
                 }
-                if (w > 0 && inDecade === 0 && distinctDecades < rules.minDecades) {
+                if (inDecade === 0 && distinctDecades < rules.minDecades) {
                     w *= 2.5;
                 }
 
-                // ── Ajuste FINAIS (v3.4: bloqueio ABSOLUTO) ──
+                // ── Ajuste FINAIS (v3.5: supressão forte) ──
                 const finalDigit = n % 10;
                 const sameFinal = finalCounts[finalDigit] || 0;
-                if (w > 0 && sameFinal >= rules.maxSameFinal) {
-                    w = 0; // Bloqueio TOTAL
+                if (sameFinal >= rules.maxSameFinal) {
+                    w *= 0.01;
                 }
-                if (w > 0 && sameFinal === 0) {
+                if (sameFinal === 0) {
                     w *= 1.5;
                 }
 
                 // ── Ajuste ANTI-REPETIÇÃO (v3.4) ──
-                if (w > 0 && prevSet && prevSet.has(n)) {
+                if (prevSet && prevSet.has(n)) {
                     const overlapSoFar = candidate.filter(x => prevSet.has(x)).length;
                     if (overlapSoFar >= rules.maxOverlap) {
-                        w *= 0.05; // Penaliza fortemente mas não bloqueia 100%
+                        w *= 0.05;
                     } else if (overlapSoFar >= rules.maxOverlap - 1) {
                         w *= 0.2;
                     }
                 }
 
-                // Não aplicar peso mínimo se bloqueado (w=0 é intencional)
-                if (w > 0) w = Math.max(w, 0.005);
+                w = Math.max(w, 0.001); // Peso mínimo absoluto (nunca zero)
                 adjustedItems.push({ n, w, idx: i });
                 totalWeight += w;
             }
