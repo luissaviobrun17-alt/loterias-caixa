@@ -64,9 +64,11 @@ class MotorFechamentoManual {
     //  Calcula automaticamente limites para cada tipo de loteria
     //  com base no drawSize, range e pool real do jogador
     // ═══════════════════════════════════════════════════════════════
-    static _getValidationRules(k, rangeMin, rangeMax, poolNumbers) {
+    static _getValidationRules(k, rangeMin, rangeMax, poolNumbers, fixedNumbers = []) {
         const totalRange = rangeMax - rangeMin + 1;
         const decades = Math.ceil(totalRange / 10);
+        const fixedSet = new Set(fixedNumbers);
+        const varSlots = k - fixedNumbers.length;
 
         // Contar dezenas e finais presentes no pool real do jogador
         const poolDecades = new Set();
@@ -76,48 +78,110 @@ class MotorFechamentoManual {
             poolFinals.add(n % 10);
         });
 
-        // ── CORREÇÃO #4: PAR/ÍMPAR — alvo 50%, tolerância ±20% ──
-        const minEven = Math.max(1, Math.round(k * 0.4));
-        const maxEven = Math.min(k - 1, Math.round(k * 0.6));
+        // ── CORREÇÃO #4: PAR/ÍMPAR — alvo 50%, tolerância ±20% (adaptativo para fixos) ──
+        const fixedEven = fixedNumbers.filter(n => n % 2 === 0).length;
+        let minEven = Math.max(1, Math.round(k * 0.4));
+        let maxEven = Math.min(k - 1, Math.round(k * 0.6));
+        minEven = Math.max(minEven, fixedEven);
+        maxEven = Math.min(maxEven, fixedEven + varSlots);
+        if (minEven > maxEven) {
+            minEven = fixedEven;
+            maxEven = fixedEven + varSlots;
+        }
 
-        // ── CORREÇÃO #5: ALTO/BAIXO — mínimo 30% de cada metade ──
+        // ── CORREÇÃO #5: ALTO/BAIXO — mínimo 30% de cada metade (adaptativo para fixos) ──
         const midPoint = Math.floor((rangeMin + rangeMax) / 2);
-        const minLow = Math.max(1, Math.round(k * 0.3));
-        const minHigh = Math.max(1, Math.round(k * 0.3));
+        const fixedLow = fixedNumbers.filter(n => n <= midPoint).length;
+        const fixedHigh = fixedNumbers.length - fixedLow;
+        let minLow = Math.max(1, Math.round(k * 0.3));
+        let minHigh = Math.max(1, Math.round(k * 0.3));
+        minLow = Math.max(minLow, fixedLow);
+        minHigh = Math.max(minHigh, fixedHigh);
+        if (minLow + minHigh > k) {
+            minLow = fixedLow;
+            minHigh = fixedHigh;
+        }
 
         // ── CORREÇÃO #3: DEZENAS — cobertura mínima adaptativa ──
+        const fixedDecadeCounts = {};
+        fixedNumbers.forEach(n => {
+            const d = Math.floor((n - rangeMin) / 10);
+            fixedDecadeCounts[d] = (fixedDecadeCounts[d] || 0) + 1;
+        });
+        const fixedDecadesCount = Object.keys(fixedDecadeCounts).length;
+
         let minDecades;
         if (k >= decades) {
             minDecades = Math.ceil(decades * 0.6);
         } else {
             minDecades = Math.max(2, Math.ceil(k * 0.5));
         }
-        // Não exigir mais dezenas do que o pool oferece
         minDecades = Math.min(minDecades, poolDecades.size);
-        const maxPerDecade = Math.max(2, Math.ceil(k * 0.3));
+        minDecades = Math.min(minDecades, fixedDecadesCount + varSlots);
+
+        let maxPerDecade = Math.max(2, Math.ceil(k * 0.3));
+        const maxFixedInDecade = fixedNumbers.length > 0 ? Math.max(...Object.values(fixedDecadeCounts)) : 0;
+        maxPerDecade = Math.max(maxPerDecade, maxFixedInDecade + Math.min(varSlots, 2));
 
         // ── CORREÇÃO #6: FINAIS — diversidade mínima ──
-        const minDistinctFinals = Math.min(
+        const fixedFinalCounts = {};
+        fixedNumbers.forEach(n => {
+            const f = n % 10;
+            fixedFinalCounts[f] = (fixedFinalCounts[f] || 0) + 1;
+        });
+        const fixedFinalsCount = Object.keys(fixedFinalCounts).length;
+
+        let minDistinctFinals = Math.min(
             Math.max(2, Math.ceil(k * 0.5)),
             poolFinals.size
         );
-        const maxSameFinal = Math.max(2, Math.ceil(k * 0.3));
+        minDistinctFinals = Math.min(minDistinctFinals, fixedFinalsCount + varSlots);
+
+        let maxSameFinal = Math.max(2, Math.ceil(k * 0.3));
+        const maxFixedSameFinal = fixedNumbers.length > 0 ? Math.max(...Object.values(fixedFinalCounts)) : 0;
+        maxSameFinal = Math.max(maxSameFinal, maxFixedSameFinal + Math.min(varSlots, 2));
 
         // ── CORREÇÃO #9: SOMA — faixa aceitável e prioritária ──
         const expectedSum = k * (rangeMin + rangeMax) / 2;
-        const sumMin = Math.floor(expectedSum * 0.74);
-        const sumMax = Math.ceil(expectedSum * 1.26);
-        const sumPriorityMin = Math.floor(expectedSum * 0.86);
-        const sumPriorityMax = Math.ceil(expectedSum * 1.14);
+        let sumMin = Math.floor(expectedSum * 0.74);
+        let sumMax = Math.ceil(expectedSum * 1.26);
+        let sumPriorityMin = Math.floor(expectedSum * 0.86);
+        let sumPriorityMax = Math.ceil(expectedSum * 1.14);
+
+        const fixedSum = fixedNumbers.reduce((a, b) => a + b, 0);
+        const varPool = poolNumbers.filter(n => !fixedSet.has(n)).sort((a, b) => a - b);
+        if (varPool.length >= varSlots) {
+            const minVarSum = varPool.slice(0, varSlots).reduce((a, b) => a + b, 0);
+            const maxVarSum = varPool.slice(varPool.length - varSlots).reduce((a, b) => a + b, 0);
+            const absoluteMinSum = fixedSum + minVarSum;
+            const absoluteMaxSum = fixedSum + maxVarSum;
+            sumMin = Math.max(sumMin, absoluteMinSum);
+            sumMax = Math.min(sumMax, absoluteMaxSum);
+            if (sumMin > sumMax) {
+                sumMin = absoluteMinSum;
+                sumMax = absoluteMaxSum;
+            }
+            sumPriorityMin = Math.max(sumPriorityMin, sumMin);
+            sumPriorityMax = Math.min(sumPriorityMax, sumMax);
+        }
 
         // ── CORREÇÃO #10: PRIMOS — quantidade adequada ──
         const primesInPool = poolNumbers.filter(n => this._isPrime(n)).length;
         const expectedPrimes = k * primesInPool / Math.max(poolNumbers.length, 1);
-        const minPrimes = Math.max(0, Math.round(expectedPrimes * 0.55));
-        const maxPrimes = Math.min(k, Math.round(expectedPrimes * 1.6));
+        let minPrimes = Math.max(0, Math.round(expectedPrimes * 0.55));
+        let maxPrimes = Math.min(k, Math.round(expectedPrimes * 1.6));
+
+        const fixedPrimes = fixedNumbers.filter(n => this._isPrime(n)).length;
+        minPrimes = Math.max(minPrimes, fixedPrimes);
+        maxPrimes = Math.min(maxPrimes, fixedPrimes + varSlots);
+        if (minPrimes > maxPrimes) {
+            minPrimes = fixedPrimes;
+            maxPrimes = fixedPrimes + varSlots;
+        }
 
         // ── CORREÇÃO #7: ANTI-REPETIÇÃO — máximo sobreposição ──
-        const maxOverlap = Math.max(2, Math.ceil(k * 0.3));
+        const maxVarOverlap = Math.max(1, Math.ceil(varSlots * 0.4));
+        const maxOverlap = fixedNumbers.length + maxVarOverlap;
 
         return {
             minEven, maxEven,
@@ -127,7 +191,9 @@ class MotorFechamentoManual {
             minDistinctFinals, maxSameFinal,
             sumMin, sumMax, sumPriorityMin, sumPriorityMax, expectedSum,
             minPrimes, maxPrimes,
-            maxOverlap
+            maxOverlap,
+            fixedNumbers,
+            maxVarOverlap
         };
     }
 
@@ -474,6 +540,23 @@ class MotorFechamentoManual {
             relaxed.sumMin = Math.floor(rules.sumMin * 0.88);
             relaxed.sumMax = Math.ceil(rules.sumMax * 1.12);
         }
+        if (level >= 3) {
+            // Nível 3: Modo de Sobrevivência — Afrouxa ou desativa todas as restrições estatísticas secundárias
+            relaxed.minEven = 0;
+            relaxed.maxEven = rules.fixedNumbers ? rules.fixedNumbers.length + (rules.maxEven - rules.minEven) : rules.maxEven + 5;
+            relaxed.minLow = 0;
+            relaxed.minHigh = 0;
+            relaxed.minDecades = 1;
+            relaxed.maxPerDecade = 99;
+            relaxed.minDistinctFinals = 1;
+            relaxed.maxSameFinal = 99;
+            relaxed.sumMin = 1;
+            relaxed.sumMax = 999999;
+            relaxed.minPrimes = 0;
+            relaxed.maxPrimes = 99;
+            const drawSize = rules.fixedNumbers ? (rules.fixedNumbers.length + (rules.maxVarOverlap || 5)) : 15;
+            relaxed.maxOverlap = Math.max(relaxed.maxOverlap, drawSize - 1);
+        }
         return relaxed;
     }
 
@@ -555,7 +638,7 @@ class MotorFechamentoManual {
         console.log('[MOTOR-MANUAL v3.0] Pesos: ♨️Hot=' + hotCount + ' 🌡️Morno=' + warmCount + ' ❄️Frio=' + coldCount + ' | Total=' + validPool.length + ' (ZERO excluídos)');
 
         // ── 3. Regras de validação adaptativas ──
-        const rules = this._getValidationRules(k, cfg.range[0], cfg.range[1], pool);
+        const rules = this._getValidationRules(k, cfg.range[0], cfg.range[1], pool, fixed);
 
         console.log('[MOTOR-MANUAL v3.0] Regras: Par[' + rules.minEven + '-' + rules.maxEven +
             '] Baixo≥' + rules.minLow + ' Alto≥' + rules.minHigh +
@@ -631,12 +714,14 @@ class MotorFechamentoManual {
                 consecutiveFailures++;
                 // Relaxamento progressivo se travou
                 if (consecutiveFailures >= 3) {
-                    relaxLevel = Math.min(relaxLevel + 1, 2);
+                    relaxLevel = Math.min(relaxLevel + 1, 3);
                     consecutiveFailures = 0;
                     if (relaxLevel === 1) {
                         console.log('[MOTOR-MANUAL v3.0] ⚠️ Relaxando restrições (nível 1) após ' + results.length + ' jogos...');
                     } else if (relaxLevel === 2) {
                         console.log('[MOTOR-MANUAL v3.0] ⚠️ Restrições mínimas (nível 2) após ' + results.length + ' jogos...');
+                    } else if (relaxLevel === 3) {
+                        console.log('[MOTOR-MANUAL v3.0] ⚠️ MODO FORÇA BRUTA (nível 3): Desativando restrições para garantir geração após ' + results.length + ' jogos...');
                     }
                 }
             }
