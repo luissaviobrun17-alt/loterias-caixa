@@ -27,11 +27,14 @@ class UI {
         // Action Buttons
         this.saveBtn = _el('save-btn');
         this.checkBtn = _el('check-btn');
+        this.analyseBtn = _el('analyse-btn');
         this.playCaixaBtn = _el('btn-play-caixa');
 
         // Modal Elements
         this.checkModal = _el('check-modal');
         this.closeCheckModalBtn = document.querySelector('.close-check-modal');
+        this.analyseModal = _el('analyse-modal');
+        this.closeAnalyseModalBtn = document.querySelector('.close-analyse-modal');
         this.inputCheckNumbers = _el('check-input-numbers');
         this.confirmCheckBtn = _el('confirm-check-btn');
 
@@ -441,7 +444,19 @@ class UI {
         if (this.gamesQuantityInput) this.gamesQuantityInput.addEventListener('input', () => this.updateCurrentCostDisplay());
         if (this.smartDrawSizeSelect) this.smartDrawSizeSelect.addEventListener('change', () => this.updateCurrentCostDisplay());
         if (this.checkBtn) this.checkBtn.onclick = () => this.openCheckModal();
-        // Botao Jogar Online eh um link <a href> puro - nao precisa de JavaScript
+        if (this.analyseBtn) this.analyseBtn.onclick = () => this.analyseGeneratedGames();
+        if (this.closeAnalyseModalBtn && this.analyseModal) {
+            this.closeAnalyseModalBtn.onclick = () => {
+                this.analyseModal.style.display = 'none';
+            };
+            this.analyseModal.onclick = (e) => {
+                if (e.target === this.analyseModal) {
+                    this.analyseModal.style.display = 'none';
+                }
+            };
+        }
+        // Botao Jogar Online — chama openCaixa() para copiar script e abrir site
+        if (this.playCaixaBtn) this.playCaixaBtn.onclick = () => this.openCaixa();
 
         // Individual Game Copy (Delegation)
         if (this.gamesContainer) {
@@ -1448,10 +1463,8 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         // Atualizar link do botão Jogar Online com a loteria atual
         var cfgLink = this._getCaixaLotteryConfig();
-        if (this.playCaixaBtn && cfgLink[gameKey]) {
-            this.playCaixaBtn.href = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfgLink[gameKey].url;
-        }
-        // Atualizar link da Caixa na sidebar também
+        // Botão Jogar Online agora é controlado por openCaixa() — não precisa de href
+
         var sidebarCaixaLink = document.getElementById('btn-caixa-link');
         if (sidebarCaixaLink && cfgLink[gameKey]) {
             sidebarCaixaLink.href = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfgLink[gameKey].url;
@@ -2875,6 +2888,175 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         }
     }
 
+    analyseGeneratedGames() {
+        const games = this.currentGeneratedGames || [];
+        if (games.length === 0) {
+            alert('Gere alguns jogos antes de analisar!');
+            return;
+        }
+
+        const gameKey = this.currentGameKey;
+        const gameConfig = GAMES[gameKey];
+        if (!gameConfig) return;
+
+        const maxNum = gameConfig.range[1];
+        const minNum = gameConfig.range[0];
+
+        // 1. Contar frequências
+        const freq = {};
+        for (let i = minNum; i <= maxNum; i++) freq[i] = 0;
+        
+        games.forEach(g => {
+            g.forEach(n => {
+                if (freq[n] !== undefined) freq[n]++;
+            });
+        });
+
+        // 2. Cobertura de dezenas únicas
+        const uniqueNumbers = Object.keys(freq).filter(k => freq[k] > 0).map(Number);
+        const totalPossible = maxNum - minNum + 1;
+        const coveragePercent = ((uniqueNumbers.length / totalPossible) * 100).toFixed(1);
+
+        // 3. Frequência ordenada
+        const freqSorted = Object.entries(freq)
+            .map(([num, count]) => ({ number: Number(num), count }))
+            .sort((a, b) => b.count - a.count);
+
+        const hotNums = freqSorted.filter(x => x.count > 0).slice(0, 12);
+        const coldNums = freqSorted.filter(x => x.count === 0);
+
+        // 4. Distribuição de Pares e Ímpares
+        let evens = 0, odds = 0;
+        games.forEach(g => {
+            g.forEach(n => {
+                if (n % 2 === 0) evens++;
+                else odds++;
+            });
+        });
+        const totalDigits = evens + odds;
+        const evenPercent = totalDigits > 0 ? ((evens / totalDigits) * 100).toFixed(1) : 0;
+        const oddPercent = totalDigits > 0 ? ((odds / totalDigits) * 100).toFixed(1) : 0;
+
+        // 5. Distribuição por Quadrantes / Setores
+        const faixas = {};
+        const rangeSize = Math.ceil(totalPossible / 5); // 5 faixas
+        for (let i = 1; i <= 5; i++) {
+            const start = minNum + (i - 1) * rangeSize;
+            const end = Math.min(maxNum, minNum + i * rangeSize - 1);
+            faixas[`${start}-${end}`] = 0;
+        }
+
+        games.forEach(g => {
+            g.forEach(n => {
+                for (const rangeStr in faixas) {
+                    const [s, e] = rangeStr.split('-').map(Number);
+                    if (n >= s && n <= e) {
+                        faixas[rangeStr]++;
+                    }
+                }
+            });
+        });
+
+        // 6. Montar o HTML do modal
+        const modalContent = document.getElementById('analyse-modal-content');
+        if (!modalContent) return;
+
+        let html = `
+            <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,215,0,0.15); margin-bottom: 20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <span style="font-size:0.85rem; color:#94A3B8; text-transform:uppercase; font-weight:700;">Loteria Selecionada</span>
+                        <h4 style="margin:0; font-size:1.4rem; color:${gameConfig.color}; font-weight:800;">${gameConfig.name}</h4>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="font-size:0.85rem; color:#94A3B8; text-transform:uppercase; font-weight:700;">Total de Jogos</span>
+                        <h4 style="margin:0; font-size:1.4rem; color:#fff; font-weight:800;">${games.length} volantes</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cobertura Global -->
+            <div style="margin-bottom: 25px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <span style="font-weight:700; font-size:0.9rem; color:#fff;">📐 Cobertura do Volante:</span>
+                    <span style="font-weight:800; font-size:0.95rem; color:#10B981;">${uniqueNumbers.length} de ${totalPossible} números (${coveragePercent}%)</span>
+                </div>
+                <div style="height:12px; background:#1e293b; border-radius:6px; overflow:hidden; border:1px solid rgba(255,255,255,0.05);">
+                    <div style="height:100%; width:${coveragePercent}%; background:linear-gradient(90deg, #10B981, #059669); border-radius:6px;"></div>
+                </div>
+                <p style="font-size:0.75rem; color:#64748B; margin-top:5px; line-height:1.4;">
+                    Representa a proporção de números do volante que aparecem em pelo menos um jogo gerado. Quanto maior a cobertura, menor a repetição excessiva de dezenas.
+                </p>
+            </div>
+
+            <!-- Divisão de Pares e Ímpares -->
+            <div style="margin-bottom: 25px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <span style="font-weight:700; font-size:0.9rem; color:#fff;">⚖️ Equilíbrio de Pares / Ímpares:</span>
+                    <span style="font-weight:800; font-size:0.95rem; color:#3B82F6;">${evenPercent}% Pares / ${oddPercent}% Ímpares</span>
+                </div>
+                <div style="height:12px; background:#1e293b; border-radius:6px; overflow:hidden; display:flex; border:1px solid rgba(255,255,255,0.05);">
+                    <div style="height:100%; width:${evenPercent}%; background:#3B82F6;"></div>
+                    <div style="height:100%; width:${oddPercent}%; background:#F59E0B;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#64748B; margin-top:4px;">
+                    <span>🔵 Pares (${evens})</span>
+                    <span>🟡 Ímpares (${odds})</span>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom:25px;">
+                <!-- Mais Frequentes -->
+                <div style="background:rgba(16,185,129,0.03); border:1px solid rgba(16,185,129,0.1); border-radius:12px; padding:15px;">
+                    <h5 style="margin-top:0; margin-bottom:12px; color:#10B981; font-weight:800; font-size:0.85rem; text-transform:uppercase;">🔥 Mais Frequentes nos Jogos</h5>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                        ${hotNums.length > 0 ? hotNums.map(item => `
+                            <div style="background:#111827; border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:6px 10px; display:flex; flex-direction:column; align-items:center; min-width:42px;">
+                                <span style="font-weight:800; color:#10B981; font-size:0.85rem;">${String(item.number).padStart(2,'0')}</span>
+                                <span style="font-size:0.6rem; color:#64748B;">${item.count}x</span>
+                            </div>
+                        `).join('') : '<span style="color:#64748B; font-size:0.75rem;">Sem dezenas repetidas</span>'}
+                    </div>
+                </div>
+
+                <!-- Não Utilizados -->
+                <div style="background:rgba(239,68,68,0.03); border:1px solid rgba(239,68,68,0.1); border-radius:12px; padding:15px;">
+                    <h5 style="margin-top:0; margin-bottom:12px; color:#EF4444; font-weight:800; font-size:0.85rem; text-transform:uppercase;">❄️ Não Utilizados (0x)</h5>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px; max-height: 120px; overflow-y:auto; padding-right:5px;">
+                        ${coldNums.length > 0 ? coldNums.map(item => `
+                            <div style="background:#111827; border:1px solid rgba(239,68,68,0.2); border-radius:6px; padding:4px 8px; font-weight:700; color:#EF4444; font-size:0.8rem;">
+                                ${String(item.number).padStart(2,'0')}
+                            </div>
+                        `).join('') : '<span style="color:#10B981; font-size:0.75rem;">100% de cobertura! Todos os números foram utilizados.</span>'}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Distribuição por Faixas -->
+            <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:15px; margin-bottom:10px;">
+                <h5 style="margin-top:0; margin-bottom:12px; color:#F59E0B; font-weight:800; font-size:0.85rem; text-transform:uppercase;">📊 Distribuição por Setores</h5>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    ${Object.entries(faixas).map(([faixa, count]) => {
+                        const totalFaixaOccurrences = Object.values(faixas).reduce((a,b)=>a+b,0);
+                        const p = totalFaixaOccurrences > 0 ? ((count / totalFaixaOccurrences) * 100).toFixed(1) : 0;
+                        return `
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="font-family:monospace; font-size:0.8rem; color:#94A3B8; width:80px; font-weight:700;">Dez. ${faixa}:</span>
+                                <div style="flex:1; height:8px; background:#1e293b; border-radius:4px; overflow:hidden;">
+                                    <div style="height:100%; width:${p}%; background:#F59E0B; border-radius:4px;"></div>
+                                </div>
+                                <span style="font-size:0.75rem; color:#64748B; width:55px; text-align:right; font-weight:700;">${count}x (${p}%)</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+
+        modalContent.innerHTML = html;
+        this.analyseModal.style.display = 'flex';
+    }
+
     // ═══════════════════════════════════════════════════════════════
     // 🏦 MÉTODOS AUXILIARES — APOSTAR NA CAIXA
     // ═══════════════════════════════════════════════════════════════
@@ -3139,6 +3321,18 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         }
 
         // ══════ DESKTOP: Fluxo de script (Console F12) ══════
+        if (games.length === 0 || !cfg) {
+            // Sem jogos gerados — avisar o usuário
+            if (typeof Guardian !== 'undefined' && Guardian.toast) {
+                Guardian.toast('⚠️ Gere jogos primeiro antes de apostar online!', 'warning', 5000);
+            } else {
+                alert('Gere jogos primeiro antes de apostar online!');
+            }
+            // Mesmo sem jogos, abrir o site para quem quiser apostar manualmente
+            window.open(caixaUrl, '_blank');
+            return;
+        }
+
         if (games.length > 0 && cfg) {
             const freshScript = this._generateCaixaScript_LEGACY(cfg, games);
             
@@ -3161,6 +3355,8 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
                 if (typeof Guardian !== 'undefined' && Guardian.toast) {
                     Guardian.toast('\u2705 ' + games.length + ' jogos de ' + cfg.name + ' copiados! No site da Caixa: F12 \u2192 Console \u2192 Ctrl+V \u2192 Enter', 'success', 8000);
                 }
+                // FIX: Abrir automaticamente o site da Caixa após cópia bem-sucedida
+                window.open(caixaUrl, '_blank');
             } else {
                 // Se falhou e abriu modal, não mostrar outro feedback
                 if (copyResult !== 'modal') {

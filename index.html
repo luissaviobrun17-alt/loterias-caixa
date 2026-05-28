@@ -437,7 +437,8 @@
                             <button id="copy-btn" class="secondary-btn" title="Copiar para Área de Transferência">Copiar</button>
                             <button id="btn-print" class="secondary-btn" title="Imprimir Jogos">Imprimir</button>
                             <button id="check-btn" class="secondary-btn" title="Conferir Jogos">Conferir</button>
-                            <a id="btn-play-caixa" class="secondary-btn" href="https://www.loteriasonline.caixa.gov.br/silce-web/#/mega-sena" target="_blank" rel="noopener" title="Ir para Loterias Caixa Online" style="text-decoration:none;">Jogar Online</a>
+                            <button id="analyse-btn" class="secondary-btn" title="Analisar Estatísticas dos Jogos Gerados">🔬 Analisar</button>
+                            <button id="btn-play-caixa" class="secondary-btn" title="Copiar script de automação e abrir site da Caixa" style="cursor:pointer;">🎰 Jogar Online</button>
                         </div>
                     </div>
                     <div id="check-summary" class="check-summary"
@@ -1005,7 +1006,7 @@
             <!-- Filters -->
             <div id="stats-filter-bar" class="stats-filter-bar" style="display:none;">
                 <label>🔍 Filtros:</label>
-                <select id="stats-filter-modo"><option value="todos">Modo: Todos</option><option value="manual">🎲 Manual</option><option value="estatistica">📊 Estatística</option><option value="cobertura">📐 Cobertura</option><option value="cobertura_sniper">📐🎯 Cobertura+Sniper</option><option value="quantum_l99">⚡ QUANTUM L99</option><option value="precision">🎯 Precisão</option><option value="fechamento">🔒 Fechamento</option></select>
+                <select id="stats-filter-modo"><option value="todos">Modo: Todos</option><option value="manual">🎲 Manual</option><option value="estatistica">📊 Estatística</option><option value="cobertura">📐 Cobertura</option><option value="cobertura_sniper">📐🎯 Cobertura+Sniper</option><option value="quantum_l99">📊 PREDIÇÃO L99</option><option value="precision">🎯 Precisão</option><option value="fechamento">🔒 Fechamento</option></select>
                 <select id="stats-filter-precisao"><option value="todos">Precisão: Todos</option><option value="sim">🎯 Precisão L99</option><option value="nao">Sem Precisão</option></select>
                 <select id="stats-filter-qtd"><option value="todos">Qtd Jogos: Todos</option></select>
                 <select id="stats-filter-numjogo"><option value="todos">Nº/Jogo: Todos</option></select>
@@ -1060,6 +1061,22 @@
                 </div>
                 <div class="check-actions" style="text-align:right;">
                     <button id="confirm-check-btn" class="action-btn">Verificar Jogos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Analyzing Generated Games -->
+    <div id="analyse-modal" class="modal-overlay" style="display: none; z-index: 10000;">
+        <div class="modal-content" style="max-width: 800px; width: 100%; max-height: 90vh; display: flex; flex-direction: column;">
+            <div class="modal-header" style="flex-shrink: 0;">
+                <h3>🔬 Análise dos Jogos Gerados</h3>
+                <button class="close-analyse-modal"
+                    style="background:none; border:none; font-size:1.5rem; color:var(--text-primary); cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body" style="overflow-y: auto; flex-grow: 1; padding: 20px;">
+                <div id="analyse-modal-content">
+                    <!-- Conteúdo dinâmico da análise -->
                 </div>
             </div>
         </div>
@@ -1141,7 +1158,7 @@
                         <p style="margin: 0.5rem 0; color: var(--text-primary);"><strong>4.</strong> Gere os jogos</p>
                         <p style="margin: 0 0 0 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">
                             <strong>"Gerar Jogos"</strong> — fechamento matemático tradicional.<br>
-                            <strong>"⚡ QUANTUM L99"</strong> — 18 camadas de predição: Computação Quântica + Futurologia + Clarividência para o próximo sorteio.
+                            <strong>"📊 PREDIÇÃO L99"</strong> — 18 camadas de análise estatística e física hipergeométrica para o próximo sorteio.
                         </p>
                     </div>
 
@@ -1153,12 +1170,12 @@
 
                 <!-- MOTOR IA -->
                 <div style="margin-bottom: 1.5rem;">
-                    <h4 style="color: #8B5CF6; margin-bottom: 0.5rem;">🧠 Motor QUANTUM L99 v7.2</h4>
+                    <h4 style="color: #8B5CF6; margin-bottom: 0.5rem;">🧠 Motor PREDIÇÃO L99 v7.2</h4>
 
                     <div style="background: linear-gradient(145deg, rgba(139,92,246,0.15), rgba(255,215,0,0.08)); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid rgba(255,215,0,0.3);">
-                        <p style="margin: 0; color: #FFD700; font-weight: 800;">⚡ QUANTUM L99 — 18 Camadas de Predição</p>
+                        <p style="margin: 0; color: #FFD700; font-weight: 800;">📊 PREDIÇÃO L99 — 18 Camadas de Análise Estatística</p>
                         <p style="margin: 0.3rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">
-                            Motor de predição com <strong>18 camadas de análise</strong> baseadas em dados reais da Caixa:
+                            Motor de cálculo com <strong>18 camadas de análise estatística</strong> baseadas em dados reais da Caixa:
                         </p>
                         <ul style="margin: 0.5rem 0 0 1.5rem; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
                             <li>Frequência multi-janela (3, 5, 10, 15 sorteios)</li>
@@ -1317,8 +1334,8 @@
             <script src="js/engines/statistics_tracker.js?v=1779391458"></script>
             <script src="js/engines/motor_fechamento_manual.js?v=1779391458"></script>
             <script src="js/engines/auto_updater.js?v=1779391458"></script>
-            <script src="js/ui.js?v=1779391458"></script>
-            <script src="js/main.js?v=1779391458"></script>
+            <script src="js/ui.js?v=4779141049938"></script>
+            <script src="js/main.js?v=4779141049938"></script>
 
     <!-- v11: Coverage handler inline REMOVIDO — handler canônico está em ui.js -->
 
