@@ -2911,62 +2911,48 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
         const drawSize = (customDrawSize && customDrawSize >= gameConfig.minBet) ? customDrawSize : gameConfig.minBet;
 
-        // 1. Obter a seleção de números do usuário (ou simular se estiver vazia/insuficiente)
+        // 1. Obter a seleção real de números do usuário no grid
         let selectedArr = Array.from(this.selectedNumbers).filter(n => n >= minNum && n <= maxNum);
         let fixedArr = Array.from(this.fixedNumbers).filter(n => n >= minNum && n <= maxNum);
         
-        let simulated = false;
-        if (selectedArr.length < drawSize) {
-            simulated = true;
-            // Gerar seleção simulada para a análise comparativa
-            const targetSize = Math.min(totalPossible, Math.max(drawSize * 2, 15));
-            const stats = (typeof StatsService !== 'undefined') ? StatsService.getStats(gameKey, 10) : null;
-            if (stats && stats.hot && stats.hot.length >= targetSize) {
-                selectedArr = stats.hot.slice(0, targetSize).map(x => x.number);
-            } else {
-                const list = [];
-                for (let i = minNum; i <= maxNum; i++) list.push(i);
-                for (let i = list.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [list[i], list[j]] = [list[j], list[i]];
-                }
-                selectedArr = list.slice(0, targetSize);
-            }
-        }
-
-        const poolSet = new Set([...selectedArr, ...fixedArr]);
-        const pool = Array.from(poolSet).sort((a, b) => a - b);
-
-        // 2. Rodar programaticamente os 3 geradores
+        const isVolantePreenchido = selectedArr.length >= drawSize;
         
-        // --- MANUAL ---
+        // --- MOTOR 1: MANUAL ---
         let manualGames = [];
         let manualErr = null;
-        try {
-            if (typeof MotorFechamentoManual !== 'undefined') {
-                const closingVal = this.closingSelect ? this.closingSelect.value : '';
-                if (closingVal.startsWith('close_') && typeof ClosingEngine !== 'undefined') {
-                    const guarantee = parseInt(closingVal.replace('close_', ''));
-                    const poolSetForClosure = new Set([...selectedArr, ...fixedArr]);
-                    const result = ClosingEngine.generateClosure(poolSetForClosure, guarantee, drawSize, gameKey, fixedArr);
-                    manualGames = result ? result.games : [];
+        if (!isVolantePreenchido) {
+            manualErr = "Inviável (Sem palpites no grid)";
+        } else {
+            try {
+                if (typeof MotorFechamentoManual !== 'undefined') {
+                    const closingVal = this.closingSelect ? this.closingSelect.value : '';
+                    if (closingVal.startsWith('close_') && typeof ClosingEngine !== 'undefined') {
+                        const guarantee = parseInt(closingVal.replace('close_', ''));
+                        const poolSetForClosure = new Set([...selectedArr, ...fixedArr]);
+                        const result = ClosingEngine.generateClosure(poolSetForClosure, guarantee, drawSize, gameKey, fixedArr);
+                        manualGames = result ? result.games : [];
+                    } else {
+                        const poolSet = new Set([...selectedArr, ...fixedArr]);
+                        const pool = Array.from(poolSet).sort((a, b) => a - b);
+                        const result = MotorFechamentoManual.generate(gameKey, pool, fixedArr, qty, drawSize);
+                        manualGames = result ? result.games : [];
+                    }
                 } else {
-                    const result = MotorFechamentoManual.generate(gameKey, pool, fixedArr, qty, drawSize);
-                    manualGames = result ? result.games : [];
+                    manualErr = "Motor Manual não disponível";
                 }
-            } else {
-                manualErr = "Motor Manual não disponível";
+            } catch (e) {
+                manualErr = e.message;
             }
-        } catch (e) {
-            manualErr = e.message;
         }
 
-        // --- SNIPER ---
+        // --- MOTOR 2: SNIPER ---
         let sniperGames = [];
         let sniperErr = null;
         try {
             if (typeof SmartCoverageEngine !== 'undefined') {
-                const result = SmartCoverageEngine.generate(gameKey, qty, selectedArr, this.fixedNumbers, drawSize, { precisionMode: true, precisionPoolSize: 20 });
+                // Se o volante estiver vazio, passamos array vazio para forçar o Sniper Automático a construir seu pool estatístico otimizado
+                const sniperSelection = isVolantePreenchido ? selectedArr : [];
+                const result = SmartCoverageEngine.generate(gameKey, qty, sniperSelection, this.fixedNumbers, drawSize, { precisionMode: true, precisionPoolSize: 20 });
                 sniperGames = result ? result.games : [];
             } else {
                 sniperErr = "SmartCoverageEngine não disponível";
@@ -2975,12 +2961,14 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             sniperErr = e.message;
         }
 
-        // --- COBERTURA IA ---
+        // --- MOTOR 3: COBERTURA IA ---
         let coberturaGames = [];
         let coberturaErr = null;
         try {
             if (typeof SmartCoverageEngine !== 'undefined') {
-                const result = SmartCoverageEngine.generate(gameKey, qty, selectedArr, this.fixedNumbers, drawSize, { precisionMode: false });
+                // Se o volante estiver vazio, passamos array vazio para forçar a Cobertura IA a cercar o volante completo da loteria
+                const coberturaSelection = isVolantePreenchido ? selectedArr : [];
+                const result = SmartCoverageEngine.generate(gameKey, qty, coberturaSelection, this.fixedNumbers, drawSize, { precisionMode: false });
                 coberturaGames = result ? result.games : [];
             } else {
                 coberturaErr = "SmartCoverageEngine não disponível";
@@ -2989,7 +2977,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             coberturaErr = e.message;
         }
 
-        // Helper para compilar estatísticas de um set de jogos
+        // Helper para compilar estatísticas de um set de jogos com base na sua proposta estratégica
         const analyzeSet = (games, name) => {
             if (!games || games.length === 0) return null;
             
@@ -3001,7 +2989,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 });
             });
             const uniqueNumbers = Object.keys(freq).map(Number);
-            const coveragePct = ((uniqueNumbers.length / totalPossible) * 100).toFixed(1);
+            const coverageGlobalPct = ((uniqueNumbers.length / totalPossible) * 100).toFixed(1);
             
             // 2. Par / Ímpar
             let evens = 0, odds = 0;
@@ -3015,40 +3003,70 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             const evenPercent = totalDigits > 0 ? ((evens / totalDigits) * 100).toFixed(0) : 50;
             const oddPercent = totalDigits > 0 ? ((odds / totalDigits) * 100).toFixed(0) : 50;
             
-            // 3. Hamming distance (Diversidade)
+            // 3. Hamming distance (Diversidade de dezenas)
             let avgHamming = 0;
             if (typeof SmartCoverageEngine !== 'undefined') {
                 avgHamming = SmartCoverageEngine._calcAvgHamming(games, drawSize);
             }
             const diversityPct = ((avgHamming / drawSize) * 100).toFixed(0);
             
-            // 4. Probabilidades hipergeométricas
+            // 4. Afinidade Estatística (Tendências nos últimos 10 concursos)
+            const stats = (typeof StatsService !== 'undefined') ? StatsService.getStats(gameKey, 10) : null;
+            let affinityScore = 50;
+            if (stats && stats.hot && stats.hot.length > 0) {
+                const maxCount = Math.max(...stats.hot.map(x => x.count), 1);
+                const freqMap = {};
+                stats.hot.forEach(x => {
+                    freqMap[x.number] = x.count / maxCount;
+                });
+                
+                let totalAff = 0;
+                let countAff = 0;
+                games.forEach(g => {
+                    g.forEach(n => {
+                        totalAff += (freqMap[n] || 0.1);
+                        countAff++;
+                    });
+                });
+                if (countAff > 0) {
+                    affinityScore = Math.round((totalAff / countAff) * 100);
+                }
+            }
+            
+            // 5. Probabilidades hipergeométricas
             let metrics = {};
             if (typeof SmartCoverageEngine !== 'undefined') {
                 metrics = SmartCoverageEngine.calcRealMetrics(games, gameKey);
             }
             const prizes = metrics.prizes || [];
             
-            // 5. Score de Eficiência
-            // Combina Cobertura, Diversidade e Equilíbrio de Dezenas
-            const covScore = (uniqueNumbers.length / totalPossible) * 40;
-            const divScore = (avgHamming / drawSize) * 30;
-            const evenRatio = totalDigits > 0 ? (evens / totalDigits) : 0.5;
-            const balance = 1 - Math.abs(evenRatio - 0.5) * 2;
-            const balScore = balance * 30;
-            const score = (covScore + divScore + balScore).toFixed(1);
+            // 6. Score de Potencial Estratégico customizado por filosofia
+            let score = 0;
+            if (name === 'MANUAL') {
+                // MANUAL prioriza a fidelidade estrita ao palpite
+                const evenRatio = totalDigits > 0 ? (evens / totalDigits) : 0.5;
+                const balance = 1 - Math.abs(evenRatio - 0.5) * 2;
+                score = (parseFloat(diversityPct) * 0.4 + balance * 30 + parseFloat(coverageGlobalPct) * 0.3).toFixed(1);
+            } else if (name === 'SNIPER') {
+                // SNIPER foca em dezenas quentes e ROI rápido (Alta Afinidade)
+                score = (affinityScore * 0.6 + parseFloat(coverageGlobalPct) * 0.2 + parseFloat(diversityPct) * 0.2).toFixed(1);
+            } else if (name === 'COBERTURA IA') {
+                // COBERTURA IA foca em cobrir o volante todo (Alta Cobertura Global)
+                score = (parseFloat(coverageGlobalPct) * 0.6 + parseFloat(diversityPct) * 0.25 + affinityScore * 0.15).toFixed(1);
+            }
             
             return {
                 name,
                 games,
                 uniqueCount: uniqueNumbers.length,
-                coveragePct,
+                coveragePct: coverageGlobalPct,
                 evenPct: evenPercent,
                 oddPct: oddPercent,
                 avgHamming,
                 diversityPct,
+                affinityScore,
                 prizes,
-                score: parseFloat(score)
+                score: Math.min(100, Math.max(0, parseFloat(score)))
             };
         };
 
@@ -3059,7 +3077,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         // 3. Determinar quem tem o maior potencial
         const analyses = [manualAnalysis, sniperAnalysis, coberturaAnalysis].filter(Boolean);
         if (analyses.length === 0) {
-            alert('Não foi possível gerar dados de análise para os jogos.');
+            alert('Não foi possível gerar dados de análise para os jogos. Certifique-se de que selecionou os números corretos ou de que há conexão com o banco de dados.');
             return;
         }
 
@@ -3072,10 +3090,16 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         let html = '';
 
-        if (simulated) {
+        if (!isVolantePreenchido) {
             html += `
-                <div style="background: rgba(245,158,11,0.08); padding: 12px 16px; border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; margin-bottom: 20px; color:#F59E0B; font-size:0.8rem; line-height:1.4;">
-                    💡 <strong>Aviso de Simulação:</strong> Como você selecionou menos de <strong>${drawSize}</strong> números no grid, simulamos uma seleção inteligente com as dezenas estatisticamente mais quentes da ${gameConfig.name} para realizar o comparativo entre os motores.
+                <div style="background: rgba(59,130,246,0.08); padding: 12px 16px; border: 1px solid rgba(59,130,246,0.25); border-radius: 10px; margin-bottom: 20px; color:#60A5FA; font-size:0.8rem; line-height:1.4;">
+                    💡 <strong>Modo Automático Ativo (Volante Vazio):</strong> Como o grid está vazio, a análise comparou o comportamento autônomo de cada motor: o <strong>SNIPER</strong> escolheu as 20 dezenas mais quentes e a <strong>COBERTURA IA</strong> cercou o volante completo (${totalPossible} dezenas) da ${gameConfig.name}. O modo MANUAL requer palpites definidos e por isso ficou inviável.
+                </div>
+            `;
+        } else {
+            html += `
+                <div style="background: rgba(16,185,129,0.08); padding: 12px 16px; border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; margin-bottom: 20px; color:#10B981; font-size:0.8rem; line-height:1.4;">
+                    🎯 <strong>Modo Restrito Ativo:</strong> Você selecionou <strong>${selectedArr.length}</strong> números no grid. A análise comparou a eficiência combinatória dos 3 motores operando <strong>exclusivamente</strong> dentro do seu grupo de números escolhidos.
                 </div>
             `;
         }
@@ -3085,10 +3109,10 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 <div style="display:flex; align-items:center; gap:12px;">
                     <span style="font-size:2rem;">🏆</span>
                     <div>
-                        <div style="font-size:0.75rem; color:#94A3B8; font-weight:800; text-transform:uppercase; letter-spacing:1px;">Maior Potencial Combinatório</div>
-                        <h4 style="margin:0; font-size:1.3rem; color:#22C55E; font-weight:900;">${winner.name} (Nota: ${winner.score.toFixed(1)}/100)</h4>
+                        <div style="font-size:0.75rem; color:#94A3B8; font-weight:800; text-transform:uppercase; letter-spacing:1px;">Estratégia Recomendada para este Cenário</div>
+                        <h4 style="margin:0; font-size:1.3rem; color:#22C55E; font-weight:900;">${winner.name} (Eficiência: ${winner.score.toFixed(1)}/100)</h4>
                         <p style="margin:4px 0 0 0; font-size:0.75rem; color:#94A3B8; line-height:1.4;">
-                            Este motor apresentou a melhor distribuição geométrica, com maior diversidade de combinações (Hamming) e cobertura otimizada de dezenas.
+                            Este motor apresentou o maior potencial de retorno combinatório adaptado à sua configuração de volante e quantidade de apostas.
                         </p>
                     </div>
                 </div>
@@ -3096,7 +3120,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
             <!-- Gráfico Comparativo de Notas -->
             <div style="background: rgba(255,255,255,0.02); padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px;">
-                <h5 style="margin-top:0; margin-bottom:14px; color:#F59E0B; font-weight:800; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px;">📈 Notas de Eficiência Combinatória</h5>
+                <h5 style="margin-top:0; margin-bottom:14px; color:#F59E0B; font-weight:800; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px;">📈 Pontuação de Potencial Estratégico</h5>
                 <div style="display:flex; flex-direction:column; gap:12px;">
         `;
 
@@ -3108,13 +3132,13 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             const hasData = !!item.data;
             const score = hasData ? item.data.score : 0;
             const pct = score;
-            const statusText = hasData ? `${score.toFixed(1)} / 100` : `Indisponível (${item.err || 'Sem jogos'})`;
+            const statusText = hasData ? `${score.toFixed(1)} / 100` : `${item.err || 'Indisponível'}`;
             
             html += `
                 <div>
                     <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700; margin-bottom:4px;">
                         <span style="color:#fff;">${item.name}</span>
-                        <span style="color:${item.color};">${statusText}</span>
+                        <span style="color:${hasData ? item.color : '#94A3B8'};">${statusText}</span>
                     </div>
                     <div style="height:10px; background:#1e293b; border-radius:5px; overflow:hidden; border:1px solid rgba(255,255,255,0.03);">
                         <div style="height:100%; width:${pct}%; background:${item.color}; border-radius:5px;"></div>
@@ -3143,9 +3167,10 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         const rows = [
             { label: 'Volantes Analisados', key: 'games', fmt: v => v ? `${v.length} jogos` : 'N/A' },
-            { label: 'Dezenas Cobertas', key: 'uniqueCount', fmt: (v, item) => item ? `${v} de ${totalPossible} (${item.coveragePct}%)` : 'N/A' },
-            { label: 'Diversidade (Hamming)', key: 'diversityPct', fmt: v => v ? `${v}%` : 'N/A' },
-            { label: 'Equilíbrio Pares/Ímpares', key: 'evenPct', fmt: (v, item) => item ? `${item.evenPct}% / ${item.oddPct}%` : 'N/A' },
+            { label: 'Cercamento Global (Cobertura)', key: 'coveragePct', fmt: (v, item) => item ? `${item.uniqueCount} de ${totalPossible} (${v}%)` : 'Inviável' },
+            { label: 'Afinidade Estatística (Tendências)', key: 'affinityScore', fmt: v => v ? `${v}%` : 'Inviável' },
+            { label: 'Diversidade Combinatória (Hamming)', key: 'diversityPct', fmt: v => v ? `${v}%` : 'Inviável' },
+            { label: 'Equilíbrio Pares/Ímpares', key: 'evenPct', fmt: (v, item) => item ? `${item.evenPct}% / ${item.oddPct}%` : 'Inviável' },
         ];
 
         rows.forEach(r => {
@@ -3161,7 +3186,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         // Chance de Acerto (Hipergeométrica)
         const getPrizeProbText = (analysis, index) => {
-            if (!analysis || !analysis.prizes || !analysis.prizes[index]) return 'N/A';
+            if (!analysis || !analysis.prizes || !analysis.prizes[index]) return 'Inviável';
             const prize = analysis.prizes[index];
             return `Acerto ${prize.hits}: <strong>${prize.probAtLeastOnePct}%</strong>`;
         };
@@ -3194,20 +3219,20 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
             <!-- Veredito do Especialista / Recomendação -->
             <div style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,215,0,0.15); border-radius: 12px; padding: 20px;">
-                <h5 style="margin-top:0; margin-bottom:12px; color:#FFD700; font-weight:800; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px;">📋 Veredito do Especialista (Análise de Potencial)</h5>
+                <h5 style="margin-top:0; margin-bottom:12px; color:#FFD700; font-weight:800; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px;">📋 Filosofia e Recomendação de cada Estratégia</h5>
                 
                 <div style="display:flex; flex-direction:column; gap:14px; font-size:0.78rem; line-height:1.5; color:#D1D5DB;">
                     <div style="border-left: 3px solid #3B82F6; padding-left: 10px;">
-                        <strong>🎮 MANUAL (Fechamento Focado):</strong> 
-                        Melhor para o apostador que possui palpites extremamente firmes e quer forçar o fechamento apenas das suas dezenas. Apresenta alta eficiência local, mas tem baixa cobertura global de volante.
+                        <strong>🎮 MANUAL (Fechamento Controlado):</strong> 
+                        Ideal quando você possui dezenas fixas e palpites rígidos. Depende 100% da sua escolha e oferece nota zero se o grid estiver vazio, pois não gera jogos às cegas.
                     </div>
                     <div style="border-left: 3px solid #EF4444; padding-left: 10px;">
-                        <strong>🎯 SNIPER (Retorno Rápido / Tendências):</strong> 
-                        Tem o maior potencial para acertar prêmios intermediários no curto prazo. Ele concentra as apostas nos ciclos de dezenas mais quentes e duplas que saem juntas nas últimas extrações, minimizando o custo e focando no ROI (Retorno de Investimento).
+                        <strong>🎯 SNIPER (Foco em Tendências de Curto Prazo):</strong> 
+                        Maximiza a **Afinidade Estatística**. Excelente para prêmios secundários rápidos, pois foca as apostas em um pool reduzido com as dezenas mais quentes, ciclos ativos e histórico de duplas da Caixa.
                     </div>
                     <div style="border-left: 3px solid #10B981; padding-left: 10px;">
                         <strong>📐 COBERTURA IA (Cercamento de Prêmios Grandes):</strong> 
-                        Possui o maior potencial matemático de longo prazo para prêmios acumulados. O algoritmo "Set Cover" distribui os jogos para cobrir o máximo do volante sem deixar lacunas vazias. É a melhor estratégia para cercar o prêmio principal em sorteios de grande porte.
+                        Maximiza o **Cercamento Global**. O algoritmo matemático Greedy Set Cover espalha as dezenas de forma a cobrir a maior porcentagem possível do volante da loteria. É a melhor estratégia para cercar o acumulado principal.
                     </div>
                 </div>
             </div>
