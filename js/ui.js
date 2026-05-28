@@ -2911,6 +2911,19 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
         const drawSize = (customDrawSize && customDrawSize >= gameConfig.minBet) ? customDrawSize : gameConfig.minBet;
 
+        // Fator de Combinatória por jogo (Aposta Múltipla vs Simples)
+        const nCr = (n, k) => {
+            if (k < 0 || k > n) return 0;
+            if (k === 0 || k === n) return 1;
+            let r = 1;
+            for (let i = 1; i <= Math.min(k, n - k); i++) {
+                r = r * (n - i + 1) / i;
+            }
+            return Math.round(r);
+        };
+        const combosPorJogo = nCr(drawSize, gameConfig.minBet);
+        const sizeMultiplier = drawSize / gameConfig.minBet;
+
         // 1. Obter a seleção real de números do usuário no grid
         let selectedArr = Array.from(this.selectedNumbers).filter(n => n >= minNum && n <= maxNum);
         let fixedArr = Array.from(this.fixedNumbers).filter(n => n >= minNum && n <= maxNum);
@@ -3040,19 +3053,19 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             }
             const prizes = metrics.prizes || [];
             
-            // 6. Score de Potencial Estratégico customizado por filosofia
+            // 6. Score de Potencial Estratégico customizado por filosofia e peso do tamanho de aposta
             let score = 0;
             if (name === 'MANUAL') {
-                // MANUAL prioriza a fidelidade estrita ao palpite
+                // MANUAL prioriza a fidelidade ao palpite. Aposta maior reduz necessidade de múltiplos bilhetes
                 const evenRatio = totalDigits > 0 ? (evens / totalDigits) : 0.5;
                 const balance = 1 - Math.abs(evenRatio - 0.5) * 2;
-                score = (parseFloat(diversityPct) * 0.4 + balance * 30 + parseFloat(coverageGlobalPct) * 0.3).toFixed(1);
+                score = (parseFloat(diversityPct) * 0.4 + balance * 30 + parseFloat(coverageGlobalPct) * 0.3) * (1 + (sizeMultiplier - 1) * 0.2);
             } else if (name === 'SNIPER') {
-                // SNIPER foca em dezenas quentes e ROI rápido (Alta Afinidade)
-                score = (affinityScore * 0.6 + parseFloat(coverageGlobalPct) * 0.2 + parseFloat(diversityPct) * 0.2).toFixed(1);
+                // SNIPER foca em dezenas quentes e ROI rápido (Alta Afinidade). Aposta maior agrupa sinergia de dezenas quentes
+                score = (affinityScore * 0.6 + parseFloat(coverageGlobalPct) * 0.2 + parseFloat(diversityPct) * 0.2) * (1 + (sizeMultiplier - 1) * 0.15);
             } else if (name === 'COBERTURA IA') {
-                // COBERTURA IA foca em cobrir o volante todo (Alta Cobertura Global)
-                score = (parseFloat(coverageGlobalPct) * 0.6 + parseFloat(diversityPct) * 0.25 + affinityScore * 0.15).toFixed(1);
+                // COBERTURA IA foca em cobrir o volante (Cercamento). Aposta maior cobre muito mais pares/triplas por jogo
+                score = (parseFloat(coverageGlobalPct) * 0.6 + parseFloat(diversityPct) * 0.25 + affinityScore * 0.15) * (1 + (sizeMultiplier - 1) * 0.1);
             }
             
             return {
@@ -3065,6 +3078,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 avgHamming,
                 diversityPct,
                 affinityScore,
+                combosPorJogo,
                 prizes,
                 score: Math.min(100, Math.max(0, parseFloat(score)))
             };
@@ -3167,6 +3181,8 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         const rows = [
             { label: 'Volantes Analisados', key: 'games', fmt: v => v ? `${v.length} jogos` : 'N/A' },
+            { label: 'Tamanho da Aposta', key: 'combosPorJogo', fmt: (v, item) => item ? `${drawSize} dezenas ${drawSize > gameConfig.minBet ? `<b>(Aposta Múltipla)</b>` : '(Aposta Simples)'}` : 'Inviável' },
+            { label: 'Poder Combinatório / Jogo', key: 'combosPorJogo', fmt: (v, item) => item ? `${v}x simples` : 'Inviável' },
             { label: 'Cercamento Global (Cobertura)', key: 'coveragePct', fmt: (v, item) => item ? `${item.uniqueCount} de ${totalPossible} (${v}%)` : 'Inviável' },
             { label: 'Afinidade Estatística (Tendências)', key: 'affinityScore', fmt: v => v ? `${v}%` : 'Inviável' },
             { label: 'Diversidade Combinatória (Hamming)', key: 'diversityPct', fmt: v => v ? `${v}%` : 'Inviável' },
