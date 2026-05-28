@@ -3107,13 +3107,13 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         if (!isVolantePreenchido) {
             html += `
                 <div style="background: rgba(59,130,246,0.08); padding: 12px 16px; border: 1px solid rgba(59,130,246,0.25); border-radius: 10px; margin-bottom: 20px; color:#60A5FA; font-size:0.8rem; line-height:1.4;">
-                    💡 <strong>Modo Automático Ativo (Volante Vazio):</strong> Como o grid está vazio, a análise comparou o comportamento autônomo de cada motor: o <strong>SNIPER</strong> escolheu as 20 dezenas mais quentes e a <strong>COBERTURA IA</strong> cercou o volante completo (${totalPossible} dezenas) da ${gameConfig.name}. O modo MANUAL requer palpites definidos e por isso ficou inviável.
+                    💡 <strong>Modo Automático Ativo (Volante Vazio):</strong> A <strong>COBERTURA IA</strong> operou com cercamento global garantindo a distribuição sobre <strong>100% das dezenas</strong> da loteria. O <strong>SNIPER</strong> operou sob um pool estatístico focado nas 20 dezenas mais propensas. O modo <strong>MANUAL</strong> exige palpites e por isso ficou inviável. A escolha da estratégia cabe a você, apostador!
                 </div>
             `;
         } else {
             html += `
                 <div style="background: rgba(16,185,129,0.08); padding: 12px 16px; border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; margin-bottom: 20px; color:#10B981; font-size:0.8rem; line-height:1.4;">
-                    🎯 <strong>Modo Restrito Ativo:</strong> Você selecionou <strong>${selectedArr.length}</strong> números no grid. A análise comparou a eficiência combinatória dos 3 motores operando <strong>exclusivamente</strong> dentro do seu grupo de números escolhidos.
+                    🎯 <strong>Modo Restrito Ativo:</strong> Você selecionou <strong>${selectedArr.length}</strong> números no grid. Os 3 motores operaram <strong>exclusivamente</strong> dentro da sua seleção de dezenas sob medida.
                 </div>
             `;
         }
@@ -3240,15 +3240,15 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 <div style="display:flex; flex-direction:column; gap:14px; font-size:0.78rem; line-height:1.5; color:#D1D5DB;">
                     <div style="border-left: 3px solid #3B82F6; padding-left: 10px;">
                         <strong>🎮 MANUAL (Fechamento Controlado):</strong> 
-                        Ideal quando você possui dezenas fixas e palpites rígidos. Depende 100% da sua escolha e oferece nota zero se o grid estiver vazio, pois não gera jogos às cegas.
+                        Estratégia 100% sob a escolha e palpites do apostador. Permite definir a quantidade exata de números que você quer jogar no grid e faz o fechamento combinatório estrito deles. Oferece nota zero se o grid estiver vazio, pois não gera jogos aleatórios sem seus palpites.
                     </div>
                     <div style="border-left: 3px solid #EF4444; padding-left: 10px;">
-                        <strong>🎯 SNIPER (Foco em Tendências de Curto Prazo):</strong> 
-                        Maximiza a **Afinidade Estatística**. Excelente para prêmios secundários rápidos, pois foca as apostas em um pool reduzido com as dezenas mais quentes, ciclos ativos e histórico de duplas da Caixa.
+                        <strong>🎯 SNIPER (Foco em Tendências Otimizadas):</strong> 
+                        Estratégia de dezenas variável. Foca nas 20 dezenas estatisticamente mais propensas e com maiores tendências quentes da Caixa (ou dentro das dezenas que você escolheu no grid), deixando o jogo extremamente focado em prêmios rápidos.
                     </div>
                     <div style="border-left: 3px solid #10B981; padding-left: 10px;">
-                        <strong>📐 COBERTURA IA (Cercamento de Prêmios Grandes):</strong> 
-                        Maximiza o **Cercamento Global**. O algoritmo matemático Greedy Set Cover espalha as dezenas de forma a cobrir a maior porcentagem possível do volante da loteria. É a melhor estratégia para cercar o acumulado principal.
+                        <strong>📐 COBERTURA IA (Cercamento Global Absoluto):</strong> 
+                        Mecanismo de cobertura global que **cobre 100% das dezenas da loteria** (quando o grid está vazio) espalhando-as de forma perfeita pelos volantes para cercar o volante todo sem deixar lacunas. Ideal para cercar prêmios maiores acumulados.
                     </div>
                 </div>
             </div>
