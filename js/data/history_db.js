@@ -8,6 +8,25 @@
 
 const REAL_HISTORY_DB = {
     megasena: [
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 3011, numbers: [2, 5, 27, 36, 40, 60] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 3010, numbers: [3, 30, 33, 35, 45, 47] },
+        { drawNumber: 3009, numbers: [4, 6, 8, 18, 21, 30] },
+        { drawNumber: 3008, numbers: [11, 12, 14, 20, 42, 44] },
+        { drawNumber: 3007, numbers: [17, 19, 27, 32, 38, 44] },
+        { drawNumber: 3006, numbers: [25, 42, 45, 48, 50, 60] },
+        { drawNumber: 3005, numbers: [17, 23, 29, 30, 48, 50] },
+        { drawNumber: 3004, numbers: [1, 5, 7, 22, 50, 59] },
+        { drawNumber: 3003, numbers: [8, 24, 27, 37, 47, 55] },
+        { drawNumber: 3002, numbers: [4, 27, 51, 52, 54, 58] },
+        { drawNumber: 3001, numbers: [1, 13, 32, 36, 43, 60] },
+        { drawNumber: 3000, numbers: [22, 23, 36, 40, 52, 60] },
+        { drawNumber: 2999, numbers: [9, 24, 26, 38, 45, 58] },
+        { drawNumber: 2998, numbers: [15, 18, 28, 31, 52, 58] },
+        { drawNumber: 2997, numbers: [14, 20, 32, 37, 39, 42] },
+
         // ━━━ DADOS NOVOS (abril 2026 — API OFICIAL) ━━━
         { drawNumber: 2996, numbers: [7, 9, 27, 38, 49, 52] },
         { drawNumber: 2995, numbers: [8, 29, 42, 49, 50, 58] },
@@ -57,6 +76,48 @@ const REAL_HISTORY_DB = {
         { drawNumber: 2952, numbers: [1, 20, 45, 48, 51, 58] }
     ],
     lotofacil: [
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 3696, numbers: [2, 3, 5, 6, 7, 9, 11, 13, 15, 16, 17, 19, 21, 23, 24] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 3695, numbers: [1, 2, 3, 4, 6, 8, 9, 13, 15, 17, 18, 21, 22, 23, 24] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 3694, numbers: [2, 4, 5, 7, 8, 9, 13, 14, 17, 18, 19, 20, 22, 23, 24] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 3693, numbers: [1, 4, 6, 7, 9, 10, 11, 13, 14, 16, 17, 18, 20, 21, 25] },
+        { drawNumber: 3692, numbers: [2, 3, 5, 6, 7, 9, 10, 13, 14, 15, 19, 20, 23, 24, 25] },
+        { drawNumber: 3691, numbers: [2, 3, 5, 8, 9, 10, 13, 14, 15, 18, 19, 21, 23, 24, 25] },
+        { drawNumber: 3690, numbers: [2, 5, 6, 7, 8, 9, 12, 15, 18, 19, 20, 21, 22, 24, 25] },
+        { drawNumber: 3689, numbers: [3, 5, 7, 8, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 23] },
+        { drawNumber: 3688, numbers: [1, 2, 3, 4, 5, 6, 7, 11, 12, 16, 17, 19, 21, 24, 25] },
+        { drawNumber: 3687, numbers: [3, 4, 5, 6, 12, 13, 14, 16, 17, 18, 20, 21, 23, 24, 25] },
+        { drawNumber: 3686, numbers: [1, 2, 4, 5, 6, 8, 9, 10, 13, 15, 18, 19, 23, 24, 25] },
+        { drawNumber: 3685, numbers: [1, 2, 4, 8, 10, 11, 14, 15, 17, 19, 20, 21, 23, 24, 25] },
+        { drawNumber: 3684, numbers: [1, 3, 5, 6, 9, 10, 11, 12, 13, 17, 18, 19, 20, 21, 23] },
+        { drawNumber: 3683, numbers: [2, 3, 5, 7, 8, 9, 10, 11, 12, 14, 16, 19, 20, 24, 25] },
+        { drawNumber: 3682, numbers: [1, 2, 4, 5, 7, 9, 10, 11, 12, 13, 17, 18, 21, 22, 24] },
+        { drawNumber: 3681, numbers: [1, 2, 4, 5, 7, 9, 11, 12, 14, 15, 16, 20, 21, 22, 25] },
+        { drawNumber: 3680, numbers: [1, 2, 3, 4, 5, 7, 8, 9, 11, 15, 16, 19, 22, 24, 25] },
+        { drawNumber: 3679, numbers: [1, 2, 3, 7, 8, 10, 11, 13, 14, 17, 18, 21, 22, 23, 24] },
+        { drawNumber: 3678, numbers: [1, 2, 3, 4, 5, 6, 8, 10, 11, 14, 18, 20, 23, 24, 25] },
+        { drawNumber: 3677, numbers: [1, 2, 3, 8, 9, 10, 12, 13, 14, 15, 16, 18, 22, 23, 24] },
+        { drawNumber: 3676, numbers: [4, 5, 6, 8, 10, 13, 15, 16, 18, 19, 21, 22, 23, 24, 25] },
+        { drawNumber: 3675, numbers: [2, 3, 4, 5, 7, 8, 10, 12, 13, 15, 17, 18, 19, 23, 24] },
+        { drawNumber: 3674, numbers: [2, 6, 7, 8, 9, 10, 15, 17, 19, 20, 21, 22, 23, 24, 25] },
+        { drawNumber: 3673, numbers: [1, 3, 4, 8, 10, 11, 12, 15, 16, 18, 19, 20, 21, 22, 25] },
+        { drawNumber: 3672, numbers: [1, 3, 5, 7, 9, 10, 11, 12, 13, 14, 16, 20, 23, 24, 25] },
+        { drawNumber: 3671, numbers: [1, 3, 4, 5, 6, 7, 9, 10, 12, 13, 15, 16, 17, 18, 21] },
+        { drawNumber: 3670, numbers: [1, 2, 3, 5, 6, 10, 11, 14, 15, 17, 18, 19, 21, 23, 24] },
+        { drawNumber: 3669, numbers: [2, 3, 4, 5, 8, 9, 10, 11, 12, 15, 16, 17, 22, 23, 24] },
+        { drawNumber: 3668, numbers: [1, 2, 3, 5, 7, 8, 9, 10, 11, 13, 15, 17, 18, 21, 24] },
+        { drawNumber: 3667, numbers: [1, 3, 4, 5, 6, 7, 9, 11, 14, 15, 19, 21, 22, 23, 25] },
+        { drawNumber: 3666, numbers: [1, 4, 6, 7, 9, 12, 14, 15, 16, 17, 19, 20, 21, 22, 23] },
+        { drawNumber: 3665, numbers: [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 16, 18, 22, 23, 25] },
+        { drawNumber: 3664, numbers: [1, 2, 4, 5, 6, 7, 10, 11, 12, 16, 18, 19, 20, 22, 23] },
+        { drawNumber: 3663, numbers: [1, 3, 4, 5, 6, 10, 12, 14, 17, 19, 20, 22, 23, 24, 25] },
+
         // ━━━ DADOS NOVOS (abril 2026 — API OFICIAL CAIXA) ━━━
         { drawNumber: 3662, numbers: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 18, 20, 23, 25] },
         { drawNumber: 3661, numbers: [2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 19, 21, 23, 24] },
@@ -107,6 +168,48 @@ const REAL_HISTORY_DB = {
     // Corrigido: dados sintéticos eliminados completamente
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     quina: [
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 7036, numbers: [15, 42, 63, 66, 77] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 7035, numbers: [14, 15, 48, 58, 73] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 7034, numbers: [12, 21, 74, 77, 79] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 7033, numbers: [1, 29, 32, 33, 56] },
+        { drawNumber: 7032, numbers: [5, 28, 48, 49, 71] },
+        { drawNumber: 7031, numbers: [3, 12, 40, 56, 70] },
+        { drawNumber: 7030, numbers: [16, 19, 24, 50, 55] },
+        { drawNumber: 7029, numbers: [13, 14, 17, 20, 59] },
+        { drawNumber: 7028, numbers: [1, 16, 41, 42, 74] },
+        { drawNumber: 7027, numbers: [24, 27, 34, 44, 47] },
+        { drawNumber: 7026, numbers: [19, 51, 55, 57, 70] },
+        { drawNumber: 7025, numbers: [14, 27, 29, 50, 57] },
+        { drawNumber: 7024, numbers: [2, 38, 43, 48, 74] },
+        { drawNumber: 7023, numbers: [16, 35, 44, 66, 78] },
+        { drawNumber: 7022, numbers: [30, 38, 47, 50, 68] },
+        { drawNumber: 7021, numbers: [1, 24, 29, 57, 61] },
+        { drawNumber: 7020, numbers: [23, 31, 40, 41, 54] },
+        { drawNumber: 7019, numbers: [6, 11, 42, 62, 78] },
+        { drawNumber: 7018, numbers: [10, 15, 17, 53, 61] },
+        { drawNumber: 7017, numbers: [12, 35, 48, 58, 60] },
+        { drawNumber: 7016, numbers: [2, 29, 31, 39, 70] },
+        { drawNumber: 7015, numbers: [4, 13, 52, 53, 55] },
+        { drawNumber: 7014, numbers: [11, 16, 23, 42, 74] },
+        { drawNumber: 7013, numbers: [12, 36, 37, 53, 80] },
+        { drawNumber: 7012, numbers: [44, 53, 54, 57, 75] },
+        { drawNumber: 7011, numbers: [9, 24, 31, 45, 55] },
+        { drawNumber: 7010, numbers: [5, 31, 32, 35, 47] },
+        { drawNumber: 7009, numbers: [3, 20, 23, 26, 42] },
+        { drawNumber: 7008, numbers: [14, 23, 47, 55, 78] },
+        { drawNumber: 7007, numbers: [8, 22, 29, 63, 69] },
+        { drawNumber: 7006, numbers: [33, 41, 48, 55, 68] },
+        { drawNumber: 7005, numbers: [14, 17, 32, 44, 68] },
+        { drawNumber: 7004, numbers: [23, 35, 52, 56, 76] },
+        { drawNumber: 7003, numbers: [4, 14, 18, 54, 75] },
+
         // ━━━ VERIFICADOS VIA API OFICIAL (abril 2026) ━━━
         { drawNumber: 7002, numbers: [4, 15, 34, 49, 55] },
         { drawNumber: 7001, numbers: [25, 39, 49, 50, 53] },
@@ -151,6 +254,29 @@ const REAL_HISTORY_DB = {
         { drawNumber: 6962, numbers: [15, 25, 37, 79, 80] }
     ],
     duplasena: [
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 2962, numbers: [17, 24, 38, 43, 45, 48, 5, 16, 34, 36, 38, 48], numbers2: [17, 24, 38, 43, 45, 48, 5, 16, 34, 36, 38, 48] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 2961, numbers: [10, 12, 13, 16, 37, 42, 11, 12, 27, 29, 31, 47], numbers2: [10, 12, 13, 16, 37, 42, 11, 12, 27, 29, 31, 47] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 2960, numbers: [3, 12, 34, 39, 46, 48, 16, 21, 34, 41, 43, 47], numbers2: [3, 12, 34, 39, 46, 48, 16, 21, 34, 41, 43, 47] },
+        { drawNumber: 2959, numbers: [2, 14, 15, 16, 27, 39, 7, 17, 19, 35, 39, 42], numbers2: [2, 14, 15, 16, 27, 39, 7, 17, 19, 35, 39, 42] },
+        { drawNumber: 2958, numbers: [5, 23, 28, 31, 35, 36, 5, 12, 28, 34, 39, 45], numbers2: [5, 23, 28, 31, 35, 36, 5, 12, 28, 34, 39, 45] },
+        { drawNumber: 2957, numbers: [2, 10, 32, 36, 39, 42, 4, 10, 11, 13, 16, 33], numbers2: [2, 10, 32, 36, 39, 42, 4, 10, 11, 13, 16, 33] },
+        { drawNumber: 2956, numbers: [12, 17, 19, 29, 45, 48, 1, 14, 20, 21, 26, 27], numbers2: [12, 17, 19, 29, 45, 48, 1, 14, 20, 21, 26, 27] },
+        { drawNumber: 2955, numbers: [5, 10, 20, 30, 46, 47, 3, 11, 29, 32, 33, 39], numbers2: [5, 10, 20, 30, 46, 47, 3, 11, 29, 32, 33, 39] },
+        { drawNumber: 2954, numbers: [6, 15, 32, 33, 39, 49, 4, 9, 11, 22, 27, 38], numbers2: [6, 15, 32, 33, 39, 49, 4, 9, 11, 22, 27, 38] },
+        { drawNumber: 2953, numbers: [1, 11, 28, 30, 35, 44, 3, 10, 19, 21, 32, 42], numbers2: [1, 11, 28, 30, 35, 44, 3, 10, 19, 21, 32, 42] },
+        { drawNumber: 2952, numbers: [5, 12, 17, 24, 26, 32, 12, 14, 15, 16, 36, 47], numbers2: [5, 12, 17, 24, 26, 32, 12, 14, 15, 16, 36, 47] },
+        { drawNumber: 2951, numbers: [12, 26, 31, 39, 41, 43, 1, 16, 23, 29, 32, 39], numbers2: [12, 26, 31, 39, 41, 43, 1, 16, 23, 29, 32, 39] },
+        { drawNumber: 2950, numbers: [2, 9, 12, 26, 48, 49, 5, 28, 30, 42, 47, 49], numbers2: [2, 9, 12, 26, 48, 49, 5, 28, 30, 42, 47, 49] },
+        { drawNumber: 2949, numbers: [3, 8, 12, 25, 35, 44, 4, 29, 35, 36, 41, 45], numbers2: [3, 8, 12, 25, 35, 44, 4, 29, 35, 36, 41, 45] },
+        { drawNumber: 2948, numbers: [1, 6, 11, 18, 27, 36, 11, 18, 19, 23, 36, 50], numbers2: [1, 6, 11, 18, 27, 36, 11, 18, 19, 23, 36, 50] },
+        { drawNumber: 2947, numbers: [5, 8, 22, 24, 36, 44, 1, 8, 24, 25, 40, 44], numbers2: [5, 8, 22, 24, 36, 44, 1, 8, 24, 25, 40, 44] },
+        { drawNumber: 2946, numbers: [12, 19, 29, 33, 34, 44, 11, 20, 32, 35, 44, 50], numbers2: [12, 19, 29, 33, 34, 44, 11, 20, 32, 35, 44, 50] },
+
         // ━━━ DADOS NOVOS (abril 2026 — API OFICIAL) ━━━
         { drawNumber: 2945, numbers: [6, 8, 9, 17, 42, 46], numbers2: [7, 8, 27, 40, 42, 50] },
         { drawNumber: 2944, numbers: [11, 13, 17, 29, 30, 33], numbers2: [1, 4, 14, 29, 32, 43] },
@@ -197,6 +323,29 @@ const REAL_HISTORY_DB = {
         { drawNumber: 2904, numbers: [5, 11, 12, 15, 16, 17], numbers2: [1, 8, 14, 22, 28, 41] }
     ],
     lotomania: [
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 2929, numbers: [14, 15, 16, 19, 27, 43, 50, 51, 54, 57, 60, 68, 71, 72, 83, 85, 87, 89, 90, 93] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 2928, numbers: [7, 12, 18, 22, 24, 35, 37, 42, 58, 59, 61, 63, 71, 74, 75, 77, 79, 91, 98, 99] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 2927, numbers: [3, 4, 6, 11, 29, 31, 44, 45, 46, 51, 53, 57, 60, 67, 68, 69, 76, 78, 84, 91] },
+        { drawNumber: 2926, numbers: [1, 2, 9, 11, 19, 27, 35, 43, 50, 61, 64, 65, 69, 72, 74, 75, 82, 89, 91, 93] },
+        { drawNumber: 2925, numbers: [0, 11, 12, 14, 24, 31, 33, 41, 45, 62, 63, 68, 69, 71, 72, 75, 77, 89, 92, 98] },
+        { drawNumber: 2924, numbers: [0, 4, 5, 12, 13, 22, 25, 26, 31, 48, 53, 55, 67, 69, 78, 82, 84, 85, 88, 99] },
+        { drawNumber: 2923, numbers: [2, 5, 6, 10, 11, 14, 18, 31, 33, 47, 48, 61, 63, 68, 77, 79, 82, 88, 93, 95] },
+        { drawNumber: 2922, numbers: [2, 4, 10, 18, 28, 32, 34, 36, 46, 47, 61, 65, 66, 69, 76, 86, 88, 91, 93, 99] },
+        { drawNumber: 2921, numbers: [1, 6, 18, 26, 33, 41, 47, 49, 55, 61, 64, 69, 71, 72, 74, 75, 78, 91, 92, 93] },
+        { drawNumber: 2920, numbers: [1, 9, 14, 43, 44, 49, 51, 54, 55, 57, 79, 82, 87, 90, 91, 92, 93, 97, 98, 99] },
+        { drawNumber: 2919, numbers: [6, 7, 26, 27, 32, 40, 41, 45, 49, 59, 60, 61, 67, 76, 80, 84, 87, 88, 92, 97] },
+        { drawNumber: 2918, numbers: [7, 8, 9, 10, 14, 20, 26, 29, 38, 42, 47, 56, 68, 72, 84, 85, 86, 87, 91, 99] },
+        { drawNumber: 2917, numbers: [3, 4, 5, 7, 9, 17, 20, 23, 27, 31, 42, 44, 47, 51, 65, 85, 90, 95, 98, 99] },
+        { drawNumber: 2916, numbers: [3, 4, 5, 6, 8, 15, 17, 22, 23, 24, 29, 37, 40, 43, 50, 62, 64, 82, 87, 88] },
+        { drawNumber: 2915, numbers: [0, 1, 5, 10, 18, 20, 21, 33, 41, 45, 48, 61, 64, 66, 72, 74, 75, 78, 87, 95] },
+        { drawNumber: 2914, numbers: [3, 9, 12, 29, 38, 39, 43, 48, 49, 60, 63, 68, 74, 78, 79, 83, 85, 89, 94, 98] },
+        { drawNumber: 2913, numbers: [3, 4, 9, 14, 17, 19, 23, 25, 28, 30, 48, 49, 53, 54, 63, 68, 74, 76, 89, 96] },
+
         // ━━━ DADOS NOVOS (abril 2026 — API OFICIAL) ━━━
         { drawNumber: 2912, numbers: [2, 4, 5, 22, 35, 41, 47, 53, 56, 60, 63, 68, 69, 81, 83, 84, 88, 91, 93, 95] },
         { drawNumber: 2911, numbers: [1, 8, 10, 13, 17, 20, 27, 29, 31, 33, 36, 39, 42, 47, 49, 55, 61, 68, 79, 98] },
@@ -232,6 +381,26 @@ const REAL_HISTORY_DB = {
         { drawNumber: 2882, numbers: [1, 3, 6, 9, 14, 15, 16, 19, 23, 31, 32, 41, 44, 63, 64, 66, 71, 77, 91, 97] }
     ],
     timemania: [
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 2396, numbers: [1, 27, 30, 37, 52, 62, 68] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 2395, numbers: [4, 10, 22, 26, 32, 35, 52] },
+        { drawNumber: 2394, numbers: [3, 8, 15, 26, 47, 52, 73] },
+        { drawNumber: 2393, numbers: [14, 27, 34, 46, 50, 60, 73] },
+        { drawNumber: 2392, numbers: [4, 12, 17, 23, 59, 75, 78] },
+        { drawNumber: 2391, numbers: [8, 9, 16, 17, 21, 71, 79] },
+        { drawNumber: 2390, numbers: [4, 21, 22, 36, 46, 58, 78] },
+        { drawNumber: 2389, numbers: [4, 6, 13, 36, 47, 56, 63] },
+        { drawNumber: 2388, numbers: [5, 23, 27, 36, 39, 46, 71] },
+        { drawNumber: 2387, numbers: [3, 5, 10, 27, 42, 44, 52] },
+        { drawNumber: 2386, numbers: [2, 20, 31, 54, 59, 64, 65] },
+        { drawNumber: 2385, numbers: [5, 14, 16, 17, 20, 70, 76] },
+        { drawNumber: 2384, numbers: [14, 26, 29, 47, 66, 74, 79] },
+        { drawNumber: 2383, numbers: [15, 36, 43, 47, 54, 70, 79] },
+        { drawNumber: 2382, numbers: [22, 23, 30, 37, 64, 68, 80] },
+        { drawNumber: 2381, numbers: [4, 14, 26, 32, 65, 67, 68] },
+
         // ━━━ DADOS NOVOS (abril 2026 — API OFICIAL) ━━━
         { drawNumber: 2380, numbers: [47, 54, 56, 60, 64, 65, 79] },
         { drawNumber: 2379, numbers: [12, 23, 35, 41, 58, 67, 74] },
@@ -276,6 +445,27 @@ const REAL_HISTORY_DB = {
         { drawNumber: 2341, numbers: [21, 35, 36, 42, 58, 65, 71] }
     ],
     diadesorte: [
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 1218, numbers: [4, 5, 9, 11, 12, 16, 30] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 1217, numbers: [7, 8, 10, 11, 22, 24, 26] },
+        { drawNumber: 1216, numbers: [2, 3, 9, 14, 24, 28, 31] },
+        { drawNumber: 1215, numbers: [5, 6, 9, 10, 14, 21, 23] },
+        { drawNumber: 1214, numbers: [2, 3, 19, 20, 21, 28, 30] },
+        { drawNumber: 1213, numbers: [7, 12, 13, 15, 24, 26, 30] },
+        { drawNumber: 1212, numbers: [1, 2, 8, 18, 21, 22, 23] },
+        { drawNumber: 1211, numbers: [3, 4, 9, 14, 18, 23, 30] },
+        { drawNumber: 1210, numbers: [9, 11, 12, 17, 20, 23, 24] },
+        { drawNumber: 1209, numbers: [8, 9, 10, 12, 15, 27, 28] },
+        { drawNumber: 1208, numbers: [5, 21, 22, 23, 24, 26, 31] },
+        { drawNumber: 1207, numbers: [1, 15, 19, 23, 26, 28, 29] },
+        { drawNumber: 1206, numbers: [2, 8, 10, 11, 18, 27, 29] },
+        { drawNumber: 1205, numbers: [5, 8, 10, 17, 19, 27, 29] },
+        { drawNumber: 1204, numbers: [11, 12, 13, 17, 20, 23, 29] },
+        { drawNumber: 1203, numbers: [5, 9, 16, 19, 22, 23, 30] },
+        { drawNumber: 1202, numbers: [5, 8, 9, 11, 26, 28, 31] },
+
         // ━━━ DADOS NOVOS (abril 2026 — API OFICIAL) ━━━
         { drawNumber: 1201, numbers: [1, 6, 10, 12, 14, 20, 31] },
         { drawNumber: 1200, numbers: [3, 8, 15, 19, 22, 27, 30] },

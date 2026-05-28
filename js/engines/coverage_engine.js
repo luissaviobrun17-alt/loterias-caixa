@@ -298,7 +298,7 @@ class CoverageEngine {
             // Usamos o Gerador de Monte Carlo Determinístico (Mulberry32 PRG) guiado pelos Quantum Scores da IA.
             // Isso garante que o pool inicie com números quentes e expanda organicamente para os frios.
             const originalRandom = Math.random;
-            let seed = 0x4830eee9; // Seed base estável
+            let seed = Math.floor(Math.random() * 0xFFFFFFFF); // Seed dinâmica
             const Mulberry32 = () => {
                 let t = seed += 0x6D2B79F5;
                 t = Math.imul(t ^ (t >>> 15), t | 1);
@@ -479,8 +479,10 @@ class CoverageEngine {
             // ======================================================================
             // MODO CLÁSSICO GREEDY SET COVER (FALLBACK / MANUAL)
             // ======================================================================
-            const baseCandidates = cfg.candidatesPerSlot;
-            const minCandidates = Math.max(500, Math.round(cfg.candidatesPerSlot * 0.25));
+            let baseCandidates = cfg.candidatesPerSlot;
+            if (numGames >= 1000) baseCandidates *= 2; // Maior profundidade para garantir fechamento
+            if (numGames >= 5000) baseCandidates *= 3;
+            const minCandidates = Math.max(500, Math.round(baseCandidates * 0.25));
 
             for (let g = 0; g < numGames; g++) {
                 let bestGame  = null;

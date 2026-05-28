@@ -150,78 +150,18 @@ class SmartCoverageEngine {
             return { games: [], analysis: { error: 'CoverageEngine não carregado' } };
         }
 
-        // v12.2 Auto-Fixador Cirúrgico (Lotofácil)
-        // Se alto volume, trava os 3 melhores numeros do mapa de calor espacial como FIXOS
+        // v12.2 a v12.8 (REMOVIDOS): Os blocos de Auto-Fixador e Auto-Sniper foram removidos.
+        // Motivo: Forçar o modo Sniper ou Fixador nos grandes volumes destruía a "Cobertura IA"
+        // (matemática pura de Set Cover), causando o efeito "Canhão de Vidro" (onde grandes volumes 
+        // falhavam catastroficamente se o sorteio caísse fora do pool restrito de dezenas quentes).
         let lotoFixed = fixedNumbers || [];
-        if (gameKey === 'lotofacil' && numGames >= 1000 && (!selectedNumbers || selectedNumbers.length === 0) && (!fixedNumbers || fixedNumbers.length === 0)) {
-            const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
-            if (game) {
-                const heatPool = this._buildSniperPool(gameKey, game, numGames, 25);
-                lotoFixed = heatPool.slice(0, 3); // Fixa os Top 3
-                console.log('[SmartCoverage] Auto-Fixador Lotofácil ativado. Top 3 fixos:', lotoFixed);
-            }
-        }
-
-        // v12.5 Auto-Fixador Lotomania
-        if (gameKey === 'lotomania' && numGames >= 1000 && (!selectedNumbers || selectedNumbers.length === 0) && (!fixedNumbers || fixedNumbers.length === 0)) {
-            const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
-            if (game) {
-                const heatPool = this._buildSniperPool(gameKey, game, numGames, 100);
-                lotoFixed = heatPool.slice(0, 15); // Fixa as Top 15 estatísticas (v12.6)
-                console.log('[SmartCoverage] Auto-Fixador Lotomania ativado. Top 15 fixos:', lotoFixed);
-            }
-        }
-
-        // v12.5 Amputação Topológica Balanceada (Lotomania)
-        if (gameKey === 'lotomania' && numGames >= 1000 && (!selectedNumbers || selectedNumbers.length === 0)) {
-            opts.precisionMode = true;
-            opts.precisionPoolSize = 80; // Corta apenas os 20 piores (Permite Hamming Distance gigante)
-            console.log('[SmartCoverage] Auto-Sniper ativado para Lotomania. Pool restrito para 80.');
-        }
-
-        // v12.8 Amputação Topológica Balanceada (Dia de Sorte)
-        if (gameKey === 'diadesorte' && numGames >= 1000 && (!selectedNumbers || selectedNumbers.length === 0)) {
-            opts.precisionMode = true;
-            opts.precisionPoolSize = 28; // Corta os 3 piores (Foco Extremo)
-            console.log('[SmartCoverage] Auto-Sniper ativado para Dia de Sorte. Pool restrito para 28.');
-        }
-
-        // v12.7 Amputação Topológica Balanceada (Timemania)
-        if (gameKey === 'timemania' && numGames >= 1000 && (!selectedNumbers || selectedNumbers.length === 0)) {
-            opts.precisionMode = true;
-            opts.precisionPoolSize = 65; // Corta os 15 piores
-            console.log('[SmartCoverage] Auto-Sniper ativado para Timemania. Pool restrito para 65.');
-        }
-
-        // v12.4 Amputação Topológica (Dupla Sena)
-        if (gameKey === 'duplasena' && numGames > 100 && (!selectedNumbers || selectedNumbers.length === 0)) {
-            opts.precisionMode = true;
-            if (!opts.precisionPoolSize || opts.precisionPoolSize === 20) {
-                if (numGames <= 500) opts.precisionPoolSize = 35;
-                else if (numGames <= 2000) opts.precisionPoolSize = 32;
-                else opts.precisionPoolSize = 28; // Maximo estrangulamento
-            }
-            console.log('[SmartCoverage] Auto-Sniper ativado para Dupla Sena. Pool estrangulado para', opts.precisionPoolSize);
-        }
-
-        // v12.3 Amputação Topológica (Quina)
-        // A Quina precisa amputar de 40 a 50 numeros em grandes volumes para ter chance
-        if (gameKey === 'quina' && numGames > 100 && (!selectedNumbers || selectedNumbers.length === 0)) {
-            opts.precisionMode = true; 
-            if (!opts.precisionPoolSize || opts.precisionPoolSize === 20) {
-                if (numGames <= 500) opts.precisionPoolSize = 40;
-                else if (numGames <= 2000) opts.precisionPoolSize = 35;
-                else opts.precisionPoolSize = 30; // Maximo estrangulamento
-            }
-            console.log('[SmartCoverage] Auto-Sniper ativado para Quina. Pool estrangulado para', opts.precisionPoolSize);
-        }
 
         // ══════════════════════════════════════════════════════════════
         // v13.3: POOL ESCALONADO MULTI-LOTERIA — 21 Camadas de Inteligência
         // Em vez de gerar aleatório, usa NovaEraEngine._scoreAllNumbers()
         // para ranquear os números e construir as camadas de pool dinamicamente:
         // ══════════════════════════════════════════════════════════════
-        if (!selectedNumbers || selectedNumbers.length === 0) {
+        if (opts.precisionMode && (!selectedNumbers || selectedNumbers.length === 0)) {
             if (typeof NovaEraEngine !== 'undefined') {
                 try {
                     const profile = NovaEraEngine.getProfile(gameKey);

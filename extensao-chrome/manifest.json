@@ -10,7 +10,17 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://127.0.0.1:8090/*", "http://127.0.0.1:8080/*", "http://localhost:8090/*", "http://localhost:8080/*", "file:///*loterias*"],
+      "matches": [
+        "http://127.0.0.1/*", 
+        "http://localhost/*",
+        "http://127.0.0.1:8080/*",
+        "http://127.0.0.1:8090/*",
+        "http://127.0.0.1:8777/*",
+        "http://localhost:8080/*",
+        "http://localhost:8090/*",
+        "http://localhost:8777/*",
+        "file:///*loterias*"
+      ],
       "js": ["b2b_bridge.js"],
       "run_at": "document_idle"
     },

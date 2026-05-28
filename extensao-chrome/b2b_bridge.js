@@ -24,11 +24,7 @@
             b2b_config: data.config,
             b2b_timestamp: Date.now()
         }, function() {
-            console.log('[B2B Extension] ✅ ' + data.games.length + ' jogos salvos! Abrindo Caixa...');
-            
-            // Abre o site da Caixa
-            const url = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + data.config.url;
-            window.open(url, '_blank');
+            console.log('[B2B Extension] ✅ ' + data.games.length + ' jogos salvos! A aba será aberta pelo B2B.');
         });
     });
 })();

@@ -1,0 +1,8 @@
+# requirements.txt
+pandas
+numpy
+requests
+beautifulsoup4
+pulp
+flask
+gunicorn

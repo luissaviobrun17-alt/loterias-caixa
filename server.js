@@ -360,6 +360,26 @@ server.listen(PORT, '127.0.0.1', () => {
     const pastaMsg = `\n  📁 Jogos salvos em: ${JOGOS_DIR}\n`;
     console.log(`[B2B Loterias] Servidor rodando em http://localhost:${PORT}`);
     console.log(pastaMsg);
+    
+    // ━━━ ATUALIZADOR AUTOMÁTICO DE RESULTADOS ━━━
+    const runUpdater = () => {
+        try {
+            console.log('[B2B Loterias] Verificando atualizações de resultados na Caixa...');
+            // Executa como processo separado para evitar cache do require
+            require('child_process').exec('node updater.js', (err, stdout, stderr) => {
+                if (err) console.error('[B2B Loterias] Erro no atualizador:', err.message);
+                else if (stdout.includes('Sorteio mais recente')) console.log('[B2B Loterias] Sorteios sincronizados com sucesso.');
+            });
+        } catch(err) {
+            console.error('[B2B Loterias] Falha ao iniciar atualizador:', err.message);
+        }
+    };
+    
+    // Executa ao ligar
+    runUpdater();
+    
+    // Executa a cada 4 horas
+    setInterval(runUpdater, 4 * 60 * 60 * 1000);
 });
 
 server.on('error', (err) => {

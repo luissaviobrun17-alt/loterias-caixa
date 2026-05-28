@@ -1,7 +1,7 @@
 // B2B Loterias - Service Worker Estável v3.0
 // SEM loop de reload, SEM auto-destruição
 
-var CACHE_NAME = 'b2b-loterias-v3';
+var CACHE_NAME = 'b2b-loterias-v4';
 
 self.addEventListener('install', function(event) {
     console.log('[SW] Instalado - versão estável');

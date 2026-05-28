@@ -129,7 +129,8 @@
                    document.getElementById('n05') ||
                    document.getElementById('n10') ||
                    document.querySelector('a[id^="n0"]') ||
-                   document.querySelector('[id="n01"]');
+                   document.querySelector('[id="n01"]') ||
+                   document.querySelector('.number, .dezena');
 
         if (grid) {
             console.log('[B2B v' + VERSION + '] 📍 Grid encontrado (tentativa ' + (attempts + 1) + ')');
@@ -137,6 +138,25 @@
         } else {
             if (attempts % 15 === 0) {
                 console.log('[B2B v' + VERSION + '] ⏳ Aguardando grid... (' + (attempts + 1) + ')');
+                
+                // Adicionar botão de forçar início se não existir
+                var forceBtn = document.getElementById('b2b-force-start');
+                if (!forceBtn) {
+                    var panel = document.getElementById('b2b-status-panel');
+                    if (panel) {
+                        forceBtn = document.createElement('button');
+                        forceBtn.id = 'b2b-force-start';
+                        forceBtn.innerHTML = '▶️ FORÇAR INÍCIO';
+                        forceBtn.style.cssText = 'margin-top:10px;width:100%;padding:8px;background:linear-gradient(135deg,#F59E0B,#D97706);color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px rgba(245,158,11,0.4);';
+                        forceBtn.onclick = function() {
+                            forceBtn.remove();
+                            console.log('[B2B v' + VERSION + '] ⚠️ Início forçado pelo usuário!');
+                            updateStatus('Início forçado!', 'warning');
+                            callback();
+                        };
+                        panel.appendChild(forceBtn);
+                    }
+                }
             }
             setTimeout(function() { waitForGrid(callback, attempts + 1); }, 2000);
         }
@@ -381,34 +401,26 @@
 
         // Tentativa 1: ID direto
         var el = document.getElementById(id);
-        if (el) {
-            dispatchRealClick(el);
-            return true;
-        }
+        if (el) { dispatchRealClick(el); return true; }
 
         // Tentativa 2: querySelector
         el = document.querySelector('#' + id) || document.querySelector('a#' + id);
-        if (el) {
-            dispatchRealClick(el);
-            return true;
-        }
+        if (el) { dispatchRealClick(el); return true; }
 
-        // Tentativa 3: buscar por texto
-        var todos = document.querySelectorAll('a[role=button], a.dezena, a.numero, a[id^="n"]');
+        // Tentativa 3: buscar por texto em elementos prováveis
+        var todos = document.querySelectorAll('a, button, li, span, div');
+        var gridArea = document.querySelector('.volante, ul, form, [class*="volante"], [class*="grid"]');
+        
         for (var k = 0; k < todos.length; k++) {
-            if (todos[k].textContent.trim() === padded) {
-                dispatchRealClick(todos[k]);
-                return true;
-            }
-        }
-
-        // Tentativa 4: qualquer elemento com classe número
-        var allNums = document.querySelectorAll('.number, .dezena, .num, [class*=number], [class*=dezena]');
-        for (var k2 = 0; k2 < allNums.length; k2++) {
-            var txt = allNums[k2].textContent.trim();
+            var txt = todos[k].textContent.trim();
             if (txt === padded || txt === String(num)) {
-                dispatchRealClick(allNums[k2]);
-                return true;
+                // Verificar se é pequeno o suficiente para ser uma "bola" de número (menos de 80x80px)
+                // E evitar clicar em textos que não sejam botões se pudermos evitar
+                var rect = todos[k].getBoundingClientRect();
+                if (rect.width > 0 && rect.width < 100 && rect.height > 0 && rect.height < 100) {
+                    dispatchRealClick(todos[k]);
+                    return true;
+                }
             }
         }
 
