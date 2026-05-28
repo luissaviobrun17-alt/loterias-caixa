@@ -2897,166 +2897,317 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
     }
 
     analyseGeneratedGames() {
-        const games = this.currentGeneratedGames || [];
-        if (games.length === 0) {
-            alert('Gere alguns jogos antes de analisar!');
-            return;
-        }
-
         const gameKey = this.currentGameKey;
         const gameConfig = GAMES[gameKey];
         if (!gameConfig) return;
 
         const maxNum = gameConfig.range[1];
         const minNum = gameConfig.range[0];
-
-        // 1. Contar frequências
-        const freq = {};
-        for (let i = minNum; i <= maxNum; i++) freq[i] = 0;
-        
-        games.forEach(g => {
-            g.forEach(n => {
-                if (freq[n] !== undefined) freq[n]++;
-            });
-        });
-
-        // 2. Cobertura de dezenas únicas
-        const uniqueNumbers = Object.keys(freq).filter(k => freq[k] > 0).map(Number);
         const totalPossible = maxNum - minNum + 1;
-        const coveragePercent = ((uniqueNumbers.length / totalPossible) * 100).toFixed(1);
 
-        // 3. Frequência ordenada
-        const freqSorted = Object.entries(freq)
-            .map(([num, count]) => ({ number: Number(num), count }))
-            .sort((a, b) => b.count - a.count);
+        const qty = parseInt(this.gamesQuantityInput.value) || 10;
+        
+        const drawSizeSelect = document.getElementById('smart-draw-size');
+        const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
+        const drawSize = (customDrawSize && customDrawSize >= gameConfig.minBet) ? customDrawSize : gameConfig.minBet;
 
-        const hotNums = freqSorted.filter(x => x.count > 0).slice(0, 12);
-        const coldNums = freqSorted.filter(x => x.count === 0);
-
-        // 4. Distribuição de Pares e Ímpares
-        let evens = 0, odds = 0;
-        games.forEach(g => {
-            g.forEach(n => {
-                if (n % 2 === 0) evens++;
-                else odds++;
-            });
-        });
-        const totalDigits = evens + odds;
-        const evenPercent = totalDigits > 0 ? ((evens / totalDigits) * 100).toFixed(1) : 0;
-        const oddPercent = totalDigits > 0 ? ((odds / totalDigits) * 100).toFixed(1) : 0;
-
-        // 5. Distribuição por Quadrantes / Setores
-        const faixas = {};
-        const rangeSize = Math.ceil(totalPossible / 5); // 5 faixas
-        for (let i = 1; i <= 5; i++) {
-            const start = minNum + (i - 1) * rangeSize;
-            const end = Math.min(maxNum, minNum + i * rangeSize - 1);
-            faixas[`${start}-${end}`] = 0;
+        // 1. Obter a seleção de números do usuário (ou simular se estiver vazia/insuficiente)
+        let selectedArr = Array.from(this.selectedNumbers).filter(n => n >= minNum && n <= maxNum);
+        let fixedArr = Array.from(this.fixedNumbers).filter(n => n >= minNum && n <= maxNum);
+        
+        let simulated = false;
+        if (selectedArr.length < drawSize) {
+            simulated = true;
+            // Gerar seleção simulada para a análise comparativa
+            const targetSize = Math.min(totalPossible, Math.max(drawSize * 2, 15));
+            const stats = (typeof StatsService !== 'undefined') ? StatsService.getStats(gameKey, 10) : null;
+            if (stats && stats.hot && stats.hot.length >= targetSize) {
+                selectedArr = stats.hot.slice(0, targetSize).map(x => x.number);
+            } else {
+                const list = [];
+                for (let i = minNum; i <= maxNum; i++) list.push(i);
+                for (let i = list.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [list[i], list[j]] = [list[j], list[i]];
+                }
+                selectedArr = list.slice(0, targetSize);
+            }
         }
 
-        games.forEach(g => {
-            g.forEach(n => {
-                for (const rangeStr in faixas) {
-                    const [s, e] = rangeStr.split('-').map(Number);
-                    if (n >= s && n <= e) {
-                        faixas[rangeStr]++;
-                    }
-                }
-            });
-        });
+        const poolSet = new Set([...selectedArr, ...fixedArr]);
+        const pool = Array.from(poolSet).sort((a, b) => a - b);
 
-        // 6. Montar o HTML do modal
+        // 2. Rodar programaticamente os 3 geradores
+        
+        // --- MANUAL ---
+        let manualGames = [];
+        let manualErr = null;
+        try {
+            if (typeof MotorFechamentoManual !== 'undefined') {
+                const closingVal = this.closingSelect ? this.closingSelect.value : '';
+                if (closingVal.startsWith('close_') && typeof ClosingEngine !== 'undefined') {
+                    const guarantee = parseInt(closingVal.replace('close_', ''));
+                    const result = ClosingEngine.generate(gameKey, qty, selectedArr, fixedArr, drawSize, guarantee);
+                    manualGames = result ? result.games : [];
+                } else {
+                    const result = MotorFechamentoManual.generate(gameKey, pool, fixedArr, qty, drawSize);
+                    manualGames = result ? result.games : [];
+                }
+            } else {
+                manualErr = "Motor Manual não disponível";
+            }
+        } catch (e) {
+            manualErr = e.message;
+        }
+
+        // --- SNIPER ---
+        let sniperGames = [];
+        let sniperErr = null;
+        try {
+            if (typeof SmartCoverageEngine !== 'undefined') {
+                const result = SmartCoverageEngine.generate(gameKey, qty, selectedArr, fixedArr, drawSize, { precisionMode: true, precisionPoolSize: 20 });
+                sniperGames = result ? result.games : [];
+            } else {
+                sniperErr = "SmartCoverageEngine não disponível";
+            }
+        } catch (e) {
+            sniperErr = e.message;
+        }
+
+        // --- COBERTURA IA ---
+        let coberturaGames = [];
+        let coberturaErr = null;
+        try {
+            if (typeof SmartCoverageEngine !== 'undefined') {
+                const result = SmartCoverageEngine.generate(gameKey, qty, selectedArr, fixedArr, drawSize, { precisionMode: false });
+                coberturaGames = result ? result.games : [];
+            } else {
+                coberturaErr = "SmartCoverageEngine não disponível";
+            }
+        } catch (e) {
+            coberturaErr = e.message;
+        }
+
+        // Helper para compilar estatísticas de um set de jogos
+        const analyzeSet = (games, name) => {
+            if (!games || games.length === 0) return null;
+            
+            // 1. Cobertura de números únicos
+            const freq = {};
+            games.forEach(g => {
+                g.forEach(n => {
+                    freq[n] = (freq[n] || 0) + 1;
+                });
+            });
+            const uniqueNumbers = Object.keys(freq).map(Number);
+            const coveragePct = ((uniqueNumbers.length / totalPossible) * 100).toFixed(1);
+            
+            // 2. Par / Ímpar
+            let evens = 0, odds = 0;
+            games.forEach(g => {
+                g.forEach(n => {
+                    if (n % 2 === 0) evens++;
+                    else odds++;
+                });
+            });
+            const totalDigits = evens + odds;
+            const evenPercent = totalDigits > 0 ? ((evens / totalDigits) * 100).toFixed(0) : 50;
+            const oddPercent = totalDigits > 0 ? ((odds / totalDigits) * 100).toFixed(0) : 50;
+            
+            // 3. Hamming distance (Diversidade)
+            let avgHamming = 0;
+            if (typeof SmartCoverageEngine !== 'undefined') {
+                avgHamming = SmartCoverageEngine._calcAvgHamming(games, drawSize);
+            }
+            const diversityPct = ((avgHamming / drawSize) * 100).toFixed(0);
+            
+            // 4. Probabilidades hipergeométricas
+            let metrics = {};
+            if (typeof SmartCoverageEngine !== 'undefined') {
+                metrics = SmartCoverageEngine.calcRealMetrics(games, gameKey);
+            }
+            const prizes = metrics.prizes || [];
+            
+            // 5. Score de Eficiência
+            // Combina Cobertura, Diversidade e Equilíbrio de Dezenas
+            const covScore = (uniqueNumbers.length / totalPossible) * 40;
+            const divScore = (avgHamming / drawSize) * 30;
+            const evenRatio = totalDigits > 0 ? (evens / totalDigits) : 0.5;
+            const balance = 1 - Math.abs(evenRatio - 0.5) * 2;
+            const balScore = balance * 30;
+            const score = (covScore + divScore + balScore).toFixed(1);
+            
+            return {
+                name,
+                games,
+                uniqueCount: uniqueNumbers.length,
+                coveragePct,
+                evenPct,
+                oddPct,
+                avgHamming,
+                diversityPct,
+                prizes,
+                score: parseFloat(score)
+            };
+        };
+
+        const manualAnalysis = analyzeSet(manualGames, 'MANUAL');
+        const sniperAnalysis = analyzeSet(sniperGames, 'SNIPER');
+        const coberturaAnalysis = analyzeSet(coberturaGames, 'COBERTURA IA');
+
+        // 3. Determinar quem tem o maior potencial
+        const analyses = [manualAnalysis, sniperAnalysis, coberturaAnalysis].filter(Boolean);
+        if (analyses.length === 0) {
+            alert('Não foi possível gerar dados de análise para os jogos.');
+            return;
+        }
+
+        analyses.sort((a, b) => b.score - a.score);
+        const winner = analyses[0];
+
+        // 4. Montar o HTML do modal
         const modalContent = document.getElementById('analyse-modal-content');
         if (!modalContent) return;
 
-        let html = `
-            <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,215,0,0.15); margin-bottom: 20px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        let html = '';
+
+        if (simulated) {
+            html += `
+                <div style="background: rgba(245,158,11,0.08); padding: 12px 16px; border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; margin-bottom: 20px; color:#F59E0B; font-size:0.8rem; line-height:1.4;">
+                    💡 <strong>Aviso de Simulação:</strong> Como você selecionou menos de <strong>${drawSize}</strong> números no grid, simulamos uma seleção inteligente com as dezenas estatisticamente mais quentes da ${gameConfig.name} para realizar o comparativo entre os motores.
+                </div>
+            `;
+        }
+
+        html += `
+            <div style="background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(15,23,42,0.95)); border: 1px solid rgba(34,197,94,0.3); padding: 22px; border-radius: 14px; margin-bottom: 25px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span style="font-size:2rem;">🏆</span>
                     <div>
-                        <span style="font-size:0.85rem; color:#94A3B8; text-transform:uppercase; font-weight:700;">Loteria Selecionada</span>
-                        <h4 style="margin:0; font-size:1.4rem; color:${gameConfig.color}; font-weight:800;">${gameConfig.name}</h4>
-                    </div>
-                    <div style="text-align:right;">
-                        <span style="font-size:0.85rem; color:#94A3B8; text-transform:uppercase; font-weight:700;">Total de Jogos</span>
-                        <h4 style="margin:0; font-size:1.4rem; color:#fff; font-weight:800;">${games.length} volantes</h4>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Cobertura Global -->
-            <div style="margin-bottom: 25px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                    <span style="font-weight:700; font-size:0.9rem; color:#fff;">📐 Cobertura do Volante:</span>
-                    <span style="font-weight:800; font-size:0.95rem; color:#10B981;">${uniqueNumbers.length} de ${totalPossible} números (${coveragePercent}%)</span>
-                </div>
-                <div style="height:12px; background:#1e293b; border-radius:6px; overflow:hidden; border:1px solid rgba(255,255,255,0.05);">
-                    <div style="height:100%; width:${coveragePercent}%; background:linear-gradient(90deg, #10B981, #059669); border-radius:6px;"></div>
-                </div>
-                <p style="font-size:0.75rem; color:#64748B; margin-top:5px; line-height:1.4;">
-                    Representa a proporção de números do volante que aparecem em pelo menos um jogo gerado. Quanto maior a cobertura, menor a repetição excessiva de dezenas.
-                </p>
-            </div>
-
-            <!-- Divisão de Pares e Ímpares -->
-            <div style="margin-bottom: 25px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                    <span style="font-weight:700; font-size:0.9rem; color:#fff;">⚖️ Equilíbrio de Pares / Ímpares:</span>
-                    <span style="font-weight:800; font-size:0.95rem; color:#3B82F6;">${evenPercent}% Pares / ${oddPercent}% Ímpares</span>
-                </div>
-                <div style="height:12px; background:#1e293b; border-radius:6px; overflow:hidden; display:flex; border:1px solid rgba(255,255,255,0.05);">
-                    <div style="height:100%; width:${evenPercent}%; background:#3B82F6;"></div>
-                    <div style="height:100%; width:${oddPercent}%; background:#F59E0B;"></div>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#64748B; margin-top:4px;">
-                    <span>🔵 Pares (${evens})</span>
-                    <span>🟡 Ímpares (${odds})</span>
-                </div>
-            </div>
-
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom:25px;">
-                <!-- Mais Frequentes -->
-                <div style="background:rgba(16,185,129,0.03); border:1px solid rgba(16,185,129,0.1); border-radius:12px; padding:15px;">
-                    <h5 style="margin-top:0; margin-bottom:12px; color:#10B981; font-weight:800; font-size:0.85rem; text-transform:uppercase;">🔥 Mais Frequentes nos Jogos</h5>
-                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                        ${hotNums.length > 0 ? hotNums.map(item => `
-                            <div style="background:#111827; border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:6px 10px; display:flex; flex-direction:column; align-items:center; min-width:42px;">
-                                <span style="font-weight:800; color:#10B981; font-size:0.85rem;">${String(item.number).padStart(2,'0')}</span>
-                                <span style="font-size:0.6rem; color:#64748B;">${item.count}x</span>
-                            </div>
-                        `).join('') : '<span style="color:#64748B; font-size:0.75rem;">Sem dezenas repetidas</span>'}
-                    </div>
-                </div>
-
-                <!-- Não Utilizados -->
-                <div style="background:rgba(239,68,68,0.03); border:1px solid rgba(239,68,68,0.1); border-radius:12px; padding:15px;">
-                    <h5 style="margin-top:0; margin-bottom:12px; color:#EF4444; font-weight:800; font-size:0.85rem; text-transform:uppercase;">❄️ Não Utilizados (0x)</h5>
-                    <div style="display:flex; flex-wrap:wrap; gap:6px; max-height: 120px; overflow-y:auto; padding-right:5px;">
-                        ${coldNums.length > 0 ? coldNums.map(item => `
-                            <div style="background:#111827; border:1px solid rgba(239,68,68,0.2); border-radius:6px; padding:4px 8px; font-weight:700; color:#EF4444; font-size:0.8rem;">
-                                ${String(item.number).padStart(2,'0')}
-                            </div>
-                        `).join('') : '<span style="color:#10B981; font-size:0.75rem;">100% de cobertura! Todos os números foram utilizados.</span>'}
+                        <div style="font-size:0.75rem; color:#94A3B8; font-weight:800; text-transform:uppercase; letter-spacing:1px;">Maior Potencial Combinatório</div>
+                        <h4 style="margin:0; font-size:1.3rem; color:#22C55E; font-weight:900;">${winner.name} (Nota: ${winner.score.toFixed(1)}/100)</h4>
+                        <p style="margin:4px 0 0 0; font-size:0.75rem; color:#94A3B8; line-height:1.4;">
+                            Este motor apresentou a melhor distribuição geométrica, com maior diversidade de combinações (Hamming) e cobertura otimizada de dezenas.
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Distribuição por Faixas -->
-            <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:15px; margin-bottom:10px;">
-                <h5 style="margin-top:0; margin-bottom:12px; color:#F59E0B; font-weight:800; font-size:0.85rem; text-transform:uppercase;">📊 Distribuição por Setores</h5>
-                <div style="display:flex; flex-direction:column; gap:10px;">
-                    ${Object.entries(faixas).map(([faixa, count]) => {
-                        const totalFaixaOccurrences = Object.values(faixas).reduce((a,b)=>a+b,0);
-                        const p = totalFaixaOccurrences > 0 ? ((count / totalFaixaOccurrences) * 100).toFixed(1) : 0;
-                        return `
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <span style="font-family:monospace; font-size:0.8rem; color:#94A3B8; width:80px; font-weight:700;">Dez. ${faixa}:</span>
-                                <div style="flex:1; height:8px; background:#1e293b; border-radius:4px; overflow:hidden;">
-                                    <div style="height:100%; width:${p}%; background:#F59E0B; border-radius:4px;"></div>
-                                </div>
-                                <span style="font-size:0.75rem; color:#64748B; width:55px; text-align:right; font-weight:700;">${count}x (${p}%)</span>
-                            </div>
-                        `;
-                    }).join('')}
+            <!-- Gráfico Comparativo de Notas -->
+            <div style="background: rgba(255,255,255,0.02); padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px;">
+                <h5 style="margin-top:0; margin-bottom:14px; color:#F59E0B; font-weight:800; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px;">📈 Notas de Eficiência Combinatória</h5>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+        `;
+
+        [
+            { name: 'MANUAL', data: manualAnalysis, err: manualErr, color: '#3B82F6' },
+            { name: 'SNIPER', data: sniperAnalysis, err: sniperErr, color: '#EF4444' },
+            { name: 'COBERTURA IA', data: coberturaAnalysis, err: coberturaErr, color: '#10B981' }
+        ].forEach(item => {
+            const hasData = !!item.data;
+            const score = hasData ? item.data.score : 0;
+            const pct = score;
+            const statusText = hasData ? `${score.toFixed(1)} / 100` : `Indisponível (${item.err || 'Sem jogos'})`;
+            
+            html += `
+                <div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700; margin-bottom:4px;">
+                        <span style="color:#fff;">${item.name}</span>
+                        <span style="color:${item.color};">${statusText}</span>
+                    </div>
+                    <div style="height:10px; background:#1e293b; border-radius:5px; overflow:hidden; border:1px solid rgba(255,255,255,0.03);">
+                        <div style="height:100%; width:${pct}%; background:${item.color}; border-radius:5px;"></div>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+
+            <!-- Tabela Comparativa de Métricas -->
+            <div style="overflow-x:auto; margin-bottom: 25px;">
+                <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.8rem; min-width:500px;">
+                    <thead>
+                        <tr style="border-bottom:2px solid rgba(255,255,255,0.1); color:#94A3B8;">
+                            <th style="padding:10px 8px; font-weight:700;">Métrica</th>
+                            <th style="padding:10px 8px; font-weight:700; color:#3B82F6;">MANUAL</th>
+                            <th style="padding:10px 8px; font-weight:700; color:#EF4444;">SNIPER</th>
+                            <th style="padding:10px 8px; font-weight:700; color:#10B981;">COBERTURA IA</th>
+                        </tr>
+                    </thead>
+                    <tbody style="color:#E2E8F0;">
+        `;
+
+        const rows = [
+            { label: 'Volantes Analisados', key: 'games', fmt: v => v ? `${v.length} jogos` : 'N/A' },
+            { label: 'Dezenas Cobertas', key: 'uniqueCount', fmt: (v, item) => item ? `${v} de ${totalPossible} (${item.coveragePct}%)` : 'N/A' },
+            { label: 'Diversidade (Hamming)', key: 'diversityPct', fmt: v => v ? `${v}%` : 'N/A' },
+            { label: 'Equilíbrio Pares/Ímpares', key: 'evenPct', fmt: (v, item) => item ? `${item.evenPct}% / ${item.oddPct}%` : 'N/A' },
+        ];
+
+        rows.forEach(r => {
+            html += `
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <td style="padding:10px 8px; font-weight:600; color:#94A3B8;">${r.label}</td>
+                    <td style="padding:10px 8px;">${r.fmt(manualAnalysis ? manualAnalysis[r.key] : null, manualAnalysis)}</td>
+                    <td style="padding:10px 8px;">${r.fmt(sniperAnalysis ? sniperAnalysis[r.key] : null, sniperAnalysis)}</td>
+                    <td style="padding:10px 8px;">${r.fmt(coberturaAnalysis ? coberturaAnalysis[r.key] : null, coberturaAnalysis)}</td>
+                </tr>
+            `;
+        });
+
+        // Chance de Acerto (Hipergeométrica)
+        const getPrizeProbText = (analysis, index) => {
+            if (!analysis || !analysis.prizes || !analysis.prizes[index]) return 'N/A';
+            const prize = analysis.prizes[index];
+            return `Acerto ${prize.hits}: <strong>${prize.probAtLeastOnePct}%</strong>`;
+        };
+
+        html += `
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:10px 8px; font-weight:600; color:#94A3B8;">Probabilidade Faixa 1 (Principal)</td>
+                <td style="padding:10px 8px;">${getPrizeProbText(manualAnalysis, 0)}</td>
+                <td style="padding:10px 8px;">${getPrizeProbText(sniperAnalysis, 0)}</td>
+                <td style="padding:10px 8px;">${getPrizeProbText(coberturaAnalysis, 0)}</td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:10px 8px; font-weight:600; color:#94A3B8;">Probabilidade Faixa 2 (Secundária)</td>
+                <td style="padding:10px 8px;">${getPrizeProbText(manualAnalysis, 1)}</td>
+                <td style="padding:10px 8px;">${getPrizeProbText(sniperAnalysis, 1)}</td>
+                <td style="padding:10px 8px;">${getPrizeProbText(coberturaAnalysis, 1)}</td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:10px 8px; font-weight:600; color:#94A3B8;">Probabilidade Faixa 3 (Terciária)</td>
+                <td style="padding:10px 8px;">${getPrizeProbText(manualAnalysis, 2)}</td>
+                <td style="padding:10px 8px;">${getPrizeProbText(sniperAnalysis, 2)}</td>
+                <td style="padding:10px 8px;">${getPrizeProbText(coberturaAnalysis, 2)}</td>
+            </tr>
+        `;
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Veredito do Especialista / Recomendação -->
+            <div style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,215,0,0.15); border-radius: 12px; padding: 20px;">
+                <h5 style="margin-top:0; margin-bottom:12px; color:#FFD700; font-weight:800; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px;">📋 Veredito do Especialista (Análise de Potencial)</h5>
+                
+                <div style="display:flex; flex-direction:column; gap:14px; font-size:0.78rem; line-height:1.5; color:#D1D5DB;">
+                    <div style="border-left: 3px solid #3B82F6; padding-left: 10px;">
+                        <strong>🎮 MANUAL (Fechamento Focado):</strong> 
+                        Melhor para o apostador que possui palpites extremamente firmes e quer forçar o fechamento apenas das suas dezenas. Apresenta alta eficiência local, mas tem baixa cobertura global de volante.
+                    </div>
+                    <div style="border-left: 3px solid #EF4444; padding-left: 10px;">
+                        <strong>🎯 SNIPER (Retorno Rápido / Tendências):</strong> 
+                        Tem o maior potencial para acertar prêmios intermediários no curto prazo. Ele concentra as apostas nos ciclos de dezenas mais quentes e duplas que saem juntas nas últimas extrações, minimizando o custo e focando no ROI (Retorno de Investimento).
+                    </div>
+                    <div style="border-left: 3px solid #10B981; padding-left: 10px;">
+                        <strong>📐 COBERTURA IA (Cercamento de Prêmios Grandes):</strong> 
+                        Possui o maior potencial matemático de longo prazo para prêmios acumulados. O algoritmo "Set Cover" distribui os jogos para cobrir o máximo do volante sem deixar lacunas vazias. É a melhor estratégia para cercar o prêmio principal em sorteios de grande porte.
+                    </div>
                 </div>
             </div>
         `;
