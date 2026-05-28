@@ -2947,7 +2947,8 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 const closingVal = this.closingSelect ? this.closingSelect.value : '';
                 if (closingVal.startsWith('close_') && typeof ClosingEngine !== 'undefined') {
                     const guarantee = parseInt(closingVal.replace('close_', ''));
-                    const result = ClosingEngine.generate(gameKey, qty, selectedArr, fixedArr, drawSize, guarantee);
+                    const poolSetForClosure = new Set([...selectedArr, ...fixedArr]);
+                    const result = ClosingEngine.generateClosure(poolSetForClosure, guarantee, drawSize, gameKey, fixedArr);
                     manualGames = result ? result.games : [];
                 } else {
                     const result = MotorFechamentoManual.generate(gameKey, pool, fixedArr, qty, drawSize);
@@ -2965,7 +2966,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         let sniperErr = null;
         try {
             if (typeof SmartCoverageEngine !== 'undefined') {
-                const result = SmartCoverageEngine.generate(gameKey, qty, selectedArr, fixedArr, drawSize, { precisionMode: true, precisionPoolSize: 20 });
+                const result = SmartCoverageEngine.generate(gameKey, qty, selectedArr, this.fixedNumbers, drawSize, { precisionMode: true, precisionPoolSize: 20 });
                 sniperGames = result ? result.games : [];
             } else {
                 sniperErr = "SmartCoverageEngine não disponível";
@@ -2979,7 +2980,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         let coberturaErr = null;
         try {
             if (typeof SmartCoverageEngine !== 'undefined') {
-                const result = SmartCoverageEngine.generate(gameKey, qty, selectedArr, fixedArr, drawSize, { precisionMode: false });
+                const result = SmartCoverageEngine.generate(gameKey, qty, selectedArr, this.fixedNumbers, drawSize, { precisionMode: false });
                 coberturaGames = result ? result.games : [];
             } else {
                 coberturaErr = "SmartCoverageEngine não disponível";
