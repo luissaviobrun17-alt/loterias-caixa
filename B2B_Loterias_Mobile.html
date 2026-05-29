@@ -4540,13 +4540,22 @@ class CombinationEngine {
         const game = GAMES[gameType];
         if (!game) return { pool: [], games: [] };
 
-        let pool = customPool;
         const universe = [];
         for (let i = game.range[0]; i <= game.range[1]; i++) {
             universe.push(i);
         }
 
-        // If pool is too small for the minimum bet, supplement it from universe
+        // ── POOL DE NÚMEROS ──
+        // Se o apostador não selecionou nenhum número, usar o universo completo
+        let pool;
+        if (!customPool || customPool.length === 0) {
+            pool = universe.slice();
+        } else {
+            pool = customPool.slice();
+        }
+
+        // Se o pool ainda é menor que minBet (apostador selecionou poucos),
+        // suplementar com números aleatórios do universo
         if (pool.length < game.minBet) {
             const missingCount = game.minBet - pool.length;
             const remainingUniverse = universe.filter(n => !pool.includes(n));
@@ -4554,24 +4563,42 @@ class CombinationEngine {
             pool = pool.concat(supplement);
         }
 
-        // Validate Fixed Numbers
+        // ── NÚMEROS FIXOS ──
+        // Validar: só aceitar fixos que existam no pool do apostador
         const validFixed = fixedNumbers.filter(f => pool.includes(f));
         const needed = game.minBet - validFixed.length;
 
         if (needed < 0) {
-            console.warn("Too many fixed numbers");
+            console.warn("Muitos números fixos para esta loteria.");
             return { pool, games: [] };
         }
 
-        // Available pool to pick remaining numbers from
+        // Pool disponível para sortear os números restantes (exclui os fixos)
         const availablePool = pool.filter(n => !validFixed.includes(n));
 
-        const games = [];
-        const safeQuantity = Math.min(quantity, 5000);
-        const usedCombinations = new Set();
+        // ── CALCULAR MÁXIMO DE COMBINAÇÕES POSSÍVEIS ──
+        // C(availablePool, needed) = quantas combinações únicas existem
+        const maxPossibleGames = this.nCr(availablePool.length, needed);
+        const safeQuantity = Math.min(quantity, 5000, maxPossibleGames);
 
+        if (safeQuantity <= 0) {
+            console.warn(`[CombinationEngine] Pool insuficiente: ${availablePool.length} disponíveis, ${needed} necessários.`);
+            // Se needed == 0 (todos fixos), gerar 1 jogo com os fixos
+            if (needed === 0 && validFixed.length >= game.minBet) {
+                return { pool, games: [validFixed.slice().sort((a, b) => a - b)] };
+            }
+            return { pool, games: [] };
+        }
+
+        // Avisar no console se pediu mais do que o possível
+        if (quantity > maxPossibleGames) {
+            console.warn(`[CombinationEngine] Pediu ${quantity} jogos, mas só existem ${maxPossibleGames} combinações possíveis com ${availablePool.length} números. Gerando ${safeQuantity}.`);
+        }
+
+        const games = [];
+        const usedCombinations = new Set();
         let generationAttempts = 0;
-        const maxAttempts = safeQuantity * 10;
+        const maxAttempts = Math.max(safeQuantity * 50, 500);
 
         while (games.length < safeQuantity && generationAttempts < maxAttempts) {
             generationAttempts++;
@@ -4581,12 +4608,19 @@ class CombinationEngine {
                 let randomFill;
                 const k = games.length;
 
-                // Heuristic: First few games cover the pool to ensure variety/closing
-                if (k < Math.ceil(availablePool.length / needed)) {
+                // Heurística: primeiros jogos cobrem o pool sequencialmente para garantir variedade
+                if (availablePool.length > needed && k < Math.ceil(availablePool.length / needed)) {
                     const shift = (k * needed) % availablePool.length;
                     randomFill = [];
+                    const usedIndices = new Set();
                     for (let i = 0; i < needed; i++) {
-                        randomFill.push(availablePool[(shift + i) % availablePool.length]);
+                        let idx = (shift + i) % availablePool.length;
+                        // Evitar índices duplicados quando shift causa wrapping
+                        while (usedIndices.has(idx)) {
+                            idx = (idx + 1) % availablePool.length;
+                        }
+                        usedIndices.add(idx);
+                        randomFill.push(availablePool[idx]);
                     }
                 } else {
                     randomFill = this.getRandomSubset(availablePool, needed);
@@ -4602,6 +4636,8 @@ class CombinationEngine {
                 usedCombinations.add(key);
             }
         }
+
+        console.log(`[CombinationEngine] ✅ ${games.length}/${quantity} jogos gerados (${generationAttempts} tentativas, pool: ${pool.length}, fixos: ${validFixed.length})`);
 
         return {
             pool: pool,
@@ -8223,10 +8259,11 @@ class UI {
 
         // Generate (Fechamento)
         this.generateBtn.onclick = () => {
+            const requestedQty = parseInt(this.gamesQuantityInput.value) || 10;
             const result = CombinationEngine.generate(
                 this.currentGameKey,
                 this.closingSelect.value,
-                parseInt(this.gamesQuantityInput.value),
+                requestedQty,
                 Array.from(this.selectedNumbers),
                 Array.from(this.fixedNumbers)
             );
@@ -8235,11 +8272,28 @@ class UI {
 
             // Visual Feedback
             const feedback = document.createElement('div');
-            feedback.style.color = '#10B981';
             feedback.style.textAlign = 'center';
             feedback.style.padding = '10px';
             feedback.style.fontWeight = 'bold';
-            feedback.textContent = 'Jogos gerados com sucesso!';
+            feedback.style.borderRadius = '8px';
+
+            const generatedCount = result.games ? result.games.length : 0;
+
+            if (generatedCount === 0) {
+                feedback.style.color = '#EF4444';
+                feedback.style.background = 'rgba(239,68,68,0.1)';
+                feedback.style.border = '1px solid rgba(239,68,68,0.3)';
+                feedback.textContent = '❌ Nenhum jogo gerado. Selecione mais números no grid.';
+            } else if (generatedCount < requestedQty) {
+                feedback.style.color = '#F59E0B';
+                feedback.style.background = 'rgba(245,158,11,0.1)';
+                feedback.style.border = '1px solid rgba(245,158,11,0.3)';
+                feedback.textContent = `⚠️ ${generatedCount} de ${requestedQty} jogos gerados. Selecione mais números para gerar mais combinações.`;
+            } else {
+                feedback.style.color = '#10B981';
+                feedback.textContent = `✅ ${generatedCount} jogos gerados com sucesso!`;
+            }
+
             if (this.gamesContainer.parentNode) {
                 const old = this.gamesContainer.parentNode.querySelector('.generation-feedback');
                 if (old) old.remove();
