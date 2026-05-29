@@ -4598,7 +4598,9 @@ class CombinationEngine {
         const games = [];
         const usedCombinations = new Set();
         let generationAttempts = 0;
-        const maxAttempts = Math.max(safeQuantity * 50, 500);
+        // Escalonar maxAttempts: volumes altos não precisam de 50x (colisoes são raras com pool grande)
+        const attemptsMultiplier = safeQuantity > 1000 ? 5 : (safeQuantity > 100 ? 15 : 50);
+        const maxAttempts = Math.max(safeQuantity * attemptsMultiplier, 500);
 
         while (games.length < safeQuantity && generationAttempts < maxAttempts) {
             generationAttempts++;
@@ -4645,9 +4647,18 @@ class CombinationEngine {
         };
     }
 
+    // Fisher-Yates parcial: O(size) em vez de O(n log n) do sort
     static getRandomSubset(arr, size) {
-        const shuffled = arr.slice().sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, size);
+        const copy = arr.slice();
+        const len = copy.length;
+        const actualSize = Math.min(size, len);
+        for (let i = 0; i < actualSize; i++) {
+            const j = i + Math.floor(Math.random() * (len - i));
+            const tmp = copy[i];
+            copy[i] = copy[j];
+            copy[j] = tmp;
+        }
+        return copy.slice(0, actualSize);
     }
 
     // New: Calculate Investment Info
@@ -6593,8 +6604,15 @@ class SmartBetsEngine {
         const usedCombinations = new Set();
         const isLargeGame = drawSize >= 15;
         const isVeryLargeGame = drawSize >= 20;
-        const isLargeRange = (endNum - startNum + 1) >= 60; // Timemania/Quina: range 80
-        const maxAttempts = isVeryLargeGame ? numGames * 3000 : (isLargeGame ? numGames * 1000 : numGames * 500);
+        const isLargeRange = (endNum - startNum + 1) >= 60;
+        const isHighVolume = numGames > 200;
+        // Escalonar maxAttempts: volumes altos têm colisoes raras
+        const attemptsMultiplier = isVeryLargeGame
+            ? (numGames > 500 ? 50 : 3000)
+            : (isLargeGame
+                ? (numGames > 500 ? 20 : 1000)
+                : (numGames > 500 ? 10 : 500));
+        const maxAttempts = Math.min(numGames * attemptsMultiplier, numGames + 100000);
         let attempts = 0;
 
         // ── CONTROLE DE CONCENTRAÇÃO GLOBAL ──
@@ -6602,7 +6620,7 @@ class SmartBetsEngine {
         const forceNewEvery = profile.forceNewEvery || 5;
         const totalRange = endNum - startNum + 1;
 
-        console.log(`[SmartBets] 🔧 drawSize=${drawSize}, largeRange=${isLargeRange}, maxConc=${maxConcentration}`);
+        console.log(`[SmartBets] 🔧 drawSize=${drawSize}, largeRange=${isLargeRange}, maxConc=${maxConcentration}, highVol=${isHighVolume}, maxAttempts=${maxAttempts}`);
 
         while (games.length < numGames && attempts < maxAttempts) {
             attempts++;
@@ -6616,8 +6634,8 @@ class SmartBetsEngine {
             const key = ticket.join(',');
             if (usedCombinations.has(key)) continue;
 
-            // ── ANTI-CONCENTRAÇÃO: rejeitar jogos com números super-usados ──
-            if (isLargeRange && games.length > 3) {
+            // ── ANTI-CONCENTRAÇÃO (desativar para volume alto para não travar) ──
+            if (isLargeRange && games.length > 3 && !isHighVolume) {
                 const maxAllowed = Math.max(2, Math.ceil(games.length * maxConcentration));
                 let tooConcentrated = false;
                 for (const num of ticket) {
@@ -6630,7 +6648,8 @@ class SmartBetsEngine {
             }
 
             // ── VALIDAÇÃO FINAL ──
-            if (isVeryLargeGame) {
+            if (isVeryLargeGame || isHighVolume) {
+                // Volume alto ou jogo grande: aceitar direto (já validado em _generateSingleSmartGame)
                 games.push(ticket);
                 usedCombinations.add(key);
                 ticket.forEach(n => allUsedNumbers[n] = (allUsedNumbers[n] || 0) + 1);
@@ -7632,37 +7651,65 @@ class SmartBetsEngine {
         const startNum = profile.range[0];
         const endNum = profile.range[1];
         const totalRange = endNum - startNum + 1;
+        const numGames = games.length;
+        const isHighVolume = numGames > 200;
 
         // Cobertura: quantos números únicos do pool são usados
         const allNums = new Set();
-        games.forEach(g => g.forEach(n => allNums.add(n)));
+        for (let g = 0; g < numGames; g++) {
+            for (let i = 0; i < games[g].length; i++) {
+                allNums.add(games[g][i]);
+            }
+        }
         const coverage = Math.round(allNums.size / totalRange * 100);
 
-        // Diversidade: quão diferentes os jogos são entre si
+        // Diversidade: amostragem para volumes altos (evitar O(n²))
         let totalOverlap = 0, pairCount = 0;
-        for (let i = 0; i < games.length; i++) {
-            for (let j = i + 1; j < games.length; j++) {
+        const maxPairsToCheck = isHighVolume ? 200 : numGames * (numGames - 1) / 2;
+        if (isHighVolume) {
+            // Amostragem aleatória de pares
+            for (let p = 0; p < maxPairsToCheck; p++) {
+                const i = Math.floor(Math.random() * numGames);
+                let j = Math.floor(Math.random() * (numGames - 1));
+                if (j >= i) j++;
                 const setA = new Set(games[i]);
                 let overlap = 0;
-                games[j].forEach(n => { if (setA.has(n)) overlap++; });
+                for (let k = 0; k < games[j].length; k++) {
+                    if (setA.has(games[j][k])) overlap++;
+                }
                 totalOverlap += overlap / games[i].length;
                 pairCount++;
+            }
+        } else {
+            for (let i = 0; i < numGames; i++) {
+                for (let j = i + 1; j < numGames; j++) {
+                    const setA = new Set(games[i]);
+                    let overlap = 0;
+                    for (let k = 0; k < games[j].length; k++) {
+                        if (setA.has(games[j][k])) overlap++;
+                    }
+                    totalOverlap += overlap / games[i].length;
+                    pairCount++;
+                }
             }
         }
         const avgOverlap = pairCount > 0 ? totalOverlap / pairCount : 0;
         const diversityScore = Math.max(0, 1 - avgOverlap) * 100;
 
-        // Backtesting leve (verificar contra últimos sorteios)
+        // Backtesting leve — usar Sets para O(1) lookup
         let backtestScore = 0;
         const testCount = Math.min(5, history.length);
         if (testCount > 0) {
             for (let t = 0; t < testCount; t++) {
-                const drawn = history[t].numbers;
+                const drawnSet = new Set(history[t].numbers);
                 let bestHits = 0;
-                for (let g = 0; g < games.length; g++) {
+                // Para volume alto, amostrar jogos
+                const gamesToCheck = isHighVolume ? Math.min(500, numGames) : numGames;
+                const step = isHighVolume ? Math.max(1, Math.floor(numGames / gamesToCheck)) : 1;
+                for (let g = 0; g < numGames; g += step) {
                     let hits = 0;
                     for (let i = 0; i < games[g].length; i++) {
-                        if (drawn.includes(games[g][i])) hits++;
+                        if (drawnSet.has(games[g][i])) hits++;
                     }
                     if (hits > bestHits) bestHits = hits;
                 }
@@ -7672,20 +7719,24 @@ class SmartBetsEngine {
             backtestScore = backtestScore / testCount * 100;
         }
 
-        // Qualidade média dos jogos
+        // Qualidade média — amostragem para volumes altos
         let totalQuality = 0;
-        games.forEach(g => {
-            totalQuality += this._scoreGame(g, profile, analysis, history, drawSize);
-        });
-        const avgQuality = totalQuality / games.length;
+        const sampleSize = isHighVolume ? Math.min(100, numGames) : numGames;
+        const qualityStep = isHighVolume ? Math.max(1, Math.floor(numGames / sampleSize)) : 1;
+        let sampleCount = 0;
+        for (let g = 0; g < numGames; g += qualityStep) {
+            totalQuality += this._scoreGame(games[g], profile, analysis, history, drawSize);
+            sampleCount++;
+        }
+        const avgQuality = sampleCount > 0 ? totalQuality / sampleCount : 8.0;
 
         // Confiança final — calibrada para 90%+ com boa geração
         const poolCoverageBonus = coverage > 50 ? 5 : coverage > 30 ? 3 : 0;
         
         // Bonus para jogos com muitos números (Lotomania = 50 nums → naturalmente mais acertos)
         const game = GAMES[gameKey];
-        const drawSize = game ? game.minBet : profile.draw;
-        const largeGameBonus = drawSize >= 20 ? 25 : (drawSize >= 15 ? 8 : 0);
+        const actualDrawSize = drawSize || (game ? game.minBet : profile.draw);
+        const largeGameBonus = actualDrawSize >= 20 ? 25 : (actualDrawSize >= 15 ? 8 : 0);
         
         const confidence = Math.min(95, Math.max(25, Math.round(
             avgQuality * 2.5 +
