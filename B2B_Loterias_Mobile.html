@@ -8110,7 +8110,37 @@ class UI {
             ? parseInt(this.smartDrawSizeSelect.value) || game.minBet
             : game.minBet;
 
-        // AUTO-USAR números sugeridos pela fórmula IA (se nenhum selecionado no grid)
+        // ── MODO SNIPER: Filtrar pool aos top N números ──
+        const sniperToggle = document.getElementById('precision-mode-toggle');
+        const isSniperMode = sniperToggle && sniperToggle.checked;
+
+        if (isSniperMode && selectedArr.length === 0) {
+            const poolSizeInput = document.getElementById('precision-pool-size');
+            const sniperPoolSize = poolSizeInput
+                ? Math.max(customDrawSize, parseInt(poolSizeInput.value) || 20)
+                : 20;
+
+            // Construir pool completo e calcular scores da IA
+            const universe = [];
+            for (let i = game.range[0]; i <= game.range[1]; i++) universe.push(i);
+
+            let history = [];
+            try { history = StatsService.getRecentResults(this.currentGameKey, 100) || []; } catch(e) {}
+
+            const profile = SmartBetsEngine.getProfile(this.currentGameKey);
+            const tempAnalysis = SmartBetsEngine._deepAnalysis(this.currentGameKey, universe, history, profile, game.range[0], game.range[1]);
+
+            // Ordenar números por score (melhor → pior) e pegar os top N
+            const ranked = universe.slice().sort((a, b) =>
+                (tempAnalysis.numberScores[b] || 0) - (tempAnalysis.numberScores[a] || 0)
+            );
+            selectedArr = ranked.slice(0, Math.min(sniperPoolSize, ranked.length));
+
+            console.log(`[Sniper] 🎯 Pool de Precisão: ${selectedArr.length} números (top ${sniperPoolSize} por score IA)`);
+            console.log(`[Sniper] 🎯 Top 5: [${selectedArr.slice(0, 5).join(', ')}] | Scores: [${selectedArr.slice(0, 5).map(n => (tempAnalysis.numberScores[n] || 0).toFixed(2)).join(', ')}]`);
+        }
+
+        // AUTO-USAR números sugeridos pela fórmula IA (se nenhum selecionado no grid e não Sniper)
         if (selectedArr.length === 0 && this.quantumResults) {
             const quantumBalls = this.quantumResults.querySelectorAll('.ball');
             if (quantumBalls.length > 0) {
@@ -8139,13 +8169,16 @@ class UI {
         if (oldAnalysis) oldAnalysis.remove();
 
         // Loading - Fase 1
+        const modeLabel = isSniperMode ? '🎯 Sniper Ativado' : '🧠 Motor IA Ativado';
+        const modeColor = isSniperMode ? '#EF4444' : '#8B5CF6';
+        const modeGradient = isSniperMode ? 'linear-gradient(90deg,#EF4444,#F59E0B)' : 'linear-gradient(90deg,#8B5CF6,#EC4899)';
         this.gamesContainer.innerHTML = `
             <div style="text-align:center;padding:30px;">
-                <div style="font-size:2rem;margin-bottom:10px;">🧠</div>
-                <div style="color:#8B5CF6;font-weight:700;font-size:1rem;">Motor IA Ativado</div>
-                <div style="color:#94A3B8;font-size:0.85rem;margin-top:5px;">Analisando ${game.name} (${customDrawSize} números)...</div>
+                <div style="font-size:2rem;margin-bottom:10px;">${isSniperMode ? '🎯' : '🧠'}</div>
+                <div style="color:${modeColor};font-weight:700;font-size:1rem;">${modeLabel}</div>
+                <div style="color:#94A3B8;font-size:0.85rem;margin-top:5px;">Analisando ${game.name} (${customDrawSize} números)${isSniperMode ? ' — Pool: ' + selectedArr.length + ' nums' : ''}...</div>
                 <div style="margin-top:15px;width:60%;height:4px;background:rgba(139,92,246,0.15);border-radius:4px;margin-left:auto;margin-right:auto;overflow:hidden;">
-                    <div style="width:30%;height:100%;background:linear-gradient(90deg,#8B5CF6,#EC4899);border-radius:4px;animation:smartProgress 1.5s ease-in-out infinite;"></div>
+                    <div style="width:30%;height:100%;background:${modeGradient};border-radius:4px;animation:smartProgress 1.5s ease-in-out infinite;"></div>
                 </div>
             </div>
             <style>@keyframes smartProgress{0%{width:10%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:10%;margin-left:90%}}</style>
@@ -8363,7 +8396,7 @@ class UI {
                         this.generateSmartBtn.style.background = 'linear-gradient(135deg, #EF4444, #991B1B)';
                         this.generateSmartBtn.style.boxShadow = '0 6px 25px rgba(239, 68, 68, 0.5)';
                         precisionPoolRow.style.display = 'flex';
-                        if(typeof this._updatePrecisionPoolLimits === 'function') this._updatePrecisionPoolLimits();
+                        this._updatePrecisionPoolLimits();
                     } else {
                         this.generateSmartBtn.innerHTML = '⚡ QUANTUM L99';
                         this.generateSmartBtn.style.background = 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
@@ -8622,6 +8655,9 @@ class UI {
         // Atualizar seletor de números por jogo IA
         this.updateSmartDrawSizeSelect(gameKey, game);
 
+        // Atualizar limites do Pool de Precisão (Sniper)
+        this._updatePrecisionPoolLimits();
+
         // RENDER GRID IMMEDIATELY
         this.renderNumberGrid(game);
         this.updateSelectionInfo();
@@ -8696,6 +8732,37 @@ class UI {
             } else {
                 this.smartDrawInfo.textContent = `Mín: ${min} | Máx: ${game.maxBet}`;
             }
+        }
+    }
+
+    // ╔══════════════════════════════════════════════════════════╗
+    // ║  ATUALIZAR LIMITES DO POOL DE PRECISÃO (SNIPER)        ║
+    // ╚══════════════════════════════════════════════════════════╝
+    _updatePrecisionPoolLimits() {
+        const poolInput = document.getElementById('precision-pool-size');
+        const poolInfo = document.getElementById('precision-pool-info');
+        if (!poolInput) return;
+
+        const game = GAMES[this.currentGameKey];
+        if (!game) return;
+
+        const totalRange = game.range[1] - game.range[0] + 1;
+        const minPool = game.minBet;
+        const maxPool = totalRange;
+        // Valor padrão: ~35% do range (bom equilíbrio precisão/cobertura)
+        const defaultPool = Math.max(minPool + 2, Math.ceil(totalRange * 0.35));
+
+        poolInput.min = minPool;
+        poolInput.max = maxPool;
+
+        // Só alterar o valor se estiver fora dos limites da nova loteria
+        const currentVal = parseInt(poolInput.value) || defaultPool;
+        if (currentVal < minPool || currentVal > maxPool) {
+            poolInput.value = defaultPool;
+        }
+
+        if (poolInfo) {
+            poolInfo.textContent = `Top números (${minPool}–${maxPool}) para ${game.name}`;
         }
     }
 
