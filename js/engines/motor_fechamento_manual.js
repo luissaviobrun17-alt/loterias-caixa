@@ -546,7 +546,7 @@ class MotorFechamentoManual {
     // ═══════════════════════════════════════════════════════════════
     //  PONTO DE ENTRADA PRINCIPAL (API inalterada)
     // ═══════════════════════════════════════════════════════════════
-    static generate(gameKey, pool, fixedNumbers, numGames, drawSize) {
+    static async generate(gameKey, pool, fixedNumbers, numGames, drawSize) {
         const t0 = Date.now();
         const cfg = this.getConfig(gameKey);
         const k = drawSize || cfg.drawSize;
@@ -646,7 +646,9 @@ class MotorFechamentoManual {
         let consecutiveFailures = 0;
         const rejectionCounts = {};
 
+        let _l99YieldTimer = Date.now();
         while (results.length < numGames && totalAttempts < maxAttempts) {
+            if (Date.now() - _l99YieldTimer > 40) { await new Promise(r => setTimeout(r, 0)); _l99YieldTimer = Date.now(); }
             let bestCandidate = null;
             let bestScore = -1;
 

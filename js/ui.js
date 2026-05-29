@@ -149,7 +149,17 @@ class UI {
             this.generateBtn.onclick = () => {
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
-                const qty = parseInt(this.gamesQuantityInput.value) || 10;
+                let qty = parseInt(this.gamesQuantityInput.value) || 10;
+const MAX_QTY = 10000;
+if (qty > MAX_QTY) {
+    if (typeof Guardian !== 'undefined' && Guardian.toast) {
+        Guardian.toast(`Quantidade máxima de jogos é ${MAX_QTY}. Valor ajustado.`, 'warning');
+    } else {
+        alert(`Quantidade máxima de jogos é ${MAX_QTY}. Valor ajustado.`);
+    }
+    qty = MAX_QTY;
+    this.gamesQuantityInput.value = MAX_QTY;
+}
                 const drawSizeSelect = document.getElementById('smart-draw-size');
                 const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
                 const drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
@@ -273,7 +283,17 @@ class UI {
             this.generateCoverageBtn.onclick = async () => {
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
-                const qty = parseInt(this.gamesQuantityInput.value) || 10;
+                let qty = parseInt(this.gamesQuantityInput.value) || 10;
+const MAX_QTY = 10000;
+if (qty > MAX_QTY) {
+    if (typeof Guardian !== 'undefined' && Guardian.toast) {
+        Guardian.toast(`Quantidade máxima de jogos é ${MAX_QTY}. Valor ajustado.`, 'warning');
+    } else {
+        alert(`Quantidade máxima de jogos é ${MAX_QTY}. Valor ajustado.`);
+    }
+    qty = MAX_QTY;
+    this.gamesQuantityInput.value = MAX_QTY;
+}
                 const drawSizeSelect = document.getElementById('smart-draw-size');
                 const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
                 const drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
