@@ -6635,7 +6635,7 @@ class SmartBetsEngine {
                 usedCombinations.add(key);
                 ticket.forEach(n => allUsedNumbers[n] = (allUsedNumbers[n] || 0) + 1);
             } else {
-                const score = this._scoreGame(ticket, profile, analysis, history);
+                const score = this._scoreGame(ticket, profile, analysis, history, drawSize);
                 const minScore = isLargeGame ? 3.0 : 5.0;
                 if (score >= minScore || attempts > maxAttempts * 0.7) {
                     games.push(ticket);
@@ -6646,7 +6646,7 @@ class SmartBetsEngine {
         }
 
         // ── CALCULAR CONFIANÇA DO SET ──
-        const setAnalysis = this._analyzeGeneratedSet(games, profile, analysis, history, gameKey);
+        const setAnalysis = this._analyzeGeneratedSet(games, profile, analysis, history, gameKey, drawSize);
 
         console.log(`[SmartBets] ✅ ${games.length} jogos gerados em ${attempts} tentativas`);
         console.log(`[SmartBets] 📊 Confiança: ${setAnalysis.confidence}% | Cobertura: ${setAnalysis.coverage}%`);
@@ -7270,7 +7270,7 @@ class SmartBetsEngine {
         ticket.sort((a, b) => a - b);
 
         // ── VALIDAÇÃO RÁPIDA (rejeitar jogos ruins) ──
-        if (!this._validateGame(ticket, profile, analysis)) {
+        if (!this._validateGame(ticket, profile, analysis, drawSize)) {
             return null;
         }
 
@@ -7280,7 +7280,7 @@ class SmartBetsEngine {
     // ╔══════════════════════════════════════════════════════╗
     // ║  VALIDAÇÃO DE UM JOGO (20+ REGRAS)                  ║
     // ╚══════════════════════════════════════════════════════╝
-    static _validateGame(ticket, profile, analysis) {
+    static _validateGame(ticket, profile, analysis, drawSize) {
         const n = ticket.length;
         if (n === 0) return false;
 
@@ -7290,7 +7290,21 @@ class SmartBetsEngine {
         const startNum = profile.range[0];
         const endNum = profile.range[1];
 
-        // REGRA 1: Consecutivos máximos
+        // ── ESCALAR REGRAS quando drawSize != profile.draw ──
+        const actualDraw = drawSize || profile.draw || n;
+        const ratio = actualDraw / profile.draw;
+        const scaledSumMin = profile.sumMin * ratio;
+        const scaledSumMax = profile.sumMax * ratio;
+        const scaledEvenIdeal = Math.round(profile.evenOddIdeal[0] * ratio);
+        const scaledOddIdeal = actualDraw - scaledEvenIdeal;
+        const scaledMaxConsecutive = ratio > 1
+            ? Math.max(profile.maxConsecutive, Math.ceil(profile.maxConsecutive * ratio))
+            : profile.maxConsecutive;
+        const scaledTolerance = ratio > 1
+            ? profile.evenOddTolerance + Math.ceil((ratio - 1) * 2)
+            : profile.evenOddTolerance;
+
+        // REGRA 1: Consecutivos máximos (escalado)
         let maxRun = 1, currentRun = 1;
         for (let i = 1; i < n; i++) {
             if (ticket[i] - ticket[i - 1] === 1) {
@@ -7300,22 +7314,22 @@ class SmartBetsEngine {
                 currentRun = 1;
             }
         }
-        if (maxRun > profile.maxConsecutive) return false;
+        if (maxRun > scaledMaxConsecutive) return false;
 
-        // REGRA 2: Par/Ímpar
+        // REGRA 2: Par/Ímpar (escalado)
         let evens = 0;
         for (let i = 0; i < n; i++) {
             if (ticket[i] % 2 === 0) evens++;
         }
         const odds = n - evens;
-        const evenDiff = Math.abs(evens - profile.evenOddIdeal[0]);
-        const oddDiff = Math.abs(odds - profile.evenOddIdeal[1]);
-        if (evenDiff > profile.evenOddTolerance + 1 || oddDiff > profile.evenOddTolerance + 1) return false;
+        const evenDiff = Math.abs(evens - scaledEvenIdeal);
+        const oddDiff = Math.abs(odds - scaledOddIdeal);
+        if (evenDiff > scaledTolerance + 1 || oddDiff > scaledTolerance + 1) return false;
 
-        // REGRA 3: Soma
+        // REGRA 3: Soma (escalada)
         let sum = 0;
         for (let i = 0; i < n; i++) sum += ticket[i];
-        if (sum < profile.sumMin * 0.90 || sum > profile.sumMax * 1.10) return false;
+        if (sum < scaledSumMin * 0.90 || sum > scaledSumMax * 1.10) return false;
 
         // REGRA 4: Anti-progressão aritmética (máx 3 em PA)
         let paCount = 0;
@@ -7333,7 +7347,8 @@ class SmartBetsEngine {
             endings[d] = (endings[d] || 0) + 1;
         }
         for (const d in endings) {
-            if (endings[d] > profile.maxSameEnding + 1) return false;
+            const scaledMaxEnding = ratio > 1 ? Math.max(profile.maxSameEnding, Math.ceil(profile.maxSameEnding * ratio)) : profile.maxSameEnding;
+            if (endings[d] > scaledMaxEnding + 1) return false;
         }
 
         // ══════════════════════════════════════════════
@@ -7403,13 +7418,26 @@ class SmartBetsEngine {
     // ╔══════════════════════════════════════════════════════╗
     // ║  PONTUAÇÃO DE QUALIDADE DE UM JOGO                  ║
     // ╚══════════════════════════════════════════════════════╝
-    static _scoreGame(ticket, profile, analysis, history) {
+    static _scoreGame(ticket, profile, analysis, history, drawSize) {
         let score = 8.0; // Base elevada para garantir 90%+
         const n = ticket.length;
         const startNum = profile.range[0];
         const endNum = profile.range[1];
 
-        // 1. Consecutivos — bonus generoso com crédito parcial
+        // ── ESCALAR REGRAS quando drawSize != profile.draw ──
+        const actualDraw = drawSize || profile.draw || n;
+        const ratio = actualDraw / profile.draw;
+        const scaledMaxConsecutive = ratio > 1
+            ? Math.max(profile.maxConsecutive, Math.ceil(profile.maxConsecutive * ratio))
+            : profile.maxConsecutive;
+        const scaledEvenIdeal = Math.round(profile.evenOddIdeal[0] * ratio);
+        const scaledTolerance = ratio > 1
+            ? profile.evenOddTolerance + Math.ceil((ratio - 1) * 2)
+            : profile.evenOddTolerance;
+        const scaledSumMin = profile.sumMin * ratio;
+        const scaledSumMax = profile.sumMax * ratio;
+
+        // 1. Consecutivos — bonus generoso com crédito parcial (escalado)
         let maxRun = 1, currentRun = 1, totalConsec = 0;
         for (let i = 1; i < n; i++) {
             if (ticket[i] - ticket[i - 1] === 1) {
@@ -7419,21 +7447,21 @@ class SmartBetsEngine {
                 currentRun = 1;
             }
         }
-        if (maxRun <= profile.maxConsecutive) score += 2.0;
-        else if (maxRun <= profile.maxConsecutive + 1) score += 1.0; // Crédito parcial
-        else score -= (maxRun - profile.maxConsecutive) * 0.5;
+        if (maxRun <= scaledMaxConsecutive) score += 2.0;
+        else if (maxRun <= scaledMaxConsecutive + 1) score += 1.0;
+        else score -= (maxRun - scaledMaxConsecutive) * 0.5;
 
         // Consecutivos perto da média historia
         const consecDiff = Math.abs(totalConsec - analysis.avgConsecutive);
         score += Math.max(0, 1.5 - consecDiff * 0.2);
 
-        // 2. Par/Ímpar — crédito parcial ampliado
+        // 2. Par/Ímpar — crédito parcial ampliado (escalado)
         let evens = 0;
         for (let i = 0; i < n; i++) if (ticket[i] % 2 === 0) evens++;
-        const evenDiff = Math.abs(evens - profile.evenOddIdeal[0]);
+        const evenDiff = Math.abs(evens - scaledEvenIdeal);
         if (evenDiff === 0) score += 3.0;
-        else if (evenDiff <= profile.evenOddTolerance) score += 2.0;
-        else if (evenDiff <= profile.evenOddTolerance + 1) score += 1.0;
+        else if (evenDiff <= scaledTolerance) score += 2.0;
+        else if (evenDiff <= scaledTolerance + 1) score += 1.0;
 
         // 3. Distribuição por faixas
         const numFaixas = Math.ceil((endNum - startNum + 1) / profile.faixaSize);
@@ -7456,13 +7484,13 @@ class SmartBetsEngine {
         const gapDiff = Math.abs(avgGap - analysis.avgGap);
         score += Math.max(0, 2.0 - gapDiff * 0.08);
 
-        // 5. Soma — crédito parcial generoso
+        // 5. Soma — crédito parcial generoso (escalada)
         let sum = 0;
         for (let i = 0; i < n; i++) sum += ticket[i];
-        const sumMid = (profile.sumMin + profile.sumMax) / 2;
-        const sumRange = (profile.sumMax - profile.sumMin) / 2;
-        const sumDist = Math.abs(sum - sumMid) / sumRange;
-        if (sumDist <= 1.0) score += 3.0 * (1 - sumDist * 0.5); // Dentro da faixa = até 3.0
+        const sumMid = (scaledSumMin + scaledSumMax) / 2;
+        const sumRange = (scaledSumMax - scaledSumMin) / 2;
+        const sumDist = sumRange > 0 ? Math.abs(sum - sumMid) / sumRange : 0;
+        if (sumDist <= 1.0) score += 3.0 * (1 - sumDist * 0.5);
         else score += Math.max(0, 1.5 - (sumDist - 1) * 2);
 
         // 6. Fibonacci
@@ -7596,7 +7624,7 @@ class SmartBetsEngine {
     // ╔══════════════════════════════════════════════════════╗
     // ║  ANÁLISE DO SET GERADO (confiança + cobertura)      ║
     // ╚══════════════════════════════════════════════════════╝
-    static _analyzeGeneratedSet(games, profile, analysis, history, gameKey) {
+    static _analyzeGeneratedSet(games, profile, analysis, history, gameKey, drawSize) {
         if (games.length === 0) {
             return { confidence: 0, coverage: 0, details: {} };
         }
@@ -7647,7 +7675,7 @@ class SmartBetsEngine {
         // Qualidade média dos jogos
         let totalQuality = 0;
         games.forEach(g => {
-            totalQuality += this._scoreGame(g, profile, analysis, history);
+            totalQuality += this._scoreGame(g, profile, analysis, history, drawSize);
         });
         const avgQuality = totalQuality / games.length;
 
