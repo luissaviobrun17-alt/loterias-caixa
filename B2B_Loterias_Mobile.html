@@ -4600,44 +4600,93 @@ class CombinationEngine {
         let generationAttempts = 0;
         const maxAttempts = Math.max(safeQuantity * 50, 500);
 
-        while (games.length < safeQuantity && generationAttempts < maxAttempts) {
-            generationAttempts++;
-            let ticket = [...validFixed];
+        // Greedy covering: rastrear pares de números já cobertos
+        // Cada jogo novo deve maximizar pares NOVOS (Chvátal 1979)
+        const coveredPairs = new Set();
+        const CANDIDATES_PER_SLOT = 5; // Gerar 5 candidatos, escolher o melhor
 
-            if (needed > 0) {
-                let randomFill;
-                const k = games.length;
-
-                // Heurística: primeiros jogos cobrem o pool sequencialmente para garantir variedade
-                if (availablePool.length > needed && k < Math.ceil(availablePool.length / needed)) {
-                    const shift = (k * needed) % availablePool.length;
-                    randomFill = [];
-                    const usedIndices = new Set();
-                    for (let i = 0; i < needed; i++) {
-                        let idx = (shift + i) % availablePool.length;
-                        // Evitar índices duplicados quando shift causa wrapping
-                        while (usedIndices.has(idx)) {
-                            idx = (idx + 1) % availablePool.length;
-                        }
-                        usedIndices.add(idx);
-                        randomFill.push(availablePool[idx]);
-                    }
-                } else {
-                    randomFill = this.getRandomSubset(availablePool, needed);
+        const _countNewPairs = (ticket, covered) => {
+            let count = 0;
+            for (let i = 0; i < ticket.length; i++) {
+                for (let j = i + 1; j < ticket.length; j++) {
+                    // Chave canônica: menor primeiro
+                    const pk = ticket[i] < ticket[j]
+                        ? ticket[i] * 1000 + ticket[j]
+                        : ticket[j] * 1000 + ticket[i];
+                    if (!covered.has(pk)) count++;
                 }
-                ticket = ticket.concat(randomFill);
+            }
+            return count;
+        };
+
+        const _addPairs = (ticket, covered) => {
+            for (let i = 0; i < ticket.length; i++) {
+                for (let j = i + 1; j < ticket.length; j++) {
+                    const pk = ticket[i] < ticket[j]
+                        ? ticket[i] * 1000 + ticket[j]
+                        : ticket[j] * 1000 + ticket[i];
+                    covered.add(pk);
+                }
+            }
+        };
+
+        while (games.length < safeQuantity && generationAttempts < maxAttempts) {
+            let bestTicket = null;
+            let bestNewPairs = -1;
+            let candidatesChecked = 0;
+
+            // Gerar múltiplos candidatos e escolher o com mais pares novos
+            while (candidatesChecked < CANDIDATES_PER_SLOT && generationAttempts < maxAttempts) {
+                generationAttempts++;
+                let ticket = [...validFixed];
+
+                if (needed > 0) {
+                    let randomFill;
+                    const k = games.length;
+
+                    // Heurística: primeiros jogos cobrem o pool sequencialmente
+                    if (availablePool.length > needed && k < Math.ceil(availablePool.length / needed)) {
+                        const shift = (k * needed) % availablePool.length;
+                        randomFill = [];
+                        const usedIndices = new Set();
+                        for (let i = 0; i < needed; i++) {
+                            let idx = (shift + i) % availablePool.length;
+                            while (usedIndices.has(idx)) {
+                                idx = (idx + 1) % availablePool.length;
+                            }
+                            usedIndices.add(idx);
+                            randomFill.push(availablePool[idx]);
+                        }
+                    } else {
+                        randomFill = this.getRandomSubset(availablePool, needed);
+                    }
+                    ticket = ticket.concat(randomFill);
+                }
+
+                ticket.sort((a, b) => a - b);
+                const key = ticket.join(',');
+
+                if (!usedCombinations.has(key)) {
+                    const newPairs = _countNewPairs(ticket, coveredPairs);
+                    if (newPairs > bestNewPairs) {
+                        bestNewPairs = newPairs;
+                        bestTicket = ticket;
+                    }
+                    candidatesChecked++;
+                }
             }
 
-            ticket.sort((a, b) => a - b);
-            const key = ticket.join(',');
-
-            if (!usedCombinations.has(key)) {
-                games.push(ticket);
-                usedCombinations.add(key);
+            if (bestTicket) {
+                games.push(bestTicket);
+                usedCombinations.add(bestTicket.join(','));
+                _addPairs(bestTicket, coveredPairs);
             }
         }
 
+        const totalPossiblePairs = availablePool.length * (availablePool.length - 1) / 2;
+        const pairCoverage = totalPossiblePairs > 0 ? (coveredPairs.size / totalPossiblePairs * 100).toFixed(1) : 0;
         console.log(`[CombinationEngine] ✅ ${games.length}/${quantity} jogos gerados (${generationAttempts} tentativas, pool: ${pool.length}, fixos: ${validFixed.length})`);
+        console.log(`[CombinationEngine] 📐 Cobertura de pares: ${coveredPairs.size}/${totalPossiblePairs} (${pairCoverage}%)`);
 
         return {
             pool: pool,
