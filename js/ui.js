@@ -43,6 +43,7 @@ class UI {
         this.copyTextarea = _el('copy-textarea');
 
         this.currentGeneratedGames = []; // Store generated games — FONTE ÚNICA DE VERDADE
+        this._engineSlots = { manual: null, sniper: null, cobertura: null };
 
         this.hotNumbersContainer = _el('hot-numbers');
         this.coldNumbersContainer = _el('cold-numbers');
@@ -210,6 +211,7 @@ class UI {
                         const games = result.games || [];
                         this.currentGeneratedGames = games;
                         this._lastGeneratedGames = games;
+                        this._engineSlots.manual = games.length > 0 ? games : null;
                         this.renderGames({ pool: pool, games: games, smartAnalysis: null }, this.currentGameKey);
                         
                         setTimeout(() => {
@@ -248,6 +250,7 @@ class UI {
                     }
                     this.currentGeneratedGames = games;
                     this._lastGeneratedGames = games;
+                    this._engineSlots.manual = games.length > 0 ? games : null;
                     this.renderGames({ pool: pool, games: games, smartAnalysis: null }, this.currentGameKey);
     
                     // Banner informativo
@@ -316,6 +319,7 @@ class UI {
                         const gamesList = data.rows.map(r => r.ticket.split(' ').map(Number));
                         this.currentGeneratedGames = gamesList;
                         this._lastGeneratedGames = gamesList;
+                        this._engineSlots.cobertura = gamesList.length > 0 ? gamesList : null;
 
                         // Renderizar jogos na tela
                         this.renderGames({ pool: Array.from({length: game.range[1]-game.range[0]+1}, (_,i)=>i+game.range[0]), games: gamesList, smartAnalysis: null }, this.currentGameKey);
@@ -364,6 +368,11 @@ class UI {
 
                         this.currentGeneratedGames = result.games;
                         this._lastGeneratedGames = result.games;
+                        if (sniperMode) {
+                            this._engineSlots.sniper = result.games.length > 0 ? result.games : null;
+                        } else {
+                            this._engineSlots.cobertura = result.games.length > 0 ? result.games : null;
+                        }
                         this.renderGames(result, this.currentGameKey);
 
                         const a = result.analysis || {};
@@ -1460,6 +1469,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
     updateGameInfo(gameKey) {
         this.currentGameKey = gameKey;
+        this._engineSlots = { manual: null, sniper: null, cobertura: null };
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         if (!game) {
             console.error('[UI] Dados da loteria não encontrados para: ' + gameKey);
@@ -2898,363 +2908,250 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
     analyseGeneratedGames() {
         const gameKey = this.currentGameKey;
-        const gameConfig = GAMES[gameKey];
+        const gameConfig = (typeof GAMES !== 'undefined') ? GAMES[gameKey] : null;
         if (!gameConfig) return;
 
-        const maxNum = gameConfig.range[1];
-        const minNum = gameConfig.range[0];
-        const totalPossible = maxNum - minNum + 1;
+        const slots = this._engineSlots || { manual: null, sniper: null, cobertura: null };
+        const hasAnalyser = typeof GameAnalyser !== 'undefined';
 
-        const qty = parseInt(this.gamesQuantityInput.value) || 10;
-        
-        const drawSizeSelect = document.getElementById('smart-draw-size');
-        const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
-        const drawSize = (customDrawSize && customDrawSize >= gameConfig.minBet) ? customDrawSize : gameConfig.minBet;
+        const engines = [
+            { id: 'manual',    label: '🎮 MANUAL',       color: '#3B82F6', games: slots.manual,    btn: 'Botão Manual (🎲)' },
+            { id: 'sniper',    label: '🎯 SNIPER',       color: '#EF4444', games: slots.sniper,    btn: 'Botão Cobertura com Sniper ativado (🎯)' },
+            { id: 'cobertura', label: '📐 COBERTURA IA', color: '#10B981', games: slots.cobertura, btn: 'Botão Cobertura IA (📐)' }
+        ];
 
-        // Fator de Combinatória por jogo (Aposta Múltipla vs Simples)
-        const nCr = (n, k) => {
-            if (k < 0 || k > n) return 0;
-            if (k === 0 || k === n) return 1;
-            let r = 1;
-            for (let i = 1; i <= Math.min(k, n - k); i++) {
-                r = r * (n - i + 1) / i;
-            }
-            return Math.round(r);
-        };
-        const combosPorJogo = nCr(drawSize, gameConfig.minBet);
-        const sizeMultiplier = drawSize / gameConfig.minBet;
+        const filled = engines.filter(function(e) { return e.games && e.games.length > 0; });
+        const missing = engines.filter(function(e) { return !e.games || e.games.length === 0; });
 
-        // 1. Obter a seleção real de números do usuário no grid
-        let selectedArr = Array.from(this.selectedNumbers).filter(n => n >= minNum && n <= maxNum);
-        let fixedArr = Array.from(this.fixedNumbers).filter(n => n >= minNum && n <= maxNum);
-        
-        const isVolantePreenchido = selectedArr.length >= drawSize;
-        
-        // --- MOTOR 1: MANUAL ---
-        let manualGames = [];
-        let manualErr = null;
-        if (!isVolantePreenchido) {
-            manualErr = "Inviável (Sem palpites no grid)";
-        } else {
-            try {
-                if (typeof MotorFechamentoManual !== 'undefined') {
-                    const closingVal = this.closingSelect ? this.closingSelect.value : '';
-                    if (closingVal.startsWith('close_') && typeof ClosingEngine !== 'undefined') {
-                        const guarantee = parseInt(closingVal.replace('close_', ''));
-                        const poolSetForClosure = new Set([...selectedArr, ...fixedArr]);
-                        const result = ClosingEngine.generateClosure(poolSetForClosure, guarantee, drawSize, gameKey, fixedArr);
-                        manualGames = result ? result.games : [];
-                    } else {
-                        const poolSet = new Set([...selectedArr, ...fixedArr]);
-                        const pool = Array.from(poolSet).sort((a, b) => a - b);
-                        const result = MotorFechamentoManual.generate(gameKey, pool, fixedArr, qty, drawSize);
-                        manualGames = result ? result.games : [];
-                    }
-                } else {
-                    manualErr = "Motor Manual não disponível";
-                }
-            } catch (e) {
-                manualErr = e.message;
-            }
-        }
-
-        // --- MOTOR 2: SNIPER ---
-        let sniperGames = [];
-        let sniperErr = null;
-        try {
-            if (typeof SmartCoverageEngine !== 'undefined') {
-                // Se o volante estiver vazio, passamos array vazio para forçar o Sniper Automático a construir seu pool estatístico otimizado
-                const sniperSelection = isVolantePreenchido ? selectedArr : [];
-                const result = SmartCoverageEngine.generate(gameKey, qty, sniperSelection, this.fixedNumbers, drawSize, { precisionMode: true, precisionPoolSize: 20 });
-                sniperGames = result ? result.games : [];
-            } else {
-                sniperErr = "SmartCoverageEngine não disponível";
-            }
-        } catch (e) {
-            sniperErr = e.message;
-        }
-
-        // --- MOTOR 3: COBERTURA IA ---
-        let coberturaGames = [];
-        let coberturaErr = null;
-        try {
-            if (typeof SmartCoverageEngine !== 'undefined') {
-                // Se o volante estiver vazio, passamos array vazio para forçar a Cobertura IA a cercar o volante completo da loteria
-                const coberturaSelection = isVolantePreenchido ? selectedArr : [];
-                const result = SmartCoverageEngine.generate(gameKey, qty, coberturaSelection, this.fixedNumbers, drawSize, { precisionMode: false });
-                coberturaGames = result ? result.games : [];
-            } else {
-                coberturaErr = "SmartCoverageEngine não disponível";
-            }
-        } catch (e) {
-            coberturaErr = e.message;
-        }
-
-        // Helper para compilar estatísticas de um set de jogos com base na sua proposta estratégica
-        const analyzeSet = (games, name) => {
-            if (!games || games.length === 0) return null;
-            
-            // 1. Cobertura de números únicos
-            const freq = {};
-            games.forEach(g => {
-                g.forEach(n => {
-                    freq[n] = (freq[n] || 0) + 1;
-                });
-            });
-            const uniqueNumbers = Object.keys(freq).map(Number);
-            const coverageGlobalPct = ((uniqueNumbers.length / totalPossible) * 100).toFixed(1);
-            
-            // 2. Par / Ímpar
-            let evens = 0, odds = 0;
-            games.forEach(g => {
-                g.forEach(n => {
-                    if (n % 2 === 0) evens++;
-                    else odds++;
-                });
-            });
-            const totalDigits = evens + odds;
-            const evenPercent = totalDigits > 0 ? ((evens / totalDigits) * 100).toFixed(0) : 50;
-            const oddPercent = totalDigits > 0 ? ((odds / totalDigits) * 100).toFixed(0) : 50;
-            
-            // 3. Hamming distance (Diversidade de dezenas)
-            let avgHamming = 0;
-            if (typeof SmartCoverageEngine !== 'undefined') {
-                avgHamming = SmartCoverageEngine._calcAvgHamming(games, drawSize);
-            }
-            const diversityPct = ((avgHamming / drawSize) * 100).toFixed(0);
-            
-            // 4. Afinidade Estatística (Tendências nos últimos 10 concursos)
-            const stats = (typeof StatsService !== 'undefined') ? StatsService.getStats(gameKey, 10) : null;
-            let affinityScore = 50;
-            if (stats && stats.hot && stats.hot.length > 0) {
-                const maxCount = Math.max(...stats.hot.map(x => x.count), 1);
-                const freqMap = {};
-                stats.hot.forEach(x => {
-                    freqMap[x.number] = x.count / maxCount;
-                });
-                
-                let totalAff = 0;
-                let countAff = 0;
-                games.forEach(g => {
-                    g.forEach(n => {
-                        totalAff += (freqMap[n] || 0.1);
-                        countAff++;
-                    });
-                });
-                if (countAff > 0) {
-                    affinityScore = Math.round((totalAff / countAff) * 100);
-                }
-            }
-            
-            // 5. Probabilidades hipergeométricas
-            let metrics = {};
-            if (typeof SmartCoverageEngine !== 'undefined') {
-                metrics = SmartCoverageEngine.calcRealMetrics(games, gameKey);
-            }
-            const prizes = metrics.prizes || [];
-            
-            // 6. Score de Potencial Estratégico customizado por filosofia e peso do tamanho de aposta
-            let score = 0;
-            if (name === 'MANUAL') {
-                // MANUAL prioriza a fidelidade ao palpite. Aposta maior reduz necessidade de múltiplos bilhetes
-                const evenRatio = totalDigits > 0 ? (evens / totalDigits) : 0.5;
-                const balance = 1 - Math.abs(evenRatio - 0.5) * 2;
-                score = (parseFloat(diversityPct) * 0.4 + balance * 30 + parseFloat(coverageGlobalPct) * 0.3) * (1 + (sizeMultiplier - 1) * 0.2);
-            } else if (name === 'SNIPER') {
-                // SNIPER foca em dezenas quentes e ROI rápido (Alta Afinidade). Aposta maior agrupa sinergia de dezenas quentes
-                score = (affinityScore * 0.6 + parseFloat(coverageGlobalPct) * 0.2 + parseFloat(diversityPct) * 0.2) * (1 + (sizeMultiplier - 1) * 0.15);
-            } else if (name === 'COBERTURA IA') {
-                // COBERTURA IA foca em cobrir o volante (Cercamento). Aposta maior cobre muito mais pares/triplas por jogo
-                score = (parseFloat(coverageGlobalPct) * 0.6 + parseFloat(diversityPct) * 0.25 + affinityScore * 0.15) * (1 + (sizeMultiplier - 1) * 0.1);
-            }
-            
-            return {
-                name,
-                games,
-                uniqueCount: uniqueNumbers.length,
-                coveragePct: coverageGlobalPct,
-                evenPct: evenPercent,
-                oddPct: oddPercent,
-                avgHamming,
-                diversityPct,
-                affinityScore,
-                combosPorJogo,
-                prizes,
-                score: Math.min(100, Math.max(0, parseFloat(score)))
-            };
-        };
-
-        const manualAnalysis = analyzeSet(manualGames, 'MANUAL');
-        const sniperAnalysis = analyzeSet(sniperGames, 'SNIPER');
-        const coberturaAnalysis = analyzeSet(coberturaGames, 'COBERTURA IA');
-
-        // 3. Determinar quem tem o maior potencial
-        const analyses = [manualAnalysis, sniperAnalysis, coberturaAnalysis].filter(Boolean);
-        if (analyses.length === 0) {
-            alert('Não foi possível gerar dados de análise para os jogos. Certifique-se de que selecionou os números corretos ou de que há conexão com o banco de dados.');
+        if (filled.length === 0) {
+            var mc = document.getElementById('analyse-modal-content');
+            if (!mc) return;
+            mc.innerHTML = '<div style="text-align:center;padding:30px 20px;">' +
+                '<div style="font-size:3rem;margin-bottom:16px;">⚠️</div>' +
+                '<h4 style="color:#F59E0B;margin:0 0 12px;font-size:1.1rem;">Nenhum Jogo Gerado</h4>' +
+                '<p style="color:#94A3B8;font-size:0.85rem;line-height:1.6;margin:0 0 20px;">Para analisar, gere jogos primeiro com os botões:</p>' +
+                '<div style="display:flex;flex-direction:column;gap:8px;text-align:left;max-width:400px;margin:0 auto;">' +
+                engines.map(function(e) {
+                    return '<div style="padding:10px 14px;background:rgba(0,0,0,0.3);border-radius:8px;border-left:3px solid ' + e.color + ';font-size:0.78rem;">' +
+                        '<span style="color:' + e.color + ';font-weight:700;">' + e.label + '</span>' +
+                        '<span style="color:#64748B;"> → ' + e.btn + '</span></div>';
+                }).join('') +
+                '</div><p style="color:#64748B;font-size:0.72rem;margin-top:16px;">Gere pelo menos 1 motor. Para comparação completa, gere os 3.</p></div>';
+            this.analyseModal.style.display = 'flex';
             return;
         }
 
-        analyses.sort((a, b) => b.score - a.score);
-        const winner = analyses[0];
-
-        // 4. Montar o HTML do modal
-        const modalContent = document.getElementById('analyse-modal-content');
-        if (!modalContent) return;
-
-        let html = '';
-
-        if (!isVolantePreenchido) {
-            html += `
-                <div style="background: rgba(59,130,246,0.08); padding: 12px 16px; border: 1px solid rgba(59,130,246,0.25); border-radius: 10px; margin-bottom: 20px; color:#60A5FA; font-size:0.8rem; line-height:1.4;">
-                    💡 <strong>Modo Automático Ativo (Volante Vazio):</strong> A <strong>COBERTURA IA</strong> operou com cercamento global garantindo a distribuição sobre <strong>100% das dezenas</strong> da loteria. O <strong>SNIPER</strong> operou sob um pool estatístico focado nas 20 dezenas mais propensas. O modo <strong>MANUAL</strong> exige palpites e por isso ficou inviável. A escolha da estratégia cabe a você, apostador!
-                </div>
-            `;
-        } else {
-            html += `
-                <div style="background: rgba(16,185,129,0.08); padding: 12px 16px; border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; margin-bottom: 20px; color:#10B981; font-size:0.8rem; line-height:1.4;">
-                    🎯 <strong>Modo Restrito Ativo:</strong> Você selecionou <strong>${selectedArr.length}</strong> números no grid. Os 3 motores operaram <strong>exclusivamente</strong> dentro da sua seleção de dezenas sob medida.
-                </div>
-            `;
+        for (var i = 0; i < engines.length; i++) {
+            var eng = engines[i];
+            if (eng.games && eng.games.length > 0 && hasAnalyser) {
+                eng.analysis = GameAnalyser.analyze(eng.games, gameKey);
+            } else {
+                eng.analysis = null;
+            }
         }
 
-        html += `
-            <div style="background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(15,23,42,0.95)); border: 1px solid rgba(34,197,94,0.3); padding: 22px; border-radius: 14px; margin-bottom: 25px;">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <span style="font-size:2rem;">🏆</span>
-                    <div>
-                        <div style="font-size:0.75rem; color:#94A3B8; font-weight:800; text-transform:uppercase; letter-spacing:1px;">Estratégia Recomendada para este Cenário</div>
-                        <h4 style="margin:0; font-size:1.3rem; color:#22C55E; font-weight:900;">${winner.name} (Eficiência: ${winner.score.toFixed(1)}/100)</h4>
-                        <p style="margin:4px 0 0 0; font-size:0.75rem; color:#94A3B8; line-height:1.4;">
-                            Este motor apresentou o maior potencial de retorno combinatório adaptado à sua configuração de volante e quantidade de apostas.
-                        </p>
-                    </div>
-                </div>
-            </div>
+        var ranked = engines.filter(function(e) { return !!e.analysis; })
+            .sort(function(a, b) { return b.analysis.composite.score10 - a.analysis.composite.score10; });
+        var winner = ranked[0];
 
-            <!-- Gráfico Comparativo de Notas -->
-            <div style="background: rgba(255,255,255,0.02); padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px;">
-                <h5 style="margin-top:0; margin-bottom:14px; color:#F59E0B; font-weight:800; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px;">📈 Pontuação de Potencial Estratégico</h5>
-                <div style="display:flex; flex-direction:column; gap:12px;">
-        `;
+        var modalContent = document.getElementById('analyse-modal-content');
+        if (!modalContent) return;
+        var self = this;
+        var html = '';
 
-        [
-            { name: 'MANUAL', data: manualAnalysis, err: manualErr, color: '#3B82F6' },
-            { name: 'SNIPER', data: sniperAnalysis, err: sniperErr, color: '#EF4444' },
-            { name: 'COBERTURA IA', data: coberturaAnalysis, err: coberturaErr, color: '#10B981' }
-        ].forEach(item => {
-            const hasData = !!item.data;
-            const score = hasData ? item.data.score : 0;
-            const pct = score;
-            const statusText = hasData ? `${score.toFixed(1)} / 100` : `${item.err || 'Indisponível'}`;
-            
-            html += `
-                <div>
-                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700; margin-bottom:4px;">
-                        <span style="color:#fff;">${item.name}</span>
-                        <span style="color:${hasData ? item.color : '#94A3B8'};">${statusText}</span>
-                    </div>
-                    <div style="height:10px; background:#1e293b; border-radius:5px; overflow:hidden; border:1px solid rgba(255,255,255,0.03);">
-                        <div style="height:100%; width:${pct}%; background:${item.color}; border-radius:5px;"></div>
-                    </div>
-                </div>
-            `;
-        });
+        html += '<div style="display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;">';
+        for (var e = 0; e < engines.length; e++) {
+            var eng = engines[e];
+            var ok = eng.games && eng.games.length > 0;
+            html += '<div style="flex:1;min-width:100px;padding:8px 10px;border-radius:8px;text-align:center;font-size:0.7rem;font-weight:700;' +
+                'border:1px solid ' + (ok ? eng.color + '40' : 'rgba(255,255,255,0.06)') + ';' +
+                'background:' + (ok ? eng.color + '10' : 'rgba(0,0,0,0.2)') + ';">' +
+                '<div style="color:' + (ok ? eng.color : '#475569') + ';">' + eng.label + '</div>' +
+                '<div style="color:' + (ok ? '#E2E8F0' : '#475569') + ';font-size:0.65rem;margin-top:2px;">' +
+                (ok ? eng.games.length + ' jogos ✅' : 'Não gerado ⬜') + '</div></div>';
+        }
+        html += '</div>';
 
-        html += `
-                </div>
-            </div>
+        if (missing.length > 0 && filled.length < 3) {
+            html += '<div style="background:rgba(245,158,11,0.08);padding:10px 14px;border:1px solid rgba(245,158,11,0.2);border-radius:8px;margin-bottom:16px;font-size:0.72rem;color:#F59E0B;line-height:1.5;">' +
+                '⚠️ <strong>' + missing.length + ' motor(es) sem jogos:</strong> ' + missing.map(function(m) { return m.label; }).join(', ') + '. Gere-os para comparação completa.</div>';
+        }
 
-            <!-- Tabela Comparativa de Métricas -->
-            <div style="overflow-x:auto; margin-bottom: 25px;">
-                <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.8rem; min-width:500px;">
-                    <thead>
-                        <tr style="border-bottom:2px solid rgba(255,255,255,0.1); color:#94A3B8;">
-                            <th style="padding:10px 8px; font-weight:700;">Métrica</th>
-                            <th style="padding:10px 8px; font-weight:700; color:#3B82F6;">MANUAL</th>
-                            <th style="padding:10px 8px; font-weight:700; color:#EF4444;">SNIPER</th>
-                            <th style="padding:10px 8px; font-weight:700; color:#10B981;">COBERTURA IA</th>
-                        </tr>
-                    </thead>
-                    <tbody style="color:#E2E8F0;">
-        `;
+        if (winner) {
+            var s10 = winner.analysis.composite.score10;
+            var sc = s10 >= 8 ? '#22C55E' : s10 >= 6 ? '#F59E0B' : s10 >= 4 ? '#FB923C' : '#EF4444';
+            var emoji = s10 >= 8 ? '🏆' : s10 >= 6 ? '⭐' : s10 >= 4 ? '⚠️' : '❌';
+            var tip = s10 >= 8 ? 'Excelente distribuição. Jogue com confiança.' :
+                      s10 >= 6 ? 'Boa distribuição. Considere ajustar números.' :
+                      s10 >= 4 ? 'Distribuição mediana. Revise a seleção.' :
+                      'Distribuição fraca. Gere novamente.';
 
-        const rows = [
-            { label: 'Volantes Analisados', key: 'games', fmt: v => v ? `${v.length} jogos` : 'N/A' },
-            { label: 'Tamanho da Aposta', key: 'combosPorJogo', fmt: (v, item) => item ? `${drawSize} dezenas ${drawSize > gameConfig.minBet ? `<b>(Aposta Múltipla)</b>` : '(Aposta Simples)'}` : 'Inviável' },
-            { label: 'Poder Combinatório / Jogo', key: 'combosPorJogo', fmt: (v, item) => item ? `${v}x simples` : 'Inviável' },
-            { label: 'Cercamento Global (Cobertura)', key: 'coveragePct', fmt: (v, item) => item ? `${item.uniqueCount} de ${totalPossible} (${v}%)` : 'Inviável' },
-            { label: 'Afinidade Estatística (Tendências)', key: 'affinityScore', fmt: v => v ? `${v}%` : 'Inviável' },
-            { label: 'Diversidade Combinatória (Hamming)', key: 'diversityPct', fmt: v => v ? `${v}%` : 'Inviável' },
-            { label: 'Equilíbrio Pares/Ímpares', key: 'evenPct', fmt: (v, item) => item ? `${item.evenPct}% / ${item.oddPct}%` : 'Inviável' },
-        ];
+            html += '<div style="text-align:center;margin-bottom:20px;">' +
+                '<div style="display:inline-block;width:120px;height:120px;border-radius:50%;border:5px solid ' + sc + ';position:relative;margin-bottom:10px;">' +
+                '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">' +
+                '<div style="font-size:2.2rem;font-weight:900;color:' + sc + ';line-height:1;">' + s10.toFixed(1) + '</div>' +
+                '<div style="font-size:0.65rem;color:#94A3B8;font-weight:700;">/10</div>' +
+                '</div></div>' +
+                '<div style="font-size:1rem;font-weight:800;color:' + sc + ';">' + emoji + ' ' + (ranked.length > 1 ? 'Melhor: ' : '') + winner.label + '</div>' +
+                '<div style="font-size:0.72rem;color:#94A3B8;margin-top:4px;">' + tip + '</div>' +
+                '<div style="font-size:0.62rem;color:#475569;margin-top:2px;">' + winner.analysis.gamesCount + ' jogos · ' + winner.analysis.betSize + ' dezenas · ' + gameConfig.name + '</div></div>';
+        }
 
-        rows.forEach(r => {
-            html += `
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                    <td style="padding:10px 8px; font-weight:600; color:#94A3B8;">${r.label}</td>
-                    <td style="padding:10px 8px;">${r.fmt(manualAnalysis ? manualAnalysis[r.key] : null, manualAnalysis)}</td>
-                    <td style="padding:10px 8px;">${r.fmt(sniperAnalysis ? sniperAnalysis[r.key] : null, sniperAnalysis)}</td>
-                    <td style="padding:10px 8px;">${r.fmt(coberturaAnalysis ? coberturaAnalysis[r.key] : null, coberturaAnalysis)}</td>
-                </tr>
-            `;
-        });
+        if (ranked.length > 1) {
+            html += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:20px;">' +
+                '<h5 style="margin:0 0 12px;color:#F59E0B;font-size:0.78rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;">📊 Ranking de Eficiência (0-10)</h5>';
+            for (var e = 0; e < engines.length; e++) {
+                var eng = engines[e];
+                var hasA = !!eng.analysis;
+                var nota = hasA ? eng.analysis.composite.score10 : 0;
+                var isW = eng === winner;
+                html += '<div style="margin-bottom:10px;">' +
+                    '<div style="display:flex;justify-content:space-between;font-size:0.75rem;font-weight:700;margin-bottom:3px;">' +
+                    '<span style="color:#E2E8F0;">' + eng.label + (isW ? ' 🏆' : '') + '</span>' +
+                    '<span style="color:' + (hasA ? eng.color : '#475569') + ';">' + (hasA ? nota.toFixed(1) + '/10' : 'Não gerado') + '</span></div>' +
+                    '<div style="height:10px;background:#1E293B;border-radius:5px;overflow:hidden;">' +
+                    '<div style="height:100%;width:' + (nota * 10) + '%;background:' + eng.color + ';border-radius:5px;transition:width 0.6s;"></div></div></div>';
+            }
+            html += '</div>';
+        }
 
-        // Chance de Acerto (Hipergeométrica)
-        const getPrizeProbText = (analysis, index) => {
-            if (!analysis || !analysis.prizes || !analysis.prizes[index]) return 'Inviável';
-            const prize = analysis.prizes[index];
-            return `Acerto ${prize.hits}: <strong>${prize.probAtLeastOnePct}%</strong>`;
-        };
+        if (ranked.length > 0) {
+            html += '<div style="overflow-x:auto;margin-bottom:20px;">' +
+                '<table style="width:100%;border-collapse:collapse;font-size:0.72rem;min-width:420px;">' +
+                '<thead><tr style="border-bottom:2px solid rgba(255,255,255,0.1);color:#94A3B8;">' +
+                '<th style="padding:7px;text-align:left;font-weight:700;">Dimensão</th>';
+            for (var e = 0; e < engines.length; e++) {
+                var eng = engines[e];
+                var lbl = eng.label.split(' ').slice(1).join(' ');
+                html += '<th style="padding:7px;text-align:center;font-weight:700;color:' + (eng.analysis ? eng.color : '#475569') + ';">' + lbl + '</th>';
+            }
+            html += '</tr></thead><tbody style="color:#E2E8F0;">';
 
-        html += `
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                <td style="padding:10px 8px; font-weight:600; color:#94A3B8;">Probabilidade Faixa 1 (Principal)</td>
-                <td style="padding:10px 8px;">${getPrizeProbText(manualAnalysis, 0)}</td>
-                <td style="padding:10px 8px;">${getPrizeProbText(sniperAnalysis, 0)}</td>
-                <td style="padding:10px 8px;">${getPrizeProbText(coberturaAnalysis, 0)}</td>
-            </tr>
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                <td style="padding:10px 8px; font-weight:600; color:#94A3B8;">Probabilidade Faixa 2 (Secundária)</td>
-                <td style="padding:10px 8px;">${getPrizeProbText(manualAnalysis, 1)}</td>
-                <td style="padding:10px 8px;">${getPrizeProbText(sniperAnalysis, 1)}</td>
-                <td style="padding:10px 8px;">${getPrizeProbText(coberturaAnalysis, 1)}</td>
-            </tr>
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                <td style="padding:10px 8px; font-weight:600; color:#94A3B8;">Probabilidade Faixa 3 (Terciária)</td>
-                <td style="padding:10px 8px;">${getPrizeProbText(manualAnalysis, 2)}</td>
-                <td style="padding:10px 8px;">${getPrizeProbText(sniperAnalysis, 2)}</td>
-                <td style="padding:10px 8px;">${getPrizeProbText(coberturaAnalysis, 2)}</td>
-            </tr>
-        `;
+            var dims = [
+                { key: 'numberFreq',  label: '1. Números Puros' },
+                { key: 'pairCov',     label: '2. Duplas' },
+                { key: 'trioCov',     label: '3. Trios' },
+                { key: 'entropy',     label: '4. Entropia (Shannon)' },
+                { key: 'chiSquared',  label: '5. Uniformidade (χ²)' },
+                { key: 'hamming',     label: '6. Diversidade (Hamming)' },
+                { key: 'evenOdd',     label: '7. Par/Ímpar' },
+                { key: 'highLow',     label: '8. Alto/Baixo' },
+                { key: 'sum',         label: '9. Soma' },
+                { key: 'decades',     label: '10. Faixas' },
+                { key: 'consecutive', label: '11. Consecutivos' },
+                { key: 'pareto',      label: '12. Pareto (80/20)' }
+            ];
 
-        html += `
-                    </tbody>
-                </table>
-            </div>
+            for (var d = 0; d < dims.length; d++) {
+                var dim = dims[d];
+                html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">' +
+                    '<td style="padding:7px;font-weight:600;color:#94A3B8;font-size:0.68rem;">' + dim.label + '</td>';
+                for (var e = 0; e < engines.length; e++) {
+                    var eng = engines[e];
+                    if (eng.analysis) {
+                        var v = eng.analysis.composite.breakdown[dim.key] || 0;
+                        var vc = v >= 80 ? '#22C55E' : v >= 60 ? '#F59E0B' : v >= 40 ? '#FB923C' : '#EF4444';
+                        html += '<td style="padding:7px;text-align:center;font-weight:700;color:' + vc + ';">' + v.toFixed(1) + '%</td>';
+                    } else {
+                        html += '<td style="padding:7px;text-align:center;color:#334155;">—</td>';
+                    }
+                }
+                html += '</tr>';
+            }
+            html += '</tbody></table></div>';
+        }
 
-            <!-- Veredito do Especialista / Recomendação -->
-            <div style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,215,0,0.15); border-radius: 12px; padding: 20px;">
-                <h5 style="margin-top:0; margin-bottom:12px; color:#FFD700; font-weight:800; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px;">📋 Filosofia e Recomendação de cada Estratégia</h5>
-                
-                <div style="display:flex; flex-direction:column; gap:14px; font-size:0.78rem; line-height:1.5; color:#D1D5DB;">
-                    <div style="border-left: 3px solid #3B82F6; padding-left: 10px;">
-                        <strong>🎮 MANUAL (Fechamento Controlado):</strong> 
-                        Estratégia 100% sob a escolha e palpites do apostador. Permite definir a quantidade exata de números que você quer jogar no grid e faz o fechamento combinatório estrito deles. Oferece nota zero se o grid estiver vazio, pois não gera jogos aleatórios sem seus palpites.
-                    </div>
-                    <div style="border-left: 3px solid #EF4444; padding-left: 10px;">
-                        <strong>🎯 SNIPER (Foco em Tendências Otimizadas):</strong> 
-                        Estratégia de dezenas variável. Foca nas 20 dezenas estatisticamente mais propensas e com maiores tendências quentes da Caixa (ou dentro das dezenas que você escolheu no grid), deixando o jogo extremamente focado em prêmios rápidos.
-                    </div>
-                    <div style="border-left: 3px solid #10B981; padding-left: 10px;">
-                        <strong>📐 COBERTURA IA (Cercamento Global Absoluto):</strong> 
-                        Mecanismo de cobertura global que **cobre 100% das dezenas da loteria** (quando o grid está vazio) espalhando-as de forma perfeita pelos volantes para cercar o volante todo sem deixar lacunas. Ideal para cercar prêmios maiores acumulados.
-                    </div>
-                </div>
-            </div>
-        `;
+        if (hasAnalyser && winner && winner.analysis) {
+            html += '<div style="margin-bottom:20px;">' +
+                '<h5 style="margin:0 0 10px;color:' + winner.color + ';font-size:0.78rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;">🔬 Análise Completa — ' + winner.label + ' (' + winner.analysis.gamesCount + ' jogos)</h5>' +
+                GameAnalyser.renderModal(winner.analysis) + '</div>';
+        }
+
+        if (winner) {
+            var s10 = winner.analysis.composite.score10;
+            var bd = winner.analysis.composite.breakdown;
+            var dimNames = {
+                numberFreq: 'Freq. Números', pairCov: 'Duplas', trioCov: 'Trios',
+                entropy: 'Entropia', chiSquared: 'Uniformidade', hamming: 'Diversidade',
+                evenOdd: 'Par/Ímpar', highLow: 'Alto/Baixo', sum: 'Soma',
+                decades: 'Faixas', consecutive: 'Consecutivos', pareto: 'Pareto'
+            };
+            var weak = [], strong = [];
+            for (var k in bd) {
+                if (bd[k] < 60) weak.push({ k: k, v: bd[k] });
+                if (bd[k] >= 80) strong.push({ k: k, v: bd[k] });
+            }
+            weak.sort(function(a, b) { return a.v - b.v; });
+            strong.sort(function(a, b) { return b.v - a.v; });
+
+            html += '<div style="background:rgba(15,23,42,0.6);border:1px solid rgba(255,215,0,0.15);border-radius:12px;padding:16px;margin-bottom:16px;">' +
+                '<h5 style="margin:0 0 10px;color:#FFD700;font-size:0.78rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;">📋 Diagnóstico para Assertividade</h5>' +
+                '<div style="font-size:0.75rem;line-height:1.6;color:#D1D5DB;">';
+            if (strong.length > 0) {
+                html += '<div style="margin-bottom:8px;">✅ <strong style="color:#22C55E;">Fortes:</strong> ' +
+                    strong.map(function(x) { return (dimNames[x.k] || x.k) + ' (' + x.v.toFixed(0) + '%)'; }).join(', ') + '</div>';
+            }
+            if (weak.length > 0) {
+                html += '<div style="margin-bottom:8px;">⚠️ <strong style="color:#F59E0B;">A melhorar:</strong> ' +
+                    weak.map(function(x) { return (dimNames[x.k] || x.k) + ' (' + x.v.toFixed(0) + '%)'; }).join(', ') + '</div>';
+            }
+            if (s10 >= 7.5) {
+                html += '<div style="margin-top:8px;padding:10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:8px;color:#22C55E;">' +
+                    '🏆 <strong>Nota ' + s10.toFixed(1) + '/10:</strong> Excelente. Use o ' + winner.label + ' para jogar.</div>';
+            } else if (s10 >= 5.5) {
+                html += '<div style="margin-top:8px;padding:10px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:8px;color:#F59E0B;">' +
+                    '⭐ <strong>Nota ' + s10.toFixed(1) + '/10:</strong> Boa, mas pode melhorar. ' +
+                    (weak.length > 0 ? 'Foco: ' + (dimNames[weak[0].k] || weak[0].k) + '.' : 'Aumente os jogos.') + '</div>';
+            } else {
+                html += '<div style="margin-top:8px;padding:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;color:#EF4444;">' +
+                    '❌ <strong>Nota ' + s10.toFixed(1) + '/10:</strong> Fraca. ' +
+                    (weak.length > 0 ? 'Problema: ' + (dimNames[weak[0].k] || weak[0].k) + '.' : '') + ' Revise números ou aumente jogos.</div>';
+            }
+            html += '</div></div>';
+        }
+
+        html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">';
+        for (var e = 0; e < engines.length; e++) {
+            var eng = engines[e];
+            if (eng.games && eng.games.length > 0) {
+                var isW = eng === winner;
+                var lbl = eng.label.split(' ').slice(1).join(' ');
+                html += '<button class="analyse-apply-btn" data-engine="' + eng.id + '" style="' +
+                    'flex:1;min-width:110px;padding:12px 8px;border-radius:10px;font-weight:800;font-size:0.75rem;cursor:pointer;' +
+                    'border:2px solid ' + (isW ? eng.color : eng.color + '50') + ';' +
+                    'background:' + (isW ? eng.color + '18' : 'transparent') + ';' +
+                    'color:' + (isW ? eng.color : '#94A3B8') + ';transition:all 0.2s;">' +
+                    (isW ? '🏆 ' : '') + 'Usar ' + lbl + ' (' + eng.games.length + ')</button>';
+            }
+        }
+        html += '</div>';
+
+        html += '<div style="margin-top:14px;padding:10px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.04);border-radius:8px;font-size:0.58rem;color:#475569;line-height:1.5;">' +
+            '<strong style="color:#64748B;">12 Dimensões:</strong> Freq.(CV) · Duplas · Trios · Shannon(H) · Chi²(χ²) · Hamming · Par/Ímpar · Alto/Baixo · Soma · Faixas · Consecutivos · Pareto(80/20) · Nota 0-10.</div>';
 
         modalContent.innerHTML = html;
+
+        var applyBtns = modalContent.querySelectorAll('.analyse-apply-btn');
+        for (var b = 0; b < applyBtns.length; b++) {
+            (function(btn) {
+                btn.addEventListener('click', function() {
+                    var eid = this.getAttribute('data-engine');
+                    for (var j = 0; j < engines.length; j++) {
+                        if (engines[j].id === eid && engines[j].games && engines[j].games.length > 0) {
+                            self.currentGeneratedGames = engines[j].games;
+                            self._lastGeneratedGames = engines[j].games;
+                            self.renderGames({ games: engines[j].games }, gameKey);
+                            self.analyseModal.style.display = 'none';
+                            if (typeof Guardian !== 'undefined') {
+                                Guardian.toast('✅ ' + engines[j].games.length + ' jogos do ' + engines[j].label + ' aplicados!', 'success', 3000);
+                            }
+                            break;
+                        }
+                    }
+                });
+            })(applyBtns[b]);
+        }
+
         this.analyseModal.style.display = 'flex';
     }
 

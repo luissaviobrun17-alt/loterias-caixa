@@ -121,7 +121,7 @@ class MotorFechamentoManual {
 
         let maxPerDecade = Math.max(2, Math.ceil(k * 0.3));
         const maxFixedInDecade = fixedNumbers.length > 0 ? Math.max(...Object.values(fixedDecadeCounts)) : 0;
-        maxPerDecade = Math.max(maxPerDecade, maxFixedInDecade + Math.min(varSlots, 2));
+        maxPerDecade = Math.max(maxPerDecade, maxFixedInDecade);
 
         // ── CORREÇÃO #6: FINAIS — diversidade mínima ──
         const fixedFinalCounts = {};
@@ -139,7 +139,7 @@ class MotorFechamentoManual {
 
         let maxSameFinal = Math.max(2, Math.ceil(k * 0.3));
         const maxFixedSameFinal = fixedNumbers.length > 0 ? Math.max(...Object.values(fixedFinalCounts)) : 0;
-        maxSameFinal = Math.max(maxSameFinal, maxFixedSameFinal + Math.min(varSlots, 2));
+        maxSameFinal = Math.max(maxSameFinal, maxFixedSameFinal);
 
         // ── CORREÇÃO #9: SOMA — faixa aceitável e prioritária ──
         const expectedSum = k * (rangeMin + rangeMax) / 2;
@@ -540,23 +540,6 @@ class MotorFechamentoManual {
             relaxed.sumMin = Math.floor(rules.sumMin * 0.88);
             relaxed.sumMax = Math.ceil(rules.sumMax * 1.12);
         }
-        if (level >= 3) {
-            // Nível 3: Modo de Sobrevivência — Afrouxa ou desativa todas as restrições estatísticas secundárias
-            relaxed.minEven = 0;
-            relaxed.maxEven = rules.fixedNumbers ? rules.fixedNumbers.length + (rules.maxEven - rules.minEven) : rules.maxEven + 5;
-            relaxed.minLow = 0;
-            relaxed.minHigh = 0;
-            relaxed.minDecades = 1;
-            relaxed.maxPerDecade = 99;
-            relaxed.minDistinctFinals = 1;
-            relaxed.maxSameFinal = 99;
-            relaxed.sumMin = 1;
-            relaxed.sumMax = 999999;
-            relaxed.minPrimes = 0;
-            relaxed.maxPrimes = 99;
-            const drawSize = rules.fixedNumbers ? (rules.fixedNumbers.length + (rules.maxVarOverlap || 5)) : 15;
-            relaxed.maxOverlap = Math.max(relaxed.maxOverlap, drawSize - 1);
-        }
         return relaxed;
     }
 
@@ -714,14 +697,12 @@ class MotorFechamentoManual {
                 consecutiveFailures++;
                 // Relaxamento progressivo se travou
                 if (consecutiveFailures >= 3) {
-                    relaxLevel = Math.min(relaxLevel + 1, 3);
+                    relaxLevel = Math.min(relaxLevel + 1, 2);
                     consecutiveFailures = 0;
                     if (relaxLevel === 1) {
                         console.log('[MOTOR-MANUAL v3.0] ⚠️ Relaxando restrições (nível 1) após ' + results.length + ' jogos...');
                     } else if (relaxLevel === 2) {
                         console.log('[MOTOR-MANUAL v3.0] ⚠️ Restrições mínimas (nível 2) após ' + results.length + ' jogos...');
-                    } else if (relaxLevel === 3) {
-                        console.log('[MOTOR-MANUAL v3.0] ⚠️ MODO FORÇA BRUTA (nível 3): Desativando restrições para garantir geração após ' + results.length + ' jogos...');
                     }
                 }
             }
