@@ -2529,11 +2529,11 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                     const aiSynergy = ClosingEngine._getAISynergy(gameKey, pool);
                     if (aiSynergy) {
                         const fixedArr = Array.from(this.fixedNumbers || []);
-                        result.games.sort((a, b) => {
-                            const scoreA = ClosingEngine._evalSynergy(a.filter(n => !fixedArr.includes(n)), fixedArr, aiSynergy);
-                            const scoreB = ClosingEngine._evalSynergy(b.filter(n => !fixedArr.includes(n)), fixedArr, aiSynergy);
-                            return scoreB - scoreA;
-                        });
+                        const fixedSet = new Set(fixedArr);
+                        const _synergyScores = result.games.map(g => ClosingEngine._evalSynergy(g.filter(n => !fixedSet.has(n)), fixedArr, aiSynergy));
+                        const _sortIdx = result.games.map((_, i) => i);
+                        _sortIdx.sort((a, b) => _synergyScores[b] - _synergyScores[a]);
+                        result.games = _sortIdx.map(i => result.games[i]);
                         console.log('[GLOBAL-SORT] 🔥 Jogos globais ordenados por Sinergia IA.');
                     }
                 }

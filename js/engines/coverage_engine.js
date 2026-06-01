@@ -364,7 +364,7 @@ class CoverageEngine {
                     if (checkPairs) {
                         for (let x = 0; x < candidate.length; x++) {
                             for (let y = x + 1; y < candidate.length; y++) {
-                                if (!coveredPairs.has(candidate[x] + '|' + candidate[y])) newPairs++;
+                                if (!coveredPairs.has(candidate[x] * 100 + candidate[y])) newPairs++;
                             }
                         }
                     }
@@ -374,7 +374,7 @@ class CoverageEngine {
                         for (let x = 0; x < candidate.length; x++) {
                             for (let y = x + 1; y < candidate.length; y++) {
                                 for (let z = y + 1; z < candidate.length; z++) {
-                                    if (!coveredTriples.has(candidate[x] + '|' + candidate[y] + '|' + candidate[z])) newTriples++;
+                                    if (!coveredTriples.has(candidate[x] * 10000 + candidate[y] * 100 + candidate[z])) newTriples++;
                                 }
                             }
                         }
@@ -386,7 +386,7 @@ class CoverageEngine {
                             for (let y = x + 1; y < candidate.length; y++) {
                                 for (let z = y + 1; z < candidate.length; z++) {
                                     for (let w = z + 1; w < candidate.length; w++) {
-                                        if (!coveredQuads.has(candidate[x] + '|' + candidate[y] + '|' + candidate[z] + '|' + candidate[w])) newQuads++;
+                                        if (!coveredQuads.has(candidate[x] * 1000000 + candidate[y] * 10000 + candidate[z] * 100 + candidate[w])) newQuads++;
                                     }
                                 }
                             }
@@ -443,7 +443,9 @@ class CoverageEngine {
                 }
 
                 if (bestIdx !== -1) {
-                    const bestCand = candidatesPool.splice(bestIdx, 1)[0];
+                    const bestCand = candidatesPool[bestIdx];
+                    candidatesPool[bestIdx] = candidatesPool[candidatesPool.length - 1];
+                    candidatesPool.pop();
                     const bestGame = bestCand.game;
 
                     games.push(bestGame);
@@ -452,13 +454,13 @@ class CoverageEngine {
 
                     for (let i = 0; i < bestGame.length; i++) {
                         for (let j = i + 1; j < bestGame.length; j++) {
-                            coveredPairs.add(bestGame[i] + '|' + bestGame[j]);
+                            coveredPairs.add(bestGame[i] * 100 + bestGame[j]);
                             if (useTriples) {
                                 for (let k = j + 1; k < bestGame.length; k++) {
-                                    coveredTriples.add(bestGame[i] + '|' + bestGame[j] + '|' + bestGame[k]);
+                                    coveredTriples.add(bestGame[i] * 10000 + bestGame[j] * 100 + bestGame[k]);
                                     if (useQuads) {
                                         for (let l = k + 1; l < bestGame.length; l++) {
-                                            coveredQuads.add(bestGame[i] + '|' + bestGame[j] + '|' + bestGame[k] + '|' + bestGame[l]);
+                                            coveredQuads.add(bestGame[i] * 1000000 + bestGame[j] * 10000 + bestGame[k] * 100 + bestGame[l]);
                                         }
                                     }
                                 }
@@ -508,7 +510,7 @@ class CoverageEngine {
                     if (checkPairs) {
                         for (let i = 0; i < candidate.length; i++)
                             for (let j = i + 1; j < candidate.length; j++)
-                                if (!coveredPairs.has(candidate[i] + '|' + candidate[j])) newPairs++;
+                                if (!coveredPairs.has(candidate[i] * 100 + candidate[j])) newPairs++;
                     }
 
                     let newTriples = 0;
@@ -516,7 +518,7 @@ class CoverageEngine {
                         for (let i = 0; i < candidate.length; i++)
                             for (let j = i + 1; j < candidate.length; j++)
                                 for (let k = j + 1; k < candidate.length; k++)
-                                    if (!coveredTriples.has(candidate[i] + '|' + candidate[j] + '|' + candidate[k])) newTriples++;
+                                    if (!coveredTriples.has(candidate[i] * 10000 + candidate[j] * 100 + candidate[k])) newTriples++;
                     }
 
                     let newQuads = 0;
@@ -525,7 +527,7 @@ class CoverageEngine {
                             for (let j = i + 1; j < candidate.length; j++)
                                 for (let k = j + 1; k < candidate.length; k++)
                                     for (let l = k + 1; l < candidate.length; l++)
-                                        if (!coveredQuads.has(candidate[i] + '|' + candidate[j] + '|' + candidate[k] + '|' + candidate[l])) newQuads++;
+                                        if (!coveredQuads.has(candidate[i] * 1000000 + candidate[j] * 10000 + candidate[k] * 100 + candidate[l])) newQuads++;
                     }
 
                     let diversityBonus = 0;
@@ -572,13 +574,13 @@ class CoverageEngine {
                     for (const n of bestGame) numberUsage[n] = (numberUsage[n] || 0) + 1;
                     for (let i = 0; i < bestGame.length; i++) {
                         for (let j = i + 1; j < bestGame.length; j++) {
-                            coveredPairs.add(bestGame[i] + '|' + bestGame[j]);
+                            coveredPairs.add(bestGame[i] * 100 + bestGame[j]);
                             if (useTriples) {
                                 for (let k = j + 1; k < bestGame.length; k++) {
-                                    coveredTriples.add(bestGame[i] + '|' + bestGame[j] + '|' + bestGame[k]);
+                                    coveredTriples.add(bestGame[i] * 10000 + bestGame[j] * 100 + bestGame[k]);
                                     if (useQuads) {
                                         for (let l = k + 1; l < bestGame.length; l++) {
-                                            coveredQuads.add(bestGame[i] + '|' + bestGame[j] + '|' + bestGame[k] + '|' + bestGame[l]);
+                                            coveredQuads.add(bestGame[i] * 1000000 + bestGame[j] * 10000 + bestGame[k] * 100 + bestGame[l]);
                                         }
                                     }
                                 }
@@ -689,12 +691,13 @@ class CoverageEngine {
                     game.splice(breakIndex, 1);
                     
                     // Achar um substituto no pool que não crie nova sequência
-                    const availablePool = pool.filter(n => !game.includes(n) && !fixed.has(n));
+                    const gameSet = new Set(game);
+                    const availablePool = pool.filter(n => !gameSet.has(n) && !fixed.has(n));
                     this._shuffle(availablePool);
                     let found = false;
                     for (const cand of availablePool) {
                         // Verifica se colocar 'cand' quebra a regra de adjacência (heurística rápida)
-                        if (!game.includes(cand - 1) || !game.includes(cand + 1)) {
+                        if (!gameSet.has(cand - 1) || !gameSet.has(cand + 1)) {
                             game.push(cand);
                             found = true;
                             break;
