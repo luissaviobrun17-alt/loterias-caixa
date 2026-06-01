@@ -22,6 +22,7 @@ class UI {
         this.smartDrawInfo = _el('smart-draw-info');
         this.copyBtn = _el('copy-btn');
         this.gamesContainer = _el('games-container');
+        this.progressContainer = _el('generation-progress');
         this.currentBetCostElem = _el('current-bet-cost');
 
         // Action Buttons
@@ -241,15 +242,14 @@ if (qty > MAX_QTY) {
                     // v14.1: Progress indicator para grandes volumes
                     if (qty > 500) {
                         const t0 = Date.now();
-                        this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:1.1em;color:#FCD34D;font-weight:800;margin-bottom:16px;">🎲 Gerando ' + qty.toLocaleString('pt-BR') + ' jogos MANUAL...</div><div id="manual-progress-bar" style="width:100%;max-width:400px;margin:0 auto;background:rgba(0,0,0,0.4);border-radius:12px;overflow:hidden;height:28px;border:1px solid rgba(255,215,0,0.3);"><div id="manual-progress-fill" style="width:0%;height:100%;background:linear-gradient(90deg,#B45309,#F59E0B);transition:width 0.2s;display:flex;align-items:center;justify-content:center;"><span style="color:white;font-weight:800;font-size:0.8rem;text-shadow:0 1px 3px rgba(0,0,0,0.5);">0%</span></div></div><div id="manual-progress-text" style="color:#94A3B8;font-size:0.75rem;margin-top:10px;">Preparando...</div></div>';
+                        const _self = this;
                         const _onProgress = (done, total) => {
                             const pct = Math.round((done / total) * 100);
-                            const fill = document.getElementById('manual-progress-fill');
-                            const txt = document.getElementById('manual-progress-text');
-                            if (fill) { fill.style.width = pct + '%'; fill.innerHTML = '<span style="color:white;font-weight:800;font-size:0.8rem;text-shadow:0 1px 3px rgba(0,0,0,0.5);">' + pct + '%</span>'; }
-                            if (txt) txt.textContent = done.toLocaleString('pt-BR') + '/' + total.toLocaleString('pt-BR') + ' jogos | ' + ((Date.now() - t0) / 1000).toFixed(1) + 's';
+                            _self._showProgress('🎲 Manual', pct, done.toLocaleString('pt-BR') + '/' + total.toLocaleString('pt-BR') + ' jogos • ' + ((Date.now() - t0) / 1000).toFixed(1) + 's', '#F59E0B');
                         };
+                        _onProgress(0, qty);
                         result = await MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize, { _onProgress });
+                        this._hideProgress();
                     } else {
                         result = await MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize);
                     }
@@ -399,17 +399,9 @@ if (qty > MAX_QTY) {
                         const remaining = qty - completedGames.length;
                         const thisBatchSize = Math.min(batchSize, remaining);
                         
-                        // Progress update
+                        // Progress update — no container ao lado dos botões
                         const pct = Math.round((completedGames.length / qty) * 100);
-                        _self.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;">' +
-                            '<div style="font-size:1.1em;color:#10B981;font-weight:800;margin-bottom:16px;">📐 Gerando ' + qty.toLocaleString('pt-BR') + ' jogos...</div>' +
-                            '<div style="width:100%;max-width:400px;margin:0 auto;background:rgba(0,0,0,0.4);border-radius:12px;overflow:hidden;height:28px;border:1px solid rgba(16,185,129,0.3);">' +
-                            '<div style="width:' + pct + '%;height:100%;background:linear-gradient(90deg,#047857,#10B981);transition:width 0.3s;display:flex;align-items:center;justify-content:center;">' +
-                            '<span style="color:white;font-weight:800;font-size:0.8rem;text-shadow:0 1px 3px rgba(0,0,0,0.5);">' + pct + '%</span>' +
-                            '</div></div>' +
-                            '<div style="color:#94A3B8;font-size:0.75rem;margin-top:10px;">Lote ' + currentBatch + '/' + totalBatches + ' • ' + completedGames.length.toLocaleString('pt-BR') + '/' + qty.toLocaleString('pt-BR') + ' jogos</div>' +
-                            '<div style="color:#475569;font-size:0.65rem;margin-top:4px;">Tempo: ' + ((Date.now() - t0) / 1000).toFixed(1) + 's</div>' +
-                            '</div>';
+                        _self._showProgress('📐 Cobertura IA', pct, 'Lote ' + currentBatch + '/' + totalBatches + ' • ' + completedGames.length.toLocaleString('pt-BR') + '/' + qty.toLocaleString('pt-BR') + ' jogos • ' + ((Date.now() - t0) / 1000).toFixed(1) + 's', '#10B981');
                         
                         setTimeout(() => {
                             try {
@@ -425,6 +417,7 @@ if (qty > MAX_QTY) {
                                     runBatch(); // Next batch
                                 } else {
                                     // ═══ CONCLUÍDO ═══
+                                    _self._hideProgress();
                                     const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
                                     _self.currentGeneratedGames = completedGames;
                                     _self._lastGeneratedGames = completedGames;
@@ -435,14 +428,28 @@ if (qty > MAX_QTY) {
                                     }
                                     _self.renderGames({ pool: [], games: completedGames, smartAnalysis: null }, _gameKey);
                                     
+                                    // Probabilidades honestas (hipergeométrica)
+                                    let probHtml = '';
+                                    if (typeof SmartCoverageEngine !== 'undefined' && SmartCoverageEngine.calcRealMetrics) {
+                                        try {
+                                            const realMetrics = SmartCoverageEngine.calcRealMetrics(completedGames, _gameKey);
+                                            if (realMetrics && realMetrics.prizes) {
+                                                probHtml = '<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.4);border-radius:8px;font-size:0.75rem;">' +
+                                                    '<div style="color:#10B981;font-weight:bold;margin-bottom:4px;">PROBABILIDADES EXATAS (HIPERGEOMÉTRICA)</div>';
+                                                realMetrics.prizes.slice(0, 3).forEach(p => {
+                                                    probHtml += '<div style="display:flex;justify-content:space-between;color:#D1D5DB;margin-bottom:2px;">' +
+                                                        '<span>Acertar ' + p.hits + ':</span><span>' + p.probAtLeastOnePct + '% (em ' + completedGames.length.toLocaleString('pt-BR') + ' jogos)</span></div>';
+                                                });
+                                                probHtml += '<div style="color:#6B7280;font-size:0.65rem;margin-top:4px;text-align:right;">* Eventos independentes</div></div>';
+                                            }
+                                        } catch(ep) { console.warn('[PROB]', ep); }
+                                    }
+
                                     var banner = document.createElement('div');
                                     banner.className = 'smart-gen-analysis';
                                     banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(4,120,87,0.12),rgba(15,23,42,0.95));border:1px solid rgba(16,185,129,0.3);';
-                                    banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">' +
-                                        '<span style="font-size:1.3rem;">📐</span><div>' +
-                                        '<div style="font-weight:900;color:#10B981;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">COBERTURA IA — ' + completedGames.length.toLocaleString('pt-BR') + ' JOGOS</div>' +
-                                        '<div style="font-size:0.72rem;color:#94A3B8;">Gerado em ' + totalBatches + ' lotes × ' + batchSize + ' | Tempo: ' + elapsed + 's</div>' +
-                                        '</div></div>';
+                                    banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">📐</span><div><div style="font-weight:900;color:#10B981;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">COBERTURA IA — ' + completedGames.length.toLocaleString('pt-BR') + ' JOGOS</div><div style="font-size:0.72rem;color:#94A3B8;">Gerado em ' + totalBatches + ' lotes × ' + batchSize + ' | Tempo: ' + elapsed + 's</div></div></div>' +
+                                        '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:0.75rem;margin-bottom:6px;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">JOGOS GERADOS</div><div style="color:#10B981;font-weight:900;font-size:1.3rem;">' + completedGames.length.toLocaleString('pt-BR') + '</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">TEMPO TOTAL</div><div style="color:#10B981;font-weight:900;font-size:1.3rem;">' + elapsed + 's</div></div></div>' + probHtml;
                                     var oldBanner = _self.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
                                     if (oldBanner) oldBanner.remove();
                                     _self.gamesContainer.parentNode.insertBefore(banner, _self.gamesContainer);
@@ -1099,6 +1106,31 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
     }
 
     // ╔══════════════════════════════════════════════════════════╗
+    // ║  PROGRESS: Barra de progresso ao lado dos botões        ║
+    // ╚══════════════════════════════════════════════════════════╝
+    _showProgress(label, pct, detail, color) {
+        const p = this.progressContainer;
+        if (!p) return;
+        const c = color || '#6366F1';
+        p.style.display = 'block';
+        p.style.borderColor = c + '4D';
+        p.innerHTML = '<div style="display:flex;align-items:center;gap:12px;">' +
+            '<div style="flex:1;min-width:0;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+            '<span style="color:' + c + ';font-weight:800;font-size:0.85rem;">' + label + '</span>' +
+            '<span style="color:#E2E8F0;font-weight:900;font-size:1rem;">' + pct + '%</span></div>' +
+            '<div style="width:100%;background:rgba(0,0,0,0.4);border-radius:8px;overflow:hidden;height:8px;">' +
+            '<div style="width:' + pct + '%;height:100%;background:' + c + ';transition:width 0.2s;border-radius:8px;"></div></div>' +
+            '<div style="color:#94A3B8;font-size:0.7rem;margin-top:4px;">' + detail + '</div>' +
+            '</div></div>';
+    }
+
+    _hideProgress() {
+        const p = this.progressContainer;
+        if (p) { p.style.display = 'none'; p.innerHTML = ''; }
+    }
+
+    // ╔══════════════════════════════════════════════════════════╗
     // ║  MANUAL: Métodos auxiliares de fechamento combinatório   ║
     // ╚══════════════════════════════════════════════════════════╝
     _manualComb(n, k) {
@@ -1297,7 +1329,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 const rem = quantity - allG.length;
                 const sz = Math.min(PRED_BATCH, rem);
                 const pct = Math.round((allG.length / quantity) * 100);
-                _self.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border-radius:16px;border:1px solid rgba(139,92,246,0.3);"><div style="font-size:1.1em;color:#A78BFA;font-weight:800;margin-bottom:16px;">\u26A1 PREDI\u00C7\u00C3O L99 \u2014 ' + quantity.toLocaleString('pt-BR') + ' jogos</div><div style="width:100%;max-width:400px;margin:0 auto;background:rgba(0,0,0,0.4);border-radius:12px;overflow:hidden;height:28px;border:1px solid rgba(139,92,246,0.3);"><div style="width:' + pct + '%;height:100%;background:linear-gradient(90deg,#6D28D9,#A78BFA);transition:width 0.3s;display:flex;align-items:center;justify-content:center;"><span style="color:white;font-weight:800;font-size:0.8rem;">' + pct + '%</span></div></div><div style="color:#94A3B8;font-size:0.75rem;margin-top:10px;">Lote ' + bIdx + '/' + totalB + ' \u2022 ' + allG.length.toLocaleString('pt-BR') + '/' + quantity.toLocaleString('pt-BR') + '</div><div style="color:#475569;font-size:0.65rem;margin-top:4px;">' + ((Date.now() - t0p) / 1000).toFixed(1) + 's</div></div>';
+                _self._showProgress('\u26A1 Predi\u00E7\u00E3o L99', pct, 'Lote ' + bIdx + '/' + totalB + ' \u2022 ' + allG.length.toLocaleString('pt-BR') + '/' + quantity.toLocaleString('pt-BR') + ' \u2022 ' + ((Date.now() - t0p) / 1000).toFixed(1) + 's', '#A78BFA');
                 setTimeout(() => {
                     try {
                         const st = document.getElementById('precision-mode-toggle');
@@ -1308,10 +1340,27 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                         const br = NovaEraEngine.generate(_gk, sz, _sa.length >= _ds ? _sa : null, _fa, _ds, ao);
                         if (br && br.games) allG = allG.concat(br.games);
                         if (allG.length < quantity) { runPB(); } else {
+                            _self._hideProgress();
                             const el = ((Date.now() - t0p) / 1000).toFixed(1);
                             _self.currentGeneratedGames = allG;
                             _self._lastGeneratedGames = allG;
                             _self.renderGames({ games: allG }, _gk);
+                            
+                            // Probabilidades honestas
+                            let probHtml2 = '';
+                            if (typeof SmartCoverageEngine !== 'undefined' && SmartCoverageEngine.calcRealMetrics) {
+                                try {
+                                    const rm = SmartCoverageEngine.calcRealMetrics(allG, _gk);
+                                    if (rm && rm.prizes) {
+                                        probHtml2 = '<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.4);border-radius:8px;font-size:0.75rem;"><div style="color:#A78BFA;font-weight:bold;margin-bottom:4px;">PROBABILIDADES EXATAS (HIPERGEOM\u00C9TRICA)</div>';
+                                        rm.prizes.slice(0, 3).forEach(p => {
+                                            probHtml2 += '<div style="display:flex;justify-content:space-between;color:#D1D5DB;margin-bottom:2px;"><span>Acertar ' + p.hits + ':</span><span>' + p.probAtLeastOnePct + '% (em ' + allG.length.toLocaleString('pt-BR') + ' jogos)</span></div>';
+                                        });
+                                        probHtml2 += '<div style="color:#6B7280;font-size:0.65rem;margin-top:4px;text-align:right;">* Eventos independentes</div></div>';
+                                    }
+                                } catch(ep2) {}
+                            }
+                            
                             var bn = document.createElement('div');
                             bn.className = 'smart-gen-analysis';
                             bn.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(139,92,246,0.12),rgba(15,23,42,0.95));border:1px solid rgba(139,92,246,0.3);';
