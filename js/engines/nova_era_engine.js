@@ -2055,7 +2055,7 @@ class NovaEraEngine {
                 // A) ATRASO ATUAL vs atraso ideal dos vencedores
                 let currentDelay = 0;
                 for (let i = 0; i < N; i++) {
-                    if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) {
+                    if (_numSets[i].has(n)) {
                         currentDelay = i;
                         break;
                     }
@@ -2083,7 +2083,7 @@ class NovaEraEngine {
                 // D) PADRÃƒO DE RETORNO â€” apÃ³s sair, quantos sorteios atÃ© voltar? (ciclo individual)
                 const appearances = [];
                 for (let i = 0; i < Math.min(30, N); i++) {
-                    if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) {
+                    if (_numSets[i].has(n)) {
                         appearances.push(i);
                     }
                 }
@@ -2190,7 +2190,7 @@ class NovaEraEngine {
             for (let n = startNum; n <= endNum; n++) {
                 const appearances = [];
                 for (let i = 0; i < Math.min(60, N); i++) {
-                    if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) appearances.push(i);
+                    if (_numSets[i].has(n)) appearances.push(i);
                 }
                 if (appearances.length < 2) {
                     cycleReturnScores[n] = appearances.length > 0 && appearances[0] > expectedGlobalCycle * 1.5 ? 0.90 : 0.60;
@@ -2242,7 +2242,7 @@ class NovaEraEngine {
                     const ws = Math.min(sc.window, N);
                     let freq = 0;
                     for (let i = 0; i < ws; i++) {
-                        if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) freq++;
+                        if (_numSets[i].has(n)) freq++;
                     }
                     const freqRatio = freq / ws;
                     const expectedFreq = drawSize / totalRange;
@@ -2250,8 +2250,8 @@ class NovaEraEngine {
                     if (ws >= 4) {
                         const half = Math.floor(ws / 2);
                         let fh = 0, sh = 0;
-                        for (let i = 0; i < half; i++) { if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) fh++; }
-                        for (let i = half; i < ws; i++) { if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) sh++; }
+                        for (let i = 0; i < half; i++) { if (_numSets[i].has(n)) fh++; }
+                        for (let i = half; i < ws; i++) { if (_numSets[i].has(n)) sh++; }
                         trend = (fh / half) - (sh / (ws - half));
                     }
                     const devBonus = freqRatio < expectedFreq ? 0.15 : -0.05;

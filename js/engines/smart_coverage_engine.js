@@ -23,7 +23,7 @@ class SmartCoverageEngine {
 
     // ─── Construção do Alvo do Sniper (Analítico Matemático) ────────────
     // Baseado em Ciclos, Atrasos, Tendências e Frequência de Duplas
-    static _buildSniperPool(gameKey, game, numGames, poolSizePreference) {
+    static _buildSniperPool(gameKey, game, numGames, poolSizePreference, precomputedScores) {
         let history = [];
         if (typeof StatsService !== 'undefined') history = StatsService.getRecentResults(gameKey, 200) || [];
         if (history.length === 0 && typeof REAL_HISTORY_DB !== 'undefined') history = REAL_HISTORY_DB[gameKey] || [];
@@ -35,7 +35,9 @@ class SmartCoverageEngine {
 
         // 1. Matriz de Scores Quânticos (Frequência, Atrasos, Ciclos)
         let quantumScores = {};
-        if (typeof NovaEraEngine !== 'undefined') {
+        if (precomputedScores) {
+            quantumScores = precomputedScores;
+        } else if (typeof NovaEraEngine !== 'undefined') {
             const profile = NovaEraEngine.getProfile(gameKey);
             quantumScores = NovaEraEngine._scoreAllNumbers(gameKey, profile, history, start, end, totalRange);
         } else {
@@ -55,7 +57,7 @@ class SmartCoverageEngine {
                 for (let j = i + 1; j < nums.length; j++) {
                     const n1 = nums[i], n2 = nums[j];
                     if (n1 >= start && n1 <= end && n2 >= start && n2 <= end) {
-                        const key = n1 < n2 ? `${n1}-${n2}` : `${n2}-${n1}`;
+                        const key = n1 < n2 ? n1 * 100 + n2 : n2 * 100 + n1;
                         pairsFreq[key] = (pairsFreq[key] || 0) + 1;
                     }
                 }
@@ -66,7 +68,7 @@ class SmartCoverageEngine {
         Object.keys(pairsFreq).forEach(key => {
             const freq = pairsFreq[key];
             if (freq > 1) { // Só consideramos duplas que repetiram nos últimos 15 concursos
-                const [n1, n2] = key.split('-').map(Number);
+                const n1 = Math.floor(key / 100), n2 = key % 100;
                 numberPairBonus[n1] += freq * 2; // peso forte
                 numberPairBonus[n2] += freq * 2;
             }
@@ -227,7 +229,7 @@ class SmartCoverageEngine {
         if (opts.precisionMode && (!selectedNumbers || selectedNumbers.length === 0)) {
             const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
             if (game) {
-                sniperPool = this._buildSniperPool(gameKey, game, numGames, opts.precisionPoolSize);
+                sniperPool = this._buildSniperPool(gameKey, game, numGames, opts.precisionPoolSize, opts.layeredPool ? opts.layeredPool.scores : null);
                 console.log('[SmartCoverage] 🎯 Sniper Ativo: Alvo concentrado em', sniperPool.length, 'dezenas:', sniperPool);
             }
         }
