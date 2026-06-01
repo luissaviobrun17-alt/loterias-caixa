@@ -361,6 +361,89 @@ if (qty > MAX_QTY) {
                 }
 
                 // Fallback local caso o backend não esteja disponível
+                // ★ v14.1: Para grandes volumes (>500), gera em BATCHES para não travar o browser
+                const BATCH_THRESHOLD = 500;
+                if (qty > BATCH_THRESHOLD) {
+                    // ═══ GERAÇÃO EM BATCHES (Anti-Freeze) ═══
+                    const _self = this;
+                    const _gameKey = this.currentGameKey;
+                    const _selectedArr = this.getSelectedNumbers() || [];
+                    const _fixedNums = this.fixedNumbers;
+                    const _drawSize = drawSize;
+                    const _sniperMode = sniperMode;
+                    const _sniperPoolSize = sniperPoolSize;
+                    const _coverageOpts = { precisionMode: sniperMode, precisionPoolSize: sniperPoolSize };
+                    
+                    const batchSize = 500;
+                    const totalBatches = Math.ceil(qty / batchSize);
+                    let completedGames = [];
+                    let currentBatch = 0;
+                    const t0 = Date.now();
+
+                    const runBatch = () => {
+                        currentBatch++;
+                        const remaining = qty - completedGames.length;
+                        const thisBatchSize = Math.min(batchSize, remaining);
+                        
+                        // Progress update
+                        const pct = Math.round((completedGames.length / qty) * 100);
+                        _self.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;">' +
+                            '<div style="font-size:1.1em;color:#10B981;font-weight:800;margin-bottom:16px;">📐 Gerando ' + qty.toLocaleString('pt-BR') + ' jogos...</div>' +
+                            '<div style="width:100%;max-width:400px;margin:0 auto;background:rgba(0,0,0,0.4);border-radius:12px;overflow:hidden;height:28px;border:1px solid rgba(16,185,129,0.3);">' +
+                            '<div style="width:' + pct + '%;height:100%;background:linear-gradient(90deg,#047857,#10B981);transition:width 0.3s;display:flex;align-items:center;justify-content:center;">' +
+                            '<span style="color:white;font-weight:800;font-size:0.8rem;text-shadow:0 1px 3px rgba(0,0,0,0.5);">' + pct + '%</span>' +
+                            '</div></div>' +
+                            '<div style="color:#94A3B8;font-size:0.75rem;margin-top:10px;">Lote ' + currentBatch + '/' + totalBatches + ' • ' + completedGames.length.toLocaleString('pt-BR') + '/' + qty.toLocaleString('pt-BR') + ' jogos</div>' +
+                            '<div style="color:#475569;font-size:0.65rem;margin-top:4px;">Tempo: ' + ((Date.now() - t0) / 1000).toFixed(1) + 's</div>' +
+                            '</div>';
+                        
+                        setTimeout(() => {
+                            try {
+                                if (typeof SmartCoverageEngine === 'undefined') return;
+                                const batchResult = SmartCoverageEngine.generate(
+                                    _gameKey, thisBatchSize, _selectedArr, _fixedNums, _drawSize, _coverageOpts
+                                );
+                                if (batchResult && batchResult.games) {
+                                    completedGames = completedGames.concat(batchResult.games);
+                                }
+                                
+                                if (completedGames.length < qty) {
+                                    runBatch(); // Next batch
+                                } else {
+                                    // ═══ CONCLUÍDO ═══
+                                    const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+                                    _self.currentGeneratedGames = completedGames;
+                                    _self._lastGeneratedGames = completedGames;
+                                    if (_sniperMode) {
+                                        _self._engineSlots.sniper = completedGames.length > 0 ? completedGames : null;
+                                    } else {
+                                        _self._engineSlots.cobertura = completedGames.length > 0 ? completedGames : null;
+                                    }
+                                    _self.renderGames({ pool: [], games: completedGames, smartAnalysis: null }, _gameKey);
+                                    
+                                    var banner = document.createElement('div');
+                                    banner.className = 'smart-gen-analysis';
+                                    banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(4,120,87,0.12),rgba(15,23,42,0.95));border:1px solid rgba(16,185,129,0.3);';
+                                    banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">' +
+                                        '<span style="font-size:1.3rem;">📐</span><div>' +
+                                        '<div style="font-weight:900;color:#10B981;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">COBERTURA IA — ' + completedGames.length.toLocaleString('pt-BR') + ' JOGOS</div>' +
+                                        '<div style="font-size:0.72rem;color:#94A3B8;">Gerado em ' + totalBatches + ' lotes × ' + batchSize + ' | Tempo: ' + elapsed + 's</div>' +
+                                        '</div></div>';
+                                    var oldBanner = _self.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                                    if (oldBanner) oldBanner.remove();
+                                    _self.gamesContainer.parentNode.insertBefore(banner, _self.gamesContainer);
+                                    banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
+                            } catch(e) {
+                                console.error('Erro batch:', e);
+                                _self.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
+                            }
+                        }, 30);
+                    };
+                    
+                    runBatch();
+                } else {
+                // ═══ GERAÇÃO NORMAL (≤500 jogos) ═══
                 setTimeout(() => {
                     try {
                         if (typeof SmartCoverageEngine === 'undefined') {
@@ -428,6 +511,7 @@ if (qty > MAX_QTY) {
                         this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
                     }
                 }, 50);
+                } // fim do else (≤500)
             };
         }
 
