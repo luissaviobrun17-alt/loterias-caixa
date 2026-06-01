@@ -305,52 +305,92 @@ class SmartCoverageEngine {
     // ─── Calcular métricas honestas para exibição ──────────────────────────────
     // Retorna probabilidades hipergeométricas REAIS por faixa de prêmio
     // v11.1 Fix: usa game.draw (bolas sorteadas) não game.minBet (aposta do jogador)
-    static calcRealMetrics(games, gameKey) {
+    static calcRealMetrics(games, gameKey, poolSize) {
         const game = (typeof GAMES !== 'undefined') ? GAMES[gameKey] : null;
         if (!game || !games || games.length === 0) return {};
 
-        const n = game.range[1] - game.range[0] + 1;  // total de números na loteria
-        // v11.1: sorteados pela loteria (ex: Timemania=7, Mega Sena=6, Lotofácil=15)
-        // game.draw é o campo correto; game.minBet é o tamanho da APOSTA
-        const K = game.draw || game.minBet;            // bolas sorteadas
+        const N = game.range[1] - game.range[0] + 1;  // total de números na loteria
+        const K = game.draw || game.minBet;            // bolas sorteadas pela loteria
         const numGames = games.length;
-        const drawSize = games[0] ? games[0].length : (game.minBet); // tamanho da aposta
+        const drawSize = games[0] ? games[0].length : (game.minBet);
+        
+        // v14.2: Pool do usuário
+        let P = poolSize || N;
+        if (!poolSize && games.length > 0) {
+            const allNums = new Set();
+            const sampleSize = Math.min(games.length, 200);
+            for (let i = 0; i < sampleSize; i++) {
+                games[i].forEach(n => allNums.add(n));
+            }
+            P = allNums.size;
+        }
+        P = Math.min(P, N);
 
-        // Probabilidade de acertar exatamente `hits` em um jogo
-        // P(X=hits) = C(K,hits) * C(n-K, drawSize-hits) / C(n, drawSize)
         const _comb = (a, b) => {
             if (b < 0 || b > a) return 0;
             if (b === 0 || b === a) return 1;
             b = Math.min(b, a - b);
             let r = 1;
-            for (let i = 0; i < b; i++) { r = r * (a - i) / (i + 1); /* Sem limite de e15 para Lotomania */ }
+            for (let i = 0; i < b; i++) { r = r * (a - i) / (i + 1); }
             return r;
         };
 
-        const totalCombos = _comb(n, drawSize);
         const metrics = {};
-
-        // Faixas de prêmio: do máximo ao mínimo premíado
         const prizes = [];
         const maxHits = Math.min(K, drawSize);
         const minPrizedHits = Math.max(maxHits - 3, 0);
+
+        // Probabilidade clássica por jogo (sem pool)
+        const totalCombos = _comb(N, drawSize);
+        const totalLottery = _comb(N, K);
+        const totalPool = _comb(P, drawSize);
+        
         for (let hits = maxHits; hits >= minPrizedHits; hits--) {
-            const prob = (_comb(K, hits) * _comb(n - K, drawSize - hits)) / totalCombos;
-            if (prob > 0) prizes.push({ hits, prob, probPct: (prob * 100).toFixed(8) });
+            const probClassic = (_comb(K, hits) * _comb(N - K, drawSize - hits)) / totalCombos;
+            
+            let probAtLeastOne;
+            if (P >= N) {
+                // Pool completo — fórmula clássica
+                probAtLeastOne = 1 - Math.pow(1 - probClassic, numGames);
+            } else {
+                // v14.2: Pool parcial — CONDICIONAR no sorteio
+                // P(≥1 acerta h | pool P) = Σ_j P(j bolas no pool) × [1-(1-P(acertar h|j))^n]
+                let totalProb = 0;
+                const jMin = Math.max(0, K - (N - P));
+                const jMax = Math.min(K, P);
+                for (let j = jMin; j <= jMax; j++) {
+                    const pJ = (_comb(P, j) * _comb(N - P, K - j)) / totalLottery;
+                    if (j < hits) {
+                        // Impossível acertar h com apenas j nums no pool
+                        continue;
+                    }
+                    const pHitSingle = (_comb(j, hits) * _comb(P - j, drawSize - hits)) / totalPool;
+                    const pAtLeast1givenJ = 1 - Math.pow(1 - pHitSingle, numGames);
+                    totalProb += pJ * pAtLeast1givenJ;
+                }
+                probAtLeastOne = totalProb;
+            }
+
+            if (probAtLeastOne > 0) {
+                prizes.push({
+                    hits,
+                    prob: probClassic,
+                    probPct: (probClassic * 100).toFixed(8),
+                    probAtLeastOnePct: (probAtLeastOne * 100).toFixed(4)
+                });
+            }
         }
 
-        // Probabilidade de PELO MENOS UM jogo acertar, em `numGames` tentativas
-        prizes.forEach(p => {
-            const probAtLeastOne = 1 - Math.pow(1 - p.prob, numGames);
-            p.probAtLeastOnePct = (probAtLeastOne * 100).toFixed(4);
-        });
-
         metrics.prizes = prizes;
-        metrics.totalCombos = totalCombos.toExponential(2);
+        metrics.totalCombos = _comb(N, K).toExponential(2);
         metrics.numGames = numGames;
         metrics.drawSize = drawSize;
         metrics.K = K;
-        metrics.note = 'Probabilidades hipergeométricas exatas. Loteria é independente de histórico.';
+        metrics.poolSize = P;
+        metrics.totalNumbers = N;
+        metrics.note = P < N
+            ? 'Pool de ' + P + '/' + N + ' números. Probabilidade ajustada ao pool.'
+            : 'Pool completo (' + N + ' números).';
 
         return metrics;
     }

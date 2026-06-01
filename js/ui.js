@@ -287,7 +287,7 @@ if (qty > MAX_QTY) {
                         // Probabilidades honestas (hipergeométrica)
                         if (typeof SmartCoverageEngine !== 'undefined' && SmartCoverageEngine.calcRealMetrics) {
                             try {
-                                const realMetrics = SmartCoverageEngine.calcRealMetrics(games, this.currentGameKey);
+                                const realMetrics = SmartCoverageEngine.calcRealMetrics(games, this.currentGameKey, pool ? pool.length : this.selectedNumbers.size);
                                 if (realMetrics && realMetrics.prizes) {
                                     bannerMsg += '<div style="margin-top:8px;padding:8px;background:rgba(0,0,0,0.3);border-radius:8px;font-size:0.75rem;">' +
                                         '<div style="color:#F59E0B;font-weight:bold;margin-bottom:4px;">PROBABILIDADES EXATAS (HIPERGEOMÉTRICA)</div>';
@@ -457,7 +457,7 @@ if (qty > MAX_QTY) {
                                     let probHtml = '';
                                     if (typeof SmartCoverageEngine !== 'undefined' && SmartCoverageEngine.calcRealMetrics) {
                                         try {
-                                            const realMetrics = SmartCoverageEngine.calcRealMetrics(completedGames, _gameKey);
+                                            const realMetrics = SmartCoverageEngine.calcRealMetrics(completedGames, _gameKey, this.selectedNumbers ? this.selectedNumbers.size : 0);
                                             if (realMetrics && realMetrics.prizes) {
                                                 probHtml = '<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.4);border-radius:8px;font-size:0.75rem;">' +
                                                     '<div style="color:#10B981;font-weight:bold;margin-bottom:4px;">PROBABILIDADES EXATAS (HIPERGEOMÉTRICA)</div>';
@@ -531,7 +531,7 @@ if (qty > MAX_QTY) {
                         
                         let probHtml = '';
                         if (typeof SmartCoverageEngine !== 'undefined' && SmartCoverageEngine.calcRealMetrics) {
-                            const realMetrics = SmartCoverageEngine.calcRealMetrics(result.games, this.currentGameKey);
+                            const realMetrics = SmartCoverageEngine.calcRealMetrics(result.games, this.currentGameKey, this.selectedNumbers ? this.selectedNumbers.size : 0);
                             if (realMetrics && realMetrics.prizes) {
                                 probHtml = '<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.4);border-radius:8px;font-size:0.75rem;">' +
                                            '<div style="color:#10B981;font-weight:bold;margin-bottom:4px;">PROBABILIDADES EXATAS (HIPERGEOMÉTRICA)</div>';
@@ -1378,7 +1378,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                             let probHtml2 = '';
                             if (typeof SmartCoverageEngine !== 'undefined' && SmartCoverageEngine.calcRealMetrics) {
                                 try {
-                                    const rm = SmartCoverageEngine.calcRealMetrics(allG, _gk);
+                                    const rm = SmartCoverageEngine.calcRealMetrics(allG, _gk, this.selectedNumbers ? this.selectedNumbers.size : 0);
                                     if (rm && rm.prizes) {
                                         probHtml2 = '<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.4);border-radius:8px;font-size:0.75rem;"><div style="color:#A78BFA;font-weight:bold;margin-bottom:4px;">PROBABILIDADES EXATAS (HIPERGEOM\u00C9TRICA)</div>';
                                         rm.prizes.slice(0, 3).forEach(p => {
@@ -1436,7 +1436,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 let predProbHtml = '';
                 if (typeof SmartCoverageEngine !== 'undefined' && SmartCoverageEngine.calcRealMetrics) {
                     try {
-                        const rm = SmartCoverageEngine.calcRealMetrics(smartResult.games, this.currentGameKey);
+                        const rm = SmartCoverageEngine.calcRealMetrics(smartResult.games, this.currentGameKey, this.selectedNumbers ? this.selectedNumbers.size : 0);
                         if (rm && rm.prizes) {
                             predProbHtml = '<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.4);border-radius:8px;font-size:0.75rem;"><div style="color:#A78BFA;font-weight:bold;margin-bottom:4px;">PROBABILIDADES EXATAS (HIPERGEOM\u00c9TRICA)</div>';
                             rm.prizes.slice(0, 3).forEach(function(p) {
