@@ -583,7 +583,8 @@ class QuantumGodEngine {
                     for (var k = j + 1; k < maxNums; k++) {
                         if (nums[i] >= startNum && nums[j] >= startNum && nums[k] >= startNum &&
                             nums[i] <= endNum && nums[j] <= endNum && nums[k] <= endNum) {
-                            var key = [nums[i], nums[j], nums[k]].sort(function(a,b){return a-b}).join('-');
+                            var sorted3 = [nums[i], nums[j], nums[k]].sort(function(a,b){return a-b});
+                            var key = sorted3[0] * 10000 + sorted3[1] * 100 + sorted3[2];
                             trioMap[key] = (trioMap[key] || 0) + 1;
                         }
                     }
@@ -868,7 +869,9 @@ class QuantumGodEngine {
 
             selected.push(weightList[chosenIdx].number);
             totalBaseWeight -= weightList[chosenIdx].weight;
-            weightList.splice(chosenIdx, 1);
+            // ★ PERFORMANCE: swap+pop O(1) em vez de splice O(n)
+            weightList[chosenIdx] = weightList[weightList.length - 1];
+            weightList.pop();
         }
         return selected;
     }
@@ -966,7 +969,8 @@ class QuantumGodEngine {
                     if (useTrioBoost) {
                         for (var s1 = 0; s1 < selection.length; s1++) {
                             for (var s2 = s1 + 1; s2 < selection.length; s2++) {
-                                var trioKey = [selection[s1], selection[s2], candidates[r].number].sort(function(a,b){return a-b}).join('-');
+                                var t3 = [selection[s1], selection[s2], candidates[r].number].sort(function(a,b){return a-b});
+                                var trioKey = t3[0] * 10000 + t3[1] * 100 + t3[2];
                                 if (trios[trioKey]) boostedScore += trios[trioKey] * 0.12;
                             }
                         }
@@ -1144,7 +1148,9 @@ class QuantumGodEngine {
             }
 
             selected.push(pool[chosenIdx].number);
-            pool.splice(chosenIdx, 1);
+            // ★ PERFORMANCE: swap+pop O(1) em vez de splice O(n)
+            pool[chosenIdx] = pool[pool.length - 1];
+            pool.pop();
         }
         return selected;
     }

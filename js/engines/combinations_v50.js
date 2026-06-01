@@ -73,7 +73,7 @@ class CombinationEngine {
             
             for (let i = 0; i < allNums.length; i++) {
                 for (let j = i + 1; j < allNums.length; j++) {
-                    const key = Math.min(allNums[i], allNums[j]) + '-' + Math.max(allNums[i], allNums[j]);
+                    const key = Math.min(allNums[i], allNums[j]) * 100 + Math.max(allNums[i], allNums[j]);
                     pairMap[key] = (pairMap[key] || 0) + 1;
                 }
             }
@@ -103,7 +103,7 @@ class CombinationEngine {
                 for (let j = i + 1; j < allNums.length; j++) {
                     for (let k = j + 1; k < allNums.length; k++) {
                         const sorted = [allNums[i], allNums[j], allNums[k]].sort((a, b) => a - b);
-                        const key = sorted.join('-');
+                        const key = sorted[0] * 10000 + sorted[1] * 100 + sorted[2];
                         trioMap[key] = (trioMap[key] || 0) + 1;
                     }
                 }
@@ -271,8 +271,13 @@ class CombinationEngine {
             // Encontrar onde este número apareceu
             const appearances = [];
             for (let d = 0; d < history.length; d++) {
-                const allNums = (history[d].numbers || []).concat(history[d].numbers2 || []);
-                if (allNums.includes(n)) appearances.push(d);
+                const hd = history[d];
+                const nums1 = hd.numbers || [];
+                const nums2 = hd.numbers2 || [];
+                let found = false;
+                for (let x = 0; x < nums1.length; x++) { if (nums1[x] === n) { found = true; break; } }
+                if (!found) { for (let x = 0; x < nums2.length; x++) { if (nums2[x] === n) { found = true; break; } } }
+                if (found) appearances.push(d);
             }
             
             if (appearances.length >= 3) {
@@ -634,11 +639,15 @@ class CombinationEngine {
     static coverageScore(newTicket, existingGames) {
         if (existingGames.length === 0) return 100;
         
+        const ticketSet = new Set(newTicket);
         let maxOverlap = 0;
-        existingGames.forEach(existing => {
-            const overlap = newTicket.filter(n => existing.includes(n)).length;
-            maxOverlap = Math.max(maxOverlap, overlap);
-        });
+        for (const existing of existingGames) {
+            let overlap = 0;
+            for (const n of existing) {
+                if (ticketSet.has(n)) overlap++;
+            }
+            if (overlap > maxOverlap) maxOverlap = overlap;
+        }
 
         // Quanto MENOS sobreposição máxima, melhor
         return 100 - (maxOverlap / newTicket.length * 100);
@@ -859,7 +868,9 @@ class CombinationEngine {
         // Fallback: se não atingiu a quantidade
         if (games.length < safeQuantity) {
             for (let i = 0; i < bestCandidates.length && games.length < safeQuantity; i++) {
-                if (!games.some(g => g.join(',') === bestCandidates[i].ticket.join(','))) {
+                const key = bestCandidates[i].ticket.join(',');
+                if (!usedCombinations.has(key)) {
+                    usedCombinations.add(key);
                     games.push(bestCandidates[i].ticket);
                 }
             }

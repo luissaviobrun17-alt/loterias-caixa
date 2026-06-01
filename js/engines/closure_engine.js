@@ -121,7 +121,7 @@ class ClosureEngine {
         const allTSubsets = this._generateSubsets(nums, t);
         const uncoveredSet = new Set();
         for (let i = 0; i < allTSubsets.length; i++) {
-            uncoveredSet.add(allTSubsets[i].join(','));
+            uncoveredSet.add(this._subsetKey(allTSubsets[i]));
         }
 
         console.log('[CLOSURE] Total t-subsets a cobrir: ' + allTSubsets.length);
@@ -146,14 +146,14 @@ class ClosureEngine {
                 : this._generateRandomCandidates(nums, k, Math.min(5000, targetGames * 50));
 
             for (const candidate of candidates) {
-                const key = candidate.join(',');
+                const key = this._subsetKey(candidate);
                 if (usedKeys.has(key)) continue;
 
                 // Contar t-subsets que este candidato cobre
                 const tSubsetsOfCandidate = this._generateSubsets(candidate, t);
                 let newlyCovered = 0;
                 for (const sub of tSubsetsOfCandidate) {
-                    if (uncoveredSet.has(sub.join(','))) newlyCovered++;
+                    if (uncoveredSet.has(this._subsetKey(sub))) newlyCovered++;
                 }
 
                 if (newlyCovered > bestScore) {
@@ -170,12 +170,12 @@ class ClosureEngine {
 
             // Adicionar o melhor jogo
             games.push(bestGame);
-            usedKeys.add(bestGame.join(','));
+            usedKeys.add(this._subsetKey(bestGame));
 
             // Remover t-subsets cobertos
             const coveredSubs = this._generateSubsets(bestGame, t);
             for (const sub of coveredSubs) {
-                uncoveredSet.delete(sub.join(','));
+                uncoveredSet.delete(this._subsetKey(sub));
             }
         }
 
@@ -212,6 +212,17 @@ class ClosureEngine {
         return result;
     }
 
+    // ★ PERFORMANCE: encoding numérico para chaves de subconjuntos (evita .join + GC de strings)
+    static _subsetKey(subset) {
+        const len = subset.length;
+        if (len === 2) return subset[0] * 100 + subset[1];
+        if (len === 3) return subset[0] * 10000 + subset[1] * 100 + subset[2];
+        if (len === 4) return subset[0] * 1000000 + subset[1] * 10000 + subset[2] * 100 + subset[3];
+        if (len === 5) return subset[0] * 100000000 + subset[1] * 1000000 + subset[2] * 10000 + subset[3] * 100 + subset[4];
+        if (len === 6) return subset[0] * 10000000000 + subset[1] * 100000000 + subset[2] * 1000000 + subset[3] * 10000 + subset[4] * 100 + subset[5];
+        return subset.join(',');
+    }
+
     // ═══════════════════════════════════════════════════════
     //  GERAR CANDIDATOS ALEATÓRIOS (para v > 15)
     // ═══════════════════════════════════════════════════════
@@ -228,7 +239,7 @@ class ClosureEngine {
                 [shuffled[j], shuffled[r]] = [shuffled[r], shuffled[j]];
             }
             const candidate = shuffled.slice(0, k).sort((a, b) => a - b);
-            const key = candidate.join(',');
+            const key = this._subsetKey(candidate);
             if (!seen.has(key)) {
                 seen.add(key);
                 candidates.push(candidate);
@@ -249,7 +260,7 @@ class ClosureEngine {
         for (const game of games) {
             const subs = this._generateSubsets(game, t);
             for (const sub of subs) {
-                coveredSet.add(sub.join(','));
+                coveredSet.add(this._subsetKey(sub));
             }
         }
 

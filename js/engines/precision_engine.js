@@ -577,14 +577,24 @@ class PrecisionEngine {
         for (let n = startNum; n <= endNum; n++) if (freq[n] > maxFreq) maxFreq = freq[n];
 
         // D1 — Frequência multi-janela
+        // ★ PERFORMANCE: pré-computar aparências por número ao invés de 4× filter.includes por número
         const d1 = {};
         const wins3={}, wins5={}, wins10={}, wins15={};
+        for (let n = startNum; n <= endNum; n++) { wins3[n]=0; wins5[n]=0; wins10[n]=0; wins15[n]=0; }
+        const w3 = Math.min(3,N), w5 = Math.min(5,N), w10 = Math.min(10,N), w15 = Math.min(15,N);
+        for (let i = 0; i < w15; i++) {
+            const nums = history[i].numbers || [];
+            for (const n of nums) {
+                if (n >= startNum && n <= endNum) {
+                    if (i < w3) wins3[n]++;
+                    if (i < w5) wins5[n]++;
+                    if (i < w10) wins10[n]++;
+                    wins15[n]++;
+                }
+            }
+        }
         for (let n = startNum; n <= endNum; n++) {
-            wins3[n] = history.slice(0,Math.min(3,N)).filter(d=>(d.numbers||[]).includes(n)).length;
-            wins5[n] = history.slice(0,Math.min(5,N)).filter(d=>(d.numbers||[]).includes(n)).length;
-            wins10[n]= history.slice(0,Math.min(10,N)).filter(d=>(d.numbers||[]).includes(n)).length;
-            wins15[n]= history.slice(0,Math.min(15,N)).filter(d=>(d.numbers||[]).includes(n)).length;
-            d1[n] = (wins3[n]/3)*0.40 + (wins5[n]/Math.min(5,N))*0.30 + (wins10[n]/Math.min(10,N))*0.20 + (wins15[n]/Math.min(15,N))*0.10;
+            d1[n] = (wins3[n]/w3)*0.40 + (wins5[n]/w5)*0.30 + (wins10[n]/w10)*0.20 + (wins15[n]/w15)*0.10;
         }
 
         // D2 — Pressão de vácuo (probabilidade acumulada)
@@ -600,7 +610,10 @@ class PrecisionEngine {
         for (let n = startNum; n <= endNum; n++) {
             const appears = [];
             for (let i = 0; i < Math.min(40,N); i++) {
-                if ((history[i].numbers||[]).includes(n)) appears.push(i);
+                const dNums = history[i].numbers || [];
+                let found = false;
+                for (let x = 0; x < dNums.length; x++) { if (dNums[x] === n) { found = true; break; } }
+                if (found) appears.push(i);
             }
             if (appears.length >= 2) {
                 let totalGap = 0;
@@ -640,7 +653,7 @@ class PrecisionEngine {
                 const prev = history[i].numbers || [];
                 const next = history[i-1].numbers || [];
                 const decay = Math.exp(-i * 0.06);
-                for (const ln of lastNums) {
+            for (const ln of lastNums) {
                     if (prev.includes(ln)) {
                         for (const nx of next) { if (nx >= startNum && nx <= endNum && nx !== ln) d5[nx] += decay * 0.3; }
                     }
@@ -724,11 +737,19 @@ class PrecisionEngine {
         }
 
         // D10 — Regressão à média (sub/sobre-representados)
+        // ★ PERFORMANCE: pré-computar frequência real uma vez em vez de history.filter().includes() por número
         const d10 = {};
         const expFreq = N * drawSize / totalRange;
+        const realFreqMap = {};
+        for (let n = startNum; n <= endNum; n++) realFreqMap[n] = 0;
+        for (let i = 0; i < N; i++) {
+            const nums = history[i].numbers || [];
+            for (const n of nums) {
+                if (n >= startNum && n <= endNum) realFreqMap[n]++;
+            }
+        }
         for (let n = startNum; n <= endNum; n++) {
-            const realFreq = history.filter(d=>(d.numbers||[]).includes(n)).length;
-            const dev = (realFreq - expFreq) / Math.max(1, expFreq);
+            const dev = (realFreqMap[n] - expFreq) / Math.max(1, expFreq);
             d10[n] = dev < -0.3 ? 0.90 : dev < -0.15 ? 0.75 : dev > 0.3 ? 0.20 : dev > 0.15 ? 0.35 : 0.55;
         }
 

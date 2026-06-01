@@ -90,9 +90,12 @@ const QuantumCalibration = {
         for (let n = min; n <= max; n++) {
             const appearances = [];
             for (let i = 0; i < depth; i++) {
-                if ((history[i].numbers || []).concat(history[i].numbers2 || []).includes(n)) {
-                    appearances.push(i);
-                }
+                const nums1 = history[i].numbers || [];
+                const nums2 = history[i].numbers2 || [];
+                let found = false;
+                for (let x = 0; x < nums1.length; x++) { if (nums1[x] === n) { found = true; break; } }
+                if (!found) { for (let x = 0; x < nums2.length; x++) { if (nums2[x] === n) { found = true; break; } } }
+                if (found) appearances.push(i);
             }
             if (appearances.length < 2) { periodMap[n] = null; continue; }
 
@@ -219,8 +222,12 @@ const QuantumCalibration = {
         for (let n = min; n <= max; n++) {
             let lastSeen = -1;
             for (let i = 0; i < N; i++) {
-                const nums = (history[i].numbers || []).concat(history[i].numbers2 || []);
-                if (nums.includes(n)) { lastSeen = i; break; }
+                const nums1 = history[i].numbers || [];
+                const nums2 = history[i].numbers2 || [];
+                let found = false;
+                for (let x = 0; x < nums1.length; x++) { if (nums1[x] === n) { found = true; break; } }
+                if (!found) { for (let x = 0; x < nums2.length; x++) { if (nums2[x] === n) { found = true; break; } } }
+                if (found) { lastSeen = i; break; }
             }
             delay[n] = lastSeen < 0 ? N : lastSeen;
 
@@ -282,9 +289,9 @@ const QuantumCalibration = {
 
             // Verificar se essa combinação é "nova" (não apareceu no histórico recente)
             const isNew = !history.slice(0, Math.min(5, N)).some(draw => {
-                const dNums = (draw.numbers || []).concat(draw.numbers2 || []);
+                const dNums = new Set((draw.numbers || []).concat(draw.numbers2 || []));
                 let overlap = 0;
-                for (const n of candidate) if (dNums.includes(n)) overlap++;
+                for (const n of candidate) if (dNums.has(n)) overlap++;
                 return overlap >= Math.ceil(drawSize * 0.7);
             });
 
@@ -661,7 +668,11 @@ const QuantumCalibration = {
                 usedSet.add(chosen);
                 // Remover do disponível
                 const remIdx = available.indexOf(chosen);
-                if (remIdx >= 0) { available.splice(remIdx, 1); weights.splice(remIdx, 1); }
+                if (remIdx >= 0) {
+                    // ★ PERFORMANCE: swap+pop O(1) em vez de splice O(n)
+                    available[remIdx] = available[available.length - 1]; available.pop();
+                    weights[remIdx] = weights[weights.length - 1]; weights.pop();
+                }
             }
 
             if (ticket.length < draw) continue;

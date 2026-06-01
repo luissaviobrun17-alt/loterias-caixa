@@ -117,6 +117,11 @@ class ClosingEngine {
     }
 
     static _subsetKey(subset) {
+        // ★ PERFORMANCE: encoding numérico para subconjuntos pequenos (evita .join + string allocation)
+        const len = subset.length;
+        if (len === 2) return subset[0] * 100 + subset[1];
+        if (len === 3) return subset[0] * 10000 + subset[1] * 100 + subset[2];
+        if (len === 4) return subset[0] * 1000000 + subset[1] * 10000 + subset[2] * 100 + subset[3];
         return subset.join(',');
     }
 
@@ -298,11 +303,12 @@ class ClosingEngine {
             const scoresInfo = NovaEraEngine._scoreAllNumbers(gameKey, profile, history, range[0], range[1], range[1] - range[0] + 1);
             
             const pairMatrix = {};
+            const _selectedSet = new Set(selectedNumbers);
             selectedNumbers.forEach(n => { pairMatrix[n] = {}; selectedNumbers.forEach(m => pairMatrix[n][m] = 0); });
             
             history.forEach(draw => {
                 const nums = draw.numeros || draw;
-                const match = nums.filter(n => selectedNumbers.includes(n));
+                const match = nums.filter(n => _selectedSet.has(n));
                 for(let i=0; i<match.length; i++) {
                     for(let j=i+1; j<match.length; j++) {
                         pairMatrix[match[i]][match[j]]++;
@@ -311,7 +317,7 @@ class ClosingEngine {
                 }
             });
             
-            return { scores: scoresInfo.scores, pairs: pairMatrix };
+            return { scores: scoresInfo, pairs: pairMatrix };
         } catch(e) {
             console.error('[CLOSING-AI] Erro ao injetar IA', e);
             return null;
