@@ -257,6 +257,9 @@ if (qty > MAX_QTY) {
                     }
                     const a = result.analysis || {};
                     bannerMsg = '🎲 <strong>MANUAL v3.0</strong> — ' + result.games.length + ' jogos dos seus ' + (a.poolSize || pool.length) + ' números';
+                    if (result.games.length < qty) {
+                        bannerMsg += '<br>⚠️ <span style="color:#F59E0B;">Você pediu ' + qty.toLocaleString('pt-BR') + ' jogos, mas com ' + pool.length + ' números só é possível gerar <strong>' + result.games.length.toLocaleString('pt-BR') + '</strong> jogos únicos com qualidade.</span>';
+                    }
                     if (a.fixedCount > 0) bannerMsg += ' (fixos: ' + a.fixedNumbers.join(', ') + ')';
                     bannerMsg += '<br>💰 Investimento: <strong>R$ ' + (a.investimento || 0).toFixed(2) + '</strong> | Pool usado: <strong>' + (a.poolCoverage || '100%') + '</strong>';
                     if (a.validationApplied) {

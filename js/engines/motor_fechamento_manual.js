@@ -734,6 +734,12 @@ class MotorFechamentoManual {
                         console.log('[MOTOR-MANUAL v3.0] ⚠️ Restrições mínimas (nível 2) após ' + results.length + ' jogos...');
                     }
                 }
+                // v14.1: Detector de esgotamento — se já está no nível máximo
+                // e falhou 1000 tentativas seguidas, o pool esgotou
+                if (relaxLevel >= 2 && totalAttempts > results.length * 300 + 1000) {
+                    console.log('[MOTOR-MANUAL v3.0] ⚠️ Pool esgotado após ' + results.length + ' jogos únicos. Combinações viáveis acabaram.');
+                    break;
+                }
             }
 
             // Log de progresso
