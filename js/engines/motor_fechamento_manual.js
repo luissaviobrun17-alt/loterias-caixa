@@ -557,9 +557,10 @@ class MotorFechamentoManual {
     // ═══════════════════════════════════════════════════════════════
     //  PONTO DE ENTRADA PRINCIPAL (API inalterada)
     // ═══════════════════════════════════════════════════════════════
-    static async generate(gameKey, pool, fixedNumbers, numGames, drawSize) {
+    static async generate(gameKey, pool, fixedNumbers, numGames, drawSize, opts) {
         const t0 = Date.now();
         const cfg = this.getConfig(gameKey);
+        if (opts && opts._onProgress) cfg._onProgress = opts._onProgress;
         const k = drawSize || cfg.drawSize;
 
         const validPool = pool.filter(n => n >= cfg.range[0] && n <= cfg.range[1]);
@@ -654,14 +655,15 @@ class MotorFechamentoManual {
         let previousGame = null;
         let totalAttempts = 0;
         const maxAttempts = numGames * 300;
-        const BATCH_SIZE = Math.min(30, Math.max(10, Math.ceil(numGames / 5)));
+        const BATCH_SIZE = numGames > 500 ? 10 : Math.min(30, Math.max(10, Math.ceil(numGames / 5)));
         let relaxLevel = 0;
         let consecutiveFailures = 0;
         const rejectionCounts = {};
 
+        const _progressCb = cfg._onProgress || null;
         let _l99YieldTimer = Date.now();
         while (results.length < numGames && totalAttempts < maxAttempts) {
-            if (Date.now() - _l99YieldTimer > 40) { await new Promise(r => setTimeout(r, 0)); _l99YieldTimer = Date.now(); }
+            if (Date.now() - _l99YieldTimer > 25) { if (_progressCb) _progressCb(results.length, numGames); await new Promise(r => setTimeout(r, 0)); _l99YieldTimer = Date.now(); }
             let bestCandidate = null;
             let bestScore = -1;
 

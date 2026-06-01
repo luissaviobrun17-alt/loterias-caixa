@@ -238,7 +238,21 @@ if (qty > MAX_QTY) {
                     
                 } else {
                     // Sem fechamento exato -> Motor v3.0 com 12 Correções
-                    result = await MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize);
+                    // v14.1: Progress indicator para grandes volumes
+                    if (qty > 500) {
+                        const t0 = Date.now();
+                        this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:1.1em;color:#FCD34D;font-weight:800;margin-bottom:16px;">🎲 Gerando ' + qty.toLocaleString('pt-BR') + ' jogos MANUAL...</div><div id="manual-progress-bar" style="width:100%;max-width:400px;margin:0 auto;background:rgba(0,0,0,0.4);border-radius:12px;overflow:hidden;height:28px;border:1px solid rgba(255,215,0,0.3);"><div id="manual-progress-fill" style="width:0%;height:100%;background:linear-gradient(90deg,#B45309,#F59E0B);transition:width 0.2s;display:flex;align-items:center;justify-content:center;"><span style="color:white;font-weight:800;font-size:0.8rem;text-shadow:0 1px 3px rgba(0,0,0,0.5);">0%</span></div></div><div id="manual-progress-text" style="color:#94A3B8;font-size:0.75rem;margin-top:10px;">Preparando...</div></div>';
+                        const _onProgress = (done, total) => {
+                            const pct = Math.round((done / total) * 100);
+                            const fill = document.getElementById('manual-progress-fill');
+                            const txt = document.getElementById('manual-progress-text');
+                            if (fill) { fill.style.width = pct + '%'; fill.innerHTML = '<span style="color:white;font-weight:800;font-size:0.8rem;text-shadow:0 1px 3px rgba(0,0,0,0.5);">' + pct + '%</span>'; }
+                            if (txt) txt.textContent = done.toLocaleString('pt-BR') + '/' + total.toLocaleString('pt-BR') + ' jogos | ' + ((Date.now() - t0) / 1000).toFixed(1) + 's';
+                        };
+                        result = await MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize, { _onProgress });
+                    } else {
+                        result = await MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize);
+                    }
                     const a = result.analysis || {};
                     bannerMsg = '🎲 <strong>MANUAL v3.0</strong> — ' + result.games.length + ' jogos dos seus ' + (a.poolSize || pool.length) + ' números';
                     if (a.fixedCount > 0) bannerMsg += ' (fixos: ' + a.fixedNumbers.join(', ') + ')';
@@ -1256,7 +1270,58 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             <style>@keyframes smartProgress{0%{width:10%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:10%;margin-left:90%}}</style>
         `;
 
-        // Execução DIRETA — sem delays artificiais (50ms apenas para o DOM renderizar o spinner)
+        // v14.1: Batching anti-freeze para >500 jogos
+        const PRED_BATCH = 500;
+        if (quantity > PRED_BATCH) {
+            const _self = this;
+            const _gk = this.currentGameKey;
+            const _sa = selectedArr;
+            const _fa = fixedArr;
+            const _ds = customDrawSize;
+            const totalB = Math.ceil(quantity / PRED_BATCH);
+            let allG = [];
+            let bIdx = 0;
+            const t0p = Date.now();
+            const runPB = () => {
+                bIdx++;
+                const rem = quantity - allG.length;
+                const sz = Math.min(PRED_BATCH, rem);
+                const pct = Math.round((allG.length / quantity) * 100);
+                _self.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;background:linear-gradient(145deg,rgba(10,10,30,0.95),rgba(20,10,40,0.9));border-radius:16px;border:1px solid rgba(139,92,246,0.3);"><div style="font-size:1.1em;color:#A78BFA;font-weight:800;margin-bottom:16px;">\u26A1 PREDI\u00C7\u00C3O L99 \u2014 ' + quantity.toLocaleString('pt-BR') + ' jogos</div><div style="width:100%;max-width:400px;margin:0 auto;background:rgba(0,0,0,0.4);border-radius:12px;overflow:hidden;height:28px;border:1px solid rgba(139,92,246,0.3);"><div style="width:' + pct + '%;height:100%;background:linear-gradient(90deg,#6D28D9,#A78BFA);transition:width 0.3s;display:flex;align-items:center;justify-content:center;"><span style="color:white;font-weight:800;font-size:0.8rem;">' + pct + '%</span></div></div><div style="color:#94A3B8;font-size:0.75rem;margin-top:10px;">Lote ' + bIdx + '/' + totalB + ' \u2022 ' + allG.length.toLocaleString('pt-BR') + '/' + quantity.toLocaleString('pt-BR') + '</div><div style="color:#475569;font-size:0.65rem;margin-top:4px;">' + ((Date.now() - t0p) / 1000).toFixed(1) + 's</div></div>';
+                setTimeout(() => {
+                    try {
+                        const st = document.getElementById('precision-mode-toggle');
+                        const sm = st ? st.checked : false;
+                        const pi = document.getElementById('precision-pool-size');
+                        const sp = pi ? parseInt(pi.value) || 20 : 20;
+                        const ao = { precisionMode: sm, precisionPoolSize: sp };
+                        const br = NovaEraEngine.generate(_gk, sz, _sa.length >= _ds ? _sa : null, _fa, _ds, ao);
+                        if (br && br.games) allG = allG.concat(br.games);
+                        if (allG.length < quantity) { runPB(); } else {
+                            const el = ((Date.now() - t0p) / 1000).toFixed(1);
+                            _self.currentGeneratedGames = allG;
+                            _self._lastGeneratedGames = allG;
+                            _self.renderGames({ games: allG }, _gk);
+                            var bn = document.createElement('div');
+                            bn.className = 'smart-gen-analysis';
+                            bn.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(139,92,246,0.12),rgba(15,23,42,0.95));border:1px solid rgba(139,92,246,0.3);';
+                            bn.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">&#x26A1;</span><div><div style="font-weight:900;color:#A78BFA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">PREDI\u00C7\u00C3O L99 \u2014 ' + allG.length.toLocaleString('pt-BR') + ' JOGOS</div><div style="font-size:0.72rem;color:#94A3B8;">Gerado em ' + totalB + ' lotes | Tempo: ' + el + 's</div></div></div>';
+                            var ob2 = _self.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                            if (ob2) ob2.remove();
+                            _self.gamesContainer.parentNode.insertBefore(bn, _self.gamesContainer);
+                            bn.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            _self._isGenerating = false;
+                        }
+                    } catch(e2) {
+                        console.error('[PRED-BATCH]', e2);
+                        _self.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e2.message + '</div>';
+                        _self._isGenerating = false;
+                    }
+                }, 30);
+            };
+            runPB();
+        } else {
+        // Execu\u00E7\u00E3o DIRETA para \u2264500 jogos
         setTimeout(() => {
             try {
                 if (typeof NovaEraEngine === 'undefined') {
@@ -1279,12 +1344,11 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 this.currentGeneratedGames = smartResult.games;
                 this._lastGeneratedGames = smartResult.games;
                 this.renderGames(smartResult, this.currentGameKey);
-                // Banner HONESTO — Métricas reais do Set Cover + Ciência
                 var sa = smartResult.analysis || {};
                 var banner = document.createElement('div');
                 banner.className = 'smart-gen-analysis';
                 banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(139,92,246,0.12),rgba(15,23,42,0.95));border:1px solid rgba(139,92,246,0.3);';
-                banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">&#x26A1;</span><div><div style="font-weight:900;color:#A78BFA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">PREDIÇÃO L99 — ESTATÍSTICA + SET COVER</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: Análise Estatística Bayesiana → CoverageEngine Multi-Tier | ' + quantity + ' jogos</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Cobertura de dezenas únicas sobre o universo da loteria"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">COBERTURA NUMÉRICA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.coverage||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Diversidade combinatória entre os jogos"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.diversity||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);" title="Tempo real de processamento do algoritmo"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">TEMPO REAL</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.elapsed || 'N/A') + 'ms</div></div></div>';
+                banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">&#x26A1;</span><div><div style="font-weight:900;color:#A78BFA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">PREDI\u00C7\u00C3O L99 \u2014 ESTAT\u00CDSTICA + SET COVER</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: An\u00E1lise Estat\u00EDstica Bayesiana \u2192 CoverageEngine | ' + quantity + ' jogos</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">COBERTURA</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.coverage||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">DIVERSIDADE</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.diversity||0) + '%</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(139,92,246,0.2);"><div style="color:#C4B5FD;font-size:0.6rem;font-weight:700;">TEMPO</div><div style="color:#A78BFA;font-weight:900;font-size:1.3rem;">' + (sa.elapsed || 'N/A') + 'ms</div></div></div>';
                 var ob = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
                 if (ob) ob.remove();
                 this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
@@ -1296,6 +1360,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 this._isGenerating = false;
             }
         }, 50);
+        } // fim else <=500
     }
 
 
@@ -2593,9 +2658,8 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         if (!result.games) result.games = [];
 
         // ── ORDENAÇÃO GLOBAL POR SINERGIA IA 🔥 ──
-        // Isso garante que TODOS os motores (Sniper, Cobertura, Manual Simples, etc) 
-        // entreguem os melhores jogos estatisticamente no topo da lista.
-        if (result.games.length > 0 && typeof ClosingEngine !== 'undefined') {
+        // v14.1: Skip para >500 jogos (evalSynergy é O(N*k²), trava em grandes volumes)
+        if (result.games.length > 0 && result.games.length <= 500 && typeof ClosingEngine !== 'undefined') {
             let pool = result.pool;
             if (!pool || pool.length === 0) {
                 pool = Array.from(this.selectedNumbers || []);
