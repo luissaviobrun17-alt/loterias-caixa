@@ -122,12 +122,11 @@ class MotorFechamentoManual {
         let maxPerDecade = Math.max(2, Math.ceil(k * 0.3));
         const maxFixedInDecade = fixedNumbers.length > 0 ? Math.max(...Object.values(fixedDecadeCounts)) : 0;
         maxPerDecade = Math.max(maxPerDecade, maxFixedInDecade);
-        // v14.1 FIX: Se pool tem poucas dezenas, relaxar maxPerDecade
-        // Caso contrário pools concentrados (ex: 01-18) rejeitam 100% dos candidatos
-        if (poolDecades.size > 0) {
-            const avgPerPoolDecade = Math.ceil(poolNumbers.length / poolDecades.size);
-            const minNeededPerDecade = Math.ceil(k / poolDecades.size);
-            maxPerDecade = Math.max(maxPerDecade, minNeededPerDecade, Math.min(avgPerPoolDecade, k));
+        // v14.1 FIX: Só relaxar quando é MATEMATICAMENTE IMPOSSÍVEL com o limite original
+        // Ex: pool=18(2 dezenas), k=15 → maxPerDecade*2=10 < 15 → impossível → relaxar
+        // Ex: pool=25(3 dezenas), k=15 → maxPerDecade*3=15 >= 15 → OK → NÃO relaxar
+        if (poolDecades.size > 0 && maxPerDecade * poolDecades.size < k) {
+            maxPerDecade = Math.ceil(k / poolDecades.size);
         }
 
         // ── CORREÇÃO #6: FINAIS — diversidade mínima ──
