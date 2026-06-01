@@ -1134,12 +1134,8 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
     // ║  PROGRESS: Barra de progresso ao lado dos botões        ║
     // ╚══════════════════════════════════════════════════════════╝
     _showProgress(label, pct, detail, color) {
-        const p = this.progressContainer;
-        if (!p) return;
         const c = color || '#6366F1';
-        p.style.display = 'block';
-        p.style.borderColor = c + '4D';
-        p.innerHTML = '<div style="display:flex;align-items:center;gap:12px;">' +
+        const html = '<div style="display:flex;align-items:center;gap:12px;">' +
             '<div style="flex:1;min-width:0;">' +
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
             '<span style="color:' + c + ';font-weight:800;font-size:0.85rem;">' + label + '</span>' +
@@ -1148,6 +1144,13 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             '<div style="width:' + pct + '%;height:100%;background:' + c + ';transition:width 0.2s;border-radius:8px;"></div></div>' +
             '<div style="color:#94A3B8;font-size:0.7rem;margin-top:4px;">' + detail + '</div>' +
             '</div></div>';
+        // Mostrar perto dos botões
+        const p = this.progressContainer;
+        if (p) { p.style.display = 'block'; p.style.borderColor = c + '4D'; p.innerHTML = html; }
+        // Mostrar também na área dos jogos (visível se o scroll estiver embaixo)
+        if (this.gamesContainer) {
+            this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;">' + html + '</div>';
+        }
     }
 
     _hideProgress() {
