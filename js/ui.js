@@ -150,7 +150,7 @@ class UI {
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
                 let qty = parseInt(this.gamesQuantityInput.value) || 10;
-const MAX_QTY = 10000;
+const MAX_QTY = 50000;
 if (qty > MAX_QTY) {
     if (typeof Guardian !== 'undefined' && Guardian.toast) {
         Guardian.toast(`Quantidade máxima de jogos é ${MAX_QTY}. Valor ajustado.`, 'warning');
@@ -298,7 +298,7 @@ if (qty > MAX_QTY) {
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
                 let qty = parseInt(this.gamesQuantityInput.value) || 10;
-const MAX_QTY = 10000;
+const MAX_QTY = 50000;
 if (qty > MAX_QTY) {
     if (typeof Guardian !== 'undefined' && Guardian.toast) {
         Guardian.toast(`Quantidade máxima de jogos é ${MAX_QTY}. Valor ajustado.`, 'warning');
@@ -1201,7 +1201,17 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         this._lastPrecisionMode = isPrecisionMode;
         this._lastDrawSize = this.smartDrawSizeSelect ? parseInt(this.smartDrawSizeSelect.value) || game.minBet : game.minBet;
 
-        const quantity = parseInt(this.gamesQuantityInput.value) || 10;
+        let quantity = parseInt(this.gamesQuantityInput.value) || 10;
+        const MAX_QTY = 50000;
+        if (quantity > MAX_QTY) {
+            if (typeof Guardian !== 'undefined' && Guardian.toast) {
+                Guardian.toast(`Quantidade máxima de jogos é ${MAX_QTY}. Valor ajustado.`, 'warning');
+            } else {
+                alert(`Quantidade máxima de jogos é ${MAX_QTY}. Valor ajustado.`);
+            }
+            quantity = MAX_QTY;
+            this.gamesQuantityInput.value = MAX_QTY;
+        }
         let selectedArr = Array.from(this.selectedNumbers);
         const fixedArr = Array.from(this.fixedNumbers);
 
