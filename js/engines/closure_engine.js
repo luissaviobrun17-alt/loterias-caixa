@@ -105,11 +105,11 @@ class ClosureEngine {
         const games = this._greedyCovering(nums, k, effectiveT, finalTarget);
 
         // Validar cobertura
-        const validation = this._validateCovering(games, nums, t);
+        const validation = this._validateCovering(games, nums, effectiveT);
 
         console.log('[CLOSURE] Gerados: ' + games.length + ' jogos | Cobertura t-subsets: ' + validation.coveredPct + '%');
 
-        return this._buildResult(games, nums, v, t, guaranteeLevel, t0, validation);
+        return this._buildResult(games, nums, v, effectiveT, guaranteeLevel, t0, validation, k);
     }
 
     // ═══════════════════════════════════════════════════════

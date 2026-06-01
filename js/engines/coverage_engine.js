@@ -215,7 +215,8 @@ class CoverageEngine {
                 }
                 // Se faltarem jogos (ex: user pediu 26 e a matriz tem 24), a matriz vai preencher
                 // o array `games` inicial e o Greedy completará os restantes.
-                for (const g of exactGames) games.push(g); // Usaremos array games existente no código original
+                // ★ BUGFIX: armazenar em variável temporária para injetar após declaração de games[]
+                var _preMatrixGames = exactGames;
             }
         }
 
@@ -276,6 +277,10 @@ class CoverageEngine {
         }
 
         const games          = [];
+        // ★ BUGFIX: injetar jogos da MathMatrixDB pré-computados (se existirem)
+        if (typeof _preMatrixGames !== 'undefined' && _preMatrixGames) {
+            for (const g of _preMatrixGames) games.push(g);
+        }
         const usedKeys       = new Set();
         const numberUsage    = {};
         for (const n of pool) numberUsage[n] = 0;
@@ -697,7 +702,7 @@ class CoverageEngine {
                     let found = false;
                     for (const cand of availablePool) {
                         // Verifica se colocar 'cand' quebra a regra de adjacência (heurística rápida)
-                        if (!gameSet.has(cand - 1) || !gameSet.has(cand + 1)) {
+                        if (!gameSet.has(cand - 1) && !gameSet.has(cand + 1)) {
                             game.push(cand);
                             found = true;
                             break;

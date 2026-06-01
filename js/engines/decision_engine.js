@@ -134,7 +134,8 @@ const DecisionEngine = {
                                 .sort((a,b) => a.score - b.score);
                             if (weakInGroup.length > 0) {
                                 removed = weakInGroup[0];
-                                finalPool.splice(finalPool.indexOf(removed.num), 1);
+                                const rmIdx = finalPool.indexOf(removed.num);
+                                if (rmIdx !== -1) finalPool.splice(rmIdx, 1);
                                 finalSet.delete(removed.num);
                                 toRemoveGroup.delta++;
                             }
@@ -142,7 +143,8 @@ const DecisionEngine = {
                             // Remover o de menor score geral
                             const weakest = [...finalPool].sort((a,b) => (allScores[a]||0) - (allScores[b]||0))[0];
                             removed = { num: weakest, score: allScores[weakest] || 0 };
-                            finalPool.splice(finalPool.indexOf(weakest), 1);
+                            const rmIdx2 = finalPool.indexOf(weakest);
+                            if (rmIdx2 !== -1) finalPool.splice(rmIdx2, 1);
                             finalSet.delete(weakest);
                         }
                         finalPool.push(add.num);
@@ -169,7 +171,8 @@ const DecisionEngine = {
             if (!finalSet.has(weak.num)) continue; // já foi removido
             const candidate = strongOutside.find(o => !finalSet.has(o.num) && o.score > weak.score * 1.25);
             if (!candidate) continue;
-            finalPool.splice(finalPool.indexOf(weak.num), 1);
+            const rmIdx3 = finalPool.indexOf(weak.num);
+            if (rmIdx3 !== -1) finalPool.splice(rmIdx3, 1);
             finalSet.delete(weak.num);
             finalPool.push(candidate.num);
             finalSet.add(candidate.num);

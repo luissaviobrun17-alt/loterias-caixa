@@ -124,7 +124,7 @@ class PrecisionEngine {
         // Machine Learning: Retro-análise da Janela (Sliding Window Backtest)
         if (history.length >= 10 && typeof localStorage !== 'undefined') {
             const cacheKey = 'l99_ml_weights_' + gameKey;
-            const lastDrawStr = history[0].join(',');
+            const lastDrawStr = (history[0].numbers || []).join(',');
             const cachedData = JSON.parse(localStorage.getItem(cacheKey) || 'null');
             
             if (cachedData && cachedData.draw === lastDrawStr) {
@@ -133,7 +133,7 @@ class PrecisionEngine {
                 console.log('%c[PRECISION-ML] 🧠 Pesos dinâmicos em cache: NE:'+bw.ne.toFixed(2)+' QG:'+bw.qg.toFixed(2)+' Local:'+bw.local.toFixed(2)+' L3:'+bw.last3.toFixed(2)+' Cond:'+bw.cond.toFixed(2), 'color: #34D399; font-weight: bold;');
             } else {
                 console.log('%c[PRECISION-ML] 🧠 Treinando rede neural para ' + gameKey.toUpperCase() + '...', 'color: #34D399; font-weight: bold;');
-                const targetDraw = history[0];
+                const targetDraw = history[0].numbers || [];
                 const pastHistory = history.slice(1);
                 const perf = { ne: 0, qg: 0, local: 0, last3: 0, cond: 0 };
                 

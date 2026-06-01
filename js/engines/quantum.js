@@ -39,6 +39,7 @@ class QuantumService {
     }
 
     static generateSuggestion(gameType, count, history) {
+        if (typeof GAMES === 'undefined') return [];
         const game = GAMES[gameType];
         if (!game) return [];
         const scores = QuantumTelepatiaV9._computeFullScores(gameType, history);
@@ -49,7 +50,7 @@ class QuantumService {
         const counts = {};
         if (!history) return counts;
         history.forEach(draw => {
-            draw.numbers.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
+            (draw.numbers || []).forEach(num => { counts[num] = (counts[num] || 0) + 1; });
         });
         return counts;
     }
@@ -205,6 +206,7 @@ class QuantumTelepatiaV9 {
 
     /** SCORE FINAL: combinar as 9 camadas */
     static _computeFullScores(gameType, history) {
+        if (typeof GAMES === 'undefined') return {};
         const game = GAMES[gameType];
         if (!game || !history || history.length === 0) return {};
 

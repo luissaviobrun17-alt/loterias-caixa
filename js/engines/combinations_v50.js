@@ -81,7 +81,8 @@ class CombinationEngine {
 
         return Object.entries(pairMap)
             .map(([key, count]) => {
-                const [a, b] = key.split('-').map(Number);
+                const k = Number(key);
+                const a = Math.floor(k / 100), b = k % 100;
                 return { pair: [a, b], count };
             })
             .filter(p => p.count >= 2) // Mínimo 2 ocorrências
@@ -112,8 +113,9 @@ class CombinationEngine {
 
         return Object.entries(trioMap)
             .map(([key, count]) => {
-                const nums = key.split('-').map(Number);
-                return { trio: nums, count };
+                const k = Number(key);
+                const a = Math.floor(k / 10000), b = Math.floor((k % 10000) / 100), c = k % 100;
+                return { trio: [a, b, c], count };
             })
             .filter(t => t.count >= 2) // Mínimo 2 ocorrências
             .sort((a, b) => b.count - a.count)

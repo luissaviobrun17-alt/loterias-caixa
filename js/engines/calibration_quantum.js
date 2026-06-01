@@ -274,14 +274,17 @@ const QuantumCalibration = {
             const weights = pool.map(n => Math.max(0.01, cumPressure[n] + 0.1));
             const totalW = weights.reduce((s, w) => s + w, 0);
 
+            let activeW = totalW;
             for (let k = 0; k < drawSize && candidate.length < drawSize; k++) {
-                let rand = Math.random() * totalW;
+                if (activeW <= 0) break;
+                let rand = Math.random() * activeW;
                 for (let j = 0; j < pool.length; j++) {
-                    if (used.has(pool[j])) { rand -= 0; continue; }
+                    if (used.has(pool[j])) continue;
                     rand -= weights[j];
                     if (rand <= 0) {
                         candidate.push(pool[j]);
                         used.add(pool[j]);
+                        activeW -= weights[j];
                         break;
                     }
                 }

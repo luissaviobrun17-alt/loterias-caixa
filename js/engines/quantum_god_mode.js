@@ -265,18 +265,18 @@ class QuantumGodEngine {
         var conditionalWeights = this._layer17_ConditionalCorrelation(history, startNum, endNum);
         // ★ GOD MODE: Camadas 18 e 20 ELIMINADAS — pseudociência (não mais executam)
         var trendWeights = this._layer19_TemporalTrend(history, startNum, endNum);
-        var algorithmWeights = null; // _layer18_AlgorithmDetector REMOVIDO
-        var fibonacciWeights = null; // _layer20_FibonacciGolden REMOVIDO
+        var algorithmWeights = {}; // _layer18_AlgorithmDetector REMOVIDO
+        var fibonacciWeights = {}; // _layer20_FibonacciGolden REMOVIDO
         var gapWeights = this._layer21_GapAnalysis(history, startNum, endNum);
         var quadrantWeights = this._layer22_QuadrantBalance(history, startNum, endNum);
 
         // ★ GOD MODE: Camadas 23-28 ELIMINADAS — redundantes (não mais executam)
-        var harmonicWeights = null;
-        var entropyWeights = null;
-        var regressionWeights = null;
-        var phaseWeights = null;
-        var resonanceWeights = null;
-        var clairvoyanceWeights = null;
+        var harmonicWeights = {};
+        var entropyWeights = {};
+        var regressionWeights = {};
+        var phaseWeights = {};
+        var resonanceWeights = {};
+        var clairvoyanceWeights = {};
 
         // Diversidade extra em retries (V12: mais agressivo)
         var diversityBoost = retryNum * 0.10;
