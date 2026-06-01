@@ -197,6 +197,7 @@ if (qty > MAX_QTY) {
 
                 // ═══ Apostador selecionou números suficientes ═══
                 const closingVal = this.closingSelect ? this.closingSelect.value : '';
+                console.log('[MANUAL-DEBUG] pool=' + pool.length + ' fixedArr=' + fixedArr.length + ' drawSize=' + drawSize + ' qty=' + qty + ' closingVal="' + closingVal + '"');
                 
                 if (closingVal.startsWith('close_')) {
                     const guarantee = parseInt(closingVal.replace('close_', ''));

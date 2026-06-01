@@ -122,6 +122,13 @@ class MotorFechamentoManual {
         let maxPerDecade = Math.max(2, Math.ceil(k * 0.3));
         const maxFixedInDecade = fixedNumbers.length > 0 ? Math.max(...Object.values(fixedDecadeCounts)) : 0;
         maxPerDecade = Math.max(maxPerDecade, maxFixedInDecade);
+        // v14.1 FIX: Se pool tem poucas dezenas, relaxar maxPerDecade
+        // Caso contrário pools concentrados (ex: 01-18) rejeitam 100% dos candidatos
+        if (poolDecades.size > 0) {
+            const avgPerPoolDecade = Math.ceil(poolNumbers.length / poolDecades.size);
+            const minNeededPerDecade = Math.ceil(k / poolDecades.size);
+            maxPerDecade = Math.max(maxPerDecade, minNeededPerDecade, Math.min(avgPerPoolDecade, k));
+        }
 
         // ── CORREÇÃO #6: FINAIS — diversidade mínima ──
         const fixedFinalCounts = {};
@@ -181,7 +188,13 @@ class MotorFechamentoManual {
 
         // ── CORREÇÃO #7: ANTI-REPETIÇÃO — máximo sobreposição ──
         const maxVarOverlap = Math.max(1, Math.ceil(varSlots * 0.4));
-        const maxOverlap = fixedNumbers.length + maxVarOverlap;
+        let maxOverlap = fixedNumbers.length + maxVarOverlap;
+        // v14.1 FIX: Para pools pequenos, o overlap mínimo é inevitável
+        // Ex: pool=18, k=15 → mínimo overlap = 15+15-18 = 12
+        const minInevitableOverlap = Math.max(0, k * 2 - poolNumbers.length);
+        if (maxOverlap < minInevitableOverlap) {
+            maxOverlap = minInevitableOverlap + 1; // +1 margem
+        }
 
         return {
             minEven, maxEven,
