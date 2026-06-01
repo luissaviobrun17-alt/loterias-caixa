@@ -942,7 +942,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         const enginesLoaded = [
             typeof NovaEraEngine !== 'undefined'        ? '\u269b\ufe0fNE-v10'  : null,
             typeof PrecisionEngine !== 'undefined'      ? '\ud83c\udfafPE-v2'   : null,
-            typeof SmartBetsEngine !== 'undefined'      ? '\ud83e\udde0SB-v1'   : null,
+            typeof SmartCoverageEngine !== 'undefined'  ? '\ud83e\udde0SC-v3'   : null,
             typeof PrecisionCalibrator !== 'undefined'  ? '\ud83d\udcd0PC-v1'   : null,
         ].filter(Boolean);
         const diagDiv = document.createElement('div');

@@ -307,7 +307,8 @@ class ClosingEngine {
             selectedNumbers.forEach(n => { pairMatrix[n] = {}; selectedNumbers.forEach(m => pairMatrix[n][m] = 0); });
             
             history.forEach(draw => {
-                const nums = draw.numeros || draw;
+                const nums = draw.numbers || draw.numeros || (Array.isArray(draw) ? draw : []);
+                if (!Array.isArray(nums) || nums.length === 0) return;
                 const match = nums.filter(n => _selectedSet.has(n));
                 for(let i=0; i<match.length; i++) {
                     for(let j=i+1; j<match.length; j++) {
