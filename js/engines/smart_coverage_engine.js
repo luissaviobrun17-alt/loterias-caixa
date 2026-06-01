@@ -309,13 +309,14 @@ class SmartCoverageEngine {
         const game = (typeof GAMES !== 'undefined') ? GAMES[gameKey] : null;
         if (!game || !games || games.length === 0) return {};
 
-        const N = game.range[1] - game.range[0] + 1;  // total de números na loteria
+        const N_total = game.range[1] - game.range[0] + 1;  // total de números na loteria
         const K = game.draw || game.minBet;            // bolas sorteadas pela loteria
         const numGames = games.length;
         const drawSize = games[0] ? games[0].length : (game.minBet);
         
-        // v14.2: Pool do usuário
-        let P = poolSize || N;
+        // v14.3: Pool = Universo (como o usuário pediu)
+        // Se pool=36 de 60, o universo de cálculo é 36, não 60
+        let P = poolSize || N_total;
         if (!poolSize && games.length > 0) {
             const allNums = new Set();
             const sampleSize = Math.min(games.length, 200);
@@ -324,7 +325,9 @@ class SmartCoverageEngine {
             }
             P = allNums.size;
         }
-        P = Math.min(P, N);
+        P = Math.min(P, N_total);
+        // Pool precisa ser >= K e >= drawSize para ter sentido
+        P = Math.max(P, Math.max(K, drawSize));
 
         const _comb = (a, b) => {
             if (b < 0 || b > a) return 0;
@@ -340,57 +343,43 @@ class SmartCoverageEngine {
         const maxHits = Math.min(K, drawSize);
         const minPrizedHits = Math.max(maxHits - 3, 0);
 
-        // Probabilidade clássica por jogo (sem pool)
-        const totalCombos = _comb(N, drawSize);
-        const totalLottery = _comb(N, K);
-        const totalPool = _comb(P, drawSize);
+        // v14.3: POOL É O UNIVERSO
+        // Se o pool é P, temos C(P, drawSize) combinações possíveis de jogos
+        // O sorteio tira K bolas desse pool de P
+        // P(acertar h) = C(K,h) * C(P-K, drawSize-h) / C(P, drawSize)
+        const universo = P;
+        const totalCombos = _comb(universo, drawSize);
         
         for (let hits = maxHits; hits >= minPrizedHits; hits--) {
-            const probClassic = (_comb(K, hits) * _comb(N - K, drawSize - hits)) / totalCombos;
+            const prob = (_comb(K, hits) * _comb(universo - K, drawSize - hits)) / totalCombos;
             
-            let probAtLeastOne;
-            if (P >= N) {
-                // Pool completo — fórmula clássica
-                probAtLeastOne = 1 - Math.pow(1 - probClassic, numGames);
-            } else {
-                // v14.2: Pool parcial — CONDICIONAR no sorteio
-                // P(≥1 acerta h | pool P) = Σ_j P(j bolas no pool) × [1-(1-P(acertar h|j))^n]
-                let totalProb = 0;
-                const jMin = Math.max(0, K - (N - P));
-                const jMax = Math.min(K, P);
-                for (let j = jMin; j <= jMax; j++) {
-                    const pJ = (_comb(P, j) * _comb(N - P, K - j)) / totalLottery;
-                    if (j < hits) {
-                        // Impossível acertar h com apenas j nums no pool
-                        continue;
-                    }
-                    const pHitSingle = (_comb(j, hits) * _comb(P - j, drawSize - hits)) / totalPool;
-                    const pAtLeast1givenJ = 1 - Math.pow(1 - pHitSingle, numGames);
-                    totalProb += pJ * pAtLeast1givenJ;
-                }
-                probAtLeastOne = totalProb;
-            }
-
-            if (probAtLeastOne > 0) {
+            if (prob > 0) {
+                const probAtLeastOne = 1 - Math.pow(1 - prob, numGames);
                 prizes.push({
                     hits,
-                    prob: probClassic,
-                    probPct: (probClassic * 100).toFixed(8),
+                    prob: prob,
+                    probPct: (prob * 100).toFixed(8),
                     probAtLeastOnePct: (probAtLeastOne * 100).toFixed(4)
                 });
             }
         }
 
+        // Cobertura: % de chance dos K sorteados caírem todos dentro do pool
+        const poolCoverage = P < N_total 
+            ? (_comb(P, K) / _comb(N_total, K) * 100)
+            : 100;
+
         metrics.prizes = prizes;
-        metrics.totalCombos = _comb(N, K).toExponential(2);
+        metrics.totalCombos = _comb(universo, drawSize).toLocaleString('pt-BR');
         metrics.numGames = numGames;
         metrics.drawSize = drawSize;
         metrics.K = K;
         metrics.poolSize = P;
-        metrics.totalNumbers = N;
-        metrics.note = P < N
-            ? 'Pool de ' + P + '/' + N + ' números. Probabilidade ajustada ao pool.'
-            : 'Pool completo (' + N + ' números).';
+        metrics.totalNumbers = N_total;
+        metrics.poolCoverage = poolCoverage;
+        metrics.note = P < N_total
+            ? 'Universo: ' + P + ' números (de ' + N_total + '). Cobertura do pool: ' + poolCoverage.toFixed(1) + '%'
+            : 'Universo completo (' + N_total + ' números).';
 
         return metrics;
     }
