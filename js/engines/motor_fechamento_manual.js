@@ -559,6 +559,7 @@ class MotorFechamentoManual {
             relaxed.minHigh = Math.max(1, rules.minHigh - 1);
             relaxed.minDecades = 2;
             relaxed.minDistinctFinals = 2;
+            relaxed.maxPerDecade = rules.maxPerDecade + 2; // Relaxar dezenas para destravar
             relaxed.maxOverlap = rules.maxOverlap + 1;
             relaxed.sumMin = Math.floor(rules.sumMin * 0.88);
             relaxed.sumMax = Math.ceil(rules.sumMax * 1.12);
@@ -722,6 +723,7 @@ class MotorFechamentoManual {
                 previousGame = bestCandidate;
                 consecutiveFailures = 0;
                 relaxLevel = 0; // Reset relaxação após sucesso
+                this._stallCount = 0; // Reset detector de esgotamento
             } else {
                 consecutiveFailures++;
                 // Relaxamento progressivo se travou
@@ -734,11 +736,17 @@ class MotorFechamentoManual {
                         console.log('[MOTOR-MANUAL v3.0] ⚠️ Restrições mínimas (nível 2) após ' + results.length + ' jogos...');
                     }
                 }
-                // v14.1: Detector de esgotamento — se já está no nível máximo
-                // e falhou 1000 tentativas seguidas, o pool esgotou
-                if (relaxLevel >= 2 && totalAttempts > results.length * 300 + 1000) {
-                    console.log('[MOTOR-MANUAL v3.0] ⚠️ Pool esgotado após ' + results.length + ' jogos únicos. Combinações viáveis acabaram.');
-                    break;
+                // v14.1: Detector de esgotamento — contagem de falhas CONSECUTIVAS
+                // Se está no nível máximo de relaxação e falhou muitas vezes seguidas
+                if (relaxLevel >= 2) {
+                    if (!this._stallCount) this._stallCount = 0;
+                    this._stallCount++;
+                    // Dar margem proporcional ao tamanho do pool antes de desistir
+                    const stallLimit = Math.max(5000, numGames * 10);
+                    if (this._stallCount > stallLimit) {
+                        console.log('[MOTOR-MANUAL v3.0] ⚠️ Pool esgotado após ' + results.length + ' jogos únicos (' + this._stallCount + ' falhas consecutivas).');
+                        break;
+                    }
                 }
             }
 
