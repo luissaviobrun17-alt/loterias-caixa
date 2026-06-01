@@ -148,6 +148,7 @@ class UI {
         // Delega TODA lógica ao motor. Zero lógica inline.
         if (this.generateBtn) {
             this.generateBtn.onclick = async () => {
+              try {
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
                 let qty = parseInt(this.gamesQuantityInput.value) || 10;
@@ -279,6 +280,21 @@ if (qty > MAX_QTY) {
     
                     // Banner informativo
                     setTimeout(() => {
+                        // Probabilidades honestas (hipergeométrica)
+                        if (typeof SmartCoverageEngine !== 'undefined' && SmartCoverageEngine.calcRealMetrics) {
+                            try {
+                                const realMetrics = SmartCoverageEngine.calcRealMetrics(games, this.currentGameKey);
+                                if (realMetrics && realMetrics.prizes) {
+                                    bannerMsg += '<div style="margin-top:8px;padding:8px;background:rgba(0,0,0,0.3);border-radius:8px;font-size:0.75rem;">' +
+                                        '<div style="color:#F59E0B;font-weight:bold;margin-bottom:4px;">PROBABILIDADES EXATAS (HIPERGEOMÉTRICA)</div>';
+                                    realMetrics.prizes.slice(0, 3).forEach(p => {
+                                        bannerMsg += '<div style="display:flex;justify-content:space-between;color:#D1D5DB;margin-bottom:2px;">' +
+                                            '<span>Acertar ' + p.hits + ':</span><span>' + p.probAtLeastOnePct + '% (em ' + games.length + ' jogos)</span></div>';
+                                    });
+                                    bannerMsg += '<div style="color:#6B7280;font-size:0.65rem;margin-top:4px;text-align:right;">* Eventos independentes</div></div>';
+                                }
+                            } catch(ep) {}
+                        }
                         var b = document.createElement('div');
                         b.className = 'smart-gen-analysis';
                         b.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:12px 16px;border-radius:10px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.3);font-size:0.8rem;color:#FCD34D;';
@@ -289,6 +305,11 @@ if (qty > MAX_QTY) {
                     }, 50);
                     setTimeout(() => { if (this.gamesContainer) this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
                 }
+              } catch(manualErr) {
+                console.error('[MANUAL] Erro:', manualErr);
+                if (this.gamesContainer) this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro no Motor Manual: ' + manualErr.message + '</div>';
+                this._hideProgress();
+              }
             };
         }
 
@@ -1404,6 +1425,20 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 this._lastGeneratedGames = smartResult.games;
                 this.renderGames(smartResult, this.currentGameKey);
                 var sa = smartResult.analysis || {};
+                // Probabilidades honestas
+                let predProbHtml = '';
+                if (typeof SmartCoverageEngine !== 'undefined' && SmartCoverageEngine.calcRealMetrics) {
+                    try {
+                        const rm = SmartCoverageEngine.calcRealMetrics(smartResult.games, this.currentGameKey);
+                        if (rm && rm.prizes) {
+                            predProbHtml = '<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.4);border-radius:8px;font-size:0.75rem;"><div style="color:#A78BFA;font-weight:bold;margin-bottom:4px;">PROBABILIDADES EXATAS (HIPERGEOM\u00c9TRICA)</div>';
+                            rm.prizes.slice(0, 3).forEach(function(p) {
+                                predProbHtml += '<div style="display:flex;justify-content:space-between;color:#D1D5DB;margin-bottom:2px;"><span>Acertar ' + p.hits + ':</span><span>' + p.probAtLeastOnePct + '% (em ' + quantity + ' jogos)</span></div>';
+                            });
+                            predProbHtml += '<div style="color:#6B7280;font-size:0.65rem;margin-top:4px;text-align:right;">* Eventos independentes</div></div>';
+                        }
+                    } catch(ep) {}
+                }
                 var banner = document.createElement('div');
                 banner.className = 'smart-gen-analysis';
                 banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(139,92,246,0.12),rgba(15,23,42,0.95));border:1px solid rgba(139,92,246,0.3);';
