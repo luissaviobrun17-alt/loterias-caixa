@@ -146,7 +146,7 @@ class UI {
         // === BOTÃO 🎲 MANUAL v14.0 — MotorFechamentoManual ===
         // Delega TODA lógica ao motor. Zero lógica inline.
         if (this.generateBtn) {
-            this.generateBtn.onclick = () => {
+            this.generateBtn.onclick = async () => {
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
                 let qty = parseInt(this.gamesQuantityInput.value) || 10;
@@ -238,7 +238,7 @@ if (qty > MAX_QTY) {
                     
                 } else {
                     // Sem fechamento exato -> Motor v3.0 com 12 Correções
-                    result = MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize);
+                    result = await MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize);
                     const a = result.analysis || {};
                     bannerMsg = '🎲 <strong>MANUAL v3.0</strong> — ' + result.games.length + ' jogos dos seus ' + (a.poolSize || pool.length) + ' números';
                     if (a.fixedCount > 0) bannerMsg += ' (fixos: ' + a.fixedNumbers.join(', ') + ')';

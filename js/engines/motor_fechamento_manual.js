@@ -369,26 +369,27 @@ class MotorFechamentoManual {
         const available = pool.filter(n => !used.has(n));
         const prevSet = previousGame ? new Set(previousGame) : null;
 
+        // ★ PERFORMANCE: contadores incrementais em vez de .filter() a cada iteração
+        let currentEven = 0, currentLow = 0;
+        const decadeCounts = {};
+        const finalCounts = {};
+        let distinctDecades = 0;
+        let overlapSoFar = 0;
+        for (const n of fixed) {
+            if (n % 2 === 0) currentEven++;
+            if (n <= rules.midPoint) currentLow++;
+            const d = Math.floor((n - rules.rangeMin) / 10);
+            if (!decadeCounts[d]) { decadeCounts[d] = 0; distinctDecades++; }
+            decadeCounts[d]++;
+            const f = n % 10;
+            finalCounts[f] = (finalCounts[f] || 0) + 1;
+            if (prevSet && prevSet.has(n)) overlapSoFar++;
+        }
+
         while (candidate.length < k && available.length > 0) {
-            // Estado atual do candidato em construção
-            const currentEven = candidate.filter(x => x % 2 === 0).length;
             const currentOdd = candidate.length - currentEven;
-            const currentLow = candidate.filter(x => x <= rules.midPoint).length;
             const currentHigh = candidate.length - currentLow;
             const slotsLeft = k - candidate.length;
-
-            const decadeCounts = {};
-            candidate.forEach(n => {
-                const d = Math.floor((n - rules.rangeMin) / 10);
-                decadeCounts[d] = (decadeCounts[d] || 0) + 1;
-            });
-            const distinctDecades = Object.keys(decadeCounts).length;
-
-            const finalCounts = {};
-            candidate.forEach(n => {
-                const f = n % 10;
-                finalCounts[f] = (finalCounts[f] || 0) + 1;
-            });
 
             // Calcular peso ajustado para cada número disponível
             const adjustedItems = [];
@@ -449,7 +450,6 @@ class MotorFechamentoManual {
 
                 // ── Ajuste ANTI-REPETIÇÃO (v3.1+) ──
                 if (prevSet && prevSet.has(n)) {
-                    const overlapSoFar = candidate.filter(x => prevSet.has(x)).length;
                     if (overlapSoFar >= rules.maxOverlap) {
                         w *= 0.05;
                     } else if (overlapSoFar >= rules.maxOverlap - 1) {
@@ -483,7 +483,18 @@ class MotorFechamentoManual {
 
             candidate.push(picked);
             used.add(picked);
-            available.splice(pickedIdx, 1);
+            // ★ PERFORMANCE: swap+pop em vez de splice O(n)
+            available[pickedIdx] = available[available.length - 1];
+            available.pop();
+
+            // ★ PERFORMANCE: atualizar contadores incrementalmente
+            if (picked % 2 === 0) currentEven++;
+            if (picked <= rules.midPoint) currentLow++;
+            const pickedDecade = Math.floor((picked - rules.rangeMin) / 10);
+            if (!decadeCounts[pickedDecade]) { decadeCounts[pickedDecade] = 0; distinctDecades++; }
+            decadeCounts[pickedDecade]++;
+            finalCounts[picked % 10] = (finalCounts[picked % 10] || 0) + 1;
+            if (prevSet && prevSet.has(picked)) overlapSoFar++;
         }
 
         if (candidate.length < k) return null;
@@ -552,7 +563,8 @@ class MotorFechamentoManual {
         const k = drawSize || cfg.drawSize;
 
         const validPool = pool.filter(n => n >= cfg.range[0] && n <= cfg.range[1]);
-        const fixedSet = new Set((fixedNumbers || []).filter(n => validPool.includes(n)));
+        const _validSet = new Set(validPool);
+        const fixedSet = new Set((fixedNumbers || []).filter(n => _validSet.has(n)));
         const fixedArr = Array.from(fixedSet).sort((a, b) => a - b);
         const poolArr = Array.from(new Set(validPool)).sort((a, b) => a - b);
 
@@ -581,7 +593,7 @@ class MotorFechamentoManual {
         } else {
             // Geração com Validação em Cascata + Cobertura Combinatória
             console.log('[MOTOR-MANUAL v3.0] Gerando com Validação em Cascata + Cobertura Combinatória...');
-            const result = this._generateWeighted(gameKey, numGames, poolArr, fixedArr, k, cfg);
+            const result = await this._generateWeighted(gameKey, numGames, poolArr, fixedArr, k, cfg);
             allGames = result.games;
             coverageStats = result.coverageStats;
             console.log('[MOTOR-MANUAL v3.0] ✅ ' + allGames.length + ' jogos validados | Cobertura pares: ' +
@@ -602,7 +614,7 @@ class MotorFechamentoManual {
     //    5. Atualiza cobertura de pares
     //    6. Se travou, relaxa restrições progressivamente
     // ═══════════════════════════════════════════════════════════════
-    static _generateWeighted(gameKey, numGames, pool, fixed, k, cfg) {
+    static async _generateWeighted(gameKey, numGames, pool, fixed, k, cfg) {
         // ── 1. Obter sinergia IA (compatibilidade com ClosingEngine) ──
         let aiSynergy = null;
         if (typeof ClosingEngine !== 'undefined' && typeof ClosingEngine._getAISynergy === 'function') {
@@ -612,7 +624,8 @@ class MotorFechamentoManual {
         }
 
         // ── 2. Construir pesos (Correção #1 e #2) ──
-        const validPool = pool.filter(n => !fixed.includes(n));
+        const _fixedSet = new Set(fixed);
+        const validPool = pool.filter(n => !_fixedSet.has(n));
         const weights = this._buildWeights(validPool, aiSynergy);
 
         const hotCount = validPool.filter(n => weights[n] >= 1.4).length;
@@ -745,7 +758,8 @@ class MotorFechamentoManual {
     //  GERAÇÃO COMPLETA C(n,k) — para fechamento total
     // ═══════════════════════════════════════════════════
     static _generateAll(pool, fixed, k) {
-        const nonFixed = pool.filter(n => !fixed.includes(n));
+        const _fixSet = new Set(fixed);
+        const nonFixed = pool.filter(n => !_fixSet.has(n));
         const slotsNeeded = k - fixed.length;
         const results = [];
 
@@ -810,17 +824,23 @@ class MotorFechamentoManual {
         const allNumberFreq = {};
         const mid = Math.floor((cfg.range[0] + cfg.range[1]) / 2);
 
-        games.forEach(game => {
-            sumEven += game.filter(n => n % 2 === 0).length;
-            sumLow += game.filter(n => n <= mid).length;
-            sumSoma += game.reduce((a, b) => a + b, 0);
-            sumPrimes += game.filter(n => this._isPrime(n)).length;
-            game.forEach(n => {
+        // ★ PERFORMANCE: loop único em vez de 4x .filter() por jogo
+        for (const game of games) {
+            let _even = 0, _low = 0, _sum = 0, _primes = 0;
+            for (const n of game) {
+                if (n % 2 === 0) _even++;
+                if (n <= mid) _low++;
+                _sum += n;
+                if (this._isPrime(n)) _primes++;
                 decadeCoverage.add(Math.floor((n - cfg.range[0]) / 10));
                 finalCoverage.add(n % 10);
                 allNumberFreq[n] = (allNumberFreq[n] || 0) + 1;
-            });
-        });
+            }
+            sumEven += _even;
+            sumLow += _low;
+            sumSoma += _sum;
+            sumPrimes += _primes;
+        }
 
         const numGames = games.length || 1;
         const avgEven = (sumEven / numGames).toFixed(1);
