@@ -9,6 +9,9 @@
 const REAL_HISTORY_DB = {
     megasena: [
         // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 3013, numbers: [2, 14, 21, 22, 34, 44] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
         { drawNumber: 3012, numbers: [5, 7, 17, 41, 42, 49] },
 
         // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
@@ -79,6 +82,13 @@ const REAL_HISTORY_DB = {
         { drawNumber: 2952, numbers: [1, 20, 45, 48, 51, 58] }
     ],
     lotofacil: [
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 3700, numbers: [1, 3, 7, 8, 9, 10, 12, 13, 14, 17, 18, 19, 20, 23, 25] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 3699, numbers: [1, 2, 3, 5, 6, 8, 9, 11, 14, 18, 20, 21, 22, 24, 25] },
+        { drawNumber: 3698, numbers: [1, 3, 5, 6, 7, 8, 9, 10, 12, 13, 16, 18, 20, 21, 23] },
+
         // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
         { drawNumber: 3697, numbers: [1, 5, 6, 7, 9, 10, 13, 15, 17, 18, 19, 20, 21, 24, 25] },
 
@@ -175,6 +185,13 @@ const REAL_HISTORY_DB = {
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     quina: [
         // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 7040, numbers: [5, 23, 52, 56, 67] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 7039, numbers: [12, 15, 16, 67, 80] },
+        { drawNumber: 7038, numbers: [2, 31, 39, 64, 73] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
         { drawNumber: 7037, numbers: [9, 26, 42, 55, 66] },
 
         // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
@@ -264,6 +281,12 @@ const REAL_HISTORY_DB = {
     ],
     duplasena: [
         // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 2964, numbers: [4, 5, 11, 24, 30, 41, 3, 7, 26, 27, 44, 49], numbers2: [4, 5, 11, 24, 30, 41, 3, 7, 26, 27, 44, 49] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 2963, numbers: [11, 13, 38, 42, 44, 49, 21, 23, 35, 40, 45, 47], numbers2: [11, 13, 38, 42, 44, 49, 21, 23, 35, 40, 45, 47] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
         { drawNumber: 2962, numbers: [17, 24, 38, 43, 45, 48, 5, 16, 34, 36, 38, 48], numbers2: [17, 24, 38, 43, 45, 48, 5, 16, 34, 36, 38, 48] },
 
         // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
@@ -333,6 +356,12 @@ const REAL_HISTORY_DB = {
     ],
     lotomania: [
         // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 2931, numbers: [1, 16, 30, 32, 45, 49, 52, 56, 60, 62, 64, 71, 73, 75, 78, 82, 84, 86, 93, 96] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 2930, numbers: [3, 6, 10, 12, 14, 15, 17, 21, 22, 27, 37, 39, 40, 41, 43, 47, 48, 50, 64, 73] },
+
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
         { drawNumber: 2929, numbers: [14, 15, 16, 19, 27, 43, 50, 51, 54, 57, 60, 68, 71, 72, 83, 85, 87, 89, 90, 93] },
 
         // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
@@ -390,6 +419,9 @@ const REAL_HISTORY_DB = {
         { drawNumber: 2882, numbers: [1, 3, 6, 9, 14, 15, 16, 19, 23, 31, 32, 41, 44, 63, 64, 66, 71, 77, 91, 97] }
     ],
     timemania: [
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 2398, numbers: [11, 29, 40, 47, 48, 53, 70] },
+
         // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
         { drawNumber: 2397, numbers: [1, 12, 15, 26, 53, 64, 70] },
 
@@ -457,6 +489,9 @@ const REAL_HISTORY_DB = {
         { drawNumber: 2341, numbers: [21, 35, 36, 42, 58, 65, 71] }
     ],
     diadesorte: [
+        // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
+        { drawNumber: 1220, numbers: [4, 5, 9, 11, 20, 26, 28] },
+
         // ━━━ DADOS ATUALIZADOS AUTOMATICAMENTE ━━━
         { drawNumber: 1219, numbers: [1, 2, 7, 18, 20, 24, 29] },
 

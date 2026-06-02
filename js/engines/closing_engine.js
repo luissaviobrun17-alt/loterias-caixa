@@ -29,6 +29,9 @@
 
 class ClosingEngine {
 
+    // Ceder controle ao browser para evitar "Página sem resposta"
+    static _yield() { return new Promise(r => setTimeout(r, 0)); }
+
     // ═══════════════════════════════════════════
     //  COMBINATÓRIA: C(n,k)
     // ═══════════════════════════════════════════
@@ -169,7 +172,8 @@ class ClosingEngine {
     //  MÉTODO PRINCIPAL: GERAR FECHAMENTO v3.1
     //  CORRIGIDO: Fixos REDUZEM variáveis → REDUZEM apostas
     // ═══════════════════════════════════════════════════════════════
-    static generateClosure(selectedNumbers, guarantee, betSize = 6, gameKey = 'megasena', fixedNumbers = []) {
+    static async generateClosure(selectedNumbers, guarantee, betSize = 6, gameKey = 'megasena', fixedNumbers = [], onProgress = null) {
+        const progress = typeof onProgress === 'function' ? onProgress : () => {};
         const t0 = Date.now();
         const nums = [...selectedNumbers].sort((a, b) => a - b);
         const N = nums.length;
@@ -267,15 +271,16 @@ class ClosingEngine {
         const totalVarTSubsets = this.nCr(variableCount, effG);
         console.log('[CLOSING-v3.1] Subconjuntos efetivos: C(' + variableCount + ',' + effG + ') = ' + totalVarTSubsets.toLocaleString('pt-BR'));
 
+        progress(5, 'Iniciando motor de cobertura...');
         if (totalCandidates <= 25000 && totalVarTSubsets <= 200000) {
             console.log('[CLOSING-v3.1] → GREEDY EXATO');
-            return this._greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy);
+            return await this._greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy, progress);
         } else if (totalVarTSubsets <= 1000000) {
             console.log('[CLOSING-v3.1] → GREEDY AMOSTRADO');
-            return this._greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy);
+            return await this._greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy, progress);
         } else {
             console.log('[CLOSING-v3.1] → HEURÍSTICO VERIFICADO');
-            return this._heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy);
+            return await this._heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy, progress);
         }
     }
 
@@ -345,10 +350,13 @@ class ClosingEngine {
     // ═══════════════════════════════════════════════════════
     //  GREEDY EXATO: Cobertura exata de effG-subconjuntos
     // ═══════════════════════════════════════════════════════
-    static _greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy) {
+    static async _greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy, onProgress) {
+        const progress = onProgress || (() => {});
         const variableCount = variableNums.length;
 
         // 1. Enumerar TODOS os effG-subconjuntos de variáveis
+        progress(8, 'Enumerando subconjuntos...');
+        await this._yield();
         const allTSubsets = this._generateSubsets(variableNums, effG);
         const totalSubsets = allTSubsets.length;
         console.log('[CLOSING-v3.1] Subconjuntos a cobrir: ' + totalSubsets);
@@ -362,6 +370,8 @@ class ClosingEngine {
         for (let i = 0; i < totalSubsets; i++) uncovered.add(i);
 
         // 2. Enumerar TODOS os candidatos (parte variável)
+        progress(10, 'Enumerando candidatos...');
+        await this._yield();
         let allVariableParts = this._generateSubsets(variableNums, slotsVariable);
         
         // ORDENAÇÃO POR IA (Trios/Duplas/Calor)
@@ -375,8 +385,12 @@ class ClosingEngine {
         console.log('[CLOSING-v3.1] Candidatos: ' + allVariableParts.length);
 
         // 3. Pré-calcular coberturas
+        progress(12, 'Pré-calculando coberturas (' + allVariableParts.length + ' candidatos)...');
+        await this._yield();
         const candidateCovers = [];
-        for (const vp of allVariableParts) {
+        let lastPreYield = Date.now();
+        for (let ci = 0; ci < allVariableParts.length; ci++) {
+            const vp = allVariableParts[ci];
             const covers = new Set();
             const tSubs = this._generateSubsets(vp, effG);
             for (const sub of tSubs) {
@@ -384,13 +398,22 @@ class ClosingEngine {
                 if (idx !== undefined) covers.add(idx);
             }
             candidateCovers.push(covers);
+            // Yield periódico durante pré-cálculo pesado
+            if (Date.now() - lastPreYield >= 50) {
+                const prePct = 12 + Math.round((ci / allVariableParts.length) * 3);
+                progress(prePct, 'Pré-cálculo: ' + (ci + 1) + '/' + allVariableParts.length);
+                await this._yield();
+                lastPreYield = Date.now();
+            }
         }
 
         // 4. Greedy Set Cover
         const selectedIndices = [];
         const usedCandidates = new Set();
         const TIMEOUT = 120000;
+        let lastYield = Date.now();
 
+        progress(15, 'Calculando cobertura greedy exata...');
         while (uncovered.size > 0 && (Date.now() - t0) < TIMEOUT) {
             let bestCandidate = -1;
             let bestCount = 0;
@@ -409,6 +432,14 @@ class ClosingEngine {
             selectedIndices.push(bestCandidate);
             usedCandidates.add(bestCandidate);
             for (const idx of candidateCovers[bestCandidate]) uncovered.delete(idx);
+
+            // Yield periódico para evitar congelamento
+            if (Date.now() - lastYield >= 50) {
+                const pct = 15 + Math.round(((totalSubsets - uncovered.size) / totalSubsets) * 80);
+                progress(pct, selectedIndices.length + ' jogos | ' + ((totalSubsets - uncovered.size) / totalSubsets * 100).toFixed(1) + '%');
+                await this._yield();
+                lastYield = Date.now();
+            }
 
             if (selectedIndices.length % 50 === 0) {
                 console.log('[CLOSING-v3.1] → ' + selectedIndices.length + ' jogos (' + ((totalSubsets - uncovered.size) / totalSubsets * 100).toFixed(1) + '%)');
@@ -438,12 +469,15 @@ class ClosingEngine {
     // ═══════════════════════════════════════════════════════
     //  GREEDY AMOSTRADO: Para espaços médios
     // ═══════════════════════════════════════════════════════
-    static _greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy) {
+    static async _greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy, onProgress) {
+        const progress = onProgress || (() => {});
         const variableCount = variableNums.length;
         const TIMEOUT = 120000;
         const BATCH_SIZE = 15000;
 
         // 1. Enumerar ou amostrar effG-subconjuntos
+        progress(5, 'Enumerando subconjuntos...');
+        await this._yield();
         const totalVarTSubsets = this.nCr(variableCount, effG);
         let sampledTSubsets;
         let useFullCoverage = totalVarTSubsets <= 200000;
@@ -453,6 +487,8 @@ class ClosingEngine {
             sampledTSubsets = this._generateRandomSubsets(variableNums, effG, 100000);
         }
 
+        progress(8, sampledTSubsets.length.toLocaleString('pt-BR') + ' subconjuntos indexados...');
+        await this._yield();
         const subsetKeyToIndex = new Map();
         for (let i = 0; i < sampledTSubsets.length; i++) {
             subsetKeyToIndex.set(this._subsetKey(sampledTSubsets[i]), i);
@@ -465,6 +501,8 @@ class ClosingEngine {
         const MAX_ROUNDS = 5000; // Aumentado para permitir fechamentos completos de até 5 mil jogos
         let rounds = 0;
 
+        let lastYield = Date.now();
+        progress(10, 'Calculando cobertura amostrada...');
         while (uncovered.size > 0 && rounds < MAX_ROUNDS && (Date.now() - t0) < TIMEOUT) {
             rounds++;
             let candidates = this._generateRandomSubsets(variableNums, slotsVariable, BATCH_SIZE);
@@ -516,6 +554,13 @@ class ClosingEngine {
             if (selectedGames.length % 20 === 0) {
                 console.log('[CLOSING-v3.1] → ' + selectedGames.length + ' jogos (' + ((sampledTSubsets.length - uncovered.size) / sampledTSubsets.length * 100).toFixed(1) + '%)');
             }
+            // Yield periódico para evitar congelamento
+            if (Date.now() - lastYield >= 50) {
+                const pct = 10 + Math.round(((sampledTSubsets.length - uncovered.size) / sampledTSubsets.length) * 85);
+                progress(pct, selectedGames.length + ' jogos | ' + ((sampledTSubsets.length - uncovered.size) / sampledTSubsets.length * 100).toFixed(1) + '%');
+                await this._yield();
+                lastYield = Date.now();
+            }
         }
 
         const coveragePct = ((sampledTSubsets.length - uncovered.size) / sampledTSubsets.length * 100);
@@ -539,7 +584,8 @@ class ClosingEngine {
     // ═══════════════════════════════════════════════════════
     //  HEURÍSTICO VERIFICADO: Para espaços enormes
     // ═══════════════════════════════════════════════════════
-    static _heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy) {
+    static async _heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy, onProgress) {
+        const progress = onProgress || (() => {});
         const variableCount = variableNums.length;
         const totalVarSubsets = this.nCr(variableCount, effG);
         const coversPerCandidate = this.nCr(slotsVariable, effG);
@@ -564,6 +610,8 @@ class ClosingEngine {
         }
 
         let attempts = 0;
+        let lastYield = Date.now();
+        progress(10, 'Gerando jogos heurísticos...');
         while (selectedGames.length < maxGames && attempts < maxGames * 30 && (Date.now() - t0) < TIMEOUT) {
             attempts++;
             
@@ -586,6 +634,13 @@ class ClosingEngine {
             if (!usedKeys.has(key)) {
                 usedKeys.add(key);
                 selectedGames.push([...candidate]);
+            }
+            // Yield periódico para evitar congelamento
+            if (Date.now() - lastYield >= 50) {
+                const pct = 10 + Math.round((selectedGames.length / maxGames) * 80);
+                progress(pct, selectedGames.length + '/' + maxGames + ' jogos');
+                await this._yield();
+                lastYield = Date.now();
             }
         }
 

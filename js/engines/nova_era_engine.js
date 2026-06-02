@@ -1922,6 +1922,15 @@ class NovaEraEngine {
         const N = history.length;
         const drawSize = profile.lotteryDraw;
 
+        // ★ PERFORMANCE: Pré-computar Sets de números para cada sorteio (evita .concat() e .includes() repetidos)
+        const _numSets = new Array(N);
+        const _numArrays = new Array(N);
+        for (let i = 0; i < N; i++) {
+            const combined = (history[i].numbers || []).concat(history[i].numbers2 || []);
+            _numSets[i] = new Set(combined);
+            _numArrays[i] = combined;
+        }
+
         // â”â”â” CAMADAS 1-8: Base NE-V1 â”â”â”
         const freqScores = this._layerFrequency(history, startNum, endNum, N);
         const trendScores = this._layerTrend(history, startNum, endNum, N);

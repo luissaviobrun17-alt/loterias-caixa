@@ -13,6 +13,8 @@ class UI {
         this.generateBtn = _el('generate-btn');
         this.generateSmartBtn = _el('generate-smart-btn');
         this.generateCoverageBtn = _el('generate-coverage-btn');
+        this.generateMathBtn = _el('generate-math-btn');
+        this.mathParetoPanel = _el('math-pareto-panel');
         this.generateClosureBtn = _el('generate-closure-btn');
         this.closurePanel = _el('closure-panel');
         this.btnRunClosure = _el('btn-run-closure');
@@ -44,7 +46,7 @@ class UI {
         this.copyTextarea = _el('copy-textarea');
 
         this.currentGeneratedGames = []; // Store generated games — FONTE ÚNICA DE VERDADE
-        this._engineSlots = { manual: null, sniper: null, cobertura: null };
+        this._engineSlots = { manual: null, sniper: null, cobertura: null, math: null };
 
         this.hotNumbersContainer = _el('hot-numbers');
         this.coldNumbersContainer = _el('cold-numbers');
@@ -206,55 +208,62 @@ if (qty > MAX_QTY) {
                         return;
                     }
                     
-                    this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Fechando ' + guarantee + ' pontos com IA...</div></div>';
+                    // v14.2: Usar async/await com barra de progresso (igual Cobertura IA)
+                    const t0_closing = Date.now();
+                    const _self = this;
+                    this._showProgress('🎯 Fechamento', 0, 'Iniciando fechamento de ' + guarantee + ' pontos...', '#F59E0B');
+                    
+                    // Yield para o browser renderizar a barra de progresso
+                    await new Promise(r => setTimeout(r, 30));
+                    
+                    const _onClosingProgress = (pct, msg) => {
+                        const elapsed = ((Date.now() - t0_closing) / 1000).toFixed(1);
+                        _self._showProgress('🎯 Fechamento', pct, msg + ' • ' + elapsed + 's', '#F59E0B');
+                    };
+                    
+                    result = await ClosingEngine.generateClosure(poolSet, guarantee, drawSize, this.currentGameKey, fixedArr, _onClosingProgress);
+                    this._hideProgress();
+                    
+                    if (result.error) {
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">' + result.error + '</div>';
+                        return;
+                    }
+                    
+                    bannerMsg = '🎯 <strong>FECHAMENTO HÍBRIDO (IA + STEINER)</strong> — ' + result.games.length + ' jogos<br>';
+                    bannerMsg += 'Garantia: <strong>' + guarantee + ' pontos</strong> | Cobertura Exata: <strong>' + result.coveragePct + '%</strong><br>';
+                    if (fixedArr.length > 0) bannerMsg += 'Fixos: ' + fixedArr.join(', ') + '<br>';
+                    bannerMsg += 'Investimento: <strong>R$ ' + result.cost.toFixed(2) + '</strong> | Ordenado por Sinergia IA 🔥';
+                    
+                    const games = result.games || [];
+                    this.currentGeneratedGames = games;
+                    this._lastGeneratedGames = games;
+                    this._engineSlots.manual = games.length > 0 ? games : null;
+                    this.renderGames({ pool: pool, games: games, smartAnalysis: null }, this.currentGameKey);
                     
                     setTimeout(() => {
-                        result = ClosingEngine.generateClosure(poolSet, guarantee, drawSize, this.currentGameKey, fixedArr);
-                        
-                        if (result.error) {
-                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">' + result.error + '</div>';
-                            return;
-                        }
-                        
-                        bannerMsg = '🎯 <strong>FECHAMENTO HÍBRIDO (IA + STEINER)</strong> — ' + result.games.length + ' jogos<br>';
-                        bannerMsg += 'Garantia: <strong>' + guarantee + ' pontos</strong> | Cobertura Exata: <strong>' + result.coveragePct + '%</strong><br>';
-                        if (fixedArr.length > 0) bannerMsg += 'Fixos: ' + fixedArr.join(', ') + '<br>';
-                        bannerMsg += 'Investimento: <strong>R$ ' + result.cost.toFixed(2) + '</strong> | Ordenado por Sinergia IA 🔥';
-                        
-                        const games = result.games || [];
-                        this.currentGeneratedGames = games;
-                        this._lastGeneratedGames = games;
-                        this._engineSlots.manual = games.length > 0 ? games : null;
-                        this.renderGames({ pool: pool, games: games, smartAnalysis: null }, this.currentGameKey);
-                        
-                        setTimeout(() => {
-                            var b = document.createElement('div');
-                            b.className = 'smart-gen-analysis';
-                            b.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:12px 16px;border-radius:10px;background:linear-gradient(135deg, rgba(255,215,0,0.1), rgba(220,38,38,0.1));border:1px solid rgba(255,215,0,0.3);font-size:0.8rem;color:#FCD34D;';
-                            b.innerHTML = bannerMsg;
-                            var old = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
-                            if (old) old.remove();
-                            this.gamesContainer.parentNode.insertBefore(b, this.gamesContainer);
-                        }, 50);
-                        setTimeout(() => { if (this.gamesContainer) this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
+                        var b = document.createElement('div');
+                        b.className = 'smart-gen-analysis';
+                        b.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:12px 16px;border-radius:10px;background:linear-gradient(135deg, rgba(255,215,0,0.1), rgba(220,38,38,0.1));border:1px solid rgba(255,215,0,0.3);font-size:0.8rem;color:#FCD34D;';
+                        b.innerHTML = bannerMsg;
+                        var old = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                        if (old) old.remove();
+                        this.gamesContainer.parentNode.insertBefore(b, this.gamesContainer);
                     }, 50);
+                    setTimeout(() => { if (this.gamesContainer) this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
                     
                 } else {
                     // Sem fechamento exato -> Motor v3.0 com 12 Correções
-                    // v14.1: Progress indicator para grandes volumes
-                    if (qty > 500) {
-                        const t0 = Date.now();
-                        const _self = this;
-                        const _onProgress = (done, total) => {
-                            const pct = Math.round((done / total) * 100);
-                            _self._showProgress('🎲 Manual', pct, done.toLocaleString('pt-BR') + '/' + total.toLocaleString('pt-BR') + ' jogos • ' + ((Date.now() - t0) / 1000).toFixed(1) + 's', '#F59E0B');
-                        };
-                        _onProgress(0, qty);
-                        result = await MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize, { _onProgress });
-                        this._hideProgress();
-                    } else {
-                        result = await MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize);
-                    }
+                    // v14.2: Progresso SEMPRE visível (não apenas para qty > 500)
+                    const t0 = Date.now();
+                    const _self = this;
+                    const _onProgress = (done, total) => {
+                        const pct = Math.round((done / total) * 100);
+                        _self._showProgress('🎲 Manual', pct, done.toLocaleString('pt-BR') + '/' + total.toLocaleString('pt-BR') + ' jogos • ' + ((Date.now() - t0) / 1000).toFixed(1) + 's', '#F59E0B');
+                    };
+                    _onProgress(0, qty);
+                    await new Promise(r => setTimeout(r, 30)); // Yield para renderizar progresso
+                    result = await MotorFechamentoManual.generate(this.currentGameKey, pool, fixedArr, qty, drawSize, { _onProgress });
+                    this._hideProgress();
                     const a = result.analysis || {};
                     bannerMsg = '🎲 <strong>MANUAL v3.0</strong> — ' + result.games.length + ' jogos dos seus ' + (a.poolSize || pool.length) + ' números';
                     if (result.games.length < qty) {
@@ -558,6 +567,300 @@ if (qty > MAX_QTY) {
                     }
                 }, 50);
                 } // fim do else (≤500)
+            };
+        }
+
+        // === BOTÃO 🧮 FECHAMENTO MATEMÁTICO v2.0 — Pré-geração exata ===
+        if (this.generateMathBtn) {
+            this._mathCache = {}; // Cache de resultados por garantia
+            this.generateMathBtn.onclick = async () => {
+              try {
+                // v14.2 FIX: Auto-reset se _isGenerating ficou travado por mais de 60s
+                if (this._isGenerating) {
+                    const elapsed = Date.now() - (this._isGeneratingTimestamp || 0);
+                    if (elapsed < 60000) return; // Ainda dentro do tempo normal
+                    console.warn('[MATH] ⚠️ Flag _isGenerating estava travada há ' + Math.round(elapsed/1000) + 's. Resetando...');
+                    this._isGenerating = false;
+                }
+                const game = GAMES[this.currentGameKey];
+                if (!game) return;
+
+                const betSize = typeof MathEngine !== 'undefined' ? MathEngine.getBetSize(this.currentGameKey) : game.draw;
+                const selectedArr = Array.from(this.selectedNumbers).filter(n => n >= game.range[0] && n <= game.range[1]);
+                const fixedArr = Array.from(this.fixedNumbers).filter(n => n >= game.range[0] && n <= game.range[1]);
+                const poolSet = new Set([...selectedArr, ...fixedArr]);
+                const pool = Array.from(poolSet).sort((a, b) => a - b);
+
+                if (typeof MathEngine === 'undefined') {
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">MathEngine não carregado. Recarregue (Ctrl+Shift+R).</div>';
+                    return;
+                }
+                if (pool.length < betSize) {
+                    const msg = pool.length === 0
+                        ? '⚠️ <strong>Selecione seus números!</strong><br>Selecione pelo menos <strong>' + betSize + '</strong> números no grid acima.'
+                        : '⚠️ <strong>Seleção insuficiente!</strong><br>Você selecionou <strong>' + pool.length + '</strong>, precisa de pelo menos <strong>' + betSize + '</strong>.';
+                    this.gamesContainer.innerHTML = '<div style="text-align:center;padding:30px 20px;color:#FCD34D;font-size:0.9rem;line-height:1.6;">' + msg + '</div>';
+                    if (this.mathParetoPanel) this.mathParetoPanel.style.display = 'none';
+                    return;
+                }
+                const maxPool = MathEngine.getMaxPool(this.currentGameKey);
+                if (pool.length > maxPool) {
+                    this.gamesContainer.innerHTML = '<div style="text-align:center;padding:30px 20px;color:#FCD34D;font-size:0.9rem;line-height:1.6;">⚠️ <strong>Pool muito grande!</strong><br>Máximo: <strong>' + maxPool + '</strong> (90%). Você selecionou <strong>' + pool.length + '</strong>.</div>';
+                    if (this.mathParetoPanel) this.mathParetoPanel.style.display = 'none';
+                    return;
+                }
+
+                // Obter níveis de garantia
+                const fixedCount = fixedArr.length;
+                const levels = MathEngine.paretoPreview(this.currentGameKey, pool.length, fixedCount);
+                if (!levels || levels.length === 0) {
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro ao calcular níveis de garantia.</div>';
+                    return;
+                }
+
+                // ═══ PRÉ-GERAR TODOS OS NÍVEIS ═══
+                this._isGenerating = true;
+                this._isGeneratingTimestamp = Date.now();
+                this._mathCache = {};
+                const _self = this;
+                const panel = this.mathParetoPanel;
+                if (!panel) return;
+
+                // Mostrar painel de carregamento
+                panel.style.display = 'block';
+                const price = game.price || 3;
+                const totalLevels = levels.length;
+                const PRE_GEN_LIMIT = 50000; // v4.0 é rápido o suficiente para pré-gerar quase tudo
+
+                for (let li = 0; li < totalLevels; li++) {
+                    const lv = levels[li];
+
+                    if (lv.schonheimBound > PRE_GEN_LIMIT) {
+                        this._mathCache[lv.guarantee] = { result: null, pool: pool, fixedArr: fixedArr, level: lv, onDemand: true, estimatedGames: lv.maxGames };
+                        continue;
+                    }
+
+                    panel.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">' +
+                        '<span style="font-size:1.4rem;">🧮</span>' +
+                        '<div><div style="font-weight:900;color:#60A5FA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">CALCULANDO — ' + game.name + '</div>' +
+                        '<div style="font-size:0.75rem;color:#94A3B8;">Pool: ' + pool.length + ' números | Gerando nível ' + (li + 1) + ' de ' + totalLevels + ': ' + lv.icon + ' ' + lv.label + '</div></div></div>' +
+                        '<div style="width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;">' +
+                        '<div style="width:' + Math.round((li / totalLevels) * 100) + '%;height:100%;background:linear-gradient(90deg,#3B82F6,#60A5FA);border-radius:3px;transition:width 0.3s;"></div></div>' +
+                        '<div id="math-level-progress" style="font-size:0.72rem;color:#94A3B8;margin-top:6px;text-align:center;">Iniciando...</div>';
+
+                    await MathEngine._yield();
+
+                    const result = await MathEngine.generate(
+                        this.currentGameKey, pool, fixedArr, lv.guarantee,
+                        (pct, msg) => {
+                            const progressEl = document.getElementById('math-level-progress');
+                            if (progressEl) progressEl.textContent = lv.icon + ' ' + lv.label + ': ' + msg;
+                        }
+                    );
+
+                    this._mathCache[lv.guarantee] = { result: result, pool: pool, fixedArr: fixedArr, level: lv, onDemand: false };
+                }
+
+                // ═══ RENDERIZAR TABELA COM VALORES EXATOS ═══
+                let bestIdx = -1;
+                let bestRatio = -1;
+                const cachedLevels = levels.map((lv, i) => {
+                    const cached = _self._mathCache[lv.guarantee];
+                    const isOnDemand = cached && cached.onDemand;
+                    const r = cached && !isOnDemand ? cached.result : null;
+                    const totalGames = r ? r.totalGames : (isOnDemand ? cached.estimatedGames : 0);
+                    const cost = r ? r.cost : (isOnDemand ? totalGames * price : 0);
+                    const covPct = r ? r.coveragePct : 0;
+                    const costPerPoint = lv.guarantee > 0 && totalGames > 0 ? cost / lv.guarantee : Infinity;
+                    if ((costPerPoint < bestRatio || bestRatio < 0) && totalGames > 0) {
+                        bestRatio = costPerPoint;
+                        bestIdx = i;
+                    }
+                    return { lv, totalGames, cost, covPct, error: r ? r.error : null, onDemand: !!isOnDemand };
+                });
+
+                let tableHtml = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
+                tableHtml += '<span style="font-size:1.4rem;">🧮</span>';
+                const gameKey_m = this.currentGameKey;
+                const mechanicsInfo = gameKey_m === 'timemania' ? ' | Joga 10 / Sorteio 7' :
+                                      gameKey_m === 'lotomania' ? ' | Joga 50 / Sorteio 20' : '';
+                tableHtml += '<div><div style="font-weight:900;color:#60A5FA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">FECHAMENTO MATEMÁTICO — ' + game.name + '</div>';
+                tableHtml += '<div style="font-size:0.75rem;color:#94A3B8;">Pool: ' + pool.length + ' números' + (fixedCount > 0 ? ' | ' + fixedCount + ' fixo(s)' : '') + mechanicsInfo + ' | Valores exatos ✅</div></div></div>';
+
+                tableHtml += '<table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:0.82rem;">';
+                tableHtml += '<thead><tr style="color:#94A3B8;border-bottom:1px solid rgba(148,163,184,0.2);">';
+                tableHtml += '<th style="text-align:left;padding:6px 8px;">Garantia</th>';
+                tableHtml += '<th style="text-align:center;padding:6px 8px;">Jogos</th>';
+                tableHtml += '<th style="text-align:center;padding:6px 8px;">Custo</th>';
+                tableHtml += '<th style="text-align:center;padding:6px 8px;">Cobertura</th>';
+                tableHtml += '<th style="text-align:center;padding:6px 8px;"></th>';
+                tableHtml += '</tr></thead><tbody>';
+
+                for (let i = 0; i < cachedLevels.length; i++) {
+                    const cl = cachedLevels[i];
+                    const lv = cl.lv;
+                    const isRec = i === bestIdx;
+                    const rowStyle = isRec ? 'background:rgba(59,130,246,0.15);border-left:3px solid #3B82F6;' : '';
+                    const covColor = cl.covPct >= 100 ? '#22C55E' : cl.covPct >= 99 ? '#F59E0B' : '#EF4444';
+
+                    tableHtml += '<tr style="border-bottom:1px solid rgba(148,163,184,0.1);' + rowStyle + '">';
+                    tableHtml += '<td style="padding:8px;color:#E2E8F0;font-weight:700;">' + (isRec ? '★ ' : '') + lv.icon + ' ' + lv.label + '</td>';
+
+                    if (cl.error) {
+                        tableHtml += '<td colspan="3" style="text-align:center;padding:8px;color:#EF4444;font-size:0.75rem;">' + cl.error + '</td>';
+                        tableHtml += '<td></td>';
+                    } else if (cl.onDemand) {
+                        tableHtml += '<td style="text-align:center;padding:8px;color:#94A3B8;font-weight:600;">~' + cl.totalGames.toLocaleString('pt-BR') + '</td>';
+                        tableHtml += '<td style="text-align:center;padding:8px;color:#94A3B8;font-weight:600;">~R$ ' + cl.cost.toLocaleString('pt-BR', {minimumFractionDigits:2}) + '</td>';
+                        tableHtml += '<td style="text-align:center;padding:8px;color:#64748B;font-size:0.7rem;">—</td>';
+                        tableHtml += '<td style="text-align:center;padding:8px;"><button data-math-guarantee="' + lv.guarantee + '" class="math-gen-btn math-ondemand" style="padding:6px 16px;border-radius:8px;border:1px solid #F59E0B;background:linear-gradient(135deg,#92400E,#78350F);color:#FDE68A;font-weight:800;font-size:0.8rem;cursor:pointer;transition:all 0.2s;">GERAR</button></td>';
+                    } else {
+                        tableHtml += '<td style="text-align:center;padding:8px;color:#E2E8F0;font-weight:800;">' + cl.totalGames.toLocaleString('pt-BR') + '</td>';
+                        tableHtml += '<td style="text-align:center;padding:8px;color:#22C55E;font-weight:700;">R$ ' + cl.cost.toLocaleString('pt-BR', {minimumFractionDigits:2}) + '</td>';
+                        tableHtml += '<td style="text-align:center;padding:8px;"><span style="color:' + covColor + ';font-weight:700;">' + cl.covPct + '%</span></td>';
+                        tableHtml += '<td style="text-align:center;padding:8px;"><button data-math-guarantee="' + lv.guarantee + '" class="math-gen-btn" style="padding:6px 16px;border-radius:8px;border:1px solid #3B82F6;background:linear-gradient(135deg,#1E40AF,#1E3A8A);color:#DBEAFE;font-weight:800;font-size:0.8rem;cursor:pointer;transition:all 0.2s;">VER</button></td>';
+                    }
+                    tableHtml += '</tr>';
+                }
+                tableHtml += '</tbody></table>';
+                tableHtml += '<div style="margin-top:10px;font-size:0.7rem;color:#64748B;">★ = Melhor custo-benefício | VER = valor exato pré-calculado | GERAR = calcula sob demanda (~estimativa)</div>';
+
+                panel.innerHTML = tableHtml;
+                panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                this._isGenerating = false;
+
+                // Atribuir handlers aos botões VER/GERAR
+                const genBtns = panel.querySelectorAll('.math-gen-btn');
+                genBtns.forEach(btn => {
+                    btn.onmouseenter = () => { btn.style.transform = 'scale(1.05)'; btn.style.boxShadow = '0 4px 15px rgba(59,130,246,0.4)'; };
+                    btn.onmouseleave = () => { btn.style.transform = ''; btn.style.boxShadow = ''; };
+                    btn.onclick = async () => {
+                        const guarantee = parseInt(btn.getAttribute('data-math-guarantee'));
+                        let cached = _self._mathCache[guarantee];
+                        if (!cached) return;
+
+                        // Se é sob demanda, gerar agora
+                        if (cached.onDemand) {
+                            if (_self._isGenerating) return;
+                            _self._isGenerating = true;
+                            btn.textContent = '⏳...';
+                            btn.disabled = true;
+                            genBtns.forEach(b => { b.style.opacity = '0.5'; b.disabled = true; });
+
+                            _self.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">🧮 Gerando Fechamento Matemático...</div></div>';
+
+                            try {
+                                const genResult = await MathEngine.generate(
+                                    _self.currentGameKey, cached.pool, cached.fixedArr, guarantee,
+                                    (pct, msg) => { _self._showProgress('🧮 Fechamento', pct, msg, '#3B82F6'); }
+                                );
+                                cached = { result: genResult, pool: cached.pool, fixedArr: cached.fixedArr, level: cached.level, onDemand: false };
+                                _self._mathCache[guarantee] = cached;
+
+                                // Atualizar a linha na tabela com valores exatos
+                                if (genResult && !genResult.error) {
+                                    btn.textContent = 'VER';
+                                    btn.style.border = '1px solid #3B82F6';
+                                    btn.style.background = 'linear-gradient(135deg,#1E40AF,#1E3A8A)';
+                                    btn.style.color = '#DBEAFE';
+                                    const row = btn.closest('tr');
+                                    if (row) {
+                                        const cells = row.querySelectorAll('td');
+                                        if (cells.length >= 4) {
+                                            cells[1].innerHTML = '<span style="color:#E2E8F0;font-weight:800;">' + genResult.totalGames.toLocaleString('pt-BR') + '</span>';
+                                            cells[2].innerHTML = '<span style="color:#22C55E;font-weight:700;">R$ ' + genResult.cost.toLocaleString('pt-BR', {minimumFractionDigits:2}) + '</span>';
+                                            const covColor2 = genResult.coveragePct >= 100 ? '#22C55E' : '#F59E0B';
+                                            cells[3].innerHTML = '<span style="color:' + covColor2 + ';font-weight:700;">' + genResult.coveragePct + '%</span>';
+                                        }
+                                    }
+                                }
+                            } catch(e) {
+                                console.error('[MATH] Erro on-demand:', e);
+                                _self.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
+                            } finally {
+                                _self._isGenerating = false;
+                                _self._hideProgress();
+                                genBtns.forEach(b => { b.style.opacity = ''; b.disabled = false; });
+                            }
+                        }
+
+                        // Se não tem resultado, sair
+                        if (!cached.result || cached.result.error) return;
+
+                        const result = cached.result;
+                        const games = result.games;
+
+                        _self._lastGenerationMode = 'math';
+                        localStorage.setItem('l99_lastMode', 'math');
+                        document.body.setAttribute('data-l99-mode', 'math');
+
+                        _self.currentGeneratedGames = games;
+                        _self._lastGeneratedGames = games;
+                        _self._engineSlots.math = games.length > 0 ? games : null;
+
+                        // Gerar extras (Mês da Sorte / Time do Coração)
+                        const gk = _self.currentGameKey;
+                        if (gk === 'timemania' || gk === 'diadesorte') {
+                            _self.currentGeneratedExtras = _self._generateExtras(gk, games.length);
+                        } else {
+                            _self.currentGeneratedExtras = null;
+                        }
+
+                        // Renderizar jogos
+                        _self.renderGames({ pool: cached.pool, games: games, smartAnalysis: null }, _self.currentGameKey);
+
+                        // Banner de resultado
+                        const banner = document.createElement('div');
+                        banner.className = 'smart-gen-analysis';
+                        banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:16px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(30,64,175,0.15),rgba(15,23,42,0.95));border:1px solid rgba(59,130,246,0.4);';
+
+                        const covColor = result.coveragePct >= 100 ? '#22C55E' : result.coveragePct >= 99 ? '#F59E0B' : '#EF4444';
+                        const covIcon = result.coveragePct >= 100 ? '✅' : result.coveragePct >= 99 ? '⚠️' : '❌';
+
+                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;">' +
+                            '<span style="font-size:1.4rem;">🧮</span>' +
+                            '<div style="flex:1;">' +
+                                '<div style="font-weight:900;color:#60A5FA;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">FECHAMENTO MATEMÁTICO — ' + result.totalGames + ' JOGOS</div>' +
+                                '<div style="font-size:0.75rem;color:#94A3B8;margin-top:2px;">Motor: ' + result.mode + ' | Tempo: ' + (result.elapsed / 1000).toFixed(1) + 's</div>' +
+                            '</div></div>' +
+                            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">' +
+                                '<div style="padding:8px 12px;border-radius:8px;background:rgba(0,0,0,0.3);">' +
+                                    '<div style="font-size:0.68rem;color:#94A3B8;text-transform:uppercase;">Garantia Condicional</div>' +
+                                    '<div style="font-size:1.1rem;font-weight:900;color:#E2E8F0;">G' + result.guarantee + ' (' + result.guarantee + ' acertos)</div>' +
+                                    '<div style="font-size:0.68rem;color:#64748B;margin-top:2px;">' +
+                                        (gk === 'timemania' ? 'Joga 10 números | Sorteio de 7 | Pool: ' + cached.pool.length :
+                                         gk === 'lotomania' ? 'Joga 50 números | Sorteio de 20 | Pool: ' + cached.pool.length :
+                                         'SE os sorteados estiverem no pool de ' + cached.pool.length) + ' números</div>' +
+                                '</div>' +
+                                '<div style="padding:8px 12px;border-radius:8px;background:rgba(0,0,0,0.3);">' +
+                                    '<div style="font-size:0.68rem;color:#94A3B8;text-transform:uppercase;">Cobertura</div>' +
+                                    '<div style="font-size:1.1rem;font-weight:900;color:' + covColor + ';">' + covIcon + ' ' + result.coveragePct + '%</div>' +
+                                    '<div style="font-size:0.68rem;color:#64748B;margin-top:2px;">' + (result.covered || 0).toLocaleString('pt-BR') + ' de ' + (result.totalSubsets || 0).toLocaleString('pt-BR') + ' subconjuntos</div>' +
+                                '</div>' +
+                                '<div style="padding:8px 12px;border-radius:8px;background:rgba(0,0,0,0.3);">' +
+                                    '<div style="font-size:0.68rem;color:#94A3B8;text-transform:uppercase;">Eficiência vs Schönheim</div>' +
+                                    '<div style="font-size:1.1rem;font-weight:900;color:' + (result.efficiency >= 90 ? '#22C55E' : '#F59E0B') + ';">' + result.efficiency + '%</div>' +
+                                    '<div style="font-size:0.68rem;color:#64748B;margin-top:2px;">Mínimo teórico: ' + result.schonheimBound + ' jogos | Gerado: ' + result.totalGames + '</div>' +
+                                '</div>' +
+                                '<div style="padding:8px 12px;border-radius:8px;background:rgba(0,0,0,0.3);">' +
+                                    '<div style="font-size:0.68rem;color:#94A3B8;text-transform:uppercase;">Custo Total</div>' +
+                                    '<div style="font-size:1.1rem;font-weight:900;color:#22C55E;">R$ ' + result.cost.toLocaleString('pt-BR', {minimumFractionDigits:2}) + '</div>' +
+                                    '<div style="font-size:0.68rem;color:#64748B;margin-top:2px;">' + result.totalGames + ' jogos × R$ ' + (game.price || 3).toFixed(2) + '</div>' +
+                                '</div>' +
+                            '</div>';
+
+                        const oldBanner = _self.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                        if (oldBanner) oldBanner.remove();
+                        _self.gamesContainer.parentNode.insertBefore(banner, _self.gamesContainer);
+                        banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    };
+                });
+
+              } catch(mathErr) {
+                console.error('[MATH] Erro geral:', mathErr);
+                if (this.gamesContainer) this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + mathErr.message + '</div>';
+                this._isGenerating = false;
+              }
             };
         }
 
@@ -1243,12 +1546,18 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         const game = GAMES[this.currentGameKey];
         if (!game) return;
 
-        // ── PROTEÇÃO DOUBLE-CLICK ──
+        // ── PROTEÇÃO DOUBLE-CLICK (v14.2: com timeout de segurança) ──
         if (this._isGenerating) {
-            console.warn('[SmartBets] Geração já em andamento, ignorando clique duplo');
-            return;
+            const elapsed = Date.now() - (this._isGeneratingTimestamp || 0);
+            if (elapsed < 60000) {
+                console.warn('[SmartBets] Geração já em andamento, ignorando clique duplo');
+                return;
+            }
+            console.warn('[SmartBets] ⚠️ Flag travada há ' + Math.round(elapsed/1000) + 's. Resetando...');
+            this._isGenerating = false;
         }
         this._isGenerating = true;
+        this._isGeneratingTimestamp = Date.now();
 
         // Verificar se Modo Precisão está ativo
         const precisionCheckbox = document.getElementById('precision-mode-toggle');
@@ -1739,7 +2048,10 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
     updateGameInfo(gameKey) {
         this.currentGameKey = gameKey;
-        this._engineSlots = { manual: null, sniper: null, cobertura: null };
+        this._engineSlots = { manual: null, sniper: null, cobertura: null, math: null };
+        // v14.2 FIX: Reset flag de geração ao trocar de loteria para evitar travamento
+        this._isGenerating = false;
+        this._isGeneratingTimestamp = 0;
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         if (!game) {
             console.error('[UI] Dados da loteria não encontrados para: ' + gameKey);
@@ -3180,13 +3492,14 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         const gameConfig = (typeof GAMES !== 'undefined') ? GAMES[gameKey] : null;
         if (!gameConfig) return;
 
-        const slots = this._engineSlots || { manual: null, sniper: null, cobertura: null };
+        const slots = this._engineSlots || { manual: null, sniper: null, cobertura: null, math: null };
         const hasAnalyser = typeof GameAnalyser !== 'undefined';
 
         const engines = [
             { id: 'manual',    label: '🎮 MANUAL',       color: '#3B82F6', games: slots.manual,    btn: 'Botão Manual (🎲)' },
             { id: 'sniper',    label: '🎯 SNIPER',       color: '#EF4444', games: slots.sniper,    btn: 'Botão Cobertura com Sniper ativado (🎯)' },
-            { id: 'cobertura', label: '📐 COBERTURA IA', color: '#10B981', games: slots.cobertura, btn: 'Botão Cobertura IA (📐)' }
+            { id: 'cobertura', label: '📐 COBERTURA IA', color: '#10B981', games: slots.cobertura, btn: 'Botão Cobertura IA (📐)' },
+            { id: 'math',      label: '🧮 FECHAMENTO',   color: '#8B5CF6', games: slots.math,      btn: 'Botão Fechamento Matemático (🧮)' }
         ];
 
         const filled = engines.filter(function(e) { return e.games && e.games.length > 0; });
@@ -3205,7 +3518,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                         '<span style="color:' + e.color + ';font-weight:700;">' + e.label + '</span>' +
                         '<span style="color:#64748B;"> → ' + e.btn + '</span></div>';
                 }).join('') +
-                '</div><p style="color:#64748B;font-size:0.72rem;margin-top:16px;">Gere pelo menos 1 motor. Para comparação completa, gere os 3.</p></div>';
+                '</div><p style="color:#64748B;font-size:0.72rem;margin-top:16px;">Gere pelo menos 1 motor. Para comparação completa, gere os 4.</p></div>';
             this.analyseModal.style.display = 'flex';
             return;
         }
@@ -3241,7 +3554,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         }
         html += '</div>';
 
-        if (missing.length > 0 && filled.length < 3) {
+        if (missing.length > 0 && filled.length < 4) {
             html += '<div style="background:rgba(245,158,11,0.08);padding:10px 14px;border:1px solid rgba(245,158,11,0.2);border-radius:8px;margin-bottom:16px;font-size:0.72rem;color:#F59E0B;line-height:1.5;">' +
                 '⚠️ <strong>' + missing.length + ' motor(es) sem jogos:</strong> ' + missing.map(function(m) { return m.label; }).join(', ') + '. Gere-os para comparação completa.</div>';
         }
