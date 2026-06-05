@@ -98,7 +98,7 @@ class AsyncGenerator {
     // ═══════════════════════════════════════════════════════════
 
     static async generateManualAsync(gameKey, pool, fixedNumbers, numGames, drawSize, callback) {
-        if (this._isRunning) return;
+        this._isRunning = false; // Reset de segurança
         this._isRunning = true;
 
         const chunkSize = this._getChunkSize(numGames);
@@ -158,11 +158,11 @@ class AsyncGenerator {
     // ═══════════════════════════════════════════════════════════
 
     static async generateCoverageAsync(gameKey, numGames, selectedNumbers, fixedNumbers, drawSize, options, callback) {
-        if (this._isRunning) return;
+        this._isRunning = false; // Reset de segurança
         this._isRunning = true;
 
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
-        const chunkSize = this._getChunkSize(numGames);
+        const chunkSize = Math.max(5, Math.min(200, Math.floor(numGames / 15)));
         const name = game ? game.name : gameKey;
 
         this._showProgress(name, numGames);
