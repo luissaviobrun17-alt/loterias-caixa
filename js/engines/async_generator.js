@@ -10,9 +10,9 @@ class AsyncGenerator {
     static _isRunning = false;
     static _startTime = 0;
 
-    // Chunk dinâmico: ~20 atualizações de progresso para qualquer quantidade
+    // Chunk dinâmico: ~20 atualizações, mín 10, máx 200
     static _getChunkSize(numGames) {
-        return Math.max(1, Math.min(100, Math.floor(numGames / 20)));
+        return Math.max(10, Math.min(200, Math.floor(numGames / 20)));
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -239,7 +239,7 @@ class AsyncGenerator {
         return games.filter(g => { const k = g.join(','); if (seen.has(k)) return false; seen.add(k); return true; });
     }
 
-    static shouldUseAsync() { return true; }
+    static shouldUseAsync(numGames) { return numGames >= 50; }
 }
 
 if (typeof window !== 'undefined') window.AsyncGenerator = AsyncGenerator;
