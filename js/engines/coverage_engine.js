@@ -727,10 +727,10 @@ class CoverageEngine {
     //  RARAMENTE ocorrem em sorteios reais.
     // ═══════════════════════════════════════════════════════
     static _isStructurallyValid(game, cfg, startNum, isPoolRestricted) {
-        // v12.9: Bypass absoluto em caso de amputação.
+        // v12.9: Bypass absoluto em caso de amputação ou grande volume de jogos/Lotomania.
         // O Auto-Fixador e Sniper distorcem completamente a topologia natural, 
         // e forçar limites de geometria causa congelamento por O(N^200) falhas consecutivas.
-        if (isPoolRestricted) return true;
+        if (isPoolRestricted || cfg.drawSize >= 50) return true;
 
         const n = game.length;
 
