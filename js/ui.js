@@ -11,15 +11,8 @@ class UI {
         this.closingSelect = _el('closing-type');
         this.gamesQuantityInput = _el('games-quantity');
         this.generateBtn = _el('generate-btn');
-        this.generateSmartBtn = _el('generate-smart-btn');
         this.generateCoverageBtn = _el('generate-coverage-btn');
-        this.generateClosureBtn = _el('generate-closure-btn');
-        this.closurePanel = _el('closure-panel');
-        this.btnRunClosure = _el('btn-run-closure');
-        this.closureGuarantee = _el('closure-guarantee');
-        this.btnPrecisionPlay = _el('btn-precision-play');
         this.smartDrawSizeSelect = _el('smart-draw-size');
-        this.smartDrawInfo = _el('smart-draw-info');
         this.copyBtn = _el('copy-btn');
         this.gamesContainer = _el('games-container');
         this.currentBetCostElem = _el('current-bet-cost');
@@ -554,6 +547,30 @@ class UI {
         if (this.confirmCheckBtn) this.confirmCheckBtn.onclick = () => this.confirmCheck();
         if (this.closeCheckModalBtn) this.closeCheckModalBtn.onclick = () => this.closeCheckModal();
 
+        // Carregar jogos salvos (btn-listar-jogos-salvos)
+        const btnListarSalvos = document.getElementById('btn-listar-jogos-salvos');
+        const loadGamesInput = document.getElementById('load-games-input');
+        if (btnListarSalvos && loadGamesInput) {
+            btnListarSalvos.onclick = () => loadGamesInput.click();
+            loadGamesInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    const text = evt.target.result;
+                    const checkInput = document.getElementById('check-input-numbers');
+                    if (checkInput) {
+                        checkInput.value = text.trim();
+                        if (typeof Guardian !== 'undefined' && Guardian.toast) {
+                            Guardian.toast(`Arquivo "${file.name}" carregado com sucesso!`, 'success');
+                        }
+                    }
+                    loadGamesInput.value = ''; // Reset para permitir re-seleção
+                };
+                reader.readAsText(file);
+            });
+        }
+
         // Print Button
         const btnPrint = document.getElementById('btn-print');
         if (btnPrint) btnPrint.onclick = () => window.print();
@@ -1041,34 +1058,6 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
     // ╔══════════════════════════════════════════════════════════╗
     // ║  MANUAL: Métodos auxiliares de fechamento combinatório   ║
     // ╚══════════════════════════════════════════════════════════╝
-    _manualComb(n, k) {
-        if (k > n || k < 0) return 0;
-        if (k === 0 || k === n) return 1;
-        if (k > n - k) k = n - k;
-        let result = 1;
-        for (let i = 0; i < k; i++) {
-            result = result * (n - i) / (i + 1);
-        }
-        return Math.round(result);
-    }
-
-    _manualGenCombos(pool, drawSize, startIdx, current, results, fixedNumbers) {
-        if (current.length === drawSize) {
-            // Verificar se todos os fixos estão incluídos
-            const combo = current.slice();
-            const hasAllFixed = fixedNumbers.every(f => combo.includes(f));
-            if (fixedNumbers.length === 0 || hasAllFixed) {
-                results.push(combo);
-            }
-            return;
-        }
-        const remaining = drawSize - current.length;
-        for (let i = startIdx; i <= pool.length - remaining; i++) {
-            current.push(pool[i]);
-            this._manualGenCombos(pool, drawSize, i + 1, current, results, fixedNumbers);
-            current.pop();
-        }
-    }
 
     // ╔══════════════════════════════════════════════════════════╗
     // ║  POOL PRECISÃO — LIMITES DINÂMICOS POR LOTERIA           ║
@@ -1453,20 +1442,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
     }
 
     initShareEvents() {
-        const btnShare = document.getElementById('btn-share-link');
-        if (btnShare) {
-            btnShare.addEventListener('click', async () => {
-                const currentUrl = window.location.href.split('#')[0]; // Remove hash if any
-                const success = await this.copyToClipboard(currentUrl);
-                if (success === true) {
-                    if (typeof Guardian !== 'undefined' && Guardian.toast) {
-                        Guardian.toast('Link de instalação copiado para a área de transferência!', 'success');
-                    } else {
-                        alert('Link de instalação copiado!');
-                    }
-                }
-            });
-        }
+        // Handler de share é gerenciado pelo script inline no HTML
     }
 
     updateUrlHash() {
@@ -1659,12 +1635,10 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             mesSorteRow.style.display = gameKey === 'diadesorte' ? 'grid' : 'none';
         }
 
-        // Mostrar toggle Modo Precisão APENAS para Lotofácil
-        const precisionEl = document.getElementById('precision-mode-label');
-        if (precisionEl) {
-            // ★ v7.0: Botão Precisão visível para TODAS as loterias
-            precisionEl.style.display = 'flex';
-            // ★ v9.0: Atualizar limites do pool para a loteria selecionada
+        // Mostrar toggle Modo Sniper para todas as loterias
+        const sniperToggleParent = document.getElementById('sniper-label-text');
+        if (sniperToggleParent && sniperToggleParent.parentElement) {
+            sniperToggleParent.parentElement.style.display = 'flex';
             this._updatePrecisionPoolLimits();
         }
 
