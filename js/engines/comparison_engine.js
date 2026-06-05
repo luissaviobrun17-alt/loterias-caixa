@@ -211,39 +211,75 @@ class ComparisonEngine {
         const modes = Object.keys(analysis.results);
         const winner = analysis.winner;
         const w = analysis.results[winner];
-
-        // Ordenar por score
         const sorted = modes.map(m => ({ mode: m, ...analysis.results[m] })).sort((a, b) => b.metrics.globalScore - a.metrics.globalScore);
+        const maxScore = sorted[0].metrics.globalScore || 1;
+
+        // Injetar estilos uma vez
+        if (!document.getElementById('comp-css-v2')) {
+            const s = document.createElement('style');
+            s.id = 'comp-css-v2';
+            s.textContent = `
+                .comp-v2{margin-top:10px;padding:12px 16px 10px;background:linear-gradient(170deg,rgba(15,23,42,0.97),rgba(30,41,59,0.92));border-radius:12px;backdrop-filter:blur(8px);animation:compIn .35s ease}
+                @keyframes compIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+                .comp-v2-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+                .comp-v2-winner{display:flex;align-items:center;gap:6px}
+                .comp-v2-crown{font-size:0.9rem;filter:drop-shadow(0 0 4px rgba(255,215,0,0.5))}
+                .comp-v2-wname{font-weight:900;font-size:0.8rem;letter-spacing:0.3px}
+                .comp-v2-wtag{font-size:0.6rem;color:#94A3B8;font-weight:500}
+                .comp-v2-x{background:none;border:none;color:#475569;cursor:pointer;font-size:0.65rem;padding:4px 6px;border-radius:4px;transition:all .15s}
+                .comp-v2-x:hover{color:#F87171;background:rgba(239,68,68,0.1)}
+                .comp-v2-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;transition:background .2s}
+                .comp-v2-row:hover{background:rgba(255,255,255,0.03)}
+                .comp-v2-medal{font-size:0.75rem;width:18px;text-align:center;flex-shrink:0}
+                .comp-v2-name{font-size:0.7rem;font-weight:700;min-width:90px;flex-shrink:0}
+                .comp-v2-qty{font-size:0.58rem;color:#64748B;min-width:35px;text-align:center;flex-shrink:0}
+                .comp-v2-track{flex:1;height:6px;background:rgba(0,0,0,0.35);border-radius:3px;overflow:hidden;min-width:60px}
+                .comp-v2-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+                .comp-v2-score{font-size:0.75rem;font-weight:900;font-family:'Inter',monospace;min-width:34px;text-align:right;flex-shrink:0}
+                .comp-v2-foot{text-align:center;margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.04);font-size:0.52rem;color:#475569;letter-spacing:0.5px}
+            `;
+            document.head.appendChild(s);
+        }
 
         let html = `
-        <div style="margin-top:10px;padding:10px 14px;background:linear-gradient(165deg,rgba(15,23,42,0.98),rgba(30,41,59,0.95));border:1px solid ${w.color}30;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.3);">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <span style="font-size:1rem;">👑</span>
-                    <span style="font-weight:900;color:${w.color};font-size:0.85rem;">${w.label}</span>
-                    <span style="color:#94A3B8;font-size:0.65rem;">é a mais eficiente</span>
+        <div class="comp-v2" style="border:1px solid ${w.color}20;box-shadow:0 4px 24px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.03);">
+            <div class="comp-v2-head">
+                <div class="comp-v2-winner">
+                    <span class="comp-v2-crown">👑</span>
+                    <span class="comp-v2-wname" style="color:${w.color};">${w.label}</span>
+                    <span class="comp-v2-wtag">mais eficiente</span>
                 </div>
-                <button id="comp-close-btn" style="background:none;border:none;color:#64748B;cursor:pointer;font-size:0.7rem;padding:2px 4px;">✕</button>
+                <button class="comp-v2-x" id="comp-close-btn" title="Fechar">✕</button>
             </div>
-            <div style="display:flex;flex-direction:column;gap:4px;">
-                ${sorted.map((s, i) => {
-                    const isWinner = i === 0;
-                    const pct = Math.min(100, s.metrics.globalScore);
-                    return `<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:6px;background:${isWinner ? s.colorBg : 'rgba(0,0,0,0.15)'};">
-                        <span style="font-size:0.7rem;width:14px;text-align:center;color:${isWinner ? '#FFD700' : '#475569'};font-weight:900;">${i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
-                        <span style="font-size:0.68rem;font-weight:800;color:${s.color};min-width:85px;">${s.label}</span>
-                        <span style="font-size:0.6rem;color:#64748B;min-width:42px;">${s.gamesCount}j</span>
-                        <div style="flex:1;height:6px;background:rgba(0,0,0,0.3);border-radius:3px;overflow:hidden;">
-                            <div style="width:${pct}%;height:100%;background:${s.color};border-radius:3px;transition:width .5s;"></div>
-                        </div>
-                        <span style="font-size:0.72rem;font-weight:900;color:${s.color};min-width:30px;text-align:right;font-family:'Inter',monospace;">${s.metrics.globalScore}</span>
-                    </div>`;
-                }).join('')}
-            </div>
-            <div style="text-align:center;margin-top:6px;font-size:0.55rem;color:#475569;">Pares · Diversidade · Cobertura · Equilíbrio · Zonas</div>
+            ${sorted.map((s, i) => {
+                const pct = Math.round((s.metrics.globalScore / maxScore) * 100);
+                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
+                const isFirst = i === 0;
+                const glow = isFirst ? `box-shadow:0 0 10px ${s.color}40;` : '';
+                const bg = isFirst ? `background:${s.colorBg};border:1px solid ${s.color}15;` : '';
+                return `
+                <div class="comp-v2-row" style="${bg}">
+                    <span class="comp-v2-medal">${medal}</span>
+                    <span class="comp-v2-name" style="color:${s.color};">${s.label}</span>
+                    <span class="comp-v2-qty">${s.gamesCount} jogos</span>
+                    <div class="comp-v2-track">
+                        <div class="comp-v2-fill" style="width:${pct}%;background:linear-gradient(90deg,${s.color}cc,${s.color});${glow}"></div>
+                    </div>
+                    <span class="comp-v2-score" style="color:${s.color};">${s.metrics.globalScore}</span>
+                </div>`;
+            }).join('')}
+            <div class="comp-v2-foot">SCORE: Pares · Hamming · Cobertura · Equilíbrio · Zonas</div>
         </div>`;
 
         container.innerHTML = html;
+
+        // Animar barras
+        requestAnimationFrame(() => {
+            container.querySelectorAll('.comp-v2-fill').forEach(el => {
+                const w = el.style.width; el.style.width = '0%';
+                requestAnimationFrame(() => { el.style.width = w; });
+            });
+        });
 
         const closeBtn = document.getElementById('comp-close-btn');
         if (closeBtn) {
