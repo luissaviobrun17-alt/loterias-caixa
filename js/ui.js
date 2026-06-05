@@ -374,11 +374,34 @@ class UI {
                                     probHtml += '<div style="color:#6B7280;font-size:0.65rem;margin-top:4px;text-align:right;">* Eventos independentes</div></div>';
                                 }
                             }
+                            let evHtml = '';
+                            if (typeof EVCalculator !== 'undefined') {
+                                try {
+                                    const evData = EVCalculator.calcMultiGameEV(this.currentGameKey, result.games.length);
+                                    if (evData) {
+                                        const retColor = evData.returnPct >= 0 ? '#22C55E' : '#F59E0B';
+                                        evHtml = '<div style="margin-top:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:0.7rem;">' +
+                                            '<div style="text-align:center;padding:6px;background:rgba(0,0,0,0.3);border-radius:8px;border:1px solid rgba(16,185,129,0.1);">' +
+                                                '<div style="color:#6EE7B7;font-size:0.55rem;font-weight:700;">INVESTIMENTO</div>' +
+                                                '<div style="color:#10B981;font-weight:900;font-size:1rem;">R$ ' + evData.totalCost.toFixed(2) + '</div>' +
+                                            '</div>' +
+                                            '<div style="text-align:center;padding:6px;background:rgba(0,0,0,0.3);border-radius:8px;border:1px solid rgba(16,185,129,0.1);">' +
+                                                '<div style="color:#6EE7B7;font-size:0.55rem;font-weight:700;">EV ESPERADO</div>' +
+                                                '<div style="color:#10B981;font-weight:900;font-size:1rem;">R$ ' + evData.totalEV.toFixed(2) + '</div>' +
+                                            '</div>' +
+                                            '<div style="text-align:center;padding:6px;background:rgba(0,0,0,0.3);border-radius:8px;border:1px solid ' + retColor + '20;">' +
+                                                '<div style="color:#6EE7B7;font-size:0.55rem;font-weight:700;">RETORNO</div>' +
+                                                '<div style="color:' + retColor + ';font-weight:900;font-size:1rem;">' + evData.returnPct + '%</div>' +
+                                            '</div>' +
+                                        '</div>';
+                                    }
+                                } catch(e) { /* EVCalculator opcional */ }
+                            }
 
                             var banner = document.createElement('div');
                             banner.className = 'smart-gen-analysis';
                             banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(4,120,87,0.12),rgba(15,23,42,0.95));border:1px solid rgba(16,185,129,0.3);';
-                            banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">📐</span><div><div style="font-weight:900;color:#10B981;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">MATEMÁTICA PURA — ' + strategyName + '</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: SmartCoverageEngine-Async | ' + result.games.length + ' jogos | ⚡ ' + (a.chunksProcessed || '—') + ' lotes</div></div></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">DIVERSIDADE (HAMMING)</div><div style="color:#10B981;font-weight:900;font-size:1.3rem;">' + (a.avgHamming || 'N/A') + '</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">TEMPO DE PROCESSAMENTO</div><div style="color:#10B981;font-weight:900;font-size:1.3rem;">' + (a.elapsed || 'N/A') + '</div></div></div>' + probHtml;
+                            banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">📐</span><div><div style="font-weight:900;color:#10B981;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">MATEMÁTICA PURA — ' + strategyName + '</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: SmartCoverageEngine-Async | ' + result.games.length + ' jogos | ⚡ ' + (a.chunksProcessed || '—') + ' lotes</div></div></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:0.75rem;"><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">DIVERSIDADE (HAMMING)</div><div style="color:#10B981;font-weight:900;font-size:1.3rem;">' + (a.avgHamming || 'N/A') + '</div></div><div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(16,185,129,0.2);"><div style="color:#6EE7B7;font-size:0.6rem;font-weight:700;">TEMPO DE PROCESSAMENTO</div><div style="color:#10B981;font-weight:900;font-size:1.3rem;">' + (a.elapsed || 'N/A') + '</div></div></div>' + probHtml + evHtml;
 
                             var oldBanner = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
                             if (oldBanner) oldBanner.remove();
