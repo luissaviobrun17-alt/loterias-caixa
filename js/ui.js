@@ -353,7 +353,7 @@ class UI {
 
                             this.currentGeneratedGames = result.games;
                             this._lastGeneratedGames = result.games;
-                            if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('cobertura', result.games, result.analysis, this.currentGameKey);
+                            if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult(sniperMode ? 'sniper' : 'cobertura', result.games, result.analysis, this.currentGameKey);
                             this.renderGames(result, this.currentGameKey);
 
                             const a = result.analysis || {};
@@ -417,7 +417,7 @@ class UI {
 
                         this.currentGeneratedGames = result.games;
                         this._lastGeneratedGames = result.games;
-                        if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('cobertura', result.games, result.analysis, this.currentGameKey);
+                        if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult(sniperMode ? 'sniper' : 'cobertura', result.games, result.analysis, this.currentGameKey);
                         this.renderGames(result, this.currentGameKey);
 
                         // Banner Unificado com Métricas Reais
