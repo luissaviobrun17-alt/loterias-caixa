@@ -379,19 +379,20 @@ class UI {
                                 try {
                                     const evData = EVCalculator.calcMultiGameEV(this.currentGameKey, result.games.length);
                                     if (evData) {
-                                        const retColor = evData.returnPct >= 0 ? '#22C55E' : '#F59E0B';
+                                        const retColor = evData.retornoPct >= 100 ? '#22C55E' : '#F59E0B';
+                                        const retStr = evData.retornoPct.toFixed(1);
                                         evHtml = '<div style="margin-top:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:0.7rem;">' +
                                             '<div style="text-align:center;padding:6px;background:rgba(0,0,0,0.3);border-radius:8px;border:1px solid rgba(16,185,129,0.1);">' +
                                                 '<div style="color:#6EE7B7;font-size:0.55rem;font-weight:700;">INVESTIMENTO</div>' +
-                                                '<div style="color:#10B981;font-weight:900;font-size:1rem;">R$ ' + evData.totalCost.toFixed(2) + '</div>' +
+                                                '<div style="color:#10B981;font-weight:900;font-size:1rem;">' + evData.custoTotalFormatado + '</div>' +
                                             '</div>' +
                                             '<div style="text-align:center;padding:6px;background:rgba(0,0,0,0.3);border-radius:8px;border:1px solid rgba(16,185,129,0.1);">' +
                                                 '<div style="color:#6EE7B7;font-size:0.55rem;font-weight:700;">EV ESPERADO</div>' +
-                                                '<div style="color:#10B981;font-weight:900;font-size:1rem;">R$ ' + evData.totalEV.toFixed(2) + '</div>' +
+                                                '<div style="color:#10B981;font-weight:900;font-size:1rem;">' + evData.evBrutoTotalFormatado + '</div>' +
                                             '</div>' +
                                             '<div style="text-align:center;padding:6px;background:rgba(0,0,0,0.3);border-radius:8px;border:1px solid ' + retColor + '20;">' +
                                                 '<div style="color:#6EE7B7;font-size:0.55rem;font-weight:700;">RETORNO</div>' +
-                                                '<div style="color:' + retColor + ';font-weight:900;font-size:1rem;">' + evData.returnPct + '%</div>' +
+                                                '<div style="color:' + retColor + ';font-weight:900;font-size:1rem;">' + retStr + '%</div>' +
                                             '</div>' +
                                         '</div>';
                                     }
