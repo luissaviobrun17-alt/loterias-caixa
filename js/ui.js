@@ -139,6 +139,22 @@ class UI {
             this.btnFixedMode.onclick = () => this.toggleFixedMode();
         }
 
+        // === BOTÃO ⚔️ COMPARAR ESTRATÉGIAS ===
+        const btnCompare = document.getElementById('btn-compare');
+        if (btnCompare) {
+            btnCompare.onclick = () => {
+                const container = document.getElementById('comparison-container');
+                if (!container) return;
+                container.style.display = 'block';
+                if (typeof ComparisonEngine !== 'undefined') {
+                    ComparisonEngine.render(container, this.currentGameKey);
+                    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    container.innerHTML = '<div style="padding:20px;text-align:center;color:#EF4444;">ComparisonEngine não carregado.</div>';
+                }
+            };
+        }
+
         // === BOTÃO 🎲 MANUAL v14.0 — MotorFechamentoManual ===
         // Delega TODA lógica ao motor. Zero lógica inline.
         if (this.generateBtn) {
@@ -243,6 +259,7 @@ class UI {
 
                             this.currentGeneratedGames = result.games;
                             this._lastGeneratedGames = result.games;
+                            if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('manual', result.games, result.analysis, this.currentGameKey);
                             this.renderGames({ pool: pool, games: result.games, smartAnalysis: null }, this.currentGameKey);
 
                             setTimeout(() => {
@@ -274,6 +291,7 @@ class UI {
                     }
                     this.currentGeneratedGames = games;
                     this._lastGeneratedGames = games;
+                    if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('manual', games, result.analysis, this.currentGameKey);
                     this.renderGames({ pool: pool, games: games, smartAnalysis: null }, this.currentGameKey);
     
                     // Banner informativo
@@ -335,6 +353,7 @@ class UI {
 
                             this.currentGeneratedGames = result.games;
                             this._lastGeneratedGames = result.games;
+                            if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('cobertura', result.games, result.analysis, this.currentGameKey);
                             this.renderGames(result, this.currentGameKey);
 
                             const a = result.analysis || {};
@@ -398,6 +417,7 @@ class UI {
 
                         this.currentGeneratedGames = result.games;
                         this._lastGeneratedGames = result.games;
+                        if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('cobertura', result.games, result.analysis, this.currentGameKey);
                         this.renderGames(result, this.currentGameKey);
 
                         // Banner Unificado com Métricas Reais
@@ -1191,6 +1211,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
                     this.currentGeneratedGames = result.games;
                     this._lastGeneratedGames = result.games;
+                    if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('sniper', result.games, result.analysis, this.currentGameKey);
                     this.renderGames(result, this.currentGameKey);
 
                     var sa = result.analysis || {};
@@ -1229,6 +1250,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 }
                 this.currentGeneratedGames = smartResult.games;
                 this._lastGeneratedGames = smartResult.games;
+                if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('sniper', smartResult.games, smartResult.analysis, this.currentGameKey);
                 this.renderGames(smartResult, this.currentGameKey);
                 // Banner HONESTO — Métricas reais do Set Cover + Ciência
                 var sa = smartResult.analysis || {};

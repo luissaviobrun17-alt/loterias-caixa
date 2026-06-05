@@ -45,6 +45,7 @@
     <link rel="stylesheet" href="styles/components.css?v=1779391458">
     <link rel="stylesheet" href="styles/lottery.css?v=1779391458">
     <link rel="stylesheet" href="styles/responsive.css?v=1779391458">
+    <link rel="stylesheet" href="styles/comparison.css?v=1779391458">
 
     <!-- Service Worker DESABILITADO — Causava reload infinito + ERR_FAILED -->
     <script>
@@ -438,6 +439,7 @@
                             <button id="btn-print" class="secondary-btn" title="Imprimir Jogos">Imprimir</button>
                             <button id="check-btn" class="secondary-btn" title="Conferir Jogos">Conferir</button>
                             <a id="btn-play-caixa" class="secondary-btn" href="https://www.loteriasonline.caixa.gov.br/silce-web/#/mega-sena" target="_blank" rel="noopener" title="Ir para Loterias Caixa Online" style="text-decoration:none;">Jogar Online</a>
+                            <button id="btn-compare" class="secondary-btn" title="Comparar eficiência: Manual vs Cobertura IA vs Sniper" style="background:linear-gradient(135deg,#1a0533,#312e81);border:1px solid #7c3aed60;color:#C4B5FD;font-weight:700;">⚔️ Comparar</button>
                         </div>
                     </div>
                     <div id="check-summary" class="check-summary"
@@ -447,6 +449,7 @@
                         <div class="empty-state">Selecione as opções e clique em Gerar Jogos</div>
                     </div>
                 </div>
+                <div id="comparison-container" style="display:none;"></div>
             </main>
 
             <aside class="investment-sidebar">
@@ -1317,6 +1320,7 @@
             <script src="js/engines/statistics_tracker.js?v=1779391458"></script>
             <script src="js/engines/motor_fechamento_manual.js?v=1779391458"></script>
             <script src="js/engines/async_generator.js?v=1779391458"></script>
+            <script src="js/engines/comparison_engine.js?v=1779391458"></script>
             <script src="js/engines/auto_updater.js?v=1779391458"></script>
             <script src="js/ui.js?v=1779391458"></script>
             <script src="js/main.js?v=1779391458"></script>
