@@ -15,6 +15,7 @@ class UI {
         this.generateCoverageBtn = _el('generate-coverage-btn');
         this.generateMathBtn = _el('generate-math-btn');
         this.mathParetoPanel = _el('math-pareto-panel');
+        // Botões adicionais de geração que podem ser desativados durante processamento
         this.generateClosureBtn = _el('generate-closure-btn');
         this.closurePanel = _el('closure-panel');
         this.btnRunClosure = _el('btn-run-closure');
@@ -22,6 +23,17 @@ class UI {
         this.btnPrecisionPlay = _el('btn-precision-play');
         this.smartDrawSizeSelect = _el('smart-draw-size');
         this.smartDrawInfo = _el('smart-draw-info');
+        // Estado de geração para desativar UI durante cálculos intensivos
+        this._isGenerating = false;
+        this._setGenerating = (flag) => {
+            this._isGenerating = flag;
+            const disabled = flag ? true : false;
+            // Desativar todos os botões principais
+            [this.generateBtn, this.generateCoverageBtn, this.generateMathBtn, this.generateClosureBtn].forEach(btn => {
+                if (btn) btn.disabled = disabled;
+                if (btn) btn.style.opacity = disabled ? '0.5' : '1';
+            });
+        };
         this.copyBtn = _el('copy-btn');
         this.gamesContainer = _el('games-container');
         this.progressContainer = _el('generation-progress');
