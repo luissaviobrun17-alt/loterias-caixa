@@ -1,342 +1,436 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║  ASYNC GENERATOR v1.0 — Motor de Geração Assíncrona com Progresso     ║
+ * ║  ASYNC GENERATOR v2.0 — Gráfico de Linha Inline                       ║
  * ║                                                                        ║
- * ║  PROBLEMA: Gerar 5.000–50.000 jogos de uma vez bloqueia a thread      ║
- * ║  principal do navegador, causando "Página sem resposta".               ║
- * ║                                                                        ║
- * ║  SOLUÇÃO: Quebrar a geração em chunks (lotes) com setTimeout(0)       ║
- * ║  entre cada lote, permitindo que o navegador processe eventos de UI,  ║
- * ║  repinte a tela e mantenha a responsividade.                          ║
- * ║                                                                        ║
- * ║  FEATURES:                                                             ║
- * ║  • Overlay de progresso premium com glassmorphism                     ║
- * ║  • Barra de progresso animada com porcentagem                         ║
- * ║  • Contador de jogos gerados em tempo real                            ║
- * ║  • Estimativa de tempo restante                                       ║
- * ║  • Botão de cancelamento                                              ║
- * ║  • Funciona com TODOS os motores existentes                           ║
+ * ║  v2.0: Substituído overlay modal por gráfico de linha INLINE           ║
+ * ║  que fica abaixo dos botões de geração, sem cobrir a tela.            ║
+ * ║  Mostra o andamento da produção em tempo real com canvas.             ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 class AsyncGenerator {
 
-    // ═══════════════════════════════════════════════════════════
-    //  CONFIGURAÇÃO
-    // ═══════════════════════════════════════════════════════════
-
-    static CHUNK_SIZE = 200;          // Jogos por lote (ajustável por loteria)
-    static MIN_ASYNC_THRESHOLD = 200; // Quantidade mínima para ativar modo assíncrono
-    static _overlay = null;
+    static CHUNK_SIZE = 200;
+    static MIN_ASYNC_THRESHOLD = 200;
     static _cancelled = false;
     static _isRunning = false;
+    static _chartData = [];
+    static _chartCanvas = null;
+    static _startTime = 0;
 
-    // Chunk sizes otimizados por loteria (maiores loterias = chunks menores)
     static CHUNK_SIZES = {
         megasena:    250,
-        lotofacil:   150,  // 15 números por jogo = mais pesado
+        lotofacil:   150,
         quina:       250,
         duplasena:   250,
-        lotomania:   80,   // 50 números por jogo = MUITO pesado
+        lotomania:   80,
         timemania:   200,
         diadesorte:  250
     };
 
     // ═══════════════════════════════════════════════════════════
-    //  OVERLAY DE PROGRESSO — UI Premium
+    //  PAINEL INLINE COM GRÁFICO DE LINHA (Canvas)
     // ═══════════════════════════════════════════════════════════
 
-    static _createOverlay() {
-        if (this._overlay) this._removeOverlay();
+    static _createInlinePanel(lotteryName, total) {
+        this._removeInlinePanel();
+        this._chartData = [{ time: 0, count: 0 }];
+        this._startTime = Date.now();
 
-        const overlay = document.createElement('div');
-        overlay.id = 'async-gen-overlay';
-        overlay.innerHTML = `
-            <div class="async-gen-modal">
-                <div class="async-gen-header">
-                    <div class="async-gen-pulse"></div>
-                    <span class="async-gen-title">⚡ Gerando Jogos</span>
+        const container = document.getElementById('async-progress-inline');
+        if (!container) return;
+
+        container.style.display = 'block';
+        container.innerHTML = `
+            <div class="apg-panel">
+                <div class="apg-header">
+                    <div class="apg-header-left">
+                        <span class="apg-pulse"></span>
+                        <span class="apg-title">⚡ Gerando Jogos</span>
+                        <span class="apg-lottery">${lotteryName}</span>
+                    </div>
+                    <div class="apg-header-right">
+                        <span class="apg-pct" id="apg-pct">0%</span>
+                        <button class="apg-cancel" id="apg-cancel">✕</button>
+                    </div>
                 </div>
                 
-                <div class="async-gen-lottery-name" id="async-gen-lottery"></div>
-                
-                <div class="async-gen-stats">
-                    <div class="async-gen-stat">
-                        <span class="async-gen-stat-value" id="async-gen-count">0</span>
-                        <span class="async-gen-stat-label">Jogos Gerados</span>
+                <div class="apg-chart-area">
+                    <canvas id="apg-canvas" width="600" height="120"></canvas>
+                </div>
+
+                <div class="apg-stats-row">
+                    <div class="apg-stat">
+                        <span class="apg-stat-val" id="apg-count">0</span>
+                        <span class="apg-stat-lbl">Gerados</span>
                     </div>
-                    <div class="async-gen-stat">
-                        <span class="async-gen-stat-value" id="async-gen-total">0</span>
-                        <span class="async-gen-stat-label">Total Solicitado</span>
+                    <div class="apg-stat">
+                        <span class="apg-stat-val" id="apg-total">${total.toLocaleString('pt-BR')}</span>
+                        <span class="apg-stat-lbl">Total</span>
                     </div>
-                    <div class="async-gen-stat">
-                        <span class="async-gen-stat-value" id="async-gen-eta">--</span>
-                        <span class="async-gen-stat-label">Tempo Restante</span>
+                    <div class="apg-stat">
+                        <span class="apg-stat-val" id="apg-speed">—</span>
+                        <span class="apg-stat-lbl">Jogos/s</span>
+                    </div>
+                    <div class="apg-stat">
+                        <span class="apg-stat-val" id="apg-eta">—</span>
+                        <span class="apg-stat-lbl">Restante</span>
                     </div>
                 </div>
 
-                <div class="async-gen-progress-container">
-                    <div class="async-gen-progress-track">
-                        <div class="async-gen-progress-fill" id="async-gen-bar"></div>
-                        <div class="async-gen-progress-glow" id="async-gen-glow"></div>
-                    </div>
-                    <div class="async-gen-progress-text">
-                        <span id="async-gen-pct">0%</span>
-                        <span id="async-gen-elapsed">0.0s</span>
-                    </div>
+                <div class="apg-bar-track">
+                    <div class="apg-bar-fill" id="apg-bar"></div>
                 </div>
-
-                <div class="async-gen-phase" id="async-gen-phase">Preparando motor de geração...</div>
-
-                <button class="async-gen-cancel" id="async-gen-cancel-btn">✕ Cancelar</button>
             </div>
         `;
 
         // Injetar estilos (apenas uma vez)
-        if (!document.getElementById('async-gen-styles')) {
+        if (!document.getElementById('apg-styles')) {
             const style = document.createElement('style');
-            style.id = 'async-gen-styles';
+            style.id = 'apg-styles';
             style.textContent = `
-                #async-gen-overlay {
-                    position: fixed;
-                    top: 0; left: 0; right: 0; bottom: 0;
-                    background: rgba(0, 0, 0, 0.75);
-                    backdrop-filter: blur(8px);
-                    -webkit-backdrop-filter: blur(8px);
-                    z-index: 99999;
+                .apg-panel {
+                    margin-top: 10px;
+                    background: linear-gradient(165deg, rgba(15,23,42,0.98), rgba(30,41,59,0.95));
+                    border: 1px solid rgba(16,185,129,0.25);
+                    border-radius: 14px;
+                    padding: 14px 16px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.03);
+                    animation: apgFadeIn 0.3s ease;
+                }
+                @keyframes apgFadeIn {
+                    from { opacity: 0; max-height: 0; }
+                    to { opacity: 1; max-height: 400px; }
+                }
+                .apg-header {
                     display: flex;
                     align-items: center;
-                    justify-content: center;
-                    animation: asyncFadeIn 0.3s ease;
+                    justify-content: space-between;
+                    margin-bottom: 10px;
                 }
-                @keyframes asyncFadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                .async-gen-modal {
-                    background: linear-gradient(165deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.95));
-                    border: 1px solid rgba(16, 185, 129, 0.3);
-                    border-radius: 20px;
-                    padding: 32px 36px;
-                    min-width: 380px;
-                    max-width: 440px;
-                    box-shadow: 
-                        0 25px 60px rgba(0, 0, 0, 0.6),
-                        0 0 40px rgba(16, 185, 129, 0.15),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.05);
-                    animation: asyncSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-                }
-                @keyframes asyncSlideUp {
-                    from { transform: translateY(30px) scale(0.95); opacity: 0; }
-                    to { transform: translateY(0) scale(1); opacity: 1; }
-                }
-                .async-gen-header {
+                .apg-header-left {
                     display: flex;
                     align-items: center;
-                    gap: 12px;
-                    margin-bottom: 8px;
+                    gap: 8px;
                 }
-                .async-gen-pulse {
-                    width: 12px; height: 12px;
+                .apg-header-right {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .apg-pulse {
+                    width: 8px; height: 8px;
                     border-radius: 50%;
                     background: #10B981;
-                    box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
-                    animation: asyncPulse 1.5s ease-in-out infinite;
+                    box-shadow: 0 0 8px rgba(16,185,129,0.6);
+                    animation: apgPulse 1.5s ease-in-out infinite;
+                    flex-shrink: 0;
                 }
-                @keyframes asyncPulse {
+                @keyframes apgPulse {
                     0%, 100% { transform: scale(1); opacity: 1; }
-                    50% { transform: scale(1.3); opacity: 0.7; }
+                    50% { transform: scale(1.4); opacity: 0.6; }
                 }
-                .async-gen-title {
-                    font-size: 1.15rem;
+                .apg-title {
+                    font-size: 0.85rem;
                     font-weight: 800;
                     color: #E2E8F0;
-                    letter-spacing: 0.5px;
+                    letter-spacing: 0.3px;
                 }
-                .async-gen-lottery-name {
-                    font-size: 0.8rem;
+                .apg-lottery {
+                    font-size: 0.65rem;
                     color: #10B981;
                     font-weight: 700;
                     text-transform: uppercase;
-                    letter-spacing: 2px;
-                    margin-bottom: 20px;
+                    letter-spacing: 1px;
+                    padding: 2px 8px;
+                    background: rgba(16,185,129,0.1);
+                    border-radius: 6px;
+                    border: 1px solid rgba(16,185,129,0.2);
                 }
-                .async-gen-stats {
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 12px;
-                    margin-bottom: 24px;
+                .apg-pct {
+                    font-size: 1.1rem;
+                    font-weight: 900;
+                    color: #10B981;
+                    font-family: 'Inter', monospace;
+                    min-width: 45px;
+                    text-align: right;
                 }
-                .async-gen-stat {
-                    text-align: center;
-                    padding: 12px 8px;
-                    background: rgba(0, 0, 0, 0.3);
-                    border-radius: 12px;
-                    border: 1px solid rgba(16, 185, 129, 0.15);
+                .apg-cancel {
+                    width: 24px; height: 24px;
+                    border-radius: 6px;
+                    border: 1px solid rgba(239,68,68,0.3);
+                    background: rgba(239,68,68,0.1);
+                    color: #F87171;
+                    font-size: 0.7rem;
+                    font-weight: 700;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.2s;
                 }
-                .async-gen-stat-value {
+                .apg-cancel:hover {
+                    background: rgba(239,68,68,0.25);
+                    border-color: #EF4444;
+                }
+                /* Gráfico */
+                .apg-chart-area {
+                    background: rgba(0,0,0,0.3);
+                    border-radius: 10px;
+                    padding: 8px 4px 4px;
+                    margin-bottom: 10px;
+                    border: 1px solid rgba(16,185,129,0.08);
+                }
+                #apg-canvas {
+                    width: 100%;
+                    height: 100px;
                     display: block;
-                    font-size: 1.4rem;
+                }
+                /* Stats */
+                .apg-stats-row {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 8px;
+                    margin-bottom: 10px;
+                }
+                .apg-stat {
+                    text-align: center;
+                    padding: 6px 4px;
+                    background: rgba(0,0,0,0.2);
+                    border-radius: 8px;
+                    border: 1px solid rgba(16,185,129,0.08);
+                }
+                .apg-stat-val {
+                    display: block;
+                    font-size: 0.95rem;
                     font-weight: 900;
                     color: #10B981;
                     font-family: 'Inter', monospace;
                     line-height: 1.2;
                 }
-                .async-gen-stat-label {
+                .apg-stat-lbl {
                     display: block;
-                    font-size: 0.6rem;
-                    color: #64748B;
+                    font-size: 0.55rem;
+                    color: #475569;
                     text-transform: uppercase;
                     letter-spacing: 0.8px;
-                    margin-top: 4px;
-                    font-weight: 600;
+                    margin-top: 2px;
+                    font-weight: 700;
                 }
-                .async-gen-progress-container {
-                    margin-bottom: 16px;
-                }
-                .async-gen-progress-track {
+                /* Barra de progresso */
+                .apg-bar-track {
                     width: 100%;
-                    height: 10px;
-                    background: rgba(0, 0, 0, 0.4);
-                    border-radius: 5px;
+                    height: 6px;
+                    background: rgba(0,0,0,0.35);
+                    border-radius: 3px;
                     overflow: hidden;
-                    position: relative;
-                    border: 1px solid rgba(16, 185, 129, 0.1);
+                    border: 1px solid rgba(16,185,129,0.08);
                 }
-                .async-gen-progress-fill {
+                .apg-bar-fill {
                     height: 100%;
                     width: 0%;
                     background: linear-gradient(90deg, #059669, #10B981, #34D399);
-                    border-radius: 5px;
+                    border-radius: 3px;
                     transition: width 0.3s ease;
-                    position: relative;
-                    z-index: 2;
+                    box-shadow: 0 0 8px rgba(16,185,129,0.4);
                 }
-                .async-gen-progress-glow {
-                    position: absolute;
-                    top: 0; left: 0;
-                    height: 100%;
-                    width: 0%;
-                    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.4), transparent);
-                    border-radius: 5px;
-                    animation: asyncGlow 2s ease-in-out infinite;
-                    z-index: 1;
+                /* Completed state */
+                .apg-panel.apg-done {
+                    border-color: rgba(34,197,94,0.4);
                 }
-                @keyframes asyncGlow {
-                    0% { opacity: 0.3; }
-                    50% { opacity: 1; }
-                    100% { opacity: 0.3; }
-                }
-                .async-gen-progress-text {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-top: 8px;
-                    font-size: 0.8rem;
-                    font-weight: 700;
-                }
-                #async-gen-pct {
-                    color: #10B981;
-                }
-                #async-gen-elapsed {
-                    color: #64748B;
-                }
-                .async-gen-phase {
-                    text-align: center;
-                    font-size: 0.75rem;
-                    color: #94A3B8;
-                    margin-bottom: 20px;
-                    min-height: 18px;
-                    font-style: italic;
-                }
-                .async-gen-cancel {
-                    width: 100%;
-                    padding: 10px 20px;
-                    border: 1px solid rgba(239, 68, 68, 0.3);
-                    background: rgba(239, 68, 68, 0.1);
-                    color: #F87171;
-                    border-radius: 10px;
-                    font-size: 0.8rem;
-                    font-weight: 700;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                    letter-spacing: 0.5px;
-                }
-                .async-gen-cancel:hover {
-                    background: rgba(239, 68, 68, 0.25);
-                    border-color: #EF4444;
-                    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+                .apg-panel.apg-done .apg-pulse {
+                    animation: none;
+                    background: #22C55E;
                 }
                 /* Responsive */
                 @media (max-width: 480px) {
-                    .async-gen-modal {
-                        min-width: 300px;
-                        max-width: 90vw;
-                        padding: 24px 20px;
-                    }
-                    .async-gen-stat-value { font-size: 1.1rem; }
-                    .async-gen-stats { gap: 8px; }
+                    .apg-panel { padding: 10px 12px; }
+                    .apg-stats-row { grid-template-columns: repeat(2, 1fr); }
+                    .apg-stat-val { font-size: 0.8rem; }
+                    .apg-title { font-size: 0.75rem; }
+                    #apg-canvas { height: 80px; }
                 }
             `;
             document.head.appendChild(style);
         }
 
-        document.body.appendChild(overlay);
-        this._overlay = overlay;
+        // Setup canvas
+        this._chartCanvas = document.getElementById('apg-canvas');
+        if (this._chartCanvas) {
+            const rect = this._chartCanvas.parentElement.getBoundingClientRect();
+            this._chartCanvas.width = Math.floor(rect.width - 8) * (window.devicePixelRatio || 1);
+            this._chartCanvas.height = 100 * (window.devicePixelRatio || 1);
+            this._chartCanvas.style.width = (rect.width - 8) + 'px';
+            this._chartCanvas.style.height = '100px';
+            const ctx = this._chartCanvas.getContext('2d');
+            ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+        }
 
-        // Botão cancelar
-        document.getElementById('async-gen-cancel-btn').onclick = () => {
-            this._cancelled = true;
-        };
+        // Cancelar
+        document.getElementById('apg-cancel').onclick = () => { this._cancelled = true; };
     }
 
-    static _updateOverlay(current, total, startTime, phase) {
-        if (!this._overlay) return;
-
+    static _updateInlinePanel(current, total) {
+        const elapsed = (Date.now() - this._startTime) / 1000;
         const pct = Math.min(100, Math.round((current / total) * 100));
-        const elapsed = (Date.now() - startTime) / 1000;
-        
-        // ETA calculation
-        let eta = '--';
+        const speed = elapsed > 0 ? Math.round(current / elapsed) : 0;
+
+        let eta = '—';
         if (current > 0 && pct < 100) {
-            const rate = current / elapsed; // jogos por segundo
-            const remaining = total - current;
-            const etaSeconds = remaining / rate;
-            if (etaSeconds < 60) {
-                eta = Math.ceil(etaSeconds) + 's';
-            } else {
-                eta = Math.floor(etaSeconds / 60) + 'm ' + Math.ceil(etaSeconds % 60) + 's';
-            }
+            const remaining = (total - current) / (current / elapsed);
+            eta = remaining < 60 ? Math.ceil(remaining) + 's' : Math.floor(remaining / 60) + 'm' + Math.ceil(remaining % 60) + 's';
         } else if (pct >= 100) {
             eta = '✓';
         }
 
-        const countEl = document.getElementById('async-gen-count');
-        const pctEl = document.getElementById('async-gen-pct');
-        const barEl = document.getElementById('async-gen-bar');
-        const glowEl = document.getElementById('async-gen-glow');
-        const elapsedEl = document.getElementById('async-gen-elapsed');
-        const etaEl = document.getElementById('async-gen-eta');
-        const phaseEl = document.getElementById('async-gen-phase');
+        // Adicionar ponto ao gráfico
+        this._chartData.push({ time: elapsed, count: current });
+
+        // Atualizar texto
+        const el = (id) => document.getElementById(id);
+        const countEl = el('apg-count');
+        const pctEl = el('apg-pct');
+        const barEl = el('apg-bar');
+        const speedEl = el('apg-speed');
+        const etaEl = el('apg-eta');
 
         if (countEl) countEl.textContent = current.toLocaleString('pt-BR');
         if (pctEl) pctEl.textContent = pct + '%';
         if (barEl) barEl.style.width = pct + '%';
-        if (glowEl) glowEl.style.width = pct + '%';
-        if (elapsedEl) elapsedEl.textContent = elapsed.toFixed(1) + 's';
+        if (speedEl) speedEl.textContent = speed.toLocaleString('pt-BR');
         if (etaEl) etaEl.textContent = eta;
-        if (phaseEl && phase) phaseEl.textContent = phase;
+
+        // Desenhar gráfico
+        this._drawChart(total);
     }
 
-    static _removeOverlay() {
-        if (this._overlay) {
-            this._overlay.style.animation = 'asyncFadeIn 0.2s ease reverse';
-            setTimeout(() => {
-                if (this._overlay && this._overlay.parentNode) {
-                    this._overlay.parentNode.removeChild(this._overlay);
-                }
-                this._overlay = null;
-            }, 200);
+    static _drawChart(total) {
+        const canvas = this._chartCanvas;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width / (window.devicePixelRatio || 1);
+        const h = canvas.height / (window.devicePixelRatio || 1);
+        const data = this._chartData;
+        if (data.length < 2) return;
+
+        ctx.clearRect(0, 0, w, h);
+
+        const maxTime = Math.max(data[data.length - 1].time, 1);
+        const padding = { left: 6, right: 6, top: 8, bottom: 18 };
+        const chartW = w - padding.left - padding.right;
+        const chartH = h - padding.top - padding.bottom;
+
+        // Grid horizontal
+        ctx.strokeStyle = 'rgba(16,185,129,0.08)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i <= 4; i++) {
+            const y = padding.top + (chartH / 4) * i;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(w - padding.right, y);
+            ctx.stroke();
         }
+
+        // Labels do eixo Y
+        ctx.fillStyle = '#475569';
+        ctx.font = '9px Inter, monospace';
+        ctx.textAlign = 'right';
+        for (let i = 0; i <= 4; i++) {
+            const val = Math.round(total - (total / 4) * i);
+            const y = padding.top + (chartH / 4) * i;
+            if (i === 0 || i === 4) {
+                ctx.fillText(val.toLocaleString('pt-BR'), padding.left + chartW, y + 3);
+            }
+        }
+
+        // Área preenchida (gradiente)
+        const gradient = ctx.createLinearGradient(0, padding.top, 0, h - padding.bottom);
+        gradient.addColorStop(0, 'rgba(16,185,129,0.25)');
+        gradient.addColorStop(1, 'rgba(16,185,129,0.02)');
+
+        ctx.beginPath();
+        ctx.moveTo(padding.left, h - padding.bottom);
+        for (let i = 0; i < data.length; i++) {
+            const x = padding.left + (data[i].time / maxTime) * chartW;
+            const y = padding.top + chartH - (data[i].count / total) * chartH;
+            if (i === 0) ctx.lineTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.lineTo(padding.left + (data[data.length - 1].time / maxTime) * chartW, h - padding.bottom);
+        ctx.closePath();
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        // Linha principal
+        ctx.beginPath();
+        ctx.strokeStyle = '#10B981';
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        for (let i = 0; i < data.length; i++) {
+            const x = padding.left + (data[i].time / maxTime) * chartW;
+            const y = padding.top + chartH - (data[i].count / total) * chartH;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Ponto atual (último)
+        const last = data[data.length - 1];
+        const lastX = padding.left + (last.time / maxTime) * chartW;
+        const lastY = padding.top + chartH - (last.count / total) * chartH;
+
+        // Glow do ponto
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(16,185,129,0.3)';
+        ctx.fill();
+
+        // Ponto sólido
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#10B981';
+        ctx.fill();
+        ctx.strokeStyle = '#0F172A';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Label do tempo no eixo X
+        ctx.fillStyle = '#475569';
+        ctx.font = '8px Inter, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('0s', padding.left, h - 4);
+        ctx.fillText(maxTime.toFixed(1) + 's', w - padding.right, h - 4);
+    }
+
+    static _completeInlinePanel(gamesCount, elapsed) {
+        const panel = document.querySelector('.apg-panel');
+        if (panel) panel.classList.add('apg-done');
+
+        const pctEl = document.getElementById('apg-pct');
+        if (pctEl) { pctEl.textContent = '✅'; pctEl.style.color = '#22C55E'; }
+
+        const titleEl = document.querySelector('.apg-title');
+        if (titleEl) titleEl.textContent = '✅ Concluído';
+
+        const barEl = document.getElementById('apg-bar');
+        if (barEl) { barEl.style.width = '100%'; barEl.style.background = 'linear-gradient(90deg, #059669, #22C55E)'; }
+
+        const etaEl = document.getElementById('apg-eta');
+        if (etaEl) { etaEl.textContent = '✓'; etaEl.style.color = '#22C55E'; }
+
+        // Auto-esconder após 5 segundos
+        setTimeout(() => { this._removeInlinePanel(); }, 5000);
+    }
+
+    static _removeInlinePanel() {
+        const container = document.getElementById('async-progress-inline');
+        if (container) {
+            container.style.display = 'none';
+            container.innerHTML = '';
+        }
+        this._chartCanvas = null;
+        this._chartData = [];
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -352,62 +446,40 @@ class AsyncGenerator {
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         const lotteryName = game ? game.name : gameKey;
 
-        // Mostrar overlay
-        this._createOverlay();
-        const totalEl = document.getElementById('async-gen-total');
-        const lotteryEl = document.getElementById('async-gen-lottery');
-        if (totalEl) totalEl.textContent = numGames.toLocaleString('pt-BR');
-        if (lotteryEl) lotteryEl.textContent = lotteryName + ' — Motor Manual';
-
+        this._createInlinePanel(lotteryName + ' — Manual', numGames);
         const startTime = Date.now();
 
         try {
-            // Verificar se o motor está disponível
             if (typeof MotorFechamentoManual === 'undefined') {
                 throw new Error('MotorFechamentoManual não carregado');
             }
 
-            // Gerar em chunks
             const allGames = [];
             let chunksProcessed = 0;
-            const totalChunks = Math.ceil(numGames / chunkSize);
 
             for (let i = 0; i < numGames && !this._cancelled; i += chunkSize) {
                 const batchSize = Math.min(chunkSize, numGames - i);
-                
-                // Atualizar fase
                 chunksProcessed++;
-                const phase = `Lote ${chunksProcessed}/${totalChunks} • ${batchSize} jogos por lote`;
-                
-                // Gerar o lote de forma síncrona (pequeno o suficiente para não travar)
+
                 const result = MotorFechamentoManual.generate(gameKey, pool, fixedNumbers, batchSize, drawSize);
-                
                 if (result && result.games) {
                     allGames.push(...result.games);
                 }
 
-                // Atualizar progresso
-                this._updateOverlay(allGames.length, numGames, startTime, phase);
-
-                // Liberar a thread principal para o navegador processar UI
+                this._updateInlinePanel(allGames.length, numGames);
                 await this._yieldToUI();
             }
 
             if (this._cancelled) {
-                this._removeOverlay();
+                this._removeInlinePanel();
                 this._isRunning = false;
-                if (callback) callback(null, true); // cancelled = true
+                if (callback) callback(null, true);
                 return;
             }
 
-            // Deduplicar
             const uniqueGames = this._deduplicateGames(allGames);
+            this._updateInlinePanel(uniqueGames.length, numGames);
 
-            // Atualizar overlay para "Finalizando"
-            this._updateOverlay(uniqueGames.length, numGames, startTime, 
-                `✅ Concluído! ${uniqueGames.length} jogos únicos (${(Date.now() - startTime)}ms)`);
-
-            // Construir resultado final no formato esperado
             const analysis = {
                 totalGames: uniqueGames.length,
                 totalPossible: '—',
@@ -423,18 +495,15 @@ class AsyncGenerator {
                 chunksProcessed: chunksProcessed
             };
 
-            const result = { games: uniqueGames, analysis };
+            const resultFinal = { games: uniqueGames, analysis };
 
-            // Pequeno delay para o usuário ver a barra em 100%
-            await new Promise(resolve => setTimeout(resolve, 500));
-            this._removeOverlay();
+            this._completeInlinePanel(uniqueGames.length, analysis.elapsed);
             this._isRunning = false;
-
-            if (callback) callback(result, false);
+            if (callback) callback(resultFinal, false);
 
         } catch (error) {
             console.error('[AsyncGenerator] Erro:', error);
-            this._removeOverlay();
+            this._removeInlinePanel();
             this._isRunning = false;
             if (callback) callback(null, false, error);
         }
@@ -453,13 +522,7 @@ class AsyncGenerator {
         const lotteryName = game ? game.name : gameKey;
         const chunkSize = this.CHUNK_SIZES[gameKey] || this.CHUNK_SIZE;
 
-        // Mostrar overlay
-        this._createOverlay();
-        const totalEl = document.getElementById('async-gen-total');
-        const lotteryEl = document.getElementById('async-gen-lottery');
-        if (totalEl) totalEl.textContent = numGames.toLocaleString('pt-BR');
-        if (lotteryEl) lotteryEl.textContent = lotteryName + ' — Cobertura IA';
-
+        this._createInlinePanel(lotteryName + ' — Cobertura IA', numGames);
         const startTime = Date.now();
 
         try {
@@ -467,39 +530,31 @@ class AsyncGenerator {
                 throw new Error('SmartCoverageEngine não carregado');
             }
 
-            // Para volumes grandes, dividir em lotes
             if (numGames <= this.MIN_ASYNC_THRESHOLD) {
-                // Volume pequeno — executa direto (suficientemente rápido)
-                this._updateOverlay(0, numGames, startTime, 'Processamento rápido...');
+                this._updateInlinePanel(0, numGames);
                 await this._yieldToUI();
 
                 const result = SmartCoverageEngine.generate(
                     gameKey, numGames, selectedNumbers, fixedNumbers, drawSize, options
                 );
 
-                this._updateOverlay(numGames, numGames, startTime, '✅ Concluído!');
-                await new Promise(resolve => setTimeout(resolve, 400));
-                this._removeOverlay();
+                this._updateInlinePanel(numGames, numGames);
+                this._completeInlinePanel(result.games.length, Date.now() - startTime);
                 this._isRunning = false;
-
                 if (callback) callback(result, false);
                 return;
             }
 
-            // Volume grande — dividir em chunks
             const allGames = [];
             const dedupeSet = new Set();
             let chunksProcessed = 0;
-            const totalChunks = Math.ceil(numGames / chunkSize);
 
             for (let i = 0; i < numGames && !this._cancelled; i += chunkSize) {
                 const batchSize = Math.min(chunkSize, numGames - allGames.length);
                 if (batchSize <= 0) break;
 
                 chunksProcessed++;
-                const phase = `Lote ${chunksProcessed}/${totalChunks} • Motor Greedy Set Cover`;
 
-                // Gerar lote
                 let batchResult;
                 try {
                     batchResult = SmartCoverageEngine.generate(
@@ -511,27 +566,26 @@ class AsyncGenerator {
                 }
 
                 if (batchResult && batchResult.games) {
-                    for (const game of batchResult.games) {
-                        const key = game.join(',');
+                    for (const g of batchResult.games) {
+                        const key = g.join(',');
                         if (!dedupeSet.has(key)) {
                             dedupeSet.add(key);
-                            allGames.push(game);
+                            allGames.push(g);
                         }
                     }
                 }
 
-                this._updateOverlay(allGames.length, numGames, startTime, phase);
+                this._updateInlinePanel(allGames.length, numGames);
                 await this._yieldToUI();
             }
 
             if (this._cancelled) {
-                this._removeOverlay();
+                this._removeInlinePanel();
                 this._isRunning = false;
                 if (callback) callback(null, true);
                 return;
             }
 
-            // Resultado final
             const result = {
                 games: allGames,
                 pool: [...new Set(allGames.flat())].sort((a, b) => a - b),
@@ -540,28 +594,23 @@ class AsyncGenerator {
                     totalGames: allGames.length,
                     elapsed: (Date.now() - startTime) + 'ms',
                     strategy: 'COVERAGE_FAST',
-                    engineVersion: 'SmartCoverage-v1.1-Async',
+                    engineVersion: 'SmartCoverage-v2.0-Async',
                     asyncMode: true,
                     chunksProcessed: chunksProcessed
                 }
             };
 
-            // Calcular métricas de Hamming
             if (typeof SmartCoverageEngine !== 'undefined' && SmartCoverageEngine._calcAvgHamming) {
                 result.analysis.avgHamming = SmartCoverageEngine._calcAvgHamming(allGames, drawSize);
             }
 
-            this._updateOverlay(allGames.length, numGames, startTime, 
-                `✅ Concluído! ${allGames.length} jogos únicos`);
-            await new Promise(resolve => setTimeout(resolve, 500));
-            this._removeOverlay();
+            this._completeInlinePanel(allGames.length, Date.now() - startTime);
             this._isRunning = false;
-
             if (callback) callback(result, false);
 
         } catch (error) {
             console.error('[AsyncGenerator] Erro:', error);
-            this._removeOverlay();
+            this._removeInlinePanel();
             this._isRunning = false;
             if (callback) callback(null, false, error);
         }
@@ -571,12 +620,10 @@ class AsyncGenerator {
     //  UTILITÁRIOS
     // ═══════════════════════════════════════════════════════════
 
-    // Liberar a thread principal para o navegador processar UI events
     static _yieldToUI() {
         return new Promise(resolve => setTimeout(resolve, 0));
     }
 
-    // Deduplicar array de jogos
     static _deduplicateGames(games) {
         const seen = new Set();
         const unique = [];
@@ -590,16 +637,11 @@ class AsyncGenerator {
         return unique;
     }
 
-    // Verificar se deve usar modo assíncrono
     static shouldUseAsync(numGames, gameKey) {
-        // Lotomania é SEMPRE assíncrono acima de 100 jogos (50 números por jogo)
         if (gameKey === 'lotomania' && numGames > 100) return true;
-        // Lotofácil é assíncrono acima de 150 (15 números por jogo)
         if (gameKey === 'lotofacil' && numGames > 150) return true;
-        // Para outros, threshold padrão
         return numGames >= this.MIN_ASYNC_THRESHOLD;
     }
 }
 
-// Exportar para o escopo global
 if (typeof window !== 'undefined') window.AsyncGenerator = AsyncGenerator;
