@@ -1,9 +1,6 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║  ASYNC GENERATOR v3.0 — Barra de Progresso Simples e Direta           ║
- * ║                                                                        ║
- * ║  Mostra barra horizontal com porcentagem e contagem de jogos           ║
- * ║  diretamente na área dos jogos (games-container).                     ║
+ * ║  ASYNC GENERATOR v3.1 — Barra Compacta + Progresso Granular           ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -13,40 +10,38 @@ class AsyncGenerator {
     static _isRunning = false;
     static _startTime = 0;
 
+    // Lotes PEQUENOS para progresso suave (5–20 jogos por lote)
     static CHUNK_SIZES = {
-        megasena: 250, lotofacil: 150, quina: 250,
-        duplasena: 250, lotomania: 80, timemania: 200, diadesorte: 250
+        megasena: 15, lotofacil: 8, quina: 15,
+        duplasena: 15, lotomania: 5, timemania: 12, diadesorte: 15
     };
 
     // ═══════════════════════════════════════════════════════════
-    //  BARRA DE PROGRESSO — diretamente no games-container
+    //  BARRA COMPACTA — uma linha fina abaixo dos botões
     // ═══════════════════════════════════════════════════════════
 
     static _showProgress(lotteryName, total) {
         this._startTime = Date.now();
         this._cancelled = false;
 
-        // Injetar estilos uma vez
         if (!document.getElementById('apg-css')) {
             const s = document.createElement('style');
             s.id = 'apg-css';
             s.textContent = `
-                .apg-box{padding:16px;text-align:center;margin-top:8px;background:linear-gradient(165deg,rgba(15,23,42,0.98),rgba(30,41,59,0.95));border:1px solid rgba(16,185,129,0.25);border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
-                .apg-label{font-size:0.8rem;color:#94A3B8;margin-bottom:4px}
-                .apg-lottery-name{color:#10B981;font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:0.7rem;margin-bottom:10px}
-                .apg-pct-big{font-size:2.2rem;font-weight:900;color:#10B981;font-family:'Inter',monospace;line-height:1;margin-bottom:2px;transition:color .3s}
-                .apg-count-text{font-size:0.8rem;color:#CBD5E1;font-weight:700;margin-bottom:10px}
-                .apg-track{width:100%;height:6px;background:rgba(0,0,0,0.4);border-radius:3px;overflow:hidden;border:1px solid rgba(16,185,129,0.15);position:relative}
-                .apg-fill{height:100%;width:0%;background:linear-gradient(90deg,#059669,#10B981,#34D399);border-radius:3px;transition:width .3s ease;position:relative}
-                .apg-fill::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:apgShine 1.5s ease-in-out infinite}
-                @keyframes apgShine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-                .apg-stats{display:flex;justify-content:center;gap:16px;margin-top:8px;font-size:0.68rem;color:#64748B}
-                .apg-stats span{color:#10B981;font-weight:800}
-                .apg-cancel-btn{margin-top:8px;padding:5px 16px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:#F87171;font-size:0.68rem;font-weight:700;cursor:pointer;transition:all .2s}
-                .apg-cancel-btn:hover{background:rgba(239,68,68,0.2);border-color:#EF4444}
-                .apg-done .apg-pct-big{color:#22C55E}
-                .apg-done .apg-fill{background:linear-gradient(90deg,#059669,#22C55E)}
-                .apg-done .apg-fill::after{animation:none}
+                .apg-compact{margin-top:8px;padding:8px 12px;background:rgba(15,23,42,0.95);border:1px solid rgba(16,185,129,0.2);border-radius:8px}
+                .apg-row{display:flex;align-items:center;gap:10px;margin-bottom:5px}
+                .apg-dot{width:6px;height:6px;border-radius:50%;background:#10B981;box-shadow:0 0 6px rgba(16,185,129,0.5);flex-shrink:0;animation:apgBlink 1s ease-in-out infinite}
+                @keyframes apgBlink{0%,100%{opacity:1}50%{opacity:.4}}
+                .apg-info{font-size:0.7rem;color:#94A3B8;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+                .apg-info b{color:#10B981}
+                .apg-pct{font-size:0.75rem;font-weight:900;color:#10B981;font-family:'Inter',monospace;min-width:32px;text-align:right}
+                .apg-xbtn{background:none;border:none;color:#64748B;font-size:0.65rem;cursor:pointer;padding:0 2px;transition:color .2s}
+                .apg-xbtn:hover{color:#EF4444}
+                .apg-track{width:100%;height:4px;background:rgba(0,0,0,0.4);border-radius:2px;overflow:hidden}
+                .apg-fill{height:100%;width:0%;background:linear-gradient(90deg,#059669,#10B981,#34D399);border-radius:2px;transition:width .15s linear}
+                .apg-done .apg-dot{animation:none;background:#22C55E}
+                .apg-done .apg-pct{color:#22C55E}
+                .apg-done .apg-fill{background:#22C55E}
             `;
             document.head.appendChild(s);
         }
@@ -55,63 +50,44 @@ class AsyncGenerator {
         if (!container) return;
         container.style.display = 'block';
         container.innerHTML = `
-            <div class="apg-box" id="apg-box">
-                <div class="apg-label">⚡ Gerando Jogos</div>
-                <div class="apg-lottery-name">${lotteryName}</div>
-                <div class="apg-pct-big" id="apg-pct">0%</div>
-                <div class="apg-count-text" id="apg-count-text">0 de ${total.toLocaleString('pt-BR')} jogos</div>
-                <div class="apg-track">
-                    <div class="apg-fill" id="apg-fill"></div>
+            <div class="apg-compact" id="apg-box">
+                <div class="apg-row">
+                    <span class="apg-dot"></span>
+                    <span class="apg-info" id="apg-info">⚡ <b>${lotteryName}</b> — 0 de ${total.toLocaleString('pt-BR')} jogos</span>
+                    <span class="apg-pct" id="apg-pct">0%</span>
+                    <button class="apg-xbtn" id="apg-cancel" title="Cancelar">✕</button>
                 </div>
-                <div class="apg-stats">
-                    <div>Velocidade: <span id="apg-speed">—</span> jogos/s</div>
-                    <div>Restante: <span id="apg-eta">calculando...</span></div>
-                </div>
-                <button class="apg-cancel-btn" id="apg-cancel-btn">✕ Cancelar</button>
+                <div class="apg-track"><div class="apg-fill" id="apg-fill"></div></div>
             </div>
         `;
 
-        document.getElementById('apg-cancel-btn').onclick = () => { this._cancelled = true; };
+        document.getElementById('apg-cancel').onclick = () => { this._cancelled = true; };
     }
 
-    static _updateProgress(current, total) {
-        const elapsed = (Date.now() - this._startTime) / 1000;
+    static _updateProgress(current, total, lotteryName) {
         const pct = Math.min(100, Math.round((current / total) * 100));
-        const speed = elapsed > 0 ? Math.round(current / elapsed) : 0;
-
-        let eta = 'calculando...';
-        if (current > 0 && pct < 100) {
-            const rem = (total - current) / (current / elapsed);
-            eta = rem < 60 ? Math.ceil(rem) + 's' : Math.floor(rem / 60) + 'm ' + Math.ceil(rem % 60) + 's';
-        } else if (pct >= 100) {
-            eta = '✓';
-        }
 
         const pctEl = document.getElementById('apg-pct');
-        const countEl = document.getElementById('apg-count-text');
+        const infoEl = document.getElementById('apg-info');
         const fillEl = document.getElementById('apg-fill');
-        const speedEl = document.getElementById('apg-speed');
-        const etaEl = document.getElementById('apg-eta');
 
         if (pctEl) pctEl.textContent = pct + '%';
-        if (countEl) countEl.textContent = current.toLocaleString('pt-BR') + ' de ' + total.toLocaleString('pt-BR') + ' jogos';
+        if (infoEl) infoEl.innerHTML = '⚡ <b>' + lotteryName + '</b> — ' + current.toLocaleString('pt-BR') + ' de ' + total.toLocaleString('pt-BR') + ' jogos';
         if (fillEl) fillEl.style.width = pct + '%';
-        if (speedEl) speedEl.textContent = speed.toLocaleString('pt-BR');
-        if (etaEl) etaEl.textContent = eta;
     }
 
-    static _completeProgress() {
+    static _completeProgress(total, lotteryName) {
         const box = document.getElementById('apg-box');
         if (box) box.classList.add('apg-done');
         const pctEl = document.getElementById('apg-pct');
-        if (pctEl) pctEl.textContent = '✅ 100%';
+        if (pctEl) pctEl.textContent = '✓';
+        const infoEl = document.getElementById('apg-info');
+        if (infoEl) infoEl.innerHTML = '✅ <b>' + lotteryName + '</b> — ' + total.toLocaleString('pt-BR') + ' jogos gerados';
         const fillEl = document.getElementById('apg-fill');
         if (fillEl) fillEl.style.width = '100%';
-        const etaEl = document.getElementById('apg-eta');
-        if (etaEl) etaEl.textContent = '✓';
-        const btn = document.getElementById('apg-cancel-btn');
+        const btn = document.getElementById('apg-cancel');
         if (btn) btn.style.display = 'none';
-        // Auto-esconder após 3 segundos
+
         setTimeout(() => {
             const c = document.getElementById('async-progress-inline');
             if (c) { c.style.display = 'none'; c.innerHTML = ''; }
@@ -126,10 +102,11 @@ class AsyncGenerator {
         if (this._isRunning) return;
         this._isRunning = true;
 
-        const chunkSize = this.CHUNK_SIZES[gameKey] || 200;
+        const chunkSize = this.CHUNK_SIZES[gameKey] || 10;
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+        const name = game ? game.name : gameKey;
 
-        this._showProgress(game ? game.name : gameKey, numGames);
+        this._showProgress(name, numGames);
         await this._yield();
 
         try {
@@ -143,15 +120,20 @@ class AsyncGenerator {
                 chunks++;
                 const r = MotorFechamentoManual.generate(gameKey, pool, fixedNumbers, batch, drawSize);
                 if (r && r.games) allGames.push(...r.games);
-                this._updateProgress(allGames.length, numGames);
+                this._updateProgress(Math.min(allGames.length, numGames), numGames, name);
                 await this._yield();
             }
 
-            if (this._cancelled) { this._isRunning = false; callback(null, true); return; }
+            if (this._cancelled) {
+                this._isRunning = false;
+                const c = document.getElementById('async-progress-inline');
+                if (c) { c.style.display = 'none'; c.innerHTML = ''; }
+                callback(null, true);
+                return;
+            }
 
             const unique = this._dedupe(allGames);
-            this._updateProgress(unique.length, numGames);
-            this._completeProgress();
+            this._completeProgress(unique.length, name);
 
             const analysis = {
                 totalGames: unique.length, poolSize: pool.length,
@@ -159,12 +141,11 @@ class AsyncGenerator {
                 drawSize, pricePerGame: game?game.price:0,
                 investimento: unique.length * (game?game.price:0),
                 isComplete: false, elapsed: Date.now() - this._startTime,
-                asyncMode: true, chunksProcessed: chunks,
-                totalPossible: '—'
+                asyncMode: true, chunksProcessed: chunks, totalPossible: '—'
             };
 
             this._isRunning = false;
-            setTimeout(() => callback({ games: unique, analysis }, false), 800);
+            setTimeout(() => callback({ games: unique, analysis }, false), 600);
 
         } catch (e) {
             console.error('[AsyncGen]', e);
@@ -182,9 +163,10 @@ class AsyncGenerator {
         this._isRunning = true;
 
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
-        const chunkSize = this.CHUNK_SIZES[gameKey] || 200;
+        const chunkSize = this.CHUNK_SIZES[gameKey] || 10;
+        const name = game ? game.name : gameKey;
 
-        this._showProgress(game ? game.name : gameKey, numGames);
+        this._showProgress(name, numGames);
         await this._yield();
 
         try {
@@ -200,9 +182,8 @@ class AsyncGenerator {
                 chunks++;
 
                 let r;
-                try {
-                    r = SmartCoverageEngine.generate(gameKey, batch, selectedNumbers, fixedNumbers, drawSize, options);
-                } catch(e) { r = { games: [] }; }
+                try { r = SmartCoverageEngine.generate(gameKey, batch, selectedNumbers, fixedNumbers, drawSize, options); }
+                catch(e) { r = { games: [] }; }
 
                 if (r && r.games) {
                     for (const g of r.games) {
@@ -212,14 +193,19 @@ class AsyncGenerator {
                 }
 
                 i += chunkSize;
-                this._updateProgress(allGames.length, numGames);
+                this._updateProgress(Math.min(allGames.length, numGames), numGames, name);
                 await this._yield();
             }
 
-            if (this._cancelled) { this._isRunning = false; callback(null, true); return; }
+            if (this._cancelled) {
+                this._isRunning = false;
+                const c = document.getElementById('async-progress-inline');
+                if (c) { c.style.display = 'none'; c.innerHTML = ''; }
+                callback(null, true);
+                return;
+            }
 
-            this._updateProgress(allGames.length, numGames);
-            this._completeProgress();
+            this._completeProgress(allGames.length, name);
 
             const result = {
                 games: allGames,
@@ -236,7 +222,7 @@ class AsyncGenerator {
             }
 
             this._isRunning = false;
-            setTimeout(() => callback(result, false), 800);
+            setTimeout(() => callback(result, false), 600);
 
         } catch (e) {
             console.error('[AsyncGen]', e);
@@ -245,8 +231,6 @@ class AsyncGenerator {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  UTILITÁRIOS
     // ═══════════════════════════════════════════════════════════
 
     static _yield() { return new Promise(r => setTimeout(r, 0)); }
