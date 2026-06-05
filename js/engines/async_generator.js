@@ -10,11 +10,10 @@ class AsyncGenerator {
     static _isRunning = false;
     static _startTime = 0;
 
-    // Lotes equilibrados: progresso visível + velocidade
-    static CHUNK_SIZES = {
-        megasena: 50, lotofacil: 30, quina: 50,
-        duplasena: 50, lotomania: 20, timemania: 40, diadesorte: 50
-    };
+    // Chunk dinâmico: ~20 atualizações de progresso para qualquer quantidade
+    static _getChunkSize(numGames) {
+        return Math.max(1, Math.min(100, Math.floor(numGames / 20)));
+    }
 
     // ═══════════════════════════════════════════════════════════
     //  BARRA COMPACTA — uma linha fina abaixo dos botões
@@ -102,7 +101,7 @@ class AsyncGenerator {
         if (this._isRunning) return;
         this._isRunning = true;
 
-        const chunkSize = this.CHUNK_SIZES[gameKey] || 10;
+        const chunkSize = this._getChunkSize(numGames);
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         const name = game ? game.name : gameKey;
 
@@ -163,7 +162,7 @@ class AsyncGenerator {
         this._isRunning = true;
 
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
-        const chunkSize = this.CHUNK_SIZES[gameKey] || 10;
+        const chunkSize = this._getChunkSize(numGames);
         const name = game ? game.name : gameKey;
 
         this._showProgress(name, numGames);
