@@ -36,7 +36,7 @@ class EVCalculator {
         N: 25,
         K: 15,
         n: 15,
-        custo: 3.00,
+        custo: 3.50,
         premios: { 15: 1_500_000, 14: 1_200, 13: 30, 12: 12, 11: 6 },
         multiplicador: 1,
         descricao: '15 dezenas de 01 a 25'
@@ -58,7 +58,7 @@ class EVCalculator {
         N: 50,
         K: 6,
         n: 6,
-        custo: 2.50,
+        custo: 3.00,
         premios: { 6: 3_000_000, 5: 1_500, 4: 10 },
         multiplicador: 2,   // dois sorteios independentes
         descricao: '6 dezenas de 01 a 50 (2 sorteios)'
@@ -91,7 +91,7 @@ class EVCalculator {
         N: 31,
         K: 7,
         n: 7,
-        custo: 2.50,
+        custo: 3.00,
         premios: { 7: 1_500_000, 6: 5_000, 5: 50, 4: 5 },
         multiplicador: 1,
         descricao: '7 dezenas de 01 a 31'

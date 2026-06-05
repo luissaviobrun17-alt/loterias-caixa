@@ -1718,6 +1718,23 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             }
         })();
 
+        // ═══ LIMPEZA ao trocar de loteria (bugs #1-#5 fix) ═══
+        // Bug 1: Limpar banner que fica fora do gamesContainer
+        const oldBanner = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+        if (oldBanner) oldBanner.remove();
+
+        // Bug 2+5: Limpar arrays de jogos da loteria anterior
+        this.currentGeneratedGames = [];
+        this._lastGeneratedGames = [];
+
+        // Bug 3: Cancelar geração assíncrona em andamento
+        if (typeof AsyncGenerator !== 'undefined' && AsyncGenerator._isRunning) {
+            AsyncGenerator._cancelled = true;
+            AsyncGenerator._isRunning = false;
+        }
+        const asyncProgress = document.getElementById('async-progress-inline');
+        if (asyncProgress) { asyncProgress.style.display = 'none'; asyncProgress.innerHTML = ''; }
+
         this.gamesContainer.innerHTML = '<div class="empty-state">Selecione as opções e clique em Gerar Jogos</div>';
     }
 

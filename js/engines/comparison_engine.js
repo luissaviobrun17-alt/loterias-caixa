@@ -79,7 +79,7 @@ class ComparisonEngine {
 
         for (const mode of ['manual', 'cobertura', 'sniper']) {
             const data = this._storage[mode];
-            if (!data || data.games.length === 0) continue;
+            if (!data || data.games.length === 0 || data.gameKey !== gameKey) continue;
 
             const games = data.games;
             const drawSize = games[0] ? games[0].length : game.minBet;
