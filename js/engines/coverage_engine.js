@@ -291,7 +291,7 @@ class CoverageEngine {
             // ======================================================================
             const rankedNumbers = layers.ranked.map(r => r.num);
             const candidatesPool = [];
-            const maxCandidates = drawSize >= 20 ? Math.max(200, numGames + 50) : Math.max(3000, numGames + 500);
+            const maxCandidates = drawSize >= 20 ? Math.max(100, Math.min(500, numGames + 50)) : Math.max(300, Math.min(1500, numGames + 200));
 
             // v13.4: Remoção do CombinationGenerator para TODAS as loterias.
             // O gerador lexicográfico causava "vício" (Efeito Canhão de Vidro) nas dezenas mais quentes.
@@ -354,7 +354,7 @@ class CoverageEngine {
                 const coverageSat = totalPairsFull > 0 ? coveredPairs.size / totalPairsFull : 0;
                 const triplesSat = totalTriplesFull > 0 ? coveredTriples.size / totalTriplesFull : 0;
 
-                const scanLimit = Math.min(candidatesPool.length, 300);
+                const scanLimit = Math.min(candidatesPool.length, numGames > 1000 ? 30 : (numGames > 200 ? 80 : 300));
 
                 for (let i = 0; i < scanLimit; i++) {
                     const cand = candidatesPool[i];
@@ -370,7 +370,7 @@ class CoverageEngine {
                     }
 
                     let newTriples = 0;
-                    if (checkTriples) {
+                    if (checkTriples && numGames <= 200) { // Otimização: desativa triplas no loop interno de busca greedy para grandes lotes
                         for (let x = 0; x < candidate.length; x++) {
                             for (let y = x + 1; y < candidate.length; y++) {
                                 for (let z = y + 1; z < candidate.length; z++) {
@@ -381,7 +381,7 @@ class CoverageEngine {
                     }
 
                     let newQuads = 0;
-                    if (checkQuads) {
+                    if (checkQuads && numGames <= 100) { // Otimização: desativa quádruplas no loop interno de busca greedy para grandes lotes
                         for (let x = 0; x < candidate.length; x++) {
                             for (let y = x + 1; y < candidate.length; y++) {
                                 for (let z = y + 1; z < candidate.length; z++) {

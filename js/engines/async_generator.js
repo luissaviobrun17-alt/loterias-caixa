@@ -174,9 +174,8 @@ class AsyncGenerator {
             let chunks = 0;
             let staleCount = 0; // Detecta quando não gera mais jogos novos
 
-            // Micro-batch: gera poucos jogos por vez para não travar
-            // Ajusta dinamicamente: começa com batch maior, reduz se duplica muito
-            let batchSize = Math.min(50, Math.max(5, Math.floor(numGames / 20)));
+            // Micro-batch: gera lotes de jogos por vez para não travar a UI, ajustado ao volume total
+            let batchSize = numGames > 1000 ? 250 : (numGames > 200 ? 100 : 50);
 
             while (allGames.length < numGames && !this._cancelled) {
                 const remaining = numGames - allGames.length;
