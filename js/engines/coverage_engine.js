@@ -667,7 +667,7 @@ class CoverageEngine {
             // v12.13: AUTO-REPAIR para Sequências (Mágica para Lotomania)
             // Como a chance de 50 números aleatórios terem máx 3 seguidos é 0.0000001%,
             // em vez de rejeitar, nós CONSERTAMOS o bilhete quebrando as sequências!
-            const enforceConsecutive = (!isPoolRestricted || (pool.length >= Math.ceil(drawSize / 0.6)));
+            const enforceConsecutive = (!isPoolRestricted || (pool.length >= Math.ceil(drawSize / 0.6))) && drawSize < 50;
             if (enforceConsecutive) {
                 let attemptsFix = 0;
                 while (attemptsFix < 15) {
