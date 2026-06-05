@@ -169,9 +169,11 @@ class ComparisonEngine {
                     pairCoverage: Math.round(pairCoverage * 10) / 10,
                     hammingPct: Math.round(hammingPct * 10) / 10,
                     avgHamming: Math.round(avgHamming * 10) / 10,
+                    hammingDiversity: Math.round(hammingPct * 10) / 10,
                     numCoverage: Math.round(numCoverage * 10) / 10,
                     uniqueNumbers: allNumbers.size,
                     balanceScore: Math.round(balanceScore * 10) / 10,
+                    balance: Math.round(balanceScore * 10) / 10,
                     evenPct: Math.round(evenPct * 10) / 10,
                     zoneScore: Math.round(zoneScore * 10) / 10,
                     probAtLeastOne: (probAtLeastOne * 100),
@@ -213,69 +215,118 @@ class ComparisonEngine {
         const w = analysis.results[winner];
         const sorted = modes.map(m => ({ mode: m, ...analysis.results[m] })).sort((a, b) => b.metrics.globalScore - a.metrics.globalScore);
         const maxScore = sorted[0].metrics.globalScore || 1;
+        const best = sorted[0];
+        const rest = sorted.slice(1);
 
-        // Injetar estilos uma vez
-        if (!document.getElementById('comp-css-v2')) {
+        // CSS v3
+        if (!document.getElementById('comp-css-v3')) {
             const s = document.createElement('style');
-            s.id = 'comp-css-v2';
+            s.id = 'comp-css-v3';
             s.textContent = `
-                .comp-v2{margin-top:10px;padding:12px 16px 10px;background:linear-gradient(170deg,rgba(15,23,42,0.97),rgba(30,41,59,0.92));border-radius:12px;backdrop-filter:blur(8px);animation:compIn .35s ease}
-                @keyframes compIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-                .comp-v2-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-                .comp-v2-winner{display:flex;align-items:center;gap:6px}
-                .comp-v2-crown{font-size:0.9rem;filter:drop-shadow(0 0 4px rgba(255,215,0,0.5))}
-                .comp-v2-wname{font-weight:900;font-size:0.8rem;letter-spacing:0.3px}
-                .comp-v2-wtag{font-size:0.6rem;color:#94A3B8;font-weight:500}
-                .comp-v2-x{background:none;border:none;color:#475569;cursor:pointer;font-size:0.65rem;padding:4px 6px;border-radius:4px;transition:all .15s}
-                .comp-v2-x:hover{color:#F87171;background:rgba(239,68,68,0.1)}
-                .comp-v2-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;transition:background .2s}
-                .comp-v2-row:hover{background:rgba(255,255,255,0.03)}
-                .comp-v2-medal{font-size:0.75rem;width:18px;text-align:center;flex-shrink:0}
-                .comp-v2-name{font-size:0.7rem;font-weight:700;min-width:90px;flex-shrink:0}
-                .comp-v2-qty{font-size:0.58rem;color:#64748B;min-width:35px;text-align:center;flex-shrink:0}
-                .comp-v2-track{flex:1;height:6px;background:rgba(0,0,0,0.35);border-radius:3px;overflow:hidden;min-width:60px}
-                .comp-v2-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-                .comp-v2-score{font-size:0.75rem;font-weight:900;font-family:'Inter',monospace;min-width:34px;text-align:right;flex-shrink:0}
-                .comp-v2-foot{text-align:center;margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.04);font-size:0.52rem;color:#475569;letter-spacing:0.5px}
+                @keyframes compSlide{from{opacity:0;transform:translateY(-8px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+                @keyframes crownPulse{0%,100%{filter:drop-shadow(0 0 6px rgba(255,215,0,0.6))}50%{filter:drop-shadow(0 0 14px rgba(255,215,0,0.9))}}
+                @keyframes glowBorder{0%,100%{border-color:var(--gc1)}50%{border-color:var(--gc2)}}
+                @keyframes scoreCount{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+                @keyframes barGrow{from{width:0%}}
+                .comp3{margin-top:10px;border-radius:14px;overflow:hidden;animation:compSlide .4s ease;backdrop-filter:blur(12px)}
+                .comp3-hero{position:relative;padding:14px 16px 12px;background:var(--hbg);border:2px solid var(--hbc);border-radius:14px 14px 0 0;overflow:hidden}
+                .comp3-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,var(--hglow) 0%,transparent 70%);pointer-events:none;opacity:0.4}
+                .comp3-hero-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+                .comp3-badge{display:flex;align-items:center;gap:8px}
+                .comp3-crown{font-size:1.4rem;animation:crownPulse 2s ease-in-out infinite}
+                .comp3-hero-label{font-weight:900;font-size:1rem;letter-spacing:0.5px;text-shadow:0 2px 8px rgba(0,0,0,0.5)}
+                .comp3-hero-tag{font-size:0.6rem;padding:2px 8px;border-radius:20px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+                .comp3-x{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#94A3B8;cursor:pointer;font-size:0.6rem;padding:4px 8px;border-radius:6px;transition:all .2s}
+                .comp3-x:hover{color:#F87171;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.3)}
+                .comp3-hero-stats{display:flex;align-items:flex-end;gap:16px;margin-top:10px;position:relative;z-index:1}
+                .comp3-big-score{font-size:2.2rem;font-weight:900;font-family:'Inter',system-ui,monospace;line-height:1;animation:scoreCount .6s cubic-bezier(.4,0,.2,1)}
+                .comp3-big-label{font-size:0.5rem;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+                .comp3-hero-metrics{display:flex;gap:6px;flex:1;justify-content:flex-end}
+                .comp3-metric{text-align:center;padding:4px 8px;background:rgba(0,0,0,0.3);border-radius:8px;min-width:52px}
+                .comp3-metric-val{font-size:0.85rem;font-weight:900;font-family:'Inter',monospace}
+                .comp3-metric-lbl{font-size:0.45rem;color:rgba(255,255,255,0.45);font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-top:1px}
+                .comp3-others{padding:8px 12px 8px;background:linear-gradient(180deg,rgba(15,23,42,0.95),rgba(15,23,42,0.9));border-radius:0 0 14px 14px}
+                .comp3-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;transition:all .2s}
+                .comp3-row:hover{background:rgba(255,255,255,0.04)}
+                .comp3-medal{font-size:0.75rem;width:20px;text-align:center;flex-shrink:0}
+                .comp3-name{font-size:0.72rem;font-weight:700;min-width:95px;flex-shrink:0}
+                .comp3-info{font-size:0.55rem;color:#64748B;min-width:50px;flex-shrink:0}
+                .comp3-bar{flex:1;height:5px;background:rgba(0,0,0,0.4);border-radius:3px;overflow:hidden;min-width:50px}
+                .comp3-bar-fill{height:100%;border-radius:3px;animation:barGrow .8s ease}
+                .comp3-score{font-size:0.75rem;font-weight:900;font-family:'Inter',monospace;min-width:30px;text-align:right;flex-shrink:0}
+                .comp3-vs{font-size:0.55rem;color:#475569;min-width:35px;text-align:center;flex-shrink:0}
+                .comp3-foot{text-align:center;padding:6px 12px 8px;font-size:0.48rem;color:#3E4C5E;letter-spacing:0.8px;background:rgba(15,23,42,0.9);border-radius:0 0 14px 14px}
             `;
             document.head.appendChild(s);
         }
 
+        // Métricas individuais do vencedor
+        const bm = best.metrics;
+        const diffPct = rest.length > 0 ? Math.round(((best.metrics.globalScore - rest[0].metrics.globalScore) / rest[0].metrics.globalScore) * 100) : 0;
+
         let html = `
-        <div class="comp-v2" style="border:1px solid ${w.color}20;box-shadow:0 4px 24px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.03);">
-            <div class="comp-v2-head">
-                <div class="comp-v2-winner">
-                    <span class="comp-v2-crown">👑</span>
-                    <span class="comp-v2-wname" style="color:${w.color};">${w.label}</span>
-                    <span class="comp-v2-wtag">mais eficiente</span>
-                </div>
-                <button class="comp-v2-x" id="comp-close-btn" title="Fechar">✕</button>
-            </div>
-            ${sorted.map((s, i) => {
-                const pct = Math.round((s.metrics.globalScore / maxScore) * 100);
-                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
-                const isFirst = i === 0;
-                const glow = isFirst ? `box-shadow:0 0 10px ${s.color}40;` : '';
-                const bg = isFirst ? `background:${s.colorBg};border:1px solid ${s.color}15;` : '';
-                return `
-                <div class="comp-v2-row" style="${bg}">
-                    <span class="comp-v2-medal">${medal}</span>
-                    <span class="comp-v2-name" style="color:${s.color};">${s.label}</span>
-                    <span class="comp-v2-qty">${s.gamesCount} jogos</span>
-                    <div class="comp-v2-track">
-                        <div class="comp-v2-fill" style="width:${pct}%;background:linear-gradient(90deg,${s.color}cc,${s.color});${glow}"></div>
+        <div class="comp3" style="--gc1:${best.color}60;--gc2:${best.color}20;box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 24px ${best.color}15;">
+            <div class="comp3-hero" style="--hbg:linear-gradient(145deg,${best.color}18,rgba(15,23,42,0.97));--hbc:${best.color}50;--hglow:${best.color}30;animation:glowBorder 3s ease-in-out infinite;">
+                <div class="comp3-hero-top">
+                    <div class="comp3-badge">
+                        <span class="comp3-crown">👑</span>
+                        <div>
+                            <div class="comp3-hero-label" style="color:${best.color};">${best.label}</div>
+                            <span class="comp3-hero-tag" style="background:${best.color}25;color:${best.color};border:1px solid ${best.color}40;">🏆 MELHOR ESTRATÉGIA${diffPct > 0 ? ' · +' + diffPct + '% superior' : ''}</span>
+                        </div>
                     </div>
-                    <span class="comp-v2-score" style="color:${s.color};">${s.metrics.globalScore}</span>
-                </div>`;
-            }).join('')}
-            <div class="comp-v2-foot">SCORE: Pares · Hamming · Cobertura · Equilíbrio · Zonas</div>
+                    <button class="comp3-x" id="comp-close-btn" title="Fechar">✕</button>
+                </div>
+                <div class="comp3-hero-stats">
+                    <div>
+                        <div class="comp3-big-score" style="color:${best.color};">${best.metrics.globalScore}</div>
+                        <div class="comp3-big-label">SCORE GLOBAL</div>
+                    </div>
+                    <div class="comp3-hero-metrics">
+                        <div class="comp3-metric">
+                            <div class="comp3-metric-val" style="color:${best.color};">${best.gamesCount}</div>
+                            <div class="comp3-metric-lbl">Jogos</div>
+                        </div>
+                        <div class="comp3-metric">
+                            <div class="comp3-metric-val" style="color:${best.color};">${bm.pairCoverage || '—'}</div>
+                            <div class="comp3-metric-lbl">Pares</div>
+                        </div>
+                        <div class="comp3-metric">
+                            <div class="comp3-metric-val" style="color:${best.color};">${bm.hammingDiversity || '—'}</div>
+                            <div class="comp3-metric-lbl">Hamming</div>
+                        </div>
+                        <div class="comp3-metric">
+                            <div class="comp3-metric-val" style="color:${best.color};">${bm.balance || '—'}</div>
+                            <div class="comp3-metric-lbl">Equilíbrio</div>
+                        </div>
+                    </div>
+                </div>
+            </div>` +
+            (rest.length > 0 ? `<div class="comp3-others">
+                ${rest.map((s, i) => {
+                    const pct = Math.round((s.metrics.globalScore / maxScore) * 100);
+                    const medal = i === 0 ? '🥈' : '🥉';
+                    const diff = best.metrics.globalScore - s.metrics.globalScore;
+                    return `<div class="comp3-row">
+                        <span class="comp3-medal">${medal}</span>
+                        <span class="comp3-name" style="color:${s.color};">${s.label}</span>
+                        <span class="comp3-info">${s.gamesCount} jogos</span>
+                        <div class="comp3-bar">
+                            <div class="comp3-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${s.color}90,${s.color});"></div>
+                        </div>
+                        <span class="comp3-score" style="color:${s.color};">${s.metrics.globalScore}</span>
+                        <span class="comp3-vs" style="color:#EF4444;">−${diff}</span>
+                    </div>`;
+                }).join('')}
+            </div>` : '') + `
+            <div class="comp3-foot">ANÁLISE: Cobertura de Pares · Diversidade Hamming · Equilíbrio Par/Ímpar · Distribuição por Zonas</div>
         </div>`;
 
         container.innerHTML = html;
 
         // Animar barras
         requestAnimationFrame(() => {
-            container.querySelectorAll('.comp-v2-fill').forEach(el => {
+            container.querySelectorAll('.comp3-bar-fill').forEach(el => {
                 const w = el.style.width; el.style.width = '0%';
                 requestAnimationFrame(() => { el.style.width = w; });
             });
