@@ -638,9 +638,8 @@ class AsyncGenerator {
     }
 
     static shouldUseAsync(numGames, gameKey) {
-        if (gameKey === 'lotomania' && numGames > 100) return true;
-        if (gameKey === 'lotofacil' && numGames > 150) return true;
-        return numGames >= this.MIN_ASYNC_THRESHOLD;
+        // v2.1: Sempre usa modo assíncrono com gráfico para QUALQUER quantidade
+        return numGames >= 1;
     }
 }
 
