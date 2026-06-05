@@ -10,10 +10,10 @@ class AsyncGenerator {
     static _isRunning = false;
     static _startTime = 0;
 
-    // Lotes PEQUENOS para progresso suave (5–20 jogos por lote)
+    // Lotes equilibrados: progresso visível + velocidade
     static CHUNK_SIZES = {
-        megasena: 15, lotofacil: 8, quina: 15,
-        duplasena: 15, lotomania: 5, timemania: 12, diadesorte: 15
+        megasena: 50, lotofacil: 30, quina: 50,
+        duplasena: 50, lotomania: 20, timemania: 40, diadesorte: 50
     };
 
     // ═══════════════════════════════════════════════════════════
@@ -37,8 +37,8 @@ class AsyncGenerator {
                 .apg-pct{font-size:0.75rem;font-weight:900;color:#10B981;font-family:'Inter',monospace;min-width:32px;text-align:right}
                 .apg-xbtn{background:none;border:none;color:#64748B;font-size:0.65rem;cursor:pointer;padding:0 2px;transition:color .2s}
                 .apg-xbtn:hover{color:#EF4444}
-                .apg-track{width:100%;height:4px;background:rgba(0,0,0,0.4);border-radius:2px;overflow:hidden}
-                .apg-fill{height:100%;width:0%;background:linear-gradient(90deg,#059669,#10B981,#34D399);border-radius:2px;transition:width .15s linear}
+                .apg-track{width:100%;height:8px;background:rgba(0,0,0,0.4);border-radius:4px;overflow:hidden}
+                .apg-fill{height:100%;width:0%;background:linear-gradient(90deg,#059669,#10B981,#34D399);border-radius:4px;transition:width .15s linear}
                 .apg-done .apg-dot{animation:none;background:#22C55E}
                 .apg-done .apg-pct{color:#22C55E}
                 .apg-done .apg-fill{background:#22C55E}
