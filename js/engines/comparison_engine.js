@@ -210,128 +210,44 @@ class ComparisonEngine {
 
         const modes = Object.keys(analysis.results);
         const winner = analysis.winner;
-        const winnerData = analysis.results[winner];
+        const w = analysis.results[winner];
 
-        // Métricas para gráficos
-        const metricDefs = [
-            { key: 'globalScore',   label: 'SCORE GLOBAL',      icon: '🏆', max: 100, unit: '' },
-            { key: 'pairCoverage',  label: 'COBERTURA PARES',   icon: '🔗', max: 100, unit: '%' },
-            { key: 'hammingPct',    label: 'DIVERSIDADE',       icon: '🔀', max: 100, unit: '%' },
-            { key: 'numCoverage',   label: 'COBERTURA NUMÉRICA',icon: '🎯', max: 100, unit: '%' },
-            { key: 'balanceScore',  label: 'EQUILÍBRIO PAR/ÍMPAR', icon: '⚖️', max: 100, unit: '' },
-            { key: 'zoneScore',     label: 'DISTRIBUIÇÃO ZONAS', icon: '📊', max: 100, unit: '' }
-        ];
+        // Ordenar por score
+        const sorted = modes.map(m => ({ mode: m, ...analysis.results[m] })).sort((a, b) => b.metrics.globalScore - a.metrics.globalScore);
 
         let html = `
-        <div class="comp-panel">
-            <div class="comp-header">
-                <div class="comp-title-row">
-                    <span class="comp-icon">⚔️</span>
-                    <div>
-                        <div class="comp-title">COMPARATIVO DE ESTRATÉGIAS</div>
-                        <div class="comp-subtitle">${analysis.gameName} — ${modes.length} estratégias analisadas</div>
-                    </div>
-                    <button class="comp-close" id="comp-close-btn">✕</button>
+        <div style="margin-top:10px;padding:10px 14px;background:linear-gradient(165deg,rgba(15,23,42,0.98),rgba(30,41,59,0.95));border:1px solid ${w.color}30;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.3);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:1rem;">👑</span>
+                    <span style="font-weight:900;color:${w.color};font-size:0.85rem;">${w.label}</span>
+                    <span style="color:#94A3B8;font-size:0.65rem;">é a mais eficiente</span>
                 </div>
-                <div class="comp-winner-badge" style="border-color:${winnerData.color}40;background:${winnerData.colorBg};">
-                    <span class="comp-winner-crown">👑</span>
-                    <span style="color:${winnerData.color};font-weight:900;font-size:0.9rem;">${winnerData.label}</span>
-                    <span style="color:#94A3B8;font-size:0.7rem;margin-left:4px;">é a estratégia mais eficiente</span>
-                    <span class="comp-winner-score" style="color:${winnerData.color};">${winnerData.metrics.globalScore}pts</span>
-                </div>
+                <button id="comp-close-btn" style="background:none;border:none;color:#64748B;cursor:pointer;font-size:0.7rem;padding:2px 4px;">✕</button>
             </div>
-
-            <div class="comp-legend">
-                ${modes.map(m => {
-                    const d = analysis.results[m];
-                    return `<div class="comp-legend-item">
-                        <span class="comp-legend-dot" style="background:${d.color};"></span>
-                        <span class="comp-legend-name">${d.label}</span>
-                        <span class="comp-legend-count">${d.gamesCount} jogos</span>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                ${sorted.map((s, i) => {
+                    const isWinner = i === 0;
+                    const pct = Math.min(100, s.metrics.globalScore);
+                    return `<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:6px;background:${isWinner ? s.colorBg : 'rgba(0,0,0,0.15)'};">
+                        <span style="font-size:0.7rem;width:14px;text-align:center;color:${isWinner ? '#FFD700' : '#475569'};font-weight:900;">${i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
+                        <span style="font-size:0.68rem;font-weight:800;color:${s.color};min-width:85px;">${s.label}</span>
+                        <span style="font-size:0.6rem;color:#64748B;min-width:42px;">${s.gamesCount}j</span>
+                        <div style="flex:1;height:6px;background:rgba(0,0,0,0.3);border-radius:3px;overflow:hidden;">
+                            <div style="width:${pct}%;height:100%;background:${s.color};border-radius:3px;transition:width .5s;"></div>
+                        </div>
+                        <span style="font-size:0.72rem;font-weight:900;color:${s.color};min-width:30px;text-align:right;font-family:'Inter',monospace;">${s.metrics.globalScore}</span>
                     </div>`;
                 }).join('')}
             </div>
-
-            <div class="comp-charts">
-                ${metricDefs.map(metric => {
-                    const isGlobal = metric.key === 'globalScore';
-                    return `
-                    <div class="comp-metric ${isGlobal ? 'comp-metric-global' : ''}">
-                        <div class="comp-metric-header">
-                            <span>${metric.icon} ${metric.label}</span>
-                        </div>
-                        <div class="comp-bars">
-                            ${modes.map(m => {
-                                const d = analysis.results[m];
-                                const val = d.metrics[metric.key];
-                                const pct = Math.min(100, (val / metric.max) * 100);
-                                const isWinner = modes.length > 1 && val === Math.max(...modes.map(mm => analysis.results[mm].metrics[metric.key]));
-                                return `
-                                <div class="comp-bar-row">
-                                    <span class="comp-bar-label" style="color:${d.color};">${d.label.substring(2,5)}</span>
-                                    <div class="comp-bar-track">
-                                        <div class="comp-bar-fill ${isWinner ? 'comp-bar-winner' : ''}" 
-                                             style="width:${pct}%;background:${d.color};${isWinner ? 'box-shadow:0 0 12px '+d.color+'60;':''}"
-                                             data-animate-width="${pct}"></div>
-                                    </div>
-                                    <span class="comp-bar-value" style="color:${isWinner ? d.color : '#94A3B8'};">
-                                        ${val.toFixed(1)}${metric.unit}
-                                        ${isWinner ? ' ★' : ''}
-                                    </span>
-                                </div>`;
-                            }).join('')}
-                        </div>
-                    </div>`;
-                }).join('')}
-            </div>
-
-            <div class="comp-prob-section">
-                <div class="comp-prob-title">📈 Probabilidade de Acertar o Prêmio Máximo</div>
-                <div class="comp-prob-grid">
-                    ${modes.map(m => {
-                        const d = analysis.results[m];
-                        const prob = d.metrics.probAtLeastOne;
-                        const probStr = prob < 0.01 ? prob.toExponential(2) : prob.toFixed(4);
-                        return `
-                        <div class="comp-prob-card" style="border-color:${d.color}30;">
-                            <div class="comp-prob-mode" style="color:${d.color};">${d.label}</div>
-                            <div class="comp-prob-value">${probStr}%</div>
-                            <div class="comp-prob-detail">${d.gamesCount} jogos × ${d.drawSize} nº</div>
-                        </div>`;
-                    }).join('')}
-                </div>
-            </div>
-
-            <div class="comp-footer">
-                <div class="comp-footer-note">
-                    ⚠️ Loterias são eventos aleatórios. Nenhuma estratégia garante prêmios. 
-                    A análise mede apenas a <strong>eficiência combinatória</strong> dos jogos gerados.
-                </div>
-            </div>
+            <div style="text-align:center;margin-top:6px;font-size:0.55rem;color:#475569;">Pares · Diversidade · Cobertura · Equilíbrio · Zonas</div>
         </div>`;
 
         container.innerHTML = html;
 
-        // Animar barras
-        requestAnimationFrame(() => {
-            const bars = container.querySelectorAll('.comp-bar-fill');
-            bars.forEach(bar => {
-                const target = bar.getAttribute('data-animate-width');
-                bar.style.width = '0%';
-                requestAnimationFrame(() => {
-                    bar.style.transition = 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-                    bar.style.width = target + '%';
-                });
-            });
-        });
-
-        // Botão fechar
         const closeBtn = document.getElementById('comp-close-btn');
         if (closeBtn) {
-            closeBtn.onclick = () => {
-                container.style.animation = 'compFadeOut 0.3s ease forwards';
-                setTimeout(() => { container.innerHTML = ''; container.style.animation = ''; container.style.display = 'none'; }, 300);
-            };
+            closeBtn.onclick = () => { container.style.display = 'none'; container.innerHTML = ''; };
         }
     }
 
