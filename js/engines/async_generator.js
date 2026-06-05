@@ -36,8 +36,8 @@ class AsyncGenerator {
                 .apg-lottery-name{color:#10B981;font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:0.7rem;margin-bottom:10px}
                 .apg-pct-big{font-size:2.2rem;font-weight:900;color:#10B981;font-family:'Inter',monospace;line-height:1;margin-bottom:2px;transition:color .3s}
                 .apg-count-text{font-size:0.8rem;color:#CBD5E1;font-weight:700;margin-bottom:10px}
-                .apg-track{width:100%;height:16px;background:rgba(0,0,0,0.4);border-radius:8px;overflow:hidden;border:1px solid rgba(16,185,129,0.15);position:relative}
-                .apg-fill{height:100%;width:0%;background:linear-gradient(90deg,#059669,#10B981,#34D399);border-radius:8px;transition:width .3s ease;position:relative}
+                .apg-track{width:100%;height:6px;background:rgba(0,0,0,0.4);border-radius:3px;overflow:hidden;border:1px solid rgba(16,185,129,0.15);position:relative}
+                .apg-fill{height:100%;width:0%;background:linear-gradient(90deg,#059669,#10B981,#34D399);border-radius:3px;transition:width .3s ease;position:relative}
                 .apg-fill::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:apgShine 1.5s ease-in-out infinite}
                 @keyframes apgShine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
                 .apg-stats{display:flex;justify-content:center;gap:16px;margin-top:8px;font-size:0.68rem;color:#64748B}
