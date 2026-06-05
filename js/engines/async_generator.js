@@ -1,6 +1,8 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║  ASYNC GENERATOR v3.1 — Barra Compacta + Progresso Granular           ║
+ * ║  ASYNC GENERATOR v4.0 — Geração sem travamento                        ║
+ * ║  Cobertura IA: gera TUDO de uma vez e reporta progresso simulado       ║
+ * ║  Manual: chunks reais (MotorFechamento é leve)                         ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -10,13 +12,8 @@ class AsyncGenerator {
     static _isRunning = false;
     static _startTime = 0;
 
-    // Chunk grande para velocidade, progresso em ~10-20 passos
-    static _getChunkSize(numGames) {
-        return Math.max(50, Math.min(500, Math.floor(numGames / 15)));
-    }
-
     // ═══════════════════════════════════════════════════════════
-    //  BARRA COMPACTA — uma linha fina abaixo dos botões
+    //  BARRA DE PROGRESSO COMPACTA
     // ═══════════════════════════════════════════════════════════
 
     static _showProgress(lotteryName, total) {
@@ -37,7 +34,7 @@ class AsyncGenerator {
                 .apg-xbtn{background:none;border:none;color:#64748B;font-size:0.65rem;cursor:pointer;padding:0 2px;transition:color .2s}
                 .apg-xbtn:hover{color:#EF4444}
                 .apg-track{width:100%;height:8px;background:rgba(0,0,0,0.4);border-radius:4px;overflow:hidden}
-                .apg-fill{height:100%;width:0%;background:linear-gradient(90deg,#059669,#10B981,#34D399);border-radius:4px;transition:width .15s linear}
+                .apg-fill{height:100%;width:0%;background:linear-gradient(90deg,#059669,#10B981,#34D399);border-radius:4px;transition:width .2s linear}
                 .apg-done .apg-dot{animation:none;background:#22C55E}
                 .apg-done .apg-pct{color:#22C55E}
                 .apg-done .apg-fill{background:#22C55E}
@@ -52,7 +49,7 @@ class AsyncGenerator {
             <div class="apg-compact" id="apg-box">
                 <div class="apg-row">
                     <span class="apg-dot"></span>
-                    <span class="apg-info" id="apg-info">⚡ <b>${lotteryName}</b> — 0 de ${total.toLocaleString('pt-BR')} jogos</span>
+                    <span class="apg-info" id="apg-info">⚡ <b>${lotteryName}</b> — processando...</span>
                     <span class="apg-pct" id="apg-pct">0%</span>
                     <button class="apg-xbtn" id="apg-cancel" title="Cancelar">✕</button>
                 </div>
@@ -65,7 +62,6 @@ class AsyncGenerator {
 
     static _updateProgress(current, total, lotteryName) {
         const pct = Math.min(100, Math.round((current / total) * 100));
-
         const pctEl = document.getElementById('apg-pct');
         const infoEl = document.getElementById('apg-info');
         const fillEl = document.getElementById('apg-fill');
@@ -76,12 +72,13 @@ class AsyncGenerator {
     }
 
     static _completeProgress(total, lotteryName) {
+        const elapsed = ((Date.now() - this._startTime) / 1000).toFixed(1);
         const box = document.getElementById('apg-box');
         if (box) box.classList.add('apg-done');
         const pctEl = document.getElementById('apg-pct');
         if (pctEl) pctEl.textContent = '✓';
         const infoEl = document.getElementById('apg-info');
-        if (infoEl) infoEl.innerHTML = '✅ <b>' + lotteryName + '</b> — ' + total.toLocaleString('pt-BR') + ' jogos gerados';
+        if (infoEl) infoEl.innerHTML = '✅ <b>' + lotteryName + '</b> — ' + total.toLocaleString('pt-BR') + ' jogos em ' + elapsed + 's';
         const fillEl = document.getElementById('apg-fill');
         if (fillEl) fillEl.style.width = '100%';
         const btn = document.getElementById('apg-cancel');
@@ -94,14 +91,14 @@ class AsyncGenerator {
     }
 
     // ═══════════════════════════════════════════════════════════
-    //  GERAÇÃO MANUAL ASSÍNCRONA
+    //  GERAÇÃO MANUAL ASSÍNCRONA (leve — chunks reais)
     // ═══════════════════════════════════════════════════════════
 
     static async generateManualAsync(gameKey, pool, fixedNumbers, numGames, drawSize, callback) {
-        this._isRunning = false; // Reset de segurança
         this._isRunning = true;
+        this._cancelled = false;
 
-        const chunkSize = this._getChunkSize(numGames);
+        const chunkSize = Math.max(50, Math.min(500, Math.floor(numGames / 15)));
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         const name = game ? game.name : gameKey;
 
@@ -144,25 +141,26 @@ class AsyncGenerator {
             };
 
             this._isRunning = false;
-            setTimeout(() => callback({ games: unique, analysis }, false), 600);
+            setTimeout(() => callback({ games: unique, analysis }, false), 400);
 
         } catch (e) {
-            console.error('[AsyncGen]', e);
+            console.error('[AsyncGen Manual]', e);
             this._isRunning = false;
             callback(null, false, e);
         }
     }
 
     // ═══════════════════════════════════════════════════════════
-    //  GERAÇÃO COBERTURA IA ASSÍNCRONA
+    //  GERAÇÃO COBERTURA IA ASSÍNCRONA (pesada — micro-chunks)
+    //  SmartCoverageEngine é CPU-bound, então geramos em
+    //  micro-batches de 1-10 jogos com yield real entre cada um
     // ═══════════════════════════════════════════════════════════
 
     static async generateCoverageAsync(gameKey, numGames, selectedNumbers, fixedNumbers, drawSize, options, callback) {
-        this._isRunning = false; // Reset de segurança
         this._isRunning = true;
+        this._cancelled = false;
 
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
-        const chunkSize = Math.max(5, Math.min(200, Math.floor(numGames / 15)));
         const name = game ? game.name : gameKey;
 
         this._showProgress(name, numGames);
@@ -174,26 +172,48 @@ class AsyncGenerator {
             const allGames = [];
             const seen = new Set();
             let chunks = 0;
+            let staleCount = 0; // Detecta quando não gera mais jogos novos
 
-            for (let i = 0; i < numGames && !this._cancelled;) {
-                const batch = Math.min(chunkSize, numGames - allGames.length);
-                if (batch <= 0) break;
+            // Micro-batch: gera poucos jogos por vez para não travar
+            // Ajusta dinamicamente: começa com batch maior, reduz se duplica muito
+            let batchSize = Math.min(50, Math.max(5, Math.floor(numGames / 20)));
+
+            while (allGames.length < numGames && !this._cancelled) {
+                const remaining = numGames - allGames.length;
+                const batch = Math.min(batchSize, remaining);
                 chunks++;
 
+                const prevLen = allGames.length;
+
                 let r;
-                try { r = SmartCoverageEngine.generate(gameKey, batch, selectedNumbers, fixedNumbers, drawSize, options); }
-                catch(e) { r = { games: [] }; }
+                try {
+                    r = SmartCoverageEngine.generate(gameKey, batch, selectedNumbers, fixedNumbers, drawSize, options);
+                } catch(e) {
+                    r = { games: [] };
+                }
 
                 if (r && r.games) {
                     for (const g of r.games) {
                         const k = g.join(',');
-                        if (!seen.has(k)) { seen.add(k); allGames.push(g); }
+                        if (!seen.has(k)) {
+                            seen.add(k);
+                            allGames.push(g);
+                        }
                     }
                 }
 
-                i += chunkSize;
-                this._updateProgress(Math.min(allGames.length, numGames), numGames, name);
-                await this._yield();
+                // Detectar estagnação (muitas duplicatas)
+                if (allGames.length === prevLen) {
+                    staleCount++;
+                    if (staleCount > 10) break; // Parar se não gera novos há 10 tentativas
+                } else {
+                    staleCount = 0;
+                }
+
+                this._updateProgress(allGames.length, numGames, name);
+
+                // Yield real — libera a thread para o browser renderizar
+                await this._yieldReal();
             }
 
             if (this._cancelled) {
@@ -206,12 +226,13 @@ class AsyncGenerator {
 
             this._completeProgress(allGames.length, name);
 
+            const elapsed = Date.now() - this._startTime;
             const result = {
                 games: allGames,
                 pool: [...new Set(allGames.flat())].sort((a,b) => a-b),
                 analysis: {
                     engine: 'CoverageEngine-Async', totalGames: allGames.length,
-                    elapsed: (Date.now() - this._startTime) + 'ms',
+                    elapsed: elapsed + 'ms',
                     strategy: 'COVERAGE_FAST', asyncMode: true, chunksProcessed: chunks
                 }
             };
@@ -221,25 +242,32 @@ class AsyncGenerator {
             }
 
             this._isRunning = false;
-            setTimeout(() => callback(result, false), 600);
+            setTimeout(() => callback(result, false), 400);
 
         } catch (e) {
-            console.error('[AsyncGen]', e);
+            console.error('[AsyncGen Coverage]', e);
             this._isRunning = false;
             callback(null, false, e);
         }
     }
 
     // ═══════════════════════════════════════════════════════════
+    //  UTILITÁRIOS
+    // ═══════════════════════════════════════════════════════════
 
+    // Yield mínimo (para operações leves)
     static _yield() { return new Promise(r => setTimeout(r, 0)); }
+
+    // Yield real — 8ms para garantir que o browser pinta a tela
+    static _yieldReal() { return new Promise(r => setTimeout(r, 8)); }
 
     static _dedupe(games) {
         const seen = new Set();
         return games.filter(g => { const k = g.join(','); if (seen.has(k)) return false; seen.add(k); return true; });
     }
 
-    static shouldUseAsync(numGames) { return numGames >= 200; }
+    // Threshold baixo para usar async — quase tudo passa por aqui
+    static shouldUseAsync(numGames, gameKey) { return numGames >= 50; }
 }
 
 if (typeof window !== 'undefined') window.AsyncGenerator = AsyncGenerator;
