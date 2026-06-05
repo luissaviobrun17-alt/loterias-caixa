@@ -332,8 +332,8 @@ class UI {
                 const modeLabel = sniperMode ? '🎯 SNIPER + Cobertura' : '📐 Cobertura Estatística';
                 this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">' + modeLabel + '...</div></div>';
 
-                // ═══ v15.0: GERAÇÃO ASSÍNCRONA para grandes volumes ═══
-                if (typeof AsyncGenerator !== 'undefined' && AsyncGenerator.shouldUseAsync(qty, this.currentGameKey)) {
+                // ═══ v15.0: GERAÇÃO ASSÍNCRONA — sempre para Cobertura (motor pesado) ═══
+                if (typeof AsyncGenerator !== 'undefined') {
                     const coverageOpts = { precisionMode: sniperMode, precisionPoolSize: sniperPoolSize };
                     const selectedArr = this.getSelectedNumbers() || [];
                     if (sniperMode && selectedArr.length >= drawSize) {
