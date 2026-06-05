@@ -22,7 +22,7 @@ class AsyncGenerator {
     //  BARRA DE PROGRESSO — diretamente no games-container
     // ═══════════════════════════════════════════════════════════
 
-    static _showProgress(container, lotteryName, total) {
+    static _showProgress(lotteryName, total) {
         this._startTime = Date.now();
         this._cancelled = false;
 
@@ -31,18 +31,18 @@ class AsyncGenerator {
             const s = document.createElement('style');
             s.id = 'apg-css';
             s.textContent = `
-                .apg-box{padding:20px;text-align:center}
-                .apg-label{font-size:0.8rem;color:#94A3B8;margin-bottom:6px}
-                .apg-lottery-name{color:#10B981;font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:0.7rem;margin-bottom:12px}
-                .apg-pct-big{font-size:2.5rem;font-weight:900;color:#10B981;font-family:'Inter',monospace;line-height:1;margin-bottom:4px;transition:color .3s}
-                .apg-count-text{font-size:0.85rem;color:#CBD5E1;font-weight:700;margin-bottom:14px}
-                .apg-track{width:100%;height:18px;background:rgba(0,0,0,0.4);border-radius:9px;overflow:hidden;border:1px solid rgba(16,185,129,0.15);position:relative}
-                .apg-fill{height:100%;width:0%;background:linear-gradient(90deg,#059669,#10B981,#34D399);border-radius:9px;transition:width .3s ease;position:relative}
+                .apg-box{padding:16px;text-align:center;margin-top:8px;background:linear-gradient(165deg,rgba(15,23,42,0.98),rgba(30,41,59,0.95));border:1px solid rgba(16,185,129,0.25);border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+                .apg-label{font-size:0.8rem;color:#94A3B8;margin-bottom:4px}
+                .apg-lottery-name{color:#10B981;font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:0.7rem;margin-bottom:10px}
+                .apg-pct-big{font-size:2.2rem;font-weight:900;color:#10B981;font-family:'Inter',monospace;line-height:1;margin-bottom:2px;transition:color .3s}
+                .apg-count-text{font-size:0.8rem;color:#CBD5E1;font-weight:700;margin-bottom:10px}
+                .apg-track{width:100%;height:16px;background:rgba(0,0,0,0.4);border-radius:8px;overflow:hidden;border:1px solid rgba(16,185,129,0.15);position:relative}
+                .apg-fill{height:100%;width:0%;background:linear-gradient(90deg,#059669,#10B981,#34D399);border-radius:8px;transition:width .3s ease;position:relative}
                 .apg-fill::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:apgShine 1.5s ease-in-out infinite}
                 @keyframes apgShine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-                .apg-stats{display:flex;justify-content:center;gap:20px;margin-top:12px;font-size:0.72rem;color:#64748B}
+                .apg-stats{display:flex;justify-content:center;gap:16px;margin-top:8px;font-size:0.68rem;color:#64748B}
                 .apg-stats span{color:#10B981;font-weight:800}
-                .apg-cancel-btn{margin-top:10px;padding:6px 18px;border-radius:8px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:#F87171;font-size:0.72rem;font-weight:700;cursor:pointer;transition:all .2s}
+                .apg-cancel-btn{margin-top:8px;padding:5px 16px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:#F87171;font-size:0.68rem;font-weight:700;cursor:pointer;transition:all .2s}
                 .apg-cancel-btn:hover{background:rgba(239,68,68,0.2);border-color:#EF4444}
                 .apg-done .apg-pct-big{color:#22C55E}
                 .apg-done .apg-fill{background:linear-gradient(90deg,#059669,#22C55E)}
@@ -51,6 +51,9 @@ class AsyncGenerator {
             document.head.appendChild(s);
         }
 
+        const container = document.getElementById('async-progress-inline');
+        if (!container) return;
+        container.style.display = 'block';
         container.innerHTML = `
             <div class="apg-box" id="apg-box">
                 <div class="apg-label">⚡ Gerando Jogos</div>
@@ -108,6 +111,11 @@ class AsyncGenerator {
         if (etaEl) etaEl.textContent = '✓';
         const btn = document.getElementById('apg-cancel-btn');
         if (btn) btn.style.display = 'none';
+        // Auto-esconder após 3 segundos
+        setTimeout(() => {
+            const c = document.getElementById('async-progress-inline');
+            if (c) { c.style.display = 'none'; c.innerHTML = ''; }
+        }, 3000);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -120,9 +128,8 @@ class AsyncGenerator {
 
         const chunkSize = this.CHUNK_SIZES[gameKey] || 200;
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
-        const container = document.getElementById('games-container');
 
-        this._showProgress(container, game ? game.name : gameKey, numGames);
+        this._showProgress(game ? game.name : gameKey, numGames);
         await this._yield();
 
         try {
@@ -176,9 +183,8 @@ class AsyncGenerator {
 
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         const chunkSize = this.CHUNK_SIZES[gameKey] || 200;
-        const container = document.getElementById('games-container');
 
-        this._showProgress(container, game ? game.name : gameKey, numGames);
+        this._showProgress(game ? game.name : gameKey, numGames);
         await this._yield();
 
         try {
