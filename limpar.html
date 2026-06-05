@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head><title>B2B - Limpar Cache</title></head>
+<body style="background:#111;color:#0f0;font-family:monospace;padding:40px;font-size:18px">
+<h1 style="color:#0f0">🔧 B2B Loterias — Limpeza de Cache</h1>
+<pre id="log">Iniciando limpeza...</pre>
+<script>
+var logEl = document.getElementById('log');
+function log(msg) {
+    logEl.textContent += '\n' + msg;
+    console.log(msg);
+}
+
+(async function() {
+    // 1. Unregister ALL service workers
+    if ('serviceWorker' in navigator) {
+        var regs = await navigator.serviceWorker.getRegistrations();
+        log('Service Workers encontrados: ' + regs.length);
+        for (var i = 0; i < regs.length; i++) {
+            await regs[i].unregister();
+            log('✅ SW desregistrado: ' + regs[i].scope);
+        }
+    } else {
+        log('Navigator não suporta SW');
+    }
+
+    // 2. Delete ALL caches
+    if (typeof caches !== 'undefined') {
+        var names = await caches.keys();
+        log('Caches encontrados: ' + names.length);
+        for (var j = 0; j < names.length; j++) {
+            await caches.delete(names[j]);
+            log('🗑️ Cache deletado: ' + names[j]);
+        }
+    }
+
+    // 3. Clear localStorage cache markers
+    try {
+        var removed = 0;
+        for (var k = localStorage.length - 1; k >= 0; k--) {
+            var key = localStorage.key(k);
+            if (key && key.includes('sw') || key && key.includes('cache')) {
+                localStorage.removeItem(key);
+                removed++;
+            }
+        }
+        log('localStorage limpo: ' + removed + ' itens');
+    } catch(e) {}
+
+    log('');
+    log('═══════════════════════════════════════');
+    log('✅ LIMPEZA COMPLETA!');
+    log('═══════════════════════════════════════');
+    log('');
+    log('Redirecionando para B2B Loterias em 3 segundos...');
+
+    setTimeout(function() {
+        window.location.href = 'index.html?nocache=' + Date.now();
+    }, 3000);
+})();
+</script>
+</body>
+</html>

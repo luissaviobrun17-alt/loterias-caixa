@@ -1,0 +1,40 @@
+=============================================
+  B2B LOTERIAS - VERSAO MOBILE
+  Gerador Inteligente de Apostas
+=============================================
+
+COMO ABRIR NO SEU CELULAR:
+
+  IPHONE (iOS):
+  1. Toque no arquivo ZIP para descompactar
+  2. Abra o arquivo "B2B_Loterias_Mobile.html"
+  3. Ele abrira automaticamente no Safari
+  4. Pronto! Use normalmente.
+
+  ANDROID:
+  1. Toque no arquivo ZIP para descompactar
+     (ou use o app "Arquivos" do celular)
+  2. Abra o arquivo "B2B_Loterias_Mobile.html"
+  3. Escolha abrir com Chrome ou outro navegador
+  4. Pronto! Use normalmente.
+
+DICAS IMPORTANTES:
+  - O programa funciona 100% OFFLINE
+    (nao precisa de internet para usar)
+  - Salve o arquivo em "Favoritos" do navegador
+    para acessar rapidamente
+  - Use o botao "Salvar" dentro do programa
+    para guardar seus jogos
+
+FUNCIONALIDADES:
+  - Mega Sena, Lotofacil, Quina, Dupla Sena,
+    Lotomania, Timemania e Dia de Sorte
+  - Numeros sugeridos por Inteligencia Artificial
+  - Estatisticas dos ultimos sorteios
+  - Fechamento com garantia de acertos
+  - Salvar, copiar e imprimir jogos
+  - Conferir resultados oficiais
+
+=============================================
+  B2B Loterias - Boa Sorte!
+=============================================

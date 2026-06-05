@@ -1,0 +1,36 @@
+════════════════════════════════════════════════════════════
+   PROBLEMA ENCONTRADO!
+   
+   Você tem um "Script snippet #1" ANTIGO salvo
+   no Chrome DevTools (aba Sources).
+   
+   Esse snippet NUNCA se atualiza sozinho.
+   Toda vez que você aperta Ctrl+Enter, ele
+   roda o código VELHO.
+   
+════════════════════════════════════════════════════════════
+
+SOLUÇÃO (30 segundos):
+
+1. No Chrome, abra o DevTools (F12)
+
+2. Clique com BOTÃO DIREITO em "Script snippet #1"
+   (está no painel esquerdo da aba Sources)
+
+3. Clique "Remove" para DELETAR o snippet antigo
+
+4. Volte para o B2B (aba B2B Loterias)
+
+5. Gere jogos → Clique "APOSTE ONLINE" (botão azul)
+
+6. Na Caixa, clique na aba "Console" (NÃO Sources!)
+
+7. Clique na linha de entrada e pressione Ctrl+V
+
+8. Pressione Enter
+
+PRONTO! O script novo (v5.0) vai funcionar com
+fechamento automático de modais.
+
+O alert vai mostrar: "[B2B v5.0] XX/YY jogos..."
+(se mostrar "Pronto!" = ainda é o snippet antigo)

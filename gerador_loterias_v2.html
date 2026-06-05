@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Gerador Loterias Caixa</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: var(--text-main);
+            font-family: 'Inter', system-ui, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+            background: linear-gradient(to right, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: rgba(0,0,0,0.2);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            border-color: var(--accent);
+        }
+
+        button {
+            background: var(--accent);
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-box {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .numbers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .number-ball {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .resultados-area {
+            margin-top: 2rem;
+        }
+        
+        .ticket {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--glass-border);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="glass-panel">
+            <h1>Loterias Caixa - Gerador Inteligente</h1>
+            <p style="color: var(--text-muted)">Fechamentos estatísticos e análises baseadas nos últimos 3, 5, 10 e 15 sorteios.</p>
+            
+            <div class="form-group">
+                <label for="loteria">Selecione a Loteria</label>
+                <select id="loteria" onchange="atualizarOpcoes()">
+                    <option value="megasena">Mega Sena</option>
+                    <option value="lotofacil">Lotofácil</option>
+                    <option value="quina">Quina</option>
+                    <option value="duplasena">Dupla Sena</option>
+                    <option value="lotomania">Lotomania</option>
+                    <option value="timemania">Timemania</option>
+                    <option value="diadesorte">Dia de Sorte</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="fechamento">Tipo de Fechamento</label>
+                <select id="fechamento">
+                    <!-- Preenchido via JS -->
+                </select>
+            </div>
+
+            <button onclick="gerarEstatisticasEJogo()">Gerar Análise e Jogos</button>
+        </div>
+
+        <div id="statsPanel" class="glass-panel" style="display: none;">
+            <h2>Estatísticas Recentes</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <label>Últimos 3 Sorteios</label>
+                    <div id="stat3" style="font-size: 0.9rem; color: #10b981;"></div>
+                </div>
+                <div class="stat-box">
+                    <label>Últimos 5 Sorteios</label>
+                    <div id="stat5" style="font-size: 0.9rem; color: #3b82f6;"></div>
+                </div>
+                <div class="stat-box">
+                    <label>Últimos 10 Sorteios</label>
+                    <div id="stat10" style="font-size: 0.9rem; color: #f59e0b;"></div>
+                </div>
+                <div class="stat-box">
+                    <label>Últimos 15 Sorteios</label>
+                    <div id="stat15" style="font-size: 0.9rem; color: #ef4444;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultados" class="resultados-area glass-panel" style="display: none;">
+            <h2>Jogos Gerados</h2>
+            <div id="jogosList"></div>
+        </div>
+    </div>
+
+    <script>
+        const confLoterias = {
+            megasena: { max: 60, fechamentos: ["Garantir 6 (Sena)", "Garantir 5 (Quina)", "Garantir 4 (Quadra)"] },
+            lotofacil: { max: 25, fechamentos: ["Garantir 15", "Garantir 14", "Garantir 13"] },
+            quina: { max: 80, fechamentos: ["Garantir 5 (Quina)", "Garantir 4 (Quadra)", "Garantir 3 (Terno)"] },
+            duplasena: { max: 50, fechamentos: ["Garantir 6 (Sena)", "Garantir 5 (Quina)", "Garantir 4 (Quadra)"] },
+            lotomania: { max: 100, fechamentos: ["Garantir 20", "Garantir 19", "Garantir 18", "Garantir 17"] },
+            timemania: { max: 80, aposta: 10, fechamentos: ["Garantir 7", "Garantir 6", "Garantir 5"] },
+            diadesorte: { max: 31, fechamentos: ["Garantir 7", "Garantir 6", "Garantir 5"] }
+        };
+
+        function atualizarOpcoes() {
+            const loteria = document.getElementById('loteria').value;
+            const fechamentoSelect = document.getElementById('fechamento');
+            fechamentoSelect.innerHTML = '';
+            
+            confLoterias[loteria].fechamentos.forEach(f => {
+                const opt = document.createElement('option');
+                opt.value = f;
+                opt.textContent = f;
+                fechamentoSelect.appendChild(opt);
+            });
+        }
+
+        function gerarNumerosAleatorios(quantidade, max) {
+            let numeros = new Set();
+            while(numeros.size < quantidade) {
+                numeros.add(Math.floor(Math.random() * max) + 1);
+            }
+            return Array.from(numeros).sort((a,b) => a - b);
+        }
+
+        function gerarEstatisticaMock(max) {
+            const maisSairam = gerarNumerosAleatorios(5, max);
+            const menosSairam = gerarNumerosAleatorios(5, max);
+            return `Mais: ${maisSairam.join(', ')}<br>Menos: ${menosSairam.join(', ')}`;
+        }
+
+        function gerarEstatisticasEJogo() {
+            const loteria = document.getElementById('loteria').value;
+            const max = confLoterias[loteria].max;
+            
+            // Mostrar paineis
+            document.getElementById('statsPanel').style.display = 'block';
+            document.getElementById('resultados').style.display = 'block';
+
+            // Preencher estatísticas (simuladas)
+            document.getElementById('stat3').innerHTML = gerarEstatisticaMock(max);
+            document.getElementById('stat5').innerHTML = gerarEstatisticaMock(max);
+            document.getElementById('stat10').innerHTML = gerarEstatisticaMock(max);
+            document.getElementById('stat15').innerHTML = gerarEstatisticaMock(max);
+
+            // Gerar 3 jogos de exemplo
+            const jogosList = document.getElementById('jogosList');
+            jogosList.innerHTML = '';
+            
+            let numPorJogo = 6;
+            if(loteria === 'lotofacil') numPorJogo = 15;
+            if(loteria === 'quina') numPorJogo = 5;
+            if(loteria === 'lotomania') numPorJogo = 50;
+            if(loteria === 'timemania') numPorJogo = 10;
+            if(loteria === 'diadesorte') numPorJogo = 7;
+
+            for(let i = 1; i <= 3; i++) {
+                const aposta = gerarNumerosAleatorios(numPorJogo, max);
+                
+                let html = `<div class="ticket"><strong>Jogo ${i}:</strong> <div class="numbers">`;
+                aposta.forEach(n => {
+                    html += `<div class="number-ball">${n < 10 ? '0'+n : n}</div>`;
+                });
+                html += `</div></div>`;
+                jogosList.innerHTML += html;
+            }
+        }
+
+        // Inicializar opções
+        atualizarOpcoes();
+    </script>
+</body>
+</html>
