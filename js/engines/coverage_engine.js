@@ -291,7 +291,10 @@ class CoverageEngine {
             // ======================================================================
             const rankedNumbers = layers.ranked.map(r => r.num);
             const candidatesPool = [];
-            const maxCandidates = drawSize >= 20 ? Math.max(100, Math.min(500, numGames + 50)) : Math.max(300, Math.min(1500, numGames + 200));
+            // v11.0 FIX: maxCandidates deve ser >= numGames*2 para não esgotar o pool
+            const maxCandidates = drawSize >= 20 
+                ? Math.max(numGames * 2, Math.min(2000, numGames * 3)) 
+                : Math.max(numGames * 2, Math.min(5000, numGames * 3));
 
             // v13.4: Remoção do CombinationGenerator para TODAS as loterias.
             // O gerador lexicográfico causava "vício" (Efeito Canhão de Vidro) nas dezenas mais quentes.
@@ -315,7 +318,7 @@ class CoverageEngine {
                 const optsWithScores = { ..._opts, quantumScores: scoresMap };
                 
                 let attempts = 0;
-                const maxAttempts = maxCandidates * 4;
+                const maxAttempts = maxCandidates * 6; // v11.0: aumentado de 4x para 6x
                 while (candidatesPool.length < maxCandidates && attempts < maxAttempts) {
                     attempts++;
                     const game = this._generateValidCandidate(cfg, pool, fixed, pool[0], pool[pool.length - 1], optsWithScores);
@@ -338,14 +341,29 @@ class CoverageEngine {
 
             for (let g = 0; g < numGames; g++) {
                 if (candidatesPool.length === 0) {
-                    // Fallback se esgotar o pool termodinâmico
-                    const fallbackGame = this._generateValidCandidate(cfg, pool, fixed, pool[0], pool[pool.length - 1], _opts);
-                    if (fallbackGame) {
-                        games.push(fallbackGame);
-                        usedKeys.add(fallbackGame.join(','));
-                        for (const n of fallbackGame) numberUsage[n] = (numberUsage[n] || 0) + 1;
+                    // v11.0 FIX: Reabastecer pool em lote (não apenas 1 fallback)
+                    const refillCount = Math.min(500, numGames - g);
+                    let refillAttempts = 0;
+                    const refillMax = refillCount * 5;
+                    while (candidatesPool.length < refillCount && refillAttempts < refillMax) {
+                        refillAttempts++;
+                        const refillGame = this._generateValidCandidate(cfg, pool, fixed, pool[0], pool[pool.length - 1], _opts);
+                        if (refillGame && !usedKeys.has(refillGame.join(','))) {
+                            const energy = refillGame.reduce((sum, num) => sum + (rankedNumbers ? rankedNumbers.indexOf(num) : 0), 0);
+                            candidatesPool.push({ game: refillGame, energy: Math.max(0, energy) });
+                        }
                     }
-                    continue;
+                    console.log('[COVERAGE] v11.0 Refill: +' + candidatesPool.length + ' candidatos (jogo ' + g + '/' + numGames + ')');
+                    if (candidatesPool.length === 0) {
+                        // Ultra-fallback: gerar 1 candidato sem filtro de duplicata
+                        const fallbackGame = this._generateValidCandidate(cfg, pool, fixed, pool[0], pool[pool.length - 1], _opts);
+                        if (fallbackGame) {
+                            games.push(fallbackGame);
+                            usedKeys.add(fallbackGame.join(','));
+                            for (const n of fallbackGame) numberUsage[n] = (numberUsage[n] || 0) + 1;
+                        }
+                        continue;
+                    }
                 }
 
                 let bestIdx = -1;

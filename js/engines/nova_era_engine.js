@@ -301,17 +301,26 @@ class NovaEraEngine {
     // â•‘  CALIBRAÃ‡ÃƒO ADAPTATIVA â€” Ajusta diversidade por quantidade         â•‘
     // â•‘  10 jogos â†’ MÃXIMA diversidade (aberto, exploratÃ³rio)              â•‘
     // â•‘  100 jogos â†’ Moderado (equilÃ­brio IA + cobertura)                  â•‘
-    // â•‘  1000 jogos â†’ Focado (convergÃªncia, menos noise)                   â•‘
-    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-    // â•‘  â˜…â˜…â˜… v5.0: CALIBRAÃ‡ÃƒO TIERED â€” MÃ©todos DIFERENTES por volume â˜…â˜…â˜…  â•‘
-    // â•‘                                                                     â•‘
-    // â•‘  FILOSOFIA:                                                         â•‘
-    // â•‘  10-50 jogos   â†’ SNIPER: Cada jogo Ã© o MELHOR possÃ­vel              â•‘
-    // â•‘  100-500 jogos â†’ CIRÃšRGICO: IA focada + filtros rigorosos           â•‘
-    // â•‘  1K-5K jogos   â†’ INTELIGENTE: EquilÃ­brio prediÃ§Ã£o + cobertura      â•‘
-    // â•‘  10K+ jogos    â†’ COBERTURA: Diversidade mÃ¡xima com IA ativa         â•‘
-    // â•šâ• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• 
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║  MÉTODO PRINCIPAL — GERAR JOGOS COM PROJEÇÃO FUTURA         ║
+    // ╚══════════════════════════════════════════════════════════════╝
+
+
+    // ╔══════════════════════════════════════════════════════════════════════════════════════╗
+    // ║  CALIBRAÇÃO ADAPTATIVA — Ajusta diversidade por quantidade         ║
+    // ║  10 jogos → MÁXIMA diversidade (aberto, exploratório)              ║
+    // ║  100 jogos → Moderado (equilíbrio IA + cobertura)                  ║
+    // ║  1000 jogos → Focado (convergência, menos noise)                   ║
+    // ╚══════════════════════════════════════════════════════════════════════════════════════╝
+    // ╔══════════════════════════════════════════════════════════════════════════════════════╗
+    // ║  ★★★ v5.0: CALIBRAÇÃO TIERED — Métodos DIFERENTES por volume ★★★  ║
+    // ║                                                                     ║
+    // ║  FILOSOFIA:                                                         ║
+    // ║  10-50 jogos   → SNIPER: Cada jogo é o MELHOR possível              ║
+    // ║  100-500 jogos → CIRÚRGICO: IA focada + filtros rigorosos           ║
+    // ║  1K-5K jogos   → INTELIGENTE: Equilíbrio predição + cobertura      ║
+    // ║  10K+ jogos    → COBERTURA: Diversidade máxima com IA ativa         ║
+    // ╚══════════════════════════════════════════════════════════════════════════════════════╝
     static _getAdaptiveParams(numGames, profile) {
         const drawSize = profile.drawSize;
         const totalRange = profile.range[1] - profile.range[0] + 1;
@@ -420,7 +429,11 @@ class NovaEraEngine {
         // FASE 1: ANÃLISE PREDITIVA COMPLETA â€” 7 CAMADAS
         // Scorar TODOS os nÃºmeros do range (NENHUM eliminado)
         // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+        // v11.0 FIX: Setar drawSize e modo diversidade ANTES de _scoreAllNumbers
+        this._currentDrawSize = drawSize;
+        this._sniperMode = numGames > 100; // Floor alto para diversidade em lotes grandes
         const scores = this._scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange);
+        this._sniperMode = false;
 
         // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
         // FASE 2: DEFINIR POOL
