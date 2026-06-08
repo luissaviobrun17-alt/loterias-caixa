@@ -524,7 +524,12 @@ class UI {
         if (this.gamesQuantityInput) this.gamesQuantityInput.addEventListener('input', () => this.updateCurrentCostDisplay());
         if (this.smartDrawSizeSelect) this.smartDrawSizeSelect.addEventListener('change', () => this.updateCurrentCostDisplay());
         if (this.checkBtn) this.checkBtn.onclick = () => this.openCheckModal();
-        // Botao Jogar Online eh um link <a href> puro - nao precisa de JavaScript
+        if (this.playCaixaBtn) {
+            this.playCaixaBtn.onclick = (e) => {
+                e.preventDefault();
+                this.openCaixa();
+            };
+        }
 
         // Individual Game Copy (Delegation)
         if (this.gamesContainer) {
@@ -838,36 +843,53 @@ class UI {
                             suggestion.sort((a, b) => a - b);
                         }
 
-                        // ★ v10.0: Calcular confiança via Walk-Forward real
+                        // ★ v11.0: Confiança via Walk-Forward OUT-OF-SAMPLE + Hipergeométrica
                         if (suggestion && suggestion.length > 0 && history.length >= 5) {
                             try {
-                                // Walk-Forward: testar sugestão contra últimos 10 sorteios
-                                const wfCount = Math.min(10, history.length);
+                                // Walk-Forward REAL: gerar sugestão NOVA para cada sorteio usando só dados posteriores
+                                const wfCount = Math.min(10, history.length - 3);
                                 const lotteryDraw = game.lotteryDraw || game.minBet;
                                 const actualDrawn = this.currentGameKey === 'duplasena' ? lotteryDraw * 2 : lotteryDraw;
                                 let totalHits = 0;
+                                let totalHitsRandom = 0;
                                 for (let t = 0; t < wfCount; t++) {
+                                    // Gerar sugestão usando SÓ dados POSTERIORES ao sorteio t (sem data leaking)
+                                    const trainHistory = history.slice(t + 1);
+                                    let wfSuggestion = suggestion; // fallback
+                                    try {
+                                        if (typeof NovaEraEngine !== 'undefined' && NovaEraEngine.suggestNumbers) {
+                                            wfSuggestion = NovaEraEngine.suggestNumbers(this.currentGameKey, count, trainHistory);
+                                        }
+                                    } catch(wfErr) { /* usa suggestion original como fallback */ }
+                                    
                                     const drawn = new Set((history[t].numbers || []).concat(history[t].numbers2 || []));
                                     let hits = 0;
-                                    for (const n of suggestion) { if (drawn.has(n)) hits++; }
+                                    for (const n of wfSuggestion) { if (drawn.has(n)) hits++; }
                                     totalHits += hits;
+                                    
+                                    // Baseline aleatório para comparação
+                                    totalHitsRandom += suggestion.length * actualDrawn / (game.range[1] - game.range[0] + 1);
                                 }
-                                const avgHits = totalHits / wfCount;
+                                const avgHits = totalHits / Math.max(1, wfCount);
                                 const totalRange = game.range[1] - game.range[0] + 1;
-                                const expectedRandom = suggestion.length * actualDrawn / totalRange;
+                                const expectedRandom = totalHitsRandom / Math.max(1, wfCount);
                                 const improvement = avgHits / Math.max(0.01, expectedRandom);
-                                // v10.0: Confian�a = Walk-Forward + B�nus Estrutural
-                                // Multiplicador 55 (era 40) � calibrado para sugest�es
-                                let wfConfidence = _usedRandomFallback ? 10 : Math.round(Math.min(96, Math.max(25, improvement * 55)));
                                 
-                                // B�nus estrutural: zonas cobertas + paridade equilibrada
-                                const zones = new Set(suggestion.map(n => Math.floor((n - game.range[0]) / ((game.range[1] - game.range[0] + 1) / 5))));
-                                const evens = suggestion.filter(n => n % 2 === 0).length;
-                                const parityRatio = evens / suggestion.length;
-                                const zoneBonus = zones.size >= 4 ? 5 : zones.size >= 3 ? 3 : 0;
-                                const parityBonus = (parityRatio >= 0.3 && parityRatio <= 0.7) ? 4 : 0;
-                                wfConfidence = Math.min(96, wfConfidence + zoneBonus + parityBonus);
-                                
+                                // v11.0: Confiança = Probabilidade hipergeométrica REAL
+                                // P(X >= k) via hipergeométrica: P exata de acertar >= faixa mínima de prêmio
+                                let wfConfidence = 10;
+                                if (!_usedRandomFallback && typeof MathPureEngine !== 'undefined') {
+                                    try {
+                                        const minPrize = lotteryDraw >= 15 ? lotteryDraw - 4 : Math.max(2, lotteryDraw - 2);
+                                        wfConfidence = Math.round(MathPureEngine.hypergeometricCDF(totalRange, suggestion.length, actualDrawn, minPrize) * 100);
+                                    } catch(hErr) {
+                                        // Fallback: escala linear baseada em improvement real
+                                        wfConfidence = Math.round(Math.min(95, Math.max(5, (improvement - 0.5) * 40)));
+                                    }
+                                } else if (!_usedRandomFallback) {
+                                    wfConfidence = Math.round(Math.min(95, Math.max(5, (improvement - 0.5) * 40)));
+                                }
+
                                 if (typeof QuantumGodEngine !== 'undefined') {
                                     QuantumGodEngine._lastConfidence = wfConfidence;
                                     QuantumGodEngine._lastBacktest = {

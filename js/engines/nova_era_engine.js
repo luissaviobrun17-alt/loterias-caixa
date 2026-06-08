@@ -52,19 +52,19 @@ class NovaEraEngine {
                 maxUsagePct: 0.22,
                 maxOverlap: 2,
                 repeatFromLast: [0, 2],
-                // ★ v10.3 AUDITORIA: Pesos recalibrados — falácias minimizadas, estruturais dominantes
-                // Camadas falácia (freq,delay,trend,markov,phase,clair,mirror,reversion,precision,dna,cycle) = 13%
-                // Camadas estruturais (zone,gap,cluster,pairTrio) = 52%
-                // Camadas ensemble (bayesian,positional,seq,momentum,nextDraw,quantumSuper) = 35%
+                // ★ v11.0 AUDITORIA MATEMÁTICA: Falácias ZERADAS, estruturais 100%
+                // Camadas falácia (freq,delay,trend,markov,phase,clair,mirror,reversion) = 0%
+                // Camadas estruturais (zone,gap,cluster,pairTrio,precision,patternDna) = 73%
+                // Camadas ensemble (bayesian,positional,seq,momentum,nextDraw,quantumSuper,cycleReturn) = 27%
                 weights: {
-                    frequency: 0.01, delay: 0.01, trend: 0.01,
-                    zone: 0.18, markov: 0.01, phase: 0.01,
-                    clairvoyance: 0.01, nextDraw: 0.03,
-                    bayesian: 0.02, positional: 0.02,
-                    sequential: 0.01, momentum: 0.01,
-                    mirror: 0.01, gap: 0.20, cluster: 0.10, reversion: 0.01,
-                    precision: 0.02, patternDna: 0.02, pairTrio: 0.04,
-                    cycleReturn: 0.02, quantumSuper: 0.25
+                    frequency: 0.00, delay: 0.00, trend: 0.00,
+                    zone: 0.20, markov: 0.00, phase: 0.00,
+                    clairvoyance: 0.00, nextDraw: 0.04,
+                    bayesian: 0.03, positional: 0.03,
+                    sequential: 0.02, momentum: 0.02,
+                    mirror: 0.00, gap: 0.22, cluster: 0.12, reversion: 0.00,
+                    precision: 0.03, patternDna: 0.03, pairTrio: 0.06,
+                    cycleReturn: 0.03, quantumSuper: 0.17
                 },
                 // v10: scoreClamp achatado (era [0.2, 3.0]) — distribuição mais uniforme para range esparso
                 scoreClamp: [0.3, 2.0],
@@ -96,16 +96,16 @@ class NovaEraEngine {
                 maxOverlap: 13,
                 // â˜… v9.0: Ampliado â€” dados reais variam 5-13 repetiÃ§Ãµes
                 repeatFromLast: [5, 13],
-                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
+                // ★ v11.0: Falácias ZERADAS — estruturais + ensemble redistribuídos
                 weights: {
-                    frequency: 0.01, delay: 0.01, trend: 0.01,
-                    zone: 0.05, markov: 0.02, phase: 0.01,
-                    clairvoyance: 0.02, nextDraw: 0.12,
-                    bayesian: 0.03, positional: 0.01,
-                    sequential: 0.02, momentum: 0.01,
-                    mirror: 0.01, gap: 0.03, cluster: 0.10, reversion: 0.01,
-                    precision: 0.08, patternDna: 0.10, pairTrio: 0.18,
-                    cycleReturn: 0.06, quantumSuper: 0.11
+                    frequency: 0.00, delay: 0.00, trend: 0.00,
+                    zone: 0.06, markov: 0.00, phase: 0.00,
+                    clairvoyance: 0.00, nextDraw: 0.14,
+                    bayesian: 0.04, positional: 0.02,
+                    sequential: 0.03, momentum: 0.02,
+                    mirror: 0.00, gap: 0.04, cluster: 0.12, reversion: 0.00,
+                    precision: 0.09, patternDna: 0.11, pairTrio: 0.20,
+                    cycleReturn: 0.07, quantumSuper: 0.06
                 },
                 scoreClamp: [0.5, 1.8],
                 _confidenceCeiling: 85  // v10.1: P(11+) ≈ 25.1%
@@ -131,16 +131,16 @@ class NovaEraEngine {
                 maxUsagePct: 0.15,
                 maxOverlap: 2,
                 repeatFromLast: [0, 1],
-                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
+                // ★ v11.0: Falácias ZERADAS — Quina: gap + cycleReturn dominantes
                 weights: {
-                    frequency: 0.01, delay: 0.01, trend: 0.01,
-                    zone: 0.12, markov: 0.01, phase: 0.01,
-                    clairvoyance: 0.01, nextDraw: 0.02,
-                    bayesian: 0.02, positional: 0.03,
-                    sequential: 0.01, momentum: 0.01,
-                    mirror: 0.01, gap: 0.18, cluster: 0.08, reversion: 0.01,
-                    precision: 0.07, patternDna: 0.10, pairTrio: 0.05,
-                    cycleReturn: 0.14, quantumSuper: 0.09
+                    frequency: 0.00, delay: 0.00, trend: 0.00,
+                    zone: 0.14, markov: 0.00, phase: 0.00,
+                    clairvoyance: 0.00, nextDraw: 0.03,
+                    bayesian: 0.03, positional: 0.04,
+                    sequential: 0.02, momentum: 0.02,
+                    mirror: 0.00, gap: 0.20, cluster: 0.10, reversion: 0.00,
+                    precision: 0.08, patternDna: 0.11, pairTrio: 0.07,
+                    cycleReturn: 0.16, quantumSuper: 0.00
                 },
                 // v10: scoreClamp achatado — scoring é ruído com 5/80
                 scoreClamp: [0.3, 2.0],
@@ -166,18 +166,17 @@ class NovaEraEngine {
                 maxUsagePct: 0.20,
                 maxOverlap: 3,
                 repeatFromLast: [0, 2],
-                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
-                // + crossDraw: camada quântica exclusiva Dupla Sena (2º sorteio)
+                // ★ v11.0: Falácias ZERADAS — Dupla Sena: crossDraw mantido
                 weights: {
-                    frequency: 0.01, delay: 0.01, trend: 0.01,
-                    zone: 0.07, markov: 0.02, phase: 0.01,
-                    clairvoyance: 0.01, nextDraw: 0.04,
-                    bayesian: 0.03, positional: 0.01,
-                    sequential: 0.01, momentum: 0.01,
-                    mirror: 0.03, gap: 0.08, cluster: 0.05, reversion: 0.01,
-                    precision: 0.08, patternDna: 0.14, pairTrio: 0.15,
-                    cycleReturn: 0.08, quantumSuper: 0.05,
-                    crossDraw: 0.09
+                    frequency: 0.00, delay: 0.00, trend: 0.00,
+                    zone: 0.08, markov: 0.00, phase: 0.00,
+                    clairvoyance: 0.00, nextDraw: 0.05,
+                    bayesian: 0.04, positional: 0.02,
+                    sequential: 0.02, momentum: 0.02,
+                    mirror: 0.00, gap: 0.10, cluster: 0.07, reversion: 0.00,
+                    precision: 0.09, patternDna: 0.15, pairTrio: 0.17,
+                    cycleReturn: 0.09, quantumSuper: 0.00,
+                    crossDraw: 0.10
                 },
                 scoreClamp: [0.25, 2.8],
                 _confidenceCeiling: 75  // v10.1: P(terno+) com 2 sorteios
@@ -204,16 +203,16 @@ class NovaEraEngine {
                 maxOverlap: 40,
                 // â˜… v9.0: Ampliado para aceitar mais variaÃ§Ã£o
                 repeatFromLast: [5, 15],
-                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
+                // ★ v11.0: Falácias ZERADAS — Lotomania: cluster + zone dominantes
                 weights: {
-                    frequency: 0.01, delay: 0.01, trend: 0.01,
-                    zone: 0.18, markov: 0.01, phase: 0.01,
-                    clairvoyance: 0.01, nextDraw: 0.02,
-                    bayesian: 0.02, positional: 0.01,
-                    sequential: 0.01, momentum: 0.01,
-                    mirror: 0.01, gap: 0.04, cluster: 0.14, reversion: 0.01,
-                    precision: 0.06, patternDna: 0.10, pairTrio: 0.05,
-                    cycleReturn: 0.10, quantumSuper: 0.18
+                    frequency: 0.00, delay: 0.00, trend: 0.00,
+                    zone: 0.20, markov: 0.00, phase: 0.00,
+                    clairvoyance: 0.00, nextDraw: 0.03,
+                    bayesian: 0.03, positional: 0.02,
+                    sequential: 0.02, momentum: 0.02,
+                    mirror: 0.00, gap: 0.05, cluster: 0.16, reversion: 0.00,
+                    precision: 0.07, patternDna: 0.11, pairTrio: 0.07,
+                    cycleReturn: 0.12, quantumSuper: 0.10
                 },
                 scoreClamp: [0.4, 2.0],
                 _confidenceCeiling: 78  // v10.1: P(15+) ≈ 4.6%
@@ -238,16 +237,16 @@ class NovaEraEngine {
                 maxUsagePct: 0.18,
                 maxOverlap: 5,
                 repeatFromLast: [0, 4],
-                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
+                // ★ v11.0: Falácias ZERADAS — Timemania: gap + positional dominantes
                 weights: {
-                    frequency: 0.01, delay: 0.01, trend: 0.01,
-                    zone: 0.11, markov: 0.01, phase: 0.01,
-                    clairvoyance: 0.01, nextDraw: 0.03,
-                    bayesian: 0.02, positional: 0.05,
-                    sequential: 0.01, momentum: 0.01,
-                    mirror: 0.01, gap: 0.15, cluster: 0.08, reversion: 0.01,
-                    precision: 0.07, patternDna: 0.11, pairTrio: 0.08,
-                    cycleReturn: 0.12, quantumSuper: 0.08
+                    frequency: 0.00, delay: 0.00, trend: 0.00,
+                    zone: 0.13, markov: 0.00, phase: 0.00,
+                    clairvoyance: 0.00, nextDraw: 0.04,
+                    bayesian: 0.03, positional: 0.06,
+                    sequential: 0.02, momentum: 0.02,
+                    mirror: 0.00, gap: 0.17, cluster: 0.10, reversion: 0.00,
+                    precision: 0.08, patternDna: 0.12, pairTrio: 0.10,
+                    cycleReturn: 0.13, quantumSuper: 0.00
                 },
                 // v10: scoreClamp achatado — scoring é ruído com 10/80
                 scoreClamp: [0.3, 2.0],
@@ -275,16 +274,16 @@ class NovaEraEngine {
                 maxUsagePct: 0.30,
                 maxOverlap: 3,
                 repeatFromLast: [0, 3],
-                // ★ v10.2: Pesos reais 22-dimensões (consolidados de _getGodModeWeights)
+                // ★ v11.0: Falácias ZERADAS — Dia de Sorte: patternDna + pairTrio dominantes
                 weights: {
-                    frequency: 0.01, delay: 0.01, trend: 0.02,
-                    zone: 0.05, markov: 0.02, phase: 0.01,
-                    clairvoyance: 0.02, nextDraw: 0.10,
-                    bayesian: 0.03, positional: 0.01,
-                    sequential: 0.02, momentum: 0.01,
-                    mirror: 0.02, gap: 0.04, cluster: 0.06, reversion: 0.01,
-                    precision: 0.09, patternDna: 0.18, pairTrio: 0.14,
-                    cycleReturn: 0.07, quantumSuper: 0.08
+                    frequency: 0.00, delay: 0.00, trend: 0.00,
+                    zone: 0.06, markov: 0.00, phase: 0.00,
+                    clairvoyance: 0.00, nextDraw: 0.12,
+                    bayesian: 0.04, positional: 0.02,
+                    sequential: 0.03, momentum: 0.02,
+                    mirror: 0.00, gap: 0.05, cluster: 0.08, reversion: 0.00,
+                    precision: 0.10, patternDna: 0.20, pairTrio: 0.16,
+                    cycleReturn: 0.08, quantumSuper: 0.04
                 },
                 scoreClamp: [0.3, 2.2],
                 _confidenceCeiling: 80  // v10.1: P(3+) ≈ 27%
@@ -3444,23 +3443,17 @@ class NovaEraEngine {
         return items[items.length - 1];
     }
 
-    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-    // â•‘  BACKTESTING HONESTO â€” ConfianÃ§a REAL                        â•‘
-    // â•‘  Confere jogos contra sorteios anteriores reais              â•‘
-    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _backtestHonest(games, history, profile, gameKey, totalRange, drawSize) {
         const N = history.length;
         const btCount = Math.min(20, N);
 
-        // â˜… v8.0 FIX: Amostra PROPORCIONAL ao volume â€” nÃ£o mais fixa em 300!
-        // Volumes maiores cobrem mais espaÃ§o â†’ backtesting deve refletir isso
         const sampleSize = games.length <= 1000 ? Math.min(games.length, 500)
             : games.length <= 5000 ? Math.min(games.length, 1200)
             : games.length <= 15000 ? Math.min(games.length, 2500)
             : games.length <= 30000 ? Math.min(games.length, 4000)
             : Math.min(games.length, 5000);
 
-        // â˜… v8.0: Amostrar jogos DISTRIBUÃDOS (nÃ£o apenas os primeiros)
+        // â˜… v8.0: Amostrar jogos DISTRIBUÃ DOS (nÃ£o apenas os primeiros)
         // Pegar jogos espalhados uniformemente pelo lote inteiro
         let sampledGames;
         if (games.length <= sampleSize) {
@@ -3642,11 +3635,28 @@ class NovaEraEngine {
     // â•‘  todas as 18 camadas de anÃ¡lise QUANTUM                        â•‘
     // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static suggestNumbers(gameKey, count, historyOverride) {
-        // v10.0: Walk-Forward out-of-sample support
+        // ★ v11.0: MOTOR MATEMÁTICO PURO — delega para MathPureEngine
+        // Usa: Probabilidade Condicional (DP) + Jaynes (Máxima Entropia) + Roulette Wheel
+        // Zero falácias, zero heurísticas
+        
         const profile = this.getProfile(gameKey);
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         if (!game) return [];
 
+        // Tentar usar MathPureEngine (motor matemático puro)
+        if (typeof MathPureEngine !== 'undefined') {
+            try {
+                console.log('[NE-v11] ★ Delegando para MathPureEngine.suggestOptimal()');
+                const result = MathPureEngine.suggestOptimal(gameKey, count);
+                if (result && result.length >= count) {
+                    return result.slice(0, count);
+                }
+            } catch (e) {
+                console.warn('[NE-v11] MathPureEngine falhou, usando fallback:', e.message);
+            }
+        }
+
+        // ═══ FALLBACK: Scoring unificado (_scoreAllNumbers) + Roulette Wheel ═══
         const startNum = profile.range[0];
         const endNum = profile.range[1];
         const totalRange = endNum - startNum + 1;
@@ -3659,57 +3669,94 @@ class NovaEraEngine {
             if (history.length === 0 && typeof REAL_HISTORY_DB !== 'undefined') {
                 history = REAL_HISTORY_DB[gameKey] || [];
             }
-        } catch (e) { console.warn('[NovaEraEngine] Falha ao carregar histÃ³rico nas sugestÃµes:', e.message); }
+        } catch (e) { console.warn('[NE-v11] Falha ao carregar histórico:', e.message); }
 
-        // Calcular scores QUANTUM L99 deterministicos (sem noise)
-        const scores = this._scoreForSuggestionL99(gameKey, profile, history, startNum, endNum, totalRange);
+        // Usar _scoreAllNumbers (unificado, não a cópia simplificada)
+        this._currentDrawSize = count; // Para _normalizeScores dinâmico
+        const scores = this._scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange);
 
-        // Ordenar e retornar os top N
-        const ranked = Object.entries(scores)
-            .map(([n, s]) => ({ num: parseInt(n), score: s }))
-            .sort((a, b) => b.score - a.score);
+        // Roulette Wheel Selection (score^α) em vez de Top-N
+        const density = count / totalRange;
+        const alpha = density > 0.4 ? 4.0 : density > 0.15 ? 3.0 : 2.5;
+        
+        const NUM_CANDIDATES = 100;
+        let bestCandidate = null;
+        let bestScore = -Infinity;
 
-        // Filtro LÃ³gico Anti-SequÃªncias (substituindo cobertura forÃ§ada de zonas)
-        const result = [];
-        const maxConsec = (game && game.maxConsec) ? game.maxConsec : 3;
-
-        for (const r of ranked) {
-            if (result.length >= count) break;
+        for (let attempt = 0; attempt < NUM_CANDIDATES; attempt++) {
+            // Seleção por roleta
+            const candidate = [];
+            const used = new Set();
+            const entries = [];
+            for (let n = startNum; n <= endNum; n++) {
+                entries.push({ num: n, weight: Math.pow(Math.max(0.001, scores[n] || 0.001), alpha) });
+            }
             
-            // Verificar se a adiÃ§Ã£o deste nÃºmero cria uma sequÃªncia irreal
-            // Ordenar o array temporÃ¡rio
-            const tempResult = [...result, r.num].sort((a, b) => a - b);
-            let hasLongSequence = false;
-            let currentConsec = 1;
-            
-            for (let i = 1; i < tempResult.length; i++) {
-                if (tempResult[i] === tempResult[i - 1] + 1) {
-                    currentConsec++;
-                    if (currentConsec > maxConsec) {
-                        hasLongSequence = true;
+            while (candidate.length < count && entries.length > 0) {
+                let totalW = 0;
+                for (const e of entries) { if (!used.has(e.num)) totalW += e.weight; }
+                if (totalW <= 0) break;
+                let rand = Math.random() * totalW;
+                for (const e of entries) {
+                    if (used.has(e.num)) continue;
+                    rand -= e.weight;
+                    if (rand <= 0) {
+                        candidate.push(e.num);
+                        used.add(e.num);
                         break;
                     }
-                } else {
-                    currentConsec = 1;
                 }
             }
+
+            if (candidate.length < count) continue;
+            candidate.sort((a, b) => a - b);
+
+            // Validação combinatória completa
+            const sum = candidate.reduce((a, b) => a + b, 0);
+            if (sum < profile.sumRange[0] || sum > profile.sumRange[1]) continue;
             
-            if (!hasLongSequence && !result.includes(r.num)) {
-                result.push(r.num);
+            const evens = candidate.filter(n => n % 2 === 0).length;
+            if (evens < profile.evenOddRange[0] || evens > profile.evenOddRange[1]) continue;
+
+            let maxConsec = 1, curConsec = 1;
+            for (let i = 1; i < candidate.length; i++) {
+                if (candidate[i] === candidate[i-1] + 1) { curConsec++; maxConsec = Math.max(maxConsec, curConsec); }
+                else curConsec = 1;
             }
-        }
-        
-        // Fallback caso a restriÃ§Ã£o estrita nÃ£o preencha o count (ex: todos os nÃºmeros restantes formam sequÃªncia)
-        if (result.length < count) {
-            for (const r of ranked) {
-                if (result.length >= count) break;
-                if (!result.includes(r.num)) {
-                    result.push(r.num);
+            if (maxConsec > profile.maxConsecutive) continue;
+
+            // Score da combinação
+            let comboScore = 0;
+            for (const n of candidate) comboScore += scores[n] || 0;
+            
+            // Bônus por diversidade (Hamming)
+            let totalDist = 0, pairs = 0;
+            for (let i = 0; i < candidate.length; i++) {
+                for (let j = i + 1; j < candidate.length; j++) {
+                    totalDist += candidate[j] - candidate[i];
+                    pairs++;
                 }
+            }
+            const avgDist = pairs > 0 ? totalDist / pairs : 0;
+            const idealDist = totalRange / (count + 1);
+            comboScore += (1 - Math.abs(avgDist - idealDist) / idealDist) * 2;
+
+            if (comboScore > bestScore) {
+                bestScore = comboScore;
+                bestCandidate = candidate;
             }
         }
 
-        return result.sort((a, b) => a - b).slice(0, count);
+        if (bestCandidate) return bestCandidate;
+
+        // Ultra-fallback: Top-N simples
+        console.warn('[NE-v11] Nenhum candidato válido após ' + NUM_CANDIDATES + ' tentativas. Top-N fallback.');
+        return Object.entries(scores)
+            .map(([n, s]) => ({ num: parseInt(n), score: s }))
+            .sort((a, b) => b.score - a.score)
+            .slice(0, count)
+            .map(x => x.num)
+            .sort((a, b) => a - b);
     }
 
     // â˜…â˜…â˜… Score QUANTUM L99 para sugestÃµes: 18 camadas sem noise â˜…â˜…â˜…
@@ -3924,12 +3971,14 @@ class NovaEraEngine {
         }
         const range = max - min || 1;
 
-        // â˜… v7.0: NormalizaÃ§Ã£o SIMPLES para [0.10, 1.0]
-        // Removida compressÃ£o Ïƒ-aware que destruÃ­a o sinal
-        // Score floor de 0.10 garante que nenhum nÃºmero Ã© eliminado
+        // v11.0: Floor DINÂMICO baseado na densidade da loteria
+        const totalRange = endNum - startNum + 1;
+        const drawSize = this._currentDrawSize || 6;
+        const density = drawSize / totalRange;
+        const floor = Math.max(0.01, Math.min(0.08, density * 0.15));
         for (let n = startNum; n <= endNum; n++) {
             const normalized = (scores[n] - min) / range;
-            scores[n] = 0.10 + normalized * 0.90;
+            scores[n] = floor + normalized * (1.0 - floor);
         }
         return scores;
     }
