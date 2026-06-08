@@ -37,7 +37,11 @@ class SmartCoverageEngine {
         let quantumScores = {};
         if (typeof NovaEraEngine !== 'undefined') {
             const profile = NovaEraEngine.getProfile(gameKey);
+            // v11.0 FIX: Setar drawSize e sniperMode
+            NovaEraEngine._currentDrawSize = game.minBet || game.draw || 6;
+            NovaEraEngine._sniperMode = numGames > 100;
             quantumScores = NovaEraEngine._scoreAllNumbers(gameKey, profile, history, start, end, totalRange);
+            NovaEraEngine._sniperMode = false;
         } else {
             for (let i = start; i <= end; i++) quantumScores[i] = 1;
         }
@@ -240,9 +244,14 @@ class SmartCoverageEngine {
 
                     if (history.length > 0) {
                         // ★ PILAR 1: 21 CAMADAS DE INTELIGÊNCIA
+                        // v11.0 FIX: Setar drawSize e sniperMode ANTES de _scoreAllNumbers
+                        const profileDrawSize = profile.drawSize || drawSize;
+                        NovaEraEngine._currentDrawSize = profileDrawSize;
+                        NovaEraEngine._sniperMode = numGames > 100; // Floor alto para diversidade
                         const scores = NovaEraEngine._scoreAllNumbers(
                             gameKey, profile, history, startNum, endNum, totalRange
                         );
+                        NovaEraEngine._sniperMode = false;
 
                         // Ranking por score (maior → menor)
                         const ranked = [];

@@ -174,8 +174,9 @@ class AsyncGenerator {
             let chunks = 0;
             let staleCount = 0; // Detecta quando não gera mais jogos novos
 
-            // Micro-batch: gera lotes de jogos por vez para não travar a UI, ajustado ao volume total
+            // Micro-batch: gera lotes de jogos por vez para não travar a UI
             let batchSize = numGames > 1000 ? 250 : (numGames > 200 ? 100 : 50);
+            const originalBatchSize = batchSize;
 
             while (allGames.length < numGames && !this._cancelled) {
                 const remaining = numGames - allGames.length;
@@ -204,9 +205,15 @@ class AsyncGenerator {
                 // Detectar estagnação (muitas duplicatas)
                 if (allGames.length === prevLen) {
                     staleCount++;
-                    if (staleCount > 10) break; // Parar se não gera novos há 10 tentativas
+                    // v11.0 FIX: Reduzir batch progressivamente para gerar mais variação
+                    batchSize = Math.max(10, Math.floor(batchSize * 0.7));
+                    if (staleCount > 50) {
+                        console.warn('[AsyncGen] Estagnação após ' + staleCount + ' tentativas em ' + allGames.length + '/' + numGames);
+                        break;
+                    }
                 } else {
                     staleCount = 0;
+                    batchSize = originalBatchSize; // Reset batch size
                 }
 
                 this._updateProgress(allGames.length, numGames, name);
