@@ -187,7 +187,9 @@ class AsyncGenerator {
 
                 let r;
                 try {
-                    r = SmartCoverageEngine.generate(gameKey, batch, selectedNumbers, fixedNumbers, drawSize, options);
+                    // v11.0 FIX: Passar jogos já gerados para evitar duplicatas internas
+                    const batchOpts = { ...options, _excludeKeys: seen };
+                    r = SmartCoverageEngine.generate(gameKey, batch, selectedNumbers, fixedNumbers, drawSize, batchOpts);
                 } catch(e) {
                     r = { games: [] };
                 }

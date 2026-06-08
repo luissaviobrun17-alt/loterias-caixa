@@ -276,7 +276,8 @@ class CoverageEngine {
         }
 
         const games          = [];
-        const usedKeys       = new Set();
+        // v11.0 FIX: Inicializar usedKeys com jogos já gerados (cross-batch dedup)
+        const usedKeys       = new Set(_opts._excludeKeys || []);
         const numberUsage    = {};
         for (const n of pool) numberUsage[n] = 0;
         // Também inicializar para pools menores
@@ -301,7 +302,11 @@ class CoverageEngine {
             // Usamos o Gerador de Monte Carlo Determinístico (Mulberry32 PRG) guiado pelos Quantum Scores da IA.
             // Isso garante que o pool inicie com números quentes e expanda organicamente para os frios.
             const originalRandom = Math.random;
-            let seed = 0x4830eee9; // Seed base estável
+            // v11.0 FIX: Seed DINÂMICO — cada chamada gera candidatos DIFERENTES
+            // Seed fixo causava duplicatas entre batches do AsyncGenerator
+            if (!this._seedCounter) this._seedCounter = 0;
+            this._seedCounter++;
+            let seed = (0x4830eee9 + Date.now() + this._seedCounter * 0x9E3779B9) >>> 0;
             const Mulberry32 = () => {
                 let t = seed += 0x6D2B79F5;
                 t = Math.imul(t ^ (t >>> 15), t | 1);
