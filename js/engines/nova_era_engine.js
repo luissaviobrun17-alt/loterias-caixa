@@ -2695,8 +2695,13 @@ class NovaEraEngine {
             }
         } catch(e) { console.warn('[SNIPER] HistÃ³rico falhou:', e.message); }
         
-        // Chamar _scoreAllNumbers para ter os scores de 21 camadas
+        // v11.0 FIX: Setar drawSize ANTES de _scoreAllNumbers para que _normalizeScores
+        // use o floor dinâmico correto. Para Sniper com muitos jogos, usar floor mais alto
+        // para garantir diversidade suficiente no pool.
+        this._currentDrawSize = actualDrawSize;
+        this._sniperMode = numGames > 100; // Flag para _normalizeScores usar floor mais alto
         const scores = this._scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange);
+        this._sniperMode = false; // Reset após scoring
         
         // â”â”â” FASE 2: SELECIONAR POOL â”â”â”
         const fixedSet = new Set(fixedNumbers || []);
@@ -2844,8 +2849,9 @@ class NovaEraEngine {
             const lastDrawSet = history.length > 0 ? new Set((history[0].numbers || []).concat(history[0].numbers2 || [])) : new Set();
             
             let att = 0;
-            const maxAtt = Math.min(remaining * 500, 5000000);
-            const timeout = 300000;
+            // v11.0 FIX: Aumentar tentativas máximas para lotes grandes
+            const maxAtt = Math.min(remaining * 1000, 10000000);
+            const timeout = 600000;
             
             while (games.length < numGames && att < maxAtt && (Date.now() - startTime) < timeout) {
                 att++;
@@ -2858,8 +2864,10 @@ class NovaEraEngine {
                 if (!ticket || ticket.length < actualDrawSize) continue;
                 const key = ticket.join(',');
                 if (usedKeys.has(key)) continue;
-                // â˜… v10: anti-overlap (relaxar se volume > 1000)
-                if (games.length < 1000 && _overlapWith(ticket, games) > maxOverlapAllowed) continue;
+                // ★ v11.0: anti-overlap RELAXADO para volume grande
+                // Se já passou de 50% do target e overlap está bloqueando, relaxar
+                const overlapLimit = games.length > numGames * 0.5 ? actualDrawSize : maxOverlapAllowed;
+                if (_overlapWith(ticket, games) > overlapLimit) continue;
                 if (!_zoneBalanced(ticket)) continue;
                 
                 games.push(ticket);
@@ -3972,10 +3980,15 @@ class NovaEraEngine {
         const range = max - min || 1;
 
         // v11.0: Floor DINÂMICO baseado na densidade da loteria
+        // Sniper com muitos jogos: floor mais alto para garantir diversidade
         const totalRange = endNum - startNum + 1;
         const drawSize = this._currentDrawSize || 6;
         const density = drawSize / totalRange;
-        const floor = Math.max(0.01, Math.min(0.08, density * 0.15));
+        let floor = Math.max(0.01, Math.min(0.08, density * 0.15));
+        // v11.0 FIX: Sniper precisa de floor mais alto para diversidade
+        if (this._sniperMode) {
+            floor = Math.max(0.10, floor);
+        }
         for (let n = startNum; n <= endNum; n++) {
             const normalized = (scores[n] - min) / range;
             scores[n] = floor + normalized * (1.0 - floor);
