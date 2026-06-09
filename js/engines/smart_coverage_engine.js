@@ -87,10 +87,49 @@ class SmartCoverageEngine {
             });
         });
 
-        // 4. Combinar todos os scores para criar o RANKING FINAL DO SNIPER
+        // 4. v14.0: Evidência Estatística (Detector de Viés com p-valor)
+        // Se o StatisticalBiasEngine estiver disponível, usar z-scores formais
+        // ao invés de frequência bruta para informar o pool do Sniper
+        const biasBonus = {};
+        for (let i = start; i <= end; i++) biasBonus[i] = 0;
+        let biasVerdict = null;
+
+        if (typeof StatisticalBiasEngine !== 'undefined' && history.length >= 30) {
+            try {
+                const biasResult = StatisticalBiasEngine.analyze(gameKey, history, targetSize || game.draw * 3);
+                if (biasResult && biasResult.numberScores) {
+                    biasVerdict = biasResult.verdict;
+                    const scores = biasResult.numberScores;
+                    
+                    // Se viés detectado → peso forte nos números com evidência
+                    // Se sem viés → peso leve (apenas para equilíbrio de zonas)
+                    const biasWeight = biasVerdict.biasDetected ? 30 : 8;
+                    
+                    for (let n = start; n <= end; n++) {
+                        if (scores[n]) {
+                            // Números com evidência significativa de aparição acima do esperado
+                            if (scores[n].hasSignificance && scores[n].direction === 'acima') {
+                                biasBonus[n] += scores[n].absEvidence * biasWeight;
+                            }
+                            // Penalizar números significativamente ABAIXO (com evidência)
+                            else if (scores[n].hasSignificance && scores[n].direction === 'abaixo') {
+                                biasBonus[n] -= scores[n].absEvidence * (biasWeight * 0.5);
+                            }
+                        }
+                    }
+                    console.log('[SmartCoverage] 🔬 BiasEngine: ' + biasVerdict.emoji + ' ' + biasVerdict.level +
+                        ' | Peso aplicado: ' + biasWeight);
+                }
+            } catch (e) {
+                console.warn('[SmartCoverage] BiasEngine indisponível:', e.message);
+            }
+        }
+
+        // 5. Combinar todos os scores para criar o RANKING FINAL DO SNIPER
+        // v14.0: Agora inclui evidência estatística formal
         const finalScores = {};
         for (let i = start; i <= end; i++) {
-            finalScores[i] = (quantumScores[i] || 1) + numberPairBonus[i] + shortTermBonus[i];
+            finalScores[i] = (quantumScores[i] || 1) + numberPairBonus[i] + shortTermBonus[i] + biasBonus[i];
         }
 
         // Ordenar as dezenas da mais quente/sinérgica para a mais fria
