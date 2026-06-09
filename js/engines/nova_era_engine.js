@@ -435,6 +435,27 @@ class NovaEraEngine {
         const scores = this._scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange);
         this._sniperMode = false;
 
+        // v14.0: Enriquecer scores com evidência estatística do BiasEngine
+        // Ajusta os pesos ANTES da construção do pool e da delegação ao CoverageEngine
+        if (typeof StatisticalBiasEngine !== 'undefined' && history.length >= 30) {
+            try {
+                const biasResult = StatisticalBiasEngine.analyze(gameKey, history, Math.min(totalRange, drawSize * 4));
+                if (biasResult && biasResult.numberScores && biasResult.verdict) {
+                    const weight = biasResult.verdict.biasDetected ? 0.30 : 0.10;
+                    let adjustedCount = 0;
+                    for (let n = startNum; n <= endNum; n++) {
+                        const bs = biasResult.numberScores[n];
+                        if (bs && bs.hasSignificance) {
+                            scores[n] = (scores[n] || 0) * (1 + bs.evidenceScore * weight);
+                            adjustedCount++;
+                        }
+                    }
+                    console.log('[NE-v14] generate: BiasEngine ' + biasResult.verdict.emoji +
+                        ' | ' + adjustedCount + ' números ajustados | peso=' + weight);
+                }
+            } catch (e) { console.warn('[NE-v14] BiasEngine indisponível:', e.message); }
+        }
+
         // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
         // FASE 2: DEFINIR POOL
         // Se usuÃ¡rio selecionou nÃºmeros â†’ usar como pool
@@ -3695,6 +3716,23 @@ class NovaEraEngine {
         // Usar _scoreAllNumbers (unificado, não a cópia simplificada)
         this._currentDrawSize = count; // Para _normalizeScores dinâmico
         const scores = this._scoreAllNumbers(gameKey, profile, history, startNum, endNum, totalRange);
+
+        // v14.0: Enriquecer scores com evidência estatística (BiasEngine)
+        if (typeof StatisticalBiasEngine !== 'undefined' && history.length >= 30) {
+            try {
+                const biasResult = StatisticalBiasEngine.analyze(gameKey, history, count * 2);
+                if (biasResult && biasResult.numberScores && biasResult.verdict) {
+                    const weight = biasResult.verdict.biasDetected ? 0.25 : 0.08;
+                    for (let n = startNum; n <= endNum; n++) {
+                        const bs = biasResult.numberScores[n];
+                        if (bs && bs.hasSignificance) {
+                            scores[n] = (scores[n] || 0) * (1 + bs.evidenceScore * weight);
+                        }
+                    }
+                    console.log('[NE-v14] suggestNumbers: BiasEngine ' + biasResult.verdict.emoji + ' peso=' + weight);
+                }
+            } catch (e) { console.warn('[NE-v14] BiasEngine indisponível:', e.message); }
+        }
 
         // Roulette Wheel Selection (score^α) em vez de Top-N
         const density = count / totalRange;

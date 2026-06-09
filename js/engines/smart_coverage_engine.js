@@ -87,7 +87,20 @@ class SmartCoverageEngine {
             });
         });
 
-        // 4. v14.0: Evidência Estatística (Detector de Viés com p-valor)
+        // 4. Calcular targetSize ANTES de usar no BiasEngine
+        // O tamanho do alvo é DECRETADO pelo usuário via UI (precisionPoolSize).
+        // Se não fornecido, usa defaults conservadores.
+        let targetSize = poolSizePreference || 20; 
+        if (!poolSizePreference) {
+            targetSize = game.draw * 2; 
+            if (numGames <= 10) targetSize = Math.round(game.draw * 2.8);
+            else if (numGames <= 30) targetSize = Math.round(game.draw * 3.8);
+            else if (numGames <= 100) targetSize = Math.round(game.draw * 5.0);
+            else targetSize = Math.round(game.draw * 7.0);
+        }
+        targetSize = Math.max(game.draw, Math.min(targetSize, totalRange));
+
+        // 5. v14.0: Evidência Estatística (Detector de Viés com p-valor)
         // Se o StatisticalBiasEngine estiver disponível, usar z-scores formais
         // ao invés de frequência bruta para informar o pool do Sniper
         const biasBonus = {};
@@ -96,7 +109,7 @@ class SmartCoverageEngine {
 
         if (typeof StatisticalBiasEngine !== 'undefined' && history.length >= 30) {
             try {
-                const biasResult = StatisticalBiasEngine.analyze(gameKey, history, targetSize || game.draw * 3);
+                const biasResult = StatisticalBiasEngine.analyze(gameKey, history, targetSize);
                 if (biasResult && biasResult.numberScores) {
                     biasVerdict = biasResult.verdict;
                     const scores = biasResult.numberScores;
@@ -125,7 +138,7 @@ class SmartCoverageEngine {
             }
         }
 
-        // 5. Combinar todos os scores para criar o RANKING FINAL DO SNIPER
+        // 6. Combinar todos os scores para criar o RANKING FINAL DO SNIPER
         // v14.0: Agora inclui evidência estatística formal
         const finalScores = {};
         for (let i = start; i <= end; i++) {
@@ -136,18 +149,6 @@ class SmartCoverageEngine {
         const sortedNumbers = Object.keys(finalScores)
             .map(Number)
             .sort((a, b) => finalScores[b] - finalScores[a]);
-
-        // O tamanho do alvo é DECRETADO pelo usuário via UI (precisionPoolSize).
-        // Se não fornecido, usa defaults conservadores.
-        let targetSize = poolSizePreference || 20; 
-        if (!poolSizePreference) {
-            targetSize = game.draw * 2; 
-            if (numGames <= 10) targetSize = Math.round(game.draw * 2.8);
-            else if (numGames <= 30) targetSize = Math.round(game.draw * 3.8);
-            else if (numGames <= 100) targetSize = Math.round(game.draw * 5.0);
-            else targetSize = Math.round(game.draw * 7.0);
-        }
-        targetSize = Math.max(game.draw, Math.min(targetSize, totalRange));
 
         // Pega a nata do topo
         const sniperPool = sortedNumbers.slice(0, targetSize).sort((a, b) => a - b);
