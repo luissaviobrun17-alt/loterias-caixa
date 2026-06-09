@@ -703,7 +703,52 @@ class UI {
         if (this.btnPrintTutorial) {
             this.btnPrintTutorial.addEventListener('click', (e) => {
                 e.preventDefault();
-                window.print();
+                const modal = document.getElementById('tutorial-modal');
+                if (!modal) return;
+                const body = modal.querySelector('.modal-body');
+                if (!body) return;
+
+                const printWin = window.open('', '_blank', 'width=800,height=600');
+                if (!printWin) { alert('Permita pop-ups para imprimir o tutorial.'); return; }
+
+                printWin.document.write(`<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<title>B2B Loterias v14.0 — Tutorial Completo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #000 !important;
+    background: #fff !important;
+    padding: 20px 30px;
+  }
+  h3 { font-size: 18px; margin-bottom: 12px; text-align: center; }
+  h4 { font-size: 14px; margin: 14px 0 6px 0; color: #000 !important; }
+  p { margin: 4px 0; color: #000 !important; }
+  li { color: #000 !important; margin-bottom: 2px; }
+  strong { color: #000 !important; }
+  ul { margin-left: 20px; }
+  div { color: #000 !important; background: none !important; border-color: #999 !important; }
+  a { color: #000 !important; text-decoration: none; }
+  button { display: none !important; }
+  /* Forçar preto e branco */
+  @media print {
+    * { color: #000 !important; background: #fff !important; -webkit-print-color-adjust: exact; }
+    body { padding: 10px 15px; font-size: 12px; }
+    div[style*="gradient"] { background: #f5f5f5 !important; border: 1px solid #ccc !important; }
+    div[style*="border-left"] { border-left: 3px solid #333 !important; }
+    @page { margin: 1.5cm; }
+  }
+</style>
+</head><body>
+<h3>📚 B2B Loterias v14.0 — Tutorial Completo</h3>
+<hr style="margin:10px 0;border:1px solid #ccc;">
+${body.innerHTML}
+</body></html>`);
+                printWin.document.close();
+                setTimeout(() => { printWin.print(); }, 400);
             });
         }
     }
