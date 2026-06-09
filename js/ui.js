@@ -474,6 +474,12 @@ class UI {
             };
         }
 
+        // === BOTÃO ⚡ QUANTUM L99 (Motor IA 21 camadas + CoverageEngine) ===
+        const btnSmartGenerate = document.getElementById('btn-smart-generate');
+        if (btnSmartGenerate) {
+            btnSmartGenerate.onclick = () => this.runSmartGeneration();
+        }
+
         // Pool de Precisão (Sniper) — agora vinculado ao botão Cobertura
         const precisionPoolRow = document.createElement('div');
         precisionPoolRow.id = 'precision-pool-row';
