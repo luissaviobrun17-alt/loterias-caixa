@@ -243,9 +243,9 @@
 
                         <!-- Botões de Ação — linha própria -->
                         <div id="action-buttons-row" style="display:flex;gap:8px;align-items:stretch;margin-top:10px;flex-wrap:wrap;">
-                            <button id="generate-btn" class="action-btn" style="flex: 1; min-width: 0;" title="Geração manual: fechamento dos seus números selecionados">🎲 Manual</button>
-                            <button id="generate-coverage-btn" class="action-btn" style="flex: 1; min-width: 0; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5;" title="Motor Unificado: Estatística + Cobertura Combinatória com Sniper">📐 Cobertura IA</button>
-                            <button id="btn-smart-generate" class="action-btn" style="flex: 1; min-width: 0;" title="Motor IA 21 camadas + CoverageEngine: análise preditiva + cobertura combinatória">⚡ QUANTUM L99</button>
+                            <button id="generate-btn" class="action-btn" style="flex: 1; min-width: 0; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5;" title="Gera jogos com os seus números selecionados no volante. Usa CoverageEngine (Set Cover) para máxima cobertura combinatória.">🎲 Manual</button>
+                            <button id="generate-coverage-btn" class="action-btn" style="flex: 1; min-width: 0; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5;" title="Motor de Cobertura com Sniper: seleciona os melhores números via Detector de Viés Estatístico (χ² + z-scores) + CoverageEngine para distribuir em jogos otimizados.">📐 Cobertura IA</button>
+                            <button id="btn-smart-generate" class="action-btn" style="flex: 1; min-width: 0; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5;" title="Motor completo: 21 camadas de análise estatística + Detector de Viés (p-valor) + CoverageEngine. Seleciona e distribui automaticamente.">⚡ QUANTUM L99</button>
                         </div>
 
                         <!-- Gráfico de Progresso Inline (geração de jogos) -->
@@ -623,7 +623,7 @@
                         <div class="sidebar-btn-icon tutorial-icon">📚</div>
                         <div class="sidebar-btn-text">
                             <h3 class="sidebar-btn-title">Aprenda a Navegar</h3>
-                            <p class="sidebar-btn-desc">Guia completo do QUANTUM L99 v7.2</p>
+                            <p class="sidebar-btn-desc">Guia completo do sistema v14.0</p>
                         </div>
                         <span class="sidebar-btn-arrow">›</span>
                     </div>
@@ -1107,11 +1107,195 @@
 
     <!-- Tutorial Modal -->
     <div id="tutorial-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-content" style="max-width: 720px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
-                <h3>📚 Como Navegar no Site</h3>
+                <h3>📚 Como Navegar no B2B Loterias v14.0</h3>
                 <button class="close-tutorial-modal"
                     style="background:none; border:none; font-size:1.5rem; color:var(--text-primary); cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem;">
+
+                <div style="background: linear-gradient(135deg, #10B981, #059669); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <p style="color: white; margin: 0; text-align: center; font-weight: 600;">🎰 B2B Loterias v14.0 — Cobertura Combinatória + Detector de Viés Estatístico</p>
+                </div>
+
+                <!-- PASSO A PASSO -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: var(--primary-accent); margin-bottom: 0.5rem;">🎯 Passo a Passo</h4>
+
+                    <div style="margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid var(--primary-accent);">
+                        <p style="margin: 0.5rem 0; color: var(--text-primary);"><strong>1.</strong> Escolha a loteria no cabeçalho</p>
+                        <p style="margin: 0 0 0 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">Mega Sena, Lotofácil, Quina, Dupla Sena, Lotomania, Timemania ou Dia de Sorte.</p>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid var(--primary-accent);">
+                        <p style="margin: 0.5rem 0; color: var(--text-primary);"><strong>2.</strong> Selecione seus números (opcional)</p>
+                        <p style="margin: 0 0 0 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">Clique nos números ou use "🎲 Aleatório". Você pode pular e deixar o sistema escolher.</p>
+                        <div style="margin: 0.5rem 0 0 1.5rem; padding: 0.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 4px; border-left: 2px solid var(--primary-accent);">
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--text-primary);"><strong>📌 Fixar Números:</strong></p>
+                            <p style="margin: 0.3rem 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">
+                                Clique em "📌 Fixar" e selecione os números que aparecerão em TODOS os jogos gerados.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid var(--primary-accent);">
+                        <p style="margin: 0.5rem 0; color: var(--text-primary);"><strong>3.</strong> Configure fechamento e quantidade</p>
+                        <p style="margin: 0 0 0 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">Escolha a garantia de acertos e a quantidade de jogos desejada.</p>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid var(--primary-accent);">
+                        <p style="margin: 0.5rem 0; color: var(--text-primary);"><strong>4.</strong> Gere os jogos com um dos 3 botões abaixo:</p>
+                    </div>
+                </div>
+
+                <!-- 3 BOTÕES GERADORES -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: #F59E0B; margin-bottom: 0.5rem;">🎮 Os 3 Motores Geradores de Jogos</h4>
+
+                    <div style="background: rgba(245,158,11,0.08); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid rgba(245,158,11,0.25);">
+                        <p style="margin: 0; color: #F59E0B; font-weight: 800;">🎲 MANUAL</p>
+                        <p style="margin: 0.3rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                            Gera jogos usando <strong>os números que VOCÊ selecionou</strong> no volante. 
+                            O CoverageEngine distribui seus números em jogos com máxima diversidade combinatória.
+                        </p>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">
+                            <strong>Quando usar:</strong> Quando você tem números de confiança e quer jogos otimizados com eles.
+                        </p>
+                    </div>
+
+                    <div style="background: rgba(16,185,129,0.08); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid rgba(16,185,129,0.25);">
+                        <p style="margin: 0; color: #10B981; font-weight: 800;">📐 COBERTURA IA</p>
+                        <p style="margin: 0.3rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                            <strong>Seleciona automaticamente os melhores números</strong> via Detector de Viés Estatístico 
+                            (Chi-Quadrado + z-scores) e distribui em jogos via CoverageEngine (Greedy Set Cover).
+                        </p>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">
+                            <strong>🎯 Sniper:</strong> Ative o toggle para focar em um pool reduzido de números com maior evidência estatística.
+                        </p>
+                        <p style="margin: 0.3rem 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">
+                            <strong>Quando usar:</strong> Quando quer que o sistema escolha E distribua tudo com base em evidência matemática.
+                        </p>
+                    </div>
+
+                    <div style="background: rgba(139,92,246,0.08); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid rgba(139,92,246,0.25);">
+                        <p style="margin: 0; color: #A78BFA; font-weight: 800;">⚡ QUANTUM L99</p>
+                        <p style="margin: 0.3rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                            Motor mais completo: <strong>21 camadas de análise</strong> (zonas, lacunas, clusters, duplas/trios, 
+                            padrões DNA, ciclos de retorno, etc.) + Detector de Viés + CoverageEngine.
+                        </p>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">
+                            <strong>Quando usar:</strong> Para análise máxima — o sistema analisa em 21 dimensões, aplica evidência estatística e gera jogos otimizados.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- SUGESTÃO IA -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: #6366F1; margin-bottom: 0.5rem;">⚛️ Sugestão de Números pela IA</h4>
+
+                    <div style="background: rgba(99,102,241,0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(99,102,241,0.2);">
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                            Na seção <strong>"⚛️ Números Sugeridos pela IA"</strong>, clique em <strong>"⚡ Gerar Sugestão"</strong> 
+                            para receber números analisados em 21 camadas + Detector de Viés com p-valor.
+                        </p>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                            <strong>✓ Usar Estes Números:</strong> Transfere a sugestão para o volante. 
+                            Depois use qualquer botão gerador para criar jogos com eles.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- DETECTOR DE VIÉS -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: #EC4899; margin-bottom: 0.5rem;">🔬 Detector de Viés Estatístico (v14.0)</h4>
+
+                    <div style="background: rgba(236,72,153,0.08); padding: 1rem; border-radius: 8px; border: 1px solid rgba(236,72,153,0.2);">
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                            Motor de matemática pura integrado em todos os geradores. Usa 4 testes estatísticos formais:
+                        </p>
+                        <ul style="margin: 0.5rem 0 0 1.5rem; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+                            <li><strong>Chi-Quadrado (χ²)</strong> — Detecta desvios de frequência</li>
+                            <li><strong>Runs Test</strong> — Independência entre sorteios</li>
+                            <li><strong>Autocorrelação Serial</strong> — Dependência entre sorteios consecutivos</li>
+                            <li><strong>Z-score individual</strong> — Significância por número com p-valor</li>
+                        </ul>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; color: #EC4899; font-weight: 600;">
+                            ⚠️ Se p &gt; 0.05: o sistema informa que não há viés — honestidade matemática.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- COMO FUNCIONA -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: #8B5CF6; margin-bottom: 0.5rem;">⚙️ Como Funciona por Dentro</h4>
+
+                    <div style="background: rgba(139,92,246,0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(139,92,246,0.2);">
+                        <p style="margin: 0; font-size: 0.85rem; color: #A78BFA; font-weight: 700;">
+                            LADO 1 — Seleção de Números (QUAIS jogar)
+                        </p>
+                        <ul style="margin: 0.3rem 0 0.5rem 1.5rem; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">
+                            <li>21 camadas de análise estatística (NovaEraEngine)</li>
+                            <li>Detector de Viés com p-valor (StatisticalBiasEngine)</li>
+                            <li>Co-ocorrência de duplas + tendências de curto prazo</li>
+                        </ul>
+                        <p style="margin: 0; font-size: 0.85rem; color: #10B981; font-weight: 700;">
+                            LADO 2 — Distribuição em Jogos (COMO jogar)
+                        </p>
+                        <ul style="margin: 0.3rem 0 0 1.5rem; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">
+                            <li>Greedy Set Cover (CoverageEngine) — cobertura de pares/triplas</li>
+                            <li>Covering Design (MathMatrixDB) — matrizes de La Jolla</li>
+                            <li>Diversidade Hamming — penaliza jogos muito parecidos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- FERRAMENTAS -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: var(--primary-accent); margin-bottom: 0.5rem;">🛠️ Ferramentas do Sistema</h4>
+
+                    <div style="background: var(--bg-surface); padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 0.4rem;">
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-primary);"><strong>🔬 Analisar Seleção</strong> — Analisa seus números em 12 dimensões</p>
+                    </div>
+                    <div style="background: var(--bg-surface); padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 0.4rem;">
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-primary);"><strong>⚔️ Comparar Estratégias</strong> — Compare Manual vs Cobertura vs QUANTUM L99</p>
+                    </div>
+                    <div style="background: var(--bg-surface); padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 0.4rem;">
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-primary);"><strong>📊 Estatísticas</strong> — Números quentes/frios nos últimos 3, 5, 10 ou 15 sorteios</p>
+                    </div>
+                    <div style="background: var(--bg-surface); padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 0.4rem;">
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-primary);"><strong>✅ Conferir Resultados</strong> — Confere seus jogos contra sorteios oficiais da Caixa</p>
+                    </div>
+                    <div style="background: var(--bg-surface); padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 0.4rem;">
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-primary);"><strong>💾 Salvar / 📋 Copiar / 🖨️ Imprimir</strong> — Salve, copie ou imprima seus jogos</p>
+                    </div>
+                    <div style="background: var(--bg-surface); padding: 0.8rem 1rem; border-radius: 8px;">
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-primary);"><strong>🏦 Jogar Online / 🔗 Compartilhar</strong> — Site da Caixa e compartilhamento</p>
+                    </div>
+                </div>
+
+                <!-- DICAS -->
+                <div style="background: #059669; border-left: 4px solid #10B981; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                    <h4 style="color: #FCD34D; margin: 0 0 0.5rem 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">⚠️ Dicas Importantes</h4>
+                    <ul style="margin: 0; padding-left: 1.5rem; color: #FCD34D; font-weight: 500;">
+                        <li style="margin-bottom: 0.3rem;">Sempre confira seus jogos antes de apostar</li>
+                        <li style="margin-bottom: 0.3rem;">Salve seus jogos para não perdê-los</li>
+                        <li style="margin-bottom: 0.3rem;">Jogue com responsabilidade — loterias são probabilísticas</li>
+                        <li style="margin-bottom: 0.3rem;">O sistema usa matemática pura, não promessas de acerto</li>
+                        <li>Use "🏦 Jogar Online" para ir ao site oficial da Caixa</li>
+                    </ul>
+                </div>
+
+                <div style="text-align: center; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                    <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                        <a href="#" id="print-tutorial"
+                            style="color: var(--primary-accent); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                            🖨️ Imprimir este tutorial
+                        </a>
+                    </p>
+                    <button class="action-btn close-tutorial-modal"
+                        style="width: auto; padding: 0.8rem 2rem;">Entendi!</button>
+                </div>
             </div>
             <div class="modal-body" style="padding: 1.5rem;">
 
