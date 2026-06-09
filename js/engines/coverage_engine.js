@@ -183,6 +183,9 @@ class CoverageEngine {
         }
         console.log('[COVERAGE] Espaço: ' + pool.length + ' números | ' + totalPairs + ' pares | ' + pairsPerGame + ' pares/jogo');
 
+        const games = [];
+        const usedKeys = new Set(_opts._excludeKeys || []);
+
         // ── NOVO (Pilar 3): Bypass de Matriz Combinatória Exata ──
         if (typeof MathMatrixDB !== 'undefined') {
             const exactMatrix = MathMatrixDB.getExactMatrix(gameKey, pool.length, drawSize, numGames);
@@ -215,7 +218,10 @@ class CoverageEngine {
                 }
                 // Se faltarem jogos (ex: user pediu 26 e a matriz tem 24), a matriz vai preencher
                 // o array `games` inicial e o Greedy completará os restantes.
-                for (const g of exactGames) games.push(g); // Usaremos array games existente no código original
+                for (const g of exactGames) {
+                    games.push(g);
+                    usedKeys.add(g.join(','));
+                }
             }
         }
 
@@ -275,9 +281,7 @@ class CoverageEngine {
             console.log('%c[COVERAGE] v13.2 ★ CAMADA 1: NÚCLEO QUENTE | Pool=' + activePool.length + ' números | ' + totalPairsActive + ' pares | ' + Math.round(totalTriplesActive) + ' triplas', 'color: #F59E0B; font-weight: bold;');
         }
 
-        const games          = [];
-        // v11.0 FIX: Inicializar usedKeys com jogos já gerados (cross-batch dedup)
-        const usedKeys       = new Set(_opts._excludeKeys || []);
+        // v14.0: games e usedKeys já declarados acima (antes do bloco MathMatrixDB)
         const numberUsage    = {};
         for (const n of pool) numberUsage[n] = 0;
         // Também inicializar para pools menores
@@ -416,15 +420,22 @@ class CoverageEngine {
                         }
                     }
 
-                    // Hamming Distance com o anterior
+                    // v14.0: Hamming Distance contra os últimos 5 jogos (não só o anterior)
+                    // Penalidade SEVERA para jogos quase-duplicatas
                     let diversityBonus = 0;
-                    if (games.length > 0) {
-                        const prevGame = games[games.length - 1];
-                        const setA = new Set(prevGame);
+                    let minHammingFound = candidate.length;
+                    const hammingCheckRange = Math.min(5, games.length);
+                    for (let h = games.length - 1; h >= games.length - hammingCheckRange && h >= 0; h--) {
+                        const prevSet = new Set(games[h]);
                         let diff = 0;
-                        for (const n of candidate) { if (!setA.has(n)) diff++; }
-                        diversityBonus = diff * 2;
+                        for (const n of candidate) { if (!prevSet.has(n)) diff++; }
+                        if (diff < minHammingFound) minHammingFound = diff;
+                        diversityBonus += diff;
                     }
+                    if (hammingCheckRange > 0) diversityBonus = Math.round(diversityBonus / hammingCheckRange) * 3;
+                    // Penalidade drástica se Hamming mínimo < 15% do drawSize
+                    const hammingThreshold = Math.max(1, Math.floor(candidate.length * 0.15));
+                    if (minHammingFound < hammingThreshold) diversityBonus -= 5000;
 
                     // Anti-Repeat
                     let antiRepeat = 0;
@@ -554,6 +565,19 @@ class CoverageEngine {
                         if (numberUsage[n] === 0) diversityBonus += 2;
                         else if (numberUsage[n] < g * drawSize / pool.length) diversityBonus += 1;
                     }
+                    // v14.0: Hamming Distance contra os últimos 5 jogos
+                    let minHammingFound = candidate.length;
+                    const hammingCheckRange = Math.min(5, games.length);
+                    for (let h = games.length - 1; h >= games.length - hammingCheckRange && h >= 0; h--) {
+                        const prevSet = new Set(games[h]);
+                        let diff = 0;
+                        for (const n of candidate) { if (!prevSet.has(n)) diff++; }
+                        if (diff < minHammingFound) minHammingFound = diff;
+                        diversityBonus += diff;
+                    }
+                    if (hammingCheckRange > 0) diversityBonus += Math.round(diversityBonus / Math.max(1, hammingCheckRange)) * 2;
+                    const hammingThreshold = Math.max(1, Math.floor(candidate.length * 0.15));
+                    if (minHammingFound < hammingThreshold) diversityBonus -= 5000;
 
                     let antiRepeat = 0;
                     if (previousGames.length > 0) {
