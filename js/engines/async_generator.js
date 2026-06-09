@@ -98,7 +98,7 @@ class AsyncGenerator {
         this._isRunning = true;
         this._cancelled = false;
 
-        const chunkSize = Math.max(50, Math.min(500, Math.floor(numGames / 15)));
+        const baseChunkSize = Math.max(50, Math.min(500, Math.floor(numGames / 15)));
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         const name = game ? game.name : gameKey;
 
@@ -108,16 +108,59 @@ class AsyncGenerator {
         try {
             if (typeof MotorFechamentoManual === 'undefined') throw new Error('MotorFechamentoManual não carregado');
 
-            const allGames = [];
+            // ═══════════════════════════════════════════════════════════
+            //  v5.0 FIX: Deduplicação Contínua com Reposição
+            //  Mantém Set global de assinaturas entre chunks.
+            //  Gera chunks compensatórios até atingir o alvo EXATO.
+            //  Zero impacto na qualidade — mesmo motor, mesmos filtros.
+            // ═══════════════════════════════════════════════════════════
+            const uniqueGames = [];
+            const globalKeys = new Set();
             let chunks = 0;
+            let staleRounds = 0;         // Detector de estagnação
+            const MAX_STALE_ROUNDS = 15; // Máx rounds sem progresso
+            const MAX_CHUNKS = 80;       // Safety net absoluto
 
-            for (let i = 0; i < numGames && !this._cancelled; i += chunkSize) {
-                const batch = Math.min(chunkSize, numGames - i);
+            while (uniqueGames.length < numGames && !this._cancelled && staleRounds < MAX_STALE_ROUNDS && chunks < MAX_CHUNKS) {
+                const remaining = numGames - uniqueGames.length;
+                // Margem de compensação: pede ~8% a mais para cobrir colisões esperadas
+                const compensatedBatch = Math.min(
+                    Math.ceil(remaining * 1.08),
+                    Math.max(baseChunkSize, remaining)
+                );
+                const batch = Math.min(compensatedBatch, remaining + Math.ceil(remaining * 0.15));
                 chunks++;
+
+                const prevCount = uniqueGames.length;
                 const r = MotorFechamentoManual.generate(gameKey, pool, fixedNumbers, batch, drawSize);
-                if (r && r.games) allGames.push(...r.games);
-                this._updateProgress(Math.min(allGames.length, numGames), numGames, name);
+
+                if (r && r.games) {
+                    // Deduplicação inline — só adiciona jogos novos
+                    for (const g of r.games) {
+                        if (uniqueGames.length >= numGames) break;
+                        const key = g.join(',');
+                        if (!globalKeys.has(key)) {
+                            globalKeys.add(key);
+                            uniqueGames.push(g);
+                        }
+                    }
+                }
+
+                // Detector de estagnação: se o chunk não adicionou nenhum jogo novo
+                const added = uniqueGames.length - prevCount;
+                if (added === 0) {
+                    staleRounds++;
+                    console.warn('[AsyncGen] Estagnação round ' + staleRounds + '/' + MAX_STALE_ROUNDS + ' — ' + uniqueGames.length + '/' + numGames + ' jogos únicos');
+                } else {
+                    staleRounds = 0; // Reset ao detectar progresso
+                }
+
+                this._updateProgress(Math.min(uniqueGames.length, numGames), numGames, name);
                 await this._yield();
+            }
+
+            if (staleRounds >= MAX_STALE_ROUNDS) {
+                console.warn('[AsyncGen] Limite de estagnação atingido. Entregando ' + uniqueGames.length + '/' + numGames + ' jogos (pool pode ser pequeno demais para ' + numGames + ' combinações únicas).');
             }
 
             if (this._cancelled) {
@@ -128,20 +171,19 @@ class AsyncGenerator {
                 return;
             }
 
-            const unique = this._dedupe(allGames);
-            this._completeProgress(unique.length, name);
+            this._completeProgress(uniqueGames.length, name);
 
             const analysis = {
-                totalGames: unique.length, poolSize: pool.length,
+                totalGames: uniqueGames.length, poolSize: pool.length,
                 fixedCount: (fixedNumbers||[]).length, fixedNumbers: fixedNumbers||[],
                 drawSize, pricePerGame: game?game.price:0,
-                investimento: unique.length * (game?game.price:0),
+                investimento: uniqueGames.length * (game?game.price:0),
                 isComplete: false, elapsed: Date.now() - this._startTime,
                 asyncMode: true, chunksProcessed: chunks, totalPossible: '—'
             };
 
             this._isRunning = false;
-            setTimeout(() => callback({ games: unique, analysis }, false), 400);
+            setTimeout(() => callback({ games: uniqueGames, analysis }, false), 400);
 
         } catch (e) {
             console.error('[AsyncGen Manual]', e);
