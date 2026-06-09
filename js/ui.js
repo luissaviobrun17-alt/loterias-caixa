@@ -1196,9 +1196,8 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         const precisionCheckbox = document.getElementById('precision-mode-toggle');
         const isPrecisionMode = precisionCheckbox && precisionCheckbox.checked;
 
-        // ── RASTREAMENTO DE MODO ── ★ FIX: diferenciar precision vs quantum
-        const sniperActive = document.getElementById('precision-mode-toggle')?.checked || false;
-        const _modeKey = sniperActive ? 'precision_sniper' : 'precision';
+        // ── RASTREAMENTO DE MODO ── ★ FIX v14: QUANTUM L99 grava como 'quantum_l99'
+        const _modeKey = 'quantum_l99';
         this._lastGenerationMode = _modeKey; localStorage.setItem('l99_lastMode', _modeKey); document.body.setAttribute('data-l99-mode', _modeKey);
         this._lastPrecisionMode = isPrecisionMode;
         this._lastDrawSize = this.smartDrawSizeSelect ? parseInt(this.smartDrawSizeSelect.value) || game.minBet : game.minBet;
@@ -1297,7 +1296,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
                     this.currentGeneratedGames = result.games;
                     this._lastGeneratedGames = result.games;
-                    if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('sniper', result.games, result.analysis, this.currentGameKey);
+                    if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('quantum_l99', result.games, result.analysis, this.currentGameKey);
                     this.renderGames(result, this.currentGameKey);
 
                     var sa = result.analysis || {};
@@ -1336,7 +1335,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 }
                 this.currentGeneratedGames = smartResult.games;
                 this._lastGeneratedGames = smartResult.games;
-                if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('sniper', smartResult.games, smartResult.analysis, this.currentGameKey);
+                if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('quantum_l99', smartResult.games, smartResult.analysis, this.currentGameKey);
                 this.renderGames(smartResult, this.currentGameKey);
                 // Banner HONESTO — Métricas reais do Set Cover + Ciência
                 var sa = smartResult.analysis || {};

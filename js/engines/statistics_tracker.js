@@ -332,15 +332,15 @@ const StatisticsTracker = (function() {
     function _modoLabel(modo) {
         const labels = {
             'manual': '🎲 Manual',
-            'estatistica': '📊 Estatística',
-            'cobertura': '📐 Cobertura',
+            'cobertura': '📐 Cobertura IA',
             'cobertura_sniper': '📐🎯 Cobertura+Sniper',
+            'quantum_l99': '⚡ QUANTUM L99',
             'precision': '🎯 Precisão',
             // Retrocompatibilidade
+            'estatistica': '⚡ QUANTUM L99',
             'manual_sniper': '✋🎯 Manual+Sniper',
             'precision_sniper': '🎯🔫 Precisão+Sniper',
-            'quantum_l99': '📊 Estatística',
-            'precision_l99': '🎯 Precisão',
+            'precision_l99': '⚡ QUANTUM L99',
             'gerar_jogos': '🎲 Manual',
             'dual_2g': '⚡ Dual 2G',
             'fechamento': '🔒 Fechamento'
@@ -365,7 +365,8 @@ const StatisticsTracker = (function() {
             'manual sniper': 'manual_sniper',
             'precisão sniper': 'precision_sniper',
             'precisao sniper': 'precision_sniper',
-            'quantum l99': 'estatistica',
+            'quantum l99': 'quantum_l99',
+            'quantum_l99': 'quantum_l99',
             'jogar l99': 'precision',
             'precision l99': 'precision',
             'gerar jogos': 'manual',
