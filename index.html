@@ -241,12 +241,13 @@
                             </div>
                         </div>
 
-                        <!-- Botões de Ação — linha própria -->
-                        <div id="action-buttons-row" style="display:flex;gap:8px;align-items:stretch;margin-top:10px;flex-wrap:wrap;">
-                            <button id="generate-btn" class="action-btn" style="flex: 1; min-width: 0; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5;" title="Gera jogos com os seus números selecionados no volante. Usa CoverageEngine (Set Cover) para máxima cobertura combinatória.">🎲 Manual</button>
-                            <button id="generate-coverage-btn" class="action-btn" style="flex: 1; min-width: 0; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5;" title="Motor de Cobertura com Sniper: seleciona os melhores números via Detector de Viés Estatístico (χ² + z-scores) + CoverageEngine para distribuir em jogos otimizados.">📐 Cobertura IA</button>
-                            <button id="btn-smart-generate" class="action-btn" style="flex: 1; min-width: 0; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5;" title="Motor completo: 21 camadas de análise estatística + Detector de Viés (p-valor) + CoverageEngine. Seleciona e distribui automaticamente.">⚡ QUANTUM L99</button>
+                        <!-- Botões de Ação — 2 MOTORES (v15.0 Unificação) -->
+                        <div id="action-buttons-row" style="display:flex;gap:10px;align-items:stretch;margin-top:10px;flex-wrap:wrap;">
+                            <button id="generate-btn" class="action-btn" style="flex: 1; min-width: 0; padding: 14px 10px; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5; font-size: 0.95rem;" title="Gera jogos com os seus números selecionados no volante. Cobertura combinatória otimizada (Greedy Set Cover) + Filtros P5-P95 + ROI honesto. Você escolhe os números, o motor otimiza a distribuição.">🎲 Manual</button>
+                            <button id="btn-gerador-inteligente" class="action-btn" style="flex: 1; min-width: 0; padding: 14px 10px; background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 50%, #0369A1 100%); border: 1px solid #38BDF8; color: #f0f9ff; font-weight: 800; font-size: 0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3); box-shadow: 0 4px 15px rgba(14,165,233,0.3);" title="Motor unificado de Cobertura Pura — Matemática combinatória sem previsão. Usa TODOS os números, Greedy Set Cover, filtros P5-P95, anti-concentração. Mostra ROI honesto ANTES de gerar. Toggle Sniper disponível.">🎯 Gerador Inteligente</button>
                         </div>
+                        <!-- ROI Preview Container -->
+                        <div id="roi-preview-container" style="display:none;margin-top:8px;"></div>
 
                         <!-- Gráfico de Progresso Inline (geração de jogos) -->
                         <div id="async-progress-inline" style="display:none;"></div>
@@ -1145,47 +1146,45 @@
                     </div>
 
                     <div style="margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid var(--primary-accent);">
-                        <p style="margin: 0.5rem 0; color: var(--text-primary);"><strong>4.</strong> Gere os jogos com um dos 3 botões abaixo:</p>
+                        <p style="margin: 0.5rem 0; color: var(--text-primary);"><strong>4.</strong> Gere os jogos com um dos 2 botões abaixo:</p>
                     </div>
                 </div>
 
-                <!-- 3 BOTÕES GERADORES -->
+                <!-- 2 MOTORES GERADORES (v15.0) -->
                 <div style="margin-bottom: 1.5rem;">
-                    <h4 style="color: #F59E0B; margin-bottom: 0.5rem;">🎮 Os 3 Motores Geradores de Jogos</h4>
+                    <h4 style="color: #F59E0B; margin-bottom: 0.5rem;">🎮 Os 2 Motores Geradores de Jogos</h4>
 
                     <div style="background: rgba(245,158,11,0.08); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid rgba(245,158,11,0.25);">
                         <p style="margin: 0; color: #F59E0B; font-weight: 800;">🎲 MANUAL</p>
                         <p style="margin: 0.3rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
-                            Gera jogos usando <strong>os números que VOCÊ selecionou</strong> no volante. 
-                            O CoverageEngine distribui seus números em jogos com máxima diversidade combinatória.
+                            Gera jogos usando <strong>os números que VOCÊ selecionou</strong> no volante.
+                            Otimiza a distribuição via Greedy Set Cover (maximiza cobertura de pares e triplas).
+                        </p>
+                        <p style="margin: 0.3rem 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">
+                            Inclui: filtros P5-P95, anti-concentração, Hamming Distance, ROI honesto, detecção de duplicatas.
                         </p>
                         <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">
                             <strong>Quando usar:</strong> Quando você tem números de confiança e quer jogos otimizados com eles.
                         </p>
                     </div>
 
-                    <div style="background: rgba(16,185,129,0.08); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid rgba(16,185,129,0.25);">
-                        <p style="margin: 0; color: #10B981; font-weight: 800;">📐 COBERTURA IA</p>
+                    <div style="background: rgba(14,165,233,0.08); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid rgba(56,189,248,0.25);">
+                        <p style="margin: 0; color: #38BDF8; font-weight: 800;">🎯 GERADOR INTELIGENTE</p>
                         <p style="margin: 0.3rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
-                            <strong>Seleciona automaticamente os melhores números</strong> via Detector de Viés Estatístico 
-                            (Chi-Quadrado + z-scores) e distribui em jogos via CoverageEngine (Greedy Set Cover).
-                        </p>
-                        <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">
-                            <strong>🎯 Sniper:</strong> Ative o toggle para focar em um pool reduzido de números com maior evidência estatística.
+                            <strong>Motor unificado de Cobertura Pura</strong> — Matemática combinatória sem previsão.
+                            Usa TODOS os números do range e otimiza via Greedy Set Cover com 500+ candidatos por slot.
                         </p>
                         <p style="margin: 0.3rem 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">
-                            <strong>Quando usar:</strong> Quando quer que o sistema escolha E distribua tudo com base em evidência matemática.
-                        </p>
-                    </div>
-
-                    <div style="background: rgba(139,92,246,0.08); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid rgba(139,92,246,0.25);">
-                        <p style="margin: 0; color: #A78BFA; font-weight: 800;">⚡ QUANTUM L99</p>
-                        <p style="margin: 0.3rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
-                            Motor mais completo: <strong>21 camadas de análise</strong> (zonas, lacunas, clusters, duplas/trios, 
-                            padrões DNA, ciclos de retorno, etc.) + Detector de Viés + CoverageEngine.
+                            Inclui: filtros P5-P95, anti-concentração, cobertura de triplas, Hamming Distance, ROI honesto.
                         </p>
                         <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">
-                            <strong>Quando usar:</strong> Para análise máxima — o sistema analisa em 21 dimensões, aplica evidência estatística e gera jogos otimizados.
+                            <strong>🎯 Sniper:</strong> Ative o toggle para focar em um pool reduzido baseado em evidência estatística real (Chi² + p-valor).
+                        </p>
+                        <p style="margin: 0.3rem 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">
+                            <strong>Quando usar:</strong> Quando quer deixar o sistema gerar tudo com máxima cobertura matemática.
+                        </p>
+                        <p style="margin: 0.3rem 0 0 0; font-size: 0.75rem; color: #38BDF8; font-weight: 600;">
+                            ⚠️ Transparência total: mostra probabilidades hipergeométricas exatas e ROI esperado ANTES de gerar.
                         </p>
                     </div>
                 </div>
@@ -1356,6 +1355,8 @@
             <script src="js/engines/async_generator.js?v=1779391458"></script>
             <script src="js/engines/comparison_engine.js?v=1779391458"></script>
             <script src="js/engines/auto_updater.js?v=1779391458"></script>
+            <script src="js/engines/pure_coverage_engine.js?v=1779491458"></script>
+            <script src="js/engines/roi_dashboard.js?v=1779491458"></script>
             <script src="js/ui.js?v=1779391458"></script>
             <script src="js/main.js?v=1779391458"></script>
 

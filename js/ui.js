@@ -274,7 +274,11 @@ class UI {
                     const a = result.analysis || {};
                     bannerMsg = '🎲 <strong>MANUAL</strong> — ' + result.games.length + ' jogos dos seus ' + a.poolSize + ' números';
                     if (a.fixedCount > 0) bannerMsg += ' (fixos: ' + a.fixedNumbers.join(', ') + ')';
-                    bannerMsg += '<br>📊 Combinações possíveis: <strong>' + a.totalPossible + '</strong> | Investimento: <strong>R$ ' + a.investimento.toFixed(2) + '</strong> | Ordenado por Sinergia IA 🔥';
+                    bannerMsg += '<br>📊 Combinações possíveis: <strong>' + a.totalPossible + '</strong> | Investimento: <strong>R$ ' + a.investimento.toFixed(2) + '</strong>';
+                    if (a.pairCoveragePct !== undefined) bannerMsg += '<br>📐 Pares cobertos: <strong>' + a.pairCoveragePct + '%</strong>';
+                    if (a.avgHamming !== undefined) bannerMsg += ' | Hamming: <strong>' + a.avgHamming + '</strong>';
+                    if (a.duplicatesRejected) bannerMsg += ' | Duplicatas rejeitadas: ' + a.duplicatesRejected;
+                    if (a.roi && a.roi.roiPercent !== undefined) bannerMsg += '<br>💰 ROI esperado: <strong style="color:' + (a.roi.roiPercent > -60 ? '#F59E0B' : '#EF4444') + ';">' + a.roi.roiPercent.toFixed(1) + '%</strong> <span style="font-size:0.7rem;color:#64748B;">(hipergeométrica exata)</span>';
                     if (a.isComplete) bannerMsg += '<br>✅ <strong style="color:#22C55E;">FECHAMENTO COMPLETO</strong>';
     
                     const games = result.games || [];
@@ -474,10 +478,124 @@ class UI {
             };
         }
 
-        // === BOTÃO ⚡ QUANTUM L99 (Motor IA 21 camadas + CoverageEngine) ===
-        const btnSmartGenerate = document.getElementById('btn-smart-generate');
-        if (btnSmartGenerate) {
-            btnSmartGenerate.onclick = () => this.runSmartGeneration();
+        // === BOTÃO 🎯 GERADOR INTELIGENTE (Motor Unificado v15.0) ===
+        const btnGeradorInteligente = document.getElementById('btn-gerador-inteligente');
+        if (btnGeradorInteligente) {
+            btnGeradorInteligente.onclick = () => {
+                const game = GAMES[this.currentGameKey];
+                if (!game) return;
+                const qty = parseInt(this.gamesQuantityInput.value) || 10;
+                const drawSizeSelect = document.getElementById('smart-draw-size');
+                const customDrawSize = drawSizeSelect ? parseInt(drawSizeSelect.value) : 0;
+                const drawSize = (customDrawSize && customDrawSize >= game.minBet) ? customDrawSize : game.minBet;
+
+                // Verificar modo Sniper
+                const sniperToggle = document.getElementById('precision-mode-toggle');
+                const sniperMode = sniperToggle ? sniperToggle.checked : false;
+                const poolInput = document.getElementById('precision-pool-size');
+                const sniperPoolSize = poolInput ? parseInt(poolInput.value) || 20 : 20;
+
+                this._lastGenerationMode = sniperMode ? 'inteligente_sniper' : 'inteligente';
+                localStorage.setItem('l99_lastMode', this._lastGenerationMode);
+                document.body.setAttribute('data-l99-mode', this._lastGenerationMode);
+
+                // Mostrar ROI Preview ANTES de gerar
+                const roiContainer = document.getElementById('roi-preview-container');
+                if (roiContainer && typeof ROIDashboard !== 'undefined') {
+                    try {
+                        roiContainer.innerHTML = ROIDashboard.generateROIPreview(this.currentGameKey, qty);
+                        roiContainer.style.display = 'block';
+                    } catch(e) { console.warn('[UI] ROIPreview erro:', e); }
+                }
+
+                const modeLabel = sniperMode ? '🎯 Gerador Inteligente + Sniper' : '🎯 Gerador Inteligente';
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">' + modeLabel + '...</div><div style="color:#94A3B8;font-size:0.8rem;margin-top:8px;">Greedy Set Cover + Filtros P5-P95 (matemática pura)</div></div>';
+
+                setTimeout(() => {
+                    try {
+                        if (typeof PureCoverageEngine === 'undefined') {
+                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">PureCoverageEngine não carregado. Recarregue (Ctrl+Shift+R).</div>';
+                            return;
+                        }
+
+                        // Sniper: pool reduzido baseado em evidência estatística real
+                        let sniperPool = null;
+                        if (sniperMode && typeof StatisticalBiasEngine !== 'undefined') {
+                            try {
+                                let history = [];
+                                if (typeof StatsService !== 'undefined') history = StatsService.getRecentResults(this.currentGameKey, 200) || [];
+                                if (history.length === 0 && typeof REAL_HISTORY_DB !== 'undefined') history = REAL_HISTORY_DB[this.currentGameKey] || [];
+                                if (history.length >= 30) {
+                                    const biasResult = StatisticalBiasEngine.analyze(this.currentGameKey, history, sniperPoolSize);
+                                    if (biasResult && biasResult.topNumbers) {
+                                        sniperPool = biasResult.topNumbers.slice(0, sniperPoolSize);
+                                        console.log('[UI] 🎯 Sniper ativo com viés estatístico. Pool:', sniperPool.length, 'números');
+                                    }
+                                }
+                            } catch(e) { console.warn('[UI] Sniper fallback:', e.message); }
+                        }
+
+                        const opts = { drawSize: drawSize };
+                        if (sniperPool && sniperPool.length >= drawSize) {
+                            opts.pool = sniperPool;
+                        }
+
+                        const result = PureCoverageEngine.generate(this.currentGameKey, qty, opts);
+
+                        if (!result || !result.games || result.games.length === 0) {
+                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Tente novamente.</div>';
+                            return;
+                        }
+
+                        this.currentGeneratedGames = result.games;
+                        this._lastGeneratedGames = result.games;
+                        if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('inteligente', result.games, result.analysis, this.currentGameKey);
+                        this.renderGames(result, this.currentGameKey);
+
+                        // Banner com métricas honestas
+                        const a = result.analysis || {};
+                        const roi = a.roi || {};
+                        const roiColor = (roi.roiPercent && roi.roiPercent > -50) ? '#F59E0B' : '#EF4444';
+                        const poolLabel = sniperPool ? 'Sniper (' + sniperPool.length + ' números com evidência χ²)' : 'TODOS os números (sem previsão)';
+                        
+                        let probHtml = '';
+                        if (roi.breakdown && roi.breakdown.length > 0) {
+                            probHtml = '<div style="margin-top:10px;padding:10px;background:rgba(0,0,0,0.4);border-radius:8px;font-size:0.75rem;">' +
+                                '<div style="color:#38BDF8;font-weight:bold;margin-bottom:6px;">📊 PROBABILIDADES EXATAS (HIPERGEOMÉTRICA)</div>' +
+                                '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px;">';
+                            roi.breakdown.forEach(function(b) {
+                                probHtml += '<div style="display:flex;justify-content:space-between;color:#D1D5DB;padding:2px 4px;">' +
+                                    '<span>' + b.hits + ' acertos:</span><span style="color:#38BDF8;font-weight:600;">~' + b.expectedHits.toFixed(1) + 'x</span></div>';
+                            });
+                            probHtml += '</div>';
+                            if (roi.roiPercent !== undefined) {
+                                probHtml += '<div style="margin-top:8px;padding:6px 8px;background:rgba(0,0,0,0.3);border-radius:6px;display:flex;justify-content:space-between;align-items:center;">' +
+                                    '<span style="color:#94A3B8;font-size:0.7rem;">ROI ESPERADO:</span>' +
+                                    '<span style="color:' + roiColor + ';font-weight:900;font-size:1.1rem;">' + roi.roiPercent.toFixed(1) + '%</span></div>';
+                            }
+                            probHtml += '<div style="color:#64748B;font-size:0.6rem;margin-top:4px;text-align:right;">Cobertura otimizada reduz variância, NÃO elimina desvantagem da casa</div></div>';
+                        }
+
+                        var banner = document.createElement('div');
+                        banner.className = 'smart-gen-analysis';
+                        banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(14,165,233,0.12),rgba(15,23,42,0.95));border:1px solid rgba(56,189,248,0.3);';
+                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">🎯</span><div><div style="font-weight:900;color:#38BDF8;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">GERADOR INTELIGENTE — Cobertura Pura</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: PureCoverageEngine v15.0 | ' + result.games.length + ' jogos | Pool: ' + poolLabel + '</div></div></div>' +
+                            '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;">' +
+                            '<div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(56,189,248,0.2);"><div style="color:#7DD3FC;font-size:0.6rem;font-weight:700;">PARES COBERTOS</div><div style="color:#38BDF8;font-weight:900;font-size:1.3rem;">' + (a.pairCoveragePct || 'N/A') + '%</div></div>' +
+                            '<div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(56,189,248,0.2);"><div style="color:#7DD3FC;font-size:0.6rem;font-weight:700;">DIVERSIDADE (HAMMING)</div><div style="color:#38BDF8;font-weight:900;font-size:1.3rem;">' + (a.avgHamming || 'N/A') + '</div></div>' +
+                            '<div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(56,189,248,0.2);"><div style="color:#7DD3FC;font-size:0.6rem;font-weight:700;">INVESTIMENTO</div><div style="color:#38BDF8;font-weight:900;font-size:1.3rem;">R$ ' + (a.investment ? a.investment.toFixed(2) : 'N/A') + '</div></div>' +
+                            '</div>' + probHtml;
+
+                        var oldBanner = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                        if (oldBanner) oldBanner.remove();
+                        this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
+                        banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } catch(e) {
+                        console.error('Erro Gerador Inteligente:', e);
+                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
+                    }
+                }, 50);
+            };
         }
 
         // Pool de Precisão (Sniper) — agora vinculado ao botão Cobertura
