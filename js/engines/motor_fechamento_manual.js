@@ -22,14 +22,18 @@ class MotorFechamentoManual {
     //  (ranges P5-P95 de sorteios históricos)
     // ═══════════════════════════════════════════════════════════════
     static get FILTER_RANGES() {
+        // Valores calculados com matemática pura:
+        // Soma: Normal(E, Var) → E = k*(min+max)/2, Var = k*(n+1)*(n-k)/12
+        // Paridade: Distribuição Hipergeométrica exata
+        // Alto/Baixo: Distribuição Hipergeométrica exata
         return {
-            megasena:   { sumRange: [100, 260], parityRange: [1, 5], maxConsecutive: 3, minZones: 3, zones: 6, zoneSize: 10 },
-            lotofacil:  { sumRange: [165, 225], parityRange: [5, 10], maxConsecutive: 5, minZones: 4, zones: 5, zoneSize: 5 },
-            quina:      { sumRange: [80, 320],  parityRange: [1, 4], maxConsecutive: 2, minZones: 3, zones: 8, zoneSize: 10 },
-            duplasena:  { sumRange: [80, 220],  parityRange: [1, 5], maxConsecutive: 3, minZones: 3, zones: 5, zoneSize: 10 },
-            timemania:  { sumRange: [200, 600], parityRange: [3, 7], maxConsecutive: 3, minZones: 5, zones: 8, zoneSize: 10 },
-            diadesorte: { sumRange: [60, 165],  parityRange: [2, 5], maxConsecutive: 3, minZones: 3, zones: 4, zoneSize: 8 },
-            lotomania:  { sumRange: [1900, 3100], parityRange: [20, 30], maxConsecutive: 15, minZones: 8, zones: 10, zoneSize: 10 }
+            megasena:   { sumRange: [116, 250], parityRange: [1, 5], maxConsecutive: 2, minZones: 3, zones: 6, zoneSize: 10, highLowBalance: [1, 5] },
+            lotofacil:  { sumRange: [165, 225], parityRange: [5, 9], maxConsecutive: 8, minZones: 5, zones: 5, zoneSize: 5, highLowBalance: [6, 10] },
+            quina:      { sumRange: [119, 285], parityRange: [1, 4], maxConsecutive: 2, minZones: 3, zones: 8, zoneSize: 10, highLowBalance: [1, 4] },
+            duplasena:  { sumRange: [98, 208],  parityRange: [1, 5], maxConsecutive: 2, minZones: 3, zones: 5, zoneSize: 10, highLowBalance: [1, 5] },
+            timemania:  { sumRange: [292, 518], parityRange: [3, 7], maxConsecutive: 3, minZones: 4, zones: 8, zoneSize: 10, highLowBalance: [3, 7] },
+            diadesorte: { sumRange: [77, 147],  parityRange: [2, 5], maxConsecutive: 3, minZones: 3, zones: 4, zoneSize: 8, highLowBalance: [2, 5] },
+            lotomania:  { sumRange: [2236, 2714], parityRange: [21, 29], maxConsecutive: 9, minZones: 9, zones: 10, zoneSize: 10, highLowBalance: [21, 29] }
         };
     }
 
@@ -321,14 +325,15 @@ class MotorFechamentoManual {
         }
         if (zonesHit.size < filters.minZones) return false;
 
-        // e) Alto/Baixo equilíbrio (não mais de 70% alto ou baixo)
-        var midPoint = (cfg.range[0] + cfg.range[1]) / 2;
-        var baixos = 0;
-        for (var i = 0; i < k; i++) {
-            if (nums[i] <= midPoint) baixos++;
+        // e) Alto/Baixo — Hipergeométrica exata (P5-P95)
+        if (filters.highLowBalance) {
+            var midPoint = Math.floor((cfg.range[0] + cfg.range[1]) / 2);
+            var baixos = 0;
+            for (var i = 0; i < k; i++) {
+                if (nums[i] <= midPoint) baixos++;
+            }
+            if (baixos < filters.highLowBalance[0] || baixos > filters.highLowBalance[1]) return false;
         }
-        var pctBaixo = baixos / k;
-        if (pctBaixo > 0.70 || pctBaixo < 0.30) return false;
 
         return true;
     }

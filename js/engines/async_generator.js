@@ -122,69 +122,56 @@ class AsyncGenerator {
         self._cancelled = false;
         var game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         var name = game ? game.name : gameKey;
-        var chunkSize = Math.max(20, Math.min(200, Math.floor(numGames / 10)));
 
-        // 1) Mostrar barra
+        // Barra indeterminada — motor processa tudo de uma vez
         self._showBar(name + ' — Manual', numGames);
 
-        // 2) setTimeout(200ms) = browser PINTA a barra
+        // setTimeout(200ms) = browser PINTA a barra ANTES do motor pesado
         setTimeout(function() {
             try {
                 if (typeof MotorFechamentoManual === 'undefined') throw new Error('MotorFechamentoManual não carregado');
 
-                var uniqueGames = [];
-                var keys = {};
-                var chunks = 0;
-                var stale = 0;
-
-                function nextChunk() {
-                    if (uniqueGames.length >= numGames || self._cancelled || stale >= 15 || chunks >= 200) {
-                        // Terminado
-                        if (self._cancelled) {
-                            self._isRunning = false;
-                            self._hideBar();
-                            callback(null, true);
-                            return;
-                        }
-                        self._doneBar(uniqueGames.length);
-                        var analysis = {
-                            totalGames: uniqueGames.length, poolSize: pool.length,
-                            fixedCount: (fixedNumbers||[]).length, fixedNumbers: fixedNumbers||[],
-                            drawSize: drawSize, pricePerGame: game?game.price:0,
-                            investimento: uniqueGames.length * (game?game.price:0),
-                            isComplete: false, elapsed: Date.now() - self._startTime,
-                            asyncMode: true, chunksProcessed: chunks, totalPossible: '—'
-                        };
-                        self._isRunning = false;
-                        setTimeout(function() { callback({ games: uniqueGames, analysis: analysis }, false); }, 500);
-                        return;
-                    }
-
-                    var remaining = numGames - uniqueGames.length;
-                    var batch = Math.min(chunkSize, Math.ceil(remaining * 1.08));
-                    chunks++;
-                    var prev = uniqueGames.length;
-
-                    var r = MotorFechamentoManual.generate(gameKey, pool, fixedNumbers, batch, drawSize);
-                    if (r && r.games) {
-                        for (var i = 0; i < r.games.length; i++) {
-                            if (uniqueGames.length >= numGames) break;
-                            var k = r.games[i].join(',');
-                            if (!keys[k]) {
-                                keys[k] = true;
-                                uniqueGames.push(r.games[i]);
-                            }
-                        }
-                    }
-                    if (uniqueGames.length === prev) stale++;
-                    else stale = 0;
-
-                    self._updateBar(Math.min(uniqueGames.length, numGames), numGames);
-                    // Próximo chunk via setTimeout = browser pinta
-                    setTimeout(nextChunk, 0);
+                if (self._cancelled) {
+                    self._isRunning = false;
+                    self._hideBar();
+                    callback(null, true);
+                    return;
                 }
 
-                nextChunk();
+                // ═══ CHAMADA ÚNICA GLOBAL ═══
+                // O Greedy Set Cover precisa de estado contínuo para:
+                // 1. Cobrir TODOS os pares do pool selecionado
+                // 2. Distribuir números uniformemente (anti-concentração)
+                // 3. Maximizar diversidade (Hamming) entre todos os jogos
+                var r = MotorFechamentoManual.generate(gameKey, pool, fixedNumbers, numGames, drawSize);
+
+                // Deduplicar (segurança)
+                var uniqueGames = [];
+                var keys = {};
+                if (r && r.games) {
+                    for (var i = 0; i < r.games.length; i++) {
+                        var k = r.games[i].join(',');
+                        if (!keys[k]) {
+                            keys[k] = true;
+                            uniqueGames.push(r.games[i]);
+                        }
+                    }
+                }
+
+                self._updateBar(uniqueGames.length, numGames);
+                self._doneBar(uniqueGames.length);
+
+                var analysis = Object.assign({}, r.analysis || {}, {
+                    totalGames: uniqueGames.length, poolSize: pool.length,
+                    fixedCount: (fixedNumbers||[]).length, fixedNumbers: fixedNumbers||[],
+                    drawSize: drawSize, pricePerGame: game?game.price:0,
+                    investimento: uniqueGames.length * (game?game.price:0),
+                    isComplete: false, elapsed: Date.now() - self._startTime,
+                    asyncMode: true, chunksProcessed: 1, totalPossible: '—'
+                });
+
+                self._isRunning = false;
+                setTimeout(function() { callback({ games: uniqueGames, analysis: analysis }, false); }, 500);
 
             } catch (e) {
                 console.error('[AsyncGen Manual]', e);
