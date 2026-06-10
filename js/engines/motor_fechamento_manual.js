@@ -29,7 +29,7 @@ class MotorFechamentoManual {
             duplasena:  { sumRange: [80, 220],  parityRange: [1, 5], maxConsecutive: 3, minZones: 3, zones: 5, zoneSize: 10 },
             timemania:  { sumRange: [200, 600], parityRange: [3, 7], maxConsecutive: 3, minZones: 5, zones: 8, zoneSize: 10 },
             diadesorte: { sumRange: [60, 165],  parityRange: [2, 5], maxConsecutive: 3, minZones: 3, zones: 4, zoneSize: 8 },
-            lotomania:  { sumRange: [1900, 3100], parityRange: [20, 30], maxConsecutive: 5, minZones: 8, zones: 10, zoneSize: 10 }
+            lotomania:  { sumRange: [1900, 3100], parityRange: [20, 30], maxConsecutive: 15, minZones: 8, zones: 10, zoneSize: 10 }
         };
     }
 
@@ -143,11 +143,14 @@ class MotorFechamentoManual {
         // Os fixos já aparecem em todos os jogos, então já contamos
         // (serão incrementados no loop principal)
 
-        // Teto de frequência para anti-concentração
-        var freqCeiling = Math.ceil((numGames * k) / pool.length) * 1.4;
+        // Teto de frequência para anti-concentração ADAPTATIVA
+        var tolerance = numGames <= 50 ? 1.4 : numGames <= 200 ? 1.25 : numGames <= 1000 ? 1.15 : 1.08;
+        var expectedFreq = (numGames * k) / pool.length;
+        var freqCeiling = Math.ceil(expectedFreq * tolerance);
+        var softCeiling = Math.ceil(expectedFreq * (1 + (tolerance - 1) * 0.6));
 
-        // Distância Hamming mínima
-        var hammingMin = Math.max(1, Math.floor(k * 0.3));
+        // Distância Hamming mínima (25% do drawSize)
+        var hammingMin = Math.max(2, Math.floor(k * 0.25));
 
         // Obter filtros da loteria
         var filters = this.FILTER_RANGES[gameKey] || null;
@@ -346,7 +349,7 @@ class MotorFechamentoManual {
     //  HAMMING DISTANCE — Mínimo de 30% diferente dos últimos 5
     // ═══════════════════════════════════════════════════════════════
     static _passesHamming(candidate, existingGames, hammingMin, k) {
-        var start = Math.max(0, existingGames.length - 5);
+        var start = Math.max(0, existingGames.length - 10);
         var candidateSet = new Set(candidate);
         for (var i = start; i < existingGames.length; i++) {
             var dist = this._hammingDistance(candidate, existingGames[i], k);
@@ -398,20 +401,20 @@ class MotorFechamentoManual {
             }
         }
 
-        // Hamming bonus: média de distância contra últimos 5 jogos
+        // Hamming bonus: média de distância contra últimos 10 jogos
         var hammingBonus = 0;
         if (existingGames.length > 0) {
-            var start = Math.max(0, existingGames.length - 5);
+            var start = Math.max(0, existingGames.length - 10);
             var totalDist = 0;
             var count = 0;
             for (var i = start; i < existingGames.length; i++) {
                 totalDist += this._hammingDistance(candidate, existingGames[i], k);
                 count++;
             }
-            hammingBonus = count > 0 ? totalDist / count : 0;
+            hammingBonus = count > 0 ? (totalDist / count) * 5 : 0;
         }
 
-        return newPairs + 0.3 * newTriples + 0.1 * hammingBonus;
+        return newPairs + 0.3 * newTriples + hammingBonus;
     }
 
     // ═══════════════════════════════════════════════════════════════
