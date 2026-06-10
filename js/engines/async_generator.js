@@ -23,7 +23,7 @@ class AsyncGenerator {
         const s = document.createElement('style');
         s.id = 'apg-css';
         s.textContent = `
-            .apg-panel{margin-top:10px;background:linear-gradient(165deg,rgba(15,23,42,0.98),rgba(30,41,59,0.95));border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:14px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.03);animation:apgFade .3s ease}
+            .apg-panel{margin-top:4px;background:linear-gradient(165deg,rgba(15,23,42,0.98),rgba(30,41,59,0.95));border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:8px 12px;box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.03);animation:apgFade .3s ease}
             @keyframes apgFade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
             .apg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
             .apg-left{display:flex;align-items:center;gap:8px}
@@ -31,11 +31,11 @@ class AsyncGenerator {
             @keyframes apgBlink{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}
             .apg-title{font-size:0.85rem;font-weight:800;color:#E2E8F0}
             .apg-badge{font-size:0.65rem;color:#10B981;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;background:rgba(16,185,129,0.1);border-radius:6px;border:1px solid rgba(16,185,129,0.2)}
-            .apg-pct{font-size:1.1rem;font-weight:900;color:#10B981;font-family:'Inter',monospace;min-width:45px;text-align:right}
+            .apg-pct{font-size:.9rem;font-weight:900;color:#10B981;font-family:'Inter',monospace;min-width:45px;text-align:right}
             .apg-x{width:24px;height:24px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);color:#F87171;font-size:0.7rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
             .apg-x:hover{background:rgba(239,68,68,0.25)}
-            .apg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
-            .apg-cell{text-align:center;padding:6px 4px;background:rgba(0,0,0,0.2);border-radius:8px;border:1px solid rgba(16,185,129,0.08)}
+            .apg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:6px}
+            .apg-cell{text-align:center;padding:3px 4px;background:rgba(0,0,0,0.2);border-radius:8px;border:1px solid rgba(16,185,129,0.08)}
             .apg-val{display:block;font-size:0.95rem;font-weight:900;color:#10B981;font-family:'Inter',monospace;line-height:1.2}
             .apg-lbl{display:block;font-size:0.55rem;color:#475569;text-transform:uppercase;letter-spacing:.8px;margin-top:2px;font-weight:700}
             .apg-track{width:100%;height:8px;background:rgba(0,0,0,0.35);border-radius:4px;overflow:hidden}

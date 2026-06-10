@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
@@ -246,11 +246,10 @@
                             <button id="generate-btn" class="action-btn" style="flex: 1; min-width: 0; padding: 14px 10px; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5; font-size: 0.95rem;" title="Gera jogos com os seus números selecionados no volante. Cobertura combinatória otimizada (Greedy Set Cover) + Filtros P5-P95 + ROI honesto. Você escolhe os números, o motor otimiza a distribuição.">🎲 Manual</button>
                             <button id="btn-gerador-inteligente" class="action-btn" style="flex: 1; min-width: 0; padding: 14px 10px; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5; font-weight: 800; font-size: 0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3); box-shadow: 0 4px 15px rgba(14,165,233,0.3);" title="Motor unificado de Cobertura Pura — Matemática combinatória sem previsão. Usa TODOS os números, Greedy Set Cover, filtros P5-P95, anti-concentração. Mostra ROI honesto ANTES de gerar. Toggle Sniper disponível.">🎯 Gerador Inteligente</button>
                         </div>
+                        <!-- Barra de Progresso (logo abaixo dos botões) -->
+                        <div id="async-progress-inline" style="display:none;margin-top:4px;"></div>
                         <!-- ROI Preview Container -->
                         <div id="roi-preview-container" style="display:none;margin-top:8px;"></div>
-
-                        <!-- Gráfico de Progresso Inline (geração de jogos) -->
-                        <div id="async-progress-inline" style="display:none;"></div>
 
                         <!-- Botão Precisão removido v11 — era alias do Cobertura -->
 
