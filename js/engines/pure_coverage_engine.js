@@ -38,13 +38,13 @@ class PureCoverageEngine {
                 zones: 5,
                 zoneSize: 5,
                 payout: 0.4335,
-                // Filtros estruturais P5-P95 (dados reais)
-                sumRange: [163, 212],
-                parityRange: [5, 10],
-                maxConsecutive: 9,
+                // Filtros estruturais P5-P95 (Monte Carlo 500k simulações)
+                sumRange: [165, 225],
+                parityRange: [5, 9],
+                maxConsecutive: 8,
                 minZones: 5,
                 maxSameEnding: 4,
-                highLowBalance: [5, 10]
+                highLowBalance: [6, 10]
             },
             megasena: {
                 name: 'Mega Sena',
@@ -59,8 +59,8 @@ class PureCoverageEngine {
                 zones: 6,
                 zoneSize: 10,
                 payout: 0.4379,
-                // Filtros estruturais P5-P95
-                sumRange: [75, 285],
+                // Filtros estruturais P5-P95 (Monte Carlo 500k simulações)
+                sumRange: [116, 250],
                 parityRange: [1, 5],
                 maxConsecutive: 2,
                 minZones: 3,
@@ -80,8 +80,8 @@ class PureCoverageEngine {
                 zones: 8,
                 zoneSize: 10,
                 payout: 0.4379,
-                // Filtros estruturais P5-P95
-                sumRange: [60, 330],
+                // Filtros estruturais P5-P95 (Monte Carlo 500k simulações)
+                sumRange: [119, 285],
                 parityRange: [1, 4],
                 maxConsecutive: 2,
                 minZones: 3,
@@ -101,8 +101,8 @@ class PureCoverageEngine {
                 zones: 8,
                 zoneSize: 10,
                 payout: 0.46,
-                // Filtros estruturais P5-P95
-                sumRange: [200, 610],
+                // Filtros estruturais P5-P95 (Monte Carlo 500k simulações)
+                sumRange: [292, 518],
                 parityRange: [3, 7],
                 maxConsecutive: 3,
                 minZones: 4,
@@ -122,8 +122,8 @@ class PureCoverageEngine {
                 zones: 4,
                 zoneSize: 8,
                 payout: 0.4335,
-                // Filtros estruturais P5-P95
-                sumRange: [55, 170],
+                // Filtros estruturais P5-P95 (Monte Carlo 500k simulações)
+                sumRange: [77, 147],
                 parityRange: [2, 5],
                 maxConsecutive: 3,
                 minZones: 3,
@@ -143,8 +143,8 @@ class PureCoverageEngine {
                 zones: 5,
                 zoneSize: 10,
                 payout: 0.4379,
-                // Filtros estruturais P5-P95
-                sumRange: [40, 260],
+                // Filtros estruturais P5-P95 (Monte Carlo 500k simulações)
+                sumRange: [98, 208],
                 parityRange: [1, 5],
                 maxConsecutive: 2,
                 minZones: 3,
@@ -164,10 +164,10 @@ class PureCoverageEngine {
                 zones: 10,
                 zoneSize: 10,
                 payout: 0.4335,
-                // Filtros estruturais P5-P95
-                sumRange: [2100, 2800],
+                // Filtros estruturais P5-P95 (Monte Carlo 500k simulações)
+                sumRange: [2236, 2714],
                 parityRange: [21, 29],
-                maxConsecutive: 15, // P95 real para 50/100: ~13-15 consecutivos
+                maxConsecutive: 9,
                 minZones: 9,
                 maxSameEnding: 8,
                 highLowBalance: [21, 29]
