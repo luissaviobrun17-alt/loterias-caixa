@@ -222,9 +222,13 @@ class PureCoverageEngine {
             console.log('[PURE-COVER] Triplas ativas: ' + totalTriples + ' triplas totais | ' + triplesPerGame + ' triplas/jogo');
         }
 
-        // ── 3. Teto de frequência (anti-concentração) ──
-        const maxAllowedFreq = Math.ceil((numGames * cfg.drawSize) / poolSize * 1.3);
-        console.log('[PURE-COVER] Teto de frequência: ' + maxAllowedFreq + ' usos/número');
+        // ── 3. Teto de frequência (anti-concentração ADAPTATIVA) ──
+        // Tolerância menor para volumes grandes → distribuição mais uniforme
+        const tolerance = numGames <= 50 ? 1.4 : numGames <= 200 ? 1.25 : numGames <= 1000 ? 1.15 : 1.08;
+        const expectedFreq = (numGames * cfg.drawSize) / poolSize;
+        const maxAllowedFreq = Math.ceil(expectedFreq * tolerance);
+        const softCeiling = Math.ceil(expectedFreq * (1 + (tolerance - 1) * 0.6)); // Penalidade suave antes do teto
+        console.log('[PURE-COVER] Anti-concentração: esperado=' + Math.round(expectedFreq) + ' teto=' + maxAllowedFreq + ' (tolerância ' + (tolerance * 100 - 100).toFixed(0) + '%) soft=' + softCeiling);
 
         // ── 3b. Recalibrar filtros para pool Sniper ──
         // Se o pool é menor que o range completo, os filtros P5-P95 originais
@@ -344,10 +348,11 @@ class PureCoverageEngine {
                     }
                 }
 
-                // Hamming Distance contra últimos 5 jogos
+                // ── Hamming Distance (janela de 10 jogos, threshold 25%) ──
                 let diversityBonus = 0;
                 let minHamming = candidate.length;
-                const hammingWindow = Math.min(5, games.length);
+                const hammingWindow = Math.min(10, games.length);
+                let hammingSum = 0;
                 for (let h = games.length - 1; h >= games.length - hammingWindow && h >= 0; h--) {
                     const prevSet = new Set(games[h]);
                     let diff = 0;
@@ -355,23 +360,38 @@ class PureCoverageEngine {
                         if (!prevSet.has(n)) diff++;
                     }
                     if (diff < minHamming) minHamming = diff;
-                    diversityBonus += diff;
+                    hammingSum += diff;
                 }
                 if (hammingWindow > 0) {
-                    diversityBonus = Math.round(diversityBonus / hammingWindow) * 3;
+                    // Bonus proporcional à diversidade média
+                    const avgH = hammingSum / hammingWindow;
+                    diversityBonus = Math.round(avgH * 5);
                 }
-                // Penalidade drástica se Hamming mínimo < 15% do drawSize
-                const hammingThreshold = Math.max(1, Math.floor(candidate.length * 0.15));
-                if (minHamming < hammingThreshold) diversityBonus -= 5000;
+                // Penalidade PROPORCIONAL: quanto menor o Hamming, maior a penalidade
+                const hammingThreshold = Math.max(2, Math.floor(candidate.length * 0.25));
+                if (minHamming < hammingThreshold) {
+                    // Escala: H=0 → -10000, H=1 → -5000, H=threshold-1 → -500
+                    diversityBonus -= Math.round(5000 * (1 - minHamming / hammingThreshold));
+                }
 
-                // Diversidade de uso de números (penalizar concentração)
+                // ── Anti-concentração CONTÍNUA e proporcional ──
                 let usageBonus = 0;
                 for (const n of candidate) {
                     const freq = numberUsage[n] || 0;
-                    if (freq === 0) usageBonus += 3;
-                    else if (freq < maxAllowedFreq * 0.5) usageBonus += 1;
-                    // Penalidade severa se acima do teto
-                    if (freq >= maxAllowedFreq) usageBonus -= 50;
+                    if (freq === 0) {
+                        usageBonus += 5; // Forte incentivo para números não usados
+                    } else if (freq < softCeiling) {
+                        // Bonus decrescente: quanto mais usado, menos bonus
+                        usageBonus += Math.round(3 * (1 - freq / softCeiling));
+                    } else if (freq < maxAllowedFreq) {
+                        // Zona de alerta: penalidade crescente
+                        const overSoft = (freq - softCeiling) / (maxAllowedFreq - softCeiling);
+                        usageBonus -= Math.round(30 * overSoft);
+                    } else {
+                        // Acima do teto: penalidade severa proporcional ao excesso
+                        const excess = freq - maxAllowedFreq;
+                        usageBonus -= 80 + excess * 20;
+                    }
                 }
 
                 const fitness = (newPairs * pairWeight) +
