@@ -274,31 +274,75 @@ class AsyncGenerator {
 
 
     // PURE COVERAGE - PureCoverageEngine (motor original)
+    // Chunks de 100 jogos com yield entre eles = barra atualiza em tempo real
     static generatePureAsync(gameKey, numGames, options, callback) {
         var self = this;
         self._isRunning = true;
         self._cancelled = false;
         var game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         var name = game ? game.name : gameKey;
+        var chunkSize = Math.max(10, Math.min(100, Math.ceil(numGames / 10)));
         self._showBar(name, numGames);
+
         setTimeout(function() {
             try {
                 if (typeof PureCoverageEngine === 'undefined') throw new Error('PureCoverageEngine nao carregado');
-                if (self._cancelled) { self._isRunning = false; self._hideBar(); callback(null, true); return; }
-                var result = PureCoverageEngine.generate(gameKey, numGames, options);
-                var seen = {}, ug = [];
-                if (result && result.games) {
-                    for (var i = 0; i < result.games.length; i++) {
-                        var k = result.games[i].join(',');
-                        if (!seen[k]) { seen[k] = true; ug.push(result.games[i]); }
+
+                var allGames = [];
+                var seen = {};
+                var lastAnalysis = {};
+                var lastPool = [];
+                var chunksLeft = numGames;
+                var chunkNum = 0;
+
+                function nextChunk() {
+                    if (chunksLeft <= 0 || self._cancelled) {
+                        // Terminado
+                        if (self._cancelled) { self._isRunning = false; self._hideBar(); callback(null, true); return; }
+                        self._updateBar(allGames.length, numGames);
+                        self._doneBar(allGames.length);
+                        var elapsed = Date.now() - self._startTime;
+                        var fr = {
+                            games: allGames,
+                            pool: lastPool,
+                            analysis: Object.assign({}, lastAnalysis, {
+                                engine: 'PureCoverageEngine',
+                                totalGames: allGames.length,
+                                elapsed: elapsed + 'ms',
+                                asyncMode: true,
+                                chunksProcessed: chunkNum
+                            })
+                        };
+                        self._isRunning = false;
+                        setTimeout(function() { callback(fr, false); }, 500);
+                        return;
                     }
+
+                    var batch = Math.min(chunkSize, chunksLeft);
+                    chunkNum++;
+
+                    var result = PureCoverageEngine.generate(gameKey, batch, options);
+                    if (result && result.games) {
+                        for (var i = 0; i < result.games.length; i++) {
+                            var k = result.games[i].join(',');
+                            if (!seen[k]) {
+                                seen[k] = true;
+                                allGames.push(result.games[i]);
+                            }
+                        }
+                        lastAnalysis = result.analysis || {};
+                        lastPool = result.pool || lastPool;
+                    }
+
+                    chunksLeft -= batch;
+                    self._updateBar(Math.min(allGames.length, numGames), numGames);
+
+                    // Yield ao browser para atualizar barra
+                    setTimeout(nextChunk, 0);
                 }
-                self._updateBar(Math.min(ug.length, numGames), numGames);
-                self._doneBar(ug.length);
-                var elapsed = Date.now() - self._startTime;
-                var fr = { games: ug, pool: result.pool || [], analysis: Object.assign({}, result.analysis || {}, { engine: 'PureCoverageEngine', totalGames: ug.length, elapsed: elapsed + 'ms', asyncMode: true }) };
-                self._isRunning = false;
-                setTimeout(function() { callback(fr, false); }, 500);
+
+                nextChunk();
+
             } catch (e) {
                 console.error('[AsyncGen Pure]', e);
                 self._isRunning = false;
