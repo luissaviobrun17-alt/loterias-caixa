@@ -444,25 +444,23 @@ class AsyncGenerator {
         const name = game ? game.name : gameKey;
 
         this._createInlinePanel(name + ' — Manual', numGames);
-        await this._yieldHeavy(); // Yield pesado para o painel renderizar antes da CPU
+        await this._yieldPaint(); // Garante que o browser pinte o painel
 
         try {
             if (typeof MotorFechamentoManual === 'undefined') throw new Error('MotorFechamentoManual não carregado');
+            // v5.2: micro-batches com requestAnimationFrame
 
             const uniqueGames = [];
             const globalKeys = new Set();
             let chunks = 0;
             let staleRounds = 0;
-            const MAX_STALE_ROUNDS = 15;
-            const MAX_CHUNKS = 80;
+            const MAX_STALE_ROUNDS = 30;
+            const MAX_CHUNKS = 1000;
+            const MICRO = 5; // 5 jogos por vez = nunca trava
 
             while (uniqueGames.length < numGames && !this._cancelled && staleRounds < MAX_STALE_ROUNDS && chunks < MAX_CHUNKS) {
                 const remaining = numGames - uniqueGames.length;
-                const compensatedBatch = Math.min(
-                    Math.ceil(remaining * 1.08),
-                    Math.max(baseChunkSize, remaining)
-                );
-                const batch = Math.min(compensatedBatch, remaining + Math.ceil(remaining * 0.15));
+                const batch = Math.min(MICRO, remaining + 2);
                 chunks++;
 
                 const prevCount = uniqueGames.length;
@@ -488,7 +486,7 @@ class AsyncGenerator {
                 }
 
                 this._updateInlinePanel(Math.min(uniqueGames.length, numGames), numGames);
-                await this._yieldReal();
+                await this._yieldPaint(); // requestAnimationFrame = browser pinta
             }
 
             if (this._cancelled) {
@@ -533,7 +531,7 @@ class AsyncGenerator {
         const name = game ? game.name : gameKey;
 
         this._createInlinePanel(name + ' — Gerador Inteligente', numGames);
-        await this._yieldHeavy(); // Yield pesado para o painel renderizar antes da CPU
+        await this._yieldPaint(); // Garante que o browser pinte o painel
 
         try {
             if (typeof SmartCoverageEngine === 'undefined') throw new Error('SmartCoverageEngine não carregado');
@@ -543,7 +541,8 @@ class AsyncGenerator {
             let chunks = 0;
             let staleCount = 0;
 
-            let batchSize = numGames > 1000 ? 100 : (numGames > 200 ? 50 : 25);
+            // v5.2: Micro-batches de 5 + requestAnimationFrame = zero travamento
+            let batchSize = 5;
             const originalBatchSize = batchSize;
 
             while (allGames.length < numGames && !this._cancelled) {
@@ -584,7 +583,7 @@ class AsyncGenerator {
                 }
 
                 this._updateInlinePanel(allGames.length, numGames);
-                await this._yieldReal();
+                await this._yieldPaint(); // requestAnimationFrame = browser pinta
             }
 
             if (this._cancelled) {
@@ -627,8 +626,18 @@ class AsyncGenerator {
     // ═══════════════════════════════════════════════════════════
 
     static _yield() { return new Promise(r => setTimeout(r, 0)); }
+
+    // Yield que GARANTE que o browser pinta a tela (requestAnimationFrame + setTimeout)
+    static _yieldPaint() {
+        return new Promise(resolve => {
+            requestAnimationFrame(() => {
+                setTimeout(resolve, 0);
+            });
+        });
+    }
+
     static _yieldReal() { return new Promise(r => setTimeout(r, 16)); }
-    static _yieldHeavy() { return new Promise(r => setTimeout(r, 60)); }
+    static _yieldHeavy() { return new Promise(r => setTimeout(r, 100)); }
 
     static _dedupe(games) {
         const seen = new Set();
