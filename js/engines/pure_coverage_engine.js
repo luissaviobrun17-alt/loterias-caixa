@@ -167,7 +167,7 @@ class PureCoverageEngine {
                 // Filtros estruturais P5-P95
                 sumRange: [2100, 2800],
                 parityRange: [21, 29],
-                maxConsecutive: 5,
+                maxConsecutive: 15, // P95 real para 50/100: ~13-15 consecutivos
                 minZones: 9,
                 maxSameEnding: 8,
                 highLowBalance: [21, 29]
