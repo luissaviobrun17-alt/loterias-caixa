@@ -444,7 +444,7 @@ class AsyncGenerator {
         const name = game ? game.name : gameKey;
 
         this._createInlinePanel(name + ' — Manual', numGames);
-        await this._yield();
+        await this._yieldHeavy(); // Yield pesado para o painel renderizar antes da CPU
 
         try {
             if (typeof MotorFechamentoManual === 'undefined') throw new Error('MotorFechamentoManual não carregado');
@@ -488,7 +488,7 @@ class AsyncGenerator {
                 }
 
                 this._updateInlinePanel(Math.min(uniqueGames.length, numGames), numGames);
-                await this._yield();
+                await this._yieldReal();
             }
 
             if (this._cancelled) {
@@ -533,7 +533,7 @@ class AsyncGenerator {
         const name = game ? game.name : gameKey;
 
         this._createInlinePanel(name + ' — Gerador Inteligente', numGames);
-        await this._yield();
+        await this._yieldHeavy(); // Yield pesado para o painel renderizar antes da CPU
 
         try {
             if (typeof SmartCoverageEngine === 'undefined') throw new Error('SmartCoverageEngine não carregado');
@@ -543,7 +543,7 @@ class AsyncGenerator {
             let chunks = 0;
             let staleCount = 0;
 
-            let batchSize = numGames > 1000 ? 250 : (numGames > 200 ? 100 : 50);
+            let batchSize = numGames > 1000 ? 100 : (numGames > 200 ? 50 : 25);
             const originalBatchSize = batchSize;
 
             while (allGames.length < numGames && !this._cancelled) {
@@ -627,7 +627,8 @@ class AsyncGenerator {
     // ═══════════════════════════════════════════════════════════
 
     static _yield() { return new Promise(r => setTimeout(r, 0)); }
-    static _yieldReal() { return new Promise(r => setTimeout(r, 8)); }
+    static _yieldReal() { return new Promise(r => setTimeout(r, 16)); }
+    static _yieldHeavy() { return new Promise(r => setTimeout(r, 60)); }
 
     static _dedupe(games) {
         const seen = new Set();
