@@ -1,4 +1,4 @@
-const L99_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+﻿const L99_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 const L99_TIMES = ["ABC/RN", "América/MG", "América/RJ", "América/RN", "Atlético/GO", "Atlético/MG", "Atlético/PR", "Avaí/SC", "Bahia/BA", "Bangu/RJ", "Barueri/SP", "Botafogo/PB", "Botafogo/RJ", "Botafogo/SP", "Bragantino/SP", "Brasiliense/DF", "Campinense/PB", "Ceará/CE", "Corinthians/SP", "Coritiba/PR", "CRB/AL", "Criciúma/SC", "Cruzeiro/MG", "CSA/AL", "Desportiva/ES", "Figueirense/SC", "Flamengo/RJ", "Fluminense/RJ", "Fortaleza/CE", "Gama/DF", "Goiás/GO", "Grêmio/RS", "Guarani/SP", "Inter Limeira/SP", "Internacional/RS", "Ipatinga/MG", "Ituano/SP", "Ji-Paraná/RO", "Joinville/SC", "Juventude/RS", "Juventus/SP", "Londrina/PR", "Marília/SP", "Mixto/MT", "Moto Clube/MA", "Náutico/PE", "Nacional/AM", "Olaria/RJ", "Operário/MS", "Palmeiras/SP", "Paraná/PR", "Paulista/SP", "Paysandu/PA", "Ponte Preta/SP", "Portuguesa/SP", "Remo/PA", "Rio Branco/AC", "Rio Branco/ES", "River/PI", "Roraima/RR", "Sampaio Corrêa/MA", "Santa Cruz/PE", "Santo André/SP", "Santos/SP", "São Caetano/SP", "São Paulo/SP", "São Raimundo/AM", "Sergipe/SE", "Sport/PE", "Treze/PB", "Tuna Luso/PA", "Uberlândia/MG", "União Bandeirante/PR", "União São João/SP", "Vasco/RJ", "Vila Nova/GO", "Villa Nova/MG", "Vitória/BA", "Volta Redonda/RJ", "Ypiranga/AP"];
 
 class UI {
@@ -509,92 +509,33 @@ class UI {
                 }
 
                 const modeLabel = sniperMode ? '🎯 Gerador Inteligente + Sniper' : '🎯 Gerador Inteligente';
-                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">' + modeLabel + '...</div><div style="color:#94A3B8;font-size:0.8rem;margin-top:8px;">Greedy Set Cover + Filtros P5-P95 (matemática pura)</div></div>';
-
-                setTimeout(() => {
-                    try {
-                        if (typeof PureCoverageEngine === 'undefined') {
-                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">PureCoverageEngine não carregado. Recarregue (Ctrl+Shift+R).</div>';
-                            return;
-                        }
-
-                        // Sniper: pool reduzido baseado em evidência estatística real
-                        let sniperPool = null;
-                        if (sniperMode && typeof StatisticalBiasEngine !== 'undefined') {
-                            try {
-                                let history = [];
-                                if (typeof StatsService !== 'undefined') history = StatsService.getRecentResults(this.currentGameKey, 200) || [];
-                                if (history.length === 0 && typeof REAL_HISTORY_DB !== 'undefined') history = REAL_HISTORY_DB[this.currentGameKey] || [];
-                                if (history.length >= 30) {
-                                    const biasResult = StatisticalBiasEngine.analyze(this.currentGameKey, history, sniperPoolSize);
-                                    if (biasResult && biasResult.topNumbers) {
-                                        sniperPool = biasResult.topNumbers.slice(0, sniperPoolSize);
-                                        console.log('[UI] 🎯 Sniper ativo com viés estatístico. Pool:', sniperPool.length, 'números');
-                                    }
-                                }
-                            } catch(e) { console.warn('[UI] Sniper fallback:', e.message); }
-                        }
-
-                        const opts = { drawSize: drawSize };
-                        if (sniperPool && sniperPool.length >= drawSize) {
-                            opts.pool = sniperPool;
-                        }
-
-                        const result = PureCoverageEngine.generate(this.currentGameKey, qty, opts);
-
-                        if (!result || !result.games || result.games.length === 0) {
-                            this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">Nenhum jogo gerado. Tente novamente.</div>';
-                            return;
-                        }
-
-                        this.currentGeneratedGames = result.games;
-                        this._lastGeneratedGames = result.games;
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:20px;"><div class="sync-loader">' + modeLabel + '...</div></div>';
+                if (typeof AsyncGenerator !== 'undefined') {
+                    let sp = null;
+                    if (sniperMode && typeof StatisticalBiasEngine !== 'undefined') { try { let h = []; if (typeof StatsService !== 'undefined') h = StatsService.getRecentResults(this.currentGameKey, 200) || []; if (h.length === 0 && typeof REAL_HISTORY_DB !== 'undefined') h = REAL_HISTORY_DB[this.currentGameKey] || []; if (h.length >= 30) { const br = StatisticalBiasEngine.analyze(this.currentGameKey, h, sniperPoolSize); if (br && br.topNumbers) sp = br.topNumbers.slice(0, sniperPoolSize); } } catch(e) {} }
+                    const sa = this.getSelectedNumbers ? this.getSelectedNumbers() : [];
+                    const fa = this.fixedNumbers ? Array.from(this.fixedNumbers) : [];
+                    const ao = { precisionMode: sniperMode, precisionPoolSize: sniperPoolSize, drawSize: drawSize };
+                    if (sp && sp.length >= drawSize) ao.pool = sp;
+                    AsyncGenerator.generatePureAsync(this.currentGameKey, qty, ao, (result, cancelled, error) => {
+                        if (cancelled) { this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">⚠️ Cancelado.</div>'; return; }
+                        if (error || !result || !result.games || result.games.length === 0) { this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + (error ? error.message : 'Nenhum jogo.') + '</div>'; return; }
+                        this.currentGeneratedGames = result.games; this._lastGeneratedGames = result.games;
                         if (typeof ComparisonEngine !== 'undefined') ComparisonEngine.saveResult('inteligente', result.games, result.analysis, this.currentGameKey);
                         this.renderGames(result, this.currentGameKey);
-
-                        // Banner com métricas honestas
                         const a = result.analysis || {};
-                        const roi = a.roi || {};
-                        const roiColor = (roi.roiPercent && roi.roiPercent > -50) ? '#F59E0B' : '#EF4444';
-                        const poolLabel = sniperPool ? 'Sniper (' + sniperPool.length + ' números com evidência χ²)' : 'TODOS os números (sem previsão)';
-                        
-                        let probHtml = '';
-                        if (roi.breakdown && roi.breakdown.length > 0) {
-                            probHtml = '<div style="margin-top:10px;padding:10px;background:rgba(0,0,0,0.4);border-radius:8px;font-size:0.75rem;">' +
-                                '<div style="color:#38BDF8;font-weight:bold;margin-bottom:6px;">📊 PROBABILIDADES EXATAS (HIPERGEOMÉTRICA)</div>' +
-                                '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px;">';
-                            roi.breakdown.forEach(function(b) {
-                                probHtml += '<div style="display:flex;justify-content:space-between;color:#D1D5DB;padding:2px 4px;">' +
-                                    '<span>' + b.hits + ' acertos:</span><span style="color:#38BDF8;font-weight:600;">~' + b.expectedHits.toFixed(1) + 'x</span></div>';
-                            });
-                            probHtml += '</div>';
-                            if (roi.roiPercent !== undefined) {
-                                probHtml += '<div style="margin-top:8px;padding:6px 8px;background:rgba(0,0,0,0.3);border-radius:6px;display:flex;justify-content:space-between;align-items:center;">' +
-                                    '<span style="color:#94A3B8;font-size:0.7rem;">ROI ESPERADO:</span>' +
-                                    '<span style="color:' + roiColor + ';font-weight:900;font-size:1.1rem;">' + roi.roiPercent.toFixed(1) + '%</span></div>';
-                            }
-                            probHtml += '<div style="color:#64748B;font-size:0.6rem;margin-top:4px;text-align:right;">Cobertura otimizada reduz variância, NÃO elimina desvantagem da casa</div></div>';
-                        }
-
-                        var banner = document.createElement('div');
-                        banner.className = 'smart-gen-analysis';
+                        var banner = document.createElement('div'); banner.className = 'smart-gen-analysis';
                         banner.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:12px;background:linear-gradient(145deg,rgba(14,165,233,0.12),rgba(15,23,42,0.95));border:1px solid rgba(56,189,248,0.3);';
-                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">🎯</span><div><div style="font-weight:900;color:#38BDF8;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">GERADOR INTELIGENTE — Cobertura Pura</div><div style="font-size:0.72rem;color:#94A3B8;">Motor: PureCoverageEngine v15.0 | ' + result.games.length + ' jogos | Pool: ' + poolLabel + '</div></div></div>' +
-                            '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:0.75rem;">' +
-                            '<div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(56,189,248,0.2);"><div style="color:#7DD3FC;font-size:0.6rem;font-weight:700;">PARES COBERTOS</div><div style="color:#38BDF8;font-weight:900;font-size:1.3rem;">' + (a.pairCoveragePct || 'N/A') + '%</div></div>' +
-                            '<div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(56,189,248,0.2);"><div style="color:#7DD3FC;font-size:0.6rem;font-weight:700;">DIVERSIDADE (HAMMING)</div><div style="color:#38BDF8;font-weight:900;font-size:1.3rem;">' + (a.avgHamming || 'N/A') + '</div></div>' +
-                            '<div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(56,189,248,0.2);"><div style="color:#7DD3FC;font-size:0.6rem;font-weight:700;">INVESTIMENTO</div><div style="color:#38BDF8;font-weight:900;font-size:1.3rem;">R$ ' + (a.investment ? a.investment.toFixed(2) : 'N/A') + '</div></div>' +
-                            '</div>' + probHtml;
-
-                        var oldBanner = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
-                        if (oldBanner) oldBanner.remove();
+                        banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:1.3rem;">🎯</span><div><div style="font-weight:900;color:#38BDF8;font-size:1rem;text-transform:uppercase;">GERADOR INTELIGENTE</div><div style="font-size:0.72rem;color:#94A3B8;">CoverageEngine | ' + result.games.length + ' jogos | ' + (a.elapsed || '') + '</div></div></div>';
+                        var ob = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis'); if (ob) ob.remove();
                         this.gamesContainer.parentNode.insertBefore(banner, this.gamesContainer);
                         banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    } catch(e) {
-                        console.error('Erro Gerador Inteligente:', e);
-                        this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: ' + e.message + '</div>';
-                    }
-                }, 50);
+                    });
+                    return;
+                }
+                setTimeout(() => {
+                    try { const r = PureCoverageEngine.generate(this.currentGameKey, qty, {drawSize}); if (!r||!r.games) return; this.currentGeneratedGames=r.games; this._lastGeneratedGames=r.games; this.renderGames(r, this.currentGameKey); } catch(e) { this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro: '+e.message+'</div>'; }
+                }, 50)
             };
         }
 
