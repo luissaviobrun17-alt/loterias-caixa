@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║  ASYNC GENERATOR v6.0 — setTimeout puro (sem async/await)             ║
  * ║                                                                        ║
@@ -271,6 +271,42 @@ class AsyncGenerator {
     }
 
     // ═══════════════════════════════════════════════════════════
+
+
+    // PURE COVERAGE - PureCoverageEngine (motor original)
+    static generatePureAsync(gameKey, numGames, options, callback) {
+        var self = this;
+        self._isRunning = true;
+        self._cancelled = false;
+        var game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+        var name = game ? game.name : gameKey;
+        self._showBar(name, numGames);
+        setTimeout(function() {
+            try {
+                if (typeof PureCoverageEngine === 'undefined') throw new Error('PureCoverageEngine nao carregado');
+                if (self._cancelled) { self._isRunning = false; self._hideBar(); callback(null, true); return; }
+                var result = PureCoverageEngine.generate(gameKey, numGames, options);
+                var seen = {}, ug = [];
+                if (result && result.games) {
+                    for (var i = 0; i < result.games.length; i++) {
+                        var k = result.games[i].join(',');
+                        if (!seen[k]) { seen[k] = true; ug.push(result.games[i]); }
+                    }
+                }
+                self._updateBar(Math.min(ug.length, numGames), numGames);
+                self._doneBar(ug.length);
+                var elapsed = Date.now() - self._startTime;
+                var fr = { games: ug, pool: result.pool || [], analysis: Object.assign({}, result.analysis || {}, { engine: 'PureCoverageEngine', totalGames: ug.length, elapsed: elapsed + 'ms', asyncMode: true }) };
+                self._isRunning = false;
+                setTimeout(function() { callback(fr, false); }, 500);
+            } catch (e) {
+                console.error('[AsyncGen Pure]', e);
+                self._isRunning = false;
+                self._hideBar();
+                callback(null, false, e);
+            }
+        }, 200);
+    }
 
     static _dedupe(games) {
         var seen = {};
