@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║  ASYNC GENERATOR v6.0 — setTimeout puro (sem async/await)             ║
  * ║                                                                        ║
@@ -274,74 +274,74 @@ class AsyncGenerator {
 
 
     // PURE COVERAGE - PureCoverageEngine (motor original)
-    // Chunks de 100 jogos com yield entre eles = barra atualiza em tempo real
+    // UMA chamada global = Greedy Set Cover com estado completo = cobertura REAL
     static generatePureAsync(gameKey, numGames, options, callback) {
         var self = this;
         self._isRunning = true;
         self._cancelled = false;
         var game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         var name = game ? game.name : gameKey;
-        var chunkSize = Math.max(10, Math.min(100, Math.ceil(numGames / 10)));
+
+        // Barra indeterminada — motor processa tudo de uma vez
         self._showBar(name, numGames);
 
+        // setTimeout(200ms) = browser PINTA a barra ANTES do motor pesado
         setTimeout(function() {
             try {
                 if (typeof PureCoverageEngine === 'undefined') throw new Error('PureCoverageEngine nao carregado');
 
-                var allGames = [];
-                var seen = {};
-                var lastAnalysis = {};
-                var lastPool = [];
-                var chunksLeft = numGames;
-                var chunkNum = 0;
-
-                function nextChunk() {
-                    if (chunksLeft <= 0 || self._cancelled) {
-                        // Terminado
-                        if (self._cancelled) { self._isRunning = false; self._hideBar(); callback(null, true); return; }
-                        self._updateBar(allGames.length, numGames);
-                        self._doneBar(allGames.length);
-                        var elapsed = Date.now() - self._startTime;
-                        var fr = {
-                            games: allGames,
-                            pool: lastPool,
-                            analysis: Object.assign({}, lastAnalysis, {
-                                engine: 'PureCoverageEngine',
-                                totalGames: allGames.length,
-                                elapsed: elapsed + 'ms',
-                                asyncMode: true,
-                                chunksProcessed: chunkNum
-                            })
-                        };
-                        self._isRunning = false;
-                        setTimeout(function() { callback(fr, false); }, 500);
-                        return;
-                    }
-
-                    var batch = Math.min(chunkSize, chunksLeft);
-                    chunkNum++;
-
-                    var result = PureCoverageEngine.generate(gameKey, batch, options);
-                    if (result && result.games) {
-                        for (var i = 0; i < result.games.length; i++) {
-                            var k = result.games[i].join(',');
-                            if (!seen[k]) {
-                                seen[k] = true;
-                                allGames.push(result.games[i]);
-                            }
-                        }
-                        lastAnalysis = result.analysis || {};
-                        lastPool = result.pool || lastPool;
-                    }
-
-                    chunksLeft -= batch;
-                    self._updateBar(Math.min(allGames.length, numGames), numGames);
-
-                    // Yield ao browser para atualizar barra
-                    setTimeout(nextChunk, 0);
+                if (self._cancelled) {
+                    self._isRunning = false;
+                    self._hideBar();
+                    callback(null, true);
+                    return;
                 }
 
-                nextChunk();
+                // ═══ CHAMADA ÚNICA GLOBAL ═══
+                // O Greedy Set Cover PRECISA de estado contínuo para:
+                // 1. Cobrir TODOS os pares do espaço combinatório
+                // 2. Distribuir números uniformemente (anti-concentração)
+                // 3. Maximizar diversidade (Hamming) entre todos os jogos
+                // Fragmentar em chunks DESTRÓI esse estado.
+                var result = PureCoverageEngine.generate(gameKey, numGames, options);
+
+                // Deduplicar (segurança)
+                var seen = {};
+                var uniqueGames = [];
+                if (result && result.games) {
+                    for (var i = 0; i < result.games.length; i++) {
+                        var k = result.games[i].join(',');
+                        if (!seen[k]) {
+                            seen[k] = true;
+                            uniqueGames.push(result.games[i]);
+                        }
+                    }
+                }
+
+                self._updateBar(uniqueGames.length, numGames);
+                self._doneBar(uniqueGames.length);
+
+                var elapsed = Date.now() - self._startTime;
+                var fr = {
+                    games: uniqueGames,
+                    pool: result.pool || (function() {
+                        var s = {};
+                        for (var j = 0; j < uniqueGames.length; j++)
+                            for (var m = 0; m < uniqueGames[j].length; m++)
+                                s[uniqueGames[j][m]] = true;
+                        return Object.keys(s).map(Number).sort(function(a,b){return a-b});
+                    })(),
+                    analysis: Object.assign({}, result.analysis || {}, {
+                        engine: 'PureCoverageEngine',
+                        totalGames: uniqueGames.length,
+                        elapsed: elapsed + 'ms',
+                        asyncMode: true,
+                        chunksProcessed: 1
+                    })
+                };
+
+                self._isRunning = false;
+                setTimeout(function() { callback(fr, false); }, 500);
 
             } catch (e) {
                 console.error('[AsyncGen Pure]', e);
