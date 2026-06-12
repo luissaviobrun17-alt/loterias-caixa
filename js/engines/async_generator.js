@@ -194,14 +194,16 @@ class AsyncGenerator {
         var game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         var name = game ? game.name : gameKey;
 
+        // Verificar se GameBuilderEngine está disponível
+        var useGameBuilder = typeof GameBuilderEngine !== 'undefined';
+
         // 1) Mostrar barra com animação indeterminada
-        self._showBar(name + ' — Gerador Inteligente', numGames);
+        var engineLabel = useGameBuilder ? 'Convergência Multi-Otimizador' : 'Gerador Inteligente';
+        self._showBar(name + ' — ' + engineLabel, numGames);
 
         // 2) setTimeout(200ms) = browser PINTA a barra ANTES do motor pesado
         setTimeout(function() {
             try {
-                if (typeof SmartCoverageEngine === 'undefined') throw new Error('SmartCoverageEngine não carregado');
-
                 if (self._cancelled) {
                     self._isRunning = false;
                     self._hideBar();
@@ -209,10 +211,72 @@ class AsyncGenerator {
                     return;
                 }
 
-                // ═══ CHAMADA ÚNICA — qualidade máxima (Set Cover global) ═══
-                var result = SmartCoverageEngine.generate(
-                    gameKey, numGames, selectedNumbers, fixedNumbers, drawSize, options
-                );
+                var result;
+
+                if (useGameBuilder) {
+                    // ═══ GAMEBUILDER ENGINE: 5 otimizadores + ConvergenceEngine (Terceiro) ═══
+                    // 1. EnsembleEngine fornece pool com scores calibrados por loteria
+                    // 2. GameBuilderEngine forma os jogos por convergência multi-objetivo
+                    // 3. ConvergenceEngine seleciona pela fronteira de Pareto
+
+                    var pool = [];
+                    var history = [];
+
+                    // Obter histórico
+                    try {
+                        if (typeof StatsService !== 'undefined') {
+                            history = StatsService.getRecentResults(gameKey, 200) || [];
+                        }
+                        if (history.length === 0 && typeof REAL_HISTORY_DB !== 'undefined') {
+                            history = REAL_HISTORY_DB[gameKey] || [];
+                        }
+                    } catch(e) {}
+
+                    // Pool: se usuário selecionou números, usar eles
+                    var selArr = selectedNumbers ? Array.from(selectedNumbers).filter(n => typeof n === 'number') : [];
+                    var fixArr = fixedNumbers ? Array.from(fixedNumbers).filter(n => typeof n === 'number') : [];
+
+                    if (selArr.length >= drawSize) {
+                        // Usuário selecionou pool manual — usar diretamente
+                        pool = [...new Set([...selArr, ...fixArr])].sort((a, b) => a - b);
+                        console.log('[AsyncGen] Pool manual: ' + pool.length + ' números');
+                    } else {
+                        // Pool automático via EnsembleEngine (se disponível) ou range completo
+                        if (typeof EnsembleEngine !== 'undefined' && history.length >= 10) {
+                            try {
+                                var ensemble = EnsembleEngine.score(gameKey, numGames, history, drawSize);
+                                var adaptivePool = EnsembleEngine._buildAdaptivePool(ensemble, numGames, drawSize, gameKey);
+                                pool = adaptivePool.length >= drawSize ? adaptivePool : [];
+                                if (fixArr.length > 0) {
+                                    pool = [...new Set([...pool, ...fixArr])].sort((a, b) => a - b);
+                                }
+                                console.log('[AsyncGen] Pool Ensemble: ' + pool.length + ' números (estratégia: ' + adaptivePool._strategy + ')');
+                            } catch(e) {
+                                console.warn('[AsyncGen] EnsembleEngine falhou, usando range completo:', e.message);
+                            }
+                        }
+
+                        if (pool.length < drawSize) {
+                            // Fallback: range completo da loteria
+                            var prof = GameBuilderEngine._getProfile(gameKey);
+                            pool = [];
+                            for (var n = prof.startNum; n <= prof.endNum; n++) pool.push(n);
+                            if (fixArr.length > 0) {
+                                pool = [...new Set([...pool, ...fixArr])].sort((a, b) => a - b);
+                            }
+                        }
+                    }
+
+                    // ═══ GAMEBUILDER: forma os jogos por convergência ═══
+                    result = GameBuilderEngine.generate(gameKey, numGames, pool, drawSize, history, options);
+
+                } else {
+                    // ═══ FALLBACK: SmartCoverageEngine ═══
+                    if (typeof SmartCoverageEngine === 'undefined') throw new Error('SmartCoverageEngine não carregado');
+                    result = SmartCoverageEngine.generate(
+                        gameKey, numGames, selectedNumbers, fixedNumbers, drawSize, options
+                    );
+                }
 
                 // Deduplicar
                 var seen = {};
@@ -233,13 +297,27 @@ class AsyncGenerator {
                 var elapsed = Date.now() - self._startTime;
                 var finalResult = {
                     games: uniqueGames,
-                    pool: result.pool || (function() { var s = {}; for (var j = 0; j < uniqueGames.length; j++) for (var m = 0; m < uniqueGames[j].length; m++) s[uniqueGames[j][m]] = true; return Object.keys(s).map(Number).sort(function(a,b){return a-b}); })(),
+                    pool: result.pool || (function() {
+                        var s = {};
+                        for (var j = 0; j < uniqueGames.length; j++)
+                            for (var m = 0; m < uniqueGames[j].length; m++)
+                                s[uniqueGames[j][m]] = true;
+                        return Object.keys(s).map(Number).sort(function(a,b){return a-b});
+                    })(),
                     analysis: Object.assign({}, result.analysis || {}, {
-                        engine: 'CoverageEngine', totalGames: uniqueGames.length,
-                        elapsed: elapsed + 'ms', strategy: 'COVERAGE_FAST',
-                        asyncMode: true, chunksProcessed: 1
+                        engine: useGameBuilder ? 'GameBuilderEngine' : 'SmartCoverageEngine',
+                        totalGames: uniqueGames.length,
+                        elapsed: elapsed + 'ms',
+                        strategy: useGameBuilder ? 'GAMEBUILDER_CONVERGENCE' : 'COVERAGE_FAST',
+                        asyncMode: true,
+                        chunksProcessed: 1
                     })
                 };
+
+                if (useGameBuilder && result.analysis && result.analysis.convergenceStats) {
+                    finalResult.analysis.avgConvergence = result.analysis.avgConvergence;
+                    finalResult.analysis.convergenceStats = result.analysis.convergenceStats;
+                }
 
                 if (typeof SmartCoverageEngine !== 'undefined' && SmartCoverageEngine._calcAvgHamming) {
                     finalResult.analysis.avgHamming = SmartCoverageEngine._calcAvgHamming(uniqueGames, drawSize);
@@ -256,6 +334,7 @@ class AsyncGenerator {
             }
         }, 200);
     }
+
 
     // ═══════════════════════════════════════════════════════════
 
