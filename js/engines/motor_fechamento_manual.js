@@ -531,7 +531,7 @@ class MotorFechamentoManual {
             investment: Math.round(investment * 100) / 100,
             breakdown: breakdown,
             expectedReturn: Math.round(totalEV * 100) / 100,
-            roiPercent: Math.round(((totalEV / investment) - 1) * 10000) / 100
+            roiPercent: investment > 0 ? Math.round(((totalEV / investment) - 1) * 10000) / 100 : 0
         };
     }
 

@@ -511,7 +511,7 @@ class CombinationEngine {
         if (sumStats && sumStats.avg > 0) {
             const ticketSum = ticket.reduce((a, b) => a + b, 0);
             const deviation = Math.abs(ticketSum - sumStats.avg);
-            const tolerance = sumStats.stdDev * 1.5; // 1.5 desvios padrão
+            const tolerance = Math.max(1, sumStats.stdDev * 1.5); // 1.5 desvios padrão (min 1 para evitar divisão por zero)
             
             if (deviation <= tolerance) {
                 // Dentro da faixa esperada — bônus proporcional
@@ -807,7 +807,7 @@ class CombinationEngine {
             const key = ticket.join(',');
             if (!usedCombinations.has(key)) {
                 usedCombinations.add(key);
-                bestCandidates.push({ ticket, score: this.scoreTicket(ticket, analysis) });
+                bestCandidates.push({ ticket, score: this._applyHiddenPatternBonus(this.scoreTicket(ticket, analysis), ticket, analysis) });
             }
         }
 

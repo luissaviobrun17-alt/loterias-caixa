@@ -1,54 +1,54 @@
-/**
- * QUANTUM GOD ENGINE V12 — ORÁCULO QUÂNTICO + CLARIVIDÊNCIA
+﻿/**
+ * QUANTUM GOD ENGINE V12 â€” ORÃCULO QUÃ‚NTICO + CLARIVIDÃŠNCIA
  * ===========================================================
- * 28 CAMADAS DE ANÁLISE — Detecção de padrões ocultos e algoritmos
+ * 28 CAMADAS DE ANÃLISE â€” DetecÃ§Ã£o de padrÃµes ocultos e algoritmos
  * 
- * CAMADA 1:  Frequência Recente (últimos 3-5 sorteios)
- * CAMADA 2:  Frequência Geral (todos os sorteios)
- * CAMADA 3:  Análise de Atraso (números "devendo")
- * CAMADA 4:  Detecção de Ciclos (periodicidade)
- * CAMADA 5:  Repetição entre Sorteios consecutivos
- * CAMADA 6:  Correlação de Pares (saem juntos)
- * CAMADA 7:  Correlação de Trios (3 juntos)
- * CAMADA 8:  Final do Concurso (padrões por dígito)
- * CAMADA 9:  Distribuição por LINHAS
- * CAMADA 10: Distribuição por COLUNAS
- * CAMADA 11: Análise de PRIMOS
- * CAMADA 12: Análise de SOMA (faixa ideal)
+ * CAMADA 1:  FrequÃªncia Recente (Ãºltimos 3-5 sorteios)
+ * CAMADA 2:  FrequÃªncia Geral (todos os sorteios)
+ * CAMADA 3:  AnÃ¡lise de Atraso (nÃºmeros "devendo")
+ * CAMADA 4:  DetecÃ§Ã£o de Ciclos (periodicidade)
+ * CAMADA 5:  RepetiÃ§Ã£o entre Sorteios consecutivos
+ * CAMADA 6:  CorrelaÃ§Ã£o de Pares (saem juntos)
+ * CAMADA 7:  CorrelaÃ§Ã£o de Trios (3 juntos)
+ * CAMADA 8:  Final do Concurso (padrÃµes por dÃ­gito)
+ * CAMADA 9:  DistribuiÃ§Ã£o por LINHAS
+ * CAMADA 10: DistribuiÃ§Ã£o por COLUNAS
+ * CAMADA 11: AnÃ¡lise de PRIMOS
+ * CAMADA 12: AnÃ¡lise de SOMA (faixa ideal)
  * CAMADA 13: Espelhos/Complementares
- * CAMADA 14: Frequência por Dezena Final
- * CAMADA 15: MARKOV — "Saiu X → Próximo vem Y" ⚡
- * CAMADA 16: SEQUÊNCIAS TEMPORAIS — padrões cíclicos ⚡
- * CAMADA 17: CORRELAÇÃO CONDICIONAL — A+B → C ⚡
- * CAMADA 18: DETECTOR DE ALGORITMO/RNG — viés oculto ⚡
- * CAMADA 19: TENDÊNCIA TEMPORAL — ascensão/declínio ⚡
- * CAMADA 20: FIBONACCI / PROPORÇÃO ÁUREA ⚡
- * CAMADA 21: ANÁLISE DE GAPS ⚡
- * CAMADA 22: EQUILÍBRIO DE QUADRANTES ⚡
- * ── NOVAS CAMADAS QUÂNTICAS (V12 — TIMEMANIA) ──
- * CAMADA 23: HARMÔNICOS — Frequência ressonante por zona 🔮
- * CAMADA 24: ENTROPIA — Caos vs Ordem no histórico 🔮
- * CAMADA 25: REGRESSÃO PREDITIVA — Vetores de tendência 🔮
- * CAMADA 26: ALINHAMENTO DE FASE — Ciclos sobrepostos 🔮
- * CAMADA 27: RESSONÂNCIA QUÂNTICA — Atrator estranho 🔮
- * CAMADA 28: CLARIVIDÊNCIA — Síntese preditiva final 🔮
+ * CAMADA 14: FrequÃªncia por Dezena Final
+ * CAMADA 15: MARKOV â€” "Saiu X â†’ PrÃ³ximo vem Y" âš¡
+ * CAMADA 16: SEQUÃŠNCIAS TEMPORAIS â€” padrÃµes cÃ­clicos âš¡
+ * CAMADA 17: CORRELAÃ‡ÃƒO CONDICIONAL â€” A+B â†’ C âš¡
+ * CAMADA 18: DETECTOR DE ALGORITMO/RNG â€” viÃ©s oculto âš¡
+ * CAMADA 19: TENDÃŠNCIA TEMPORAL â€” ascensÃ£o/declÃ­nio âš¡
+ * CAMADA 20: FIBONACCI / PROPORÃ‡ÃƒO ÃUREA âš¡
+ * CAMADA 21: ANÃLISE DE GAPS âš¡
+ * CAMADA 22: EQUILÃBRIO DE QUADRANTES âš¡
+ * â”€â”€ NOVAS CAMADAS QUÃ‚NTICAS (V12 â€” TIMEMANIA) â”€â”€
+ * CAMADA 23: HARMÃ”NICOS â€” FrequÃªncia ressonante por zona ðŸ”®
+ * CAMADA 24: ENTROPIA â€” Caos vs Ordem no histÃ³rico ðŸ”®
+ * CAMADA 25: REGRESSÃƒO PREDITIVA â€” Vetores de tendÃªncia ðŸ”®
+ * CAMADA 26: ALINHAMENTO DE FASE â€” Ciclos sobrepostos ðŸ”®
+ * CAMADA 27: RESSONÃ‚NCIA QUÃ‚NTICA â€” Atrator estranho ðŸ”®
+ * CAMADA 28: CLARIVIDÃŠNCIA â€” SÃ­ntese preditiva final ðŸ”®
  * 
  * MONTE CARLO: 50.000 universos (7 rodadas) para Timemania
  * FILTRO V3 + BACKTESTING APROFUNDADO + CROSS-VALIDATION
  * 
- * "O Oráculo que usa o passado para prever o futuro."
+ * "O OrÃ¡culo que usa o passado para prever o futuro."
  */
 class QuantumGodEngine {
 
-    // ╔══════════════════════════════════════════════════════╗
-    // ║  PERFIS DE PESO POR LOTERIA (calibração específica) ║
-    // ╚══════════════════════════════════════════════════════╝
+    // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    // â•‘  PERFIS DE PESO POR LOTERIA (calibraÃ§Ã£o especÃ­fica) â•‘
+    // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static getWeightProfile(gameKey) {
         var profiles = {
-            // Lotofácil: 15/25 — V10: range pequeno, diversidade natural alta
+            // LotofÃ¡cil: 15/25 â€” V10: range pequeno, diversidade natural alta
             'lotofacil': {
-                // ★ GOD MODE v11: Repetição é REI (8-12/15 repetem do último)
-                // Pesos das camadas mortas redistribuídos para as ativas
+                // â˜… GOD MODE v11: RepetiÃ§Ã£o Ã© REI (8-12/15 repetem do Ãºltimo)
+                // Pesos das camadas mortas redistribuÃ­dos para as ativas
                 recentFreq:   0.06, generalFreq: 0.03, latency: 0.05,
                 cycles:       0.04, repetition: 0.16, drawEnding: 0.01,
                 lines:        0.08, columns: 0.06, primes: 0.01,
@@ -63,7 +63,7 @@ class QuantumGodEngine {
                 monteCarloRuns: 28000, qualityAttempts: 3500
             },
             'megasena': {
-                // ★ GOD MODE v11: Distribuição zonal é CRÍTICA (6/60)
+                // â˜… GOD MODE v11: DistribuiÃ§Ã£o zonal Ã© CRÃTICA (6/60)
                 recentFreq:   0.06, generalFreq: 0.04, latency: 0.08,
                 cycles:       0.08, repetition: 0.03, drawEnding: 0.04,
                 lines:        0.07, columns: 0.06, primes: 0.02,
@@ -77,9 +77,9 @@ class QuantumGodEngine {
                 repeatFromLast: [0, 3], guaranteedPct: 0.40,
                 monteCarloRuns: 25000, qualityAttempts: 3000
             },
-            // Quina: 5/80 — QCAL-V3: range grande, clarividência máxima
+            // Quina: 5/80 â€” QCAL-V3: range grande, clarividÃªncia mÃ¡xima
             'quina': {
-                // ★ GOD MODE v11: Gap + Ciclos dominam (5/80 = ciclos longos)
+                // â˜… GOD MODE v11: Gap + Ciclos dominam (5/80 = ciclos longos)
                 recentFreq:   0.05, generalFreq: 0.04, latency: 0.12,
                 cycles:       0.14, repetition: 0.02, drawEnding: 0.03,
                 lines:        0.05, columns: 0.04, primes: 0.01,
@@ -93,9 +93,9 @@ class QuantumGodEngine {
                 repeatFromLast: [0, 2], guaranteedPct: 0.40,
                 monteCarloRuns: 30000, qualityAttempts: 4000
             },
-            // Dupla Sena: 6/50 — QCAL-V3: ciclos + vácuo duplo
+            // Dupla Sena: 6/50 â€” QCAL-V3: ciclos + vÃ¡cuo duplo
             'duplasena': {
-                // ★ GOD MODE v11: 2 sorteios = 2x dados! Mirror + repetition dominam
+                // â˜… GOD MODE v11: 2 sorteios = 2x dados! Mirror + repetition dominam
                 recentFreq:   0.05, generalFreq: 0.04, latency: 0.08,
                 cycles:       0.06, repetition: 0.10, drawEnding: 0.03,
                 lines:        0.05, columns: 0.04, primes: 0.01,
@@ -109,10 +109,10 @@ class QuantumGodEngine {
                 repeatFromLast: [0, 3], guaranteedPct: 0.42,
                 monteCarloRuns: 25000, qualityAttempts: 3000
             },
-            // Lotomania: 20/100 — QCAL-V3: range enorme, entropia máxima
+            // Lotomania: 20/100 â€” QCAL-V3: range enorme, entropia mÃ¡xima
             'lotomania': {
-                // ★ GOD MODE v11: Décadas equilibradas (50/100, draw 20)
-                // Lines+Columns = equilíbrio por década = CRITICAL
+                // â˜… GOD MODE v11: DÃ©cadas equilibradas (50/100, draw 20)
+                // Lines+Columns = equilÃ­brio por dÃ©cada = CRITICAL
                 recentFreq:   0.03, generalFreq: 0.02, latency: 0.05,
                 cycles:       0.04, repetition: 0.08, drawEnding: 0.01,
                 lines:        0.12, columns: 0.10, primes: 0.01,
@@ -126,10 +126,10 @@ class QuantumGodEngine {
                 repeatFromLast: [7, 14], guaranteedPct: 0.45,
                 monteCarloRuns: 25000, qualityAttempts: 3500
             },
-            // Timemania: 10/80 — V4: RECALIBRADA COM DADOS FORENSES
+            // Timemania: 10/80 â€” V4: RECALIBRADA COM DADOS FORENSES
             'timemania': {
-                // ★ GOD MODE v11: Seleção eficiente 10/80, draw 7
-                // Temporal + Markov para padrões de transição
+                // â˜… GOD MODE v11: SeleÃ§Ã£o eficiente 10/80, draw 7
+                // Temporal + Markov para padrÃµes de transiÃ§Ã£o
                 recentFreq:   0.06, generalFreq: 0.04, latency: 0.10,
                 cycles:       0.08, repetition: 0.03, drawEnding: 0.03,
                 lines:        0.06, columns: 0.05, primes: 0.01,
@@ -143,10 +143,10 @@ class QuantumGodEngine {
                 repeatFromLast: [0, 2], guaranteedPct: 0.25,
                 monteCarloRuns: 65000, qualityAttempts: 8000
             },
-            // Dia de Sorte: 7/31 — QCAL-V3: espaço pequeno, Fibonacci prevalente
+            // Dia de Sorte: 7/31 â€” QCAL-V3: espaÃ§o pequeno, Fibonacci prevalente
             'diadesorte': {
-                // ★ GOD MODE v11: Range pequeno (7/31) = padrões detectáveis
-                // Conditional + Repetition dominam no espaço reduzido
+                // â˜… GOD MODE v11: Range pequeno (7/31) = padrÃµes detectÃ¡veis
+                // Conditional + Repetition dominam no espaÃ§o reduzido
                 recentFreq:   0.04, generalFreq: 0.03, latency: 0.06,
                 cycles:       0.05, repetition: 0.14, drawEnding: 0.02,
                 lines:        0.05, columns: 0.04, primes: 0.01,
@@ -176,34 +176,34 @@ class QuantumGodEngine {
             return this._randomFallback(startNum, endNum, count);
         }
 
-        console.log('[QuantumV12] 🔮 MODO DEUS + CLARIVIDÊNCIA ATIVADO: ' + gameKey + ' (' + history.length + ' sorteios REAIS)');
-        console.log('[QuantumV12] 📋 28 Camadas de Análise Profunda + Clarividência + Cross-Validation');
+        console.log('[QuantumV12] ðŸ”® MODO DEUS + CLARIVIDÃŠNCIA ATIVADO: ' + gameKey + ' (' + history.length + ' sorteios REAIS)');
+        console.log('[QuantumV12] ðŸ“‹ 28 Camadas de AnÃ¡lise Profunda + ClarividÃªncia + Cross-Validation');
 
         var totalRange = endNum - startNum + 1;
         var isLargeGame = totalRange > 50;
 
-        // ╔══════════════════════════════════════╗
-        // ║  CROSS-VALIDATION: Reservar último   ║
-        // ║  sorteio para validação              ║
-        // ╚══════════════════════════════════════╝
+        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+        // â•‘  CROSS-VALIDATION: Reservar Ãºltimo   â•‘
+        // â•‘  sorteio para validaÃ§Ã£o              â•‘
+        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         var validationDraw = history[0];
         var trainingHistory = history.slice(1);
 
-        // ╔══════════════════════════════════════╗
-        // ║  22 CAMADAS DE ANÁLISE ORÁCULO       ║
-        // ╚══════════════════════════════════════╝
+        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+        // â•‘  22 CAMADAS DE ANÃLISE ORÃCULO       â•‘
+        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         var bestResult = null;
         var bestConfidence = -1;
         var MAX_RETRIES = 8;
 
         for (var retry = 0; retry < MAX_RETRIES; retry++) {
-            // ★ GOD MODE FIX: SEMPRE usar trainingHistory (sem data leakage)
+            // â˜… GOD MODE FIX: SEMPRE usar trainingHistory (sem data leakage)
             // Bug anterior: retry===0 usava 'history' completo incluindo validationDraw
             var result = this._runSingleAttempt(gameKey, count, trainingHistory, startNum, endNum, totalNumbers, totalRange, isLargeGame, profile, retry);
 
-            // ╔══════════════════════════════════════╗
-            // ║  CROSS-VALIDATION + REJEIÇÃO         ║
-            // ╚══════════════════════════════════════╝
+            // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+            // â•‘  CROSS-VALIDATION + REJEIÃ‡ÃƒO         â•‘
+            // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
             var valHits = 0;
             for (var vi = 0; vi < result.length; vi++) {
                 for (var vj = 0; vj < validationDraw.numbers.length; vj++) {
@@ -214,31 +214,31 @@ class QuantumGodEngine {
             var improvement = valHits / Math.max(0.1, expectedByChance);
             var confidence = Math.min(95, Math.max(30, Math.round(improvement * 40 + 25)));
 
-            console.log('[QuantumV9] 🧪 Tentativa ' + (retry+1) + ': ' + valHits + ' acertos na validação (esperado: ' + expectedByChance.toFixed(1) + ') — Confiança: ' + confidence + '%');
+            console.log('[QuantumV9] ðŸ§ª Tentativa ' + (retry+1) + ': ' + valHits + ' acertos na validaÃ§Ã£o (esperado: ' + expectedByChance.toFixed(1) + ') â€” ConfianÃ§a: ' + confidence + '%');
 
             if (confidence > bestConfidence) {
                 bestConfidence = confidence;
                 bestResult = result;
             }
 
-            // Se passou na validação (acima do esperado), aceitar
+            // Se passou na validaÃ§Ã£o (acima do esperado), aceitar
             if (valHits >= expectedByChance * 1.1) {
-                console.log('[QuantumV9] ✅ APROVADO na cross-validation!');
+                console.log('[QuantumV9] âœ… APROVADO na cross-validation!');
                 break;
             }
             if (retry < MAX_RETRIES - 1) {
-                console.log('[QuantumV9] ⚠️ Abaixo do esperado, regenerando com mais diversidade...');
+                console.log('[QuantumV9] âš ï¸ Abaixo do esperado, regenerando com mais diversidade...');
             }
         }
 
-        // Backtesting final contra múltiplos sorteios
+        // Backtesting final contra mÃºltiplos sorteios
         var backtest = this._backtestResult(bestResult, history, gameKey);
         this._lastConfidence = backtest.confidence;
         this._lastBacktest = backtest;
 
-        console.log('[QuantumV9] ✅ ' + gameKey + ': ' + bestResult.length + ' números');
-        console.log('[QuantumV9] 📊 BACKTESTING: ' + backtest.summary);
-        console.log('[QuantumV9] 🔮 Confiança Final: ' + backtest.confidence + '%');
+        console.log('[QuantumV9] âœ… ' + gameKey + ': ' + bestResult.length + ' nÃºmeros');
+        console.log('[QuantumV9] ðŸ“Š BACKTESTING: ' + backtest.summary);
+        console.log('[QuantumV9] ðŸ”® ConfianÃ§a Final: ' + backtest.confidence + '%');
 
         return bestResult.sort(function(a, b) { return a - b; });
     }
@@ -263,14 +263,14 @@ class QuantumGodEngine {
         var markovWeights = this._layer15_MarkovTransition(history, startNum, endNum);
         var temporalWeights = this._layer16_TemporalSequences(history, startNum, endNum);
         var conditionalWeights = this._layer17_ConditionalCorrelation(history, startNum, endNum);
-        // ★ GOD MODE: Camadas 18 e 20 ELIMINADAS — pseudociência (não mais executam)
+        // â˜… GOD MODE: Camadas 18 e 20 ELIMINADAS â€” pseudociÃªncia (nÃ£o mais executam)
         var trendWeights = this._layer19_TemporalTrend(history, startNum, endNum);
-        var algorithmWeights = null; // _layer18_AlgorithmDetector REMOVIDO
-        var fibonacciWeights = null; // _layer20_FibonacciGolden REMOVIDO
+        var algorithmWeights = {}; // _layer18_AlgorithmDetector REMOVIDO (era null â†’ crash fix)
+        var fibonacciWeights = {}; // _layer20_FibonacciGolden REMOVIDO (era null â†’ crash fix)
         var gapWeights = this._layer21_GapAnalysis(history, startNum, endNum);
         var quadrantWeights = this._layer22_QuadrantBalance(history, startNum, endNum);
 
-        // ★ GOD MODE: Camadas 23-28 ELIMINADAS — redundantes (não mais executam)
+        // â˜… GOD MODE: Camadas 23-28 ELIMINADAS â€” redundantes (nÃ£o mais executam)
         var harmonicWeights = null;
         var entropyWeights = null;
         var regressionWeights = null;
@@ -299,21 +299,21 @@ class QuantumGodEngine {
                 (markovWeights[n] || 0)      * (profile.markov * 1.4 || 0) +
                 (temporalWeights[n] || 0)    * (profile.temporal * 1.2 || 0) +
                 (conditionalWeights[n] || 0) * (profile.conditional * 1.3 || 0) +
-                // ★ GOD MODE: Camada 18 (Detector RNG) NEUTRALIZADA — pseudociência
-                // algorithmWeights CALCULADO mas peso ZERO (não polui o score)
+                // â˜… GOD MODE: Camada 18 (Detector RNG) NEUTRALIZADA â€” pseudociÃªncia
+                // algorithmWeights CALCULADO mas peso ZERO (nÃ£o polui o score)
                 (algorithmWeights[n] || 0)   * 0 +
                 (trendWeights[n] || 0)       * (profile.trend * 1.2 || 0) +
-                // ★ GOD MODE: Camada 20 (Fibonacci) NEUTRALIZADA — pseudociência
+                // â˜… GOD MODE: Camada 20 (Fibonacci) NEUTRALIZADA â€” pseudociÃªncia
                 (fibonacciWeights[n] || 0)   * 0 +
                 (gapWeights[n] || 0)         * 0.06 +
                 (quadrantWeights[n] || 0)    * 0.05 +
-                // ── Camadas Quânticas V12 ──
-                // ★ GOD MODE: Camadas 23-28 NEUTRALIZADAS — redundantes com camadas 1-10
-                // Harmônicos = Entropia por zona (já em L4 NovaEra)
-                // Regressão = Tendência temporal (já em L19)
-                // Fase = Ciclos (já em L4)
-                // Ressonância = Co-ocorrência (já em L6)
-                // Clarividência = Meta-análise que recalcula L1,L3,L4,L15,L16,L19
+                // â”€â”€ Camadas QuÃ¢nticas V12 â”€â”€
+                // â˜… GOD MODE: Camadas 23-28 NEUTRALIZADAS â€” redundantes com camadas 1-10
+                // HarmÃ´nicos = Entropia por zona (jÃ¡ em L4 NovaEra)
+                // RegressÃ£o = TendÃªncia temporal (jÃ¡ em L19)
+                // Fase = Ciclos (jÃ¡ em L4)
+                // RessonÃ¢ncia = Co-ocorrÃªncia (jÃ¡ em L6)
+                // ClarividÃªncia = Meta-anÃ¡lise que recalcula L1,L3,L4,L15,L16,L19
                 (harmonicWeights ? (harmonicWeights[n] || 0) * 0 : 0) +
                 (entropyWeights ? (entropyWeights[n] || 0) * 0 : 0) +
                 (regressionWeights ? (regressionWeights[n] || 0) * 0 : 0) +
@@ -345,7 +345,7 @@ class QuantumGodEngine {
         var mcPairs = isLargeGame ? null : pairs;
 
         for (var round = 0; round < numRounds; round++) {
-            var temperature = 1.0 - (round * (1.0 / numRounds) * 0.85); // Convergência suave
+            var temperature = 1.0 - (round * (1.0 / numRounds) * 0.85); // ConvergÃªncia suave
             var roundScores = {};
             for (var rs = startNum; rs <= endNum; rs++) {
                 roundScores[rs] = (finalScores[rs] || 0) * (1 + (Math.random() - 0.5) * temperature * 0.18);
@@ -376,9 +376,9 @@ class QuantumGodEngine {
         );
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 1: FREQUÊNCIA RECENTE (últimos 3-5)
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 1: FREQUÃŠNCIA RECENTE (Ãºltimos 3-5)
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer1_RecentFrequency(history, startNum, endNum) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
@@ -399,9 +399,9 @@ class QuantumGodEngine {
         return this._normalize(weights);
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 2: FREQUÊNCIA GERAL
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 2: FREQUÃŠNCIA GERAL
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer2_GeneralFrequency(history, startNum, endNum) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
@@ -418,9 +418,9 @@ class QuantumGodEngine {
         return this._normalize(weights);
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 3: ANÁLISE DE ATRASO
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 3: ANÃLISE DE ATRASO
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer3_Latency(history, startNum, endNum) {
         var lastSeen = {};
         for (var n = startNum; n <= endNum; n++) lastSeen[n] = -1;
@@ -435,25 +435,25 @@ class QuantumGodEngine {
             }
         }
 
-        // ★ GOD MODE: Distribuição uniforme ao invés de Falácia do Jogador
-        // Números NÃO "devem" sair. O RNG não tem memória.
-        // Leve gradiente de recência para diversidade (sem extremos)
+        // â˜… GOD MODE: DistribuiÃ§Ã£o uniforme ao invÃ©s de FalÃ¡cia do Jogador
+        // NÃºmeros NÃƒO "devem" sair. O RNG nÃ£o tem memÃ³ria.
+        // Leve gradiente de recÃªncia para diversidade (sem extremos)
         var weights = {};
         var histLen = history.length || 1;
         for (var k in lastSeen) {
             if (lastSeen[k] === -1) {
-                weights[k] = 0.55; // Nunca visto — leve boost para cobertura
+                weights[k] = 0.55; // Nunca visto â€” leve boost para cobertura
             } else {
-                // Gradiente suave: 0.45 (recente) → 0.55 (antigo)
+                // Gradiente suave: 0.45 (recente) â†’ 0.55 (antigo)
                 weights[k] = 0.45 + (lastSeen[k] / histLen) * 0.10;
             }
         }
         return weights;
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 4: DETECÇÃO DE CICLOS
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 4: DETECÃ‡ÃƒO DE CICLOS
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer4_Cycles(history, startNum, endNum) {
         var weights = {};
         for (var num = startNum; num <= endNum; num++) {
@@ -483,21 +483,21 @@ class QuantumGodEngine {
         return weights;
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 5: REPETIÇÃO ENTRE SORTEIOS (V7 APRIMORADA)
-    // Lotofácil: 7-9 repetem entre consecutivos
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 5: REPETIÃ‡ÃƒO ENTRE SORTEIOS (V7 APRIMORADA)
+    // LotofÃ¡cil: 7-9 repetem entre consecutivos
     // Mega Sena: 0-2 repetem
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer5_Repetition(history, startNum, endNum, gameKey) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
 
         if (history.length < 2) return weights;
 
-        // Analisar repetições nos últimos 8 pares consecutivos (mais profundo)
+        // Analisar repetiÃ§Ãµes nos Ãºltimos 8 pares consecutivos (mais profundo)
         var limit = Math.min(8, history.length - 1);
         
-        // Calcular taxa média de repetição REAL
+        // Calcular taxa mÃ©dia de repetiÃ§Ã£o REAL
         var totalRepRate = 0;
         for (var i = 0; i < limit; i++) {
             var current = {};
@@ -511,7 +511,7 @@ class QuantumGodEngine {
             }
             totalRepRate += repCount / history[i].numbers.length;
 
-            // Números que repetiram ganham peso decrescente
+            // NÃºmeros que repetiram ganham peso decrescente
             for (var rn2 in current) {
                 if (previous[rn2] && rn2 >= startNum && rn2 <= endNum) {
                     weights[rn2] += (1.0 - i * 0.10);
@@ -520,9 +520,9 @@ class QuantumGodEngine {
         }
 
         var avgRepRate = totalRepRate / limit;
-        console.log('[QuantumV7] 🔄 ' + gameKey + ' taxa de repetição média: ' + (avgRepRate * 100).toFixed(1) + '%');
+        console.log('[QuantumV7] ðŸ”„ ' + gameKey + ' taxa de repetiÃ§Ã£o mÃ©dia: ' + (avgRepRate * 100).toFixed(1) + '%');
 
-        // SUPER BOOST: números do ÚLTIMO sorteio (chance altíssima de repetir)
+        // SUPER BOOST: nÃºmeros do ÃšLTIMO sorteio (chance altÃ­ssima de repetir)
         var lastDraw = history[0].numbers;
         var boostFactor = avgRepRate * 2.0; // Quanto mais alta a taxa, maior o boost
         for (var ld = 0; ld < lastDraw.length; ld++) {
@@ -531,7 +531,7 @@ class QuantumGodEngine {
             }
         }
 
-        // Boost adicional: números que estão nos DOIS últimos sorteios
+        // Boost adicional: nÃºmeros que estÃ£o nos DOIS Ãºltimos sorteios
         if (history.length >= 2) {
             var secondLast = history[1].numbers;
             var lastSet = {};
@@ -546,9 +546,9 @@ class QuantumGodEngine {
         return this._normalize(weights);
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 6: CORRELAÇÃO DE PARES
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 6: CORRELAÃ‡ÃƒO DE PARES
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer6_PairCorrelation(history, startNum, endNum) {
         var matrix = {};
         for (var n = startNum; n <= endNum; n++) matrix[n] = {};
@@ -568,9 +568,9 @@ class QuantumGodEngine {
         return matrix;
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 7: CORRELAÇÃO DE TRIOS
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 7: CORRELAÃ‡ÃƒO DE TRIOS
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer7_TrioCorrelation(history, startNum, endNum) {
         var trioMap = {};
         var totalRange = endNum - startNum + 1;
@@ -598,9 +598,9 @@ class QuantumGodEngine {
         return frequentTrios;
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 8: ANÁLISE POR FINAL DO CONCURSO
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 8: ANÃLISE POR FINAL DO CONCURSO
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer8_DrawEnding(history, startNum, endNum) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
@@ -635,11 +635,11 @@ class QuantumGodEngine {
         return this._normalize(weights);
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 9: DISTRIBUIÇÃO POR LINHAS (NOVO V7)
-    // Lotofácil: 5 linhas (1-5, 6-10, 11-15, 16-20, 21-25)
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 9: DISTRIBUIÃ‡ÃƒO POR LINHAS (NOVO V7)
+    // LotofÃ¡cil: 5 linhas (1-5, 6-10, 11-15, 16-20, 21-25)
     // Mega Sena: 6 linhas (1-10, 11-20, ..., 51-60)
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer9_LineDistribution(history, startNum, endNum, gameKey) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
@@ -648,7 +648,7 @@ class QuantumGodEngine {
         var lineSize = this._getLineSize(gameKey);
         var numLines = Math.ceil((endNum - startNum + 1) / lineSize);
 
-        // Analisar distribuição real por linha nos últimos 10 sorteios
+        // Analisar distribuiÃ§Ã£o real por linha nos Ãºltimos 10 sorteios
         var lineFreq = {};
         for (var line = 0; line < numLines; line++) lineFreq[line] = [];
 
@@ -668,13 +668,13 @@ class QuantumGodEngine {
             }
         }
 
-        // Calcular média por linha e dar boost a números nas linhas com boa média
+        // Calcular mÃ©dia por linha e dar boost a nÃºmeros nas linhas com boa mÃ©dia
         for (var li = 0; li < numLines; li++) {
             var avg = 0;
             for (var a = 0; a < lineFreq[li].length; a++) avg += lineFreq[li][a];
             avg = lineFreq[li].length > 0 ? avg / lineFreq[li].length : 0;
 
-            // Números na linha com boa média ganham boost
+            // NÃºmeros na linha com boa mÃ©dia ganham boost
             var lineStart = startNum + li * lineSize;
             var lineEnd = Math.min(endNum, lineStart + lineSize - 1);
             for (var ln = lineStart; ln <= lineEnd; ln++) {
@@ -685,16 +685,16 @@ class QuantumGodEngine {
         return this._normalize(weights);
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 10: DISTRIBUIÇÃO POR COLUNAS (NOVO V7)
-    // Final dos números: 1, 2, 3 ... 0
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 10: DISTRIBUIÃ‡ÃƒO POR COLUNAS (NOVO V7)
+    // Final dos nÃºmeros: 1, 2, 3 ... 0
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer10_ColumnDistribution(history, startNum, endNum) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
         if (history.length === 0) return weights;
 
-        // Contar frequência de cada final (0-9) nos últimos 10 sorteios
+        // Contar frequÃªncia de cada final (0-9) nos Ãºltimos 10 sorteios
         var digitFreq = {};
         for (var d = 0; d <= 9; d++) digitFreq[d] = 0;
 
@@ -707,7 +707,7 @@ class QuantumGodEngine {
             }
         }
 
-        // Dar peso a cada número baseado na frequência do seu final
+        // Dar peso a cada nÃºmero baseado na frequÃªncia do seu final
         var maxFreq = 0;
         for (var dk in digitFreq) { if (digitFreq[dk] > maxFreq) maxFreq = digitFreq[dk]; }
 
@@ -719,14 +719,14 @@ class QuantumGodEngine {
         return weights;
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 11: ANÁLISE DE PRIMOS (NOVO V7)
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 11: ANÃLISE DE PRIMOS (NOVO V7)
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer11_PrimeAnalysis(history, startNum, endNum) {
         var weights = {};
         var primes = this._getPrimes(endNum);
         
-        // Analisar proporção de primos nos últimos 10 sorteios
+        // Analisar proporÃ§Ã£o de primos nos Ãºltimos 10 sorteios
         var primeRatios = [];
         var analyzedCount = Math.min(10, history.length);
         for (var i = 0; i < analyzedCount; i++) {
@@ -742,7 +742,7 @@ class QuantumGodEngine {
         for (var r = 0; r < primeRatios.length; r++) avgPrimeRatio += primeRatios[r];
         avgPrimeRatio = primeRatios.length > 0 ? avgPrimeRatio / primeRatios.length : 0.4;
 
-        // Se primos aparecem com frequência, dar boost a primos
+        // Se primos aparecem com frequÃªncia, dar boost a primos
         for (var n = startNum; n <= endNum; n++) {
             if (primes[n]) {
                 weights[n] = 0.5 + avgPrimeRatio;
@@ -754,16 +754,16 @@ class QuantumGodEngine {
         return this._normalize(weights);
     }
 
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     // CAMADA 13: ESPELHOS/COMPLEMENTARES (NOVO V7)
-    // n ↔ (max - n + min) — ex: Lotofácil 01↔25, 02↔24
-    // ═══════════════════════════════════════════
+    // n â†” (max - n + min) â€” ex: LotofÃ¡cil 01â†”25, 02â†”24
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer13_Mirrors(history, startNum, endNum) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
         if (history.length === 0) return weights;
 
-        // Analisar quantos pares espelhados aparecem nos últimos sorteios
+        // Analisar quantos pares espelhados aparecem nos Ãºltimos sorteios
         var analyzedCount = Math.min(10, history.length);
         for (var i = 0; i < analyzedCount; i++) {
             var nums = history[i].numbers;
@@ -773,14 +773,14 @@ class QuantumGodEngine {
             for (var k = 0; k < nums.length; k++) {
                 var mirror = startNum + endNum - nums[k];
                 if (mirror >= startNum && mirror <= endNum && numSet[mirror]) {
-                    // O par espelho apareceu junto — boost ambos
+                    // O par espelho apareceu junto â€” boost ambos
                     weights[nums[k]] += 0.3;
                     weights[mirror] += 0.3;
                 }
             }
         }
 
-        // Se último sorteio tem um número, o espelho sempre ganha boost leve
+        // Se Ãºltimo sorteio tem um nÃºmero, o espelho sempre ganha boost leve
         var lastDraw = history[0].numbers;
         for (var ld = 0; ld < lastDraw.length; ld++) {
             var ldMirror = startNum + endNum - lastDraw[ld];
@@ -792,16 +792,16 @@ class QuantumGodEngine {
         return this._normalize(weights);
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 14: FREQUÊNCIA POR DEZENA FINAL (NOVO V7)
-    // Qual terminação (0-9) está em alta?
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 14: FREQUÃŠNCIA POR DEZENA FINAL (NOVO V7)
+    // Qual terminaÃ§Ã£o (0-9) estÃ¡ em alta?
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer14_DigitEnding(history, startNum, endNum) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
         if (history.length === 0) return weights;
 
-        // Analisar apenas os últimos 5 sorteios (tendência recente)
+        // Analisar apenas os Ãºltimos 5 sorteios (tendÃªncia recente)
         var limit = Math.min(5, history.length);
         var digitCount = {};
         for (var d = 0; d <= 9; d++) digitCount[d] = 0;
@@ -826,14 +826,14 @@ class QuantumGodEngine {
         return weights;
     }
 
-    // ═══════════════════════════════════════════
-    // SIMULAÇÃO MONTE CARLO
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // SIMULAÃ‡ÃƒO MONTE CARLO
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _simulateOneDraw(field, pairMap, gameSize, startNum, endNum) {
         var selected = [];
         var used = {};
 
-        // Pré-calcular array de pesos (MUITO mais rápido que recalcular)
+        // PrÃ©-calcular array de pesos (MUITO mais rÃ¡pido que recalcular)
         var weightList = [];
         var totalBaseWeight = 0;
         for (var n = startNum; n <= endNum; n++) {
@@ -873,9 +873,9 @@ class QuantumGodEngine {
         return selected;
     }
 
-    // ═══════════════════════════════════════════
-    // ANÁLISE DE PADRÕES REAIS
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ANÃLISE DE PADRÃ•ES REAIS
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _analyzeRealPatterns(history, startNum, endNum, gameKey) {
         var avgEvenRatio = 0, avgSum = 0, avgHighRatio = 0, avgConsecutive = 0, count = 0;
         var midPoint = startNum + Math.floor((endNum - startNum) / 2);
@@ -911,14 +911,14 @@ class QuantumGodEngine {
         };
     }
 
-    // ═══════════════════════════════════════════
-    // FILTRO DE QUALIDADE V2 (NOVO — RIGOROSO)
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // FILTRO DE QUALIDADE V2 (NOVO â€” RIGOROSO)
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _applyQualityFilterV2(candidates, count, startNum, endNum, patterns, guaranteed, pairs, trios, profile, history, gameKey) {
         var totalRange = endNum - startNum + 1;
 
-        // Para sugestões muito grandes (ou seja, geração de Pools, ex: > 1.5x o tamanho de 1 jogo)
-        // Não aplica filtro de qualidade porque constraints como SumMin/Max são pro jogo de N números, não pra Pool
+        // Para sugestÃµes muito grandes (ou seja, geraÃ§Ã£o de Pools, ex: > 1.5x o tamanho de 1 jogo)
+        // NÃ£o aplica filtro de qualidade porque constraints como SumMin/Max sÃ£o pro jogo de N nÃºmeros, nÃ£o pra Pool
         if (count > this._getGameSize(gameKey) * 1.5) {
             var used = {};
             var result = [];
@@ -931,7 +931,7 @@ class QuantumGodEngine {
             return result;
         }
 
-        // Dados do último sorteio para validação de repetição
+        // Dados do Ãºltimo sorteio para validaÃ§Ã£o de repetiÃ§Ã£o
         var lastDrawSet = {};
         if (history && history.length > 0) {
             for (var ldi = 0; ldi < history[0].numbers.length; ldi++) {
@@ -944,7 +944,7 @@ class QuantumGodEngine {
         var lineSize = this._getLineSize(gameKey);
         var numLines = Math.ceil(totalRange / lineSize);
 
-        // Reduzir tentativas para jogos com muitos números
+        // Reduzir tentativas para jogos com muitos nÃºmeros
         var maxAttempts = count > 25 ? Math.min(profile.qualityAttempts, 600) : profile.qualityAttempts;
         var useTrioBoost = count <= 25; // Desabilitar trio boost para jogos grandes (performance)
 
@@ -952,13 +952,13 @@ class QuantumGodEngine {
             var selection = [];
             var usedInAttempt = {};
 
-            // Começar com números garantidos
+            // ComeÃ§ar com nÃºmeros garantidos
             for (var gi = 0; gi < guaranteed.length && selection.length < count; gi++) {
                 selection.push(guaranteed[gi]);
                 usedInAttempt[guaranteed[gi]] = true;
             }
 
-            // Completar com seleção ponderada + boost de trios (apenas jogos pequenos)
+            // Completar com seleÃ§Ã£o ponderada + boost de trios (apenas jogos pequenos)
             var remaining = [];
             for (var r = 0; r < candidates.length; r++) {
                 if (!usedInAttempt[candidates[r].number]) {
@@ -978,7 +978,7 @@ class QuantumGodEngine {
             var extra = this._pickWeightedSubset(remaining, count - selection.length);
             for (var e = 0; e < extra.length; e++) selection.push(extra[e]);
 
-            // ═══ VALIDAÇÃO RIGOROSA V2 ═══
+            // â•â•â• VALIDAÃ‡ÃƒO RIGOROSA V2 â•â•â•
             var qualityScore = this._scoreQualityV2(selection, startNum, endNum, patterns, profile, lineSize, numLines, lastDrawSet);
 
             if (qualityScore > bestScore) {
@@ -990,15 +990,15 @@ class QuantumGodEngine {
         return bestSet || candidates.slice(0, count).map(function(c) { return c.number; });
     }
 
-    // ═══════════════════════════════════════════
-    // PONTUAÇÃO DE QUALIDADE V2
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // PONTUAÃ‡ÃƒO DE QUALIDADE V2
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _scoreQualityV2(numbers, startNum, endNum, patterns, profile, lineSize, numLines, lastDrawSet) {
         var score = 0;
         var numCount = numbers.length;
         var totalRange = endNum - startNum + 1;
 
-        // 1. Equilíbrio Par/Ímpar
+        // 1. EquilÃ­brio Par/Ãmpar
         var evens = 0, sum = 0, highs = 0;
         for (var i = 0; i < numCount; i++) {
             if (numbers[i] % 2 === 0) evens++;
@@ -1012,11 +1012,11 @@ class QuantumGodEngine {
             score += Math.max(0, 2.0 - evenDiff * 6);
         }
 
-        // 2. Equilíbrio Alto/Baixo
+        // 2. EquilÃ­brio Alto/Baixo
         var highDiff = Math.abs(highs / numCount - patterns.highRatio);
         score += Math.max(0, 1.5 - highDiff * 5);
 
-        // 3. Distribuição por LINHAS (V2)
+        // 3. DistribuiÃ§Ã£o por LINHAS (V2)
         var blocks = {};
         for (var b = 0; b < numLines; b++) blocks[b] = 0;
         for (var j = 0; j < numCount; j++) {
@@ -1049,7 +1049,7 @@ class QuantumGodEngine {
             score += Math.max(0, 2.0 - sumDiff * 3);
         }
 
-        // 5. Consecutivos (próximo do padrão real, não exceder o máximo)
+        // 5. Consecutivos (prÃ³ximo do padrÃ£o real, nÃ£o exceder o mÃ¡ximo)
         var sortedNums = numbers.slice().sort(function(a, b) { return a - b; });
         var consecutivePairs = 0;
         var maxConsecRun = 1, currentRun = 1;
@@ -1069,16 +1069,16 @@ class QuantumGodEngine {
             score += 0.5; // Bonus leve por estar dentro do limite
         }
         var consecDiff = Math.abs(consecutivePairs - patterns.avgConsecutive);
-        score += Math.max(0, 1.5 - consecDiff * 0.3); // V3: 0.4→0.3 (menos punição)
+        score += Math.max(0, 1.5 - consecDiff * 0.3); // V3: 0.4â†’0.3 (menos puniÃ§Ã£o)
 
-        // 6. REPETIÇÃO DO ÚLTIMO SORTEIO (V2 — crítico!)
+        // 6. REPETIÃ‡ÃƒO DO ÃšLTIMO SORTEIO (V2 â€” crÃ­tico!)
         var repeatCount = 0;
         for (var rep = 0; rep < numCount; rep++) {
             if (lastDrawSet[numbers[rep]]) repeatCount++;
         }
         if (profile.repeatFromLast) {
             if (repeatCount >= profile.repeatFromLast[0] && repeatCount <= profile.repeatFromLast[1]) {
-                score += 3.0; // Dentro da faixa ideal de repetição!
+                score += 3.0; // Dentro da faixa ideal de repetiÃ§Ã£o!
             } else if (repeatCount < profile.repeatFromLast[0]) {
                 score -= (profile.repeatFromLast[0] - repeatCount) * 1.0;
             } else {
@@ -1086,7 +1086,7 @@ class QuantumGodEngine {
             }
         }
 
-        // 7. Anti-progressão aritmética
+        // 7. Anti-progressÃ£o aritmÃ©tica
         var arithmeticCount = 0;
         for (var a = 0; a < sortedNums.length - 2; a++) {
             var diff1 = sortedNums[a+1] - sortedNums[a];
@@ -1095,7 +1095,7 @@ class QuantumGodEngine {
         }
         if (arithmeticCount > numCount * 0.25) score -= arithmeticCount * 0.4;
 
-        // 8. Anti-múltiplos
+        // 8. Anti-mÃºltiplos
         for (var mult = 2; mult <= 5; mult++) {
             var multCount = 0;
             for (var mi = 0; mi < numCount; mi++) {
@@ -1104,7 +1104,7 @@ class QuantumGodEngine {
             if (multCount > numCount * 0.7) score -= 0.8;
         }
 
-        // 9. Anti-terminação repetida
+        // 9. Anti-terminaÃ§Ã£o repetida
         var lastDigits = {};
         for (var ldd = 0; ldd < numCount; ldd++) {
             var digit = numbers[ldd] % 10;
@@ -1149,18 +1149,18 @@ class QuantumGodEngine {
         return selected;
     }
 
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     // BACKTESTING (NOVO V7)
-    // Testa a sugestão contra sorteios reais
-    // ═══════════════════════════════════════════
+    // Testa a sugestÃ£o contra sorteios reais
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _backtestResult(suggestion, history, gameKey) {
         if (!history || history.length < 3) {
-            return { summary: 'Histórico insuficiente', confidence: 55, details: [] };
+            return { summary: 'HistÃ³rico insuficiente', confidence: 55, details: [] };
         }
 
         var details = [];
         var totalHits = 0;
-        var testCount  = Math.min(30, history.length); // Expandido de 8 → 30
+        var testCount  = Math.min(30, history.length); // Expandido de 8 â†’ 30
         var constraints = this.getConstraints(gameKey);
         var totalNumbers = constraints ? constraints.totalNumbers : 60;
         var gameSize = this._getGameSize(gameKey);
@@ -1193,7 +1193,7 @@ class QuantumGodEngine {
         var avgHits = totalHits / testCount;
         // CRITICO: gameSize deve ser game.draw (bolas sorteadas), NAO game.minBet (aposta)
         // Lotomania: suggestion.length * 50 / 100 = 40+ esperados (impossivel, max=20)
-        // Fix: usar game.draw=20 → suggestion.length * 20 / 100 = calculo correto
+        // Fix: usar game.draw=20 â†’ suggestion.length * 20 / 100 = calculo correto
         var gameObj = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         var gameSize = (gameObj && gameObj.draw) ? gameObj.draw : this._getGameSize(gameKey);
         var expectedByChance = suggestion.length * gameSize / totalNumbers;
@@ -1203,16 +1203,16 @@ class QuantumGodEngine {
         var winRate4 = bt4 / testCount;
         var winRate5 = bt5 / testCount;
 
-        // ══ SISTEMA ADAPTATIVO 95%+ — 2 Níveis ══════════════════════════
-        // NÍVEL A: Base garantida
+        // â•â• SISTEMA ADAPTATIVO 95%+ â€” 2 NÃ­veis â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // NÃVEL A: Base garantida
         var modelBase     = 30;
         var historyPts    = Math.min(12, (history.length / 15) * 12);  // 15+ sorteios = 100%
         var coverPts      = Math.min(8, (suggestion.length / totalNumbers) * 8 * 10); // pool coverage
         var diversPts     = Math.min(8, winRate * 8 * 1.2); // winRate > 83% = 100%
         var baseTotal     = modelBase + historyPts + Math.max(4, coverPts) + Math.max(4, diversPts);
-        // típico: 30+12+6+6 = 54~68
+        // tÃ­pico: 30+12+6+6 = 54~68
 
-        // NÍVEL B: Bônus de qualidade
+        // NÃVEL B: BÃ´nus de qualidade
         var impPts  = Math.min(10, Math.max(0, (improvement - 1.0) / 0.5) * 10);
         var w3Pts   = Math.min(10, (winRate3 / 0.50) * 10);
         var w45Pts  = Math.min(6,  (winRate4 / 0.25) * 4 + (winRate5 / 0.05) * 2);
@@ -1221,25 +1221,23 @@ class QuantumGodEngine {
 
         var rawConf = baseTotal + bonusTotal;
         var confidence;
-        if (rawConf >= 68) {
-            confidence = Math.round(88 + ((rawConf - 68) / 32) * 10);
-        } else {
-            confidence = Math.round(55 + (rawConf / 68) * 33);
-        }
-        // ★ GOD MODE FIX: Remover piso artificial de 70%
-        // Mostrar confiança REAL — mínimo 15% para indicar que pelo menos rodou
+        // â˜… FIX: Escala linear proporcional ao score real (sem piso inflado)
+        // rawConf varia de ~30 (mÃ­nimo) a ~100 (mÃ¡ximo teÃ³rico)
+        // Mapeamento honesto: rawConf â†’ confianÃ§a proporcional
+        confidence = Math.round(15 + (rawConf / 100) * 83);
+        // Limitar ao range 15-98%
         confidence = Math.max(15, Math.min(98, confidence));
 
-        console.log('[QuantumV12] 🎯 ' + gameKey + ' Conf: ' + confidence + '% | Base=' + Math.round(baseTotal) + '/68 | Bonus=' + Math.round(bonusTotal) + '/32 | imp=x' + improvement.toFixed(2) + ' | W3=' + Math.round(winRate3*100) + '% | W4=' + Math.round(winRate4*100) + '%');
+        console.log('[QuantumV12] ðŸŽ¯ ' + gameKey + ' Conf: ' + confidence + '% | Base=' + Math.round(baseTotal) + '/68 | Bonus=' + Math.round(bonusTotal) + '/32 | imp=x' + improvement.toFixed(2) + ' | W3=' + Math.round(winRate3*100) + '% | W4=' + Math.round(winRate4*100) + '%');
 
         var summaryParts = [];
         for (var d = 0; d < Math.min(8, details.length); d++) {
-            var emoji = details[d].hits >= details[d].expected ? '✅' : '⚠️';
+            var emoji = details[d].hits >= details[d].expected ? 'âœ…' : 'âš ï¸';
             summaryParts.push(emoji + 'C' + details[d].draw + '=' + details[d].hits + '/' + details[d].total);
         }
 
         return {
-            summary: 'Média: ' + avgHits.toFixed(1) + ' acertos (esperado: ' + expectedByChance.toFixed(1) + ') | Taxa: ' + (winRate*100).toFixed(0) + '% | Win3+: ' + (winRate3*100).toFixed(0) + '% | ' + summaryParts.join(', '),
+            summary: 'MÃ©dia: ' + avgHits.toFixed(1) + ' acertos (esperado: ' + expectedByChance.toFixed(1) + ') | Taxa: ' + (winRate*100).toFixed(0) + '% | Win3+: ' + (winRate3*100).toFixed(0) + '% | ' + summaryParts.join(', '),
             confidence: confidence,
             avgHits: avgHits,
             expectedByChance: expectedByChance,
@@ -1250,9 +1248,9 @@ class QuantumGodEngine {
         };
     }
 
-    // ═══════════════════════════════════════════
-    // UTILITÁRIOS
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // UTILITÃRIOS
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _normalize(weights) {
         var maxW = -Infinity, minW = Infinity;
         for (var k in weights) {
@@ -1287,19 +1285,19 @@ class QuantumGodEngine {
         return primes;
     }
 
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     // CAMADA 15: MARKOV CORRIGIDO V9
     // history[0]=mais recente, history[i+1]=mais antigo
     // Quando X saiu no sorteio ANTIGO, quais Y vieram no SEGUINTE (mais novo)?
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer15_MarkovTransition(history, startNum, endNum) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
         if (history.length < 2) return weights;
 
-        // Construir matriz: transitions[from] → {to: count}
-        // "from" = número do sorteio ANTERIOR (mais antigo)
-        // "to" = número que veio no sorteio SEGUINTE (mais novo)
+        // Construir matriz: transitions[from] â†’ {to: count}
+        // "from" = nÃºmero do sorteio ANTERIOR (mais antigo)
+        // "to" = nÃºmero que veio no sorteio SEGUINTE (mais novo)
         var transitions = {};
         for (var n2 = startNum; n2 <= endNum; n2++) transitions[n2] = {};
 
@@ -1322,7 +1320,7 @@ class QuantumGodEngine {
             }
         }
 
-        // Dado o ÚLTIMO sorteio (history[0]), quais números tendem a vir depois?
+        // Dado o ÃšLTIMO sorteio (history[0]), quais nÃºmeros tendem a vir depois?
         var lastDraw = history[0].numbers;
         for (var ld = 0; ld < lastDraw.length; ld++) {
             var from = lastDraw[ld];
@@ -1338,18 +1336,18 @@ class QuantumGodEngine {
         return this._normalize(weights);
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 16: SEQUÊNCIAS TEMPORAIS (NOVO V8)
-    // Detecta padrões que se repetem a cada N sorteios
-    // Ex: Número 7 sai a cada 3 sorteios, e faz 3 que não sai → alta chance
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 16: SEQUÃŠNCIAS TEMPORAIS (NOVO V8)
+    // Detecta padrÃµes que se repetem a cada N sorteios
+    // Ex: NÃºmero 7 sai a cada 3 sorteios, e faz 3 que nÃ£o sai â†’ alta chance
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer16_TemporalSequences(history, startNum, endNum) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
         if (history.length < 4) return weights;
 
         for (var num = startNum; num <= endNum; num++) {
-            // Encontrar todas as posições onde o número apareceu
+            // Encontrar todas as posiÃ§Ãµes onde o nÃºmero apareceu
             var positions = [];
             for (var i = 0; i < history.length; i++) {
                 var found = false;
@@ -1361,13 +1359,13 @@ class QuantumGodEngine {
 
             if (positions.length < 3) { weights[num] = 0.3; continue; }
 
-            // Calcular intervalos entre aparições
+            // Calcular intervalos entre apariÃ§Ãµes
             var gaps = [];
             for (var g = 0; g < positions.length - 1; g++) {
                 gaps.push(positions[g + 1] - positions[g]);
             }
 
-            // Detectar periodicidade: desvio padrão baixo = padrão regular
+            // Detectar periodicidade: desvio padrÃ£o baixo = padrÃ£o regular
             var avgGap = 0;
             for (var a = 0; a < gaps.length; a++) avgGap += gaps[a];
             avgGap /= gaps.length;
@@ -1377,19 +1375,19 @@ class QuantumGodEngine {
             variance /= gaps.length;
             var stdDev = Math.sqrt(variance);
 
-            // Coeficiente de regularidade (menor = mais previsível)
+            // Coeficiente de regularidade (menor = mais previsÃ­vel)
             var regularity = avgGap > 0 ? stdDev / avgGap : 1;
 
-            // Quanto mais regular E quanto mais perto do ponto de repetição → maior score
+            // Quanto mais regular E quanto mais perto do ponto de repetiÃ§Ã£o â†’ maior score
             var sinceLast = positions[0];
             var ratio = avgGap > 0 ? sinceLast / avgGap : 0;
 
             if (regularity < 0.5 && ratio >= 0.8 && ratio <= 1.3) {
-                weights[num] = 1.0; // Padrão regular E no ponto certo!
+                weights[num] = 1.0; // PadrÃ£o regular E no ponto certo!
             } else if (regularity < 0.5) {
-                weights[num] = 0.7; // Padrão regular mas fora do ponto
+                weights[num] = 0.7; // PadrÃ£o regular mas fora do ponto
             } else if (ratio >= 0.9 && ratio <= 1.2) {
-                weights[num] = 0.6; // No ponto mas padrão irregular
+                weights[num] = 0.6; // No ponto mas padrÃ£o irregular
             } else {
                 weights[num] = 0.2;
             }
@@ -1398,10 +1396,10 @@ class QuantumGodEngine {
         return this._normalize(weights);
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 17: CORRELAÇÃO CONDICIONAL (NOVO V8)
-    // Se A e B saíram no último, C tem alta chance de vir
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 17: CORRELAÃ‡ÃƒO CONDICIONAL (NOVO V8)
+    // Se A e B saÃ­ram no Ãºltimo, C tem alta chance de vir
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer17_ConditionalCorrelation(history, startNum, endNum) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
@@ -1421,7 +1419,7 @@ class QuantumGodEngine {
                 for (var b = a + 1; b < maxPairs; b++) {
                     var pairKey = Math.min(next[a], next[b]) + '-' + Math.max(next[a], next[b]);
                     if (!rules[pairKey]) rules[pairKey] = {};
-                    // Quais números vieram no sorteio seguinte?
+                    // Quais nÃºmeros vieram no sorteio seguinte?
                     for (var c = 0; c < current.length; c++) {
                         if (current[c] >= startNum && current[c] <= endNum) {
                             rules[pairKey][current[c]] = (rules[pairKey][current[c]] || 0) + 1;
@@ -1431,7 +1429,7 @@ class QuantumGodEngine {
             }
         }
 
-        // Aplicar: dado os pares do ÚLTIMO sorteio
+        // Aplicar: dado os pares do ÃšLTIMO sorteio
         var lastDraw = history[0].numbers;
         var maxLastPairs = totalRange > 50 ? 8 : lastDraw.length;
         for (var la = 0; la < maxLastPairs; la++) {
@@ -1450,80 +1448,28 @@ class QuantumGodEngine {
         return this._normalize(weights);
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 18: DETECTOR DE ALGORITMO/RNG (NOVO V8)
-    // Detecta viés na distribuição que sugere padrão no gerador
-    // Analisa resíduos e distribuição qui-quadrado
-    // ═══════════════════════════════════════════
-    static _layer18_AlgorithmDetector(history, startNum, endNum) {
-        var weights = {};
-        var totalRange = endNum - startNum + 1;
-        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
-        if (history.length < 5) return weights;
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADAS 18 e 20 REMOVIDAS â€” cÃ³digo morto (peso 0 em todos os perfis)
+    // Camada 18: AlgorithmDetector â€” nunca chamada
+    // Camada 20: FibonacciGolden â€” nunca chamada
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-        // Frequência observada vs esperada (qui-quadrado)
-        var observed = {};
-        for (var n2 = startNum; n2 <= endNum; n2++) observed[n2] = 0;
 
-        var totalNums = 0;
-        for (var i = 0; i < history.length; i++) {
-            for (var j = 0; j < history[i].numbers.length; j++) {
-                var num = history[i].numbers[j];
-                if (num >= startNum && num <= endNum) {
-                    observed[num]++;
-                    totalNums++;
-                }
-            }
-        }
 
-        var expected = totalNums / totalRange;
-
-        // Números com desvio POSITIVO significativo (saem MAIS que o esperado)
-        // são favorecidos pelo "algoritmo"
-        for (var k in observed) {
-            var deviation = (observed[k] - expected) / Math.max(1, Math.sqrt(expected));
-            // Chi-score positivo = número sai mais que o esperado (viés positivo)
-            if (deviation > 1.0) {
-                weights[k] = 0.5 + deviation * 0.15;
-            } else if (deviation > 0) {
-                weights[k] = 0.5 + deviation * 0.1;
-            } else {
-                // Números abaixo do esperado podem estar "devendo"
-                weights[k] = 0.3 + Math.abs(deviation) * 0.08;
-            }
-        }
-
-        // Detectar padrões de adjacência no RNG
-        // Se o RNG tem viés, números adjacentes podem ter correlação
-        for (var d = 0; d < Math.min(history.length, 10); d++) {
-            var nums = history[d].numbers.slice().sort(function(a,b){return a-b});
-            for (var s = 0; s < nums.length - 1; s++) {
-                var gap = nums[s + 1] - nums[s];
-                // Gaps de exatamente 1, 2 ou 3 sugerem padrão no RNG
-                if (gap <= 3) {
-                    weights[nums[s]] += 0.05;
-                    weights[nums[s + 1]] += 0.05;
-                }
-            }
-        }
-
-        return this._normalize(weights);
-    }
-
-    // ═══════════════════════════════════════════
-    // CAMADA 19: TENDÊNCIA TEMPORAL (NOVO V8)
-    // Números em ascensão (aparecendo cada vez mais) vs declínio
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 19: TENDÃŠNCIA TEMPORAL (NOVO V8)
+    // NÃºmeros em ascensÃ£o (aparecendo cada vez mais) vs declÃ­nio
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer19_TemporalTrend(history, startNum, endNum) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
         if (history.length < 6) return weights;
 
-        // Dividir histórico em 3 terços e comparar frequências
+        // Dividir histÃ³rico em 3 terÃ§os e comparar frequÃªncias
         var third = Math.floor(history.length / 3);
         var periods = [
             history.slice(0, third),                    // Recente
-            history.slice(third, third * 2),            // Médio
+            history.slice(third, third * 2),            // MÃ©dio
             history.slice(third * 2, history.length)    // Antigo
         ];
 
@@ -1535,75 +1481,26 @@ class QuantumGodEngine {
                         if (periods[p][d].numbers[j] === num) freqs[p]++;
                     }
                 }
-                // Normalizar pelo tamanho do período
+                // Normalizar pelo tamanho do perÃ­odo
                 freqs[p] = periods[p].length > 0 ? freqs[p] / periods[p].length : 0;
             }
 
-            // Tendência: recente > médio > antigo = ASCENSÃO
+            // TendÃªncia: recente > mÃ©dio > antigo = ASCENSÃƒO
             if (freqs[0] > freqs[1] && freqs[1] > freqs[2]) {
-                weights[num] = 1.0; // Tendência forte de ascensão!
+                weights[num] = 1.0; // TendÃªncia forte de ascensÃ£o!
             } else if (freqs[0] > freqs[1]) {
-                weights[num] = 0.8; // Ascensão recente
+                weights[num] = 0.8; // AscensÃ£o recente
             } else if (freqs[0] >= freqs[2]) {
-                weights[num] = 0.5; // Estável
+                weights[num] = 0.5; // EstÃ¡vel
             } else {
-                weights[num] = 0.2; // Em declínio
+                weights[num] = 0.2; // Em declÃ­nio
             }
         }
 
         return this._normalize(weights);
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 20: FIBONACCI / PROPORÇÃO ÁUREA (NOVO V8)
-    // Números em posições de Fibonacci ou próximos da razão áurea
-    // ═══════════════════════════════════════════
-    static _layer20_FibonacciGolden(history, startNum, endNum) {
-        var weights = {};
-        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
 
-        // Gerar Fibonacci até endNum
-        var fibs = {};
-        var fa = 1, fb = 1;
-        while (fa <= endNum) {
-            if (fa >= startNum) fibs[fa] = true;
-            var temp = fa + fb;
-            fa = fb;
-            fb = temp;
-        }
-
-        // Razão áurea: distribuir números pela proporção phi
-        var phi = 1.618033988749895;
-        var goldenPositions = {};
-        for (var g = 1; g <= 20; g++) {
-            var pos = Math.round(startNum + (endNum - startNum) * ((g * phi) % 1));
-            if (pos >= startNum && pos <= endNum) goldenPositions[pos] = true;
-        }
-
-        // Analisar se números Fibonacci/Golden aparecem mais nos sorteios reais
-        var fibBoost = 0, goldenBoost = 0, totalChecks = 0;
-        var limit = Math.min(history.length, 10);
-        for (var i = 0; i < limit; i++) {
-            for (var j = 0; j < history[i].numbers.length; j++) {
-                var num = history[i].numbers[j];
-                totalChecks++;
-                if (fibs[num]) fibBoost++;
-                if (goldenPositions[num]) goldenBoost++;
-            }
-        }
-
-        var fibRate = totalChecks > 0 ? fibBoost / totalChecks : 0;
-        var goldenRate = totalChecks > 0 ? goldenBoost / totalChecks : 0;
-
-        // Aplicar boost baseado na taxa real
-        for (var n2 = startNum; n2 <= endNum; n2++) {
-            weights[n2] = 0.5; // Base
-            if (fibs[n2]) weights[n2] += fibRate * 3;
-            if (goldenPositions[n2]) weights[n2] += goldenRate * 3;
-        }
-
-        return this._normalize(weights);
-    }
 
     static _getLineSize(gameKey) {
         var sizes = {
@@ -1636,16 +1533,16 @@ class QuantumGodEngine {
         return sizes[gameKey] || 6;
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 21: ANÁLISE DE GAPS (NOVO V9)
-    // Números que mantêm distância média similar ao padrão real
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 21: ANÃLISE DE GAPS (NOVO V9)
+    // NÃºmeros que mantÃªm distÃ¢ncia mÃ©dia similar ao padrÃ£o real
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer21_GapAnalysis(history, startNum, endNum) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
         if (history.length < 3) return weights;
 
-        // Calcular gaps médios dos últimos sorteios
+        // Calcular gaps mÃ©dios dos Ãºltimos sorteios
         var allGaps = [];
         var limit = Math.min(history.length, 15);
         for (var i = 0; i < limit; i++) {
@@ -1658,9 +1555,9 @@ class QuantumGodEngine {
         for (var ag = 0; ag < allGaps.length; ag++) avgGap += allGaps[ag];
         avgGap = allGaps.length > 0 ? avgGap / allGaps.length : 3;
 
-        // Último sorteio
+        // Ãšltimo sorteio
         var lastSorted = history[0].numbers.slice().sort(function(a,b){return a-b});
-        // Números que estão a ~avgGap de distância de algum do último sorteio
+        // NÃºmeros que estÃ£o a ~avgGap de distÃ¢ncia de algum do Ãºltimo sorteio
         for (var num = startNum; num <= endNum; num++) {
             var bestProximity = Infinity;
             for (var ls = 0; ls < lastSorted.length; ls++) {
@@ -1674,10 +1571,10 @@ class QuantumGodEngine {
         return this._normalize(weights);
     }
 
-    // ═══════════════════════════════════════════
-    // CAMADA 22: EQUILÍBRIO DE QUADRANTES (NOVO V9)
-    // Garante distribuição entre 4 zonas do range
-    // ═══════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADA 22: EQUILÃBRIO DE QUADRANTES (NOVO V9)
+    // Garante distribuiÃ§Ã£o entre 4 zonas do range
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     static _layer22_QuadrantBalance(history, startNum, endNum) {
         var weights = {};
         for (var n = startNum; n <= endNum; n++) weights[n] = 0;
@@ -1698,7 +1595,7 @@ class QuantumGodEngine {
                 totalNums++;
             }
         }
-        // Quadrantes com mais presença recebem mais peso
+        // Quadrantes com mais presenÃ§a recebem mais peso
         for (var n2 = startNum; n2 <= endNum; n2++) {
             var q = Math.min(3, Math.floor((n2 - startNum) / quadSize));
             weights[n2] = totalNums > 0 ? quadCounts[q] / totalNums : 0.25;
@@ -1706,396 +1603,15 @@ class QuantumGodEngine {
         return this._normalize(weights);
     }
 
-    // ══════════════════════════════════════════════════════════
-    // CAMADA 23: HARMÔNICOS — Frequência ressonante por zona 🔮
-    // Detecta "harmônicos" — números que vibram na mesma frequência
-    // que os mais sorteados, criando ressonância numérica
-    // ══════════════════════════════════════════════════════════
-    static _layer23_Harmonics(history, startNum, endNum) {
-        var weights = {};
-        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
-        if (history.length < 5) return weights;
-
-        var totalRange = endNum - startNum + 1;
-        var zoneSize = Math.ceil(totalRange / 8); // 8 zonas de 10
-
-        // Calcular "frequência fundamental" de cada zona
-        var zoneFreqs = new Array(8).fill(0);
-        var zoneCounts = new Array(8).fill(0);
-        var limit = Math.min(history.length, 30);
-
-        for (var i = 0; i < limit; i++) {
-            var decay = Math.pow(0.94, i);
-            for (var j = 0; j < history[i].numbers.length; j++) {
-                var num = history[i].numbers[j];
-                if (num >= startNum && num <= endNum) {
-                    var zone = Math.min(7, Math.floor((num - startNum) / zoneSize));
-                    zoneFreqs[zone] += decay;
-                    zoneCounts[zone]++;
-                }
-            }
-        }
-
-        // Normalizar frequências por zona
-        var maxZoneFreq = 0;
-        for (var z = 0; z < 8; z++) {
-            zoneFreqs[z] = zoneCounts[z] > 0 ? zoneFreqs[z] / zoneCounts[z] : 0;
-            if (zoneFreqs[z] > maxZoneFreq) maxZoneFreq = zoneFreqs[z];
-        }
-
-        // Harmônicos: números cuja zona tem alta frequência + vizinhos
-        for (var n2 = startNum; n2 <= endNum; n2++) {
-            var myZone = Math.min(7, Math.floor((n2 - startNum) / zoneSize));
-            var myFreq = maxZoneFreq > 0 ? zoneFreqs[myZone] / maxZoneFreq : 0.5;
-            
-            // Ressonância: média com zonas adjacentes
-            var adjFreq = 0;
-            var adjCount = 0;
-            if (myZone > 0) { adjFreq += zoneFreqs[myZone - 1]; adjCount++; }
-            if (myZone < 7) { adjFreq += zoneFreqs[myZone + 1]; adjCount++; }
-            var resonance = adjCount > 0 ? (adjFreq / adjCount) / Math.max(0.01, maxZoneFreq) : 0.5;
-
-            // Score final = frequência da zona + ressonância com vizinhos
-            weights[n2] = myFreq * 0.65 + resonance * 0.35;
-        }
-
-        console.log('[QuantumV12] 🎵 Harmônicos calculados (8 zonas ressonantes)');
-        return this._normalize(weights);
-    }
-
-    // ══════════════════════════════════════════════════════════
-    // CAMADA 24: ENTROPIA — Caos vs Ordem no histórico 🔮
-    // Números que surgem em períodos de BAIXA entropia (previsíveis)
-    // têm mais chance de repetir. Alta entropia = instabilidade
-    // ══════════════════════════════════════════════════════════
-    static _layer24_Entropy(history, startNum, endNum) {
-        var weights = {};
-        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
-        if (history.length < 8) return weights;
-
-        var totalRange = endNum - startNum + 1;
-
-        // Calcular entropia de Shannon para cada janela de 3 sorteios
-        var windowSize = 3;
-        var windowEntropies = [];
-        var windowNumbers = [];
-
-        for (var w = 0; w <= history.length - windowSize; w++) {
-            var freqMap = {};
-            var totalNums = 0;
-            for (var i = w; i < w + windowSize; i++) {
-                for (var j = 0; j < history[i].numbers.length; j++) {
-                    var num = history[i].numbers[j];
-                    freqMap[num] = (freqMap[num] || 0) + 1;
-                    totalNums++;
-                }
-            }
-
-            // Entropia de Shannon: H = -Σ p(x) * log2(p(x))
-            var entropy = 0;
-            for (var k in freqMap) {
-                var p = freqMap[k] / totalNums;
-                if (p > 0) entropy -= p * Math.log2(p);
-            }
-            windowEntropies.push(entropy);
-            windowNumbers.push(freqMap);
-        }
-
-        // Encontrar janelas de BAIXA entropia (mais previsíveis)
-        var avgEntropy = 0;
-        for (var e = 0; e < windowEntropies.length; e++) avgEntropy += windowEntropies[e];
-        avgEntropy = windowEntropies.length > 0 ? avgEntropy / windowEntropies.length : 0;
-
-        // Dar boost a números que aparecem em janelas de baixa entropia
-        for (var wi = 0; wi < windowEntropies.length; wi++) {
-            var entropyRatio = avgEntropy > 0 ? windowEntropies[wi] / avgEntropy : 1;
-            var boost = entropyRatio < 0.9 ? (0.9 - entropyRatio) * 3 : 0; // Baixa entropia = previsível
-
-            if (boost > 0) {
-                var decay = Math.pow(0.85, wi); // Janelas mais recentes pesam mais
-                for (var nk in windowNumbers[wi]) {
-                    if (nk >= startNum && nk <= endNum) {
-                        weights[nk] += boost * decay * windowNumbers[wi][nk];
-                    }
-                }
-            }
-        }
-
-        console.log('[QuantumV12] 🌡️ Entropia média: ' + avgEntropy.toFixed(3) + ' (janelas de ' + windowSize + ')');
-        return this._normalize(weights);
-    }
-
-    // ══════════════════════════════════════════════════════════
-    // CAMADA 25: REGRESSÃO PREDITIVA — Vetores de tendência 🔮
-    // Regressão linear sobre a frequência de cada número ao longo
-    // do tempo — detecta números em ascensão ou queda
-    // ══════════════════════════════════════════════════════════
-    static _layer25_Regression(history, startNum, endNum) {
-        var weights = {};
-        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
-        if (history.length < 10) return weights;
-
-        var segmentSize = Math.min(5, Math.floor(history.length / 4));
-        var numSegments = Math.min(6, Math.floor(history.length / segmentSize));
-
-        for (var num = startNum; num <= endNum; num++) {
-            // Calcular frequência em cada segmento temporal
-            var segFreqs = [];
-            for (var s = 0; s < numSegments; s++) {
-                var hits = 0;
-                var start = s * segmentSize;
-                var end = Math.min(history.length, start + segmentSize);
-                for (var i = start; i < end; i++) {
-                    for (var j = 0; j < history[i].numbers.length; j++) {
-                        if (history[i].numbers[j] === num) { hits++; break; }
-                    }
-                }
-                segFreqs.push(hits / (end - start));
-            }
-
-            // Regressão linear: y = mx + b
-            // x = segmento (0=mais recente), y = frequência
-            var sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
-            for (var r = 0; r < segFreqs.length; r++) {
-                sumX += r;
-                sumY += segFreqs[r];
-                sumXY += r * segFreqs[r];
-                sumX2 += r * r;
-            }
-            var nn = segFreqs.length;
-            var slope = (nn * sumXY - sumX * sumY) / Math.max(1, nn * sumX2 - sumX * sumX);
-
-            // Slope negativo = frequência AUMENTANDO com o tempo (segmento 0 = mais recente)
-            // Slope positivo = frequência DIMINUINDO
-            if (slope < -0.02) {
-                weights[num] = 1.0; // Forte tendência de ascensão!
-            } else if (slope < 0) {
-                weights[num] = 0.8; // Ascensão leve
-            } else if (slope < 0.02) {
-                weights[num] = 0.5; // Estável
-            } else {
-                weights[num] = 0.2; // Em queda
-            }
-
-            // Bonus extra: se a frequência recente é alta em absoluto
-            if (segFreqs[0] > 0.4) weights[num] += 0.2;
-        }
-
-        console.log('[QuantumV12] 📈 Regressão preditiva calculada (' + numSegments + ' segmentos)');
-        return this._normalize(weights);
-    }
-
-    // ══════════════════════════════════════════════════════════
-    // CAMADA 26: ALINHAMENTO DE FASE — Ciclos sobrepostos 🔮
-    // Quando múltiplos ciclos de um número se alinham, a
-    // probabilidade de saída aumenta exponencialmente
-    // ══════════════════════════════════════════════════════════
-    static _layer26_PhaseAlignment(history, startNum, endNum) {
-        var weights = {};
-        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
-        if (history.length < 8) return weights;
-
-        for (var num = startNum; num <= endNum; num++) {
-            var positions = [];
-            for (var i = 0; i < history.length; i++) {
-                for (var j = 0; j < history[i].numbers.length; j++) {
-                    if (history[i].numbers[j] === num) { positions.push(i); break; }
-                }
-            }
-
-            if (positions.length < 3) { weights[num] = 0.3; continue; }
-
-            // Calcular múltiplos ciclos (curto, médio, longo)
-            var gaps = [];
-            for (var g = 0; g < positions.length - 1; g++) {
-                gaps.push(positions[g + 1] - positions[g]);
-            }
-
-            // Ciclo curto (últimos 3 gaps)
-            var recentGaps = gaps.slice(0, Math.min(3, gaps.length));
-            var avgRecent = 0;
-            for (var r = 0; r < recentGaps.length; r++) avgRecent += recentGaps[r];
-            avgRecent = recentGaps.length > 0 ? avgRecent / recentGaps.length : 10;
-
-            // Ciclo médio (últimos 6 gaps)
-            var medGaps = gaps.slice(0, Math.min(6, gaps.length));
-            var avgMed = 0;
-            for (var m = 0; m < medGaps.length; m++) avgMed += medGaps[m];
-            avgMed = medGaps.length > 0 ? avgMed / medGaps.length : 10;
-
-            // Ciclo longo (todos os gaps)
-            var avgLong = 0;
-            for (var l = 0; l < gaps.length; l++) avgLong += gaps[l];
-            avgLong = gaps.length > 0 ? avgLong / gaps.length : 10;
-
-            // Alinhamento: quando todos os ciclos apontam "agora"
-            var sinceLast = positions[0];
-            var alignScore = 0;
-            
-            var ratioShort = avgRecent > 0 ? sinceLast / avgRecent : 0;
-            var ratioMed = avgMed > 0 ? sinceLast / avgMed : 0;
-            var ratioLong = avgLong > 0 ? sinceLast / avgLong : 0;
-
-            // Perto de 1.0 = alinhado!
-            if (ratioShort >= 0.8 && ratioShort <= 1.4) alignScore += 0.4;
-            if (ratioMed >= 0.7 && ratioMed <= 1.3) alignScore += 0.3;
-            if (ratioLong >= 0.6 && ratioLong <= 1.4) alignScore += 0.3;
-
-            weights[num] = alignScore;
-        }
-
-        console.log('[QuantumV12] ⚡ Alinhamento de fase calculado (3 ciclos sobrepostos)');
-        return this._normalize(weights);
-    }
-
-    // ══════════════════════════════════════════════════════════
-    // CAMADA 27: RESSONÂNCIA QUÂNTICA — Atrator estranho 🔮
-    // Simula um "campo quântico" onde números atraem outros
-    // baseado na distância numérica e co-ocorrência recente
-    // ══════════════════════════════════════════════════════════
-    static _layer27_Resonance(history, startNum, endNum) {
-        var weights = {};
-        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
-        if (history.length < 5) return weights;
-
-        var totalRange = endNum - startNum + 1;
-
-        // Campo de atração: cada número do último sorteio gera um "campo"
-        var lastDraw = history[0].numbers;
-        var secondLast = history.length > 1 ? history[1].numbers : [];
-        var thirdLast = history.length > 2 ? history[2].numbers : [];
-
-        // Construir mapa de co-ocorrência recente
-        var coOccurrence = {};
-        var coLimit = Math.min(15, history.length);
-        for (var i = 0; i < coLimit; i++) {
-            var nums = history[i].numbers;
-            var decay = Math.pow(0.88, i);
-            for (var a = 0; a < nums.length; a++) {
-                for (var b = a + 1; b < nums.length; b++) {
-                    var key = Math.min(nums[a], nums[b]) + '-' + Math.max(nums[a], nums[b]);
-                    coOccurrence[key] = (coOccurrence[key] || 0) + decay;
-                }
-            }
-        }
-
-        for (var num = startNum; num <= endNum; num++) {
-            var fieldStrength = 0;
-
-            // Campo gravitacional dos últimos 3 sorteios
-            var sources = [
-                { nums: lastDraw, power: 1.0 },
-                { nums: secondLast, power: 0.6 },
-                { nums: thirdLast, power: 0.3 }
-            ];
-
-            for (var src = 0; src < sources.length; src++) {
-                for (var si = 0; si < sources[src].nums.length; si++) {
-                    var sourceNum = sources[src].nums[si];
-                    if (sourceNum === num) continue;
-
-                    // Força inversamente proporcional à distância
-                    var dist = Math.abs(num - sourceNum);
-                    var force = sources[src].power / Math.max(1, Math.sqrt(dist));
-
-                    // Bonus de co-ocorrência
-                    var coKey = Math.min(num, sourceNum) + '-' + Math.max(num, sourceNum);
-                    if (coOccurrence[coKey]) {
-                        force *= (1 + coOccurrence[coKey] * 0.3);
-                    }
-
-                    fieldStrength += force;
-                }
-            }
-
-            // Complementar espelhado (81 - num)
-            var mirror = startNum + endNum - num;
-            if (mirror >= startNum && mirror <= endNum && mirror !== num) {
-                var mirrorInLast = false;
-                for (var ml = 0; ml < lastDraw.length; ml++) {
-                    if (lastDraw[ml] === mirror) { mirrorInLast = true; break; }
-                }
-                if (mirrorInLast) fieldStrength += 0.4;
-            }
-
-            weights[num] = fieldStrength;
-        }
-
-        console.log('[QuantumV12] 🌀 Ressonância quântica calculada (campo de atração 3 sorteios)');
-        return this._normalize(weights);
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // CAMADA 28: CLARIVIDÊNCIA — Síntese preditiva final 🔮
-    // Combina TODOS os sinais em uma meta-análise preditiva.
-    // Identifica "pontos de convergência" onde múltiplas camadas
-    // concordam, gerando previsões de alta confiança.
-    // ══════════════════════════════════════════════════════════════
-    static _layer28_Clairvoyance(history, startNum, endNum, gameKey) {
-        var weights = {};
-        for (var n = startNum; n <= endNum; n++) weights[n] = 0;
-        if (history.length < 5) return weights;
-
-        // Sub-análises para síntese
-        var freq = this._layer1_RecentFrequency(history, startNum, endNum);
-        var latency = this._layer3_Latency(history, startNum, endNum);
-        var cycles = this._layer4_Cycles(history, startNum, endNum);
-        var markov = this._layer15_MarkovTransition(history, startNum, endNum);
-        var temporal = this._layer16_TemporalSequences(history, startNum, endNum);
-        var trend = this._layer19_TemporalTrend(history, startNum, endNum);
-
-        // Contar quantas camadas "concordam" que o número é forte
-        var threshold = 0.6; // Score > 0.6 = "forte"
-
-        for (var num = startNum; num <= endNum; num++) {
-            var votes = 0;
-            var totalSignal = 0;
-
-            // Votação: quantas camadas acham que o número é forte
-            var signals = [
-                freq[num] || 0,
-                latency[num] || 0,
-                cycles[num] || 0,
-                markov[num] || 0,
-                temporal[num] || 0,
-                trend[num] || 0
-            ];
-
-            for (var s = 0; s < signals.length; s++) {
-                totalSignal += signals[s];
-                if (signals[s] > threshold) votes++;
-            }
-
-            // Clarividência: convergência de múltiplas camadas
-            var avgSignal = totalSignal / signals.length;
-            var convergence = votes / signals.length; // 0 a 1
-
-            // Score exponencial: mais votos = MUITO mais confiança
-            if (convergence >= 0.8) {
-                weights[num] = 1.0 + avgSignal * 0.5; // Convergência forte!
-            } else if (convergence >= 0.6) {
-                weights[num] = 0.8 + avgSignal * 0.3;
-            } else if (convergence >= 0.4) {
-                weights[num] = 0.5 + avgSignal * 0.2;
-            } else {
-                weights[num] = avgSignal * 0.3; // Pouca convergência
-            }
-
-            // SUPER BOOST: se o número está na intersecção de Markov + Ciclo + Tendência
-            if ((markov[num] || 0) > 0.65 && (cycles[num] || 0) > 0.65 && (trend[num] || 0) > 0.65) {
-                weights[num] *= 1.5; // Tripla convergência!
-            }
-        }
-
-        // Verificação pós: números com clarividência > 1.0 são "oráculos"
-        var oracleCount = 0;
-        for (var k = startNum; k <= endNum; k++) {
-            if (weights[k] > 1.0) oracleCount++;
-        }
-
-        console.log('[QuantumV12] 🔮 CLARIVIDÊNCIA calculada — ' + oracleCount + ' números oraculares detectados');
-        return this._normalize(weights);
-    }
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // CAMADAS 23-28 REMOVIDAS â€” cÃ³digo morto (peso 0 em todos os perfis)
+    // Camada 23: Harmonics â€” nunca chamada (peso 0)
+    // Camada 24: Entropy â€” nunca chamada (peso 0)
+    // Camada 25: Regression â€” nunca chamada (peso 0)
+    // Camada 26: PhaseAlignment â€” nunca chamada (peso 0)
+    // Camada 27: Resonance â€” nunca chamada (peso 0)
+    // Camada 28: Clairvoyance â€” nunca chamada (peso 0)
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     static getConstraints(gameKey) {
         var configs = {

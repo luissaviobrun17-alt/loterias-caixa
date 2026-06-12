@@ -32,11 +32,11 @@ const SNIPER_CONFIG = {
   },
   duplasena: {
     drawSize: 6,
-    totalRange: 60,
+    totalRange: 50,
     presets: [
-      { name: 'conservador', label: 'Conservador (70 % do range)', percentage: 0.70 },
-      { name: 'equilibrado', label: 'Equilibrado (55 % do range)', percentage: 0.55 },
-      { name: 'agressivo', label: 'Agressivo (40 % do range)', percentage: 0.40 }
+      { name: 'conservador', label: 'Conservador (70 % do range)', percentage: 0.70 },
+      { name: 'equilibrado', label: 'Equilibrado (55 % do range)', percentage: 0.55 },
+      { name: 'agressivo', label: 'Agressivo (40 % do range)', percentage: 0.40 }
     ]
   },
   lotomania: {
@@ -57,9 +57,9 @@ const SNIPER_CONFIG = {
       { name: 'agressivo', label: 'Agressivo (40 % do range)', percentage: 0.40 }
     ]
   },
-  diasdesorte: {
+  diadesorte: {
     drawSize: 7,
-    totalRange: 30,
+    totalRange: 31,
     presets: [
       { name: 'conservador', label: 'Conservador (70 % do range)', percentage: 0.70 },
       { name: 'equilibrado', label: 'Equilibrado (55 % do range)', percentage: 0.55 },
@@ -73,7 +73,7 @@ const SNIPER_CONFIG = {
  * @param {string} gameKey - chave da loteria (ex.: 'megasena').
  * @returns {object} objeto contendo drawSize, totalRange e presets.
  */
-export function getSniperConfig(gameKey) {
+function getSniperConfig(gameKey) {
   const key = (gameKey || '').toLowerCase();
   return SNIPER_CONFIG[key] || null;
 }

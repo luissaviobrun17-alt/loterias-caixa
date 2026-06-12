@@ -258,7 +258,7 @@ class StatsService {
             // Dupla Sena: pode vir como 12 números juntos, ou em dezenas + dezenas2 separados
             if (data.dezenas2 && data.dezenas2.length > 0) {
                 // Formato com dezenas2 separado (algumas APIs)
-                var sort1 = rawNumbers.sort(function(a, b) { return a - b; });
+                var sort1 = rawNumbers.slice().sort(function(a, b) { return a - b; });
                 var sort2 = data.dezenas2.map(function(n) { return parseInt(n); }).sort(function(a, b) { return a - b; });
                 result.numbers  = sort1;
                 result.numbers2 = sort2;
@@ -268,7 +268,7 @@ class StatsService {
                 result.numbers2 = rawNumbers.slice(6, 12).sort(function(a, b) { return a - b; });
             } else if (rawNumbers.length === 6) {
                 // Apenas 1 sorteio retornado pela API (incompleto)
-                result.numbers  = rawNumbers.sort(function(a, b) { return a - b; });
+                result.numbers  = rawNumbers.slice().sort(function(a, b) { return a - b; });
                 result.numbers2 = [];
             } else {
                 // Qualquer outro caso: dividir ao meio

@@ -2893,7 +2893,7 @@ class NovaEraEngine {
                     profile, poolScores, selectedPool, actualDrawSize,
                     fixedNumbers || [], usedCount, maxUsage,
                     startNum, endNum, profile.zones, profile.zoneSize,
-                    games.length, numGames, lastDrawSet
+                    games.length, numGames, lastDrawSet, history
                 );
                 if (!ticket || ticket.length < actualDrawSize) continue;
                 const key = ticket.join(',');
@@ -3196,7 +3196,7 @@ class NovaEraEngine {
                 currentOverlap = Math.min(drawSize, maxOverlap + Math.floor((progressRatio - 0.30) * drawSize * 1.5));
             }
 
-            const ticket = this._generateSingleGame(profile, scores, pool, drawSize, fixedNumbers, usedCount, maxUsage, startNum, endNum, numZones, zoneSize, games.length, numGames, lastDrawSet);
+            const ticket = this._generateSingleGame(profile, scores, pool, drawSize, fixedNumbers, usedCount, maxUsage, startNum, endNum, numZones, zoneSize, games.length, numGames, lastDrawSet, history);
             if (!ticket || ticket.length < drawSize) continue;
             const key = ticket.join(',');
             if (usedKeys.has(key)) continue;
@@ -3248,7 +3248,7 @@ class NovaEraEngine {
             while (games.length < numGames && bulkAtt < bulkMax && (Date.now() - startTime) < bulkTimeout) {
                 bulkAtt++;
                 // Usar o mesmo gerador com filtros v5.0 ativos
-                const ticket = this._generateSingleGame(profile, scores, pool, drawSize, fixedNumbers, usedCount, maxUsage * 3, startNum, endNum, numZones, zoneSize, games.length, numGames, lastDrawSet);
+                const ticket = this._generateSingleGame(profile, scores, pool, drawSize, fixedNumbers, usedCount, maxUsage * 3, startNum, endNum, numZones, zoneSize, games.length, numGames, lastDrawSet, history);
                 if (!ticket || ticket.length < drawSize) continue;
                 const key = ticket.join(',');
                 if (!usedKeys.has(key)) {
@@ -3276,7 +3276,7 @@ class NovaEraEngine {
     // â•‘   3. ValidaÃ§Ã£o de repetiÃ§Ã£o do sorteio anterior                     â•‘
     // â•‘   4. Expoente adaptativo: â‰¤1K=4, â‰¤5K=3, >5K=2                     â•‘
     // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    static _generateSingleGame(profile, scores, pool, drawSize, fixedNumbers, usedCount, maxUsage, startNum, endNum, numZones, zoneSize, gameIndex, totalGames, lastDrawSet) {
+    static _generateSingleGame(profile, scores, pool, drawSize, fixedNumbers, usedCount, maxUsage, startNum, endNum, numZones, zoneSize, gameIndex, totalGames, lastDrawSet, history) {
         const ticket = [];
         const ticketSet = new Set();
         const zoneCount = new Array(numZones).fill(0);
@@ -4173,7 +4173,7 @@ class NovaEraEngine {
                     var ticket = this._generateSingleGame(
                         profile, scores, pool, drawSize,
                         [], {}, 999, startNum, endNum,
-                        profile.zones, profile.zoneSize, g, gamesPerTest, new Set()
+                        profile.zones, profile.zoneSize, g, gamesPerTest, new Set(), trainingHistory
                     );
                     if (ticket && ticket.length >= drawSize) iaGames.push(ticket);
                 }

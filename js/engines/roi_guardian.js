@@ -18,7 +18,7 @@ class ROIGuardian {
     static getPrizeTable() {
         return {
             megasena: {
-                ticketCost: 5.00,
+                ticketCost: 6.00,
                 range: 60, draw: 6,
                 // [acertos, prêmio médio estimado, nome da faixa]
                 prizes: [
@@ -28,7 +28,7 @@ class ROIGuardian {
                 ]
             },
             lotofacil: {
-                ticketCost: 3.00,
+                ticketCost: 3.50,
                 range: 25, draw: 15,
                 prizes: [
                     { hits: 15, avgPrize: 1500000, name: '15 acertos' },

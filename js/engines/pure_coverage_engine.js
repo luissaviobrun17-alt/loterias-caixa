@@ -182,7 +182,7 @@ class PureCoverageEngine {
     //  Retorna: { games: [[...], ...], analysis: { ... } }
     // ═══════════════════════════════════════════════════════
     static generate(gameKey, numGames, options) {
-        const t0 = performance.now();
+        const t0 = (typeof performance !== 'undefined' ? performance.now() : Date.now());
         const opts = options || {};
         const cfg = this.getConfig(gameKey);
 
@@ -454,7 +454,7 @@ class PureCoverageEngine {
         }
 
         // ── 6. Análise completa ──
-        const elapsed = Math.round(performance.now() - t0);
+        const elapsed = Math.round((typeof performance !== 'undefined' ? performance.now() : Date.now()) - t0);
         const analysis = this._buildAnalysis(games, cfg, pool, coveredPairs, coveredTriples, numberUsage, numGames, elapsed);
 
         console.log('%c[PURE-COVER] ✅ ' + games.length + ' jogos gerados em ' + elapsed + 'ms', 'color: #22d3ee; font-weight: bold;');
@@ -1326,5 +1326,5 @@ class PureCoverageEngine {
 // ═══════════════════════════════════════════════════════
 //  DISPONIBILIZAR GLOBALMENTE
 // ═══════════════════════════════════════════════════════
-window.PureCoverageEngine = PureCoverageEngine;
+if (typeof window !== 'undefined') window.PureCoverageEngine = PureCoverageEngine;
 console.log('%c[PURE-COVER] ✓ Motor de Cobertura Pura carregado — ZERO previsão, 100% cobertura', 'color: #22d3ee; font-weight: bold; font-size: 12px;');

@@ -226,9 +226,10 @@ const server = http.createServer((req, res) => {
                 const data = JSON.parse(body);
                 const gameKey = data.gameKey || '';
                 const fileName = data.fileName || '';
+                const safeFileName = path.basename(fileName);
                 const subPasta = PASTA_POR_JOGO[gameKey] || '';
                 const targetDir = subPasta ? path.join(JOGOS_DIR, subPasta) : JOGOS_DIR;
-                const filePath = path.join(targetDir, fileName);
+                const filePath = path.join(targetDir, safeFileName);
                 if (!fs.existsSync(filePath)) {
                     res.writeHead(404, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ ok: false, error: 'Arquivo não encontrado' }));
@@ -286,20 +287,21 @@ const server = http.createServer((req, res) => {
                 const data = JSON.parse(body);
                 const gameKey = data.gameKey || '';
                 const fileName = data.fileName || '';
+                const safeFileName = path.basename(fileName);
                 const subPasta = PASTA_POR_JOGO[gameKey] || '';
                 const targetDir = subPasta ? path.join(JOGOS_DIR, subPasta) : JOGOS_DIR;
-                const oldPath = path.join(targetDir, fileName);
+                const oldPath = path.join(targetDir, safeFileName);
                 if (!fs.existsSync(oldPath)) {
                     res.writeHead(404, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ ok: false, error: 'Arquivo não encontrado' }));
                     return;
                 }
-                if (fileName.startsWith('✅')) {
+                if (safeFileName.startsWith('✅')) {
                     res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ ok: true, already: true, fileName }));
+                    res.end(JSON.stringify({ ok: true, already: true, fileName: safeFileName }));
                     return;
                 }
-                const newName = '✅CONFERIDO_' + fileName;
+                const newName = '✅CONFERIDO_' + safeFileName;
                 const newPath = path.join(targetDir, newName);
                 fs.renameSync(oldPath, newPath);
                 console.log(`[B2B] ✅ Arquivo marcado: ${fileName} → ${newName}`);

@@ -400,8 +400,8 @@ class StrategyValidator {
    */
   static _estimarCusto(gameKey) {
     const custos = {
-      megasena:    5.00,
-      lotofacil:   3.00,
+      megasena:    6.00,
+      lotofacil:   3.50,
       quina:       2.50,
       duplasena:   2.50,
       lotomania:   3.00,
