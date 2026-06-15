@@ -511,18 +511,20 @@ class NovaEraEngine {
             if (gameKey === 'megasena') {
                 console.log('[NE-V13] Mega Sena: Pool COMPLETO ' + pool.length + '/60 (amputação desativada)');
             } else {
-                // Outras loterias mantêm lógica de amputação
-                if (numGames <= 1000) {
-                    targetPoolSize = Math.max(drawSize, Math.floor(totalRange * 0.66));
-                } else if (numGames <= 5000) {
-                    targetPoolSize = Math.max(drawSize, Math.floor(totalRange * 0.83));
+                // v14.0 — POOL COMPLETO PARA TODOS os volumes altos
+                // BUG CORRIGIDO: Amputação arbitrária eliminava 15-45% dos números
+                // causando ausentes em Timemania (20 de 80), Dia de Sorte (6 de 31),
+                // Quina (30 de 80), Dupla Sena (22 de 50) e Lotomania (20 de 100).
+                // REGRA: Para volumes >= 1000 jogos, usar SEMPRE pool completo.
+                // Para volumes menores, uma redução leve (83%) é aceitável.
+                if (numGames >= 1000) {
+                    // Pool completo para alto volume — cobertura total do universo
+                    targetPoolSize = totalRange;
+                    console.log('[NE-V14] Alto volume (' + numGames + ' jogos): Pool COMPLETO ' + totalRange + ' números (' + gameKey + ')');
+                } else if (numGames <= 200) {
+                    targetPoolSize = Math.max(drawSize * 3, Math.floor(totalRange * 0.72));
                 }
-                
-                if (gameKey === 'quina') targetPoolSize = 50;
-                if (gameKey === 'diadesorte' && numGames >= 1000) targetPoolSize = 28;
-                if (gameKey === 'timemania' && numGames >= 1000) targetPoolSize = 65;
-                if (gameKey === 'duplasena' && numGames >= 1000) targetPoolSize = 28;
-                if (gameKey === 'lotomania' && numGames >= 1000) targetPoolSize = 80;
+                // Para 200 < numGames < 1000: pool completo (sem corte)
 
                 if (targetPoolSize < pool.length) {
                     const fixedSet = new Set(fixedNumbers || []);
@@ -532,9 +534,9 @@ class NovaEraEngine {
                     const slotsForNonFixed = targetPoolSize - fixedInPool.length;
                     pool = [...fixedInPool, ...nonFixedPool.slice(0, Math.max(0, slotsForNonFixed))];
                     pool.sort((a, b) => a - b);
-                    console.log('[NE-V13] Corte de Piscina: Reduzido para os TOP ' + targetPoolSize + ' numeros');
+                    console.log('[NE-V14] Piscina ajustada: TOP ' + pool.length + '/' + totalRange + ' números (' + gameKey + ')');
                 } else {
-                    console.log('[NE-V13] Alto Volume: Mantendo TODAS as ' + pool.length + ' dezenas.');
+                    console.log('[NE-V14] Pool completo mantido: ' + pool.length + '/' + totalRange + ' números (' + gameKey + ')');
                 }
             }
         }

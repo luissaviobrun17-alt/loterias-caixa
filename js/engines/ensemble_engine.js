@@ -62,11 +62,17 @@ class EnsembleEngine {
         const layeredPool = this._buildLayeredPool(ensemble, pool, gameKey, drawSize);
 
         // 6. Delegar geração para CoverageEngine
+        // v14.0: DAMPENING ADAPTATIVO DE SCORES POR VOLUME
+        // Problema: scores brutos (amplitude 0.1–2.0) usados como pesos de roleta
+        //   → números top recebem 20x mais presença → CV 54% em 10.000 jogos
+        // Solução: amortecimento exponencial proporcional ao volume
+        //   → preserva leve preferência histórica sem concentração severa
+        const dampedScores = this._dampScoresByVolume(ensemble.scores, numGames, ensemble.startNum, ensemble.endNum);
         const coverageOpts = {
             precisionMode: pool.length < ensemble.totalRange,
             precisionPool: pool.length < ensemble.totalRange ? pool : null,
             layeredPool: layeredPool,
-            quantumScores: ensemble.scores
+            quantumScores: dampedScores
         };
 
         let result;
@@ -863,6 +869,54 @@ class EnsembleEngine {
             scores: scores,
             ranked: ranked
         };
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  DAMPENING DE SCORES POR VOLUME — v14.0
+    //
+    //  PROBLEMA: scores brutos têm amplitude de ~20x entre o número
+    //  mais e menos favorecido. Quando passados como pesos de roleta
+    //  ao CoverageEngine, causam CV de 54% em 10.000 jogos.
+    //
+    //  SOLUÇÃO: amortecimento por potência fracionária.
+    //   score_damp = score_normalizado ^ exponent
+    //   onde exponent diminui com o volume:
+    //
+    //   volume=10    → exponent=1.0  (scores brutos — bias máximo)
+    //   volume=50    → exponent=0.80 (leve amortecimento)
+    //   volume=200   → exponent=0.60 (moderado)
+    //   volume=1000  → exponent=0.40 (forte)
+    //   volume=10000 → exponent=0.15 (quase-uniforme, CV esperado < 8%)
+    // ═══════════════════════════════════════════════════════════
+    static _dampScoresByVolume(scores, numGames, startNum, endNum) {
+        let exponent;
+        if      (numGames <= 10)   exponent = 1.00;
+        else if (numGames <= 50)   exponent = 0.80;
+        else if (numGames <= 200)  exponent = 0.60;
+        else if (numGames <= 1000) exponent = 0.40;
+        else if (numGames <= 5000) exponent = 0.25;
+        else                       exponent = 0.15;
+
+        if (exponent >= 1.0) return scores;
+
+        let minScore = Infinity, maxScore = -Infinity;
+        for (let n = startNum; n <= endNum; n++) {
+            const s = scores[n] || 0;
+            if (s < minScore) minScore = s;
+            if (s > maxScore) maxScore = s;
+        }
+        const range = maxScore - minScore;
+        const damped = {};
+        for (let n = startNum; n <= endNum; n++) {
+            const s = scores[n] || 0;
+            const normalized = range > 0 ? 0.01 + (s - minScore) / range * 0.99 : 0.5;
+            damped[n] = Math.pow(normalized, exponent);
+        }
+
+        const dampedVals = Object.values(damped);
+        const ampDepois = (Math.max(...dampedVals) / Math.min(...dampedVals)).toFixed(2);
+        console.log('[ENSEMBLE] Dampening v14: volume=' + numGames + ' | exponent=' + exponent + ' | amplitude após=' + ampDepois + 'x');
+        return damped;
     }
 
     // ═══════════════════════════════════════════════════════════

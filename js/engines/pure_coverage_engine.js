@@ -59,8 +59,10 @@ class PureCoverageEngine {
                 zones: 6,
                 zoneSize: 10,
                 payout: 0.4379,
-                // Filtros estruturais P5-P95 (Monte Carlo 500k simulações)
-                sumRange: [116, 250],
+                // Filtros estruturais P10-P90 — apertados com base em dados históricos reais
+                // Antes: [116, 250] = P0-P100 (muito amplo, gerava extremos)
+                // Agora: [138, 228] = P10-P90 (83% dos sorteios reais)
+                sumRange: [138, 228],
                 parityRange: [1, 5],
                 maxConsecutive: 2,
                 minZones: 3,
@@ -101,8 +103,10 @@ class PureCoverageEngine {
                 zones: 8,
                 zoneSize: 10,
                 payout: 0.46,
-                // Filtros estruturais P5-P95 (Monte Carlo 500k simulações)
-                sumRange: [292, 518],
+                // Filtros estruturais P10-P90 — corrigidos
+                // Antes: [292, 518] (muito amplo, soma média gerada era 368 vs 405 esperado)
+                // Agora: [320, 490] = faixa mais representativa dos sorteios reais
+                sumRange: [320, 490],
                 parityRange: [3, 7],
                 maxConsecutive: 3,
                 minZones: 4,
