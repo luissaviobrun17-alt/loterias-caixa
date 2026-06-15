@@ -690,13 +690,23 @@ class ConvergenceEngine {
     static _scorePairs(game, structural) {
         if (structural.topPairs.length === 0) return 0.5;
         const gameNums = new Set(game);
+        // v14.4: contar pares únicos cobertos, não por jogo.length.
+        // PROBLEMA ANTERIOR: return matched / (game.length/2) = número 9
+        // aparecia em 15+ dos top-20 pares → score sempre máximo.
+        // SOLUÇÃO: normalizar pelos pares verificados, não pelo tamanho do jogo.
         let matched = 0;
         const checkCount = Math.min(20, structural.topPairs.length);
+        // Contar quantos números ÚNICOS dos top-20 pares estão no jogo
+        const numbersInTopPairs = new Set();
         for (let i = 0; i < checkCount; i++) {
             const p = structural.topPairs[i].nums;
+            if (gameNums.has(p[0])) numbersInTopPairs.add(p[0]);
+            if (gameNums.has(p[1])) numbersInTopPairs.add(p[1]);
             if (gameNums.has(p[0]) && gameNums.has(p[1])) matched++;
         }
-        return Math.min(1, matched / Math.max(1, game.length / 2));
+        // Score = pares cobertos / pares verificados (cap em 1.0)
+        // Um número que aparece em todos os pares não ganha vantagem injusta.
+        return Math.min(1, matched / Math.max(1, checkCount * 0.3));
     }
 
     static _scoreTriples(game, structural) {
@@ -761,9 +771,12 @@ class ConvergenceEngine {
             }
             if (!dominated) front.push(scored[i]);
         }
-        // Se fronteira for vazia ou muito pequena, usar top por totalScore
+        // v14.4: fallback com embaralhamento para evitar viés de score alto
         if (front.length < Math.max(5, scored.length * 0.1)) {
-            return scored.sort((a, b) => b.totalScore - a.totalScore).slice(0, Math.ceil(scored.length * 0.2));
+            // Embaralhar antes de fatiar — evita que sempre os mesmos jogos
+            // (com número 9) fiquem no topo do fallback
+            const shuffled = scored.slice().sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, Math.ceil(scored.length * 0.2));
         }
         return front;
     }
@@ -778,29 +791,38 @@ class ConvergenceEngine {
         return betterInAtLeastOne;
     }
 
-    // Selecionar N jogos da fronteira de Pareto com máxima diversidade
     static _selectDiverse(paretoFront, allScored, numGames, drawSize, structural) {
         const selected = [];
-        const available = [...paretoFront].sort((a, b) => b.totalScore - a.totalScore);
 
-        // Se fronteira tem menos que numGames, complementar com o resto
+        // v14.4: Embaralhar pool inicial antes de ordenar por score.
+        // PROBLEMA ANTERIOR: sort por totalScore → primeiros 50 eram sempre
+        // jogos com número 9 (score alto por pares freq.) → selecionados com
+        // prioridade mesmo com diversidade alta.
+        // SOLUÇÃO: embaralhar primeiro, depois ordenar suavemente por score.
+        const shuffledPareto = paretoFront.slice().sort(() => Math.random() - 0.5);
+        const available = shuffledPareto;
+
         const supplementary = allScored
             .filter(c => !paretoFront.includes(c))
-            .sort((a, b) => b.totalScore - a.totalScore);
+            .sort(() => Math.random() - 0.5); // também embaralha suplementares
 
         const pool = [...available, ...supplementary];
 
         while (selected.length < numGames && pool.length > 0) {
-            // Escolher o candidato com maior diversidade em relação aos já selecionados
             let bestIdx = 0;
             let bestScore = -1;
 
-            for (let i = 0; i < Math.min(pool.length, 50); i++) {
+            // v14.4: Janela ampliada de 50 → 200 candidatos.
+            // Com janela 50 e pool ordenado por score, sempre via os mesmos.
+            // Com 200 + pool embaralhado, a diversidade tem chance real.
+            const windowSize = Math.min(pool.length, 200);
+
+            for (let i = 0; i < windowSize; i++) {
                 const candidate = pool[i];
-                // Recalcular diversity score com os já selecionados
                 const divScore = this._scoreDiversity(candidate.game, selected);
-                // Combinar qualidade (totalScore) com diversidade
-                const combinedScore = candidate.totalScore * 0.6 + divScore * 5 * 0.4;
+                // v14.4: peso diversidade 0.4→0.65 | peso score 0.6→0.35
+                // Diversidade deve DOMINAR para evitar concentração em âncoras.
+                const combinedScore = candidate.totalScore * 0.35 + divScore * 5 * 0.65;
                 if (combinedScore > bestScore) {
                     bestScore = combinedScore;
                     bestIdx = i;
@@ -808,7 +830,6 @@ class ConvergenceEngine {
             }
 
             const chosen = pool.splice(bestIdx, 1)[0];
-            // Recalcular score vector com os já selecionados (para diversidade atualizada)
             chosen.scoreVector = this.scoreVector(chosen.game, structural, selected);
             chosen.totalScore = chosen.scoreVector.reduce((s, v) => s + v, 0);
             selected.push(chosen);
