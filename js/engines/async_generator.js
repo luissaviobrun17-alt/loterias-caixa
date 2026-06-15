@@ -267,8 +267,25 @@ class AsyncGenerator {
                         }
                     }
 
+                    // ═══ FIX v14.2: Anti-concentração para GameBuilderEngine ═══
+                    // CAUSA DO BUG: PairOptimizer usa pares mais frequentes do histórico
+                    // completo como âncoras → números âncora aparecem em ~90% dos jogos.
+                    // SOLUÇÃO 1: Limitar histórico a 30 sorteios recentes.
+                    //   → Reduz a dominância de pares historicamente frequentes.
+                    //   → Preserva estrutura recente sem viés de longo prazo.
+                    // SOLUÇÃO 2: Embaralhar pool antes de passar aos otimizadores.
+                    //   → Quebra viés de ordenação que favorece números baixos.
+                    var historyForBuilder = history.length > 30 ? history.slice(0, 30) : history;
+                    // Embaralhar pool (Fisher-Yates) para quebrar viés de ordem
+                    var shuffledPool = pool.slice();
+                    for (var si = shuffledPool.length - 1; si > 0; si--) {
+                        var sj = Math.floor(Math.random() * (si + 1));
+                        var st = shuffledPool[si]; shuffledPool[si] = shuffledPool[sj]; shuffledPool[sj] = st;
+                    }
+                    console.log('[AsyncGen] v14.2: history limitado a ' + historyForBuilder.length + ' sorteios | pool embaralhado');
+
                     // ═══ GAMEBUILDER: forma os jogos por convergência ═══
-                    result = GameBuilderEngine.generate(gameKey, numGames, pool, drawSize, history, options);
+                    result = GameBuilderEngine.generate(gameKey, numGames, shuffledPool, drawSize, historyForBuilder, options);
 
                 } else {
                     // ═══ FALLBACK: SmartCoverageEngine ═══
