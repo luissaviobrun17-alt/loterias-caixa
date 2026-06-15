@@ -49,22 +49,29 @@ class GameBuilderEngine {
             'zonas médias: ' + structural.avgZones.toFixed(1));
 
         // ── 2. Cada otimizador gera candidatos ──
+        // v14.3: Cap de 20% por otimizador determinístico (pairs/triples).
+        // Motivo: PairOptimizer e TripleOptimizer são ancorados em frequência
+        // histórica. Com muitos candidatos deles, poucos números dominam 80%+
+        // dos jogos (número 9 em Lotofácil: 9767/10000 antes do fix).
+        // Coverage e Sum são aleatórios — precisam dominar o pool de candidatos.
         const candidateMultiplier = Math.min(15, Math.max(5, Math.ceil(100 / numGames)));
         const targetCandidates = numGames * candidateMultiplier;
+        const maxBiased = Math.floor(targetCandidates * 0.20); // max 20% de candidatos viciados
+        const targetRandom = Math.ceil(targetCandidates * 0.60); // 60% aleatórios
 
         const candidateSets = {
-            pairs:    PairOptimizer.generate(pool, drawSize, structural, hist, targetCandidates),
-            triples:  TripleOptimizer.generate(pool, drawSize, structural, hist, targetCandidates),
-            zones:    ZoneDistributor.generate(pool, drawSize, structural, profile, targetCandidates),
-            sum:      SumBalancer.generate(pool, drawSize, structural, targetCandidates),
+            pairs:    PairOptimizer.generate(pool, drawSize, structural, hist, maxBiased),
+            triples:  TripleOptimizer.generate(pool, drawSize, structural, hist, maxBiased),
+            zones:    ZoneDistributor.generate(pool, drawSize, structural, profile, targetRandom),
+            sum:      SumBalancer.generate(pool, drawSize, structural, targetRandom),
             coverage: CoverageMaximizer.generate(pool, drawSize, numGames * 3)
         };
 
         const totalCandidates = Object.values(candidateSets).reduce((s, c) => s + c.length, 0);
-        console.log('[GAMEBUILDER] Candidatos gerados: pairs=' + candidateSets.pairs.length +
+        console.log('[GAMEBUILDER] v14.3 Candidatos: pairs=' + candidateSets.pairs.length +
             ' triples=' + candidateSets.triples.length + ' zones=' + candidateSets.zones.length +
             ' sum=' + candidateSets.sum.length + ' coverage=' + candidateSets.coverage.length +
-            ' | Total: ' + totalCandidates);
+            ' | Total: ' + totalCandidates + ' | Cap biased=' + maxBiased);
 
         // ── 3. ConvergenceEngine encontra a fronteira de Pareto ──
         const result = ConvergenceEngine.select(
@@ -339,15 +346,21 @@ class PairOptimizer {
         const currentSum = game.reduce((s, n) => s + n, 0);
         const needed = drawSize - game.length;
 
-        // Ordenar remaining: zonas novas > soma-alvo
+        // v14.3: Jitter aleatório no targetN para quebrar determinismo.
+        // PROBLEMA: sem jitter, cada par ancora sempre nos mesmos N-2 números
+        // (aqueles que resolvem a equação de soma). Ex: par (7,9) sempre puxava
+        // os mesmos 13 números, fazendo 9 aparecer em 97% dos jogos.
+        // SOLUÇÃO: variar o targetRemain ±30% da amplitude do pool.
+        const poolRange = pool.length > 0 ? (Math.max(...pool) - Math.min(...pool)) : 0;
+        const jitter = (Math.random() - 0.5) * poolRange * 0.30;
+
         remaining.sort((a, b) => {
             const zoneA = Math.floor((a - structural.startNum) / structural.zoneSize);
             const zoneB = Math.floor((b - structural.startNum) / structural.zoneSize);
             const newZoneA = usedZones.has(zoneA) ? 0 : 1;
             const newZoneB = usedZones.has(zoneB) ? 0 : 1;
             if (newZoneA !== newZoneB) return newZoneB - newZoneA;
-            // Aproximar da soma alvo
-            const targetRemain = (targetSum - currentSum) / needed;
+            const targetRemain = (targetSum - currentSum) / needed + jitter;
             return Math.abs(a - targetRemain) - Math.abs(b - targetRemain);
         });
 
@@ -393,8 +406,10 @@ class TripleOptimizer {
         const needed = drawSize - game.length;
         const remaining = pool.filter(n => !game.includes(n));
 
-        // Preencher com zonas novas, aproximando soma alvo
-        const targetRemain = (structural.sumP50 - game.reduce((s, n) => s + n, 0)) / needed;
+        // v14.3: Mesmo jitter que PairOptimizer para consistência
+        const poolRange = pool.length > 0 ? (Math.max(...pool) - Math.min(...pool)) : 0;
+        const jitter = (Math.random() - 0.5) * poolRange * 0.30;
+        const targetRemain = (structural.sumP50 - game.reduce((s, n) => s + n, 0)) / needed + jitter;
         remaining.sort((a, b) => {
             const zA = Math.floor((a - structural.startNum) / structural.zoneSize);
             const zB = Math.floor((b - structural.startNum) / structural.zoneSize);
