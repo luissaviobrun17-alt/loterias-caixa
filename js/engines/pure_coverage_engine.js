@@ -296,6 +296,17 @@ class PureCoverageEngine {
 
         for (let g = 0; g < numGames; g++) {
             // Reabastecer candidatos se necessário
+            // v14.1: purge candidatos já usados ANTES de verificar tamanho
+            //        evita recontagem de candidatos obsoletos no array
+            if (candidates.length < 100 || g % 200 === 0) {
+                // Remover do array candidatos que já foram aceitos
+                for (let ci = candidates.length - 1; ci >= 0; ci--) {
+                    if (usedKeys.has(candidates[ci].join(','))) {
+                        candidates.splice(ci, 1);
+                    }
+                }
+            }
+
             if (candidates.length < 50) {
                 const refillTarget = Math.max(500, scanLimit);
                 let refillAttempts = 0;
@@ -412,8 +423,14 @@ class PureCoverageEngine {
             // Selecionar melhor candidato
             if (bestIdx !== -1) {
                 const bestGame = candidates.splice(bestIdx, 1)[0];
+                const bestKey = bestGame.join(',');
+                // v14.1: guarda dupla — não aceitar jogo já registrado
+                if (usedKeys.has(bestKey)) {
+                    g--; // cancelar esta iteração e tentar novamente
+                    continue;
+                }
                 games.push(bestGame);
-                usedKeys.add(bestGame.join(','));
+                usedKeys.add(bestKey);
 
                 // Atualizar contadores de uso
                 for (const n of bestGame) {
