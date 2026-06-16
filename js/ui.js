@@ -1762,8 +1762,27 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         // ━━ MÊS DA SORTE — visível apenas para Dia de Sorte ━━
         const mesSorteRow = document.getElementById('mes-sorte-row');
+        const mesSorteSelect = document.getElementById('mes-sorte-select');
         if (mesSorteRow) {
             mesSorteRow.style.display = gameKey === 'diadesorte' ? 'grid' : 'none';
+        }
+        // Pré-selecionar mês mais recente da API (Dia de Sorte)
+        if (gameKey === 'diadesorte' && mesSorteSelect) {
+            try {
+                const prizeInfo = StatsService.prizeStore && StatsService.prizeStore['diadesorte'];
+                const recent = StatsService.getRecentResults('diadesorte', 1);
+                const mesDaSorte = (recent && recent[0] && recent[0].mesSorte) ? recent[0].mesSorte : null;
+                if (mesDaSorte && mesSorteSelect.value === '') {
+                    // Normalizar nome do mês (API pode retornar "Agosto", "agosto", etc.)
+                    const mesNorm = mesDaSorte.charAt(0).toUpperCase() + mesDaSorte.slice(1).toLowerCase();
+                    for (let i = 0; i < mesSorteSelect.options.length; i++) {
+                        if (mesSorteSelect.options[i].value.toLowerCase() === mesNorm.toLowerCase()) {
+                            mesSorteSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+            } catch(e) { /* sem dados da API ainda — usuário seleciona manualmente */ }
         }
 
         // Mostrar toggle Modo Sniper para todas as loterias
