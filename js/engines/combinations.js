@@ -728,6 +728,7 @@ class CombinationEngine {
         const decadeDist = this.analyzeDecadeDistribution(history, game);
         const parImpar = this.analyzeParImpar(history);
         const avgConsec = this.analyzeConsecutives(history);
+
         
         // ══ PADRÕES OCULTOS ══
         const cycles = this.analyzeCycles(history, game);
