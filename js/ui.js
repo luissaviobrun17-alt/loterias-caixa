@@ -4056,14 +4056,15 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
                 : '#475569';
 
             let prizeStr;
-            if (isJackpot) {
-                prizeStr = `~${currency(prizeValue)} (acumulado)`;
-            } else if (prizeValue >= 1) {
-                prizeStr = `~${currency(prizeValue)} (rateio)`;
-            } else if (prizeValue > 0) {
-                prizeStr = `~R$ ${prizeValue.toFixed(2).replace('.', ',')} (rateio)`;
+            // Usar prizeType do games.js para exibir corretamente
+            const pType = strat.prizeType || (isJackpot ? 'acumulado' : 'rateio');
+            const pNote = strat.note || '';
+            if (pType === 'fixo') {
+                prizeStr = `${currency(prizeValue)} — <span style="color:#22C55E;font-weight:700;font-size:0.6rem;background:rgba(34,197,94,0.15);padding:1px 5px;border-radius:4px;">FIXO</span>`;
+            } else if (pType === 'acumulado' || isJackpot) {
+                prizeStr = `~${currency(prizeValue)} — <span style="color:#F59E0B;font-weight:700;font-size:0.6rem;background:rgba(245,158,11,0.15);padding:1px 5px;border-radius:4px;">ACUMULADO</span>`;
             } else {
-                prizeStr = 'Valor por rateio';
+                prizeStr = `~${currency(prizeValue)} — <span style="color:#94A3B8;font-weight:700;font-size:0.6rem;background:rgba(148,163,184,0.1);padding:1px 5px;border-radius:4px;">RATEIO</span>`;
             }
 
             summaryHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:${rowBg};border:1px solid ${borderCol};border-radius:8px;transition:all 0.3s;">`;
@@ -4072,6 +4073,10 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
             summaryHTML += `<div>`;
             summaryHTML += `<div style="font-size:0.82rem;font-weight:${count > 0 ? '700' : '400'};color:${count > 0 ? '#f1f5f9' : '#64748b'};">${strat.label}</div>`;
             summaryHTML += `<div style="font-size:0.66rem;color:#64748b;">${strat.match === 0 ? 'Nenhum número acertado' : strat.match + ' acertos'} · ${prizeStr}</div>`;
+            // Nota explicativa honesta (note do games.js)
+            if (pNote) {
+                summaryHTML += `<div style="font-size:0.6rem;color:#475569;margin-top:1px;font-style:italic;">${pNote}</div>`;
+            }
             summaryHTML += `</div></div>`;
             summaryHTML += `<div style="text-align:right;">`;
             summaryHTML += `<div style="font-size:0.9rem;font-weight:800;color:${textCol};">${count > 0 ? count + 'x' : '—'}</div>`;
@@ -4090,8 +4095,12 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         // Bug anterior: contava TODOS os jogos como acerto porque todo jogo tem um mês/time gerado
         if ((this.currentGameKey === 'timemania' || this.currentGameKey === 'diadesorte') && this.currentGeneratedExtras) {
             let extrasHitCount = 0;
-            const extraPrizeUnit = this.currentGameKey === 'timemania' ? 7.50 : 3.00;
-            const extrasLabel = this.currentGameKey === 'timemania' ? 'Time' : 'Mês';
+            // Usar o valor real definido em game.extraPrize.prize (games.js V11)
+            const extraPrizeUnit = (game.extraPrize && game.extraPrize.prize)
+                ? game.extraPrize.prize
+                : (this.currentGameKey === 'timemania' ? 7.50 : 2.50);
+            const extraPrizeNote = (game.extraPrize && game.extraPrize.note) || '';
+            const extrasLabel = this.currentGameKey === 'timemania' ? 'Time do Coração' : 'Mês da Sorte';
 
             // Determinar o extra REAL sorteado (da API)
             let drawnExtraIdx = -1; // -1 = desconhecido (API não retornou)
