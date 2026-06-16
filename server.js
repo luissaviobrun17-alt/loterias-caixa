@@ -316,13 +316,14 @@ const server = http.createServer((req, res) => {
     }
 
     // ── /gerar-zip → redireciona para ZIP do GitHub ──────────────────────
-    if (reqPath === '/gerar-zip') {
+    if (req.url === '/gerar-zip' || req.url.startsWith('/gerar-zip?')) {
         const zipUrl = 'https://github.com/luissaviobrun17-alt/loterias-caixa/archive/refs/heads/main.zip';
         res.writeHead(302, { 'Location': zipUrl });
         res.end();
         console.log('[B2B] 📦 Redirecionando download ZIP → GitHub');
         return;
     }
+
 
     // ── Arquivos estáticos ───────────────────
 
