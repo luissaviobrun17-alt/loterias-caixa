@@ -1775,7 +1775,9 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         if (this.quantumCountInput) {
             // Sugestão IA: padrão = 50% dos números da loteria, mas mínimo é minBet
-            const qConstraints = QuantumGodEngine.getConstraints(gameKey);
+            const qConstraints = (typeof QuantumGodEngine !== 'undefined' && QuantumGodEngine.getConstraints)
+                ? QuantumGodEngine.getConstraints(gameKey)
+                : null;
             const totalNums = qConstraints ? qConstraints.totalNumbers : (game.range[1] - game.range[0] + 1);
             const defaultSuggestion = Math.ceil(totalNums * 0.5);
             this.quantumCountInput.value = defaultSuggestion;
