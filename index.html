@@ -63,7 +63,29 @@
 </head>
 
 <body>
+    <!-- Banner: aviso quando aberto sem servidor (file://) -->
+    <div id="server-offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#7C2D12,#B45309);color:#fff;padding:10px 20px;font-family:'Outfit','Inter',sans-serif;font-size:0.82rem;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+        <span style="font-size:1.3rem;">⚠️</span>
+        <div style="flex:1;">
+            <strong>Servidor local não detectado.</strong>
+            Alguns recursos (Salvar Jogos, Carregar, Backup) precisam do servidor.
+            <span style="color:#FDE68A;">Execute o <strong>INICIAR_B2B.bat</strong> ou <strong>node server.js</strong> e acesse <a href="http://localhost:8777" style="color:#FDE68A;font-weight:700;">http://localhost:8777</a></span>
+        </div>
+        <button onclick="document.getElementById('server-offline-banner').style.display='none'" style="background:rgba(255,255,255,0.2);border:none;color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.8rem;">✕ Fechar</button>
+    </div>
+    <script>
+    // Detectar modo file:// (sem servidor) e exibir banner
+    (function(){
+        if(window.location.protocol === 'file:'){
+            var b = document.getElementById('server-offline-banner');
+            if(b) b.style.display = 'flex';
+            // Ajustar padding-top do app
+            document.body.style.paddingTop = '52px';
+        }
+    })();
+    </script>
     <div class="app-container">
+
         <header>
             <!-- Removed potential blocker div -->
             <div class="header-top" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 20px; min-height: 130px; position: relative;">
@@ -656,14 +678,23 @@
                         <span class="sidebar-btn-arrow">›</span>
                     </div>
                     <div class="sidebar-divider"></div>
-                    <a id="btn-zip-download" class="sidebar-modern-btn" href="../B2B_Loterias_NOVO.zip" download="B2B_Loterias.zip" style="text-decoration: none;">
+                    <div id="btn-zip-download" class="sidebar-modern-btn" style="cursor:pointer;" onclick="
+                        (function(){
+                            var isLocal = window.location.protocol === 'http:' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+                            if(isLocal){
+                                window.location.href = '/gerar-zip';
+                            } else {
+                                window.open('https://github.com/luissaviobrun17-alt/loterias-caixa/archive/refs/heads/main.zip','_blank');
+                            }
+                        })();
+                    ">
                         <div class="sidebar-btn-icon" style="background: linear-gradient(135deg, #3B82F6, #1D4ED8);">📦</div>
                         <div class="sidebar-btn-text">
                             <h3 class="sidebar-btn-title">Baixar ZIP Completo</h3>
                             <p class="sidebar-btn-desc">Download offline para outro PC</p>
                         </div>
                         <span class="sidebar-btn-arrow">›</span>
-                    </a>
+                    </div>
                     <div class="sidebar-divider"></div>
                     <a id="btn-caixa-link" class="sidebar-modern-btn" href="https://www.loteriasonline.caixa.gov.br/silce-web/#/mega-sena" target="_blank" rel="noopener" style="text-decoration:none;cursor:pointer;">
                         <div class="sidebar-btn-icon" style="background: linear-gradient(135deg, #0066CC, #003D80);">🏦</div>
