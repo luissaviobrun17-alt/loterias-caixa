@@ -1,4 +1,4 @@
-﻿const L99_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+const L99_MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 const L99_TIMES = ["ABC/RN", "América/MG", "América/RJ", "América/RN", "Atlético/GO", "Atlético/MG", "Atlético/PR", "Avaí/SC", "Bahia/BA", "Bangu/RJ", "Barueri/SP", "Botafogo/PB", "Botafogo/RJ", "Botafogo/SP", "Bragantino/SP", "Brasiliense/DF", "Campinense/PB", "Ceará/CE", "Corinthians/SP", "Coritiba/PR", "CRB/AL", "Criciúma/SC", "Cruzeiro/MG", "CSA/AL", "Desportiva/ES", "Figueirense/SC", "Flamengo/RJ", "Fluminense/RJ", "Fortaleza/CE", "Gama/DF", "Goiás/GO", "Grêmio/RS", "Guarani/SP", "Inter Limeira/SP", "Internacional/RS", "Ipatinga/MG", "Ituano/SP", "Ji-Paraná/RO", "Joinville/SC", "Juventude/RS", "Juventus/SP", "Londrina/PR", "Marília/SP", "Mixto/MT", "Moto Clube/MA", "Náutico/PE", "Nacional/AM", "Olaria/RJ", "Operário/MS", "Palmeiras/SP", "Paraná/PR", "Paulista/SP", "Paysandu/PA", "Ponte Preta/SP", "Portuguesa/SP", "Remo/PA", "Rio Branco/AC", "Rio Branco/ES", "River/PI", "Roraima/RR", "Sampaio Corrêa/MA", "Santa Cruz/PE", "Santo André/SP", "Santos/SP", "São Caetano/SP", "São Paulo/SP", "São Raimundo/AM", "Sergipe/SE", "Sport/PE", "Treze/PB", "Tuna Luso/PA", "Uberlândia/MG", "União Bandeirante/PR", "União São João/SP", "Vasco/RJ", "Vila Nova/GO", "Villa Nova/MG", "Vitória/BA", "Volta Redonda/RJ", "Ypiranga/AP"];
 
 class UI {
@@ -3347,19 +3347,46 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
         const fileName = `${gameName}_${dateStr}_${timeStr}.txt`;
 
-        // Mês da Sorte (apenas para Dia de Sorte)
+        // ── Extras: Time do Coração (Timemania) e Mês da Sorte (Dia de Sorte) ──
         const mesSorteSelect = document.getElementById('mes-sorte-select');
         const mesSorte = (this.currentGameKey === 'diadesorte' && mesSorteSelect) ? mesSorteSelect.value : null;
 
+        // currentGeneratedExtras: array paralelo aos jogos com índice do time (Timemania)
+        // ou null/undefined para outras loterias
+        const extras = this.currentGeneratedExtras || [];
+        const isTimemania = this.currentGameKey === 'timemania';
+        const isDiaDeSorte = this.currentGameKey === 'diadesorte';
+
         let content = `═══════════════════════════════════════\n`;
         content += `  JOGOS — ${gameName.toUpperCase()}\n`;
-        if (mesSorte) content += `  Mês da Sorte: ${mesSorte}\n`;
+        if (mesSorte) content += `  Mês da Sorte (cabeçalho): ${mesSorte}\n`;
+        if (isTimemania) content += `  Time do Coração: registrado por jogo abaixo\n`;
         content += `  Data: ${now.toLocaleString('pt-BR')}\n`;
         content += `  Total de Jogos: ${this.currentGeneratedGames.length}\n`;
         content += `═══════════════════════════════════════\n\n`;
 
         this.currentGeneratedGames.forEach((game, index) => {
-            content += `Jogo ${String(index + 1).padStart(3, '0')}: ${game.map(n => n.toString().padStart(2, '0')).join(' - ')}\n`;
+            const nums = game.map(n => n.toString().padStart(2, '0')).join(' - ');
+            let extra = '';
+            if (isTimemania && extras[index] !== undefined && extras[index] !== null) {
+                // L99_TIMES é o array global dos times da Timemania
+                const timeName = (typeof L99_TIMES !== 'undefined' && L99_TIMES[extras[index]])
+                    ? L99_TIMES[extras[index]]
+                    : `Time #${extras[index]}`;
+                extra = ` | Time: ${timeName}`;
+            } else if (isDiaDeSorte) {
+                // Dia de Sorte: usa L99_MESES[extras[index]] (mesmo padrão da UI)
+                // L99_MESES = ['Janeiro','Fevereiro',...,'Dezembro']
+                if (extras[index] !== undefined && extras[index] !== null) {
+                    const mesNome = (typeof L99_MESES !== 'undefined' && L99_MESES[extras[index]])
+                        ? L99_MESES[extras[index]]
+                        : (mesSorte || `Mês #${extras[index]}`);
+                    extra = ` | Mês: ${mesNome}`;
+                } else if (mesSorte) {
+                    extra = ` | Mês: ${mesSorte}`;
+                }
+            }
+            content += `Jogo ${String(index + 1).padStart(3, '0')}: ${nums}${extra}\n`;
         });
 
         content += `\n═══════════════════════════════════════\n`;
