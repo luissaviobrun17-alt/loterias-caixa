@@ -1,0 +1,244 @@
+{
+  "timestamp": "2026-06-16T20:12:05.284Z",
+  "totalJogos": 10000,
+  "espacoAmostral": 24040016,
+  "coberturaPct": 0.041597,
+  "bugs": {
+    "total": 0,
+    "tamanhoErrado": 0,
+    "duplicataInterna": 0,
+    "foraDoRange": 0,
+    "naoOrdenado": 0,
+    "duplicatas": 0,
+    "listaDuplicatas": []
+  },
+  "numerosAusentes": [],
+  "estatisticas": {
+    "somaMedia": 202.48,
+    "somaIdeal": 202.5,
+    "somaMin": 119,
+    "somaMax": 285,
+    "parImpar": {
+      "par": 25097,
+      "impar": 24903
+    },
+    "dezenas": {
+      "01-10": 6059,
+      "11-20": 6277,
+      "21-30": 6319,
+      "31-40": 6322,
+      "41-50": 6383,
+      "51-60": 6368,
+      "61-70": 6195,
+      "71-80": 6077
+    },
+    "seqLongas2": 2134,
+    "seqLongas3": 0,
+    "benchmark": {
+      "pct2": "23.21",
+      "pct3": "0.90",
+      "somaMedia": "202.5",
+      "gapMedia": "13.51"
+    },
+    "coefVariacao": 3.379,
+    "anomalias": [],
+    "gapMedia": 14.042,
+    "gapEsperado": 13.5,
+    "topPares": [
+      {
+        "par": "17-56",
+        "count": 53
+      },
+      {
+        "par": "11-64",
+        "count": 53
+      },
+      {
+        "par": "24-75",
+        "count": 52
+      },
+      {
+        "par": "29-52",
+        "count": 52
+      },
+      {
+        "par": "22-53",
+        "count": 51
+      },
+      {
+        "par": "18-73",
+        "count": 51
+      },
+      {
+        "par": "8-73",
+        "count": 50
+      },
+      {
+        "par": "16-80",
+        "count": 50
+      },
+      {
+        "par": "36-50",
+        "count": 50
+      },
+      {
+        "par": "32-53",
+        "count": 50
+      }
+    ],
+    "topFrequentes": [
+      {
+        "num": 22,
+        "count": 656,
+        "pct": "1.3120"
+      },
+      {
+        "num": 24,
+        "count": 656,
+        "pct": "1.3120"
+      },
+      {
+        "num": 37,
+        "count": 656,
+        "pct": "1.3120"
+      },
+      {
+        "num": 39,
+        "count": 656,
+        "pct": "1.3120"
+      },
+      {
+        "num": 43,
+        "count": 656,
+        "pct": "1.3120"
+      },
+      {
+        "num": 45,
+        "count": 656,
+        "pct": "1.3120"
+      },
+      {
+        "num": 53,
+        "count": 656,
+        "pct": "1.3120"
+      },
+      {
+        "num": 55,
+        "count": 656,
+        "pct": "1.3120"
+      },
+      {
+        "num": 56,
+        "count": 656,
+        "pct": "1.3120"
+      },
+      {
+        "num": 66,
+        "count": 656,
+        "pct": "1.3120"
+      },
+      {
+        "num": 13,
+        "count": 654,
+        "pct": "1.3080"
+      },
+      {
+        "num": 29,
+        "count": 654,
+        "pct": "1.3080"
+      },
+      {
+        "num": 50,
+        "count": 652,
+        "pct": "1.3040"
+      },
+      {
+        "num": 52,
+        "count": 651,
+        "pct": "1.3020"
+      },
+      {
+        "num": 48,
+        "count": 649,
+        "pct": "1.2980"
+      }
+    ],
+    "topRaros": [
+      {
+        "num": 73,
+        "count": 574,
+        "pct": "1.1480"
+      },
+      {
+        "num": 6,
+        "count": 577,
+        "pct": "1.1540"
+      },
+      {
+        "num": 44,
+        "count": 586,
+        "pct": "1.1720"
+      },
+      {
+        "num": 79,
+        "count": 588,
+        "pct": "1.1760"
+      },
+      {
+        "num": 67,
+        "count": 589,
+        "pct": "1.1780"
+      },
+      {
+        "num": 2,
+        "count": 591,
+        "pct": "1.1820"
+      },
+      {
+        "num": 23,
+        "count": 596,
+        "pct": "1.1920"
+      },
+      {
+        "num": 1,
+        "count": 597,
+        "pct": "1.1940"
+      },
+      {
+        "num": 62,
+        "count": 598,
+        "pct": "1.1960"
+      },
+      {
+        "num": 57,
+        "count": 598,
+        "pct": "1.1960"
+      },
+      {
+        "num": 76,
+        "count": 599,
+        "pct": "1.1980"
+      },
+      {
+        "num": 8,
+        "count": 601,
+        "pct": "1.2020"
+      },
+      {
+        "num": 65,
+        "count": 603,
+        "pct": "1.2060"
+      },
+      {
+        "num": 7,
+        "count": 607,
+        "pct": "1.2140"
+      },
+      {
+        "num": 3,
+        "count": 607,
+        "pct": "1.2140"
+      }
+    ]
+  }
+}

@@ -1,0 +1,345 @@
+
+═════════════════════════════════════════════════════════════════
+  🍀  RELATÓRIO EXTREMAMENTE HONESTO — DIA DE SORTE 10.000 JOGOS
+  🗓️  Gerado: 16/06/2026 às 16:28
+  ⚠️  ANÁLISE SEM FILTROS — DADOS PUROS
+═════════════════════════════════════════════════════════════════
+
+─────────────────────────────────────────────────────────────────
+  📋  SEÇÃO 0 — REGRAS DO JOGO E ESTRUTURA DO ARQUIVO
+─────────────────────────────────────────────────────────────────
+
+  COMO O DIA DE SORTE FUNCIONA (completo):
+    Jogador escolhe: 7 números de 1-31
+                   + 1 "Mês da Sorte" (Janeiro a Dezembro)
+    Sorteio:         7 números de 1-31
+                   + 1 mês sorteado
+    Prêmios:         7, 6, 5, 4 acertos + bônus do mês
+    Preço:           R$ 3,00
+
+  ESPAÇO AMOSTRAL:
+    Numérico:        C(31,7) = 2.629.575 combinações
+    Com mês:         2.629.575 × 12 = 31.554.900 combinações
+    10.000 apostas:  0.3803% do espaço numérico
+                     0.03169% do espaço total (com mês)
+    Custo total:     R$ 30.000,00
+
+  ARQUIVO DETECTADO:
+    7 números/jogo: 10000 (100.00%)
+
+  ⚠️  AUSENTE NO ARQUIVO: "Mês da Sorte"
+    Igual à Timemania: o mês não é salvo no TXT.
+    Impacto: não é possível auditar a distribuição dos 12 meses.
+    Risco: se todos os 10.000 jogos usam o mesmo mês e esse
+    mês não for sorteado → 100% dos jogos perdem o bônus do mês.
+
+─────────────────────────────────────────────────────────────────
+  🔍  SEÇÃO 1 — INTEGRIDADE
+─────────────────────────────────────────────────────────────────
+  ✅  Tamanho incorreto (≠7)          : NENHUM
+  ✅  Duplicata interna               : NENHUM
+  ✅  Fora do range (1-31)            : NENHUM
+  ✅  Não ordenados                   : NENHUM
+  ✅  Jogos idênticos entre si        : NENHUM
+
+  🏆  SISTEMA ÍNTEGRO — ZERO BUGS
+
+─────────────────────────────────────────────────────────────────
+  🚫  SEÇÃO 2 — NÚMEROS QUE NUNCA APARECERAM
+─────────────────────────────────────────────────────────────────
+
+  ✅  Todos os 31 números (1-31) aparecem pelo menos 1 vez.
+  P(número nunca aparecer): 0.0000000000% (astronomicamente improvável)
+
+─────────────────────────────────────────────────────────────────
+  📈  SEÇÃO 3 — FREQUÊNCIA DOS 31 NÚMEROS
+─────────────────────────────────────────────────────────────────
+
+  Freq esperada: ~2258x  (3.23% cada)
+  Desvio padrão: 43.1
+  Coef. variação: 1.907%
+  Interpretação: ✅ BOM (<3%)
+
+  ⚠️  ANOMALIAS (>2.5σ): 1 números:
+    Nº  5:  2147x  [-111 = -2.58σ]
+
+  🔥  TOP 10 MAIS FREQUENTES:
+     1. Nº 12:  2336x (3.3371%)  [+78 / 1.81σ]
+     2. Nº 22:  2328x (3.3257%)  [+70 / 1.62σ]
+     3. Nº 24:  2324x (3.3200%)  [+66 / 1.53σ]
+     4. Nº  7:  2302x (3.2886%)  [+44 / 1.02σ]
+     5. Nº  2:  2298x (3.2829%)  [+40 / 0.93σ]
+     6. Nº 30:  2297x (3.2814%)  [+39 / 0.90σ]
+     7. Nº 28:  2295x (3.2786%)  [+37 / 0.86σ]
+     8. Nº 17:  2293x (3.2757%)  [+35 / 0.81σ]
+     9. Nº 26:  2293x (3.2757%)  [+35 / 0.81σ]
+    10. Nº 21:  2292x (3.2743%)  [+34 / 0.79σ]
+
+  🧊  TOP 10 MENOS FREQUENTES:
+     1. Nº  5:  2147x (3.0671%)  [-111 / -2.58σ]
+     2. Nº  1:  2188x (3.1257%)  [-70 / -1.63σ]
+     3. Nº 11:  2193x (3.1329%)  [-65 / -1.51σ]
+     4. Nº 15:  2213x (3.1614%)  [-45 / -1.05σ]
+     5. Nº  3:  2214x (3.1629%)  [-44 / -1.02σ]
+     6. Nº 13:  2223x (3.1757%)  [-35 / -0.81σ]
+     7. Nº  9:  2223x (3.1757%)  [-35 / -0.81σ]
+     8. Nº 10:  2225x (3.1786%)  [-33 / -0.77σ]
+     9. Nº 31:  2228x (3.1829%)  [-30 / -0.70σ]
+    10. Nº 23:  2233x (3.1900%)  [-25 / -0.58σ]
+
+  📊  TODOS OS 31 NÚMEROS:
+    Nº  1:  2188x  [-70]
+    Nº  2:  2298x  [+40]
+    Nº  3:  2214x  [-44]
+    Nº  4:  2245x  [-13]
+    Nº  5:  2147x  [-111] ⚠️ 2.6σ
+    Nº  6:  2268x  [+10]
+    Nº  7:  2302x  [+44]
+    Nº  8:  2256x  [-2]
+    Nº  9:  2223x  [-35]
+    Nº 10:  2225x  [-33]
+    Nº 11:  2193x  [-65]
+    Nº 12:  2336x  [+78]
+    Nº 13:  2223x  [-35]
+    Nº 14:  2254x  [-4]
+    Nº 15:  2213x  [-45]
+    Nº 16:  2276x  [+18]
+    Nº 17:  2293x  [+35]
+    Nº 18:  2278x  [+20]
+    Nº 19:  2243x  [-15]
+    Nº 20:  2268x  [+10]
+    Nº 21:  2292x  [+34]
+    Nº 22:  2328x  [+70]
+    Nº 23:  2233x  [-25]
+    Nº 24:  2324x  [+66]
+    Nº 25:  2269x  [+11]
+    Nº 26:  2293x  [+35]
+    Nº 27:  2249x  [-9]
+    Nº 28:  2295x  [+37]
+    Nº 29:  2249x  [-9]
+    Nº 30:  2297x  [+39]
+    Nº 31:  2228x  [-30]
+
+─────────────────────────────────────────────────────────────────
+  ∑   SEÇÃO 4 — SOMA DOS JOGOS
+─────────────────────────────────────────────────────────────────
+
+  Soma média real:      112.4
+  Soma média aleatório: 112.0
+  Soma ideal teórica:   112.0  (7 × 16.0 = 7 × (1+31)/2)
+  Desvio:               0.4 (0.39%)
+  Soma mínima:          77
+  Soma máxima:          147
+  (Amplitude possível: mín=28, máx=196)
+
+  DISTRIBUIÇÃO DE SOMAS:
+     75- 89:   923  ██████████████████
+     90-104:  2433  █████████████████████████████████████████████████
+    105-119:  3089  ██████████████████████████████████████████████████████████████
+    120-134:  2513  ██████████████████████████████████████████████████
+    135-149:  1042  █████████████████████
+
+─────────────────────────────────────────────────────────────────
+  🔢  SEÇÃO 5 — PAR/ÍMPAR
+─────────────────────────────────────────────────────────────────
+
+  Pares:   34.241 (48.916%)
+  Ímpares: 35.759 (51.084%)
+  Esperado teórico: 48.39% pares / 51.61% ímpares
+  (1-31 tem 15 pares e 16 ímpares — não é 50%/50%!)
+  Desvio: 0.529%  ⚠️ Atenção
+
+─────────────────────────────────────────────────────────────────
+  🗂️   SEÇÃO 6 — DISTRIBUIÇÃO POR FAIXA
+─────────────────────────────────────────────────────────────────
+
+  Esperado teórico (proporcional ao range 1-31):
+    01-10 (10 nums): 32.26%
+    11-20 (10 nums): 32.26%
+    21-31 (11 nums): 35.48%
+
+  REAL:
+    01-10:  22366 (31.95%) [-0.31%]  ████████████████
+    11-20:  22577 (32.25%) [-0.01%]  ████████████████
+    21-31:  25057 (35.80%) [+0.31%]  ██████████████████
+
+─────────────────────────────────────────────────────────────────
+  🔗  SEÇÃO 7 — SEQUÊNCIAS CONSECUTIVAS
+─────────────────────────────────────────────────────────────────
+
+  GERADOR (10.000 jogos):
+    Com 2+ consecutivos: 8148 (81.48%)
+    Com 3+ consecutivos: 1557 (15.57%)
+    Com 4+ consecutivos: 0 (0.00%)
+
+  BENCHMARK aleatório puro (500.000 sim.):
+    Com 2+ consecutivos: 81.67%
+    Com 3+ consecutivos: 19.16%
+    Com 4+ consecutivos: 2.76%
+
+  DIFERENÇAS (gerador vs aleatório puro):
+    2+: 0.19%  ✅ Normal
+    3+: 3.59%  ⚠️ Desvio relevante
+    4+: 2.76%  ⚠️ Desvio relevante
+
+─────────────────────────────────────────────────────────────────
+  📐  SEÇÃO 8 — GAPS ENTRE NÚMEROS
+─────────────────────────────────────────────────────────────────
+
+  Gap médio real:       4.09
+  Gap esperado teórico: 4.00  ((31+1)/(7+1))
+  Diferença:            0.09  ✅ Normal
+
+  Gap=1 (consecutivos): 12845x (21.41%)
+  Esperado aleatório:   ~25.00%
+
+  DISTRIBUIÇÃO DE GAPS (top 15):
+    Gap  1:  12845x  ████████████████████████████████
+    Gap  2:   9923x  █████████████████████████
+    Gap  3:   9181x  ███████████████████████
+    Gap  4:   6575x  ████████████████
+    Gap  5:   5873x  ███████████████
+    Gap  6:   4069x  ██████████
+    Gap  7:   3507x  █████████
+    Gap  8:   2355x  ██████
+    Gap  9:   1840x  █████
+    Gap 10:   1204x  ███
+    Gap 11:    961x  ██
+    Gap 12:    629x  ██
+    Gap 13:    422x  █
+    Gap 14:    273x  █
+    Gap 15:    165x  
+
+─────────────────────────────────────────────────────────────────
+  💑  SEÇÃO 9 — PARES MAIS E MENOS FREQUENTES
+─────────────────────────────────────────────────────────────────
+
+  C(31,2) = 465 pares possíveis
+  Freq esperada por par: ~451.61x
+  Pares registrados: 465 de 465 (100.0%)
+
+  TOP 15 PARES MAIS FREQUENTES:
+     1. 7-28  :   561x  [+109 / 5.1σ]
+     2. 9-24  :   542x  [+90 / 4.3σ]
+     3. 1-26  :   540x  [+88 / 4.2σ]
+     4. 12-21 :   539x  [+87 / 4.1σ]
+     5. 6-25  :   537x  [+85 / 4.0σ]
+     6. 7-26  :   532x  [+80 / 3.8σ]
+     7. 6-21  :   530x  [+78 / 3.7σ]
+     8. 2-27  :   529x  [+77 / 3.6σ]
+     9. 12-27 :   528x  [+76 / 3.6σ]
+    10. 3-22  :   528x  [+76 / 3.6σ]
+    11. 14-25 :   527x  [+75 / 3.5σ]
+    12. 6-31  :   526x  [+74 / 3.5σ]
+    13. 1-30  :   525x  [+73 / 3.5σ]
+    14. 1-22  :   525x  [+73 / 3.5σ]
+    15. 3-30  :   524x  [+72 / 3.4σ]
+
+  TOP 10 PARES MENOS FREQUENTES:
+     1. 29-31 :   342x  [-110 / -5.2σ]
+     2. 3-5   :   347x  [-105 / -4.9σ]
+     3. 1-5   :   347x  [-105 / -4.9σ]
+     4. 1-3   :   352x  [-100 / -4.7σ]
+     5. 1-9   :   353x  [-99 / -4.6σ]
+     6. 9-11  :   358x  [-94 / -4.4σ]
+     7. 25-31 :   360x  [-92 / -4.3σ]
+     8. 1-7   :   360x  [-92 / -4.3σ]
+     9. 27-31 :   364x  [-88 / -4.1σ]
+    10. 3-9   :   365x  [-87 / -4.1σ]
+
+═════════════════════════════════════════════════════════════════
+  📅  SEÇÃO 10 — MÊS DA SORTE (ANÁLISE CRÍTICA)
+═════════════════════════════════════════════════════════════════
+
+  ⚠️  O "MÊS DA SORTE" NÃO ESTÁ NO ARQUIVO — MESMO PROBLEMA DA TIMEMANIA.
+
+  IMPACTO REAL:
+  ━━━━━━━━━━━━
+  O Dia de Sorte tem apenas 12 meses possíveis.
+  A probabilidade de acertar o mês por sorte: 1/12 = 8.33%
+  Com 10.000 jogos e 1 sorteio, qual a chance do mês correto?
+  → Se o sistema usa 1 mês fixo: 8.33% de chance no mês, 91.67% de falhar.
+  → Se o sistema distribui entre 12 meses: melhor diversificação.
+
+  SEM O MÊS NO ARQUIVO: IMPOSSÍVEL VERIFICAR.
+
+  RISCO CONCRETO:
+  Se todos os 10.000 jogos têm o mesmo mês escolhido,
+  e o sorteio cair num mês diferente:
+  → 10.000 jogos perdem o bônus do mês (100%).
+  → Perda de prêmios nas faixas que dependem do mês.
+
+  OS 12 MESES E SUA IMPLICAÇÃO NA PROBABILIDADE:
+  P(7 acertos + mês) = P(7 acertos) × (1/12)
+    = 0.0000380% × 8.33% = 0.000003169%
+    = 1 em 31.554.900 combinações
+
+  RECOMENDAÇÃO TÉCNICA:
+  O sistema deveria registrar o mês escolhido no arquivo de saída.
+  Sem isso, não há auditoria possível da escolha do mês.
+
+═════════════════════════════════════════════════════════════════
+  💣  SEÇÃO 11 — PROBABILIDADES REAIS DO DIA DE SORTE
+═════════════════════════════════════════════════════════════════
+
+  BASE: C(31,7)=2.629.575 | Com mês: 31.554.900
+
+  PROBABILIDADE POR JOGO (só números, sem mês):
+    7 acertos: 0.000038%  (1 em 2.629.575)
+    6 acertos: 0.006389%  (1 em 15.652)
+    5 acertos: 0.220416%  (1 em 454)
+    4 acertos: 2.693971%  (1 em 37)
+
+  COM MÊS CORRETO (÷12):
+    7 acertos + mês: 0.00000317%  (1 em 31.554.900)
+    6 acertos + mês: 0.00053241%  (1 em 187.827)
+
+  COM 10.000 JOGOS (R$ 30.000,00):
+    P(≥1 jogo com 7 acertos): 0.3796%
+    P(≥1 jogo com 6 acertos): 47.2131%
+    P(≥1 jogo com 5 acertos): 100.0000%
+    P(≥1 jogo com 4 acertos): 100.0000%
+
+  BIRTHDAY PROBLEM — RISCO DE DUPLICATAS:
+    C(31,7)=2.629.575 — espaço PEQUENO para 10.000 jogos!
+    P(matemática de ≥1 duplicata): ~100.00%
+    → 🔴 ALTAMENTE PROVÁVEL ter duplicatas
+    → Verificar a seção 1 para contagem real de duplicatas
+
+  CUSTO × RETORNO:
+    Investimento: R$ 30.000,00
+    EV matemático: ~R$ 16.200,00  (casa retém ~46%)
+    Prejuízo esperado: ~R$ 13.800,00
+
+═════════════════════════════════════════════════════════════════
+  📋  SEÇÃO 12 — RESUMO COM MÁXIMA HONESTIDADE
+═════════════════════════════════════════════════════════════════
+
+  ┌──────────────────────────────────────────────────────────┐
+  │                    LADO TÉCNICO                          │
+  ├──────────────────────────────────────────────────────────┤
+  │ Bugs totais:    ZERO                                      │
+  │ Duplicatas:     ZERO                                      │
+  │ Nºs ausentes:  NENHUM — 31/31 cobertos                    │
+  │ Anomalias >2.5σ:1 número(s) ⚠️                            │
+  │ Soma média:     112.4 vs ideal 112 (dev 0.4)              │
+  │ Par/Ímpar:      48.9% / 51.1% (esp 48.4%/51.6%)           │
+  │ Coef.variação:  1.907% — BOM                              │
+  │ Seq 3+ consec:  15.57% vs 19.16% puro aleat.              │
+  │ Mês da Sorte:   ⚠️ NÃO ANALISÁVEL — ausente no arquivo    │
+  │ Risco dup (mat):~100.0% prob matemática de duplicatas     │
+  └──────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────┐
+  │                    LADO DAS APOSTAS                      │
+  ├──────────────────────────────────────────────────────────┤
+  │ Espaço numérico: C(31,7)=2.629.575 combinações          │
+  │ Espaço c/ mês:   31.554.900 combinações                     │
+  │ 10.000 jogos:    0.3803% do espaço numérico                │
+  │ Prob 7 acertos:  0.000038% por jogo                        │
+  │ Custo:           R$ 30.000,00                              │
+  │ EV:              NEGATIVO — ~R$ 13.800 de prejuízo         │
+  │ Mês auditável:   NÃO — não registrado no arquivo           │
+  │ Prediz sorteio:  NÃO. MATEMATICAMENTE IMPOSSÍVEL.          │
+  └──────────────────────────────────────────────────────────┘
+═════════════════════════════════════════════════════════════════

@@ -1,0 +1,332 @@
+
+═════════════════════════════════════════════════════════════════
+  ⚽  RELATÓRIO EXTREMAMENTE HONESTO — TIMEMANIA 10.000 JOGOS
+  🗓️  Gerado: 16/06/2026 às 16:23
+  ⚠️  ANÁLISE SEM FILTROS — DADOS PUROS
+═════════════════════════════════════════════════════════════════
+
+─────────────────────────────────────────────────────────────────
+  📋  SEÇÃO 0 — ESTRUTURA DO ARQUIVO E REGRAS DO JOGO
+─────────────────────────────────────────────────────────────────
+
+  COMO A TIMEMANIA FUNCIONA (verdade completa):
+    Jogador escolhe: 10 números de 1-80
+                   + 1 "Time do Coração" de 80 times disponíveis
+    Sorteio:         7 números de 1-80
+                   + 1 time sorteado
+    Preço:           R$ 3,00 por jogo
+
+  O QUE O ARQUIVO CONTÉM:
+    10 números/jogo: 10000 jogos (100.00%)
+
+  ⚠️  AUSENTE NO ARQUIVO: "Time do Coração"
+    O arquivo registra apenas os 10 números numéricos.
+    O time não está salvo no TXT — não é possível analisar.
+    Impacto na probabilidade: fator ×80 no denominador.
+    (cada combinação numérica ainda compete com 1/80 de prob do time)
+
+  C(80,10) = 1.646.492.110.120 combinações numéricas possíveis
+  C(80,7)  = 3.176.716.400 sorteios numéricos possíveis
+  10.000 apostas = 0.000001% do espaço numérico
+  Custo total:    R$ 30.000,00
+
+─────────────────────────────────────────────────────────────────
+  🔍  SEÇÃO 1 — INTEGRIDADE
+─────────────────────────────────────────────────────────────────
+  ✅  Tamanho incorreto (≠10)       : NENHUM
+  ✅  Duplicata interna             : NENHUM
+  ✅  Fora do range (1-80)          : NENHUM
+  ✅  Não ordenados                 : NENHUM
+  ✅  Jogos idênticos entre si      : NENHUM
+
+  🏆  SISTEMA ÍNTEGRO — ZERO BUGS
+
+─────────────────────────────────────────────────────────────────
+  🚫  SEÇÃO 2 — NÚMEROS QUE NUNCA APARECERAM
+─────────────────────────────────────────────────────────────────
+
+  ✅  Todos os 80 números (1-80) aparecem pelo menos 1 vez.
+  P(número específico nunca aparecer): 0.00000000% (praticamente 0)
+
+─────────────────────────────────────────────────────────────────
+  📈  SEÇÃO 3 — FREQUÊNCIA DOS 80 NÚMEROS
+─────────────────────────────────────────────────────────────────
+
+  Freq esperada: ~1250x  (1.25% cada)
+  Desvio padrão: 28.3
+  Coef. variação: 2.264%
+  Interpretação: ✅ BOM (<3%)
+
+  ⚠️  ANOMALIAS (>2.5σ): 1 números:
+    Nº  2: 1161x  [-89 = -3.14σ]
+
+  🔥  TOP 10 MAIS FREQUENTES:
+     1. Nº 17:  1311x (1.3110%)  [+61 / 2.16σ]
+     2. Nº 23:  1311x (1.3110%)  [+61 / 2.16σ]
+     3. Nº 65:  1308x (1.3080%)  [+58 / 2.05σ]
+     4. Nº 72:  1306x (1.3060%)  [+56 / 1.98σ]
+     5. Nº 44:  1305x (1.3050%)  [+55 / 1.94σ]
+     6. Nº 48:  1300x (1.3000%)  [+50 / 1.77σ]
+     7. Nº 52:  1300x (1.3000%)  [+50 / 1.77σ]
+     8. Nº 29:  1297x (1.2970%)  [+47 / 1.66σ]
+     9. Nº 39:  1296x (1.2960%)  [+46 / 1.63σ]
+    10. Nº 34:  1293x (1.2930%)  [+43 / 1.52σ]
+
+  🧊  TOP 10 MENOS FREQUENTES:
+     1. Nº  2:  1161x (1.1610%)  [-89 / -3.14σ]
+     2. Nº 68:  1210x (1.2100%)  [-40 / -1.41σ]
+     3. Nº  6:  1212x (1.2120%)  [-38 / -1.34σ]
+     4. Nº  3:  1212x (1.2120%)  [-38 / -1.34σ]
+     5. Nº 66:  1215x (1.2150%)  [-35 / -1.24σ]
+     6. Nº 77:  1217x (1.2170%)  [-33 / -1.17σ]
+     7. Nº 67:  1217x (1.2170%)  [-33 / -1.17σ]
+     8. Nº 80:  1218x (1.2180%)  [-32 / -1.13σ]
+     9. Nº 28:  1218x (1.2180%)  [-32 / -1.13σ]
+    10. Nº 33:  1225x (1.2250%)  [-25 / -0.88σ]
+
+  📊  TODOS OS 80 NÚMEROS:
+    Nº  1:  1234x  [-16]
+    Nº  2:  1161x  [-89] ⚠️ 3.1σ
+    Nº  3:  1212x  [-38]
+    Nº  4:  1227x  [-23]
+    Nº  5:  1233x  [-17]
+    Nº  6:  1212x  [-38]
+    Nº  7:  1291x  [+41]
+    Nº  8:  1257x  [+7]
+    Nº  9:  1229x  [-21]
+    Nº 10:  1272x  [+22]
+    Nº 11:  1245x  [-5]
+    Nº 12:  1259x  [+9]
+    Nº 13:  1231x  [-19]
+    Nº 14:  1230x  [-20]
+    Nº 15:  1225x  [-25]
+    Nº 16:  1264x  [+14]
+    Nº 17:  1311x  [+61]
+    Nº 18:  1241x  [-9]
+    Nº 19:  1248x  [-2]
+    Nº 20:  1258x  [+8]
+    Nº 21:  1274x  [+24]
+    Nº 22:  1267x  [+17]
+    Nº 23:  1311x  [+61]
+    Nº 24:  1231x  [-19]
+    Nº 25:  1245x  [-5]
+    Nº 26:  1243x  [-7]
+    Nº 27:  1263x  [+13]
+    Nº 28:  1218x  [-32]
+    Nº 29:  1297x  [+47]
+    Nº 30:  1243x  [-7]
+    Nº 31:  1246x  [-4]
+    Nº 32:  1240x  [-10]
+    Nº 33:  1225x  [-25]
+    Nº 34:  1293x  [+43]
+    Nº 35:  1241x  [-9]
+    Nº 36:  1258x  [+8]
+    Nº 37:  1245x  [-5]
+    Nº 38:  1287x  [+37]
+    Nº 39:  1296x  [+46]
+    Nº 40:  1233x  [-17]
+    Nº 41:  1227x  [-23]
+    Nº 42:  1260x  [+10]
+    Nº 43:  1260x  [+10]
+    Nº 44:  1305x  [+55]
+    Nº 45:  1250x  [+0]
+    Nº 46:  1270x  [+20]
+    Nº 47:  1226x  [-24]
+    Nº 48:  1300x  [+50]
+    Nº 49:  1247x  [-3]
+    Nº 50:  1291x  [+41]
+    Nº 51:  1269x  [+19]
+    Nº 52:  1300x  [+50]
+    Nº 53:  1241x  [-9]
+    Nº 54:  1239x  [-11]
+    Nº 55:  1253x  [+3]
+    Nº 56:  1231x  [-19]
+    Nº 57:  1262x  [+12]
+    Nº 58:  1227x  [-23]
+    Nº 59:  1226x  [-24]
+    Nº 60:  1254x  [+4]
+    Nº 61:  1243x  [-7]
+    Nº 62:  1268x  [+18]
+    Nº 63:  1237x  [-13]
+    Nº 64:  1230x  [-20]
+    Nº 65:  1308x  [+58]
+    Nº 66:  1215x  [-35]
+    Nº 67:  1217x  [-33]
+    Nº 68:  1210x  [-40]
+    Nº 69:  1227x  [-23]
+    Nº 70:  1241x  [-9]
+    Nº 71:  1229x  [-21]
+    Nº 72:  1306x  [+56]
+    Nº 73:  1266x  [+16]
+    Nº 74:  1241x  [-9]
+    Nº 75:  1265x  [+15]
+    Nº 76:  1234x  [-16]
+    Nº 77:  1217x  [-33]
+    Nº 78:  1245x  [-5]
+    Nº 79:  1249x  [-1]
+    Nº 80:  1218x  [-32]
+
+─────────────────────────────────────────────────────────────────
+  ∑   SEÇÃO 4 — SOMA DOS JOGOS
+─────────────────────────────────────────────────────────────────
+
+  Soma média real:      405.1
+  Soma média aleatório: 405.1
+  Soma ideal teórica:   405.0  (10 × 40.5)
+  Desvio:               0.1 (0.03%)
+  Soma mínima:          320
+  Soma máxima:          490
+
+  DISTRIBUIÇÃO DE SOMAS:
+    320-359:  1812  ████████████████████████████████████
+    360-399:  2763  ███████████████████████████████████████████████████████
+    400-439:  2893  ██████████████████████████████████████████████████████████
+    440-479:  2122  ██████████████████████████████████████████
+    480-519:   410  ████████
+
+─────────────────────────────────────────────────────────────────
+  🔢  SEÇÃO 5 — PAR/ÍMPAR
+─────────────────────────────────────────────────────────────────
+
+  Pares:   49.979 (49.98%)
+  Ímpares: 50.021 (50.02%)
+  Esperado: 50% / 50%
+  Desvio: 0.021%  ✅ Normal
+
+─────────────────────────────────────────────────────────────────
+  🗂️   SEÇÃO 6 — DISTRIBUIÇÃO POR DEZENA (8 faixas de 10)
+─────────────────────────────────────────────────────────────────
+
+  Esperado: 12.5% por dezena (10 de 80)
+
+  01-10:  12328 (12.33%) [-0.17%]  ████████████
+  11-20:  12512 (12.51%) [+0.01%]  █████████████
+  21-30:  12592 (12.59%) [+0.09%]  █████████████
+  31-40:  12564 (12.56%) [+0.06%]  █████████████
+  41-50:  12636 (12.64%) [+0.14%]  █████████████
+  51-60:  12502 (12.50%) [+0.00%]  █████████████
+  61-70:  12396 (12.40%) [-0.10%]  ████████████
+  71-80:  12470 (12.47%) [-0.03%]  ████████████
+
+─────────────────────────────────────────────────────────────────
+  🗺️   SEÇÃO 7 — DISTRIBUIÇÃO POR ZONA (baixa/média/alta)
+─────────────────────────────────────────────────────────────────
+
+  Zona 01-27 (baixa,  27 nums): 33.674 (33.67%)  [esperado 33.75%]
+  Zona 28-54 (média,  27 nums): 34.007 (34.01%)  [esperado 33.75%]
+  Zona 55-80 (alta,   26 nums): 32.319  (32.32%)  [esperado 32.5%]
+
+─────────────────────────────────────────────────────────────────
+  🔗  SEÇÃO 8 — SEQUÊNCIAS CONSECUTIVAS
+─────────────────────────────────────────────────────────────────
+
+  GERADOR:
+    Com 2+ consecutivos: 7016 (70.16%)
+    Com 3+ consecutivos: 880 (8.80%)
+
+  BENCHMARK aleatório puro (200.000 sim.):
+    Com 2+ consecutivos: 72.05%
+    Com 3+ consecutivos: 10.12%
+
+  Diferenças:
+    2+: 1.89%  ✅ Normal
+    3+: 1.32%  ✅ Normal
+
+─────────────────────────────────────────────────────────────────
+  📐  SEÇÃO 9 — GAPS ENTRE NÚMEROS
+─────────────────────────────────────────────────────────────────
+
+  Gap médio real:       7.49
+  Gap médio aleatório:  ~7.36  ((80+1)/(10+1))
+  Diferença:            0.12  ✅ Normal
+
+  Gap=1 (consecutivos): 10778x (11.98%)
+  Esperado aleatório:   ~13.58%
+  Diferença: 1.60%  ✅ Normal
+
+═════════════════════════════════════════════════════════════════
+  ⚽  SEÇÃO 10 — TIME DO CORAÇÃO (ANÁLISE CRÍTICA)
+═════════════════════════════════════════════════════════════════
+
+  ⚠️  O "TIME DO CORAÇÃO" NÃO ESTÁ NO ARQUIVO ANALISADO.
+
+  O que isso significa:
+  ━━━━━━━━━━━━━━━━━━━━
+  1. IMPACTO NA PROBABILIDADE:
+     Cada jogo tem um time associado. A probabilidade de ganhar
+     o prêmio principal (7 acertos + time) inclui o fator 1/80.
+     Sem saber qual time foi escolhido, não é possível verificar
+     se o sistema distribui os times uniformemente.
+
+  2. RISCO DE CONCENTRAÇÃO:
+     Se o sistema escolhe sempre o mesmo time para todos os jogos,
+     e aquele time não for sorteado, NENHUM jogo ganha o prêmio
+     bônus do time — independente dos acertos numéricos.
+
+  3. O QUE VERIFICAR NO SISTEMA:
+     - O sistema distribui os 80 times uniformemente?
+     - Ou concentra em 1-2 times "populares"?
+     - Se concentra: você perde a diversificação do time.
+
+  4. PROBABILIDADE COM/SEM ACERTO DO TIME:
+     Com time correto:    P(7 nums) × (1/80)
+     Sem time correto:    P(7 nums) × (79/80) — prêmio menor
+
+═════════════════════════════════════════════════════════════════
+  💣  SEÇÃO 11 — PROBABILIDADES REAIS DA TIMEMANIA
+═════════════════════════════════════════════════════════════════
+
+  BASE: C(80,10)=1.646.492.110.120 apostas | C(80,7)=3.176.716.400 sorteios
+
+  PROBABILIDADE POR JOGO (sem contar time):
+    7 acertos: 0.0000038%  (1 em 26.472.637)
+    6 acertos: 0.0004627%  (1 em 216.103)
+    5 acertos: 0.0191575%  (1 em 5.220)
+    4 acertos: 0.3618642%  (1 em 276)
+    3 acertos: 3.4635575%  (1 em 29)
+
+  COM FATOR DO TIME (×1/80 para prêmio do time):
+    7 acertos + time correto: 0.000000047%  (1 em 2.117.810.933)
+    6 acertos + time correto: 0.000005784%  (1 em 17.288.253)
+
+  COM 10.000 JOGOS (R$ 30.000,00):
+    P(≥1 jogo com 7 acertos numéricos): 0.0378%
+    P(≥1 jogo com 6 acertos numéricos): 4.5220%
+    P(≥1 jogo com 5 acertos numéricos): 85.2796%
+    P(≥1 jogo com 4 acertos numéricos): 100.0000%
+    P(≥1 jogo com 3 acertos numéricos): 100.0000%
+
+  CUSTO × RETORNO:
+    Investimento:   R$ 30.000,00
+    Retorno esperado: ~R$ 16.200,00 (casa retém ~46%)
+    Prejuízo esperado: ~R$ 13.800,00
+
+═════════════════════════════════════════════════════════════════
+  📋  SEÇÃO 12 — RESUMO COM MÁXIMA HONESTIDADE
+═════════════════════════════════════════════════════════════════
+
+  ┌──────────────────────────────────────────────────────────┐
+  │                    LADO TÉCNICO                          │
+  ├──────────────────────────────────────────────────────────┤
+  │ Bugs totais:    ZERO                                      │
+  │ Duplicatas:     ZERO                                      │
+  │ Nºs ausentes:  NENHUM — 80/80 cobertos                    │
+  │ Anomalias >2.5σ:1 números ⚠️                              │
+  │ Soma média:     405.1 vs ideal 405 (dev 0.1)              │
+  │ Par/Ímpar:      50.0% / 50.0%  (esp 50%/50%)              │
+  │ Coef.variação:  2.264% — BOM                              │
+  │ Seq 3+ consec:  8.80% vs 10.12% puro aleatório            │
+  │ Time do coração:⚠️ NÃO ANALISÁVEL — ausente no arquivo    │
+  └──────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────┐
+  │                    LADO DAS APOSTAS                      │
+  ├──────────────────────────────────────────────────────────┤
+  │ Espaço numérico: C(80,10)=1.646.492.110.120 comb.     │
+  │ 10.000 jogos:   0.000001% do espaço coberto               │
+  │ Prob 7 acertos: 0.0000038% por jogo                       │
+  │ Custo:          R$ 30.000,00                              │
+  │ EV:             NEGATIVO — ~R$ 13.800 de prejuízo esperado│
+  │ Prediz sorteio: NÃO. MATEMATICAMENTE IMPOSSÍVEL.          │
+  └──────────────────────────────────────────────────────────┘
+═════════════════════════════════════════════════════════════════

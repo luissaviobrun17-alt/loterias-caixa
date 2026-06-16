@@ -1,0 +1,219 @@
+{
+  "timestamp": "2026-06-16T19:56:09.880Z",
+  "totalJogos": 10000,
+  "espacoAmostral": 3268760,
+  "coberturaPct": 0.3059,
+  "bugs": {
+    "total": 0,
+    "detalhes": {
+      "tamanhoErrado": [],
+      "duplicataInterna": [],
+      "foraDoRange": [],
+      "naoOrdenado": [],
+      "duplicatasEntreSi": []
+    }
+  },
+  "estatisticas": {
+    "somaMedia": 194.8,
+    "somaIdeal": 195,
+    "somaMin": 165,
+    "somaMax": 225,
+    "parImpar": {
+      "par": 71389,
+      "impar": 78611
+    },
+    "dezenas": {
+      "01-10": 60109,
+      "11-20": 59896,
+      "21-25": 29995
+    },
+    "seqLongas": 5262,
+    "coefVariacaoFreq": 1.004,
+    "topFrequentes": [
+      {
+        "num": 1,
+        "count": 6083,
+        "pct": "4.055"
+      },
+      {
+        "num": 3,
+        "count": 6072,
+        "pct": "4.048"
+      },
+      {
+        "num": 5,
+        "count": 6072,
+        "pct": "4.048"
+      },
+      {
+        "num": 21,
+        "count": 6066,
+        "pct": "4.044"
+      },
+      {
+        "num": 17,
+        "count": 6059,
+        "pct": "4.039"
+      },
+      {
+        "num": 23,
+        "count": 6056,
+        "pct": "4.037"
+      },
+      {
+        "num": 25,
+        "count": 6054,
+        "pct": "4.036"
+      },
+      {
+        "num": 15,
+        "count": 6047,
+        "pct": "4.031"
+      },
+      {
+        "num": 7,
+        "count": 6031,
+        "pct": "4.021"
+      },
+      {
+        "num": 2,
+        "count": 6027,
+        "pct": "4.018"
+      }
+    ],
+    "topRaros": [
+      {
+        "num": 22,
+        "count": 5867,
+        "pct": "3.911"
+      },
+      {
+        "num": 14,
+        "count": 5890,
+        "pct": "3.927"
+      },
+      {
+        "num": 8,
+        "count": 5906,
+        "pct": "3.937"
+      },
+      {
+        "num": 4,
+        "count": 5930,
+        "pct": "3.953"
+      },
+      {
+        "num": 10,
+        "count": 5948,
+        "pct": "3.965"
+      },
+      {
+        "num": 24,
+        "count": 5952,
+        "pct": "3.968"
+      },
+      {
+        "num": 20,
+        "count": 5955,
+        "pct": "3.970"
+      },
+      {
+        "num": 16,
+        "count": 5957,
+        "pct": "3.971"
+      },
+      {
+        "num": 12,
+        "count": 5967,
+        "pct": "3.978"
+      },
+      {
+        "num": 18,
+        "count": 5975,
+        "pct": "3.983"
+      }
+    ],
+    "topPares": [
+      {
+        "par": "6-25",
+        "count": 3663
+      },
+      {
+        "par": "2-23",
+        "count": 3654
+      },
+      {
+        "par": "2-19",
+        "count": 3646
+      },
+      {
+        "par": "3-21",
+        "count": 3643
+      },
+      {
+        "par": "1-23",
+        "count": 3637
+      },
+      {
+        "par": "2-25",
+        "count": 3635
+      },
+      {
+        "par": "2-21",
+        "count": 3630
+      },
+      {
+        "par": "5-17",
+        "count": 3628
+      },
+      {
+        "par": "1-20",
+        "count": 3626
+      },
+      {
+        "par": "6-15",
+        "count": 3625
+      },
+      {
+        "par": "5-23",
+        "count": 3625
+      },
+      {
+        "par": "5-24",
+        "count": 3624
+      },
+      {
+        "par": "7-25",
+        "count": 3624
+      },
+      {
+        "par": "6-21",
+        "count": 3622
+      },
+      {
+        "par": "1-17",
+        "count": 3622
+      },
+      {
+        "par": "1-18",
+        "count": 3620
+      },
+      {
+        "par": "2-17",
+        "count": 3620
+      },
+      {
+        "par": "5-25",
+        "count": 3616
+      },
+      {
+        "par": "3-23",
+        "count": 3611
+      },
+      {
+        "par": "3-25",
+        "count": 3610
+      }
+    ]
+  }
+}
