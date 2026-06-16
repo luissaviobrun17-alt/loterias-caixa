@@ -66,27 +66,6 @@
 </head>
 
 <body>
-    <!-- Banner: aviso quando aberto sem servidor (file://) -->
-    <div id="server-offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#7C2D12,#B45309);color:#fff;padding:10px 20px;font-family:'Outfit','Inter',sans-serif;font-size:0.82rem;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
-        <span style="font-size:1.3rem;">⚠️</span>
-        <div style="flex:1;">
-            <strong>Servidor local não detectado.</strong>
-            Alguns recursos (Salvar Jogos, Carregar, Backup) precisam do servidor.
-            <span style="color:#FDE68A;">Execute o <strong>INICIAR_B2B.bat</strong> ou <strong>node server.js</strong> e acesse <a href="http://localhost:8777" style="color:#FDE68A;font-weight:700;">http://localhost:8777</a></span>
-        </div>
-        <button onclick="document.getElementById('server-offline-banner').style.display='none'" style="background:rgba(255,255,255,0.2);border:none;color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.8rem;">✕ Fechar</button>
-    </div>
-    <script>
-    // Detectar modo file:// (sem servidor) e exibir banner
-    (function(){
-        if(window.location.protocol === 'file:'){
-            var b = document.getElementById('server-offline-banner');
-            if(b) b.style.display = 'flex';
-            // Ajustar padding-top do app
-            document.body.style.paddingTop = '52px';
-        }
-    })();
-    </script>
     <div class="app-container">
 
         <header>
