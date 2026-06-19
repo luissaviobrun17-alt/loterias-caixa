@@ -327,7 +327,39 @@ class UI {
                 document.body.setAttribute('data-l99-mode', this._lastGenerationMode);
 
                 const modeLabel = sniperMode ? '🎯 SNIPER + Cobertura' : '📐 Cobertura Estatística';
-                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">' + modeLabel + '...</div></div>';
+
+                // === FEEDBACK VISUAL: desabilita botão e mostra progresso ===
+                const _btn = this.generateCoverageBtn;
+                const _btnOriginalHTML = _btn ? _btn.innerHTML : '';
+                const _btnOriginalDisabled = _btn ? _btn.disabled : false;
+                if (_btn) {
+                    _btn.disabled = true;
+                    _btn.innerHTML = '<span style="display:inline-block;animation:spin 0.8s linear infinite;margin-right:6px;">⚙️</span>' + (sniperMode ? 'Analisando...' : 'Gerando...');
+                    _btn.style.opacity = '0.7';
+                    _btn.style.cursor = 'not-allowed';
+                }
+                const _restoreBtn = () => {
+                    if (_btn) {
+                        _btn.disabled = _btnOriginalDisabled;
+                        _btn.innerHTML = _btnOriginalHTML;
+                        _btn.style.opacity = '';
+                        _btn.style.cursor = '';
+                    }
+                };
+
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;">'
+                    + '<div style="font-size:2rem;margin-bottom:12px;animation:spin 1s linear infinite;display:inline-block;">⚙️</div>'
+                    + '<div class="sync-loader" style="font-size:1.2em;margin-top:8px;">' + modeLabel + '...</div>'
+                    + '<div style="color:#94A3B8;font-size:0.8rem;margin-top:8px;">Calculando ' + qty + ' jogos com análise estatística profunda</div>'
+                    + '</div>';
+
+                // Garantir que a animação de spin exista no CSS
+                if (!document.getElementById('_sniper_spin_style')) {
+                    const st = document.createElement('style');
+                    st.id = '_sniper_spin_style';
+                    st.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+                    document.head.appendChild(st);
+                }
 
                 // ═══ v15.0: GERAÇÃO ASSÍNCRONA — sempre para Cobertura (motor pesado) ═══
                 if (typeof AsyncGenerator !== 'undefined') {
@@ -339,6 +371,7 @@ class UI {
                     AsyncGenerator.generateCoverageAsync(
                         this.currentGameKey, qty, this.getSelectedNumbers(), this.fixedNumbers, drawSize, coverageOpts,
                         (result, cancelled, error) => {
+                            _restoreBtn(); // sempre restaurar botão
                             if (cancelled) {
                                 this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#F59E0B;">⚠️ Geração cancelada pelo usuário.</div>';
                                 return;

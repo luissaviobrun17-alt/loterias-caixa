@@ -982,11 +982,19 @@ class PrecisionEngine {
 
             while (game.length < drawSize) {
                 const remaining  = drawSize - game.length;
-                const sumSoFar   = game.reduce((a,b) => a+b, 0);
-                const evenSoFar  = game.filter(n => n%2===0).length;
+                // FIX PERF: calcular sumSoFar/evenSoFar/hCnt/cCnt incrementalmente (eram recalculados com reduce/filter a cada candidato)
+                let sumSoFar = 0, evenSoFar = 0, hCnt = 0, cCnt = 0;
+                for (const c of game) {
+                    sumSoFar += c;
+                    if (c % 2 === 0) evenSoFar++;
+                    if (hotSet.has(c)) hCnt++;
+                    if (coldSet.has(c)) cCnt++;
+                }
                 const targetEven = Math.round(drawSize / 2);
                 const maxPerZone = Math.ceil(drawSize / cfg.zones);
-                const gameSet2   = gameSet; // alias
+                // FIX PERF: zonesWithRoom calculado uma vez (era filter() por candidato)
+                let zonesWithRoom = 0;
+                for (let z = 0; z < cfg.zones; z++) if (zoneCounts[z] < maxPerZone) zonesWithRoom++;
 
                 let bestScore = -Infinity;
                 let bestN     = null;
@@ -998,21 +1006,19 @@ class PrecisionEngine {
                     if (gameSet.has(n)) continue;
 
                     // FILTRO HARD 1: sequência consecutiva
-                    const testSorted = [...game, n].sort((a,b) => a-b);
-                    let maxRun = 1, curRun = 1;
-                    for (let i = 1; i < testSorted.length; i++) {
-                        if (testSorted[i] === testSorted[i-1]+1) { curRun++; maxRun = Math.max(maxRun, curRun); }
-                        else curRun = 1;
-                    }
-                    if (maxRun > cfg.maxConsec) continue;
+                    // FIX PERF: verificação O(1) com gameSet em vez de [...game,n].sort()
+                    let runLen = 1, lo = n - 1;
+                    while (gameSet.has(lo)) { runLen++; lo--; }
+                    let hi = n + 1;
+                    while (gameSet.has(hi)) { runLen++; hi++; }
+                    if (runLen > cfg.maxConsec) continue;
 
                     // FILTRO HARD 2: vizinho dos 2 lados = descartado
-                    const adjCount = [n-1, n+1].filter(adj => gameSet.has(adj)).length;
+                    const adjCount = (gameSet.has(n-1) ? 1 : 0) + (gameSet.has(n+1) ? 1 : 0);
                     if (adjCount >= 2) continue;
 
                     // FILTRO HARD 3: zona já lotada (quando ainda há zonas livres)
                     const zone = Math.min(cfg.zones-1, Math.floor((n-startNum)/zoneSize));
-                    const zonesWithRoom = zoneCounts.filter(v => v < maxPerZone).length;
                     if (zoneCounts[zone] >= maxPerZone && remaining > zonesWithRoom) continue;
 
                     // G1 — Borda Count consensus
@@ -1051,9 +1057,7 @@ class PrecisionEngine {
                     const sErr  = Math.abs(sumSoFar + n - tPart) / Math.max(1, histAvgSum * 0.3);
                     const g6    = 1.0 / (1.0 + sErr * sErr);
 
-                    // G7 — Hot/Cold
-                    const hCnt = game.filter(c => hotSet.has(c)).length;
-                    const cCnt = game.filter(c => coldSet.has(c)).length;
+                    // G7 — Hot/Cold (usa hCnt/cCnt pré-calculados)
                     const g7 = (hotSet.has(n)  && hCnt < Math.ceil(drawSize*0.4)) ? 1.15
                              : (coldSet.has(n) && cCnt < Math.ceil(drawSize*0.3)) ? 1.10 : 0.90;
 
@@ -1071,10 +1075,12 @@ class PrecisionEngine {
                 if (bestN === null) {
                     for (const r of ranked) {
                         if (!gameSet.has(r.n)) {
-                            const ts = [...game, r.n].sort((a,b) => a-b);
-                            let mr = 1, cr = 1;
-                            for (let i = 1; i < ts.length; i++) { if (ts[i]===ts[i-1]+1){cr++;mr=Math.max(mr,cr);}else cr=1; }
-                            if (mr <= cfg.maxConsec + 1) { bestN = r.n; break; }
+                            // FIX PERF: mesma verificação O(1)
+                            let rl = 1, l = r.n - 1;
+                            while (gameSet.has(l)) { rl++; l--; }
+                            let h = r.n + 1;
+                            while (gameSet.has(h)) { rl++; h++; }
+                            if (rl <= cfg.maxConsec + 1) { bestN = r.n; break; }
                         }
                     }
                     if (!bestN) break;
