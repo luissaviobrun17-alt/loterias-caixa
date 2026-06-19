@@ -524,92 +524,18 @@ class PrecisionEngine {
             failStreak = 0;
         }
 
-        // === MODO BULK: geração rápida para volumes grandes ===
-        // Para numGames > 50: usa amostragem xorshift128+ com apenas filtros essenciais.
-        // Os primeiros 50 jogos já garantem a qualidade analítica (assertividade).
-        // O restante foca em diversidade e cobertura — sem scoring pesado por candidato.
+        // === MODO BULK ASYNC — numGames > 50 ===
+        // Exporta contexto. AsyncGenerator chama generateBulkAsync() em chunks não-bloqueantes.
+        // O generate() retorna os 50 jogos de precisão imediatamente sem travar o browser.
         if (numGames > games.length) {
-            const bulkDeadline = Date.now() + Math.min(25000, numGames * 2); // 2ms por jogo, máx 25s
-            let bulkSeed = 0x9e3779b9 ^ (gIdx * 0x6c62272e);
-            const bulkRng = () => {
-                bulkSeed ^= bulkSeed << 13;
-                bulkSeed ^= bulkSeed >>> 17;
-                bulkSeed ^= bulkSeed << 5;
-                return (bulkSeed >>> 0) / 4294967296;
+            PrecisionEngine._lastBulkParams = {
+                games, usedKeys, allNums, consensusScores, vacuumScore,
+                fixed, drawSize, cfg, startNum, endNum, numGames, startTime: t0
             };
-
-            // Pré-computar números válidos e pesos simplificados (consenso + vácuo)
-            const bulkPool = allNums.slice(); // cópia para shuffle
-            const bulkWeights = allNums.map(n => Math.max(0.01, (consensusScores[n] || 0.5) * (0.8 + vacuumScore[n] * 0.2)));
-            const bulkTotalW = bulkWeights.reduce((a, b) => a + b, 0);
-
-            let bulkFail = 0;
-            const MAX_BULK_FAIL = Math.min(numGames * 5, 200000);
-
-            while (games.length < numGames && bulkFail < MAX_BULK_FAIL && Date.now() < bulkDeadline) {
-                // Gerar jogo por amostragem ponderada sem reposição (Fisher-Yates parcial)
-                const game = [];
-                const inBulk = new Set();
-
-                // Fixos primeiro
-                for (const f of fixed) {
-                    if (game.length < drawSize && !inBulk.has(f) && f >= startNum && f <= endNum) {
-                        game.push(f); inBulk.add(f);
-                    }
-                }
-
-                // Preencher com amostragem ponderada
-                let attempts = 0;
-                while (game.length < drawSize && attempts < drawSize * 20) {
-                    attempts++;
-                    // Selecionar número aleatório ponderado
-                    let r = bulkRng() * bulkTotalW;
-                    let sel = allNums[allNums.length - 1];
-                    for (let i = 0; i < allNums.length; i++) {
-                        r -= bulkWeights[i];
-                        if (r <= 0) { sel = allNums[i]; break; }
-                    }
-                    if (inBulk.has(sel)) continue;
-
-                    // Filtro essencial: sem sequências proibidas
-                    let runLen = 1, lo = sel - 1;
-                    while (inBulk.has(lo)) { runLen++; lo--; }
-                    let hi2 = sel + 1;
-                    while (inBulk.has(hi2)) { runLen++; hi2++; }
-                    if (runLen > cfg.maxConsec) continue;
-
-                    game.push(sel); inBulk.add(sel);
-                }
-
-                if (game.length < drawSize) { bulkFail++; continue; }
-                game.sort((a, b) => a - b);
-
-                // Validação de soma (filtro relaxado: aceita ±30% da faixa)
-                const gameSum = game.reduce((a, b) => a + b, 0);
-                const sumLo = cfg.sumMin * 0.85;
-                const sumHi = cfg.sumMax * 1.15;
-                if (gameSum < sumLo || gameSum > sumHi) { bulkFail++; continue; }
-
-                const key = game.join(',');
-                if (usedKeys.has(key)) { bulkFail++; continue; }
-                games.push(game);
-                usedKeys.add(key);
-                bulkFail = 0;
-            }
-            if (games.length < numGames) {
-                console.warn('[PRECISION-L99] ⚠️ Bulk: gerou ' + games.length + '/' + numGames
-                    + ' jogos em ' + (Date.now() - t0) + 'ms. bulkFail=' + bulkFail);
-            }
+        } else {
+            PrecisionEngine._lastBulkParams = null;
         }
 
-        if (games.length < numGames && games.length < PRECISION_GAMES) {
-            console.warn('[PRECISION-L99] ⚠️ Precisão: gerou ' + games.length + '/' + PRECISION_GAMES
-                + ' jogos. failStreak=' + failStreak + '/' + MAX_FAIL_STREAK);
-        }
-
-
-
-        console.log('[PRECISION-L99] ✅ ' + games.length + '/' + numGames + ' jogos em ' + (Date.now()-t0) + 'ms');
         return this._buildResult(games, gameKey, history, totalRange, drawSize, t0);
     }
 
@@ -1286,6 +1212,60 @@ class PrecisionEngine {
             catch(e) { console.error('[PRECISION-L99] NovaEra também falhou:', e.message); }
         }
         return { games: [], analysis: { confidence: 30, engine: 'Fallback', mode: 'Emergência' } };
+    }
+
+    // ═══ ALIAS METHOD (Vose's Algorithm) — O(1) weighted sampling ═══════════
+    static _buildAlias(weights) {
+        const n = weights.length, total = weights.reduce((a, b) => a + b, 0);
+        const prob = new Float64Array(n), alias = new Int32Array(n);
+        const small = [], large = [];
+        for (let i = 0; i < n; i++) { prob[i] = weights[i] * n / total; (prob[i] < 1 ? small : large).push(i); }
+        while (small.length && large.length) { const s = small.pop(), l = large.pop(); alias[s] = l; prob[l] -= (1 - prob[s]); (prob[l] < 1 ? small : large).push(l); }
+        while (large.length) prob[large.pop()] = 1;
+        while (small.length) prob[small.pop()] = 1;
+        return { prob, alias, n };
+    }
+    static _sampleAlias(t, rng) { const i = Math.floor(rng() * t.n); return rng() < t.prob[i] ? i : t.alias[i]; }
+
+    // ═══ BULK ASYNC — chunks não-bloqueantes, barra de progresso ao vivo ════
+    static generateBulkAsync(params, onProgress, onDone) {
+        const { games, usedKeys, allNums, consensusScores, vacuumScore,
+                fixed, drawSize, cfg, startNum, endNum, numGames, startTime } = params;
+        const weights = allNums.map(n => Math.max(0.01, (consensusScores[n] || 0.5) * (0.8 + (vacuumScore[n] || 0) * 0.2)));
+        const tbl = PrecisionEngine._buildAlias(weights);
+        let seed = ((Date.now() ^ 0xdeadbeef) * 0x9e3779b9) >>> 0;
+        const rng = () => { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967296; };
+        const CHUNK = 300, MAX_FAIL = 200000, DL = (startTime || Date.now()) + 30000;
+        let fail = 0, cancelled = false;
+        const run = () => {
+            if (cancelled || games.length >= numGames || fail >= MAX_FAIL || Date.now() >= DL) { onDone(games, fail, cancelled); return; }
+            const target = Math.min(numGames, games.length + CHUNK);
+            while (games.length < target && fail < MAX_FAIL && Date.now() < DL) {
+                const g = [], inG = new Set();
+                for (const f of fixed) { if (g.length < drawSize && !inG.has(f) && f >= startNum && f <= endNum) { g.push(f); inG.add(f); } }
+                let att = 0;
+                while (g.length < drawSize && att++ < drawSize * 30) {
+                    const sel = allNums[PrecisionEngine._sampleAlias(tbl, rng)];
+                    if (inG.has(sel)) continue;
+                    let run = 1, lo = sel - 1; while (inG.has(lo)) { run++; lo--; }
+                    let hi = sel + 1; while (inG.has(hi)) { run++; hi++; }
+                    if (run > cfg.maxConsec) continue;
+                    g.push(sel); inG.add(sel);
+                }
+                if (g.length < drawSize) { fail++; continue; }
+                g.sort((a, b) => a - b);
+                const s = g.reduce((a, b) => a + b, 0);
+                if (s < cfg.sumMin * 0.82 || s > cfg.sumMax * 1.18) { fail++; continue; }
+                const key = g.join(',');
+                if (usedKeys.has(key)) { fail++; continue; }
+                games.push(g); usedKeys.add(key); fail = 0;
+            }
+            if (onProgress) onProgress(games.length, numGames);
+            if (games.length < numGames && fail < MAX_FAIL && Date.now() < DL) setTimeout(run, 0);
+            else onDone(games, fail, cancelled);
+        };
+        setTimeout(run, 0);
+        return () => { cancelled = true; };
     }
 
     // ─── Montar resultado final ───────────────────────────────────────────

@@ -295,6 +295,58 @@ class AsyncGenerator {
                     );
                 }
 
+                // === BULK ASYNC: se PrecisionEngine gerou só 50 jogos e tem mais para fazer ===
+                // Acontece quando numGames > 50 com Sniper ativo.
+                // generateBulkAsync gera em chunks de 300, cedendo ao browser entre cada lote.
+                var bulkParams = (typeof PrecisionEngine !== 'undefined') ? PrecisionEngine._lastBulkParams : null;
+                if (bulkParams && result && result.games && result.games.length < numGames) {
+                    // Integrar jogos de precisão ao result antes do bulk
+                    var precGames = result.games.slice();
+                    var seen2 = {};
+                    for (var pi = 0; pi < precGames.length; pi++) seen2[precGames[pi].join(',')] = true;
+
+                    PrecisionEngine.generateBulkAsync(
+                        bulkParams,
+                        function(cur, tot) {
+                            // Progresso ao vivo — atualiza barra a cada chunk
+                            self._updateBar(cur, tot);
+                        },
+                        function(allGames, failCount, wasCancelled) {
+                            self._isRunning = false;
+                            if (wasCancelled) {
+                                self._hideBar();
+                                callback(null, true);
+                                return;
+                            }
+                            // Deduplicar resultado final
+                            var finalGames = [];
+                            var seenFinal = {};
+                            for (var fi = 0; fi < allGames.length; fi++) {
+                                var fk = allGames[fi].join(',');
+                                if (!seenFinal[fk]) { seenFinal[fk] = true; finalGames.push(allGames[fi]); }
+                            }
+                            self._doneBar(finalGames.length);
+                            var elapsed2 = Date.now() - self._startTime;
+                            var fr2 = {
+                                games: finalGames,
+                                pool: result.pool || [],
+                                analysis: Object.assign({}, result.analysis || {}, {
+                                    engine: 'PrecisionEngine+BulkAsync',
+                                    totalGames: finalGames.length,
+                                    elapsed: elapsed2 + 'ms',
+                                    asyncMode: true,
+                                    chunksProcessed: Math.ceil(finalGames.length / 300)
+                                })
+                            };
+                            if (typeof SmartCoverageEngine !== 'undefined' && SmartCoverageEngine._calcAvgHamming) {
+                                fr2.analysis.avgHamming = SmartCoverageEngine._calcAvgHamming(finalGames, drawSize);
+                            }
+                            setTimeout(function() { callback(fr2, false); }, 300);
+                        }
+                    );
+                    return; // Sai — o callback do bulk cuidará do resultado
+                }
+
                 // Deduplicar
                 var seen = {};
                 var uniqueGames = [];
