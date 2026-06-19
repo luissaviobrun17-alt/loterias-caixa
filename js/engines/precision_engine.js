@@ -381,13 +381,19 @@ class PrecisionEngine {
                 if (!inGame.has(f) && chosen.length < drawSize) { chosen.push(f); inGame.add(f); }
             }
 
+            // FIX PERF: manter Set de disponíveis e atualizar incrementalmente (evitar filter a cada iteração)
+            const availSet = new Set(allNums);
+            for (const f of fixed) availSet.delete(f); // fixos já foram adicionados
+
             while (chosen.length < drawSize) {
-                const avail = allNums.filter(n => !inGame.has(n));
+                const avail = availSet.size > 0 ? [...availSet] : [];
                 if (!avail.length) break;
 
-                const sumSoFar   = chosen.reduce((a,b) => a+b, 0);
+                let sumSoFar = 0;
+                for (const c of chosen) sumSoFar += c;
                 const remaining  = drawSize - chosen.length;
-                const evenSoFar  = chosen.filter(n => n%2===0).length;
+                let evenSoFar = 0;
+                for (const c of chosen) if (c%2===0) evenSoFar++;
                 const chosenSet  = new Set(chosen);
 
                 // Contagem de números por zona para controle de equilíbrio
@@ -403,14 +409,14 @@ class PrecisionEngine {
                 let totalW = 0;
 
                 for (const n of avail) {
-                    // ══ FILTRO HARD 1: proibir sequências > maxConsec ══
-                    const testSorted = [...chosen, n].sort((a,b) => a-b);
-                    let maxRun = 1, curRun = 1;
-                    for (let i = 1; i < testSorted.length; i++) {
-                        if (testSorted[i] === testSorted[i-1] + 1) { curRun++; maxRun = Math.max(maxRun, curRun); }
-                        else curRun = 1;
-                    }
-                    if (maxRun > cfg.maxConsec) continue; // descartado
+                    // ══ FILTRO HARD 1: proibir sequências > maxConsec (FIX PERF: sem sort, usar adjacência direta) ══
+                    // Verificação rápida de consecutivos: contar a sequência onde n se encaixaria
+                    let runLen = 1;
+                    let lo = n - 1;
+                    while (inGame.has(lo)) { runLen++; lo--; }
+                    let hi = n + 1;
+                    while (inGame.has(hi)) { runLen++; hi++; }
+                    if (runLen > cfg.maxConsec) continue; // descartado
 
                     // D1: consensus score (NovaEra + QuantumGod + 10 camadas)
                     const d1 = Math.max(0.01, consensusScores[n] || 0.5);
@@ -472,6 +478,7 @@ class PrecisionEngine {
                 let sel = pool[pool.length - 1];
                 for (let i = 0; i < pool.length; i++) { r -= ws[i]; if (r <= 0) { sel = pool[i]; break; } }
                 chosen.push(sel); inGame.add(sel);
+                availSet.delete(sel); // FIX PERF: atualizar Set de disponíveis incrementalmente
             }
 
             return chosen.length === drawSize ? chosen.sort((a,b) => a-b) : null;
@@ -484,8 +491,12 @@ class PrecisionEngine {
         let gIdx = 1;
         let failStreak = 0;
         const isSmallRange = (totalRange <= 35);
+        // FIX PERF BUG CRÍTICO: limite era 500.000 — congelava o browser!
+        // Agora: limite adaptativo + deadline de 3 segundos
+        const MAX_FAIL_STREAK = Math.max(2000, numGames * 150);
+        const deadline = Date.now() + 3000; // 3 segundos máx
 
-        while (games.length < numGames && failStreak < 500000) {
+        while (games.length < numGames && failStreak < MAX_FAIL_STREAK && Date.now() < deadline) {
             const progress  = games.length / numGames;          // 0→1
             let temp = Math.max(0.5, 2.5 - progress * 2.0); // Padrão: 2.5→0.5
             if (isSmallRange) {
@@ -494,13 +505,16 @@ class PrecisionEngine {
             }
             
             const game = buildGame(gIdx++, temp);
-            if (!game) continue;
+            if (!game) { failStreak++; continue; }
             const key = game.join(',');
             if (usedKeys.has(key)) { failStreak++; continue; }
             games.push(game);
             usedKeys.add(key);
             for (const n of game) cov[n]++;
             failStreak = 0;
+        }
+        if (games.length < numGames) {
+            console.warn('[PRECISION-L99] ⚠️ Gerou ' + games.length + '/' + numGames + ' jogos (limite: failStreak=' + failStreak + '/' + MAX_FAIL_STREAK + '). Pool muito restrito ou range pequeno.');
         }
 
 
@@ -576,15 +590,23 @@ class PrecisionEngine {
         let maxFreq = 0;
         for (let n = startNum; n <= endNum; n++) if (freq[n] > maxFreq) maxFreq = freq[n];
 
-        // D1 — Frequência multi-janela
-        const d1 = {};
+        // D1 — Frequência multi-janela (FIX PERF: pré-calcular em passes únicos, não filter+includes por número)
         const wins3={}, wins5={}, wins10={}, wins15={};
+        for (let n = startNum; n <= endNum; n++) { wins3[n]=0; wins5[n]=0; wins10[n]=0; wins15[n]=0; }
+        const lim3=Math.min(3,N), lim5=Math.min(5,N), lim10=Math.min(10,N), lim15=Math.min(15,N);
+        for (let i = 0; i < lim15; i++) {
+            const nums = history[i].numbers || [];
+            for (const n of nums) {
+                if (n < startNum || n > endNum) continue;
+                if (i < lim3)  wins3[n]++;
+                if (i < lim5)  wins5[n]++;
+                if (i < lim10) wins10[n]++;
+                wins15[n]++;
+            }
+        }
+        const d1 = {};
         for (let n = startNum; n <= endNum; n++) {
-            wins3[n] = history.slice(0,Math.min(3,N)).filter(d=>(d.numbers||[]).includes(n)).length;
-            wins5[n] = history.slice(0,Math.min(5,N)).filter(d=>(d.numbers||[]).includes(n)).length;
-            wins10[n]= history.slice(0,Math.min(10,N)).filter(d=>(d.numbers||[]).includes(n)).length;
-            wins15[n]= history.slice(0,Math.min(15,N)).filter(d=>(d.numbers||[]).includes(n)).length;
-            d1[n] = (wins3[n]/3)*0.40 + (wins5[n]/Math.min(5,N))*0.30 + (wins10[n]/Math.min(10,N))*0.20 + (wins15[n]/Math.min(15,N))*0.10;
+            d1[n] = (wins3[n]/Math.max(1,lim3))*0.40 + (wins5[n]/Math.max(1,lim5))*0.30 + (wins10[n]/Math.max(1,lim10))*0.20 + (wins15[n]/Math.max(1,lim15))*0.10;
         }
 
         // D2 — Pressão de vácuo (probabilidade acumulada)
@@ -595,13 +617,19 @@ class PrecisionEngine {
             d2[n] = 1 - Math.pow(1 - probPerDraw, delay + 1);
         }
 
-        // D3 — Ciclo de retorno individual
+        // D3 — Ciclo de retorno individual (FIX PERF: pré-indexar aparições para evitar .includes em loop)
+        // Pré-calcular lista de aparições por número em um único passe
+        const appearsMap = {};
+        for (let n = startNum; n <= endNum; n++) appearsMap[n] = [];
+        const lim40 = Math.min(40, N);
+        for (let i = 0; i < lim40; i++) {
+            for (const n of (history[i].numbers || [])) {
+                if (n >= startNum && n <= endNum) appearsMap[n].push(i);
+            }
+        }
         const d3 = {};
         for (let n = startNum; n <= endNum; n++) {
-            const appears = [];
-            for (let i = 0; i < Math.min(40,N); i++) {
-                if ((history[i].numbers||[]).includes(n)) appears.push(i);
-            }
+            const appears = appearsMap[n];
             if (appears.length >= 2) {
                 let totalGap = 0;
                 for (let j = 0; j < appears.length-1; j++) totalGap += appears[j+1]-appears[j];
@@ -723,12 +751,18 @@ class PrecisionEngine {
             if (maxD9>0) for (let n=startNum;n<=endNum;n++) d9[n]=0.1+d9[n]/maxD9*0.9;
         }
 
-        // D10 — Regressão à média (sub/sobre-representados)
+        // D10 — Regressão à média (FIX PERF: pré-calcular freqs em passe único em vez de history.filter por número)
         const d10 = {};
         const expFreq = N * drawSize / totalRange;
+        const realFreqMap = {};
+        for (let n = startNum; n <= endNum; n++) realFreqMap[n] = 0;
+        for (let i = 0; i < N; i++) {
+            for (const n of (history[i].numbers || [])) {
+                if (n >= startNum && n <= endNum) realFreqMap[n]++;
+            }
+        }
         for (let n = startNum; n <= endNum; n++) {
-            const realFreq = history.filter(d=>(d.numbers||[]).includes(n)).length;
-            const dev = (realFreq - expFreq) / Math.max(1, expFreq);
+            const dev = (realFreqMap[n] - expFreq) / Math.max(1, expFreq);
             d10[n] = dev < -0.3 ? 0.90 : dev < -0.15 ? 0.75 : dev > 0.3 ? 0.20 : dev > 0.15 ? 0.35 : 0.55;
         }
 
