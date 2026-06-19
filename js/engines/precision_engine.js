@@ -377,46 +377,44 @@ class PrecisionEngine {
             const chosen = [];
             const inGame = new Set();
             // Apenas fixos são obrigatórios no Estatística (IA escolhe os números)
+            // FIX PERF: pré-inicializar sumSoFar/evenSoFar/zoneCounts para manter incrementalmente
+            let sumSoFar = 0;
+            let evenSoFar = 0;
+            const zoneCounts = {};
+            const maxPerZone = Math.ceil(drawSize / cfg.zones);
             for (const f of fixed) {
-                if (!inGame.has(f) && chosen.length < drawSize) { chosen.push(f); inGame.add(f); }
+                if (!inGame.has(f) && chosen.length < drawSize) {
+                    chosen.push(f); inGame.add(f);
+                    sumSoFar += f;
+                    if (f % 2 === 0) evenSoFar++;
+                    const zf = Math.min(cfg.zones-1, Math.floor((f-startNum)/zoneSize));
+                    zoneCounts[zf] = (zoneCounts[zf] || 0) + 1;
+                }
             }
 
-            // FIX PERF: manter Set de disponíveis e atualizar incrementalmente (evitar filter a cada iteração)
+            // FIX PERF: Set de disponíveis atualizado incrementalmente
             const availSet = new Set(allNums);
-            for (const f of fixed) availSet.delete(f); // fixos já foram adicionados
+            for (const f of fixed) availSet.delete(f);
 
             while (chosen.length < drawSize) {
-                const avail = availSet.size > 0 ? [...availSet] : [];
-                if (!avail.length) break;
+                // FIX PERF: iterar Set diretamente sem converter para array
+                if (!availSet.size) break;
 
-                let sumSoFar = 0;
-                for (const c of chosen) sumSoFar += c;
-                const remaining  = drawSize - chosen.length;
-                let evenSoFar = 0;
-                for (const c of chosen) if (c%2===0) evenSoFar++;
-                const chosenSet  = new Set(chosen);
-
-                // Contagem de números por zona para controle de equilíbrio
-                const zoneCounts = {};
-                for (const c of chosen) {
-                    const z = Math.min(cfg.zones-1, Math.floor((c-startNum)/zoneSize));
-                    zoneCounts[z] = (zoneCounts[z] || 0) + 1;
-                }
-                const maxPerZone = Math.ceil(drawSize / cfg.zones);
+                const remaining = drawSize - chosen.length;
 
                 // ─── Filtrar candidatos e calcular pesos ─────────────────
                 const pool = [], ws = [];
                 let totalW = 0;
 
-                for (const n of avail) {
-                    // ══ FILTRO HARD 1: proibir sequências > maxConsec (FIX PERF: sem sort, usar adjacência direta) ══
-                    // Verificação rápida de consecutivos: contar a sequência onde n se encaixaria
+                for (const n of availSet) {
+                    // ══ FILTRO HARD 1: proibir sequências > maxConsec
+                    // FIX PERF: verificação O(1) com inGame em vez de [...chosen,n].sort()
                     let runLen = 1;
                     let lo = n - 1;
                     while (inGame.has(lo)) { runLen++; lo--; }
                     let hi = n + 1;
                     while (inGame.has(hi)) { runLen++; hi++; }
-                    if (runLen > cfg.maxConsec) continue; // descartado
+                    if (runLen > cfg.maxConsec) continue;
 
                     // D1: consensus score (NovaEra + QuantumGod + 10 camadas)
                     const d1 = Math.max(0.01, consensusScores[n] || 0.5);
@@ -438,13 +436,12 @@ class PrecisionEngine {
                     const d4   = zc === 0 ? 2.0 : zc < maxPerZone ? 1.0 : 0.25;
 
                     // D5: paridade — considera slots restantes
-                    const targetEven      = Math.round(drawSize / 2);
-                    const evenNeeded      = Math.max(0, targetEven - evenSoFar);
-                    const oddNeeded       = Math.max(0, (drawSize - targetEven) - (chosen.length - evenSoFar));
-                    const isEven          = n % 2 === 0;
+                    const targetEven = Math.round(drawSize / 2);
+                    const evenNeeded = Math.max(0, targetEven - evenSoFar);
+                    const oddNeeded  = Math.max(0, (drawSize - targetEven) - (chosen.length - evenSoFar));
+                    const isEven     = n % 2 === 0;
                     const d5 = (isEven && evenNeeded > 0) ? 1.30
                              : (!isEven && oddNeeded > 0) ? 1.30
-                             : (isEven && evenNeeded <= 0) ? 0.65
                              : 0.65;
 
                     // D6: afinidade de soma (erro quadrático vs média histórica)
@@ -458,8 +455,9 @@ class PrecisionEngine {
                     // D8: momentum suave (tendência recente)
                     const d8 = 1.0 + (momentum[n] || 0) * 0.08;
 
-                    // ══ PENALIDADE ANTI-SEQUÊNCIA: adjacência a já escolhidos ══
-                    const adjCount = [n-1, n+1].filter(adj => chosenSet.has(adj)).length;
+                    // ══ PENALIDADE ANTI-SEQUÊNCIA: adjacência a já escolhidos
+                    // FIX PERF: usa inGame (O(1) lookup) em vez de new Set(chosen) por iteração
+                    const adjCount = (inGame.has(n-1) ? 1 : 0) + (inGame.has(n+1) ? 1 : 0);
                     const dAdj     = adjCount === 0 ? 1.0 : adjCount === 1 ? 0.30 : 0.05;
 
                     const baseScore = d1 * d2 * d3 * d4 * d5 * d6 * d7 * d8 * dAdj;
@@ -469,16 +467,28 @@ class PrecisionEngine {
 
                 // Se filtro hard eliminou tudo → relaxar e pegar qualquer candidato
                 if (!pool.length) {
-                    for (const n of avail) { if (!inGame.has(n)) { chosen.push(n); inGame.add(n); break; } }
+                    for (const n of availSet) {
+                        chosen.push(n); inGame.add(n);
+                        sumSoFar += n; if (n % 2 === 0) evenSoFar++;
+                        const zn = Math.min(cfg.zones-1, Math.floor((n-startNum)/zoneSize));
+                        zoneCounts[zn] = (zoneCounts[zn] || 0) + 1;
+                        availSet.delete(n);
+                        break;
+                    }
                     continue;
                 }
 
-                // Seleção ponderada por LCG
+                // Seleção ponderada por xorshift128+
                 let r = rng() * totalW;
                 let sel = pool[pool.length - 1];
                 for (let i = 0; i < pool.length; i++) { r -= ws[i]; if (r <= 0) { sel = pool[i]; break; } }
+
+                // Adicionar selecionado e atualizar contadores incrementalmente
                 chosen.push(sel); inGame.add(sel);
-                availSet.delete(sel); // FIX PERF: atualizar Set de disponíveis incrementalmente
+                sumSoFar += sel; if (sel % 2 === 0) evenSoFar++;
+                const zs = Math.min(cfg.zones-1, Math.floor((sel-startNum)/zoneSize));
+                zoneCounts[zs] = (zoneCounts[zs] || 0) + 1;
+                availSet.delete(sel);
             }
 
             return chosen.length === drawSize ? chosen.sort((a,b) => a-b) : null;
@@ -491,19 +501,25 @@ class PrecisionEngine {
         let gIdx = 1;
         let failStreak = 0;
         const isSmallRange = (totalRange <= 35);
-        // FIX PERF BUG CRÍTICO: limite era 500.000 — congelava o browser!
-        // Agora: limite adaptativo + deadline de 3 segundos
-        const MAX_FAIL_STREAK = Math.max(2000, numGames * 150);
-        const deadline = Date.now() + 3000; // 3 segundos máx
+
+        // FIX PERF: limite adaptativo por tipo de loteria.
+        // Lotofácil (range=25) esgota combinações únicas rapidamente → precisa de mais tentativas.
+        // Deadline generoso de 8s para não cortar jogos prematuramente.
+        // Nota: failStreak reseta a 0 a cada jogo novo gerado com sucesso —
+        // o limite só é atingido quando o pool está verdadeiramente esgotado.
+        const MAX_FAIL_STREAK = isSmallRange
+            ? Math.max(20000, numGames * 1000)  // range pequeno: pool pode ser escasso
+            : Math.max(5000,  numGames * 300);  // range grande: mais fácil gerar únicos
+        const deadline = Date.now() + 8000;     // 8 segundos máx (era 3s — muito restritivo)
 
         while (games.length < numGames && failStreak < MAX_FAIL_STREAK && Date.now() < deadline) {
-            const progress  = games.length / numGames;          // 0→1
-            let temp = Math.max(0.5, 2.5 - progress * 2.0); // Padrão: 2.5→0.5
+            const progress = games.length / numGames;         // 0→1
+            let temp = Math.max(0.5, 2.5 - progress * 2.0);  // Padrão: 2.5→0.5
             if (isSmallRange) {
                 // Lotofácil: temperatura cai agressivamente para forçar exploração
                 temp = Math.max(0.2, 1.5 - progress * 1.3);
             }
-            
+
             const game = buildGame(gIdx++, temp);
             if (!game) { failStreak++; continue; }
             const key = game.join(',');
@@ -514,7 +530,9 @@ class PrecisionEngine {
             failStreak = 0;
         }
         if (games.length < numGames) {
-            console.warn('[PRECISION-L99] ⚠️ Gerou ' + games.length + '/' + numGames + ' jogos (limite: failStreak=' + failStreak + '/' + MAX_FAIL_STREAK + '). Pool muito restrito ou range pequeno.');
+            console.warn('[PRECISION-L99] ⚠️ Gerou ' + games.length + '/' + numGames
+                + ' jogos. failStreak=' + failStreak + '/' + MAX_FAIL_STREAK
+                + ' | tempo=' + (Date.now() - t0) + 'ms. Pool esgotado ou muito restrito.');
         }
 
 
