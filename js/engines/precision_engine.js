@@ -502,23 +502,17 @@ class PrecisionEngine {
         let failStreak = 0;
         const isSmallRange = (totalRange <= 35);
 
-        // FIX PERF: limite adaptativo por tipo de loteria.
-        // Lotofácil (range=25) esgota combinações únicas rapidamente → precisa de mais tentativas.
-        // Deadline generoso de 8s para não cortar jogos prematuramente.
-        // Nota: failStreak reseta a 0 a cada jogo novo gerado com sucesso —
-        // o limite só é atingido quando o pool está verdadeiramente esgotado.
-        const MAX_FAIL_STREAK = isSmallRange
-            ? Math.max(20000, numGames * 1000)  // range pequeno: pool pode ser escasso
-            : Math.max(5000,  numGames * 300);  // range grande: mais fácil gerar únicos
-        const deadline = Date.now() + 8000;     // 8 segundos máx (era 3s — muito restritivo)
+        // === LIMITE DE TENTATIVAS E DEADLINE ===
+        // Cap absoluto evita loops infinitos para qualquer numGames
+        // Para volumes grandes (>50 jogos) o modo bulk cuida do restante
+        const PRECISION_GAMES = Math.min(numGames, 50); // primeiros 50: scoring completo
+        const MAX_FAIL_STREAK = Math.min(30000, Math.max(3000, PRECISION_GAMES * 200));
+        const deadlinePrecision = Date.now() + Math.min(8000, 200 + PRECISION_GAMES * 80);
 
-        while (games.length < numGames && failStreak < MAX_FAIL_STREAK && Date.now() < deadline) {
-            const progress = games.length / numGames;         // 0→1
-            let temp = Math.max(0.5, 2.5 - progress * 2.0);  // Padrão: 2.5→0.5
-            if (isSmallRange) {
-                // Lotofácil: temperatura cai agressivamente para forçar exploração
-                temp = Math.max(0.2, 1.5 - progress * 1.3);
-            }
+        while (games.length < PRECISION_GAMES && failStreak < MAX_FAIL_STREAK && Date.now() < deadlinePrecision) {
+            const progress = games.length / PRECISION_GAMES;
+            let temp = Math.max(0.5, 2.5 - progress * 2.0);
+            if (isSmallRange) temp = Math.max(0.2, 1.5 - progress * 1.3);
 
             const game = buildGame(gIdx++, temp);
             if (!game) { failStreak++; continue; }
@@ -529,10 +523,88 @@ class PrecisionEngine {
             for (const n of game) cov[n]++;
             failStreak = 0;
         }
-        if (games.length < numGames) {
-            console.warn('[PRECISION-L99] ⚠️ Gerou ' + games.length + '/' + numGames
-                + ' jogos. failStreak=' + failStreak + '/' + MAX_FAIL_STREAK
-                + ' | tempo=' + (Date.now() - t0) + 'ms. Pool esgotado ou muito restrito.');
+
+        // === MODO BULK: geração rápida para volumes grandes ===
+        // Para numGames > 50: usa amostragem xorshift128+ com apenas filtros essenciais.
+        // Os primeiros 50 jogos já garantem a qualidade analítica (assertividade).
+        // O restante foca em diversidade e cobertura — sem scoring pesado por candidato.
+        if (numGames > games.length) {
+            const bulkDeadline = Date.now() + Math.min(25000, numGames * 2); // 2ms por jogo, máx 25s
+            let bulkSeed = 0x9e3779b9 ^ (gIdx * 0x6c62272e);
+            const bulkRng = () => {
+                bulkSeed ^= bulkSeed << 13;
+                bulkSeed ^= bulkSeed >>> 17;
+                bulkSeed ^= bulkSeed << 5;
+                return (bulkSeed >>> 0) / 4294967296;
+            };
+
+            // Pré-computar números válidos e pesos simplificados (consenso + vácuo)
+            const bulkPool = allNums.slice(); // cópia para shuffle
+            const bulkWeights = allNums.map(n => Math.max(0.01, (consensusScores[n] || 0.5) * (0.8 + vacuumScore[n] * 0.2)));
+            const bulkTotalW = bulkWeights.reduce((a, b) => a + b, 0);
+
+            let bulkFail = 0;
+            const MAX_BULK_FAIL = Math.min(numGames * 5, 200000);
+
+            while (games.length < numGames && bulkFail < MAX_BULK_FAIL && Date.now() < bulkDeadline) {
+                // Gerar jogo por amostragem ponderada sem reposição (Fisher-Yates parcial)
+                const game = [];
+                const inBulk = new Set();
+
+                // Fixos primeiro
+                for (const f of fixed) {
+                    if (game.length < drawSize && !inBulk.has(f) && f >= startNum && f <= endNum) {
+                        game.push(f); inBulk.add(f);
+                    }
+                }
+
+                // Preencher com amostragem ponderada
+                let attempts = 0;
+                while (game.length < drawSize && attempts < drawSize * 20) {
+                    attempts++;
+                    // Selecionar número aleatório ponderado
+                    let r = bulkRng() * bulkTotalW;
+                    let sel = allNums[allNums.length - 1];
+                    for (let i = 0; i < allNums.length; i++) {
+                        r -= bulkWeights[i];
+                        if (r <= 0) { sel = allNums[i]; break; }
+                    }
+                    if (inBulk.has(sel)) continue;
+
+                    // Filtro essencial: sem sequências proibidas
+                    let runLen = 1, lo = sel - 1;
+                    while (inBulk.has(lo)) { runLen++; lo--; }
+                    let hi2 = sel + 1;
+                    while (inBulk.has(hi2)) { runLen++; hi2++; }
+                    if (runLen > cfg.maxConsec) continue;
+
+                    game.push(sel); inBulk.add(sel);
+                }
+
+                if (game.length < drawSize) { bulkFail++; continue; }
+                game.sort((a, b) => a - b);
+
+                // Validação de soma (filtro relaxado: aceita ±30% da faixa)
+                const gameSum = game.reduce((a, b) => a + b, 0);
+                const sumLo = cfg.sumMin * 0.85;
+                const sumHi = cfg.sumMax * 1.15;
+                if (gameSum < sumLo || gameSum > sumHi) { bulkFail++; continue; }
+
+                const key = game.join(',');
+                if (usedKeys.has(key)) { bulkFail++; continue; }
+                games.push(game);
+                usedKeys.add(key);
+                bulkFail = 0;
+            }
+            if (games.length < numGames) {
+                console.warn('[PRECISION-L99] ⚠️ Bulk: gerou ' + games.length + '/' + numGames
+                    + ' jogos em ' + (Date.now() - t0) + 'ms. bulkFail=' + bulkFail);
+            }
+        }
+
+        if (games.length < numGames && games.length < PRECISION_GAMES) {
+            console.warn('[PRECISION-L99] ⚠️ Precisão: gerou ' + games.length + '/' + PRECISION_GAMES
+                + ' jogos. failStreak=' + failStreak + '/' + MAX_FAIL_STREAK);
         }
 
 
