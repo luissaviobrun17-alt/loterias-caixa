@@ -102,13 +102,72 @@
 
         showStatusPanel(games.length, config.name);
 
-        waitForGrid(function() {
-            console.log('[B2B v' + VERSION + '] ✅ Grid detectado!');
-            updateStatus('Grid encontrado! Iniciando em 3s...', 'running');
-            setTimeout(function() {
-                fillGamesInBatches(games, config, IS_TIMEMANIA, IS_DIADESORTE);
-            }, 3000);
-        });
+        // NAVEGAÇÃO ROBUSTA PARA CONCURSOS ESPECIAIS (Quina de São João, etc)
+        var ALTS = { 'quina': ['quina-de-sao-joao', 'quinadesaojoao'], 'mega-sena': ['mega-sena-da-virada'], 'lotofacil': ['lotofacil-da-independencia'], 'dupla-sena': ['dupla-sena-de-pascoa'] }[config.url] || [];
+        
+        function tryUrl(url, cb) {
+            try { var inj = angular.element(document.body).injector(); if (inj) { var st = inj.get("$state"); if (st && st.go) { st.go(url); } } } catch(e) {}
+            var menuLinks = document.querySelectorAll("a[ui-sref],a[href]");
+            for (var i = 0; i < menuLinks.length; i++) {
+                var href = (menuLinks[i].getAttribute("ui-sref") || menuLinks[i].getAttribute("href") || "").toLowerCase();
+                if (href === url || href.indexOf("#/"+url) >= 0 || href.indexOf("#!/"+url) >= 0) {
+                    menuLinks[i].click(); return cb(true);
+                }
+            }
+            window.location.href = "https://www.loteriasonline.caixa.gov.br/silce-web/#!/" + url;
+            return cb(true);
+        }
+
+        function navLoteria(idx) {
+            var urls = [config.url].concat(ALTS);
+            if (idx >= urls.length) return iniciarBuscaVolante(); // fallback
+            
+            var targetUrl = urls[idx];
+            updateStatus('Navegando para ' + targetUrl + '...', 'running');
+            tryUrl(targetUrl, function() {
+                // Aguarda um pouco o angular carregar a página
+                setTimeout(function() {
+                    // Tenta achar o volante. Se não achar, vai pra próxima rota.
+                    var grid = document.getElementById('n01') || document.querySelector('[id="n01"]');
+                    if (grid) {
+                        console.log('[B2B v' + VERSION + '] Navegação bem-sucedida para ' + targetUrl);
+                        iniciarBuscaVolante();
+                    } else {
+                        // Tenta de novo depois de mais um segundo
+                        setTimeout(function() {
+                            grid = document.getElementById('n01') || document.querySelector('[id="n01"]');
+                            if (grid) {
+                                iniciarBuscaVolante();
+                            } else {
+                                console.log('[B2B v' + VERSION + '] Falha na rota ' + targetUrl + ', tentando próxima...');
+                                navLoteria(idx + 1);
+                            }
+                        }, 2000);
+                    }
+                }, 3000);
+            });
+        }
+
+        function iniciarBuscaVolante() {
+            waitForGrid(function() {
+                console.log('[B2B v' + VERSION + '] ✅ Grid detectado!');
+                updateStatus('Grid encontrado! Iniciando em 3s...', 'running');
+                setTimeout(function() {
+                    fillGamesInBatches(games, config, IS_TIMEMANIA, IS_DIADESORTE);
+                }, 3000);
+            });
+        }
+
+        // Se já estiver na página certa (por hash), vai direto, senão navega
+        var hash = window.location.hash || "";
+        var currentRouteOk = hash.indexOf(config.url) >= 0;
+        for (var a=0; a<ALTS.length; a++) if (hash.indexOf(ALTS[a]) >= 0) currentRouteOk = true;
+        
+        if (currentRouteOk) {
+            iniciarBuscaVolante();
+        } else {
+            navLoteria(0);
+        }
     });
 
     // ═══ 4. ESPERAR GRID DO VOLANTE ═══

@@ -1722,12 +1722,13 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         // Atualizar link do botão Jogar Online com a loteria atual
         var cfgLink = this._getCaixaLotteryConfig();
         if (this.playCaixaBtn && cfgLink[gameKey]) {
-            this.playCaixaBtn.href = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfgLink[gameKey].url;
+            // Em vez de forçar a rota, abre o site principal e o script fará a navegação
+            this.playCaixaBtn.href = 'https://www.loteriasonline.caixa.gov.br/';
         }
         // Atualizar link da Caixa na sidebar também
         var sidebarCaixaLink = document.getElementById('btn-caixa-link');
         if (sidebarCaixaLink && cfgLink[gameKey]) {
-            sidebarCaixaLink.href = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfgLink[gameKey].url;
+            sidebarCaixaLink.href = 'https://www.loteriasonline.caixa.gov.br/';
         }
 
         // Botão de análise de grupos: disponível para TODAS as loterias via UniversalGroupEngine
@@ -3126,6 +3127,8 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 
         return `(async function(){
 var LOTTERY_URL="${cfg.url}";
+var ALT_URLS = { 'quina': ['quina-de-sao-joao', 'quinadesaojoao'], 'mega-sena': ['mega-sena-da-virada'] };
+var ALTS = ALT_URLS[LOTTERY_URL] || [];
 var J=${gamesJSON};var T=J.length;var OK=0;var ER=0;var TM=${isTM};var DS=${isDS};
 function d(ms){return new Promise(function(r){setTimeout(r,ms)})}
 function rc(e){if(!e)return!1;try{e.scrollIntoView({block:"center",behavior:"instant"});var r=e.getBoundingClientRect();var x=r.left+r.width/2;var y=r.top+r.height/2;["pointerdown","mousedown","pointerup","mouseup","click"].forEach(function(ev){e.dispatchEvent(new MouseEvent(ev,{view:window,bubbles:!0,cancelable:!0,clientX:x,clientY:y,button:0}))});try{var s=angular.element(e).scope();if(s&&s.$apply)s.$apply()}catch(ae){}return!0}catch(x){try{e.click();return!0}catch(x2){return!1}}}
@@ -3136,17 +3139,19 @@ async function selTime(){if(!TM)return!0;await d(500);var ts=document.querySelec
 async function selMes(){if(!DS)return!0;await d(500);var s=document.querySelector("select");if(s&&s.options.length>1){s.selectedIndex=Math.floor(Math.random()*(s.options.length-1))+1;s.dispatchEvent(new Event("change",{bubbles:!0}));return!0}return!1}
 async function car(){fm();await d(300);if(TM){await selTime();await d(600)}if(DS){await selMes();await d(600)}for(var t=0;t<10;t++){var b=document.getElementById("colocarnocarrinho");if(b&&b.offsetParent!==null){if(b.disabled||b.classList.contains("disabled")){try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}await d(1200);continue}rc(b);await d(1500);fm();await d(600);fm();return!0}var ab=document.querySelectorAll("button,a");for(var k=0;k<ab.length;k++){var tx=ab[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar no carrinho")>=0)&&ab[k].offsetParent!==null&&ab[k].offsetWidth>0){if(ab[k].disabled)continue;rc(ab[k]);await d(1500);fm();await d(600);fm();return!0}}fm();await d(800)}return!1}
 async function waitVolante(){for(var w=0;w<40;w++){var el=document.getElementById("n01");if(el&&el.offsetParent!==null){console.log("[B2B] Volante encontrado!");return!0}fm();await d(1000);if(w%5===0)console.log("[B2B] Aguardando volante... "+w+"s")}return!1}
+async function tryUrl(url) {
+  try{var inj=angular.element(document.body).injector();if(inj){var st=inj.get("$state");if(st&&st.go){st.go(url);console.log("[B2B] $state.go('"+url+"') executado!");await d(5000);fm();await d(1000);var ok=await waitVolante();if(ok)return!0;}}}catch(e){}
+  var menuLinks=document.querySelectorAll("a[ui-sref],a[href]");for(var i=0;i<menuLinks.length;i++){var href=(menuLinks[i].getAttribute("ui-sref")||menuLinks[i].getAttribute("href")||"").toLowerCase();if(href===url||href.indexOf("#/"+url)>=0||href.indexOf("#!/"+url)>=0){menuLinks[i].click();await d(5000);fm();await d(1000);var ok=await waitVolante();if(ok)return!0}}
+  window.location.href="https://www.loteriasonline.caixa.gov.br/silce-web/#!/"+url;await d(5000);fm();await d(1000);return await waitVolante();
+}
 async function navLoteria(){
-console.log("[B2B] Hash atual: "+window.location.hash);
-fm();await d(500);fm();
-var hash=window.location.hash||"";
-if(hash.indexOf(LOTTERY_URL)>=0){console.log("[B2B] Ja na pagina correta");var ok=await waitVolante();if(ok)return!0}
-console.log("[B2B] Metodo 1: ui-router $state.go...");
-try{var inj=angular.element(document.body).injector();if(inj){var st=inj.get("$state");if(st&&st.go){st.go(LOTTERY_URL);console.log("[B2B] $state.go('"+LOTTERY_URL+"') executado!");await d(5000);fm();await d(1000);var ok=await waitVolante();if(ok)return!0;console.log("[B2B] $state.go nao carregou volante")}}}catch(e){console.log("[B2B] $state.go falhou: "+e.message)}
-console.log("[B2B] Metodo 2: Clicando no menu...");
-var menuLinks=document.querySelectorAll("a[ui-sref],a[href]");for(var i=0;i<menuLinks.length;i++){var href=(menuLinks[i].getAttribute("ui-sref")||menuLinks[i].getAttribute("href")||"").toLowerCase();if(href===LOTTERY_URL||href.indexOf("#/"+LOTTERY_URL)>=0||href.indexOf("#!/"+LOTTERY_URL)>=0){console.log("[B2B] Clicando: "+menuLinks[i].textContent.trim());menuLinks[i].click();await d(5000);fm();await d(1000);var ok=await waitVolante();if(ok)return!0}}
-console.log("[B2B] Metodo 3: location.href completo...");
-window.location.href="https://www.loteriasonline.caixa.gov.br/silce-web/#!/"+LOTTERY_URL;await d(5000);fm();await d(1000);return await waitVolante()
+  fm();await d(500);fm();
+  var hash=window.location.hash||"";
+  if(hash.indexOf(LOTTERY_URL)>=0){var ok=await waitVolante();if(ok)return!0;}
+  for(var a=0;a<ALTS.length;a++){if(hash.indexOf(ALTS[a])>=0){var ok=await waitVolante();if(ok)return!0;}}
+  if(await tryUrl(LOTTERY_URL))return!0;
+  for(var a=0;a<ALTS.length;a++){if(await tryUrl(ALTS[a]))return!0;}
+  return!1;
 }
 var pg=document.createElement("div");pg.id="b2b-pg";pg.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(145deg,#0F172A,#1E293B);border-bottom:2px solid #FFD700;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.6);font-family:sans-serif;";pg.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#FFD700;font-weight:800;font-size:0.85rem;">B2B Loterias</span><span id="b2b-pt" style="color:#E2E8F0;font-size:0.8rem;font-weight:600;">Navegando...</span><button onclick="this.parentNode.parentNode.remove()" style="background:none;border:none;color:#94A3B8;font-size:1.2rem;cursor:pointer;">X</button></div><div style="margin-top:6px;background:rgba(255,255,255,0.1);border-radius:4px;height:6px;overflow:hidden;"><div id="b2b-pb" style="width:0%;height:100%;background:linear-gradient(90deg,#FFD700,#22C55E);border-radius:4px;transition:width 0.3s;"></div></div>';document.body.appendChild(pg);
 var volOk=await navLoteria();
@@ -3162,7 +3167,8 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
     _openMobileBetModal(games, gameKey) {
         const allConfigs = this._getCaixaLotteryConfig();
         const cfg = allConfigs[gameKey] || { name: 'Loteria', url: '' };
-        const caixaUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfg.url;
+        // Abre o site principal e deixa o script de automação encontrar o volante correto
+        const caixaUrl = 'https://www.loteriasonline.caixa.gov.br/';
 
         // Remover modal anterior se existir
         const old = document.getElementById('mobile-bet-modal');
@@ -3234,7 +3240,6 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         const tabAutoContent = document.getElementById('tab-auto-content-m');
         const tabManualContent = document.getElementById('tab-manual-content-m');
         const inactiveStyle = 'flex:1;padding:12px 6px;border-radius:10px;border:1px solid #47556940;background:transparent;color:#94A3B8;font-weight:700;font-size:0.78rem;cursor:pointer;';
-
         tabAutoBtn.addEventListener('click', () => {
             tabAutoContent.style.display = 'block';
             tabManualContent.style.display = 'none';
@@ -3302,9 +3307,7 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
     async openCaixa() {
         const allConfigs = this._getCaixaLotteryConfig();
         const cfg = allConfigs[this.currentGameKey];
-        const caixaUrl = cfg
-            ? 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + cfg.url
-            : 'https://www.loteriasonline.caixa.gov.br/';
+        const caixaUrl = 'https://www.loteriasonline.caixa.gov.br/';
 
         const games = this._lastGeneratedGames || this.currentGeneratedGames || [];
 

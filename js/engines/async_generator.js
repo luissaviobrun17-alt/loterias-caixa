@@ -93,14 +93,16 @@ class AsyncGenerator {
 
     static _doneBar(tot) {
         var el = ((Date.now() - this._startTime) / 1000).toFixed(1);
-        var sp = Math.round(tot / ((Date.now() - this._startTime) / 1000));
+        var elapsed = (Date.now() - this._startTime) / 1000;
+        var sp = elapsed > 0 ? Math.round(tot / elapsed) : 0;
         var bx = document.getElementById('apg-box'); if (bx) bx.classList.add('apg-done');
         var pe = document.getElementById('apg-pct'); if (pe) { pe.textContent = '✅'; pe.style.color = '#22C55E'; }
         var ne = document.getElementById('apg-n'); if (ne) { ne.textContent = tot.toLocaleString('pt-BR'); ne.style.color = '#22C55E'; }
         var se = document.getElementById('apg-s'); if (se) { se.textContent = sp.toLocaleString('pt-BR'); se.style.color = '#22C55E'; }
         var ee = document.getElementById('apg-e'); if (ee) { ee.textContent = el + 's'; ee.style.color = '#22C55E'; }
         var xb = document.getElementById('apg-x'); if (xb) xb.style.display = 'none';
-        var tt = document.querySelector('.apg-title'); if (tt) tt.textContent = '✅ Concluído';
+        // v16.1 FIX: guard para evitar crash se elemento não existir no DOM
+        try { var tt = document.querySelector('.apg-title'); if (tt) tt.textContent = '✅ Concluído'; } catch(e) {}
         setTimeout(function() {
             var c = document.getElementById('async-progress-inline');
             if (c) { c.style.display = 'none'; c.innerHTML = ''; }
@@ -193,6 +195,36 @@ class AsyncGenerator {
         self._cancelled = false;
         var game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         var name = game ? game.name : gameKey;
+        var opts = options || {};
+
+        // ═══ v16.2 SNIPER RÁPIDO: redireciona para PureCoverageEngine ═══
+        // O fluxo SmartCoverage/CoverageEngine bloqueia o browser por 400ms-7s.
+        // PureCoverageEngine usa chunks assíncronos — não trava a UI.
+        if (opts.precisionMode && typeof PureCoverageEngine !== 'undefined' && typeof SmartCoverageEngine !== 'undefined') {
+            // Construir pool sniper (agora rápido: 3ms com scoring rápido + cache)
+            var sniperPool = null;
+            try {
+                var sniperPoolSize = (opts.precisionPoolSize && !isNaN(opts.precisionPoolSize) && opts.precisionPoolSize > 0)
+                    ? opts.precisionPoolSize : 20;
+                if (game) {
+                    sniperPool = SmartCoverageEngine._buildSniperPool(gameKey, game, numGames, sniperPoolSize);
+                }
+            } catch(eSn) {
+                console.warn('[AsyncGen] Sniper pool erro:', eSn.message);
+            }
+
+            // Se pool válido → usa PureCoverageEngine que é assíncrono e rápido
+            var selArr = selectedNumbers ? Array.from(selectedNumbers).filter(function(n){ return typeof n === 'number'; }) : [];
+            var effectivePool = (selArr.length >= drawSize) ? selArr
+                              : (sniperPool && sniperPool.length >= drawSize) ? sniperPool
+                              : null;
+
+            if (effectivePool) {
+                console.log('%c[AsyncGen] 🎯 SNIPER via PureCoverageEngine: pool=' + effectivePool.length + ' | jogos=' + numGames, 'color:#F59E0B;font-weight:bold;');
+                self._showBar(name + ' — Sniper', numGames);
+                return self.generatePureAsync(gameKey, numGames, { drawSize: drawSize, pool: effectivePool }, callback);
+            }
+        }
 
         // Verificar se GameBuilderEngine está disponível
         var useGameBuilder = typeof GameBuilderEngine !== 'undefined';
@@ -240,6 +272,56 @@ class AsyncGenerator {
                         // Usuário selecionou pool manual — usar diretamente
                         pool = [...new Set([...selArr, ...fixArr])].sort((a, b) => a - b);
                         console.log('[AsyncGen] Pool manual: ' + pool.length + ' números');
+
+                    } else if (options && options.precisionMode && typeof SmartCoverageEngine !== 'undefined') {
+                        // ═══ v16.1 FIX SNIPER: Pool do Sniper via SmartCoverageEngine ═══
+                        // BUG ANTERIOR: precisionMode era ignorado — o EnsembleEngine criava
+                        // um pool normal sem considerar que o usuário ativou o Sniper.
+                        // CORREÇÃO: Quando Sniper está ativo, construir o pool analítico
+                        // primeiro e passar para o GameBuilderEngine.
+                        try {
+                            var sniperPoolSize = (options.precisionPoolSize && options.precisionPoolSize > 0)
+                                ? options.precisionPoolSize : 20;
+                            var sniperGame = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+                            if (sniperGame) {
+                                var sniperPool = SmartCoverageEngine._buildSniperPool(
+                                    gameKey, sniperGame, numGames, sniperPoolSize
+                                );
+                                if (sniperPool && sniperPool.length >= drawSize) {
+                                    pool = sniperPool;
+                                    if (fixArr.length > 0) {
+                                        pool = [...new Set([...pool, ...fixArr])].sort((a, b) => a - b);
+                                    }
+                                    console.log('%c[AsyncGen] 🎯 SNIPER ATIVO: Pool analítico de ' + pool.length + ' números → ' + pool.join(','), 'color:#F59E0B;font-weight:bold;');
+                                } else {
+                                    console.warn('[AsyncGen] Sniper pool insuficiente (' + (sniperPool ? sniperPool.length : 0) + '), fallback para Ensemble');
+                                }
+                            }
+                        } catch(eSn) {
+                            console.warn('[AsyncGen] Sniper pool falhou, usando Ensemble:', eSn.message);
+                        }
+
+                        // Se sniper pool não foi construído, usa Ensemble como fallback
+                        if (pool.length < drawSize && typeof EnsembleEngine !== 'undefined' && history.length >= 10) {
+                            try {
+                                var ensemble = EnsembleEngine.score(gameKey, numGames, history, drawSize);
+                                var adaptivePool = EnsembleEngine._buildAdaptivePool(ensemble, numGames, drawSize, gameKey);
+                                pool = adaptivePool.length >= drawSize ? adaptivePool : [];
+                                if (fixArr.length > 0) {
+                                    pool = [...new Set([...pool, ...fixArr])].sort((a, b) => a - b);
+                                }
+                                console.log('[AsyncGen] Pool Ensemble (fallback sniper): ' + pool.length + ' números');
+                            } catch(e) {
+                                console.warn('[AsyncGen] EnsembleEngine falhou:', e.message);
+                            }
+                        }
+
+                        if (pool.length < drawSize) {
+                            var prof2 = GameBuilderEngine._getProfile(gameKey);
+                            pool = [];
+                            for (var n2 = prof2.startNum; n2 <= prof2.endNum; n2++) pool.push(n2);
+                        }
+
                     } else {
                         // Pool automático via EnsembleEngine (se disponível) ou range completo
                         if (typeof EnsembleEngine !== 'undefined' && history.length >= 10) {

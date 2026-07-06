@@ -369,9 +369,18 @@ const server = http.createServer((req, res) => {
     });
 });
 
-server.listen(PORT, '127.0.0.1', () => {
+server.listen(PORT, '0.0.0.0', () => {
     const pastaMsg = `\n  📁 Jogos salvos em: ${JOGOS_DIR}\n`;
     console.log(`[B2B Loterias] Servidor rodando em http://localhost:${PORT}`);
+    // Mostrar IP de rede para acesso remoto
+    const nets = os.networkInterfaces();
+    for (const name of Object.keys(nets)) {
+        for (const net of nets[name]) {
+            if (net.family === 'IPv4' && !net.internal) {
+                console.log(`[B2B Loterias] 🌐 Acesso pela rede: http://${net.address}:${PORT}`);
+            }
+        }
+    }
     console.log(pastaMsg);
 });
 

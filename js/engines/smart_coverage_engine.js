@@ -16,38 +16,110 @@ class SmartCoverageEngine {
 
     // ─── Estratégia por volume ────────────────────────────────────────────
     static _getStrategy(numGames) {
-        if (numGames <= 20)  return 'CLOSURE';   // Fechamento preciso
-        if (numGames <= 500) return 'COVERAGE';  // Set Cover puro
-        return 'COVERAGE_FAST';                   // Set Cover adaptativo
+        if (numGames <= 20)  return 'CLOSURE';
+        if (numGames <= 500) return 'COVERAGE';
+        return 'COVERAGE_FAST';
     }
 
-    // ─── Construção do Alvo do Sniper (Analítico Matemático) ────────────
-    // Baseado em Ciclos, Atrasos, Tendências e Frequência de Duplas
+    // ─── Cache do Sniper Pool e do NovaEra Scoring (TTL 60s) ────────────
+    // Inicializado abaixo da classe para compatibilidade com browsers antigos
+    // (static class fields requerem suporte ES2022)
+
+    static _clearSniperCache(gameKey) {
+        if (!SmartCoverageEngine._sniperCache) SmartCoverageEngine._sniperCache = {};
+        if (!SmartCoverageEngine._novaEraCache) SmartCoverageEngine._novaEraCache = {};
+        if (gameKey) {
+            delete SmartCoverageEngine._sniperCache[gameKey + '_20'];
+            delete SmartCoverageEngine._novaEraCache[gameKey];
+        } else {
+            SmartCoverageEngine._sniperCache = {};
+            SmartCoverageEngine._novaEraCache = {};
+        }
+    }
+
+    // ─── Construção do Alvo do Sniper ────────────────────────────────────
     static _buildSniperPool(gameKey, game, numGames, poolSizePreference) {
         let history = [];
         if (typeof StatsService !== 'undefined') history = StatsService.getRecentResults(gameKey, 200) || [];
         if (history.length === 0 && typeof REAL_HISTORY_DB !== 'undefined') history = REAL_HISTORY_DB[gameKey] || [];
-        if (history.length === 0) return [];
 
         const start = game.range[0];
         const end = game.range[1];
         const totalRange = end - start + 1;
+        // v16.1 FIX: usar game.draw com fallback para game.minBet (evita NaN)
+        const gameDraw = game.draw || game.minBet || 6;
 
-        // 1. Matriz de Scores Quânticos (Frequência, Atrasos, Ciclos)
-        let quantumScores = {};
-        if (typeof NovaEraEngine !== 'undefined') {
-            const profile = NovaEraEngine.getProfile(gameKey);
-            // v11.0 FIX: Setar drawSize e sniperMode
-            NovaEraEngine._currentDrawSize = game.minBet || game.draw || 6;
-            NovaEraEngine._sniperMode = numGames > 100;
-            try {
-                quantumScores = NovaEraEngine._scoreAllNumbers(gameKey, profile, history, start, end, totalRange);
-            } finally {
-                NovaEraEngine._sniperMode = false;
-            }
-        } else {
-            for (let i = start; i <= end; i++) quantumScores[i] = 1;
+        // v16.1 FIX: Validar poolSizePreference — parseInt pode retornar NaN
+        let targetSize = (poolSizePreference && !isNaN(poolSizePreference) && poolSizePreference > 0)
+            ? Math.floor(poolSizePreference) : 0;
+
+        if (!targetSize) {
+            if (numGames <= 10)       targetSize = Math.round(gameDraw * 2.8);
+            else if (numGames <= 30)  targetSize = Math.round(gameDraw * 3.8);
+            else if (numGames <= 100) targetSize = Math.round(gameDraw * 5.0);
+            else                      targetSize = Math.round(gameDraw * 7.0);
         }
+        targetSize = Math.max(gameDraw, Math.min(targetSize, totalRange));
+
+        // v16.2 CACHE TTL: Verificar cache antes de recalcular
+        const cacheKey = gameKey + '_' + targetSize;
+        if (!SmartCoverageEngine._sniperCache) SmartCoverageEngine._sniperCache = {};
+        const cached = SmartCoverageEngine._sniperCache[cacheKey];
+        const CACHE_TTL = 60000;
+        if (cached && (Date.now() - cached.ts) < CACHE_TTL && cached.pool.length >= gameDraw) {
+            console.log('[SmartCoverage] 🎯 Sniper CACHE HIT: ' + cached.pool.length + ' dezenas (expira em ' + Math.round((CACHE_TTL - (Date.now() - cached.ts)) / 1000) + 's)');
+            return cached.pool;
+        }
+
+        // v16.1 FIX: Se não há histórico, retornar pool uniforme
+        if (history.length === 0) {
+            console.warn('[SmartCoverage] ⚠️ Sniper sem histórico: seleção uniforme de ' + targetSize + ' números.');
+            const uniformPool = [];
+            const step = totalRange / targetSize;
+            for (let ui = 0; ui < targetSize; ui++) {
+                uniformPool.push(Math.min(end, Math.round(start + ui * step)));
+            }
+            return [...new Set(uniformPool)].sort((a, b) => a - b);
+        }
+
+        // 1. v16.2 SCORING RÁPIDO — 3 camadas em vez de 21 (100x mais rápido)
+        // NovaEraEngine._scoreAllNumbers leva 400ms-7s bloqueando o UI.
+        // Para o pool sniper, frequência + atraso + tendência recente são suficientes.
+        const t0pool = Date.now();
+        const quantumScores = {};
+        const freq = {};      // frequência total
+        const lastSeen = {};  // último sorteio em que apareceu (índice)
+        for (let i = start; i <= end; i++) { freq[i] = 0; lastSeen[i] = history.length; }
+
+        // Camada 1: Frequência ponderada (sorteios recentes valem mais)
+        const histLimit = Math.min(history.length, 100);
+        for (let hi = 0; hi < histLimit; hi++) {
+            const decay = 1 / (1 + hi * 0.03); // decay temporal
+            const nums = (history[hi].numbers || []).concat(history[hi].numbers2 || []);
+            nums.forEach(n => {
+                if (n >= start && n <= end) {
+                    freq[n] = (freq[n] || 0) + decay;
+                    if (lastSeen[n] === history.length) lastSeen[n] = hi; // primeiro achado = atraso
+                }
+            });
+        }
+
+        // Camada 2: Atraso (números com maior atraso recebem impulso)
+        const maxDelay = Math.max(...Object.values(lastSeen));
+        for (let i = start; i <= end; i++) {
+            const delay = lastSeen[i] === history.length ? maxDelay : lastSeen[i];
+            const delayScore = delay / Math.max(1, maxDelay); // 0-1: 1 = mais atrasado
+            quantumScores[i] = (freq[i] || 0) + delayScore * 0.5;
+        }
+
+        // Camada 3: Impulso recente (últimos 5 sorteios valem 3x)
+        history.slice(0, 5).forEach(draw => {
+            (draw.numbers || []).concat(draw.numbers2 || []).forEach(n => {
+                if (n >= start && n <= end) quantumScores[n] = (quantumScores[n] || 0) + 3;
+            });
+        });
+
+        console.log('[SmartCoverage] ⚡ Scoring rápido (3 camadas): ' + (Date.now() - t0pool) + 'ms | ' + histLimit + ' sorteios analisados');
 
         // 2. Bônus adicional de DUPLAS (solicitação específica para o Sniper)
         // Analisa as últimas 15 extrações para ver quem sai junto com mais frequência
@@ -90,18 +162,7 @@ class SmartCoverageEngine {
             });
         });
 
-        // 4. Calcular targetSize ANTES de usar no BiasEngine
-        // O tamanho do alvo é DECRETADO pelo usuário via UI (precisionPoolSize).
-        // Se não fornecido, usa defaults conservadores.
-        let targetSize = poolSizePreference || 20; 
-        if (!poolSizePreference) {
-            targetSize = game.draw * 2; 
-            if (numGames <= 10) targetSize = Math.round(game.draw * 2.8);
-            else if (numGames <= 30) targetSize = Math.round(game.draw * 3.8);
-            else if (numGames <= 100) targetSize = Math.round(game.draw * 5.0);
-            else targetSize = Math.round(game.draw * 7.0);
-        }
-        targetSize = Math.max(game.draw, Math.min(targetSize, totalRange));
+        // 4. [targetSize já calculado acima — v16.1 movido para o início]
 
         // 5. v14.0: Evidência Estatística (Detector de Viés com p-valor)
         // Se o StatisticalBiasEngine estiver disponível, usar z-scores formais
@@ -142,21 +203,20 @@ class SmartCoverageEngine {
         }
 
         // 6. Combinar todos os scores para criar o RANKING FINAL DO SNIPER
-        // v14.0: Agora inclui evidência estatística formal
         const finalScores = {};
         for (let i = start; i <= end; i++) {
-            finalScores[i] = (quantumScores[i] || 1) + numberPairBonus[i] + shortTermBonus[i] + biasBonus[i];
+            finalScores[i] = (quantumScores[i] || 1) + (numberPairBonus[i] || 0) + (shortTermBonus[i] || 0) + (biasBonus[i] || 0);
         }
 
-        // Ordenar as dezenas da mais quente/sinérgica para a mais fria
         const sortedNumbers = Object.keys(finalScores)
             .map(Number)
             .sort((a, b) => finalScores[b] - finalScores[a]);
 
-        // Pega a nata do topo
         const sniperPool = sortedNumbers.slice(0, targetSize).sort((a, b) => a - b);
         
-        console.log(`[SmartCoverage] 🎯 Sniper Analítico construído: ${targetSize} dezenas focadas (Duplas+Ciclos+Tendências)`);
+        console.log(`[SmartCoverage] 🎯 Sniper: ${sniperPool.length} dezenas | ${history.length} sorteios | pool=${poolSizePreference}, draw=${gameDraw}`);
+        // Salvar no cache para próximas chamadas (instantâneo por 60s)
+        SmartCoverageEngine._sniperCache[cacheKey] = { pool: sniperPool, ts: Date.now() };
         return sniperPool;
     }
 
@@ -261,17 +321,28 @@ class SmartCoverageEngine {
 
                     if (history.length > 0) {
                         // ★ PILAR 1: 21 CAMADAS DE INTELIGÊNCIA
-                        // v11.0 FIX: Setar drawSize e sniperMode ANTES de _scoreAllNumbers
-                        const profileDrawSize = profile.drawSize || drawSize;
-                        NovaEraEngine._currentDrawSize = profileDrawSize;
-                        NovaEraEngine._sniperMode = numGames > 100; // Floor alto para diversidade
+                        // v16.2 CACHE: NovaEra leva 400ms-7s — cachear por 60s por loteria
+                        if (!SmartCoverageEngine._novaEraCache) SmartCoverageEngine._novaEraCache = {};
+                        const neCacheKey = gameKey;
+                        const neCached = SmartCoverageEngine._novaEraCache[neCacheKey];
+                        const NE_TTL = 60000;
                         let scores;
-                        try {
-                            scores = NovaEraEngine._scoreAllNumbers(
-                                gameKey, profile, history, startNum, endNum, totalRange
-                            );
-                        } finally {
-                            NovaEraEngine._sniperMode = false;
+                        if (neCached && (Date.now() - neCached.ts) < NE_TTL) {
+                            scores = neCached.scores;
+                            console.log('[SmartCoverage] ⚡ NovaEra CACHE HIT: ' + gameKey + ' (expira em ' + Math.round((NE_TTL - (Date.now() - neCached.ts)) / 1000) + 's)');
+                        } else {
+                            const profileDrawSize = profile.drawSize || drawSize;
+                            NovaEraEngine._currentDrawSize = profileDrawSize;
+                            NovaEraEngine._sniperMode = numGames > 100;
+                            try {
+                                scores = NovaEraEngine._scoreAllNumbers(
+                                    gameKey, profile, history, startNum, endNum, totalRange
+                                );
+                                // Salvar no cache
+                                SmartCoverageEngine._novaEraCache[neCacheKey] = { scores, ts: Date.now() };
+                            } finally {
+                                NovaEraEngine._sniperMode = false;
+                            }
                         }
 
                         // Ranking por score (maior → menor)
@@ -443,3 +514,7 @@ class SmartCoverageEngine {
         return metrics;
     }
 }
+
+// Inicialização dos caches fora da classe (compatível com todos os browsers)
+SmartCoverageEngine._sniperCache   = {};   // Pool do Sniper — TTL 60s por loteria
+SmartCoverageEngine._novaEraCache  = {};   // Scores NovaEra — TTL 60s por loteria

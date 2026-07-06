@@ -26,8 +26,8 @@
         }, function() {
             console.log('[B2B Extension] ✅ ' + data.games.length + ' jogos salvos! Abrindo Caixa...');
             
-            // Abre o site da Caixa
-            const url = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + data.config.url;
+            // Abre o site da Caixa na página inicial (o automator cuida de navegar para o jogo)
+            const url = 'https://www.loteriasonline.caixa.gov.br/';
             window.open(url, '_blank');
         });
     });
