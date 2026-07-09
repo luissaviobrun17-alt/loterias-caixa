@@ -229,7 +229,7 @@ class AsyncGenerator {
         // ═══ v16.3: Roteamento Inteligente para Cobertura IA de Alto Volume ═══
         // Se numGames > 1000, forçar o uso do PureCoverageEngine que é O(N log N) e não trava,
         // garantindo a Matemática Pura original sem os limites da Fronteira de Pareto O(N^2)
-        if (!opts.precisionMode && numGames > 1000 && typeof PureCoverageEngine !== 'undefined') {
+        if (numGames > 1000 && typeof PureCoverageEngine !== 'undefined') {
             console.log('%c[AsyncGen] 🚀 COBERTURA PURA MASSIVA (Volume Alto): ' + numGames + ' jogos', 'color:#10B981;font-weight:bold;');
             self._showBar(name + ' — Cobertura Pura Massiva', numGames);
             
