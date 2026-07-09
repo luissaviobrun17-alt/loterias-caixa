@@ -270,7 +270,7 @@ class PureCoverageEngine {
             // Se o usuário exige que não haja triplos nem sequências longas:
             // maxConsecutive = 2 significa que o máximo permitido são 2 números seguidos (ex: 10, 11).
             // Uma sequência de 3 (ex: 10, 11, 12) é sumariamente rejeitada.
-            effectiveCfg.maxConsecutive = (cfg.drawSize >= 15) ? 3 : Math.min(effectiveCfg.maxConsecutive, 2);
+            effectiveCfg.maxConsecutive = (cfg.drawSize >= 50) ? 4 : (cfg.drawSize >= 15) ? 3 : Math.min(effectiveCfg.maxConsecutive, 2);
             console.log('%c[PURE-COVER] 🛡️ STRICT MATH: Anti-Triplos e Anti-Sequência ativado (maxConsecutive=2)', 'color: #ef4444; font-weight: bold;');
         }
 
