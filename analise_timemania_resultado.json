@@ -1,0 +1,210 @@
+{
+  "timestamp": "2026-06-16T20:29:51.952Z",
+  "totalJogos": 10000,
+  "numsPorJogo": 10,
+  "contadorTamanhos": {
+    "10": 10000
+  },
+  "timeDoCoracao": "AUSENTE_NO_ARQUIVO",
+  "bugs": {
+    "total": 0,
+    "tamanhoErrado": 0,
+    "duplicataInterna": 0,
+    "foraDoRange": 0,
+    "naoOrdenado": 0,
+    "duplicatas": 0,
+    "listaDuplicatas": []
+  },
+  "numerosAusentes": [],
+  "anomalias": [
+    {
+      "num": 2,
+      "count": 1161,
+      "pct": "1.1610"
+    }
+  ],
+  "estatisticas": {
+    "somaMedia": 405.11,
+    "somaIdeal": 405,
+    "somaMin": 320,
+    "somaMax": 490,
+    "parImpar": {
+      "par": 49979,
+      "impar": 50021
+    },
+    "dezenas": {
+      "01-10": 12328,
+      "11-20": 12512,
+      "21-30": 12592,
+      "31-40": 12564,
+      "41-50": 12636,
+      "51-60": 12502,
+      "61-70": 12396,
+      "71-80": 12470
+    },
+    "seqLongas2": 7016,
+    "seqLongas3": 880,
+    "gapMedia": 7.487,
+    "gapEsperado": 7.364,
+    "benchmark": {
+      "pct2": "72.05",
+      "pct3": "10.12",
+      "somaMedia": "405.1"
+    },
+    "coefVariacao": 2.2642,
+    "topFrequentes": [
+      {
+        "num": 17,
+        "count": 1311,
+        "pct": "1.3110"
+      },
+      {
+        "num": 23,
+        "count": 1311,
+        "pct": "1.3110"
+      },
+      {
+        "num": 65,
+        "count": 1308,
+        "pct": "1.3080"
+      },
+      {
+        "num": 72,
+        "count": 1306,
+        "pct": "1.3060"
+      },
+      {
+        "num": 44,
+        "count": 1305,
+        "pct": "1.3050"
+      },
+      {
+        "num": 48,
+        "count": 1300,
+        "pct": "1.3000"
+      },
+      {
+        "num": 52,
+        "count": 1300,
+        "pct": "1.3000"
+      },
+      {
+        "num": 29,
+        "count": 1297,
+        "pct": "1.2970"
+      },
+      {
+        "num": 39,
+        "count": 1296,
+        "pct": "1.2960"
+      },
+      {
+        "num": 34,
+        "count": 1293,
+        "pct": "1.2930"
+      },
+      {
+        "num": 7,
+        "count": 1291,
+        "pct": "1.2910"
+      },
+      {
+        "num": 50,
+        "count": 1291,
+        "pct": "1.2910"
+      },
+      {
+        "num": 38,
+        "count": 1287,
+        "pct": "1.2870"
+      },
+      {
+        "num": 21,
+        "count": 1274,
+        "pct": "1.2740"
+      },
+      {
+        "num": 10,
+        "count": 1272,
+        "pct": "1.2720"
+      }
+    ],
+    "topRaros": [
+      {
+        "num": 2,
+        "count": 1161,
+        "pct": "1.1610"
+      },
+      {
+        "num": 68,
+        "count": 1210,
+        "pct": "1.2100"
+      },
+      {
+        "num": 6,
+        "count": 1212,
+        "pct": "1.2120"
+      },
+      {
+        "num": 3,
+        "count": 1212,
+        "pct": "1.2120"
+      },
+      {
+        "num": 66,
+        "count": 1215,
+        "pct": "1.2150"
+      },
+      {
+        "num": 77,
+        "count": 1217,
+        "pct": "1.2170"
+      },
+      {
+        "num": 67,
+        "count": 1217,
+        "pct": "1.2170"
+      },
+      {
+        "num": 80,
+        "count": 1218,
+        "pct": "1.2180"
+      },
+      {
+        "num": 28,
+        "count": 1218,
+        "pct": "1.2180"
+      },
+      {
+        "num": 33,
+        "count": 1225,
+        "pct": "1.2250"
+      },
+      {
+        "num": 15,
+        "count": 1225,
+        "pct": "1.2250"
+      },
+      {
+        "num": 59,
+        "count": 1226,
+        "pct": "1.2260"
+      },
+      {
+        "num": 47,
+        "count": 1226,
+        "pct": "1.2260"
+      },
+      {
+        "num": 69,
+        "count": 1227,
+        "pct": "1.2270"
+      },
+      {
+        "num": 58,
+        "count": 1227,
+        "pct": "1.2270"
+      }
+    ]
+  }
+}

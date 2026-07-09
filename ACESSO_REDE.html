@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B Loterias - Acesso pela Rede</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            width: 100%;
+        }
+        
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 24px;
+            padding: 48px 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4), 0 0 80px rgba(16,185,129,0.05);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .logo h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10B981, #34D399, #6EE7B7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            margin-top: 6px;
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(16,185,129,0.3), transparent);
+            margin: 24px 0;
+        }
+        
+        .step {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            align-items: flex-start;
+        }
+        
+        .step-number {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(16,185,129,0.3);
+        }
+        
+        .step-content h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 6px;
+        }
+        
+        .step-content p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .step-content .highlight {
+            color: #34D399;
+            font-weight: 700;
+        }
+        
+        .file-box {
+            background: rgba(16, 185, 129, 0.08);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            margin: 28px 0;
+        }
+        
+        .file-box label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #10B981;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .file-box .filename {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #34D399;
+        }
+        
+        .file-box .desc {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+        
+        .warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 3px solid #f59e0b;
+            border-radius: 0 12px 12px 0;
+            padding: 16px 20px;
+            margin-top: 24px;
+        }
+        
+        .warning h4 {
+            color: #fbbf24;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        
+        .warning p {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            color: #475569;
+            font-size: 0.8rem;
+        }
+        
+        @media print {
+            body { background: white; color: #1e293b; }
+            .card { background: white; border: 2px solid #10B981; box-shadow: none; }
+            .logo h1 { -webkit-text-fill-color: #059669; color: #059669; }
+            .step-content p, .warning p, .file-box .desc { color: #475569; }
+            .file-box .filename { color: #059669; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="logo">
+                <h1>🍀 B2B Loterias</h1>
+                <p>Instruções para acessar de outro computador (Modo App - Sem barra do Chrome)</p>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>No computador PRINCIPAL (servidor)</h3>
+                    <p>Dê duplo clique no atalho <span class="highlight">B2B Loterias REDE</span> na Área de Trabalho. <strong>NÃO feche a janela preta</strong> que aparece.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Envie este arquivo para o OUTRO computador</h3>
+                    <p>Copie o arquivo abaixo para o outro computador via pen drive, WhatsApp, e-mail ou qualquer meio:</p>
+                </div>
+            </div>
+            
+            <div class="file-box">
+                <label>📁 Arquivo para o outro computador</label>
+                <div class="filename">ABRIR_B2B_REMOTO.bat</div>
+                <div class="desc">Basta dar duplo clique neste arquivo no outro computador.<br>O sistema abrirá em tela cheia, <strong>sem barra de navegação</strong>, igual ao seu computador.</div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Pronto!</h3>
+                    <p>O B2B Loterias abrirá no modo aplicativo (sem barra do Chrome), exatamente como aparece na sua Área de Trabalho.</p>
+                </div>
+            </div>
+            
+            <div class="warning">
+                <h4>⚠️ IMPORTANTE</h4>
+                <p>
+                    • Os dois computadores devem estar na <strong>mesma rede Wi-Fi</strong>.<br>
+                    • A janela preta do servidor deve ficar <strong>aberta</strong> no computador principal.<br>
+                    • Se o Windows pedir para liberar o <strong>Firewall</strong>, clique em "Permitir acesso".<br>
+                    • Se o IP mudar, edite o arquivo ABRIR_B2B_REMOTO.bat e troque o IP na linha <code>set SERVIDOR=</code>.
+                </p>
+            </div>
+            
+            <div class="footer">
+                B2B Loterias © 2026 — Para salvar como PDF: Ctrl+P → Salvar como PDF
+            </div>
+        </div>
+    </div>
+</body>
+</html>

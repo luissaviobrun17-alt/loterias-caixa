@@ -1,0 +1,296 @@
+{
+  "timestamp": "2026-06-16T19:43:36.903Z",
+  "arquivo": "C:\\Users\\luiss\\OneDrive\\Documents\\OneDrive\\Desktop\\LOTERIAS JOGOS SALVOS L99\\MEGASENA\\Mega Sena_16-06-2026_15h39.txt",
+  "totalJogos": 10000,
+  "bugs": {
+    "total": 0,
+    "tamanhoErrado": [],
+    "duplicataInterna": [],
+    "foraDoRange": [],
+    "naoOrdenado": [],
+    "duplicatasEntreSi": []
+  },
+  "estatisticas": {
+    "somaMedia": 182.66,
+    "somaMin": 138,
+    "somaMax": 228,
+    "parImpar": {
+      "par": 29995,
+      "impar": 30005
+    },
+    "dezenas": {
+      "01-10": {
+        "count": 9738,
+        "pct": "16.23"
+      },
+      "11-20": {
+        "count": 10110,
+        "pct": "16.85"
+      },
+      "21-30": {
+        "count": 10209,
+        "pct": "17.02"
+      },
+      "31-40": {
+        "count": 10291,
+        "pct": "17.15"
+      },
+      "41-50": {
+        "count": 10011,
+        "pct": "16.68"
+      },
+      "51-60": {
+        "count": 9641,
+        "pct": "16.07"
+      }
+    },
+    "sequenciasLongas": 0,
+    "topFrequentes": [
+      {
+        "num": 28,
+        "count": 1050
+      },
+      {
+        "num": 33,
+        "count": 1050
+      },
+      {
+        "num": 35,
+        "count": 1050
+      },
+      {
+        "num": 42,
+        "count": 1050
+      },
+      {
+        "num": 23,
+        "count": 1049
+      },
+      {
+        "num": 26,
+        "count": 1049
+      },
+      {
+        "num": 37,
+        "count": 1049
+      },
+      {
+        "num": 39,
+        "count": 1049
+      },
+      {
+        "num": 9,
+        "count": 1041
+      },
+      {
+        "num": 12,
+        "count": 1037
+      },
+      {
+        "num": 36,
+        "count": 1037
+      },
+      {
+        "num": 18,
+        "count": 1034
+      },
+      {
+        "num": 16,
+        "count": 1030
+      },
+      {
+        "num": 30,
+        "count": 1028
+      },
+      {
+        "num": 38,
+        "count": 1028
+      },
+      {
+        "num": 19,
+        "count": 1027
+      },
+      {
+        "num": 24,
+        "count": 1027
+      },
+      {
+        "num": 20,
+        "count": 1024
+      },
+      {
+        "num": 32,
+        "count": 1024
+      },
+      {
+        "num": 44,
+        "count": 1024
+      }
+    ],
+    "topRaros": [
+      {
+        "num": 4,
+        "count": 920
+      },
+      {
+        "num": 57,
+        "count": 924
+      },
+      {
+        "num": 60,
+        "count": 926
+      },
+      {
+        "num": 49,
+        "count": 944
+      },
+      {
+        "num": 1,
+        "count": 946
+      },
+      {
+        "num": 5,
+        "count": 953
+      },
+      {
+        "num": 2,
+        "count": 956
+      },
+      {
+        "num": 58,
+        "count": 959
+      },
+      {
+        "num": 8,
+        "count": 961
+      },
+      {
+        "num": 15,
+        "count": 962
+      },
+      {
+        "num": 55,
+        "count": 969
+      },
+      {
+        "num": 52,
+        "count": 972
+      },
+      {
+        "num": 6,
+        "count": 973
+      },
+      {
+        "num": 54,
+        "count": 975
+      },
+      {
+        "num": 56,
+        "count": 976
+      },
+      {
+        "num": 10,
+        "count": 978
+      },
+      {
+        "num": 59,
+        "count": 979
+      },
+      {
+        "num": 21,
+        "count": 979
+      },
+      {
+        "num": 53,
+        "count": 980
+      },
+      {
+        "num": 51,
+        "count": 981
+      }
+    ],
+    "topPares": [
+      {
+        "par": "7-48",
+        "count": 125
+      },
+      {
+        "par": "3-56",
+        "count": 124
+      },
+      {
+        "par": "16-51",
+        "count": 121
+      },
+      {
+        "par": "7-60",
+        "count": 119
+      },
+      {
+        "par": "11-52",
+        "count": 119
+      },
+      {
+        "par": "14-31",
+        "count": 118
+      },
+      {
+        "par": "10-59",
+        "count": 117
+      },
+      {
+        "par": "4-59",
+        "count": 116
+      },
+      {
+        "par": "9-44",
+        "count": 116
+      },
+      {
+        "par": "13-56",
+        "count": 116
+      },
+      {
+        "par": "9-42",
+        "count": 116
+      },
+      {
+        "par": "9-48",
+        "count": 116
+      },
+      {
+        "par": "18-33",
+        "count": 116
+      },
+      {
+        "par": "20-39",
+        "count": 115
+      },
+      {
+        "par": "28-39",
+        "count": 115
+      },
+      {
+        "par": "5-54",
+        "count": 115
+      },
+      {
+        "par": "26-59",
+        "count": 115
+      },
+      {
+        "par": "28-33",
+        "count": 114
+      },
+      {
+        "par": "19-39",
+        "count": 114
+      },
+      {
+        "par": "4-51",
+        "count": 114
+      }
+    ],
+    "cobertura": 60
+  }
+}

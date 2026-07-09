@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instalar B2B Loterias</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container { max-width: 650px; width: 100%; }
+        .card {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 24px;
+            padding: 48px 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4), 0 0 80px rgba(16,185,129,0.05);
+        }
+        .logo { text-align: center; margin-bottom: 28px; }
+        .logo h1 {
+            font-size: 2.2rem; font-weight: 800;
+            background: linear-gradient(135deg, #10B981, #34D399, #6EE7B7);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .logo p { color: #94a3b8; font-size: 0.95rem; margin-top: 6px; }
+        .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(16,185,129,0.3), transparent); margin: 24px 0; }
+        
+        .link-hero {
+            text-align: center;
+            margin: 28px 0;
+        }
+        .link-hero a {
+            display: inline-block;
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 16px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            box-shadow: 0 8px 30px rgba(16,185,129,0.35);
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+        .link-hero a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(16,185,129,0.5);
+        }
+        .link-hero .url-text {
+            display: block;
+            margin-top: 12px;
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 400;
+            word-break: break-all;
+        }
+        .copy-btn {
+            margin-top: 12px;
+            padding: 10px 28px;
+            background: rgba(16,185,129,0.15);
+            border: 1px solid rgba(16,185,129,0.3);
+            color: #34D399;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        .copy-btn:hover { background: rgba(16,185,129,0.25); }
+        .copy-btn.copied { background: rgba(16,185,129,0.3); color: #6EE7B7; }
+
+        .step { display: flex; gap: 16px; margin-bottom: 22px; align-items: flex-start; }
+        .step-number {
+            flex-shrink: 0; width: 32px; height: 32px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.9rem; color: #fff;
+        }
+        .step-content h3 { font-size: 1rem; font-weight: 700; color: #f1f5f9; margin-bottom: 4px; }
+        .step-content p { color: #94a3b8; font-size: 0.88rem; line-height: 1.5; }
+        .step-content .highlight { color: #34D399; font-weight: 700; }
+
+        .section-title {
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;
+            color: #10B981; font-weight: 700; margin-bottom: 16px; margin-top: 8px;
+        }
+
+        .install-img {
+            background: rgba(16,185,129,0.06);
+            border: 1px solid rgba(16,185,129,0.15);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 8px 0 16px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+        .install-img .icon { font-size: 2rem; margin-bottom: 8px; }
+
+        .footer { text-align: center; margin-top: 20px; color: #475569; font-size: 0.75rem; }
+
+        @media print {
+            body { background: white; color: #1e293b; }
+            .card { background: white; border: 2px solid #10B981; box-shadow: none; }
+            .logo h1 { -webkit-text-fill-color: #059669; color: #059669; }
+            .step-content p { color: #475569; }
+            .link-hero a { background: #059669; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="logo">
+                <h1>🍀 B2B Loterias</h1>
+                <p>Acesse o sistema de qualquer computador ou celular</p>
+            </div>
+
+            <div class="link-hero">
+                <a href="https://luissaviobrun17-alt.github.io/loterias-caixa/" target="_blank">
+                    🚀 ABRIR B2B LOTERIAS
+                </a>
+                <span class="url-text">https://luissaviobrun17-alt.github.io/loterias-caixa/</span>
+                <br>
+                <button class="copy-btn" onclick="copiar()">📋 Copiar Link</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="section-title">📱 Para abrir SEM barra do Chrome (modo app)</div>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Abra o link acima no <span class="highlight">Google Chrome</span></h3>
+                    <p>Funciona no computador ou celular.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>No computador (Chrome)</h3>
+                    <p>Clique no ícone <span class="highlight">⬇️ (instalar)</span> que aparece na barra de endereço do Chrome, ou vá em <span class="highlight">⋮ → Instalar B2B Loterias</span>.</p>
+                </div>
+            </div>
+
+            <div class="install-img">
+                <div class="icon">⋮ → 📥</div>
+                Menu do Chrome → "Instalar B2B Loterias..."
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>No celular (Android/iPhone)</h3>
+                    <p>Toque em <span class="highlight">⋮ → "Adicionar à tela inicial"</span>. Um ícone será criado igual a um aplicativo.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Pronto! 🎉</h3>
+                    <p>O sistema abrirá <strong>sem barra de navegação</strong>, em tela cheia, como um aplicativo nativo.</p>
+                </div>
+            </div>
+
+            <div class="footer">
+                B2B Loterias © 2026 — Para salvar como PDF: Ctrl+P → Salvar como PDF
+            </div>
+        </div>
+    </div>
+    <script>
+        function copiar() {
+            const link = 'https://luissaviobrun17-alt.github.io/loterias-caixa/';
+            navigator.clipboard.writeText(link).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = '✅ Link Copiado!';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = '📋 Copiar Link'; btn.classList.remove('copied'); }, 2000);
+            }).catch(() => { prompt('Copie o link:', link); });
+        }
+    </script>
+</body>
+</html>

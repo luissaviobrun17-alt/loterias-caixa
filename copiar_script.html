@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Copiar Script</title></head>
+<body style="background:#0F172A;color:white;font-family:sans-serif;padding:40px;text-align:center;">
+<h1 style="color:#FFD700">B2B Loterias - Script Teste</h1>
+<p style="color:#F59E0B;font-size:1.2rem;">1. Clique no botao verde<br>2. Va para o site da Caixa (aba anonima Ctrl+Shift+N)<br>3. Clique Sim na verificacao de idade<br>4. F12, Console, Ctrl+V, Enter</p>
+<br>
+<button id="btn" onclick="copiar()" style="background:#22C55E;color:white;border:none;padding:24px 60px;border-radius:16px;font-size:1.5rem;font-weight:900;cursor:pointer;">COPIAR SCRIPT</button>
+<p id="ok" style="color:#22C55E;font-size:1.5rem;display:none;">COPIADO! Cole no Console F12 da Caixa</p>
+<br><br>
+<p style="color:#94A3B8;">Ou selecione e copie o texto abaixo manualmente (Ctrl+A dentro da caixa, depois Ctrl+C):</p>
+<textarea id="ta" readonly onclick="this.select()" style="width:90%;height:200px;background:#1E293B;color:#22C55E;border:1px solid #475569;border-radius:8px;padding:12px;font-family:monospace;font-size:0.75rem;"></textarea>
+<script>
+var S=`(async function(){
+var d=ms=>new Promise(r=>setTimeout(r,ms));
+function fm(){document.querySelectorAll("button,a").forEach(function(b){var t=b.textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="sim"||t==="continuar"||t==="fechar")&&b.offsetParent!==null&&b.offsetWidth>0){var ic=b.id&&(b.id.toLowerCase().indexOf("carrinho")>=0||b.id.toLowerCase().indexOf("pagamento")>=0);if(!ic)try{b.click()}catch(x){}}})}
+console.log("[B2B] Iniciando...");
+fm();await d(500);fm();
+console.log("[B2B] Hash atual: "+window.location.hash);
+console.log("[B2B] Metodo 1: ui-router state.go...");
+try{
+var inj=angular.element(document.body).injector();
+var st=inj.get("$state");
+st.go("mega-sena");
+console.log("[B2B] state.go executado!");
+}catch(e){
+console.log("[B2B] state.go falhou: "+e.message);
+console.log("[B2B] Metodo 2: Clicando link Mega-Sena...");
+var links=document.querySelectorAll("a");
+for(var i=0;i<links.length;i++){
+var h=(links[i].getAttribute("ui-sref")||links[i].getAttribute("href")||"").toLowerCase();
+if(h.indexOf("mega-sena")>=0){console.log("[B2B] Clicando: "+links[i].textContent.trim());links[i].click();break}
+}
+}
+console.log("[B2B] Aguardando 6 segundos...");
+await d(6000);
+fm();await d(1000);
+console.log("[B2B] Hash agora: "+window.location.hash);
+var el=document.getElementById("n01");
+if(el&&el.offsetParent!==null){
+console.log("[B2B] SUCESSO! Volante encontrado!");
+[1,2,3,4,5,6].forEach(function(n){
+var btn=document.getElementById("n"+String(n).padStart(2,"0"));
+if(btn){btn.click();console.log("[B2B] Clicou "+String(n).padStart(2,"0"))}
+});
+console.log("[B2B] TESTE OK! Numeros 01-06 selecionados!");
+}else{
+console.log("[B2B] ERRO: Volante NAO encontrado");
+console.log("[B2B] Elementos com id n01: "+document.querySelectorAll("#n01").length);
+console.log("[B2B] Elementos a[id^=n]: "+document.querySelectorAll("a[id^=n]").length);
+}
+})()`;
+document.getElementById("ta").value=S;
+function copiar(){navigator.clipboard.writeText(S).then(function(){document.getElementById("ok").style.display="block";document.getElementById("btn").textContent="COPIADO!";document.getElementById("btn").style.background="#059669"}).catch(function(){document.getElementById("ta").select();document.execCommand("copy");document.getElementById("ok").style.display="block";document.getElementById("btn").textContent="COPIADO!"})}
+</script>
+</body></html>

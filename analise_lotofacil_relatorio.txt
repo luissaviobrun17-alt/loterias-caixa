@@ -1,0 +1,206 @@
+
+═════════════════════════════════════════════════════════════════
+  🟣  RELATÓRIO HONESTO — LOTOFÁCIL 10.000 JOGOS
+  🗓️  Gerado em: 16/06/2026 às 15:51
+  ⚠️  ANÁLISE SEM FILTROS — VERDADE MATEMÁTICA PURA
+═════════════════════════════════════════════════════════════════
+
+  Jogos analisados:          10.000
+  Espaço amostral total:     3.268.760 jogos possíveis
+  Cobertura do espaço:       0.3059% dos jogos possíveis
+
+─────────────────────────────────────────────────────────────────
+  🔍  SEÇÃO 1 — INTEGRIDADE DOS JOGOS
+─────────────────────────────────────────────────────────────────
+  ✅  Tamanho incorreto (≠15 nºs)     : NENHUM
+  ✅  Duplicata interna (nº repetido) : NENHUM
+  ✅  Fora do range (1-25)            : NENHUM
+  ✅  Não ordenados                   : NENHUM
+  ✅  Jogos duplicados entre si       : NENHUM
+
+  🏆  RESULTADO TÉCNICO: SISTEMA 100% ÍNTEGRO
+      Zero bugs nos 10.000 jogos — motor funciona corretamente.
+
+─────────────────────────────────────────────────────────────────
+  📈  SEÇÃO 2 — FREQUÊNCIA DOS 25 NÚMEROS
+  (Frequência esperada se fosse PERFEITAMENTE aleatório)
+─────────────────────────────────────────────────────────────────
+
+  Frequência esperada por número: ~6000x (4.00% cada)
+  Desvio padrão das frequências:  60.3
+  Coeficiente de variação:         1.00%
+  (CV < 2% = distribuição normal | CV > 5% = possível viés)
+
+  🔥  TOP 10 MAIS FREQUENTES:
+     1. Nº  1:   6083x (4.055%)  [+83]  ██████████
+     2. Nº  3:   6072x (4.048%)  [+72]  ██████████
+     3. Nº  5:   6072x (4.048%)  [+72]  ██████████
+     4. Nº 21:   6066x (4.044%)  [+66]  ██████████
+     5. Nº 17:   6059x (4.039%)  [+59]  ██████████
+     6. Nº 23:   6056x (4.037%)  [+56]  ██████████
+     7. Nº 25:   6054x (4.036%)  [+54]  ██████████
+     8. Nº 15:   6047x (4.031%)  [+47]  ██████████
+     9. Nº  7:   6031x (4.021%)  [+31]  ██████████
+    10. Nº  2:   6027x (4.018%)  [+27]  ██████████
+
+  🧊  10 MENOS FREQUENTES:
+     1. Nº 22:   5867x (3.911%)  [-133]  ░░░░░░░░░░
+     2. Nº 14:   5890x (3.927%)  [-110]  ░░░░░░░░░░
+     3. Nº  8:   5906x (3.937%)  [-94]  ░░░░░░░░░░
+     4. Nº  4:   5930x (3.953%)  [-70]  ░░░░░░░░░░
+     5. Nº 10:   5948x (3.965%)  [-52]  ░░░░░░░░░░
+     6. Nº 24:   5952x (3.968%)  [-48]  ░░░░░░░░░░
+     7. Nº 20:   5955x (3.970%)  [-45]  ░░░░░░░░░░
+     8. Nº 16:   5957x (3.971%)  [-43]  ░░░░░░░░░░
+     9. Nº 12:   5967x (3.978%)  [-33]  ░░░░░░░░░░
+    10. Nº 18:   5975x (3.983%)  [-25]  ░░░░░░░░░░
+
+  📊  TODOS OS 25 NÚMEROS (ordem crescente):
+    Nº  1:   6083x  [+83]
+    Nº  2:   6027x  [+27]
+    Nº  3:   6072x  [+72]
+    Nº  4:   5930x  [-70]
+    Nº  5:   6072x  [+72]
+    Nº  6:   6015x  [+15]
+    Nº  7:   6031x  [+31]
+    Nº  8:   5906x  [-94]
+    Nº  9:   6025x  [+25]
+    Nº 10:   5948x  [-52]
+    Nº 11:   6011x  [+11]
+    Nº 12:   5967x  [-33]
+    Nº 13:   6022x  [+22]
+    Nº 14:   5890x  [-110]
+    Nº 15:   6047x  [+47]
+    Nº 16:   5957x  [-43]
+    Nº 17:   6059x  [+59]
+    Nº 18:   5975x  [-25]
+    Nº 19:   6013x  [+13]
+    Nº 20:   5955x  [-45]
+    Nº 21:   6066x  [+66]
+    Nº 22:   5867x  [-133] ⚠️
+    Nº 23:   6056x  [+56]
+    Nº 24:   5952x  [-48]
+    Nº 25:   6054x  [+54]
+
+─────────────────────────────────────────────────────────────────
+  ∑   SEÇÃO 3 — ANÁLISE DE SOMA DOS JOGOS
+─────────────────────────────────────────────────────────────────
+
+  Soma média dos 10.000 jogos:  194.8
+  Soma ideal teórica (1+2+...+25)/25×15: 195.0
+  Desvio da soma média vs ideal: -0.2 (0.10%)
+  Soma mínima encontrada: 165
+  Soma máxima encontrada: 225
+  Amplitude: 60
+  (Soma possível: mín=120 [1+2+...+15], máx=315 [11+12+...+25])
+
+  📊  DISTRIBUIÇÃO DE SOMAS (faixas de 15):
+    165-179:  1648 jogos  █████████████████████████████████
+    180-194:  3318 jogos  ██████████████████████████████████████████████████████████████████
+    195-209:  3241 jogos  █████████████████████████████████████████████████████████████████
+    210-224:  1734 jogos  ███████████████████████████████████
+    225-239:    59 jogos  █
+
+─────────────────────────────────────────────────────────────────
+  🔢  SEÇÃO 4 — DISTRIBUIÇÃO PAR/ÍMPAR
+─────────────────────────────────────────────────────────────────
+
+  Pares nos jogos:   71.389 (47.59%)
+  Ímpares nos jogos: 78.611 (52.41%)
+
+  ESPERADO TEÓRICO (1-25 tem 12 pares e 13 ímpares):
+    Pares esperados/jogo:   ~7.2 (48.0%)
+    Ímpares esperados/jogo: ~7.8 (52.0%)
+
+  Desvio real vs teórico: 0.407%  ✅ Normal
+
+─────────────────────────────────────────────────────────────────
+  🗂️   SEÇÃO 5 — DISTRIBUIÇÃO POR FAIXA DE NÚMEROS
+─────────────────────────────────────────────────────────────────
+
+  Esperado teórico: 01-10=40%, 11-20=40%, 21-25=20%
+
+  01-10:   60109 (40.07%) [+0.07% vs esperado 40%]  ████████████████████
+  11-20:   59896 (39.93%) [-0.07% vs esperado 40%]  ████████████████████
+  21-25:   29995 (20.00%) [-0.00% vs esperado 20%]  ██████████
+
+─────────────────────────────────────────────────────────────────
+  🔗  SEÇÃO 6 — SEQUÊNCIAS LONGAS (5+ consecutivos)
+─────────────────────────────────────────────────────────────────
+
+  Jogos com 5+ consecutivos: 5262 (52.620%)
+
+─────────────────────────────────────────────────────────────────
+  💑  SEÇÃO 7 — TOP 20 PARES MAIS FREQUENTES
+─────────────────────────────────────────────────────────────────
+
+  Frequência esperada por par: ~3500.0x
+
+     1. 6-25    :  3663x [+163]
+     2. 2-23    :  3654x [+154]
+     3. 2-19    :  3646x [+146]
+     4. 3-21    :  3643x [+143]
+     5. 1-23    :  3637x [+137]
+     6. 2-25    :  3635x [+135]
+     7. 2-21    :  3630x [+130]
+     8. 5-17    :  3628x [+128]
+     9. 1-20    :  3626x [+126]
+    10. 6-15    :  3625x [+125]
+    11. 5-23    :  3625x [+125]
+    12. 5-24    :  3624x [+124]
+    13. 7-25    :  3624x [+124]
+    14. 6-21    :  3622x [+122]
+    15. 1-17    :  3622x [+122]
+    16. 1-18    :  3620x [+120]
+    17. 2-17    :  3620x [+120]
+    18. 5-25    :  3616x [+116]
+    19. 3-23    :  3611x [+111]
+    20. 3-25    :  3610x [+110]
+
+═════════════════════════════════════════════════════════════════
+  ⚠️   SEÇÃO 8 — ANÁLISE HONESTA: O QUE ESSES NÚMEROS SIGNIFICAM
+═════════════════════════════════════════════════════════════════
+
+  PERGUNTA 1: Esses 10.000 jogos cobrem quantos % das possibilidades?
+  RESPOSTA:   0.3059% — ou seja, 99.6941% das possibilidades NÃO estão cobertas.
+
+  PERGUNTA 2: Qual a probabilidade de acertar os 15 pontos com esses jogos?
+  RESPOSTA:   Se o sorteio fosse HOJE, cada jogo tem 1 em 3.268.760 de chance.
+              Com 10.000 jogos: 0.305926% de chance de acertar 15 pontos.
+              Em outras palavras: 99.6941% de chance de NÃO acertar.
+
+  PERGUNTA 3: Os números "mais frequentes" saem mais no sorteio real?
+  RESPOSTA:   NÃO. A Lotofácil usa bolas físicas. Cada sorteio é
+              independente. A frequência no GERADOR não prediz o sorteio.
+              O gerador sendo equilibrado é uma QUALIDADE TÉCNICA do
+              software, não uma vantagem de apostas.
+
+  PERGUNTA 4: O sistema de "fechamento" garante prêmio?
+  RESPOSTA:   O fechamento garante que SE um subconjunto dos números
+              escolhidos sair, pelo menos 1 jogo terá a garantia.
+              Mas escolher os números certos é ALEATÓRIO — sem garantia.
+
+  PERGUNTA 5: Custo real dessas 10.000 apostas:
+  RESPOSTA:   10.000 × R$ 3,50 = R$ 35.000,00 investidos.
+              Prêmio médio 15 pontos: ~R$ 2.000.000
+              Prêmio médio 14 pontos: ~R$ 1.600
+              Prêmio médio 13 pontos: ~R$ 30
+              Valor esperado (EV) real: NEGATIVO (casa fica com ~45%)
+
+═════════════════════════════════════════════════════════════════
+  📋  RESUMO FINAL — COM TOTAL HONESTIDADE
+═════════════════════════════════════════════════════════════════
+
+  ✅  Técnico: Sistema íntegro — ZERO bugs em 10.000 jogos
+  ✅  Técnico: Distribuição estatisticamente equilibrada
+  ✅  Técnico: 25/25 números cobertos (100%)
+  ✅  Técnico: Soma média 194.8 vs ideal 195 (desvio: 0.2)
+
+  ❌  Apostas: 0.3059% do espaço amostral coberto
+  ❌  Apostas: Probabilidade de 15 pts = 0.305926%
+  ❌  Apostas: R$ 35.000 investidos com valor esperado NEGATIVO
+  ❌  Apostas: Frequências passadas NÃO predizem sorteios futuros
+
+  O sistema é tecnicamente excelente como ORGANIZADOR de apostas.
+  Ele não pode e não deve ser usado como PREDITOR de resultados.
+═════════════════════════════════════════════════════════════════

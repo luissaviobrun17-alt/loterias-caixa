@@ -1,0 +1,15 @@
+PASSO A PASSO PARA INSTALAR E USAR O GERADOR DE LOTERIAS
+
+1. Abra a pasta "loterias-caixa" (onde este arquivo está).
+
+2. Para criar um atalho na sua Área de Trabalho (Desktop):
+   - Procure o arquivo chamado "INSTALAR_ATALHO.bat".
+   - Dê dois cliques nele.
+   - Uma mensagem de confirmação aparecerá. Pressione qualquer tecla para fechar.
+   - Vá até sua Área de Trabalho e procure o ícone "Loterias Caixa".
+
+3. Para abrir o programa sem instalar:
+   - Procure o arquivo "index.html".
+   - Dê dois cliques nele. O jogo abrirá no seu navegador de internet.
+
+DIVIRTA-SE!

@@ -1,0 +1,87 @@
+{
+  "megasena": {
+    "bestWeights": {
+      "freq": 0.5,
+      "delay": 0.3333333333333333,
+      "pairs": 0,
+      "zone": 0.16666666666666666
+    },
+    "bestLift": 1.2777777777777777,
+    "baseline": 1.1388888888888888,
+    "improvement": "13.89%",
+    "individualLifts": {
+      "Frequência (decay)": 0.9444444444444444,
+      "Atraso (delay)": 1.0833333333333333,
+      "Pares (co-ocor.)": 1.0555555555555556,
+      "Zona (equilíbrio)": 1.0277777777777777
+    }
+  },
+  "lotofacil": {
+    "bestWeights": {
+      "freq": 0,
+      "delay": 0,
+      "pairs": 0,
+      "zone": 1
+    },
+    "bestLift": 1,
+    "baseline": 1,
+    "improvement": "0.00%",
+    "individualLifts": {
+      "Frequência (decay)": 1,
+      "Atraso (delay)": 1,
+      "Pares (co-ocor.)": 1,
+      "Zona (equilíbrio)": 1
+    }
+  },
+  "quina": {
+    "bestWeights": {
+      "freq": 0.5,
+      "delay": 0,
+      "pairs": 0,
+      "zone": 0.5
+    },
+    "bestLift": 1.3333333333333333,
+    "baseline": 1.0133333333333334,
+    "improvement": "32.00%",
+    "individualLifts": {
+      "Frequência (decay)": 1.0666666666666667,
+      "Atraso (delay)": 0.96,
+      "Pares (co-ocor.)": 0.8,
+      "Zona (equilíbrio)": 1.0133333333333334
+    }
+  },
+  "timemania": {
+    "bestWeights": {
+      "freq": 0.3,
+      "delay": 0.3,
+      "pairs": 0,
+      "zone": 0.4
+    },
+    "bestLift": 1.3605442176870755,
+    "baseline": 1.2517006802721093,
+    "improvement": "10.88%",
+    "individualLifts": {
+      "Frequência (decay)": 0.7074829931972791,
+      "Atraso (delay)": 1.1156462585034017,
+      "Pares (co-ocor.)": 0.8435374149659868,
+      "Zona (equilíbrio)": 1.1700680272108848
+    }
+  },
+  "diadesorte": {
+    "bestWeights": {
+      "freq": 0,
+      "delay": 0.25,
+      "pairs": 0,
+      "zone": 0.75
+    },
+    "bestLift": 1.0755102040816322,
+    "baseline": 0.8646258503401357,
+    "improvement": "21.09%",
+    "individualLifts": {
+      "Frequência (decay)": 0.7380952380952378,
+      "Atraso (delay)": 1.022789115646258,
+      "Pares (co-ocor.)": 1.0122448979591834,
+      "Zona (equilíbrio)": 1.0649659863945575
+    }
+  }
+}
