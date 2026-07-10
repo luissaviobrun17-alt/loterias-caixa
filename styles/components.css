@@ -1,4 +1,4 @@
-﻿/* Component Styles for Modern Glassmorphism UI */
+/* Component Styles for Modern Glassmorphism UI */
 
 /* Buttons */
 /* Buttons */
@@ -325,12 +325,12 @@ select:focus {
     width: 28px;
     height: 28px;
     margin: 0;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     border-radius: 50%;
     background: var(--bg-main);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
-    font-weight: 600;
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.15s ease;
     user-select: none;

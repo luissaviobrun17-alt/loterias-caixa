@@ -64,7 +64,7 @@
     .grid-num {
         width: 34px;
         height: 34px;
-        font-size: 0.9rem;
+        font-size: 1rem;
     }
 
     /* Cards de jogos */
@@ -201,7 +201,7 @@
     .grid-num {
         width: 42px;
         height: 42px;
-        font-size: 0.95rem;
+        font-size: 1.15rem;
     }
 
     /* Botão Gerar */
@@ -421,7 +421,7 @@
     .grid-num {
         width: 38px;
         height: 38px;
-        font-size: 0.85rem;
+        font-size: 1.05rem;
     }
 
     .nav-btn {
@@ -477,6 +477,7 @@
     .grid-num {
         width: 42px;
         height: 42px;
+        font-size: 1.15rem;
     }
 
     .games-grid {
