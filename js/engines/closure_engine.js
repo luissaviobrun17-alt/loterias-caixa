@@ -128,7 +128,7 @@ class ClosureEngine {
 
         const games = [];
         const usedKeys = new Set();
-        const maxGames = Math.max(targetGames * 2, 500); // safety limit
+        const maxGames = Math.max(targetGames * 5, 500000); // safety limit
 
         while (uncoveredSet.size > 0 && games.length < maxGames) {
             // Gerar candidatos e escolher o que cobre mais t-subsets não-cobertos
@@ -143,7 +143,7 @@ class ClosureEngine {
 
             const candidates = allCombos
                 ? allCombos
-                : this._generateRandomCandidates(nums, k, Math.min(5000, targetGames * 50));
+                : this._generateRandomCandidates(nums, k, Math.min(50000, targetGames * 50));
 
             for (const candidate of candidates) {
                 const key = candidate.join(',');

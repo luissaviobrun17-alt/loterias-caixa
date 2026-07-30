@@ -150,15 +150,15 @@
             if (!isDS) return true;
             await d(300);
             // Seletores REAIS do site da Caixa (AngularJS)
-            let meses = document.querySelectorAll('li[ng-repeat*=listaMeses],li[ng-click*=configurarMes],[id=mes] li,ul.meses li,.meses-list li');
+            let meses = document.querySelectorAll('li[ng-repeat*=listaMeses],li[ng-click*=configurarMes],[id=mes] li,ul.meses li,.meses-list li, .lista-meses li, label.mes, .mes-sorte li');
             // Fallback: meses por nome em português
             if (meses.length === 0) {
-                const nomesMeses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+                const nomesMeses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro','marco'];
                 const found = [];
-                document.querySelectorAll('li,a,span,div').forEach(el => {
+                document.querySelectorAll('li,a,span,div,label,button').forEach(el => {
                     const tx = el.textContent.trim().toLowerCase();
                     for (let m = 0; m < nomesMeses.length; m++) {
-                        if (tx === nomesMeses[m] && el.children.length <= 1) { found.push(el); break; }
+                        if (tx.indexOf(nomesMeses[m]) !== -1 && tx.length < 25 && el.children.length <= 1) { found.push(el); break; }
                     }
                 });
                 if (found.length > 0) meses = found;

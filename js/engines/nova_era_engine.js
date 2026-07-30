@@ -3422,7 +3422,7 @@ class NovaEraEngine {
 
         // 5. â˜… v5.0: VALIDAÃ‡Ã•ES ESTRUTURAIS SEMPRE ATIVAS (nÃ£o mais skip por batch size!)
         const fixedRatio = fixedNumbers.length / drawSize;
-        const skipValidation = fixedRatio >= 0.5; // SÃ³ skip se >50% sÃ£o fixos do usuÃ¡rio
+        const skipValidation = (fixedRatio >= 0.5) || (pool && pool.length < drawSize + 10); // SÃ³ skip se >50% sÃ£o fixos do usuÃ¡rio ou pool pequeno
 
         if (!skipValidation) {
             // Paridade

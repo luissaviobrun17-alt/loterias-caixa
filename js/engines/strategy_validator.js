@@ -17,7 +17,7 @@ class StrategyValidator {
       allowSniper:   false,
       minPool:       6,
       recPool:       10,
-      maxGames:      500,
+      maxGames:      500000,
       label:         'Mega-Sena',
       numbersPerGame: 6,
       totalNumbers:  60
@@ -27,7 +27,7 @@ class StrategyValidator {
       allowSniper:   false,
       minPool:       15,
       recPool:       18,
-      maxGames:      1000,
+      maxGames:      500000,
       label:         'Lotofácil',
       numbersPerGame: 15,
       totalNumbers:  25
@@ -37,7 +37,7 @@ class StrategyValidator {
       allowSniper:   false,
       minPool:       5,
       recPool:       8,
-      maxGames:      800,
+      maxGames:      500000,
       label:         'Quina',
       numbersPerGame: 5,
       totalNumbers:  80
@@ -47,7 +47,7 @@ class StrategyValidator {
       allowSniper:   false,
       minPool:       6,
       recPool:       8,
-      maxGames:      500,
+      maxGames:      500000,
       label:         'Dupla Sena',
       numbersPerGame: 6,
       totalNumbers:  50
@@ -57,7 +57,7 @@ class StrategyValidator {
       allowSniper:   false,
       minPool:       50,
       recPool:       50,
-      maxGames:      5000,
+      maxGames:      500000,
       label:         'Lotomania',
       numbersPerGame: 50,
       totalNumbers:  100
@@ -67,7 +67,7 @@ class StrategyValidator {
       allowSniper:   true,
       minPool:       10,
       recPool:       12,
-      maxGames:      5000,
+      maxGames:      500000,
       sniperMinPool: 12,
       label:         'Timemania',
       numbersPerGame: 10,
@@ -78,7 +78,7 @@ class StrategyValidator {
       allowSniper:   false,
       minPool:       7,
       recPool:       10,
-      maxGames:      8000,
+      maxGames:      500000,
       label:         'Dia de Sorte',
       numbersPerGame: 7,
       totalNumbers:  31
@@ -187,17 +187,17 @@ class StrategyValidator {
       }
 
       // ── Retorno negativo extremo ──
-      // Se o custo estimado ultrapassar R$ 5.000, avisa; > R$ 20.000 bloqueia
+      // Se o custo estimado ultrapassar R$ 500.000, avisa; > R$ 5.000.000 bloqueia
       const custoPorJogo = StrategyValidator._estimarCusto(gameKey);
       const custoTotal   = custoPorJogo * countNum;
 
-      if (custoTotal > 20000) {
+      if (custoTotal > 5000000) {
         resultado.valid = false;
         resultado.errors.push(
           `Custo estimado de R$ ${custoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ` +
-          `excede o limite seguro de R$ 20.000,00. Reduza a quantidade de jogos.`
+          `excede o limite seguro de R$ 5.000,000,00. Reduza a quantidade de jogos.`
         );
-      } else if (custoTotal > 5000) {
+      } else if (custoTotal > 500000) {
         resultado.warnings.push(
           `Custo estimado de R$ ${custoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}. ` +
           `Verifique se essa quantidade de jogos é realmente desejada.`

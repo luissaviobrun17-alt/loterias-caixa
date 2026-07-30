@@ -164,7 +164,7 @@ class ClosingEngine {
     //  MÉTODO PRINCIPAL: GERAR FECHAMENTO v3.1
     //  CORRIGIDO: Fixos REDUZEM variáveis → REDUZEM apostas
     // ═══════════════════════════════════════════════════════════════
-    static generateClosure(selectedNumbers, guarantee, betSize = 6, gameKey = 'megasena', fixedNumbers = []) {
+    static generateClosure(selectedNumbers, guarantee, betSize = 6, gameKey = 'megasena', fixedNumbers = [], requestedQuantity = 0) {
         const t0 = Date.now();
         const nums = [...selectedNumbers].sort((a, b) => a - b);
         const N = nums.length;
@@ -226,7 +226,7 @@ class ClosingEngine {
 
         // ━━ CASO: Fechamento Completo (effG = slotsVariable) ━━
         if (effG === slotsVariable) {
-            if (totalCandidates > 50000) {
+            if (totalCandidates > 500000) {
                 return {
                     games: [], guarantee, totalGames: totalCandidates,
                     totalSubsets: totalCandidates, covered: 0, coveragePct: 100,
@@ -264,13 +264,13 @@ class ClosingEngine {
 
         if (totalCandidates <= 25000 && totalVarTSubsets <= 200000) {
             console.log('[CLOSING-v3.1] → GREEDY EXATO');
-            return this._greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy);
+            return this._greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy, requestedQuantity);
         } else if (totalVarTSubsets <= 1000000) {
             console.log('[CLOSING-v3.1] → GREEDY AMOSTRADO');
-            return this._greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy);
+            return this._greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy, requestedQuantity);
         } else {
             console.log('[CLOSING-v3.1] → HEURÍSTICO VERIFICADO');
-            return this._heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy);
+            return this._heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy, requestedQuantity);
         }
     }
 
@@ -338,7 +338,7 @@ class ClosingEngine {
     // ═══════════════════════════════════════════════════════
     //  GREEDY EXATO: Cobertura exata de effG-subconjuntos
     // ═══════════════════════════════════════════════════════
-    static _greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy) {
+    static _greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy, requestedQuantity = 0) {
         const variableCount = variableNums.length;
 
         // 1. Enumerar TODOS os effG-subconjuntos de variáveis
@@ -384,7 +384,8 @@ class ClosingEngine {
         const usedCandidates = new Set();
         const TIMEOUT = 120000;
 
-        while (uncovered.size > 0 && (Date.now() - t0) < TIMEOUT) {
+        const maxGames = requestedQuantity > 0 ? requestedQuantity : Infinity;
+        while (uncovered.size > 0 && selectedIndices.length < maxGames && (Date.now() - t0) < TIMEOUT) {
             let bestCandidate = -1;
             let bestCount = 0;
             for (let c = 0; c < allVariableParts.length; c++) {
@@ -431,7 +432,7 @@ class ClosingEngine {
     // ═══════════════════════════════════════════════════════
     //  GREEDY AMOSTRADO: Para espaços médios
     // ═══════════════════════════════════════════════════════
-    static _greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy) {
+    static _greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy, requestedQuantity = 0) {
         const variableCount = variableNums.length;
         const TIMEOUT = 120000;
         const BATCH_SIZE = 15000;
@@ -455,10 +456,11 @@ class ClosingEngine {
 
         // 2. Greedy iterativo com lotes
         const selectedGames = [];
-        const MAX_ROUNDS = 5000; // Aumentado para permitir fechamentos completos de até 5 mil jogos
+        const MAX_ROUNDS = 500000; // Aumentado para permitir fechamentos completos sem limites baixos
         let rounds = 0;
 
-        while (uncovered.size > 0 && rounds < MAX_ROUNDS && (Date.now() - t0) < TIMEOUT) {
+        const maxGames = requestedQuantity > 0 ? requestedQuantity : Infinity;
+        while (uncovered.size > 0 && selectedGames.length < maxGames && rounds < MAX_ROUNDS && (Date.now() - t0) < TIMEOUT) {
             rounds++;
             let candidates = this._generateRandomSubsets(variableNums, slotsVariable, BATCH_SIZE);
             if (aiSynergy) {
@@ -532,7 +534,7 @@ class ClosingEngine {
     // ═══════════════════════════════════════════════════════
     //  HEURÍSTICO VERIFICADO: Para espaços enormes
     // ═══════════════════════════════════════════════════════
-    static _heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy) {
+    static _heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy, requestedQuantity = 0) {
         const variableCount = variableNums.length;
         const totalVarSubsets = this.nCr(variableCount, effG);
         const coversPerCandidate = this.nCr(slotsVariable, effG);
@@ -541,7 +543,7 @@ class ClosingEngine {
         const ratio = effG / slotsVariable;
         let factor = ratio >= 0.9 ? 2.0 : ratio >= 0.7 ? 1.6 : ratio >= 0.5 ? 1.4 : 1.2;
         const targetGames = Math.max(lowerBound, Math.ceil(lowerBound * factor));
-        const maxGames = Math.min(targetGames, 8000);
+        const maxGames = requestedQuantity > 0 ? requestedQuantity : targetGames;
 
         console.log('[CLOSING-v3.1] Estimativa: lower=' + lowerBound + ' → target=' + targetGames + ' → max=' + maxGames);
 
@@ -686,7 +688,7 @@ class ClosingEngine {
         const label = guarantee + ' Pontos';
 
         return {
-            games: estimatedGames, cost, possible: estimatedGames <= 50000,
+            games: estimatedGames, cost, possible: estimatedGames <= 500000,
             subsets: this.nCr(numSelected, guarantee),
             guarantee, label, fixedCount, effectiveGuarantee: effG,
             msg: numSelected + ' números' + (fixedCount > 0 ? ' (' + fixedCount + ' fixos)' : '') +

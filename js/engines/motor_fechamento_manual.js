@@ -28,12 +28,12 @@ class MotorFechamentoManual {
         // Alto/Baixo: Distribuição Hipergeométrica exata
         return {
             megasena:   { sumRange: [116, 250], parityRange: [1, 5], maxConsecutive: 2, minZones: 3, zones: 6, zoneSize: 10, highLowBalance: [1, 5] },
-            lotofacil:  { sumRange: [165, 225], parityRange: [5, 9], maxConsecutive: 8, minZones: 5, zones: 5, zoneSize: 5, highLowBalance: [6, 10] },
+            lotofacil:  { sumRange: [165, 225], parityRange: [5, 9], maxConsecutive: 5, minZones: 5, zones: 5, zoneSize: 5, highLowBalance: [6, 10] },
             quina:      { sumRange: [119, 285], parityRange: [1, 4], maxConsecutive: 2, minZones: 3, zones: 8, zoneSize: 10, highLowBalance: [1, 4] },
             duplasena:  { sumRange: [98, 208],  parityRange: [1, 5], maxConsecutive: 2, minZones: 3, zones: 5, zoneSize: 10, highLowBalance: [1, 5] },
             timemania:  { sumRange: [292, 518], parityRange: [3, 7], maxConsecutive: 3, minZones: 4, zones: 8, zoneSize: 10, highLowBalance: [3, 7] },
             diadesorte: { sumRange: [77, 147],  parityRange: [2, 5], maxConsecutive: 3, minZones: 3, zones: 4, zoneSize: 8, highLowBalance: [2, 5] },
-            lotomania:  { sumRange: [2236, 2714], parityRange: [21, 29], maxConsecutive: 9, minZones: 9, zones: 10, zoneSize: 10, highLowBalance: [21, 29] }
+            lotomania:  { sumRange: [2236, 2714], parityRange: [21, 29], maxConsecutive: 5, minZones: 9, zones: 10, zoneSize: 10, highLowBalance: [21, 29] }
         };
     }
 
@@ -111,9 +111,13 @@ class MotorFechamentoManual {
             allGames = this._generateAll(poolArr, fixedArr, k);
             console.log('[MOTOR-MANUAL] Fechamento TOTAL: ' + allGames.length + ' combinações');
         } else {
+            // ── AI Synergy (Regra Inicial do Projeto) ──
+            var aiSynergy = this._getAISynergy(gameKey, poolArr);
+            if (aiSynergy) console.log('[MOTOR-MANUAL] 🧠 Sinergia Histórica Ativada para confrontos!');
+
             // ── Greedy Set Cover ──
             console.log('[MOTOR-MANUAL] Iniciando Greedy Set Cover...');
-            var result = this._generateGreedy(gameKey, numGames, poolArr, fixedArr, k, cfg);
+            var result = this._generateGreedy(gameKey, numGames, poolArr, fixedArr, k, cfg, aiSynergy);
             allGames = result.games;
             dupCount = result.duplicatesRejected;
             coveredPairs = result.coveredPairs;
@@ -131,15 +135,15 @@ class MotorFechamentoManual {
     //  GREEDY SET COVER — Maximiza cobertura de pares (e triplas)
     //  Todos os números do pool têm peso UNIFORME (1.0)
     // ═══════════════════════════════════════════════════════════════
-    static _generateGreedy(gameKey, numGames, pool, fixed, k, cfg) {
+    static _generateGreedy(gameKey, numGames, pool, fixed, k, cfg, aiSynergy) {
         var self = this;
         var nonFixed = pool.filter(function(n) { return !fixed.includes(n); });
         var slotsNeeded = k - fixed.length;
 
-        // Tracking de cobertura
-        var coveredPairs = new Set();
+        // Tracking de cobertura (Mapa de Frequências)
+        var coveredPairs = new Map();
         var useTriples = k <= 15;
-        var coveredTriples = useTriples ? new Set() : null;
+        var coveredTriples = useTriples ? new Map() : null;
 
         // Tracking de uso de números (anti-concentração)
         var numberUsage = {};
@@ -205,7 +209,7 @@ class MotorFechamentoManual {
                 attemptsThisSlot++;
 
                 // ── Calcular score Greedy ──
-                var score = self._calcGreedyScore(candidateNums, coveredPairs, coveredTriples, useTriples, results, k);
+                var score = self._calcGreedyScore(candidateNums, coveredPairs, coveredTriples, useTriples, results, k, aiSynergy);
 
                 if (score > bestScore) {
                     bestScore = score;
@@ -377,30 +381,28 @@ class MotorFechamentoManual {
     // ═══════════════════════════════════════════════════════════════
     //  SCORE GREEDY — Maximizar novos pares + triplas + hamming
     // ═══════════════════════════════════════════════════════════════
-    static _calcGreedyScore(candidate, coveredPairs, coveredTriples, useTriples, existingGames, k) {
-        var newPairs = 0;
+    static _calcGreedyScore(candidate, coveredPairs, coveredTriples, useTriples, existingGames, k, aiSynergy) {
+        var pairScore = 0;
         var len = candidate.length;
 
-        // Contar NOVOS pares cobertos
+        // Contar score de pares baseado na frieza (inverso da frequência)
         for (var i = 0; i < len; i++) {
             for (var j = i + 1; j < len; j++) {
                 var pairKey = candidate[i] + '-' + candidate[j]; // já ordenado
-                if (!coveredPairs.has(pairKey)) {
-                    newPairs++;
-                }
+                var pFreq = coveredPairs.get(pairKey) || 0;
+                pairScore += 1.0 / (1.0 + pFreq);
             }
         }
 
-        // Contar NOVAS triplas cobertos (se ativo)
-        var newTriples = 0;
+        // Contar score de trincas (se ativo) baseado na frieza
+        var tripleScore = 0;
         if (useTriples && coveredTriples) {
             for (var i = 0; i < len; i++) {
                 for (var j = i + 1; j < len; j++) {
                     for (var m = j + 1; m < len; m++) {
                         var tripleKey = candidate[i] + '-' + candidate[j] + '-' + candidate[m];
-                        if (!coveredTriples.has(tripleKey)) {
-                            newTriples++;
-                        }
+                        var tFreq = coveredTriples.get(tripleKey) || 0;
+                        tripleScore += 1.0 / (1.0 + tFreq);
                     }
                 }
             }
@@ -419,7 +421,20 @@ class MotorFechamentoManual {
             hammingBonus = count > 0 ? (totalDist / count) * 5 : 0;
         }
 
-        return newPairs + 0.3 * newTriples + hammingBonus;
+        // AI Synergy bônus: prioriza números que saem juntos
+        var synergyBonus = 0;
+        if (aiSynergy) {
+            for (var i = 0; i < len; i++) {
+                for (var j = i + 1; j < len; j++) {
+                    var pairKey = candidate[i] + '-' + candidate[j];
+                    if (aiSynergy.has(pairKey)) {
+                        synergyBonus += aiSynergy.get(pairKey) * 0.15;
+                    }
+                }
+            }
+        }
+
+        return pairScore + 0.3 * tripleScore + hammingBonus + synergyBonus;
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -428,7 +443,8 @@ class MotorFechamentoManual {
     static _updateCoveredPairs(candidate, coveredPairs) {
         for (var i = 0; i < candidate.length; i++) {
             for (var j = i + 1; j < candidate.length; j++) {
-                coveredPairs.add(candidate[i] + '-' + candidate[j]);
+                var key = candidate[i] + '-' + candidate[j];
+                coveredPairs.set(key, (coveredPairs.get(key) || 0) + 1);
             }
         }
     }
@@ -437,7 +453,8 @@ class MotorFechamentoManual {
         for (var i = 0; i < candidate.length; i++) {
             for (var j = i + 1; j < candidate.length; j++) {
                 for (var m = j + 1; m < candidate.length; m++) {
-                    coveredTriples.add(candidate[i] + '-' + candidate[j] + '-' + candidate[m]);
+                    var key = candidate[i] + '-' + candidate[j] + '-' + candidate[m];
+                    coveredTriples.set(key, (coveredTriples.get(key) || 0) + 1);
                 }
             }
         }
@@ -663,9 +680,44 @@ class MotorFechamentoManual {
 
         return { games: games, analysis: analysis };
     }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  SINERGIA DE DEZENAS (Números que costumam sair juntos)
+    // ═══════════════════════════════════════════════════════════════
+    static _getAISynergy(gameKey, selectedNumbers) {
+        if (typeof StatsService === 'undefined') return null;
+        try {
+            var history = (StatsService.getRecentResults && typeof StatsService.getRecentResults === 'function') 
+                ? StatsService.getRecentResults(gameKey, 200) 
+                : (typeof window !== 'undefined' && window.REAL_HISTORY_DB && window.REAL_HISTORY_DB[gameKey] ? window.REAL_HISTORY_DB[gameKey] : []);
+            
+            if (!history || history.length === 0) return null;
+            
+            var pairsMap = new Map();
+            for (var h = 0; h < history.length; h++) {
+                var drawNums = (history[h].numbers || history[h].dezenas || []).map(function(n) { return parseInt(n, 10); });
+                var filtered = [];
+                for (var i = 0; i < drawNums.length; i++) {
+                    if (selectedNumbers.includes(drawNums[i])) filtered.push(drawNums[i]);
+                }
+                filtered.sort(function(a, b) { return a - b; });
+                
+                for (var i = 0; i < filtered.length; i++) {
+                    for (var j = i + 1; j < filtered.length; j++) {
+                        var k = filtered[i] + '-' + filtered[j];
+                        pairsMap.set(k, (pairsMap.get(k) || 0) + 1);
+                    }
+                }
+            }
+            return pairsMap.size > 0 ? pairsMap : null;
+        } catch(e) {
+            console.error('[MOTOR-MANUAL] Erro ao carregar Sinergia:', e);
+            return null;
+        }
+    }
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  Disponibilizar globalmente
-// ═══════════════════════════════════════════════════════════════
 if (typeof window !== 'undefined') window.MotorFechamentoManual = MotorFechamentoManual;
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = MotorFechamentoManual;
+}

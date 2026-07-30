@@ -508,6 +508,11 @@ class PureCoverageEngine {
             this._shuffle(shuffled);
             const game = shuffled.slice(0, cfg.drawSize).sort((a, b) => a - b);
 
+            // Se o pool é pequeno comparado com o tamanho do sorteio, pular filtros
+            if (pool.length < cfg.drawSize + 10) {
+                return game;
+            }
+
             // Validar filtros estruturais
             if (this._isStructurallyValid(game, cfg)) {
                 return game;

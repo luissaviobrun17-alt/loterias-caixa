@@ -756,7 +756,7 @@ class CombinationEngine {
         //  GERAÇÃO MASSIVA DE CANDIDATOS + SCORING
         // ═══════════════════════════════════════
         const games = [];
-        const safeQuantity = Math.min(quantity, 50000);
+        const safeQuantity = Math.min(quantity, 500000);
         const usedCombinations = new Set();
         
         // Gerar MUITOS candidatos para selecionar os melhores

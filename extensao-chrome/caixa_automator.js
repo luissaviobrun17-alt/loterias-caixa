@@ -94,7 +94,7 @@
         var games = data.b2b_games;
         var config = data.b2b_config;
         var IS_TIMEMANIA = (config.url === 'timemania');
-        var IS_DIADESORTE = (config.url === 'dia-de-sorte');
+        var IS_DIADESORTE = (config.url === 'dia-de-sorte' || config.url === 'diadesorte');
 
         console.log('[B2B v' + VERSION + '] 🎯 ' + games.length + ' jogos de ' + config.name);
         if (IS_TIMEMANIA) console.log('[B2B v' + VERSION + '] ⚽ Modo TIMEMANIA ativado');
@@ -103,7 +103,7 @@
         showStatusPanel(games.length, config.name);
 
         // NAVEGAÇÃO ROBUSTA PARA CONCURSOS ESPECIAIS (Quina de São João, etc)
-        var ALTS = { 'quina': ['quina-de-sao-joao', 'quinadesaojoao'], 'mega-sena': ['mega-sena-da-virada'], 'lotofacil': ['lotofacil-da-independencia'], 'dupla-sena': ['dupla-sena-de-pascoa'] }[config.url] || [];
+        var ALTS = { 'quina': ['quina-de-sao-joao', 'quinadesaojoao'], 'mega-sena': ['mega-sena-da-virada'], 'lotofacil': ['lotofacil-da-independencia'], 'dupla-sena': ['dupla-sena-de-pascoa'], 'diadesorte': ['dia-de-sorte'] }[config.url] || [];
         
         function tryUrl(url, cb) {
             try { var inj = angular.element(document.body).injector(); if (inj) { var st = inj.get("$state"); if (st && st.go) { st.go(url); } } } catch(e) {}
@@ -618,17 +618,17 @@
         await delay(300);
 
         // Seletores REAIS do site da Caixa (AngularJS)
-        var meses = document.querySelectorAll('li[ng-repeat*=listaMeses],li[ng-click*=configurarMes],[id=mes] li,ul.meses li,.meses-list li');
+        var meses = document.querySelectorAll('li[ng-repeat*=listaMeses],li[ng-click*=configurarMes],[id=mes] li,ul.meses li,.meses-list li, .lista-meses li, label.mes, .mes-sorte li');
 
         // Fallback: procurar meses por nome em português
         if (meses.length === 0) {
-            var nomesMeses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-            var allLi = document.querySelectorAll('li,a,span,div');
+            var nomesMeses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro','marco'];
+            var allLi = document.querySelectorAll('li, a, span, div, label, button');
             var found = [];
             for (var q = 0; q < allLi.length; q++) {
                 var tx = allLi[q].textContent.trim().toLowerCase();
                 for (var m = 0; m < nomesMeses.length; m++) {
-                    if (tx === nomesMeses[m] && allLi[q].children.length <= 1) {
+                    if (tx.indexOf(nomesMeses[m]) !== -1 && tx.length < 25 && allLi[q].children.length <= 1) {
                         found.push(allLi[q]);
                         break;
                     }
