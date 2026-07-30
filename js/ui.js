@@ -2297,6 +2297,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         if (preview.possible && preview.games > 0) {
             this.gamesQuantityInput.value = preview.games;
         }
+        this.updateCurrentCostDisplay();
 
         if (this.closingEstimatesContainer) {
             if (!preview.possible || numSelected < game.minBet) {

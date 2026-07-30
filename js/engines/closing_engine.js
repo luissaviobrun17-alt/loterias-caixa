@@ -58,11 +58,13 @@ class ClosingEngine {
 
     // ═══════════════════════════════════════════
     //  GARANTIA EFETIVA NO ESPAÇO VARIÁVEL
-    //  effectiveG = guarantee - fixedCount
-    //  Se ≤ 0: 1 jogo basta (fixos cobrem tudo)
+    //  Modelo matemático realista e honesto: assume no máximo 75% de acertos nos fixos.
     // ═══════════════════════════════════════════
-    static effectiveGuarantee(guarantee, fixedCount) {
-        return Math.max(0, guarantee - fixedCount);
+    static effectiveGuarantee(guarantee, fixedCount, gameKey = 'megasena') {
+        const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
+        const drawSize = game ? game.draw : 6;
+        const maxHitsInFixed = Math.min(fixedCount, Math.round(drawSize * 0.75));
+        return Math.max(1, guarantee - maxHitsInFixed);
     }
 
     // ═══════════════════════════════════════════
@@ -126,15 +128,12 @@ class ClosingEngine {
     //  Fórmula: C(variableCount, effG) / C(slotsVariable, effG) × factor
     //  Onde effG = guarantee - fixedCount
     // ═══════════════════════════════════════════════════════
-    static estimateGames(numSelected, guarantee, betSize = 6, fixedCount = 0) {
+    static estimateGames(numSelected, guarantee, betSize = 6, fixedCount = 0, gameKey = 'megasena') {
         if (numSelected < betSize) return 0;
 
         const slotsVariable = betSize - fixedCount;
         const variableCount = numSelected - fixedCount;
-        const effG = this.effectiveGuarantee(guarantee, fixedCount);
-
-        // Se effG ≤ 0: fixos já cobrem tudo → 1 jogo
-        if (effG <= 0) return 1;
+        const effG = this.effectiveGuarantee(guarantee, fixedCount, gameKey);
 
         // Se effG = slotsVariable: ALL combinações
         if (effG === slotsVariable) {
@@ -182,7 +181,7 @@ class ClosingEngine {
         const variableNums = nums.filter(n => !fixedSet.has(n));
         const variableCount = variableNums.length;
         const totalCandidates = slotsVariable > 0 ? this.nCr(variableCount, slotsVariable) : 1;
-        const effG = this.effectiveGuarantee(guarantee, fixedCount);
+        const effG = this.effectiveGuarantee(guarantee, fixedCount, gameKey);
 
         console.log('[CLOSING-v3.1] ══════════════════════════════════════');
         console.log('[CLOSING-v3.1] 🎯 Motor Fechamento v3.1 (Condicional)');
@@ -664,7 +663,7 @@ class ClosingEngine {
             return { games: 0, cost: 0, subsets: 0, possible: false, msg: 'Selecione pelo menos ' + betSize + ' números' };
         }
 
-        const effG = this.effectiveGuarantee(guarantee, fixedCount);
+        const effG = this.effectiveGuarantee(guarantee, fixedCount, gameKey);
         const slotsVariable = betSize - fixedCount;
         const variableCount = numSelected - fixedCount;
 
@@ -672,13 +671,13 @@ class ClosingEngine {
             return { games: 0, cost: 0, subsets: 0, possible: false, msg: 'Selecione mais números (precisa ' + (slotsVariable + fixedCount) + ' total)' };
         }
 
-        const estimatedGames = this.estimateGames(numSelected, guarantee, betSize, fixedCount);
+        const estimatedGames = this.estimateGames(numSelected, guarantee, betSize, fixedCount, gameKey);
         const cost = estimatedGames * price;
 
         // Mostrar redução vs sem fixos
         let reductionMsg = '';
         if (fixedCount > 0) {
-            const withoutFixed = this.estimateGames(numSelected, guarantee, betSize, 0);
+            const withoutFixed = this.estimateGames(numSelected, guarantee, betSize, 0, gameKey);
             if (withoutFixed > estimatedGames) {
                 const reduction = Math.round((1 - estimatedGames / withoutFixed) * 100);
                 reductionMsg = ' (↓' + reduction + '% menos que sem fixos)';
@@ -711,7 +710,7 @@ class ClosingEngine {
 
         const allLevels = [];
         for (const cl of baseLevels) {
-            const effG = this.effectiveGuarantee(cl.guarantee, fixedCount);
+            const effG = this.effectiveGuarantee(cl.guarantee, fixedCount, gameKey);
             const reduction = fixedCount > 0
                 ? ' (efetivo: ' + effG + ' variáveis)'
                 : '';
