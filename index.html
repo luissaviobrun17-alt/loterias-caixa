@@ -1508,6 +1508,196 @@
             <script src="js/engines/auto_updater.js?v=1781904541"></script>
             <script src="js/engines/pure_coverage_engine.js?v=1781904543"></script>
             <script src="js/engines/roi_dashboard.js?v=1781904541"></script>
+            <script>
+            (function() {
+                var repairFn = function(game, pool, fixedSet) {
+                    var sorted = Array.from(new Set(game)).sort(function(a, b) { return a - b; });
+                    var fixed = fixedSet || new Set();
+
+                    // Encontrar candidatos no pool que nao estao no jogo
+                    var available = pool.filter(function(n) { return sorted.indexOf(n) === -1; });
+                    
+                    // Se o pool estiver vazio ou muito curto, garantir dezenas de 0 a 99
+                    if (available.length === 0) {
+                        var allNums = [];
+                        for (var i = 0; i <= 99; i++) {
+                            if (sorted.indexOf(i) === -1) { allNums.push(i); }
+                        }
+                        // Embaralhar
+                        for (var i = allNums.length - 1; i > 0; i--) {
+                            var j = Math.floor(Math.random() * (i + 1));
+                            var tempVal = allNums[i];
+                            allNums[i] = allNums[j];
+                            allNums[j] = tempVal;
+                        }
+                        available = allNums;
+                    }
+
+                    // Completar se menor que 50
+                    while (sorted.length < 50 && available.length > 0) {
+                        sorted.push(available.shift());
+                        sorted.sort(function(a, b) { return a - b; });
+                    }
+
+                    // Regras de validacao auxiliares
+                    var getPares = function(arr) { return arr.filter(function(x) { return x % 2 === 0; }).length; };
+                    var getZoning = function(arr) {
+                        var d1 = 0, d2 = 0, d3 = 0;
+                        for (var i = 0; i < arr.length; i++) {
+                            var x = arr[i];
+                            if (x <= 32) { d1++; }
+                            else if (x <= 65) { d2++; }
+                            else { d3++; }
+                        }
+                        return [d1, d2, d3];
+                    };
+                    var checkConsecutive = function(arr) {
+                        var consec = 1;
+                        var violated = false;
+                        for (var i = 1; i < arr.length; i++) {
+                            if (arr[i] === arr[i - 1] + 1) {
+                                consec++;
+                                if (consec > 3) { violated = true; }
+                            } else {
+                                consec = 1;
+                            }
+                        }
+                        return violated;
+                    };
+
+                    var attempts = 0;
+                    while (attempts < 150) {
+                        var violatedConsec = checkConsecutive(sorted);
+                        var zoning = getZoning(sorted);
+                        var d1 = zoning[0], d2 = zoning[1], d3 = zoning[2];
+                        var pares = getPares(sorted);
+                        var impares = 50 - pares;
+                        
+                        var violatedZoning = d1 > 19 || d2 > 19 || d3 > 19;
+                        var violatedParity = pares > 27 || impares > 27;
+
+                        if (!violatedConsec && !violatedZoning && !violatedParity) {
+                            return sorted;
+                        }
+
+                        var idxToReplace = -1;
+
+                        if (violatedConsec) {
+                            var consec = 1;
+                            for (var i = 1; i < sorted.length; i++) {
+                                if (sorted[i] === sorted[i - 1] + 1) {
+                                    consec++;
+                                    if (consec > 3) {
+                                        for (var j = i - consec + 1; j <= i; j++) {
+                                            if (!fixed.has(sorted[j])) {
+                                                idxToReplace = j;
+                                                break;
+                                            }
+                                        }
+                                        if (idxToReplace === -1) { idxToReplace = i; }
+                                        break;
+                                    }
+                                } else {
+                                    consec = 1;
+                                }
+                            }
+                        } else if (violatedZoning) {
+                            var targetZone = d1 > 19 ? 1 : d2 > 19 ? 2 : 3;
+                            for (var i = 0; i < sorted.length; i++) {
+                                var val = sorted[i];
+                                if (fixed.has(val)) { continue; }
+                                var z = val <= 32 ? 1 : val <= 65 ? 2 : 3;
+                                if (z === targetZone) {
+                                    idxToReplace = i;
+                                    break;
+                                }
+                            }
+                        } else if (violatedParity) {
+                            var targetParity = pares > 27 ? 0 : 1;
+                            for (var i = 0; i < sorted.length; i++) {
+                                var val = sorted[i];
+                                if (fixed.has(val)) { continue; }
+                                if (val % 2 === targetParity) {
+                                    idxToReplace = i;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (idxToReplace === -1) {
+                            break;
+                        }
+
+                        var replacedVal = sorted[idxToReplace];
+                        var foundSubstitute = false;
+
+                        // Embaralhar disponiveis
+                        for (var i = available.length - 1; i > 0; i--) {
+                            var j = Math.floor(Math.random() * (i + 1));
+                            var tempVal = available[i];
+                            available[i] = available[j];
+                            available[j] = tempVal;
+                        }
+
+                        for (var i = 0; i < available.length; i++) {
+                            var candidate = available[i];
+                            var temp = sorted.filter(function(_, idx) { return idx !== idxToReplace; });
+                            temp.push(candidate);
+                            temp.sort(function(a, b) { return a - b; });
+
+                            var newViolatedConsec = checkConsecutive(temp);
+                            var nzoning = getZoning(temp);
+                            var nd1 = nzoning[0], nd2 = nzoning[1], nd3 = nzoning[2];
+                            var npares = getPares(temp);
+                            var nimpares = 50 - npares;
+
+                            var newViolatedZoning = nd1 > 19 || nd2 > 19 || nd3 > 19;
+                            var newViolatedParity = npares > 27 || nimpares > 27;
+
+                            var ok = true;
+                            if (violatedConsec && newViolatedConsec) { ok = false; }
+                            if (newViolatedZoning) {
+                                var beforeExceeded = Math.max(0, d1 - 19) + Math.max(0, d2 - 19) + Math.max(0, d3 - 19);
+                                var afterExceeded = Math.max(0, nd1 - 19) + Math.max(0, nd2 - 19) + Math.max(0, nd3 - 19);
+                                if (afterExceeded >= beforeExceeded) { ok = false; }
+                            }
+                            if (newViolatedParity) {
+                                var beforeExceeded = Math.max(0, pares - 27) + Math.max(0, impares - 27);
+                                var afterExceeded = Math.max(0, npares - 27) + Math.max(0, nimpares - 27);
+                                if (afterExceeded >= beforeExceeded) { ok = false; }
+                            }
+
+                            if (ok) {
+                                sorted = temp;
+                                available[i] = replacedVal;
+                                foundSubstitute = true;
+                                break;
+                            }
+                        }
+
+                        if (!foundSubstitute) {
+                            if (available.length > 0) {
+                                var candidate = available.shift();
+                                var temp = sorted.filter(function(_, idx) { return idx !== idxToReplace; });
+                                temp.push(candidate);
+                                temp.sort(function(a, b) { return a - b; });
+                                sorted = temp;
+                                available.push(replacedVal);
+                            }
+                        }
+
+                        attempts++;
+                    }
+
+                    return sorted;
+                };
+
+                if (typeof GameBuilderEngine !== 'undefined') { GameBuilderEngine.repairGameLotomania = repairFn; }
+                if (typeof CoverageEngine !== 'undefined') { CoverageEngine.repairGameLotomania = repairFn; }
+                if (typeof PureCoverageEngine !== 'undefined') { PureCoverageEngine.repairGameLotomania = repairFn; }
+                console.log('[B2B] repairGameLotomania injetado com sucesso no escopo global das classes.');
+            })();
+            </script>
             <script src="js/ui.js?v=1781904541"></script>
             <script src="js/main.js?v=1781904541"></script>
 
