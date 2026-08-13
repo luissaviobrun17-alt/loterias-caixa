@@ -83,6 +83,11 @@ function Send-File($context, $filePath) {
     $res.ContentType = $mime
     $res.Headers.Add("Access-Control-Allow-Origin", "*")
     
+    # v16.2: Adicionar cabecalhos de controle de cache para evitar cache persistente de HTML/JS pelo navegador
+    $res.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate")
+    $res.Headers.Add("Pragma", "no-cache")
+    $res.Headers.Add("Expires", "0")
+    
     $bytes = [System.IO.File]::ReadAllBytes($filePath)
     $res.ContentLength64 = $bytes.Length
     $res.OutputStream.Write($bytes, 0, $bytes.Length)
