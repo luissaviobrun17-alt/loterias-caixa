@@ -1,35 +1,28 @@
-// B2B Loterias - Service Worker Estável v3.0
-// SEM loop de reload, SEM auto-destruição
-
-var CACHE_NAME = 'b2b-loterias-v3';
+// B2B Loterias - Service Worker Self-Cleanup v4.0
+// Forces deletion of all caches and unregisters itself to bust cache for everyone
 
 self.addEventListener('install', function(event) {
-    console.log('[SW] Instalado - versão estável');
+    console.log('[SW] Cleanup installed');
     self.skipWaiting();
 });
 
 self.addEventListener('activate', function(event) {
-    console.log('[SW] Ativado');
+    console.log('[SW] Cleanup activated - deleting caches');
     event.waitUntil(
-        caches.keys().then(function(cacheNames) {
+        caches.keys().then(function(names) {
             return Promise.all(
-                cacheNames
-                    .filter(function(name) { return name !== CACHE_NAME; })
-                    .map(function(name) { return caches.delete(name); })
+                names.map(function(name) {
+                    return caches.delete(name);
+                })
             );
         }).then(function() {
-            // NUNCA forçar navigate/reload nas páginas
-            return self.clients.claim();
+            return self.registration.unregister();
+        }).then(function() {
+            return self.clients.matchAll();
+        }).then(function(clients) {
+            clients.forEach(function(client) {
+                client.navigate(client.url);
+            });
         })
-    );
-});
-
-// Estratégia: rede primeiro, cache como fallback
-self.addEventListener('fetch', function(event) {
-    event.respondWith(
-        fetch(event.request, { cache: 'no-store' })
-            .catch(function() {
-                return caches.match(event.request);
-            })
     );
 });
