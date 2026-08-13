@@ -485,6 +485,19 @@ class PureCoverageEngine {
             }
         }
 
+        // v16.2 FIX: Aplicar reparador universal para Lotomania se necessário
+        if (gameKey === 'lotomania' && cfg.drawSize === 50) {
+            const fixedSet = new Set(opts.fixedNumbers || []);
+            let repairPool = pool;
+            if (!repairPool || repairPool.length < 100) {
+                repairPool = [];
+                for (let n = cfg.range[0]; n <= cfg.range[1]; n++) repairPool.push(n);
+            }
+            for (let i = 0; i < games.length; i++) {
+                games[i] = this.repairGameLotomania(games[i], repairPool, fixedSet);
+            }
+        }
+
         // ── 6. Análise completa ──
         const elapsed = Math.round((typeof performance !== 'undefined' ? performance.now() : Date.now()) - t0);
         const analysis = this._buildAnalysis(games, cfg, pool, coveredPairs, coveredTriples, numberUsage, numGames, elapsed);
@@ -493,6 +506,177 @@ class PureCoverageEngine {
         this._logAnalysis(analysis, cfg);
 
         return { games, analysis };
+    }
+
+    static repairGameLotomania(game, pool, fixedSet) {
+        let sorted = [...new Set(game)].sort((a, b) => a - b);
+        const fixed = fixedSet || new Set();
+
+        // Encontrar candidatos no pool que não estão no jogo
+        let available = pool.filter(n => !sorted.includes(n));
+        
+        // Se o pool estiver vazio ou muito curto, garantir dezenas de 0 a 99
+        if (available.length === 0) {
+            const allNums = [];
+            for (let i = 0; i <= 99; i++) {
+                if (!sorted.includes(i)) allNums.push(i);
+            }
+            // Embaralhar
+            for (let i = allNums.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allNums[i], allNums[j]] = [allNums[j], allNums[i]];
+            }
+            available = allNums;
+        }
+
+        // Completar se menor que 50
+        while (sorted.length < 50 && available.length > 0) {
+            sorted.push(available.shift());
+            sorted.sort((a, b) => a - b);
+        }
+
+        // Regras de validação auxiliares
+        const getPares = (arr) => arr.filter(x => x % 2 === 0).length;
+        const getZoning = (arr) => {
+            let d1 = 0, d2 = 0, d3 = 0;
+            for (const x of arr) {
+                if (x <= 32) d1++;
+                else if (x <= 65) d2++;
+                else d3++;
+            }
+            return [d1, d2, d3];
+        };
+        const checkConsecutive = (arr) => {
+            let consec = 1;
+            let violated = false;
+            for (let i = 1; i < arr.length; i++) {
+                if (arr[i] === arr[i - 1] + 1) {
+                    consec++;
+                    if (consec > 3) violated = true;
+                } else {
+                    consec = 1;
+                }
+            }
+            return violated;
+        };
+
+        let attempts = 0;
+        while (attempts < 150) {
+            let violatedConsec = checkConsecutive(sorted);
+            let [d1, d2, d3] = getZoning(sorted);
+            let pares = getPares(sorted);
+            let impares = 50 - pares;
+            
+            let violatedZoning = d1 > 19 || d2 > 19 || d3 > 19;
+            let violatedParity = pares > 27 || impares > 27;
+
+            if (!violatedConsec && !violatedZoning && !violatedParity) {
+                return sorted;
+            }
+
+            let idxToReplace = -1;
+
+            if (violatedConsec) {
+                let consec = 1;
+                for (let i = 1; i < sorted.length; i++) {
+                    if (sorted[i] === sorted[i - 1] + 1) {
+                        consec++;
+                        if (consec > 3) {
+                            for (let j = i - consec + 1; j <= i; j++) {
+                                if (!fixed.has(sorted[j])) {
+                                    idxToReplace = j;
+                                    break;
+                                }
+                            }
+                            if (idxToReplace === -1) idxToReplace = i;
+                            break;
+                        }
+                    } else {
+                        consec = 1;
+                    }
+                }
+            } else if (violatedZoning) {
+                let targetZone = d1 > 19 ? 1 : d2 > 19 ? 2 : 3;
+                for (let i = 0; i < sorted.length; i++) {
+                    let val = sorted[i];
+                    if (fixed.has(val)) continue;
+                    let z = val <= 32 ? 1 : val <= 65 ? 2 : 3;
+                    if (z === targetZone) {
+                        idxToReplace = i;
+                        break;
+                    }
+                }
+            } else if (violatedParity) {
+                let targetParity = pares > 27 ? 0 : 1;
+                for (let i = 0; i < sorted.length; i++) {
+                    let val = sorted[i];
+                    if (fixed.has(val)) continue;
+                    if (val % 2 === targetParity) {
+                        idxToReplace = i;
+                        break;
+                    }
+                }
+            }
+
+            if (idxToReplace === -1) {
+                break;
+            }
+
+            let replacedVal = sorted[idxToReplace];
+            let foundSubstitute = false;
+
+            available.sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < available.length; i++) {
+                let candidate = available[i];
+                let temp = sorted.filter((_, idx) => idx !== idxToReplace);
+                temp.push(candidate);
+                temp.sort((a, b) => a - b);
+
+                let newViolatedConsec = checkConsecutive(temp);
+                let [nd1, nd2, nd3] = getZoning(temp);
+                let npares = getPares(temp);
+                let nimpares = 50 - npares;
+
+                let newViolatedZoning = nd1 > 19 || nd2 > 19 || nd3 > 19;
+                let newViolatedParity = npares > 27 || nimpares > 27;
+
+                let ok = true;
+                if (violatedConsec && newViolatedConsec) ok = false;
+                if (newViolatedZoning) {
+                    let beforeExceeded = Math.max(0, d1 - 19) + Math.max(0, d2 - 19) + Math.max(0, d3 - 19);
+                    let afterExceeded = Math.max(0, nd1 - 19) + Math.max(0, nd2 - 19) + Math.max(0, nd3 - 19);
+                    if (afterExceeded >= beforeExceeded) ok = false;
+                }
+                if (newViolatedParity) {
+                    let beforeExceeded = Math.max(0, pares - 27) + Math.max(0, impares - 27);
+                    let afterExceeded = Math.max(0, npares - 27) + Math.max(0, nimpares - 27);
+                    if (afterExceeded >= beforeExceeded) ok = false;
+                }
+
+                if (ok) {
+                    sorted = temp;
+                    available[i] = replacedVal;
+                    foundSubstitute = true;
+                    break;
+                }
+            }
+
+            if (!foundSubstitute) {
+                if (available.length > 0) {
+                    let candidate = available.shift();
+                    let temp = sorted.filter((_, idx) => idx !== idxToReplace);
+                    temp.push(candidate);
+                    temp.sort((a, b) => a - b);
+                    sorted = temp;
+                    available.push(replacedVal);
+                }
+            }
+
+            attempts++;
+        }
+
+        return sorted;
     }
 
     // ═══════════════════════════════════════════════════════
