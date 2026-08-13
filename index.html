@@ -15,6 +15,46 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#10B981">
     <script>
+    // Rastreador de erros visual para depuração remota
+    window.addEventListener('error', function(e) {
+        var errDiv = document.getElementById('b2b-err-banner');
+        if (!errDiv) {
+            errDiv = document.createElement('div');
+            errDiv.id = 'b2b-err-banner';
+            errDiv.style = 'background: #dc2626; color: white; padding: 15px; font-family: monospace; font-size: 14px; position: fixed; top: 0; left: 0; right: 0; z-index: 99999; border-bottom: 3px solid #7f1d1d; max-height: 200px; overflow-y: auto;';
+            errDiv.innerHTML = '<strong>[B2B-ERRO-CRÍTICO]</strong><br>';
+            var closeBtn = document.createElement('button');
+            closeBtn.innerText = 'Fechar';
+            closeBtn.style = 'margin-top: 10px; padding: 5px 10px; background: white; color: #dc2626; border: none; font-weight: bold; cursor: pointer;';
+            closeBtn.onclick = function() { errDiv.remove(); };
+            errDiv.appendChild(closeBtn);
+            document.body.appendChild(errDiv);
+        }
+        var msg = document.createElement('div');
+        msg.style.marginTop = '10px';
+        msg.innerText = e.message + ' em ' + e.filename + ':' + e.lineno + ':' + e.colno;
+        errDiv.insertBefore(msg, errDiv.lastChild);
+    });
+    window.addEventListener('unhandledrejection', function(e) {
+        var errDiv = document.getElementById('b2b-err-banner');
+        if (!errDiv) {
+            errDiv = document.createElement('div');
+            errDiv.id = 'b2b-err-banner';
+            errDiv.style = 'background: #dc2626; color: white; padding: 15px; font-family: monospace; font-size: 14px; position: fixed; top: 0; left: 0; right: 0; z-index: 99999; border-bottom: 3px solid #7f1d1d; max-height: 200px; overflow-y: auto;';
+            errDiv.innerHTML = '<strong>[B2B-ERRO-CRÍTICO]</strong><br>';
+            var closeBtn = document.createElement('button');
+            closeBtn.innerText = 'Fechar';
+            closeBtn.style = 'margin-top: 10px; padding: 5px 10px; background: white; color: #dc2626; border: none; font-weight: bold; cursor: pointer;';
+            closeBtn.onclick = function() { errDiv.remove(); };
+            errDiv.appendChild(closeBtn);
+            document.body.appendChild(errDiv);
+        }
+        var msg = document.createElement('div');
+        msg.style.marginTop = '10px';
+        msg.innerText = 'Rejeição de Promise: ' + (e.reason ? (e.reason.message || e.reason) : e);
+        errDiv.insertBefore(msg, errDiv.lastChild);
+    });
+
     // Desregistrar Service Worker UMA VEZ (não repetir a cada load)
     if ('serviceWorker' in navigator && !localStorage.getItem('b2b_sw_cleaned_v2')) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
@@ -1374,7 +1414,7 @@
             <script src="js/engines/nova_era_engine.js?v=1781904541"></script>
             <script src="js/engines/math_matrix_db.js?v=1781904541"></script>
             <script src="js/engines/statistical_bias_engine.js?v=1781904541"></script>
-            <script src="js/engines/coverage_engine.js?v=1781904542"></script>
+            <script src="js/engines/coverage_engine.js?v=1781904543"></script>
             <script src="js/engines/closure_engine.js?v=1781904541"></script>
             <script src="js/engines/smart_coverage_engine.js?v=1781904541"></script>
             <script src="js/engines/backtesting.js?v=1781904541"></script>
@@ -1391,12 +1431,12 @@
             <script src="js/engines/ev_calculator.js?v=1781904541"></script>
             <script src="js/engines/strategy_validator.js?v=1781904541"></script>
             <script src="js/engines/ensemble_engine.js?v=1781904541"></script>
-            <script src="js/engines/game_builder_engine.js?v=1781904542"></script>
+            <script src="js/engines/game_builder_engine.js?v=1781904543"></script>
             <script src="js/engines/async_generator.js?v=1781904541"></script>
 
             <script src="js/engines/comparison_engine.js?v=1781904541"></script>
             <script src="js/engines/auto_updater.js?v=1781904541"></script>
-            <script src="js/engines/pure_coverage_engine.js?v=1781904542"></script>
+            <script src="js/engines/pure_coverage_engine.js?v=1781904543"></script>
             <script src="js/engines/roi_dashboard.js?v=1781904541"></script>
             <script src="js/ui.js?v=1781904541"></script>
             <script src="js/main.js?v=1781904541"></script>
