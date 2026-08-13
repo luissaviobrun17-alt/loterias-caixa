@@ -69,7 +69,26 @@
         infoDiv.innerHTML = '<strong>⚙️ [B2B DIAGNÓSTICO ATIVO]</strong><br>'
             + '• GameBuilderEngine carregado: ' + (typeof GameBuilderEngine !== 'undefined') + '<br>'
             + '• repairGameLotomania disponível: ' + (hasRepair ? '<span style="color:#22c55e;font-weight:bold;">SIM (OK)</span>' : '<span style="color:#ef4444;font-weight:bold;">NÃO (CACHE ANTIGO)</span>') + '<br>'
-            + '• Versão do script no HTML: ' + scriptSrc;
+            + '• Versão do script no HTML: ' + scriptSrc
+            + '<div id="b2b-file-check">• Carregando arquivo via rede...</div>';
+            
+        if (scriptEl) {
+            fetch(scriptSrc)
+                .then(function(r) { return r.text(); })
+                .then(function(txt) {
+                    var hasWord = txt.indexOf('repairGameLotomania') !== -1;
+                    var hasWordColor = hasWord ? '#22c55e' : '#ef4444';
+                    var hasWordText = hasWord ? 'SIM (ARQUIVO NOVO)' : 'NÃO (ARQUIVO ANTIGO NO SERVIDOR/CACHE)';
+                    var el = document.getElementById('b2b-file-check');
+                    if (el) {
+                        el.innerHTML = '• Arquivo baixado via rede contém "repairGameLotomania": <span style="color:' + hasWordColor + ';font-weight:bold;">' + hasWordText + '</span>';
+                    }
+                })
+                .catch(function(e) {
+                    var el = document.getElementById('b2b-file-check');
+                    if (el) el.innerText = '• Erro ao baixar arquivo via rede: ' + e.message;
+                });
+        }
         
         statusDiv.appendChild(infoDiv);
         
