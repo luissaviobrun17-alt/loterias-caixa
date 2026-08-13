@@ -2305,9 +2305,17 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             } else {
                 const guaranteeIcons = { 20: '🎯', 19: '⭐', 18: '🔥', 17: '✅', 15: '🎯', 14: '⭐', 13: '🔥', 12: '💎', 11: '💎', 10: '👑', 9: '👑', 8: '🔥', 7: '🎯', 6: '🎯', 5: '⭐', 4: '🔥', 3: '✅' };
                 const effG = preview.effectiveGuarantee || (guarantee - fixedCount);
-                const fixedBadge = fixedCount > 0
-                    ? '<div style="font-size:0.75em;color:#10B981;margin-top:4px;font-weight:600;">📌 ' + fixedCount + ' fixos → efetivo: ' + effG + ' variáveis a cobrir (↓ menos jogos!)</div>'
-                    : '';
+                let fixedBadge = '';
+                if (fixedCount > 0) {
+                    const probPct = (preview.fixedHitProb * 100).toFixed(4);
+                    const isLowProb = preview.fixedHitProb < 0.15; // less than 15% probability
+                    const warningColor = isLowProb ? '#F87171' : '#10B981';
+                    const warningIcon = isLowProb ? '⚠️' : '✅';
+                    fixedBadge = 
+                        '<div style="font-size:0.75em;color:#10B981;margin-top:4px;font-weight:600;">📌 ' + fixedCount + ' fixos → efetivo: ' + effG + ' variáveis a cobrir (↓ menos jogos!)</div>' +
+                        '<div style="font-size:0.75em;color:' + warningColor + ';margin-top:2px;font-weight:600;">' + warningIcon + ' Requisito: acertar ≥ ' + preview.maxHitsInFixed + ' dos ' + fixedCount + ' fixos para a garantia valer.</div>' +
+                        '<div style="font-size:0.72em;color:#9CA3AF;margin-top:1px;">Probabilidade real de atingir o requisito: <strong>' + probPct + '%</strong></div>';
+                }
                 this.closingEstimatesContainer.innerHTML =
                     '<div style="padding:8px 12px;border-radius:8px;background:rgba(234,179,8,0.1);border:1px solid #EAB30830;">' +
                     '<div style="font-weight:700;color:#EAB308;">' + (guaranteeIcons[guarantee] || '🎯') + ' ' + preview.msg + '</div>' +
@@ -2337,9 +2345,9 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         defaultOpt.style.fontWeight = '700';
         this.closingSelect.appendChild(defaultOpt);
 
-        // v3.1: TODOS os níveis são viáveis (fixos REDUZEM jogos)
         if (typeof ClosingEngine !== 'undefined' && game.closingLevels && game.closingLevels.length > 0) {
-            const dynamicLevels = ClosingEngine.getDynamicClosingLevels(gameKey, fixedCount);
+            const poolSize = this.selectedNumbers ? this.selectedNumbers.size : 0;
+            const dynamicLevels = ClosingEngine.getDynamicClosingLevels(gameKey, fixedCount, poolSize);
             const optGroup1 = document.createElement('optgroup');
             optGroup1.label = fixedCount > 0
                 ? '🎯 Fechamento (' + fixedCount + ' fixos → menos jogos!)'

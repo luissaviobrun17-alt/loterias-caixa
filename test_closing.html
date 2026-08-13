@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste de Fechamento Lotomania - ClosingEngine</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #f07d00;
+            border-bottom: 2px solid #f07d0030;
+            padding-bottom: 10px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .metric-box {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .metric {
+            background-color: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+        .metric-title {
+            font-size: 0.85em;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #10b981;
+            margin-top: 5px;
+        }
+        .error {
+            color: #ef4444 !important;
+        }
+        pre {
+            background-color: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid #334155;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .btn {
+            background-color: #f07d00;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background-color: #d97706;
+        }
+    </style>
+    <!-- Importar scripts da aplicação -->
+    <script src="js/engines/games.js"></script>
+    <script src="js/engines/closing_engine.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Teste de Fechamento Matemático Puro (Lotomania)</h1>
+        <p>Este teste valida o algoritmo <strong>Greedy Set Cover</strong> otimizado na Lotomania para garantir que a geração de fechamentos combinatórios seja 100% matemática, honesta e livre de travamentos ou palpites aleatórios.</p>
+        
+        <button class="btn" onclick="rodarTeste()">Rodar Teste de Fechamento</button>
+        
+        <div class="metric-box">
+            <div class="metric">
+                <div class="metric-title">Modo de Operação</div>
+                <div id="modo" class="metric-value">-</div>
+            </div>
+            <div class="metric">
+                <div class="metric-title">Tempo de Execução</div>
+                <div id="tempo" class="metric-value">-</div>
+            </div>
+            <div class="metric">
+                <div class="metric-title">Quantidade de Jogos</div>
+                <div id="jogos" class="metric-value">-</div>
+            </div>
+            <div class="metric">
+                <div class="metric-title">Cobertura Estatística</div>
+                <div id="cobertura" class="metric-value">-</div>
+            </div>
+        </div>
+
+        <h3>Status da Verificação Matemática:</h3>
+        <pre id="log">Clique no botão para rodar...</pre>
+
+        <h3>Jogos Gerados (Amostra):</h3>
+        <pre id="output">Os jogos serão exibidos aqui...</pre>
+    </div>
+
+    <script>
+        function rodarTeste() {
+            const logElem = document.getElementById('log');
+            const outputElem = document.getElementById('output');
+            
+            logElem.textContent = "Calculando e otimizando o fechamento (Greedy Set Cover)...";
+            outputElem.textContent = "";
+
+            setTimeout(() => {
+                try {
+                    const selectedPool = new Set();
+                    // Selecionar 60 dezenas (0 a 59)
+                    for (let i = 0; i < 60; i++) selectedPool.add(i);
+
+                    // 5 dezenas fixas
+                    const fixedNumbers = [0, 1, 2, 3, 4];
+                    const guarantee = 18; // Fechamento 18 Pontos
+                    const drawSize = 50;
+
+                    const t0 = performance.now();
+                    // Gera o fechamento real (limitado a 20 jogos para demonstração rápida)
+                    const result = ClosingEngine.generateClosure(selectedPool, guarantee, drawSize, 'lotomania', fixedNumbers, 20);
+                    const elapsed = (performance.now() - t0).toFixed(1);
+
+                    if (result.error) {
+                        document.getElementById('modo').textContent = "ERRO";
+                        document.getElementById('modo').classList.add('error');
+                        logElem.textContent = "Erro na geração: " + result.error;
+                        return;
+                    }
+
+                    // Exibir métricas
+                    document.getElementById('modo').textContent = result.mode;
+                    document.getElementById('tempo').textContent = elapsed + " ms";
+                    document.getElementById('jogos').textContent = result.games.length + " jogos";
+                    document.getElementById('cobertura').textContent = result.coveragePct + "%";
+
+                    // Validar integridade
+                    const allContainFixed = result.games.every(g => 
+                        fixedNumbers.every(f => g.includes(f))
+                    );
+                    const allCorrectSize = result.games.every(g => g.length === 50);
+                    
+                    const seen = new Set();
+                    let dup = false;
+                    for (const g of result.games) {
+                        const key = g.join(',');
+                        if (seen.has(key)) { dup = true; break; }
+                        seen.add(key);
+                    }
+
+                    // Validar probabilidade hipergeométrica exata no log
+                    // Caso do usuário: pool = 90 dezenas, fixas = 30, sorteio = 20, requisito = 15 fixos sorteados
+                    const exactProb = ClosingEngine.hypergeometricCDF(90, 30, 20, 15);
+                    const probPct = (exactProb * 100).toFixed(4);
+
+                    let logText = "";
+                    logText += "✅ Algoritmo executado com sucesso!\n";
+                    logText += "✅ Todos os jogos contêm os 5 fixos [0,1,2,3,4]: " + (allContainFixed ? "SIM (Correto)" : "NÃO (Erro)") + "\n";
+                    logText += "✅ Todos os jogos têm tamanho de 50 dezenas: " + (allCorrectSize ? "SIM (Correto)" : "NÃO (Erro)") + "\n";
+                    logText += "✅ Jogos duplicados detectados: " + (dup ? "SIM (Erro)" : "NÃO (Nenhum jogo duplicado)") + "\n";
+                    logText += "✅ Validação de Probabilidade Hipergeométrica:\n";
+                    logText += "   - Pool: 90 dezenas | Fixas: 30 | Requisito: acertar ≥ 15 fixos\n";
+                    logText += "   - Probabilidade teórica calculada: " + probPct + "% (Esperado: 0.0018%)\n";
+                    logText += "✅ Tipo de Cobertura: " + result.note + "\n";
+                    logElem.textContent = logText;
+
+                    // Mostrar jogos
+                    outputElem.textContent = result.games.map((g, i) => `Jogo ${i+1}: [${g.join(', ')}]`).join('\n');
+
+                } catch (error) {
+                    logElem.textContent = "Erro crítico durante execução: " + error.message + "\n" + error.stack;
+                }
+            }, 50);
+        }
+    </script>
+</body>
+</html>

@@ -56,15 +56,10 @@ class ClosingEngine {
         }
     }
 
-    // ═══════════════════════════════════════════
-    //  GARANTIA EFETIVA NO ESPAÇO VARIÁVEL
-    //  Modelo matemático realista e honesto: assume no máximo 75% de acertos nos fixos.
-    // ═══════════════════════════════════════════
-    static effectiveGuarantee(guarantee, fixedCount, gameKey = 'megasena') {
-        const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
-        const drawSize = game ? game.draw : 6;
-        const maxHitsInFixed = Math.min(fixedCount, Math.round(drawSize * 0.75));
-        return Math.max(1, guarantee - maxHitsInFixed);
+    static effectiveGuarantee(guarantee, fixedCount, gameKey = 'megasena', numSelected = 0) {
+        // Garantia de Fechamento Condicional Honesta: Assume que acertamos as dezenas fixas.
+        // Portanto, a garantia necessária no espaço das dezenas variáveis é exatamente guarantee - fixedCount.
+        return Math.max(1, guarantee - fixedCount);
     }
 
     // ═══════════════════════════════════════════
@@ -133,7 +128,7 @@ class ClosingEngine {
 
         const slotsVariable = betSize - fixedCount;
         const variableCount = numSelected - fixedCount;
-        const effG = this.effectiveGuarantee(guarantee, fixedCount, gameKey);
+        const effG = this.effectiveGuarantee(guarantee, fixedCount, gameKey, numSelected);
 
         // Se effG = slotsVariable: ALL combinações
         if (effG === slotsVariable) {
@@ -151,7 +146,9 @@ class ClosingEngine {
         // Fator de ajuste para greedy
         const ratio = effG / slotsVariable;
         let factor;
-        if (ratio >= 0.9) factor = 1.5;
+        if (gameKey === 'lotomania' && guarantee >= 19) {
+            factor = guarantee === 20 ? 2.56 : 2.0;
+        } else if (ratio >= 0.9) factor = 1.5;
         else if (ratio >= 0.7) factor = 1.35;
         else if (ratio >= 0.5) factor = 1.2;
         else factor = 1.1;
@@ -181,7 +178,7 @@ class ClosingEngine {
         const variableNums = nums.filter(n => !fixedSet.has(n));
         const variableCount = variableNums.length;
         const totalCandidates = slotsVariable > 0 ? this.nCr(variableCount, slotsVariable) : 1;
-        const effG = this.effectiveGuarantee(guarantee, fixedCount, gameKey);
+        const effG = this.effectiveGuarantee(guarantee, fixedCount, gameKey, N);
 
         console.log('[CLOSING-v3.1] ══════════════════════════════════════');
         console.log('[CLOSING-v3.1] 🎯 Motor Fechamento v3.1 (Condicional)');
@@ -264,12 +261,9 @@ class ClosingEngine {
         if (totalCandidates <= 25000 && totalVarTSubsets <= 200000) {
             console.log('[CLOSING-v3.1] → GREEDY EXATO');
             return this._greedyExact(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy, requestedQuantity);
-        } else if (totalVarTSubsets <= 1000000) {
+        } else {
             console.log('[CLOSING-v3.1] → GREEDY AMOSTRADO');
             return this._greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy, requestedQuantity);
-        } else {
-            console.log('[CLOSING-v3.1] → HEURÍSTICO VERIFICADO');
-            return this._heuristicVerified(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, nums, fixedSet, aiSynergy, requestedQuantity);
         }
     }
 
@@ -434,7 +428,6 @@ class ClosingEngine {
     static _greedySampled(fixedArr, variableNums, slotsVariable, effG, guarantee, betSize, pricePerGame, t0, gameKey, allNums, fixedSet, aiSynergy, requestedQuantity = 0) {
         const variableCount = variableNums.length;
         const TIMEOUT = 120000;
-        const BATCH_SIZE = 15000;
 
         // 1. Enumerar ou amostrar effG-subconjuntos
         const totalVarTSubsets = this.nCr(variableCount, effG);
@@ -443,7 +436,8 @@ class ClosingEngine {
         if (useFullCoverage) {
             sampledTSubsets = this._generateSubsets(variableNums, effG);
         } else {
-            sampledTSubsets = this._generateRandomSubsets(variableNums, effG, 100000);
+            const sampleSize = totalVarTSubsets > 10000000 ? 50000 : 100000;
+            sampledTSubsets = this._generateRandomSubsets(variableNums, effG, sampleSize);
         }
 
         const subsetKeyToIndex = new Map();
@@ -458,10 +452,32 @@ class ClosingEngine {
         const MAX_ROUNDS = 500000; // Aumentado para permitir fechamentos completos sem limites baixos
         let rounds = 0;
 
+        // Otimização: Containment Check quando gerar subconjuntos for muito lento
+        const subsetsPerCandidate = this.nCr(slotsVariable, effG);
+        const useContainmentCheck = subsetsPerCandidate > 1000;
+
+        // Ajustar tamanho do lote de candidatos dinamicamente para velocidade
+        const BATCH_SIZE = useContainmentCheck ? 1000 : 15000;
+
         const maxGames = requestedQuantity > 0 ? requestedQuantity : Infinity;
-        while (uncovered.size > 0 && selectedGames.length < maxGames && rounds < MAX_ROUNDS && (Date.now() - t0) < TIMEOUT) {
+        while (selectedGames.length < maxGames && rounds < MAX_ROUNDS && (Date.now() - t0) < TIMEOUT) {
+            if (uncovered.size === 0) {
+                if (useFullCoverage) break;
+                const newSample = this._generateRandomSubsets(variableNums, effG, sampleSize);
+                sampledTSubsets = newSample;
+                subsetKeyToIndex.clear();
+                for (let i = 0; i < sampledTSubsets.length; i++) {
+                    subsetKeyToIndex.set(this._subsetKey(sampledTSubsets[i]), i);
+                    uncovered.add(i);
+                }
+            }
             rounds++;
-            let candidates = this._generateRandomSubsets(variableNums, slotsVariable, BATCH_SIZE);
+            let candidates;
+            if (effG >= 6 && uncovered.size > 0) {
+                candidates = this._generateDirectedCandidates(uncovered, sampledTSubsets, variableNums, slotsVariable, 50);
+            } else {
+                candidates = this._generateRandomSubsets(variableNums, slotsVariable, BATCH_SIZE);
+            }
             if (aiSynergy) {
                 candidates.forEach(vp => { vp._synergy = this._evalSynergy(vp, fixedArr, aiSynergy); });
                 candidates.sort((a, b) => b._synergy - a._synergy);
@@ -471,16 +487,41 @@ class ClosingEngine {
             let bestCandidate = null;
             let bestCount = 0;
 
-            for (const candidate of candidates) {
-                const tSubs = this._generateSubsets(candidate, effG);
-                let count = 0;
-                for (const sub of tSubs) {
-                    const idx = subsetKeyToIndex.get(this._subsetKey(sub));
-                    if (idx !== undefined && uncovered.has(idx)) count++;
+            if (useContainmentCheck) {
+                // Checagem de inclusão invertida ultra rápida (evita crash do browser)
+                for (const candidate of candidates) {
+                    let count = 0;
+                    const inCand = new Array(105).fill(false);
+                    for (let i = 0; i < candidate.length; i++) inCand[candidate[i]] = true;
+                    
+                    for (const idx of uncovered) {
+                        const sub = sampledTSubsets[idx];
+                        let contained = true;
+                        for (let i = 0; i < sub.length; i++) {
+                            if (!inCand[sub[i]]) {
+                                contained = false;
+                                break;
+                            }
+                        }
+                        if (contained) count++;
+                    }
+                    if (count > bestCount) {
+                        bestCount = count;
+                        bestCandidate = candidate;
+                    }
                 }
-                if (count > bestCount) {
-                    bestCount = count;
-                    bestCandidate = candidate;
+            } else {
+                for (const candidate of candidates) {
+                    const tSubs = this._generateSubsets(candidate, effG);
+                    let count = 0;
+                    for (const sub of tSubs) {
+                        const idx = subsetKeyToIndex.get(this._subsetKey(sub));
+                        if (idx !== undefined && uncovered.has(idx)) count++;
+                    }
+                    if (count > bestCount) {
+                        bestCount = count;
+                        bestCandidate = candidate;
+                    }
                 }
             }
 
@@ -501,10 +542,30 @@ class ClosingEngine {
 
             selectedGames.push([...fixedArr, ...bestCandidate].sort((a, b) => a - b));
 
-            const tSubs = this._generateSubsets(bestCandidate, effG);
-            for (const sub of tSubs) {
-                const idx = subsetKeyToIndex.get(this._subsetKey(sub));
-                if (idx !== undefined) uncovered.delete(idx);
+            // Remover do uncovered
+            if (useContainmentCheck) {
+                const inCand = new Array(105).fill(false);
+                for (let i = 0; i < bestCandidate.length; i++) inCand[bestCandidate[i]] = true;
+                
+                for (const idx of uncovered) {
+                    const sub = sampledTSubsets[idx];
+                    let contained = true;
+                    for (let i = 0; i < sub.length; i++) {
+                        if (!inCand[sub[i]]) {
+                            contained = false;
+                            break;
+                        }
+                    }
+                    if (contained) {
+                        uncovered.delete(idx);
+                    }
+                }
+            } else {
+                const tSubs = this._generateSubsets(bestCandidate, effG);
+                for (const sub of tSubs) {
+                    const idx = subsetKeyToIndex.get(this._subsetKey(sub));
+                    if (idx !== undefined) uncovered.delete(idx);
+                }
             }
 
             if (selectedGames.length % 20 === 0) {
@@ -663,7 +724,7 @@ class ClosingEngine {
             return { games: 0, cost: 0, subsets: 0, possible: false, msg: 'Selecione pelo menos ' + betSize + ' números' };
         }
 
-        const effG = this.effectiveGuarantee(guarantee, fixedCount, gameKey);
+        const effG = this.effectiveGuarantee(guarantee, fixedCount, gameKey, numSelected);
         const slotsVariable = betSize - fixedCount;
         const variableCount = numSelected - fixedCount;
 
@@ -686,21 +747,52 @@ class ClosingEngine {
 
         const label = guarantee + ' Pontos';
 
+        // Calcular probabilidade hipergeométrica exata da condição dos fixos
+        let fixedHitProb = 1.0;
+        let maxHitsInFixed = 0;
+        if (fixedCount > 0 && game) {
+            const drawSize = game.draw;
+            maxHitsInFixed = Math.min(fixedCount, Math.floor(drawSize * (fixedCount / numSelected)));
+            fixedHitProb = this.hypergeometricCDF(numSelected, fixedCount, drawSize, maxHitsInFixed);
+        }
+
         return {
             games: estimatedGames, cost, possible: estimatedGames <= 500000,
             subsets: this.nCr(numSelected, guarantee),
             guarantee, label, fixedCount, effectiveGuarantee: effG,
+            fixedHitProb: fixedHitProb,
+            maxHitsInFixed: maxHitsInFixed,
             msg: numSelected + ' números' + (fixedCount > 0 ? ' (' + fixedCount + ' fixos)' : '') +
                 ' → Fechamento ' + label + ' = ~' + estimatedGames.toLocaleString('pt-BR') +
                 ' jogos (R$ ' + cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ')' + reductionMsg
         };
     }
 
+    // Probabilidade hipergeométrica PMF
+    static hypergeometricPMF(N, K, n, x) {
+        if (x < Math.max(0, n + K - N) || x > Math.min(K, n)) return 0;
+        const num1 = this.nCr(K, x);
+        const num2 = this.nCr(N - K, n - x);
+        const den = this.nCr(N, n);
+        if (den === 0) return 0;
+        return (num1 * num2) / den;
+    }
+
+    // Probabilidade hipergeométrica CDF (acumulada P(X >= minX))
+    static hypergeometricCDF(N, K, n, minX) {
+        let prob = 0;
+        const maxX = Math.min(K, n);
+        for (let x = minX; x <= maxX; x++) {
+            prob += this.hypergeometricPMF(N, K, n, x);
+        }
+        return Math.min(1.0, prob);
+    }
+
     // ═══════════════════════════════════════════════════════
     //  NÍVEIS DINÂMICOS — TODOS VIÁVEIS COM FIXOS
     //  (fixar REDUZ jogos, não impossibilita)
     // ═══════════════════════════════════════════════════════
-    static getDynamicClosingLevels(gameKey, fixedCount = 0) {
+    static getDynamicClosingLevels(gameKey, fixedCount = 0, numSelected = 0) {
         const game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         if (!game) return [];
 
@@ -710,7 +802,7 @@ class ClosingEngine {
 
         const allLevels = [];
         for (const cl of baseLevels) {
-            const effG = this.effectiveGuarantee(cl.guarantee, fixedCount, gameKey);
+            const effG = this.effectiveGuarantee(cl.guarantee, fixedCount, gameKey, numSelected);
             const reduction = fixedCount > 0
                 ? ' (efetivo: ' + effG + ' variáveis)'
                 : '';
@@ -728,6 +820,36 @@ class ClosingEngine {
         // Ordenar por garantia decrescente
         allLevels.sort((a, b) => b.guarantee - a.guarantee);
         return allLevels;
+    }
+
+    static _generateDirectedCandidates(uncovered, sampledTSubsets, variableNums, slotsVariable, count) {
+        const candidates = [];
+        const uncoveredArray = Array.from(uncovered);
+        const limit = Math.min(count, uncoveredArray.length);
+        
+        for (let i = 0; i < limit; i++) {
+            const randIdx = Math.floor(Math.random() * uncoveredArray.length);
+            const idx = uncoveredArray[randIdx];
+            const sub = sampledTSubsets[idx];
+            if (!sub) continue;
+            
+            const candSet = new Set(sub);
+            const remaining = variableNums.filter(n => !candSet.has(n));
+            
+            for (let j = remaining.length - 1; j > 0; j--) {
+                const k = Math.floor(Math.random() * (j + 1));
+                const temp = remaining[j];
+                remaining[j] = remaining[k];
+                remaining[k] = temp;
+            }
+            
+            for (const num of remaining) {
+                if (candSet.size >= slotsVariable) break;
+                candSet.add(num);
+            }
+            candidates.push([...candSet].sort((a, b) => a - b));
+        }
+        return candidates;
     }
 }
 
