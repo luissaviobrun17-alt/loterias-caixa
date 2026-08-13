@@ -55,8 +55,28 @@
         errDiv.insertBefore(msg, errDiv.lastChild);
     });
 
+    // Diagnostico visual na inicializacao
+    window.addEventListener('DOMContentLoaded', function() {
+        var statusDiv = document.createElement('div');
+        statusDiv.id = 'b2b-debug-panel';
+        statusDiv.style = 'background: #0f172a; color: #34d399; padding: 15px; font-family: monospace; font-size: 13px; border-bottom: 2px solid #10b981; max-height: 250px; overflow-y: auto;';
+        
+        var hasRepair = (typeof GameBuilderEngine !== 'undefined' && typeof GameBuilderEngine.repairGameLotomania === 'function');
+        var props = (typeof GameBuilderEngine !== 'undefined') ? Object.keys(GameBuilderEngine).filter(k => typeof GameBuilderEngine[k] === 'function').join(', ') : 'N/A';
+        var scriptEl = document.querySelector('script[src*="game_builder_engine.js"]');
+        var scriptSrc = scriptEl ? scriptEl.getAttribute('src') : 'não encontrado';
+        
+        statusDiv.innerHTML = '<strong>⚙️ [B2B DIAGNÓSTICO ATIVO]</strong><br>'
+            + '• GameBuilderEngine carregado: ' + (typeof GameBuilderEngine !== 'undefined') + '<br>'
+            + '• repairGameLotomania disponível: ' + hasRepair + '<br>'
+            + '• Funções estáticas no GameBuilderEngine: ' + props + '<br>'
+            + '• Versão do script no HTML: ' + scriptSrc;
+            
+        document.body.insertBefore(statusDiv, document.body.firstChild);
+    });
+
     // Desregistrar Service Worker UMA VEZ (não repetir a cada load)
-    if ('serviceWorker' in navigator && !localStorage.getItem('b2b_sw_cleaned_v2')) {
+    if ('serviceWorker' in navigator && !localStorage.getItem('b2b_sw_cleaned_v3')) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
             registrations.forEach(function(registration) {
                 registration.unregister().then(function() {
@@ -72,7 +92,7 @@
                 });
             });
         }
-        localStorage.setItem('b2b_sw_cleaned_v2', '1');
+        localStorage.setItem('b2b_sw_cleaned_v3', '1');
     }
     </script>
     <meta name="apple-mobile-web-app-capable" content="yes">
