@@ -652,7 +652,7 @@ class CoverageEngine {
                 for (let n = startNum; n <= endNum; n++) repairPool.push(n);
             }
             for (let i = 0; i < games.length; i++) {
-                games[i] = this.repairGameLotomania(games[i], repairPool, fixedSet);
+                games[i] = CoverageEngine.repairGameLotomania(games[i], repairPool, fixedSet);
             }
         }
 

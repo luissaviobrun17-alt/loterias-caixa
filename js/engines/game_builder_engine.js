@@ -85,7 +85,7 @@ class GameBuilderEngine {
             if (!repairPool || repairPool.length < 100) {
                 repairPool = Array.from({ length: 100 }, (_, i) => i);
             }
-            result.games = result.games.map(g => this.repairGameLotomania(g, repairPool, fixedSet));
+            result.games = result.games.map(g => GameBuilderEngine.repairGameLotomania(g, repairPool, fixedSet));
         }
 
         // ── 4. Montar resultado ──

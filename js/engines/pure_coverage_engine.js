@@ -494,7 +494,7 @@ class PureCoverageEngine {
                 for (let n = cfg.range[0]; n <= cfg.range[1]; n++) repairPool.push(n);
             }
             for (let i = 0; i < games.length; i++) {
-                games[i] = this.repairGameLotomania(games[i], repairPool, fixedSet);
+                games[i] = PureCoverageEngine.repairGameLotomania(games[i], repairPool, fixedSet);
             }
         }
 
