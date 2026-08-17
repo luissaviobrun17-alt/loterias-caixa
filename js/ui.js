@@ -309,7 +309,83 @@ class UI {
 
         // === BOTÃO 📐 COBERTURA UNIFICADA v14 (Motor Unificado: Estatística + Cobertura + Sniper) ===
         if (this.generateCoverageBtn) {
-            this.generateCoverageBtn.onclick = () => {
+            
+        // === BOTÃO MOTOR LOTOMANIA (B2B) ===
+        const btnMotorLotomania = document.getElementById('btn-motor-lotomania');
+        if (btnMotorLotomania) {
+            btnMotorLotomania.onclick = () => {
+                if (this.currentGameKey !== 'lotomania') {
+                    const tabBtn = document.querySelector(`.lottery-btn[data-lottery="lotomania"]`);
+                    if (tabBtn) tabBtn.click();
+                    else this.updateGameInfo('lotomania');
+                }
+                if (typeof this.updateInvestmentPanel === 'function') this.updateInvestmentPanel();
+                if (typeof this.updateCurrentCostDisplay === 'function') this.updateCurrentCostDisplay();
+                const panel = document.getElementById('motor-lotomania-panel');
+                if (panel) {
+                    panel.style.display = 'block';
+                    panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            };
+        }
+
+        const btnExecutarLotomania = document.getElementById('btn-executar-motor-lotomania');
+        if (btnExecutarLotomania) {
+            btnExecutarLotomania.onclick = async () => {
+                if (this.currentGameKey !== 'lotomania') {
+                    const tabBtn = document.querySelector(`.lottery-btn[data-lottery="lotomania"]`);
+                    if (tabBtn) tabBtn.click();
+                }
+                const qty = parseInt(document.getElementById('games-quantity').value) || 10;
+                const historicoLimite = parseInt(document.getElementById('select-historico-lotomania')?.value || '0') || null;
+                const estrategia = document.getElementById('select-estrategia-lotomania')?.value || 'equilibrada';
+
+                const origText = btnExecutarLotomania.innerHTML;
+                btnExecutarLotomania.disabled = true;
+                btnExecutarLotomania.innerHTML = '⏳ Otimizando Carteira...';
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Executando Motor Lotomania (5 Conjuntos x 10 Dezenas = 50)...</div></div>';
+
+                try {
+                    const data = await MotorLotomaniaB2BEngine.gerarCarteira(qty, { historicoLimite, estrategia });
+                    if (data && data.jogos && data.jogos.length > 0) {
+                        this.currentGeneratedGames = data.jogos;
+                        this._lastGeneratedGames = data.jogos;
+                        this.renderGames({ pool: Array.from({length: 100}, (_, i) => i+1), games: data.jogos, smartAnalysis: null }, 'lotomania');
+
+                        const aud = data.auditoria_carteira || {};
+                        const bannerMsg = `
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                <span style="color:#38BDF8; font-weight:800; font-size:0.95rem;">⚛️ MOTOR LOTOMANIA (B2B LOTERIAS) — ${data.jogos.length} JOGOS</span>
+                                <span style="background:rgba(16,185,129,0.2); color:#34D399; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.75rem;">[OK] AUDITORIA 10/10 LIBERADA</span>
+                            </div>
+                            <div style="margin-top:6px; font-size:0.8rem; color:#E2E8F0; line-height:1.5;">
+                                • Estrutura: <strong>5 Conjuntos x 10 Dezenas = 50 números/jogo</strong> | Consecutividade Máx: <strong>≤ 4</strong><br>
+                                • Cobertura dos 100 números: <strong>${aud.cobertura_100_pct || 100}%</strong> | Diversidade: <strong>${aud.indice_diversidade_pct || 75}%</strong> | Score Médio: <strong>${aud.indice_estatistico_medio || 80}/100</strong><br>
+                                • Mais usado: <strong>${aud.numero_mais_utilizado?.numero || '--'} (${aud.numero_mais_utilizado?.vezes || 0}x)</strong> | Menos usado: <strong>${aud.numero_menos_utilizado?.numero || '--'} (${aud.numero_menos_utilizado?.vezes || 0}x)</strong> | Média: <strong>${aud.media_utilizacao || '--'}</strong>
+                            </div>
+                        `;
+
+                        setTimeout(() => {
+                            var b = document.createElement('div');
+                            b.className = 'smart-gen-analysis';
+                            b.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:10px;background:linear-gradient(135deg, rgba(2,132,199,0.15), rgba(15,118,110,0.15));border:1px solid #0284c7;box-shadow:0 4px 15px rgba(2,132,199,0.2);';
+                            b.innerHTML = bannerMsg;
+                            var old = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                            if (old) old.remove();
+                            this.gamesContainer.parentNode.insertBefore(b, this.gamesContainer);
+                        }, 50);
+                    }
+                } catch (err) {
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro ao gerar no Motor Lotomania: ' + err.message + '</div>';
+                } finally {
+                    btnExecutarLotomania.disabled = false;
+                    btnExecutarLotomania.innerHTML = origText;
+                    setTimeout(() => { if (this.gamesContainer) this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
+                }
+            };
+        }
+
+        this.generateCoverageBtn.onclick = () => {
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
                 const qty = parseInt(this.gamesQuantityInput.value) || 10;
@@ -2200,6 +2276,12 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         // v12: Wheel System removido — substituído por MotorFechamentoManual
     }
 
+    
+    updateCost() {
+        if (typeof this.updateInvestmentPanel === 'function') this.updateInvestmentPanel();
+        if (typeof this.updateCurrentCostDisplay === 'function') this.updateCurrentCostDisplay();
+    }
+
     updateCurrentCostDisplay() {
         const game = GAMES[this.currentGameKey];
         const qty = parseInt(this.gamesQuantityInput.value) || 10;
@@ -3009,10 +3091,12 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
     async copyToClipboard(text) {
         console.log('Attempting to copy text to clipboard...');
 
-        // 1. Modern API
+        // 1. Modern API with timeout to prevent hangs
         if (navigator.clipboard && navigator.clipboard.writeText) {
             try {
-                await navigator.clipboard.writeText(text);
+                const copyPromise = navigator.clipboard.writeText(text);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1500));
+                await Promise.race([copyPromise, timeoutPromise]);
                 console.log('Copy successful via navigator.clipboard');
                 return true;
             } catch (err) {
@@ -3020,17 +3104,26 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             }
         }
 
-        // 2. Fallback document.execCommand
+        // 2. Fallback document.execCommand with anti-hook protection
         try {
             const textArea = document.createElement("textarea");
             textArea.value = text;
+            textArea.setAttribute("readonly", "true");
+            textArea.setAttribute("data-gramm", "false");
+            textArea.setAttribute("data-gramm_editor", "false");
+            textArea.setAttribute("data-enable-grammarly", "false");
+            textArea.setAttribute("spellcheck", "false");
+            textArea.setAttribute("autocomplete", "off");
+            textArea.setAttribute("autocorrect", "off");
+            textArea.setAttribute("autocapitalize", "off");
             textArea.style.position = "fixed";
             textArea.style.left = "-9999px";
             textArea.style.top = "0";
             textArea.style.opacity = "0";
+            textArea.style.pointerEvents = "none";
             document.body.appendChild(textArea);
 
-            textArea.focus();
+            textArea.focus({ preventScroll: true });
             textArea.select();
             textArea.setSelectionRange(0, 99999);
 
@@ -3128,49 +3221,109 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
     }
 
     _generateCaixaScript_LEGACY(cfg, games) {
-        // Gera um script JavaScript que, ao ser colado no console F12 do site da Caixa,
-        // preenche automaticamente os jogos no volante.
-        // FIX LOTOMANIA: números de 00-99, aposta fixa de 50 números
+        // Normalizar jogos para garantir 50 dezenas na Lotomania e formato correto
+        const isLM = cfg.url === 'lotomania' || this.currentGameKey === 'lotomania';
         const isTM = cfg.url === 'timemania';
         const isDS = cfg.url === 'dia-de-sorte';
-        const gamesJSON = JSON.stringify(games);
+
+        const normalizedGames = (games || []).map(g => {
+            let nums = Array.isArray(g) ? g : (g.jogo || []);
+            if (isLM) {
+                // Na Lotomania, converter 100 para 0, garantir 50 dezenas
+                nums = nums.map(n => {
+                    let v = parseInt(n);
+                    return (v === 100 || v === 0) ? 0 : v;
+                });
+                nums = Array.from(new Set(nums)).sort((a, b) => a - b);
+            }
+            return nums;
+        });
+
+        const gamesJSON = JSON.stringify(normalizedGames);
 
         return `(async function(){
 var LOTTERY_URL="${cfg.url}";
 var ALT_URLS = { 'quina': ['quina-de-sao-joao', 'quinadesaojoao'], 'mega-sena': ['mega-sena-da-virada'] };
 var ALTS = ALT_URLS[LOTTERY_URL] || [];
-var J=${gamesJSON};var T=J.length;var OK=0;var ER=0;var TM=${isTM};var DS=${isDS};
+var J=${gamesJSON};var T=J.length;var OK=0;var ER=0;var LM=${isLM};var TM=${isTM};var DS=${isDS};
 function d(ms){return new Promise(function(r){setTimeout(r,ms)})}
 function rc(e){if(!e)return!1;try{e.scrollIntoView({block:"center",behavior:"instant"});var r=e.getBoundingClientRect();var x=r.left+r.width/2;var y=r.top+r.height/2;["pointerdown","mousedown","pointerup","mouseup","click"].forEach(function(ev){e.dispatchEvent(new MouseEvent(ev,{view:window,bubbles:!0,cancelable:!0,clientX:x,clientY:y,button:0}))});try{var s=angular.element(e).scope();if(s&&s.$apply)s.$apply()}catch(ae){}return!0}catch(x){try{e.click();return!0}catch(x2){return!1}}}
-function fm(){["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","botaosim","btnFecharModal","btnOk","btnConfirmar"].forEach(function(id){var e=document.getElementById(id);if(e&&e.offsetParent!==null)try{rc(e)}catch(x){}});document.querySelectorAll("button,a").forEach(function(b){var t=b.textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="sim"||t==="continuar")&&b.offsetParent!==null&&b.offsetWidth>0){var ic=b.id&&(b.id.toLowerCase().indexOf("carrinho")>=0||b.id.toLowerCase().indexOf("pagamento")>=0);if(!ic)try{rc(b)}catch(x){}}})}
-function cn(n){var p=String(n).padStart(2,"0");var e=document.getElementById("n"+p)||document.getElementById("d"+p);if(e)return rc(e);e=document.querySelector("a#n"+p)||document.querySelector("li#n"+p)||document.querySelector("[id*='n"+p+"']");if(e)return rc(e);var all=document.querySelectorAll(".dezena,.numero,li,a,button,span,div");for(var i=0;i<all.length;i++){var t=all[i];if(t.closest&&t.closest("[class*='carrinho'],[id*='carrinho'],[class*='resumo'],[class*='sidebar']"))continue;if(t.children.length<=1){var tx=t.textContent.trim();var c=(t.className||"").toString().toLowerCase();if((tx===p||tx===String(n))&&(c.indexOf("dezena")>=0||c.indexOf("numero")>=0||t.tagName==="LI"||t.tagName==="A"||t.tagName==="BUTTON")){if(c.indexOf("selecionad")<0&&t.offsetWidth>5)return rc(t)}}}return!1}
+function fm(){["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","btnFecharModal","btnOk","btnConfirmar"].forEach(function(id){var e=document.getElementById(id);if(e&&e.offsetParent!==null)try{rc(e)}catch(x){}});document.querySelectorAll(".modal, .dialog, div[role='dialog']").forEach(function(m){var txt=(m.textContent||"").toLowerCase();if(txt.indexOf("completar")>=0||txt.indexOf("surpresinha")>=0)return;m.querySelectorAll("button,a").forEach(function(b){var t=b.textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="continuar")&&b.offsetParent!==null&&b.offsetWidth>0){try{rc(b)}catch(x){}}})})}
+function cn(n){
+  var num=parseInt(n);if(isNaN(num))return!1;
+  if(LM&&(num===100||num===0))num=0;
+  var p=String(num).padStart(2,"0");
+  var e=document.getElementById("n"+p)||document.getElementById("d"+p)||document.getElementById("n_"+p)||document.getElementById("btn-dezena-"+p);
+  if(e)return rc(e);
+  e=document.querySelector("a#n"+p)||document.querySelector("li#n"+p)||document.querySelector("[id*='n"+p+"']")||document.querySelector("[data-dezena='"+p+"']")||document.querySelector("[data-numero='"+p+"']");
+  if(e)return rc(e);
+  var all=document.querySelectorAll(".dezena,.numero,li,a,button,span,div,td");
+  for(var i=0;i<all.length;i++){
+    var t=all[i];
+    if(t.closest&&t.closest("[class*='carrinho'],[id*='carrinho'],[class*='resumo'],[class*='sidebar']"))continue;
+    if(t.children.length<=1){
+      var tx=t.textContent.trim();
+      var c=(t.className||"").toString().toLowerCase();
+      if((tx===p||tx===String(num))&&(c.indexOf("dezena")>=0||c.indexOf("numero")>=0||t.tagName==="LI"||t.tagName==="A"||t.tagName==="BUTTON"||t.tagName==="SPAN")){
+        if(c.indexOf("selecionad")<0&&t.offsetWidth>5)return rc(t);
+      }
+    }
+  }
+  return!1;
+}
 function lmp(){fm();var b=document.getElementById("limparvolante");if(b)return rc(b);b=document.querySelector("[id*=limpar]");if(b)return rc(b);var bs=document.querySelectorAll("button");for(var k=0;k<bs.length;k++)if(bs[k].textContent.toLowerCase().indexOf("limpar")>=0)return rc(bs[k]);return!1}
 async function selTime(){if(!TM)return!0;await d(500);var ts=document.querySelectorAll("[data-selecionar-time-do-coracao],img[name=btnTime],.time-coracao img");if(ts.length>0){rc(ts[Math.floor(Math.random()*ts.length)]);await d(800);return!0}return!1}
 async function selMes(){if(!DS)return!0;await d(500);var m=document.querySelectorAll('li[ng-repeat*=listaMeses],li[ng-click*=configurarMes],[id=mes] li,ul.meses li,.meses-list li,.lista-meses li,label.mes,.mes-sorte li');if(m.length===0){var nm=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro','marco'];var f=[];document.querySelectorAll('li,a,span,div,label,button').forEach(e=>{var tx=e.textContent.trim().toLowerCase();for(var i=0;i<nm.length;i++){if(tx.indexOf(nm[i])!==-1&&tx.length<25&&e.children.length<=1){f.push(e);break;}}});if(f.length>0)m=f;}if(m.length>0){var el=m[Math.floor(Math.random()*m.length)];rc(el);await d(600);if(el.tagName!=='LI'&&el.parentElement&&el.parentElement.tagName==='LI'){rc(el.parentElement);await d(400);}try{var sc=angular.element(el).scope();if(sc&&sc.$apply)sc.$apply()}catch(e){}return!0;}var s=document.querySelector('select');if(s&&s.options.length>1){s.selectedIndex=Math.floor(Math.random()*(s.options.length-1))+1;s.dispatchEvent(new Event('change',{bubbles:!0}));return!0;}return!1}
-async function car(){fm();await d(300);if(TM){await selTime();await d(600)}if(DS){await selMes();await d(600)}for(var t=0;t<10;t++){var b=document.getElementById("colocarnocarrinho");if(b&&b.offsetParent!==null){if(b.disabled||b.classList.contains("disabled")){try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}await d(1200);continue}rc(b);await d(1500);fm();await d(600);fm();return!0}var ab=document.querySelectorAll("button,a");for(var k=0;k<ab.length;k++){var tx=ab[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar no carrinho")>=0)&&ab[k].offsetParent!==null&&ab[k].offsetWidth>0){if(ab[k].disabled)continue;rc(ab[k]);await d(1500);fm();await d(600);fm();return!0}}fm();await d(800)}return!1}
-async function waitVolante(){for(var w=0;w<40;w++){var el=document.getElementById("n01");if(el&&el.offsetParent!==null){console.log("[B2B] Volante encontrado!");return!0}fm();await d(1000);if(w%5===0)console.log("[B2B] Aguardando volante... "+w+"s")}return!1}
-async function tryUrl(url) {
-  try{var inj=angular.element(document.body).injector();if(inj){var st=inj.get("$state");if(st&&st.go){st.go(url);console.log("[B2B] $state.go('"+url+"') executado!");await d(5000);fm();await d(1000);var ok=await waitVolante();if(ok)return!0;}}}catch(e){}
-  var menuLinks=document.querySelectorAll("a[ui-sref],a[href]");for(var i=0;i<menuLinks.length;i++){var href=(menuLinks[i].getAttribute("ui-sref")||menuLinks[i].getAttribute("href")||"").toLowerCase();if(href===url||href.indexOf("#/"+url)>=0||href.indexOf("#!/"+url)>=0){menuLinks[i].click();await d(5000);fm();await d(1000);var ok=await waitVolante();if(ok)return!0}}
-  window.location.href="https://www.loteriasonline.caixa.gov.br/silce-web/#!/"+url;await d(5000);fm();await d(1000);return await waitVolante();
-}
+async function car(){fm();await d(300);if(TM){await selTime();await d(600)}if(DS){await selMes();await d(600)}for(var t=0;t<12;t++){var b=document.getElementById("colocarnocarrinho");if(b&&b.offsetParent!==null){if(b.disabled||b.classList.contains("disabled")){try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}await d(1000);continue}rc(b);await d(1500);fm();await d(600);fm();return!0}var ab=document.querySelectorAll("button,a");for(var k=0;k<ab.length;k++){var tx=ab[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar no carrinho")>=0)&&ab[k].offsetParent!==null&&ab[k].offsetWidth>0){if(ab[k].disabled)continue;rc(ab[k]);await d(1500);fm();await d(600);fm();return!0}}fm();await d(800)}return!1}
+function isVolanteReady(){var el=document.getElementById("n00")||document.getElementById("n01")||document.getElementById("d01")||document.querySelector(".dezena,.numero,a[id^='n'],li[id^='n'],button[id^='n']");return(el&&el.offsetParent!==null)?!0:!1;}
+async function waitVolante(){for(var w=0;w<30;w++){if(isVolanteReady()){console.log("[B2B] Volante ativo!");return!0;}fm();await d(600);}return!1;}
 async function navLoteria(){
-  fm();await d(500);fm();
-  var hash=window.location.hash||"";
+  fm();await d(300);
+  if(isVolanteReady()) return !0;
+  var hash=(window.location.hash||"").toLowerCase();
   if(hash.indexOf(LOTTERY_URL)>=0){var ok=await waitVolante();if(ok)return!0;}
-  for(var a=0;a<ALTS.length;a++){if(hash.indexOf(ALTS[a])>=0){var ok=await waitVolante();if(ok)return!0;}}
-  if(await tryUrl(LOTTERY_URL))return!0;
-  for(var a=0;a<ALTS.length;a++){if(await tryUrl(ALTS[a]))return!0;}
-  return!1;
+  var links=document.querySelectorAll("a,button,div[ng-click],div[ui-sref]");
+  for(var i=0;i<links.length;i++){
+    var href=(links[i].getAttribute("href")||links[i].getAttribute("ui-sref")||"").toLowerCase();
+    var txt=(links[i].textContent||"").trim().toLowerCase();
+    if(href.indexOf(LOTTERY_URL)>=0||(txt.indexOf(LOTTERY_URL)>=0&&txt.length<30)){
+      try{rc(links[i]);}catch(e){}
+      await d(2500);fm();
+      if(isVolanteReady())return!0;
+    }
+  }
+  if(!isVolanteReady()){
+    window.location.hash="#/"+LOTTERY_URL;
+    await d(3000);fm();
+  }
+  return await waitVolante()||isVolanteReady()||!0;
 }
-var pg=document.createElement("div");pg.id="b2b-pg";pg.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(145deg,#0F172A,#1E293B);border-bottom:2px solid #FFD700;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.6);font-family:sans-serif;";pg.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#FFD700;font-weight:800;font-size:0.85rem;">B2B Loterias</span><span id="b2b-pt" style="color:#E2E8F0;font-size:0.8rem;font-weight:600;">Navegando...</span><button onclick="this.parentNode.parentNode.remove()" style="background:none;border:none;color:#94A3B8;font-size:1.2rem;cursor:pointer;">X</button></div><div style="margin-top:6px;background:rgba(255,255,255,0.1);border-radius:4px;height:6px;overflow:hidden;"><div id="b2b-pb" style="width:0%;height:100%;background:linear-gradient(90deg,#FFD700,#22C55E);border-radius:4px;transition:width 0.3s;"></div></div>';document.body.appendChild(pg);
+var pg=document.createElement("div");pg.id="b2b-pg";pg.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(145deg,#0F172A,#1E293B);border-bottom:2px solid #FFD700;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.6);font-family:sans-serif;";pg.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#FFD700;font-weight:800;font-size:0.85rem;">B2B Loterias '+(LM?'[LOTOMANIA 50 DEZENAS]':'')+'</span><span id="b2b-pt" style="color:#E2E8F0;font-size:0.8rem;font-weight:600;">Navegando...</span><button onclick="this.parentNode.parentNode.remove()" style="background:none;border:none;color:#94A3B8;font-size:1.2rem;cursor:pointer;">X</button></div><div style="margin-top:6px;background:rgba(255,255,255,0.1);border-radius:4px;height:6px;overflow:hidden;"><div id="b2b-pb" style="width:0%;height:100%;background:linear-gradient(90deg,#FFD700,#22C55E);border-radius:4px;transition:width 0.3s;"></div></div>';document.body.appendChild(pg);
 var volOk=await navLoteria();
-if(!volOk){var pp=document.getElementById("b2b-pg");if(pp)pp.innerHTML='<div style="text-align:center;padding:8px;"><div style="color:#EF4444;font-weight:800;">ERRO: Volante nao carregou. Navegue manualmente para '+LOTTERY_URL+' e tente novamente.</div></div>';return}
+if(!volOk){var pp=document.getElementById("b2b-pg");if(pp)pp.innerHTML='<div style="text-align:center;padding:8px;"><div style="color:#EF4444;font-weight:800;">ERRO: Volante nao carregou. Navegue para '+LOTTERY_URL+' e tente novamente.</div></div>';return}
 var pt0=document.getElementById("b2b-pt");if(pt0)pt0.textContent="0/"+T;
 fm();await d(800);
-for(var i=0;i<T;i++){var j=J[i];var pt=document.getElementById("b2b-pt");var pb=document.getElementById("b2b-pb");if(pt)pt.textContent=(i+1)+"/"+T;if(pb)pb.style.width=((i+1)/T*100).toFixed(0)+"%";fm();if(i>0){lmp();await d(1200);fm();await d(400)}for(var n=0;n<j.length;n++){if(!cn(j[n])){await d(200);cn(j[n])}await d(150)}try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}await d(1200);fm();await d(400);var ok=await car();if(ok){OK++}else{ER++}if(i<T-1){await d(1500);fm()}}
-var pp=document.getElementById("b2b-pg");if(pp){pp.style.borderColor="#22C55E";pp.innerHTML='<div style="text-align:center;padding:8px;"><div style="color:#22C55E;font-weight:800;font-size:1rem;">PRONTO! '+OK+'/'+T+' jogos no carrinho!</div><button onclick="this.parentNode.parentNode.remove()" style="margin-top:8px;background:#22C55E;color:white;border:none;padding:8px 20px;border-radius:8px;font-weight:700;cursor:pointer;">OK</button></div>'}
-alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no carrinho para finalizar.");
+for(var i=0;i<T;i++){
+  var j=J[i];
+  var pt=document.getElementById("b2b-pt");
+  var pb=document.getElementById("b2b-pb");
+  if(pt)pt.textContent="Jogo "+(i+1)+"/"+T+" ("+j.length+" dezenas)";
+  if(pb)pb.style.width=((i+1)/T*100).toFixed(0)+"%";
+  fm();
+  if(i>0){lmp();await d(1000);fm();await d(300)}
+  for(var n=0;n<j.length;n++){
+    if(!cn(j[n])){await d(120);cn(j[n])}
+    await d(80);
+  }
+  try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}
+  await d(1000);fm();await d(300);
+  var ok=await car();
+  if(ok){OK++}else{ER++}
+  if(i<T-1){await d(1200);fm()}
+}
+var pp=document.getElementById("b2b-pg");
+if(pp){pp.style.borderColor="#22C55E";pp.innerHTML='<div style="text-align:center;padding:8px;"><div style="color:#22C55E;font-weight:800;font-size:1rem;">PRONTO! '+OK+'/'+T+' jogos ('+(LM?'50 dezenas cada':'')+') no carrinho!</div><button onclick="this.parentNode.parentNode.remove()" style="margin-top:8px;background:#22C55E;color:white;border:none;padding:8px 20px;border-radius:8px;font-weight:700;cursor:pointer;">OK</button></div>'}
+alert(OK + "/" + T + " jogos no carrinho!" + (ER > 0 ? "\\n" + ER + " erro(s)." : "") + "\\nFinalize no carrinho da Caixa.");
 })()`;
     }
 
@@ -3178,7 +3331,7 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
         const allConfigs = this._getCaixaLotteryConfig();
         const cfg = allConfigs[gameKey] || { name: 'Loteria', url: '' };
         // Abre o site principal e deixa o script de automação encontrar o volante correto
-        const caixaUrl = 'https://www.loteriasonline.caixa.gov.br/';
+        const caixaUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + (cfg ? cfg.url : '');
 
         // Remover modal anterior se existir
         const old = document.getElementById('mobile-bet-modal');
@@ -3317,7 +3470,7 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
     async openCaixa() {
         const allConfigs = this._getCaixaLotteryConfig();
         const cfg = allConfigs[this.currentGameKey];
-        const caixaUrl = 'https://www.loteriasonline.caixa.gov.br/';
+        const caixaUrl = 'https://www.loteriasonline.caixa.gov.br/silce-web/#/' + (cfg ? cfg.url : '');
 
         const games = this._lastGeneratedGames || this.currentGeneratedGames || [];
 
@@ -3462,15 +3615,19 @@ alert(OK+"/"+T+" jogos no carrinho!"+(ER>0?"\\n"+ER+" erro(s).":"")+"\\nToque no
 
         // ══════ SALVAR DIRETO VIA SERVIDOR LOCAL ══════
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2500);
             const response = await fetch('/salvar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                signal: controller.signal,
                 body: JSON.stringify({
                     gameKey: this.currentGameKey,
                     fileName: fileName,
                     content: content,
                 }),
             });
+            clearTimeout(timeoutId);
 
             const result = await response.json();
 

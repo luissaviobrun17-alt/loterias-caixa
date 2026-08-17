@@ -16,8 +16,8 @@ const GAMES = {
         color: "#209A3C",
         colorGrad: "#0d6b28",
         cols: 10,
-        price: 6.00,
-        // Faixas oficiais Mega Sena: Sena (6), Quina (5), Quadra (4)
+        price: 5.00,
+        // Faixas oficiais Mega Sena (aposta simples R$ 5,00): Sena (6), Quina (5), Quadra (4)
         // TODAS por ratião. A Sena acumula se não houver ganhador.
         strategies: [
             { id: "sena",   label: "Sena (6 acertos)",   match: 6, prize: 50000000, prizeType: "acumulado",  note: "Rateio — acumula se vazio. Média histórica: R$ 40-80 milhões",  paid: true  },
@@ -40,8 +40,8 @@ const GAMES = {
         color: "#930089",
         colorGrad: "#5e0058",
         cols: 5,
-        price: 3.50,
-        // Faixas oficiais: 15, 14, 13 por rateio | 12, 11 FIXO
+        price: 3.00,
+        // Faixas oficiais: 15, 14, 13 por rateio (aposta simples R$ 3,00) | 12, 11 FIXO
         strategies: [
             { id: "15pts", label: "15 Pontos",  match: 15, prize: 2000000, prizeType: "acumulado", note: "Rateio — acumula se vazio. Média: R$ 1,5-4 milhões",         paid: true  },
             { id: "14pts", label: "14 Pontos",  match: 14, prize: 2000,    prizeType: "rateio",    note: "Rateio — ~20% do prêmio total. Média: R$ 1.500-3.000",       paid: true  },
@@ -68,8 +68,8 @@ const GAMES = {
         color: "#3062a8",
         colorGrad: "#1a3d6b",
         cols: 10,
-        price: 3.00,
-        // Faixas oficiais: Quina (5), Quadra (4), Terno (3) por ratião | Duque (2) FIXO R$ 2
+        price: 2.50,
+        // Faixas oficiais: Quina (5), Quadra (4) (aposta simples R$ 2,50), Terno (3) por ratião | Duque (2) FIXO R$ 2
         strategies: [
             { id: "quina",  label: "Quina (5 acertos)",  match: 5, prize: 6000000, prizeType: "acumulado", note: "Rateio — acumula se vazio. Média: R$ 3-10 milhões",          paid: true  },
             { id: "quadra", label: "Quadra (4 acertos)", match: 4, prize: 7500,    prizeType: "rateio",    note: "Rateio — ~19% da arrecadação. Média: R$ 5k-10k por vencedor", paid: true  },
@@ -92,8 +92,8 @@ const GAMES = {
         color: "#e8000f",
         colorGrad: "#8f0009",
         cols: 10,
-        price: 3.00,
-        // Faixas oficiais: Sena (6), Quina (5), Quadra (4), Terno (3) — todos por ratião
+        price: 2.50,
+        // Faixas oficiais (aposta simples R$ 2,50) — todos por ratião
         // 2 sorteios por concurso — você concorre aos dois simultaneamente
         strategies: [
             { id: "sena",   label: "Sena (6 acertos)",   match: 6, prize: 2500000, prizeType: "acumulado", note: "Rateio em cada sorteio. Média: R$ 1-5 milhões",         paid: true  },
@@ -177,8 +177,8 @@ const GAMES = {
         color: "#e27820",
         colorGrad: "#8f4c0f",
         cols: 7,
-        price: 3.00,
-        // Jogador escolhe 7 números + 1 Mês da Sorte. Sorteados: 7 + 1 mês.
+        price: 2.50,
+        // Aposta simples R$ 2,50. Sorteados: 7 + 1 mês.
         // Faixas: 7, 6 por ratião | 5, 4 FIXO | Mês da Sorte FIXO R$ 2,50
         strategies: [
             { id: "7pts",  label: "7 Pontos (Dia de Sorte)",  match: 7, prize: 1000000, prizeType: "acumulado", note: "Rateio — acumula se vazio. Média: R$ 500k-2 milhões",   paid: true  },

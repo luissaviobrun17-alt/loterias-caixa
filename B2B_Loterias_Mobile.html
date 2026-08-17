@@ -9205,10 +9205,12 @@ class UI {
     async copyToClipboard(text) {
         console.log('Attempting to copy text to clipboard...');
 
-        // 1. Modern API
+        // 1. Modern API with timeout to prevent hangs
         if (navigator.clipboard && navigator.clipboard.writeText) {
             try {
-                await navigator.clipboard.writeText(text);
+                const copyPromise = navigator.clipboard.writeText(text);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1500));
+                await Promise.race([copyPromise, timeoutPromise]);
                 console.log('Copy successful via navigator.clipboard');
                 return true;
             } catch (err) {
@@ -9216,17 +9218,26 @@ class UI {
             }
         }
 
-        // 2. Fallback document.execCommand
+        // 2. Fallback document.execCommand with anti-hook protection
         try {
             const textArea = document.createElement("textarea");
             textArea.value = text;
+            textArea.setAttribute("readonly", "true");
+            textArea.setAttribute("data-gramm", "false");
+            textArea.setAttribute("data-gramm_editor", "false");
+            textArea.setAttribute("data-enable-grammarly", "false");
+            textArea.setAttribute("spellcheck", "false");
+            textArea.setAttribute("autocomplete", "off");
+            textArea.setAttribute("autocorrect", "off");
+            textArea.setAttribute("autocapitalize", "off");
             textArea.style.position = "fixed";
             textArea.style.left = "-9999px";
             textArea.style.top = "0";
             textArea.style.opacity = "0";
+            textArea.style.pointerEvents = "none";
             document.body.appendChild(textArea);
 
-            textArea.focus();
+            textArea.focus({ preventScroll: true });
             textArea.select();
             textArea.setSelectionRange(0, 99999);
 
