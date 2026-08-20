@@ -311,13 +311,59 @@
                             </div>
                         </div>
 
-                        <!-- Botões de Ação — 3 MOTORES (v15.1 Sniper Restaurado) -->
-                        <div id="action-buttons-row" style="display:flex;gap:10px;align-items:stretch;margin-top:10px;flex-wrap:wrap;">
+                        <!-- Botões de Ação — MOTORES PRINCIPAIS -->
+                        <div id="action-buttons-row" style="display:flex;gap:10px;align-items:stretch;margin-top:10px;">
                             <button id="generate-btn" class="action-btn" style="flex: 1; min-width: 0; padding: 14px 10px; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5; font-size: 0.95rem;" title="Gera jogos com os seus números selecionados no volante. Cobertura combinatória otimizada (Greedy Set Cover) + Filtros P5-P95 + ROI honesto. Você escolhe os números, o motor otimiza a distribuição.">🎲 Manual</button>
                             <button id="generate-coverage-btn" class="action-btn" style="flex: 1; min-width: 0; padding: 14px 10px; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5; font-weight: 800; font-size: 0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3); box-shadow: 0 4px 15px rgba(16,185,129,0.3);" title="Motor de Cobertura Pura — Matemática combinatória. Greedy Set Cover + filtros P5-P95. Ative o Sniper para focar em um pool reduzido baseado em evidência estatística real.">📐 Cobertura IA</button>
                             <button id="btn-gerador-inteligente" class="action-btn" style="flex: 1; min-width: 0; padding: 14px 10px; background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%); border: 1px solid #10B981; color: #ecfdf5; font-weight: 800; font-size: 0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3); box-shadow: 0 4px 15px rgba(14,165,233,0.3);" title="Motor unificado de Cobertura Pura — Matemática combinatória sem previsão. Usa TODOS os números, Greedy Set Cover, filtros P5-P95, anti-concentração. Mostra ROI honesto ANTES de gerar. Toggle Sniper disponível.">🎯 Gerador Inteligente</button>
-                            <button id="btn-motor-lotomania" class="action-btn" style="flex: 1 1 100%; margin-top: 4px; padding: 14px 12px; background: linear-gradient(135deg, #0284c7 0%, #0f766e 100%); border: 1px solid #38bdf8; color: #ffffff; font-weight: 800; font-size: 0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(56,189,248,0.35); cursor:pointer;" title="MOTOR LOTOMANIA — B2B LOTERIAS: 5 Conjuntos estritos de 20 numeros, 10 por conjunto (5x10=50), consecutividade maxima de 4 no jogo ordenado, scoring estatistico e auditoria 10 pontos.">⚛️ MOTOR LOTOMANIA (B2B)</button>
                         </div>
+
+                        <!-- MOTORES EXCLUSIVOS B2B LOTERIAS (Lado a Lado) -->
+                        <div id="b2b-motors-row" style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">
+                            <button id="btn-motor-lotofacil" class="action-btn" style="padding: 14px 12px; background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #4c1d95 100%); border: 1px solid #c084fc; color: #ffffff; font-weight: 800; font-size: 0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(192,132,252,0.35); cursor:pointer;" title="MOTOR INTELIGENTE LOTOFÁCIL — B2B LOTERIAS: Análise obrigatória 10 concursos, divisões dinâmicas, relações 7/8, 8/7, 6/9, 9/6, consecutividade máx 5, Score B2B e Transparência Matemática.">⚡ MOTOR LOTOFÁCIL (B2B)</button>
+                            <button id="btn-motor-lotomania" class="action-btn" style="padding: 14px 12px; background: linear-gradient(135deg, #0284c7 0%, #0f766e 100%); border: 1px solid #38bdf8; color: #ffffff; font-weight: 800; font-size: 0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(56,189,248,0.35); cursor:pointer;" title="MOTOR LOTOMANIA — B2B LOTERIAS: 5 Conjuntos estritos de 20 numeros, 10 por conjunto (5x10=50), consecutividade maxima de 4 no jogo ordenado, scoring estatistico e auditoria 10 pontos.">⚛️ MOTOR LOTOMANIA (B2B)</button>
+                        </div>
+
+                        <!-- PAINEL MOTOR LOTOFÁCIL DO B2B LOTERIAS -->
+                        <div id="motor-lotofacil-panel" style="display:none; margin-top: 12px; padding: 16px; background: radial-gradient(circle at top left, rgba(147, 51, 234, 0.25), rgba(15, 23, 42, 0.95)); border: 1px solid #a855f7; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                                <div style="font-size: 1.05rem; font-weight: 800; color: #c084fc; display: flex; align-items: center; gap: 8px;">
+                                    ⚡ MOTOR INTELIGENTE LOTOFÁCIL — B2B LOTERIAS
+                                </div>
+                                <span style="font-size: 0.75rem; background: rgba(192, 132, 252, 0.15); color: #e9d5ff; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(192, 132, 252, 0.3); font-weight: 700;">
+                                    Análise 10 Concursos • Divisão Dinâmica • Max Consecutivo ≤ 5
+                                </span>
+                            </div>
+                            <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 12px 0;">
+                                Exploração combinatória profunda com divisões testadas dinamicamente (<strong style="color:#c084fc;">01-13/14-25, 01-12/13-25, 01-11/12-25</strong>), relações prioritárias (<strong style="color:#a7f3d0;">7/8, 8/7, 6/9, 9/6</strong>), filtro rígido de consecutividade (<strong>≤ 5</strong>), Score B2B multicritério e bloco obrigatório de Verdade Matemática.
+                            </p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">Janela de Análise:</label>
+                                    <select id="select-historico-lotofacil" style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(192,132,252,0.3); color: #e2e8f0; padding: 6px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                                        <option value="10" selected>Últimos 10 Concursos (Obrigatório / Padrão)</option>
+                                        <option value="20">Últimos 20 Concursos</option>
+                                        <option value="50">Últimos 50 Concursos</option>
+                                        <option value="100">Últimos 100 Concursos</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">Estratégia Combinatória:</label>
+                                    <select id="select-estrategia-lotofacil" style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(192,132,252,0.3); color: #e2e8f0; padding: 6px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                                        <option value="equilibrada" selected>Equilibrada (Score B2B + Cobertura)</option>
+                                        <option value="exaustao_prioritaria">Exaustão da Estrutura Principal (7/8 ou 8/7)</option>
+                                        <option value="ampla_cobertura">Ampla Cobertura (Diversificação Máxima)</option>
+                                        <option value="frequencia_pura">Foco em Duplas & Trios Fortes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button id="btn-executar-motor-lotofacil" style="flex: 2; background: linear-gradient(135deg, #7c3aed, #059669); border: 1px solid #a855f7; color: white; padding: 10px 14px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 0 12px rgba(168,85,247,0.4);">
+                                    ⚡ GERAR CARTEIRA (MOTOR LOTOFÁCIL)
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- PAINEL MOTOR LOTOMANIA DO B2B LOTERIAS -->
                         <div id="motor-lotomania-panel" style="display:none; margin-top: 12px; padding: 16px; background: radial-gradient(circle at top left, rgba(14, 116, 144, 0.25), rgba(15, 23, 42, 0.95)); border: 1px solid #0891b2; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);">
                             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
@@ -1485,6 +1531,7 @@
             <script src="js/engines/pure_coverage_engine.js?v=1781904543"></script>
             <script src="js/engines/roi_dashboard.js?v=1781904541"></script>
             <script src="js/engines/motor_lotomania_engine.js?v=1781904545"></script>
+            <script src="js/engines/motor_lotofacil_engine.js?v=1781904580"></script>
             <script>
             (function() {
                 var repairFn = function(game, pool, fixedSet) {

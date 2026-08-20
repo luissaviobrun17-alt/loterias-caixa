@@ -310,6 +310,114 @@ class UI {
         // === BOTÃO 📐 COBERTURA UNIFICADA v14 (Motor Unificado: Estatística + Cobertura + Sniper) ===
         if (this.generateCoverageBtn) {
             
+        // === BOTÃO MOTOR LOTOFÁCIL (B2B) ===
+        const btnMotorLotofacil = document.getElementById('btn-motor-lotofacil');
+        if (btnMotorLotofacil) {
+            btnMotorLotofacil.onclick = () => {
+                if (this.currentGameKey !== 'lotofacil') {
+                    const navBtn = document.querySelector(`.nav-btn[data-game="lotofacil"]`);
+                    if (navBtn) navBtn.click();
+                    else this.updateGameInfo('lotofacil');
+                }
+                if (typeof this.updateInvestmentPanel === 'function') this.updateInvestmentPanel();
+                if (typeof this.updateCurrentCostDisplay === 'function') this.updateCurrentCostDisplay();
+                const panel = document.getElementById('motor-lotofacil-panel');
+                if (panel) {
+                    panel.style.display = panel.style.display === 'none' ? 'block' : (panel.style.display === 'block' ? 'none' : 'block');
+                    panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            };
+        }
+
+        const btnExecutarLotofacil = document.getElementById('btn-executar-motor-lotofacil');
+        if (btnExecutarLotofacil) {
+            btnExecutarLotofacil.onclick = async () => {
+                if (this.currentGameKey !== 'lotofacil') {
+                    const navBtn = document.querySelector(`.nav-btn[data-game="lotofacil"]`);
+                    if (navBtn) navBtn.click();
+                    else this.updateGameInfo('lotofacil');
+                }
+                const qty = parseInt(document.getElementById('games-quantity').value) || 10;
+                const historicoLimite = parseInt(document.getElementById('select-historico-lotofacil')?.value || '10') || 10;
+                const estrategia = document.getElementById('select-estrategia-lotofacil')?.value || 'equilibrada';
+
+                const origText = btnExecutarLotofacil.innerHTML;
+                btnExecutarLotofacil.disabled = true;
+                btnExecutarLotofacil.innerHTML = '⏳ Executando Motor Lotofácil...';
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Executando Motor Lotofácil B2B (Análise 10 Concursos + Divisões Dinâmicas + Score B2B)...</div></div>';
+
+                try {
+                    const data = await MotorLotofacilB2BEngine.gerarCarteira(qty, { historicoLimite, estrategia });
+                    if (data && data.jogos && data.jogos.length > 0) {
+                        const rawGames = data.jogos.map(j => j.numeros);
+                        this.currentGeneratedGames = rawGames;
+                        this._lastGeneratedGames = rawGames;
+                        this.renderGames({ pool: Array.from({length: 25}, (_, i) => i+1), games: rawGames, smartAnalysis: null }, 'lotofacil');
+
+                        const diag = data.diagnostico_10_concursos || {};
+                        const est = data.estrutura_recomendada || {};
+                        const aud = data.auditoria_carteira || {};
+                        const sens = data.analise_sensibilidade || {};
+                        const vm = data.verdade_matematica || {};
+
+                        const bannerMsg = `
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                <span style="color:#C084FC; font-weight:800; font-size:1.05rem;">⚡ MOTOR INTELIGENTE LOTOFÁCIL (B2B LOTERIAS) — ${data.jogos.length} JOGOS</span>
+                                <span style="background:rgba(168,85,247,0.2); color:#E9D5FF; padding:3px 10px; border-radius:6px; font-weight:700; font-size:0.78rem; border: 1px solid rgba(192,132,252,0.4);">
+                                    DIVISÃO: ${est.divisao_selecionada || '01-12 / 13-25'} | SCORE MÉDIO: ${aud.score_medio || 85}/100
+                                </span>
+                            </div>
+                            
+                            <div style="margin-top:10px; padding:10px 14px; background:rgba(0,0,0,0.3); border-radius:8px; border:1px solid rgba(192,132,252,0.2); font-size:0.82rem; color:#E2E8F0; line-height:1.6;">
+                                <strong style="color:#FCD34D;">📊 1. DIAGNÓSTICO DOS ÚLTIMOS 10 CONCURSOS:</strong><br>
+                                • <strong>Quentes (${diag.quentes?.length || 0}):</strong> ${(diag.quentes || []).map(n => String(n).padStart(2,'0')).join(', ') || '--'} | 
+                                <strong>Normais (${diag.normais?.length || 0}):</strong> ${(diag.normais || []).map(n => String(n).padStart(2,'0')).join(', ') || '--'} | 
+                                <strong>Frios (${diag.frios?.length || 0}):</strong> ${(diag.frios || []).map(n => String(n).padStart(2,'0')).join(', ') || '--'}<br>
+                                • <strong>Repetição Média do Concurso Anterior:</strong> ${diag.media_repeticao_anterior || 9.0} dezenas | 
+                                <strong>Consecutividade Máxima no Jogo:</strong> ≤ 5 números<br>
+                                • <strong>Divisão Selecionada:</strong> ${est.divisao_selecionada || '01-12 / 13-25'} | 
+                                <strong>Estruturas Prioritárias:</strong> ${(est.estruturas_prioritarias || []).join(' → ')}
+                            </div>
+
+                            <div style="margin-top:8px; padding:10px 14px; background:rgba(16,185,129,0.08); border-radius:8px; border:1px solid rgba(16,185,129,0.3); font-size:0.82rem; color:#D1FAE5; line-height:1.6;">
+                                <strong style="color:#34D399;">📐 2. COBERTURA & AUDITORIA DA CARTEIRA:</strong><br>
+                                • Cobertura dos 25 números: <strong>${aud.cobertura_25_pct || 100}%</strong> (${aud.dezenas_presentes || 25}/25 dezenas ativas)<br>
+                                • Ranking dos Jogos: Classificados de <strong>TOP 1</strong> a <strong>TOP ${data.jogos.length}</strong> por Score B2B Multicritério.
+                            </div>
+
+                            <div style="margin-top:8px; padding:10px 14px; background:rgba(59,130,246,0.08); border-radius:8px; border:1px solid rgba(59,130,246,0.3); font-size:0.80rem; color:#BFDBFE; line-height:1.5;">
+                                <strong style="color:#60A5FA;">🔬 3. ANÁLISE DE SENSIBILIDADE:</strong><br>
+                                • <em>${sens.hipotese_sem_quentes || ''}</em><br>
+                                • <em>${sens.resiliencia_do_modelo || ''}</em>
+                            </div>
+
+                            <div style="margin-top:8px; padding:12px 14px; background:rgba(239,68,68,0.08); border-radius:8px; border:1px solid rgba(239,68,68,0.35); font-size:0.80rem; color:#FECACA; line-height:1.5;">
+                                <strong style="color:#F87171;">🛡️ 4. VERDADE MATEMÁTICA (TRANSPARÊNCIA OBRIGATÓRIA):</strong><br>
+                                • <strong>Princípio Fundamental:</strong> ${vm.declaracao_fundamental || ''}<br>
+                                • <strong>Limitação Amostral:</strong> ${vm.limitacoes_e_honestidade || ''}
+                            </div>
+                        `;
+
+                        setTimeout(() => {
+                            var b = document.createElement('div');
+                            b.className = 'smart-gen-analysis';
+                            b.style.cssText = 'margin-top:10px;margin-bottom:12px;padding:16px 20px;border-radius:12px;background:linear-gradient(135deg, rgba(124,58,237,0.18), rgba(15,23,42,0.95));border:1px solid #9333ea;box-shadow:0 6px 25px rgba(147,51,234,0.3);';
+                            b.innerHTML = bannerMsg;
+                            var old = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                            if (old) old.remove();
+                            this.gamesContainer.parentNode.insertBefore(b, this.gamesContainer);
+                        }, 50);
+                    }
+                } catch (err) {
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro ao gerar no Motor Lotofácil: ' + err.message + '</div>';
+                } finally {
+                    btnExecutarLotofacil.disabled = false;
+                    btnExecutarLotofacil.innerHTML = origText;
+                    setTimeout(() => { if (this.gamesContainer) this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
+                }
+            };
+        }
+
         // === BOTÃO MOTOR LOTOMANIA (B2B) ===
         const btnMotorLotomania = document.getElementById('btn-motor-lotomania');
         if (btnMotorLotomania) {

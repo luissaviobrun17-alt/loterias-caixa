@@ -1,4 +1,4 @@
-﻿from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
@@ -8,6 +8,7 @@ import json
 import os
 from motor_sugestao import MotorSugestaoLoteria
 from motor_lotomania import MotorLotomaniaB2B
+from motor_lotofacil import MotorLotofacilB2B
 
 app = FastAPI(
     title="Loteria B2B AI Engine API",
@@ -209,6 +210,39 @@ def endpoint_motor_lotomania_backtest(request: BacktestLotomaniaRequest):
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Erro no Backtest Lotomania: {str(e)}")
+
+
+class MotorLotofacilRequest(BaseModel):
+    quantidade_jogos: int
+    historico_limite: Optional[int] = 10
+    estrategia: Optional[str] = "equilibrada"
+    historico: Optional[List[List[int]]] = None
+
+
+@app.post("/api/v1/motor-lotofacil")
+def endpoint_motor_lotofacil(request: MotorLotofacilRequest):
+    """
+    Endpoint exclusivo do MOTOR INTELIGENTE LOTOFÁCIL — B2B LOTERIAS.
+    Explora divisões dinâmicas, subconjuntos 7/8, 8/7, 6/9, 9/6, consecutividade <= 5,
+    scoring multicritério (Score B2B), diversificação e transparência ("Verdade Matemática").
+    """
+    try:
+        historico = request.historico
+        if not historico:
+            historico = obter_historico_caixa("lotofacil")
+
+        motor = MotorLotofacilB2B(
+            historico=historico,
+            limite_historico=request.historico_limite or 10,
+            estrategia=request.estrategia or "equilibrada"
+        )
+
+        resultado = motor.gerar_carteira(request.quantidade_jogos)
+        return resultado
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erro no Motor Lotofácil: {str(e)}")
 
 
 if __name__ == "__main__":
