@@ -3658,9 +3658,55 @@ alert(OK + "/" + T + " jogos no carrinho!" + (ER > 0 ? "\\n" + ER + " erro(s)." 
     //    Desktop/LOTERIAS JOGOS SALVOS L99/<Loteria>/arquivo.txt
     // ═══════════════════════════════════════════════════════════════
 
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 🌐 HELPER API — Conecta de forma resiliente ao servidor local
+    //    Funciona via http://localhost:8777, rede local e file:///
+    // ═══════════════════════════════════════════════════════════════
+    async _callServerApi(endpoint, options = {}) {
+        const method = options.method || 'GET';
+        const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+        const body = options.body ? (typeof options.body === 'string' ? options.body : JSON.stringify(options.body)) : undefined;
+        const timeoutMs = options.timeoutMs || 8000;
+
+        const candidateUrls = [];
+        if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+            candidateUrls.push(endpoint);
+        }
+        candidateUrls.push(`http://localhost:8777${endpoint}`);
+        candidateUrls.push(`http://127.0.0.1:8777${endpoint}`);
+
+        const uniqueUrls = Array.from(new Set(candidateUrls));
+        let lastError = null;
+
+        for (const url of uniqueUrls) {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+                const resp = await fetch(url, {
+                    method,
+                    headers,
+                    body,
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (resp.ok) {
+                    // resp já parseado por _callServerApi
+                    return data;
+                } else {
+                    const errData = await resp.json().catch(() => ({}));
+                    lastError = new Error(errData.error || `HTTP ${resp.status}`);
+                }
+            } catch (err) {
+                lastError = err;
+            }
+        }
+        throw lastError || new Error('Servidor local indisponível');
+    }
+
     async saveGames() {
         if (!this.currentGeneratedGames || this.currentGeneratedGames.length === 0) {
-            if (typeof Guardian !== 'undefined') {
+            if (typeof Guardian !== 'undefined' && Guardian.toast) {
                 Guardian.toast('Gere jogos primeiro antes de salvar.', 'warning');
             } else {
                 alert('Gere jogos primeiro antes de salvar.');
@@ -3671,40 +3717,45 @@ alert(OK + "/" + T + " jogos no carrinho!" + (ER > 0 ? "\\n" + ER + " erro(s)." 
         const game = typeof GAMES !== 'undefined' ? GAMES[this.currentGameKey] : null;
         const gameName = game ? game.name : 'Loteria';
         const now = new Date();
-        const dateStr = now.toLocaleDateString('pt-BR').replace(/\//g, '-');
-        const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
-        const fileName = `${gameName}_${dateStr}_${timeStr}.txt`;
+        const pad = n => String(n).padStart(2, '0');
+        const dateStr = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()}`;
+        const timeStr = `${pad(now.getHours())}h${pad(now.getMinutes())}m${pad(now.getSeconds())}s`;
+        const cleanGameName = (gameName || 'Loteria').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚãõÃÕâêîôûÂÊÎÔÛçÇ _-]/g, '').trim();
+        const fileName = `${cleanGameName}_${dateStr}_${timeStr}.txt`;
 
         // ── Extras: Time do Coração (Timemania) e Mês da Sorte (Dia de Sorte) ──
         const mesSorteSelect = document.getElementById('mes-sorte-select');
         const mesSorte = (this.currentGameKey === 'diadesorte' && mesSorteSelect) ? mesSorteSelect.value : null;
 
-        // currentGeneratedExtras: array paralelo aos jogos com índice do time (Timemania)
-        // ou null/undefined para outras loterias
         const extras = this.currentGeneratedExtras || [];
         const isTimemania = this.currentGameKey === 'timemania';
         const isDiaDeSorte = this.currentGameKey === 'diadesorte';
 
-        let content = `═══════════════════════════════════════\n`;
-        content += `  JOGOS — ${gameName.toUpperCase()}\n`;
-        if (mesSorte) content += `  Mês da Sorte (cabeçalho): ${mesSorte}\n`;
-        if (isTimemania) content += `  Time do Coração: registrado por jogo abaixo\n`;
-        content += `  Data: ${now.toLocaleString('pt-BR')}\n`;
-        content += `  Total de Jogos: ${this.currentGeneratedGames.length}\n`;
-        content += `═══════════════════════════════════════\n\n`;
+        let content = `═══════════════════════════════════════
+`;
+        content += `  JOGOS — ${gameName.toUpperCase()}
+`;
+        if (mesSorte) content += `  Mês da Sorte (cabeçalho): ${mesSorte}
+`;
+        if (isTimemania) content += `  Time do Coração: registrado por jogo abaixo
+`;
+        content += `  Data: ${now.toLocaleString('pt-BR')}
+`;
+        content += `  Total de Jogos: ${this.currentGeneratedGames.length}
+`;
+        content += `═══════════════════════════════════════
 
-        this.currentGeneratedGames.forEach((game, index) => {
-            const nums = game.map(n => n.toString().padStart(2, '0')).join(' - ');
+`;
+
+        this.currentGeneratedGames.forEach((g, index) => {
+            const nums = g.map(n => n.toString().padStart(2, '0')).join(' - ');
             let extra = '';
             if (isTimemania && extras[index] !== undefined && extras[index] !== null) {
-                // L99_TIMES é o array global dos times da Timemania
                 const timeName = (typeof L99_TIMES !== 'undefined' && L99_TIMES[extras[index]])
                     ? L99_TIMES[extras[index]]
                     : `Time #${extras[index]}`;
                 extra = ` | Time: ${timeName}`;
             } else if (isDiaDeSorte) {
-                // Dia de Sorte: usa L99_MESES[extras[index]] (mesmo padrão da UI)
-                // L99_MESES = ['Janeiro','Fevereiro',...,'Dezembro']
                 if (extras[index] !== undefined && extras[index] !== null) {
                     const mesNome = (typeof L99_MESES !== 'undefined' && L99_MESES[extras[index]])
                         ? L99_MESES[extras[index]]
@@ -3714,94 +3765,116 @@ alert(OK + "/" + T + " jogos no carrinho!" + (ER > 0 ? "\\n" + ER + " erro(s)." 
                     extra = ` | Mês: ${mesSorte}`;
                 }
             }
-            content += `Jogo ${String(index + 1).padStart(3, '0')}: ${nums}${extra}\n`;
+            content += `Jogo ${String(index + 1).padStart(3, '0')}: ${nums}${extra}
+`;
         });
 
-        content += `\n═══════════════════════════════════════\n`;
-        content += `  B2B Loterias — Boa Sorte! 🍀\n`;
-        content += `═══════════════════════════════════════\n`;
+        content += `
+═══════════════════════════════════════
+`;
+        content += `  B2B Loterias — Boa Sorte! 🍀
+`;
+        content += `═══════════════════════════════════════
+`;
 
-        // ══════ SALVAR DIRETO VIA SERVIDOR LOCAL ══════
+        // ══════ 1. TENTAR SALVAR DIRETO NA PASTA VIA SERVIDOR LOCAL ══════
         try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2500);
-            const response = await fetch('/salvar', {
+            const result = await this._callServerApi('/salvar', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                signal: controller.signal,
-                body: JSON.stringify({
+                body: {
                     gameKey: this.currentGameKey,
                     fileName: fileName,
                     content: content,
-                }),
+                },
+                timeoutMs: 10000
             });
-            clearTimeout(timeoutId);
 
-            const result = await response.json();
-
-            if (result.ok) {
-                // ✅ Feedback visual — salvou direto na pasta!
+            if (result && result.ok) {
                 const btn = this.saveBtn;
-                const originalHTML = btn.innerHTML;
-                btn.innerHTML = '✅ Salvo!';
-                btn.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
-                btn.style.transform = 'scale(1.05)';
-                setTimeout(() => {
-                    btn.innerHTML = originalHTML;
-                    btn.style.background = '';
-                    btn.style.transform = '';
-                }, 3000);
+                if (btn) {
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '✅ Salvo!';
+                    btn.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
+                    btn.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        btn.style.background = '';
+                        btn.style.transform = '';
+                    }, 3000);
+                }
 
-                // Toast com o caminho da pasta onde foi salvo
-                const pastaRelativa = result.relativePath || result.path || 'Jogos_Salvos';
+                const savedRelPath = result.relativePath || result.path || `LOTERIAS JOGOS SALVOS L99\${gameName}\${result.fileName || fileName}`;
+                const toastMsg = `✅ <strong>Jogo salvo com sucesso!</strong><br><span style="font-size:11px;opacity:0.9">📁 ${savedRelPath}</span>`;
+                
                 if (typeof Guardian !== 'undefined' && Guardian.toast) {
-                    Guardian.toast(`✅ Jogo salvo em:\n📁 ${pastaRelativa}`, 'success', 5000);
+                    Guardian.toast(`✅ Jogo salvo com sucesso!
+📁 ${savedRelPath}`, 'success', 6000);
                 } else {
-                    // Notificação nativa como fallback
                     const toast = document.createElement('div');
                     toast.style.cssText = `
                         position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
                         background:linear-gradient(135deg,#166534,#15803d); color:#fff;
-                        padding:14px 22px; border-radius:12px; font-size:13px;
+                        padding:14px 24px; border-radius:12px; font-size:13px;
                         box-shadow:0 8px 32px rgba(0,0,0,0.4); z-index:99999;
-                        max-width:420px; text-align:center; line-height:1.5;
-                        animation: fadeInUp 0.3s ease;
+                        max-width:480px; text-align:center; line-height:1.5;
+                        animation: fadeInUp 0.3s ease; border: 1px solid #4ade80;
                     `;
-                    toast.innerHTML = `✅ <strong>Jogo salvo automaticamente!</strong><br>
-                        <span style="font-size:11px;opacity:0.85">📁 ${pastaRelativa}</span>`;
+                    toast.innerHTML = toastMsg;
                     document.body.appendChild(toast);
-                    setTimeout(() => toast.remove(), 5000);
+                    setTimeout(() => toast.remove(), 6000);
                 }
 
-                console.log(`[B2B] ✅ Salvo direto: ${result.path}`);
+                console.log(`[B2B] ✅ Salvo com sucesso: ${result.path}`);
                 return;
-            } else {
-                console.error('[Save] Servidor retornou erro:', result.error);
             }
         } catch (err) {
-            console.warn('[Save] Servidor local indisponível, usando fallback:', err.message);
+            console.warn('[Save] Servidor local indisponível, usando fallback de download:', err.message);
         }
 
-        // ══════ FALLBACK: Download direto (se servidor não estiver rodando) ══════
-        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-        const urlObj = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = urlObj;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(urlObj);
+        // ══════ 2. FALLBACK: Download como arquivo no navegador ══════
+        try {
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const urlObj = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = urlObj;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => window.URL.revokeObjectURL(urlObj), 3000);
 
-        // Feedback visual fallback
-        const btn = this.saveBtn;
-        const originalHTML = btn.innerHTML;
-        btn.innerHTML = '⬇️ Baixado!';
-        btn.style.background = 'linear-gradient(135deg, #2563EB, #1D4ED8)';
-        setTimeout(() => {
-            btn.innerHTML = originalHTML;
-            btn.style.background = '';
-        }, 2500);
+            const btn = this.saveBtn;
+            if (btn) {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '⬇️ Baixado!';
+                btn.style.background = 'linear-gradient(135deg, #2563EB, #1D4ED8)';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                }, 2500);
+            }
+
+            const fallbackMsg = `📥 <strong>Arquivo baixado pelo navegador!</strong><br><span style="font-size:11px;opacity:0.9">Verifique a pasta de Downloads (${fileName})</span>`;
+            if (typeof Guardian !== 'undefined' && Guardian.toast) {
+                Guardian.toast(`📥 Arquivo baixado pelo navegador!
+Verifique seus Downloads (${fileName})`, 'info', 5000);
+            } else {
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+                    background:linear-gradient(135deg,#1e40af,#2563eb); color:#fff;
+                    padding:14px 24px; border-radius:12px; font-size:13px;
+                    box-shadow:0 8px 32px rgba(0,0,0,0.4); z-index:99999;
+                    max-width:480px; text-align:center; line-height:1.5;
+                    border: 1px solid #60a5fa;
+                `;
+                toast.innerHTML = fallbackMsg;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 5000);
+            }
+        } catch (e) {
+            alert('Não foi possível salvar o arquivo: ' + e.message);
+        }
     }
 
     openCheckModal() {
@@ -3837,8 +3910,8 @@ alert(OK + "/" + T + " jogos no carrinho!" + (ER > 0 ? "\\n" + ER + " erro(s)." 
             listarBtn.onclick = async function() {
                 listarBtn.innerHTML = '⏳ Carregando...';
                 try {
-                    const resp = await fetch('/listar-jogos?gameKey=' + self.currentGameKey);
-                    const data = await resp.json();
+                    const data = await self._callServerApi('/listar-jogos?gameKey=' + self.currentGameKey);
+                    // resp já parseado por _callServerApi
                     if (data.ok && data.files && data.files.length > 0) {
                         // Filtrar apenas arquivos de jogos (não relatórios CONFERIDO_...Concurso)
                         const gameFiles = data.files.filter(function(f) {
@@ -3863,8 +3936,8 @@ alert(OK + "/" + T + " jogos no carrinho!" + (ER > 0 ? "\\n" + ER + " erro(s)." 
                             item.onclick = async function() {
                                 item.innerHTML = '<span style="color:#22C55E;">⏳ Carregando...</span>';
                                 try {
-                                    var readResp = await fetch('/ler-jogo', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ gameKey: self.currentGameKey, fileName: file.name }) });
-                                    var readData = await readResp.json();
+                                    var readData = await self._callServerApi('/ler-jogo', { method: 'POST', body: { gameKey: self.currentGameKey, fileName: file.name } });
+                                    // readResp já parseado por _callServerApi
                                     if (readData.ok && readData.content) {
                                         var parsedGames = self.parseSavedGames(readData.content);
                                         if (parsedGames && parsedGames.length > 0) {
@@ -4743,20 +4816,12 @@ alert(OK + "/" + T + " jogos no carrinho!" + (ER > 0 ? "\\n" + ER + " erro(s)." 
                     reportText += '\n════════════════════════════════════════════\n';
                     reportText += '  L99 B2B Loterias — Relatório Automático\n';
                     reportText += '════════════════════════════════════════════\n';
-                    fetch('/salvar-conferencia', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ gameKey: self.currentGameKey, concurso: concursoNum, content: reportText })
-                    }).then(function(r) { return r.json(); }).then(function(result) {
+                    self._callServerApi('/salvar-conferencia', { method: 'POST', body: { gameKey: self.currentGameKey, concurso: concursoNum, content: reportText } }).then(function(result) {
                         if (result.ok) console.log('[L99] ✅ Conferência salva em: ' + result.fileName);
                     }).catch(function() {});
                     // Marcar arquivo original como conferido
                     if (self._lastLoadedFileName && !self._lastLoadedFileName.startsWith('✅')) {
-                        fetch('/marcar-conferido', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ gameKey: self.currentGameKey, fileName: self._lastLoadedFileName })
-                        }).catch(function() {});
+                        self._callServerApi('/marcar-conferido', { method: 'POST', body: { gameKey: self.currentGameKey, fileName: self._lastLoadedFileName } }).catch(function() {});
                     }
                 } catch(saveErr) {
                     console.warn('[L99] Erro ao salvar conferência:', saveErr);

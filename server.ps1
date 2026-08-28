@@ -1,14 +1,34 @@
 # server.ps1 - PowerShell HTTP Server for B2B Loterias
 # Serves static files and handles API endpoints on http://localhost:8777/
+# v2.1 — Multi-desktop mirroring, anti-collision, and auto-sync
 
 $port = 8777
 $root = $PSScriptRoot
 if (-not $root) { $root = Get-Location }
 
-# Pasta de jogos salvos
-$desktop = [System.IO.Path]::Combine([System.Environment]::GetFolderPath('Desktop'), 'LOTERIAS JOGOS SALVOS L99')
-if (-not (Test-Path $desktop)) {
-    New-Item -ItemType Directory -Path $desktop -Force | Out-Null
+# Detectar TODOS os desktops
+$candidatos = @(
+    [System.IO.Path]::Combine($env:USERPROFILE, 'Desktop'),
+    [System.IO.Path]::Combine($env:USERPROFILE, 'OneDrive', 'Desktop'),
+    [System.IO.Path]::Combine($env:USERPROFILE, 'OneDrive', 'Área de Trabalho'),
+    [System.IO.Path]::Combine($env:USERPROFILE, 'Área de Trabalho'),
+    [System.IO.Path]::Combine($env:USERPROFILE, 'OneDrive', 'Documents', 'OneDrive', 'Desktop')
+)
+
+$desktopPaths = @()
+foreach ($c in $candidatos) {
+    if ((Test-Path $c) -and ($desktopPaths -notcontains $c)) {
+        $desktopPaths += $c
+    }
+}
+if ($desktopPaths.Count -eq 0) {
+    $desktopPaths = @([System.IO.Path]::Combine($env:USERPROFILE, 'Desktop'))
+}
+
+$desktop = [System.IO.Path]::Combine($desktopPaths[0], 'LOTERIAS JOGOS SALVOS L99')
+$allJogosDirs = @()
+foreach ($dp in $desktopPaths) {
+    $allJogosDirs += [System.IO.Path]::Combine($dp, 'LOTERIAS JOGOS SALVOS L99')
 }
 
 $pastaPorJogo = @{
@@ -21,13 +41,38 @@ $pastaPorJogo = @{
     "diadesorte" = "DIA DE SORTE"
 }
 
-# Garantir subpastas
-foreach ($sp in $pastaPorJogo.Values) {
-    $dir = Join-Path $desktop $sp
-    if (-not (Test-Path $dir)) {
-        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+# Garantir subpastas em todos os caminhos
+foreach ($baseDir in $allJogosDirs) {
+    if (-not (Test-Path $baseDir)) { New-Item -ItemType Directory -Path $baseDir -Force | Out-Null }
+    foreach ($sp in $pastaPorJogo.Values) {
+        $dir = Join-Path $baseDir $sp
+        if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
     }
 }
+
+# Sincronizacao de arquivos entre todos os desktops
+function Sync-DesktopDirs {
+    if ($allJogosDirs.Count -le 1) { return }
+    foreach ($sp in $pastaPorJogo.Values) {
+        for ($i = 0; $i -lt $allJogosDirs.Count; $i++) {
+            $srcDir = Join-Path $allJogosDirs[$i] $sp
+            if (-not (Test-Path $srcDir)) { continue }
+            $files = Get-ChildItem -Path $srcDir -Filter "*.txt" -File -ErrorAction SilentlyContinue
+            foreach ($f in $files) {
+                for ($j = 0; $j -lt $allJogosDirs.Count; $j++) {
+                    if ($i -eq $j) { continue }
+                    $dstDir = Join-Path $allJogosDirs[$j] $sp
+                    if (-not (Test-Path $dstDir)) { New-Item -ItemType Directory -Path $dstDir -Force | Out-Null }
+                    $dstFile = Join-Path $dstDir $f.Name
+                    if (-not (Test-Path $dstFile)) {
+                        Copy-Item -Path $f.FullName -Destination $dstFile -Force -ErrorAction SilentlyContinue
+                    }
+                }
+            }
+        }
+    }
+}
+Sync-DesktopDirs
 
 $mimeTypes = @{
     ".html" = "text/html; charset=utf-8"
@@ -50,7 +95,6 @@ $listener.Prefixes.Add("http://localhost:$port/")
 try {
     $listener.Start()
 } catch {
-    # Se a porta já estiver em uso, sair silenciosamente
     Write-Host "Porta $port ja em uso - servidor ativo."
     exit 0
 }
@@ -82,8 +126,6 @@ function Send-File($context, $filePath) {
     $res.StatusCode = 200
     $res.ContentType = $mime
     $res.Headers.Add("Access-Control-Allow-Origin", "*")
-    
-    # v16.2: Adicionar cabecalhos de controle de cache para evitar cache persistente de HTML/JS pelo navegador
     $res.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate")
     $res.Headers.Add("Pragma", "no-cache")
     $res.Headers.Add("Expires", "0")
@@ -130,19 +172,53 @@ while ($listener.IsListening) {
             $subPasta = $pastaPorJogo[$gameKey]
             if (-not $subPasta) { $subPasta = $gameKey.ToUpper() }
             
-            $safeFileName = $fileName -replace '[<>:"/\\|?*]', '_'
-            $gameDir = Join-Path $desktop $subPasta
-            if (-not (Test-Path $gameDir)) {
-                New-Item -ItemType Directory -Path $gameDir -Force | Out-Null
+            $safeFileName = ($fileName -replace '[<>:"/\\|?*]', '_').Trim()
+            if (-not $safeFileName.EndsWith('.txt')) { $safeFileName += '.txt' }
+            
+            $nameWithoutExt = [System.IO.Path]::GetFileNameWithoutExtension($safeFileName)
+            $finalFileName = $safeFileName
+            $counter = 2
+            
+            # Anti-sobrescrita: se existir com conteúdo diferente, incrementa sufixo
+            while ($true) {
+                $collision = $false
+                foreach ($baseDir in $allJogosDirs) {
+                    $testPath = Join-Path (Join-Path $baseDir $subPasta) $finalFileName
+                    if (Test-Path $testPath) {
+                        try {
+                            $existing = [System.IO.File]::ReadAllText($testPath, [System.Text.Encoding]::UTF8)
+                            if ($existing.Trim() -ne $content.Trim()) {
+                                $collision = $true
+                                break
+                            }
+                        } catch {}
+                    }
+                }
+                if ($collision) {
+                    $finalFileName = "${nameWithoutExt}_${counter}.txt"
+                    $counter++
+                } else {
+                    break
+                }
             }
             
-            $filePath = Join-Path $gameDir $safeFileName
-            [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::UTF8)
+            $primaryFilePath = Join-Path (Join-Path $desktop $subPasta) $finalFileName
+            
+            # Gravar em todos os desktops
+            foreach ($baseDir in $allJogosDirs) {
+                $gameDir = Join-Path $baseDir $subPasta
+                if (-not (Test-Path $gameDir)) {
+                    New-Item -ItemType Directory -Path $gameDir -Force | Out-Null
+                }
+                $filePath = Join-Path $gameDir $finalFileName
+                [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::UTF8)
+            }
             
             $respObj = @{
                 "ok" = $true
-                "path" = $filePath
-                "relativePath" = "LOTERIAS JOGOS SALVOS L99\$subPasta\$safeFileName"
+                "path" = $primaryFilePath
+                "fileName" = $finalFileName
+                "relativePath" = "LOTERIAS JOGOS SALVOS L99\$subPasta\$finalFileName"
             }
             Send-Json $context $respObj
             continue
@@ -150,7 +226,7 @@ while ($listener.IsListening) {
         
         # ROTA /pasta-jogos
         if ($req.HttpMethod -eq "GET" -and $url -eq "/pasta-jogos") {
-            Send-Json $context @{ "path" = $desktop }
+            Send-Json $context @{ "path" = $desktop; "allPaths" = $allJogosDirs }
             continue
         }
         
@@ -160,26 +236,32 @@ while ($listener.IsListening) {
             $subPasta = $pastaPorJogo[$gameKey]
             $targetDir = if ($subPasta) { Join-Path $desktop $subPasta } else { $desktop }
             
-            if (-not (Test-Path $targetDir)) {
-                Send-Json $context @{ "ok" = $true; "files" = @(); "path" = $targetDir }
-                continue
-            }
+            Sync-DesktopDirs
             
-            $files = Get-ChildItem -Path $targetDir -Filter "*.txt" | ForEach-Object {
-                @{
-                    "name" = $_.Name
-                    "size" = $_.Length
-                    "modified" = $_.LastWriteTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+            $fileDict = @{}
+            foreach ($baseDir in $allJogosDirs) {
+                $dir = if ($subPasta) { Join-Path $baseDir $subPasta } else { $baseDir }
+                if (Test-Path $dir) {
+                    Get-ChildItem -Path $dir -Filter "*.txt" -File | ForEach-Object {
+                        if (-not $fileDict.ContainsKey($_.Name) -or $_.LastWriteTime -gt $fileDict[$_.Name].LastWriteTime) {
+                            $fileDict[$_.Name] = @{
+                                "name" = $_.Name
+                                "size" = $_.Length
+                                "modified" = $_.LastWriteTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+                                "LastWriteTime" = $_.LastWriteTime
+                            }
+                        }
+                    }
                 }
             }
             
-            # Formatar para array se houver apenas 1 elemento
-            if ($files -and $files -isnot [array]) {
-                $files = @($files)
-            }
-            if (-not $files) { $files = @() }
-            
-            $files = $files | Sort-Object { $_.modified } -Descending
+            $files = @($fileDict.Values | Sort-Object { $_.LastWriteTime } -Descending | ForEach-Object {
+                @{
+                    "name" = $_.name
+                    "size" = $_.size
+                    "modified" = $_.modified
+                }
+            })
             
             Send-Json $context @{ "ok" = $true; "files" = $files; "path" = $targetDir }
             continue
@@ -193,15 +275,22 @@ while ($listener.IsListening) {
             
             $safeFileName = [System.IO.Path]::GetFileName($fileName)
             $subPasta = $pastaPorJogo[$gameKey]
-            $targetDir = if ($subPasta) { Join-Path $desktop $subPasta } else { $desktop }
-            $filePath = Join-Path $targetDir $safeFileName
             
-            if (-not (Test-Path $filePath)) {
+            $content = $null
+            foreach ($baseDir in $allJogosDirs) {
+                $dir = if ($subPasta) { Join-Path $baseDir $subPasta } else { $baseDir }
+                $filePath = Join-Path $dir $safeFileName
+                if (Test-Path $filePath) {
+                    $content = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+                    break
+                }
+            }
+            
+            if ($null -eq $content) {
                 Send-Json $context @{ "ok" = $false; "error" = "Arquivo nao encontrado" } 404
                 continue
             }
             
-            $content = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
             Send-Json $context @{ "ok" = $true; "content" = $content; "fileName" = $fileName }
             continue
         }
@@ -214,19 +303,23 @@ while ($listener.IsListening) {
             $concurso = if ($data.concurso) { $data.concurso } else { "sem-concurso" }
             
             $subPasta = $pastaPorJogo[$gameKey]
-            $targetDir = if ($subPasta) { Join-Path $desktop $subPasta } else { $desktop }
-            if (-not (Test-Path $targetDir)) {
-                New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
-            }
-            
             $now = Get-Date
             $dateStr = $now.ToString("yyyy-MM-dd")
             $timeStr = $now.ToString("HH-mm-ss")
             $fileName = "✅CONFERIDO_$([string]$subPasta.ToUpper())_Concurso_$($concurso)_$($dateStr)_$($timeStr).txt"
-            $filePath = Join-Path $targetDir $fileName
             
-            [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::UTF8)
-            Send-Json $context @{ "ok" = $true; "path" = $filePath; "fileName" = $fileName }
+            $primaryPath = ""
+            foreach ($baseDir in $allJogosDirs) {
+                $targetDir = if ($subPasta) { Join-Path $baseDir $subPasta } else { $baseDir }
+                if (-not (Test-Path $targetDir)) {
+                    New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+                }
+                $filePath = Join-Path $targetDir $fileName
+                [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::UTF8)
+                if (-not $primaryPath) { $primaryPath = $filePath }
+            }
+            
+            Send-Json $context @{ "ok" = $true; "path" = $primaryPath; "fileName" = $fileName }
             continue
         }
         
@@ -238,13 +331,6 @@ while ($listener.IsListening) {
             
             $safeFileName = [System.IO.Path]::GetFileName($fileName)
             $subPasta = $pastaPorJogo[$gameKey]
-            $targetDir = if ($subPasta) { Join-Path $desktop $subPasta } else { $desktop }
-            $oldPath = Join-Path $targetDir $safeFileName
-            
-            if (-not (Test-Path $oldPath)) {
-                Send-Json $context @{ "ok" = $false; "error" = "Arquivo nao encontrado" } 404
-                continue
-            }
             
             if ($safeFileName.StartsWith("✅")) {
                 Send-Json $context @{ "ok" = $true; "already" = $true; "fileName" = $safeFileName }
@@ -252,8 +338,14 @@ while ($listener.IsListening) {
             }
             
             $newName = "✅CONFERIDO_" + $safeFileName
-            $newPath = Join-Path $targetDir $newName
-            Rename-Item -Path $oldPath -NewName $newName -Force
+            foreach ($baseDir in $allJogosDirs) {
+                $targetDir = if ($subPasta) { Join-Path $baseDir $subPasta } else { $baseDir }
+                $oldPath = Join-Path $targetDir $safeFileName
+                $newPath = Join-Path $targetDir $newName
+                if (Test-Path $oldPath) {
+                    Rename-Item -Path $oldPath -NewName $newName -Force
+                }
+            }
             
             Send-Json $context @{ "ok" = $true; "oldName" = $fileName; "newName" = $newName }
             continue
@@ -273,7 +365,6 @@ while ($listener.IsListening) {
             $pathName = "/index.html"
         }
         
-        # Segurança contra path traversal
         $normalizedPath = $pathName.Replace("/", [System.IO.Path]::DirectorySeparatorChar)
         if ($normalizedPath.StartsWith([System.IO.Path]::DirectorySeparatorChar)) {
             $normalizedPath = $normalizedPath.Substring(1)
@@ -283,7 +374,6 @@ while ($listener.IsListening) {
         if ((Test-Path $filePath) -and -not (Test-Path -Path $filePath -PathType Container)) {
             Send-File $context $filePath
         } else {
-            # Fallback para index.html
             $fallback = Join-Path $root "index.html"
             if (Test-Path $fallback) {
                 Send-File $context $fallback
