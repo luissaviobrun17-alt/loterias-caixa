@@ -319,9 +319,10 @@
                         </div>
 
                         <!-- MOTORES EXCLUSIVOS B2B LOTERIAS (Lado a Lado) -->
-                        <div id="b2b-motors-row" style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">
-                            <button id="btn-motor-lotofacil" class="action-btn" style="padding: 14px 12px; background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #4c1d95 100%); border: 1px solid #c084fc; color: #ffffff; font-weight: 800; font-size: 0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(192,132,252,0.35); cursor:pointer;" title="MOTOR INTELIGENTE LOTOFÁCIL — B2B LOTERIAS: Análise obrigatória 10 concursos, divisões dinâmicas, relações 7/8, 8/7, 6/9, 9/6, consecutividade máx 5, Score B2B e Transparência Matemática.">⚡ MOTOR LOTOFÁCIL (B2B)</button>
-                            <button id="btn-motor-lotomania" class="action-btn" style="padding: 14px 12px; background: linear-gradient(135deg, #0284c7 0%, #0f766e 100%); border: 1px solid #38bdf8; color: #ffffff; font-weight: 800; font-size: 0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(56,189,248,0.35); cursor:pointer;" title="MOTOR LOTOMANIA — B2B LOTERIAS: 5 Conjuntos estritos de 20 numeros, 10 por conjunto (5x10=50), consecutividade maxima de 4 no jogo ordenado, scoring estatistico e auditoria 10 pontos.">⚛️ MOTOR LOTOMANIA (B2B)</button>
+                        <div id="b2b-motors-row" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-top: 8px;">
+                            <button id="btn-motor-lotofacil" class="action-btn" style="padding: 12px 10px; background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #4c1d95 100%); border: 1px solid #c084fc; color: #ffffff; font-weight: 800; font-size: 0.90rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(192,132,252,0.35); cursor:pointer;" title="MOTOR INTELIGENTE LOTOFÁCIL — B2B LOTERIAS: Análise obrigatória 10 concursos, divisões dinâmicas, relações 7/8, 8/7, 6/9, 9/6, consecutividade máx 5, Score B2B e Transparência Matemática.">⚡ MOTOR LOTOFÁCIL (B2B)</button>
+                            <button id="btn-motor-lotomania" class="action-btn" style="padding: 12px 10px; background: linear-gradient(135deg, #0284c7 0%, #0f766e 100%); border: 1px solid #38bdf8; color: #ffffff; font-weight: 800; font-size: 0.90rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(56,189,248,0.35); cursor:pointer;" title="MOTOR LOTOMANIA — B2B LOTERIAS: 5 Conjuntos estritos de 20 numeros, 10 por conjunto (5x10=50), consecutividade maxima de 4 no jogo ordenado, scoring estatistico e auditoria 10 pontos.">⚛️ MOTOR LOTOMANIA (B2B)</button>
+                            <button id="btn-motor-timemania" class="action-btn" style="padding: 12px 10px; background: linear-gradient(135deg, #059669 0%, #10b981 50%, #064e3b 100%); border: 1px solid #34d399; color: #ffffff; font-weight: 800; font-size: 0.90rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(52,211,153,0.35); cursor:pointer;" title="MOTOR TIMEMANIA — B2B LOTERIAS: Divisão analítica em 4 Grupos (G1..G4), 10 dezenas por jogo, IFM 8D, Time do Coração (80 clubes), Bloqueio de 3 Consecutivos no grupo, SNIPER adaptativo e Auditoria 10 pontos.">🎯 MOTOR TIMEMANIA (B2B)</button>
                         </div>
 
                         <!-- PAINEL MOTOR LOTOFÁCIL DO B2B LOTERIAS -->
@@ -404,6 +405,102 @@
                             <div style="display: flex; gap: 8px;">
                                 <button id="btn-executar-motor-lotomania" style="flex: 2; background: linear-gradient(135deg, #0284c7, #059669); border: 1px solid #34d399; color: white; padding: 10px 14px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 0 12px rgba(5,150,105,0.4);">
                                     ⚡ GERAR CARTEIRA (MOTOR LOTOMANIA)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- PAINEL MOTOR TIMEMANIA DO B2B LOTERIAS -->
+                        <div id="motor-timemania-panel" style="display:none; margin-top: 12px; padding: 16px; background: radial-gradient(circle at top left, rgba(5, 150, 105, 0.25), rgba(15, 23, 42, 0.95)); border: 1px solid #10b981; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                                <div style="font-size: 1.05rem; font-weight: 800; color: #34d399; display: flex; align-items: center; gap: 8px;">
+                                    🎯 MOTOR TIMEMANIA — B2B LOTERIAS
+                                </div>
+                                <span style="font-size: 0.75rem; background: rgba(52, 211, 153, 0.15); color: #a7f3d0; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(52, 211, 153, 0.3); font-weight: 700;">
+                                    4 Grupos x 20 • 10 Números/Jogo • Time do Coração • SNIPER
+                                </span>
+                            </div>
+                            <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5; margin: 0 0 12px 0;">
+                                Universo de 80 números dividido em 4 grupos (<strong style="color:#34d399;">G1: 01-20, G2: 21-40, G3: 41-60, G4: 61-80</strong>). Gera 10 dezenas por jogo com estruturas centrais (<strong style="color:#fcd34d;">3-3-2-2, 3-2-3-2, 2-3-3-2, 2-2-3-3</strong>), bloqueio de 3 consecutivos por grupo, modelagem estatística do Time do Coração e otimização global de carteira.
+                            </p>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">Tamanho do Pool:</label>
+                                    <select id="select-pool-timemania" style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(52,211,153,0.3); color: #e2e8f0; padding: 6px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                                        <option value="80" selected>80 Números (Todo o Universo)</option>
+                                        <option value="70">70 Números (Filtro 87.5%)</option>
+                                        <option value="60">60 Números (Filtro 75.0%)</option>
+                                        <option value="50">50 Números (Filtro 62.5%)</option>
+                                        <option value="40">40 Números (Filtro 50.0%)</option>
+                                        <option value="30">30 Números (Filtro 37.5%)</option>
+                                        <option value="20">20 Números (Filtro 25.0%)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">Histórico Utilizado:</label>
+                                    <select id="select-historico-timemania" style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(52,211,153,0.3); color: #e2e8f0; padding: 6px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                                        <option value="0" selected>Todos os Concursos Disponíveis (2.168+)</option>
+                                        <option value="10">Últimos 10 Concursos</option>
+                                        <option value="20">Últimos 20 Concursos</option>
+                                        <option value="50">Últimos 50 Concursos</option>
+                                        <option value="100">Últimos 100 Concursos</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">Estratégia do Motor:</label>
+                                    <select id="select-estrategia-timemania" style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(52,211,153,0.3); color: #e2e8f0; padding: 6px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                                        <option value="equilibrada" selected>Equilibrada (Score IFM + Cobertura)</option>
+                                        <option value="frequencia">Frequência Histórica Pura</option>
+                                        <option value="frequencia_recente">Frequência Recente (10/20/50)</option>
+                                        <option value="atraso">Atraso & Recuperação (Gap Model)</option>
+                                        <option value="associacao">Associação & Coocorrência (Lift/z-score)</option>
+                                        <option value="diversificacao">Diversificação Máxima de Carteira</option>
+                                        <option value="matematica_pura">Matemática Pura (Centróide Simétrico)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">Time do Coração (80 Clubes):</label>
+                                    <select id="select-estrategia-time-timemania" style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(52,211,153,0.3); color: #e2e8f0; padding: 6px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                                        <option value="maior_ift" selected>Top Força Estatística (Maior IFT)</option>
+                                        <option value="rotacao">Rotação / Diversificação dos Top 10 Times</option>
+                                        <option value="ponderada">Amostragem Ponderada pelo IFT</option>
+                                        <option value="fixo_flamengo">Fixo: FLAMENGO/RJ</option>
+                                        <option value="fixo_corinthians">Fixo: CORINTHIANS/SP</option>
+                                        <option value="fixo_palmeiras">Fixo: PALMEIRAS/SP</option>
+                                        <option value="fixo_saopaulo">Fixo: SÃO PAULO/SP</option>
+                                        <option value="fixo_santos">Fixo: SANTOS/SP</option>
+                                        <option value="fixo_vasco">Fixo: VASCO DA GAMA/RJ</option>
+                                        <option value="fixo_gremio">Fixo: GRÊMIO/RS</option>
+                                        <option value="fixo_internacional">Fixo: INTERNACIONAL/RS</option>
+                                        <option value="fixo_cruzeiro">Fixo: CRUZEIRO/MG</option>
+                                        <option value="fixo_atleticomg">Fixo: ATLÉTICO/MG</option>
+                                        <option value="fixo_botafogo">Fixo: BOTAFOGO/RJ</option>
+                                        <option value="fixo_fluminense">Fixo: FLUMINENSE/RJ</option>
+                                        <option value="fixo_bahia">Fixo: BAHIA/BA</option>
+                                        <option value="fixo_sport">Fixo: SPORT/PE</option>
+                                        <option value="fixo_fortaleza">Fixo: FORTALEZA/CE</option>
+                                        <option value="fixo_ceara">Fixo: CEARÁ/CE</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                                <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.3); padding:8px 12px; border-radius:6px; border:1px solid rgba(52,211,153,0.2);">
+                                    <span style="font-size:0.78rem; color:#e2e8f0; font-weight:700;">Bloquear 3 Consec. no Grupo:</span>
+                                    <input type="checkbox" id="check-no-consec-timemania" checked style="transform:scale(1.2); cursor:pointer; accent-color:#10b981;">
+                                </div>
+                                <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.3); padding:8px 12px; border-radius:6px; border:1px solid rgba(245,158,11,0.2);">
+                                    <span style="font-size:0.78rem; color:#fcd34d; font-weight:700;">🎯 Modo SNIPER Timemania:</span>
+                                    <input type="checkbox" id="check-sniper-timemania" style="transform:scale(1.2); cursor:pointer; accent-color:#f59e0b;">
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 8px;">
+                                <button id="btn-executar-motor-timemania" style="flex: 2; background: linear-gradient(135deg, #059669, #10b981); border: 1px solid #34d399; color: white; padding: 10px 14px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 0 12px rgba(16,185,129,0.4);">
+                                    🎯 GERAR CARTEIRA (MOTOR TIMEMANIA)
                                 </button>
                             </div>
                         </div>
@@ -1532,6 +1629,7 @@
             <script src="js/engines/roi_dashboard.js?v=1781904541"></script>
             <script src="js/engines/motor_lotomania_engine.js?v=1781904545"></script>
             <script src="js/engines/motor_lotofacil_engine.js?v=1781904580"></script>
+            <script src="js/engines/motor_timemania_engine.js?v=1781904590"></script>
             <script>
             (function() {
                 var repairFn = function(game, pool, fixedSet) {

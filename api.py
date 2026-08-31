@@ -9,6 +9,7 @@ import os
 from motor_sugestao import MotorSugestaoLoteria
 from motor_lotomania import MotorLotomaniaB2B
 from motor_lotofacil import MotorLotofacilB2B
+from motor_timemania import MotorTimemaniaB2B
 
 app = FastAPI(
     title="Loteria B2B AI Engine API",
@@ -50,6 +51,46 @@ class BacktestLotomaniaRequest(BaseModel):
     quantidade_jogos: Optional[int] = 10
     estrategia: Optional[str] = "equilibrada"
 
+class MotorLotofacilRequest(BaseModel):
+    quantidade_jogos: int
+    historico_limite: Optional[int] = None
+    estrategia: Optional[str] = "equilibrada"
+    sniper: Optional[bool] = True
+    fixas: Optional[List[int]] = None
+    excluidas: Optional[List[int]] = None
+    historico: Optional[List[List[int]]] = None
+
+class BacktestLotofacilRequest(BaseModel):
+    concurso_alvo_idx: Optional[int] = None
+    quantidade_jogos: Optional[int] = 20
+    estrategia: Optional[str] = "equilibrada"
+    sniper: Optional[bool] = True
+
+class MotorTimemaniaRequest(BaseModel):
+    quantidade_jogos: int
+    historico_limite: Optional[int] = None
+    estrategia: Optional[str] = "equilibrada"
+    sniper: Optional[bool] = False
+    no_consecutive_3_in_group: Optional[bool] = True
+    max_consecutive_total: Optional[int] = 3
+    pool: Optional[List[int]] = None
+    estrategia_time: Optional[str] = "maior_ift"
+    time_fixo_usuario: Optional[str] = None
+    historico: Optional[List[List[int]]] = None
+    historico_times: Optional[List[str]] = None
+
+class BacktestTimemaniaRequest(BaseModel):
+    concursos_teste: Optional[int] = 50
+    quantidade_jogos: Optional[int] = 10
+    estrategia: Optional[str] = "equilibrada"
+    sniper: Optional[bool] = False
+    no_consecutive_3_in_group: Optional[bool] = True
+    pool: Optional[List[int]] = None
+
+class AnaliseTimemaniaRequest(BaseModel):
+    historico_limite: Optional[int] = None
+    pool: Optional[List[int]] = None
+
 
 def obter_historico_caixa(nome_loteria: str) -> List[List[int]]:
     mapping = {
@@ -58,7 +99,8 @@ def obter_historico_caixa(nome_loteria: str) -> List[List[int]]:
         "quina": "quina",
         "lotomania": "lotomania",
         "duplasena": "duplasena",
-        "diadesorte": "diadesorte"
+        "diadesorte": "diadesorte",
+        "timemania": "timemania"
     }
     
     loteria_normalizada = nome_loteria.lower().strip().replace(" ", "").replace("-", "").replace("á", "a").replace("ó", "o")
@@ -105,7 +147,7 @@ def obter_historico_caixa(nome_loteria: str) -> List[List[int]]:
         sorted_keys = sorted(data.keys(), key=lambda x: int(x))
         historico = []
         for key in sorted_keys:
-            draw = [int(x) for x in data[key]]
+            draw = [int(x) for x in data[key][:7]]
             historico.append(draw)
         return historico
     except Exception as e:
@@ -212,19 +254,17 @@ def endpoint_motor_lotomania_backtest(request: BacktestLotomaniaRequest):
         raise HTTPException(status_code=500, detail=f"Erro no Backtest Lotomania: {str(e)}")
 
 
-class MotorLotofacilRequest(BaseModel):
-    quantidade_jogos: int
-    historico_limite: Optional[int] = 10
-    estrategia: Optional[str] = "equilibrada"
-    historico: Optional[List[List[int]]] = None
-
+# =============================================================================
+# MÓDULO EXCLUSIVO: MOTOR LOTOFÁCIL B2B (VERSÃO 2.5 - AJUSTE FINO)
+# =============================================================================
 
 @app.post("/api/v1/motor-lotofacil")
 def endpoint_motor_lotofacil(request: MotorLotofacilRequest):
     """
-    Endpoint exclusivo do MOTOR INTELIGENTE LOTOFÁCIL — B2B LOTERIAS.
-    Explora divisões dinâmicas, subconjuntos 7/8, 8/7, 6/9, 9/6, consecutividade <= 5,
-    scoring multicritério (Score B2B), diversificação e transparência ("Verdade Matemática").
+    Endpoint exclusivo do MOTOR LOTOFACIL — B2B LOTERIAS (v2.5).
+    Aplica paridade calibrada (7I/8P e 8I/7P), ressonancia de sorteio anterior,
+    primos, moldura, fibonacci, multiplos de 3, corredor de soma 180-210,
+    teto max 4 consecutivos e anti-saturacao de matriz 5x5.
     """
     try:
         historico = request.historico
@@ -233,16 +273,126 @@ def endpoint_motor_lotofacil(request: MotorLotofacilRequest):
 
         motor = MotorLotofacilB2B(
             historico=historico,
-            limite_historico=request.historico_limite or 10,
-            estrategia=request.estrategia or "equilibrada"
+            limite_historico=request.historico_limite,
+            estrategia=request.estrategia or "equilibrada",
+            sniper=request.sniper if request.sniper is not None else True
         )
 
-        resultado = motor.gerar_carteira(request.quantidade_jogos)
+        resultado = motor.gerar_carteira(
+            quantidade_jogos=request.quantidade_jogos,
+            fixas=request.fixas,
+            excluidas=request.excluidas
+        )
         return resultado
     except Exception as e:
         import traceback
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Erro no Motor Lotofácil: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro no Motor Lotofacil: {str(e)}")
+
+
+@app.post("/api/v1/motor-lotofacil/backtest")
+def endpoint_motor_lotofacil_backtest(request: BacktestLotofacilRequest):
+    """Executa simulação retrospectiva na Lotofácil sem vazamento de dados futuros."""
+    try:
+        historico = obter_historico_caixa("lotofacil")
+        alvo = request.concurso_alvo_idx
+        if alvo is None or alvo <= 0:
+            alvo = len(historico) - 1
+
+        motor = MotorLotofacilB2B(
+            historico=historico,
+            estrategia=request.estrategia or "equilibrada",
+            sniper=request.sniper if request.sniper is not None else True
+        )
+        resultado = motor.executar_backtesting(
+            concurso_alvo_idx=alvo,
+            quantidade_jogos=request.quantidade_jogos or 20,
+            estrategia=request.estrategia
+        )
+        return {"sucesso": True, "backtest": resultado}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erro no Backtest Lotofacil: {str(e)}")
+
+
+# =============================================================================
+# MÓDULO EXCLUSIVO: MOTOR TIMEMANIA B2B (ALTA ASSERTIVIDADE E CIÊNCIA EXATA)
+# =============================================================================
+
+@app.post("/api/v1/motor-timemania")
+def endpoint_motor_timemania(request: MotorTimemaniaRequest):
+    """
+    Endpoint do MOTOR TIMEMANIA — B2B LOTERIAS.
+    Aplica divisão analítica em 4 grupos (01-20, 21-40, 41-60, 61-80),
+    bloqueio de 3 consecutivos por grupo, IFM 8 dimensões, IFT do Time do Coração,
+    otimização submodular de carteira e auditoria 10 pontos.
+    """
+    try:
+        motor = MotorTimemaniaB2B(
+            historico=request.historico,
+            historico_times=request.historico_times,
+            limite_historico=request.historico_limite,
+            estrategia=request.estrategia or "equilibrada",
+            sniper=request.sniper or False,
+            no_consecutive_3_in_group=request.no_consecutive_3_in_group if request.no_consecutive_3_in_group is not None else True,
+            max_consecutive_total=request.max_consecutive_total or 3,
+            pool=request.pool
+        )
+
+        resultado = motor.gerar_carteira(
+            quantidade_jogos=request.quantidade_jogos,
+            estrategia_time=request.estrategia_time or "maior_ift",
+            time_fixo_usuario=request.time_fixo_usuario
+        )
+        return resultado
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erro no Motor Timemania: {str(e)}")
+
+
+@app.post("/api/v1/motor-timemania/backtest")
+def endpoint_motor_timemania_backtest(request: BacktestTimemaniaRequest):
+    """Executa simulação retrospectiva Walk-Forward na Timemania sem vazamento de dados futuros."""
+    try:
+        motor = MotorTimemaniaB2B(
+            estrategia=request.estrategia or "equilibrada",
+            sniper=request.sniper or False,
+            no_consecutive_3_in_group=request.no_consecutive_3_in_group if request.no_consecutive_3_in_group is not None else True,
+            pool=request.pool
+        )
+        resultado = motor.executar_backtesting(
+            concursos_teste=request.concursos_teste or 50,
+            quantidade_jogos=request.quantidade_jogos or 10,
+            estrategia=request.estrategia
+        )
+        return {"sucesso": True, "backtest": resultado}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erro no Backtest Timemania: {str(e)}")
+
+
+@app.post("/api/v1/motor-timemania/analise-estatistica")
+def endpoint_motor_timemania_analise(request: AnaliseTimemaniaRequest):
+    """Retorna o diagnóstico estatístico completo do universo e dos 80 clubes da Timemania."""
+    try:
+        motor = MotorTimemaniaB2B(
+            limite_historico=request.historico_limite,
+            pool=request.pool
+        )
+        return {
+            "sucesso": True,
+            "total_sorteios": len(motor.historico),
+            "ifm_ranking": motor._gerar_relatorio_analitico([], 0, 0)["top_10_dezenas_ifm"],
+            "times_ranking": motor._obter_ranking_times()[:15],
+            "scores_grupos": motor._gerar_relatorio_analitico([], 0, 0)["scores_grupos"]
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erro na Análise Timemania: {str(e)}")
 
 
 if __name__ == "__main__":

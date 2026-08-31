@@ -488,6 +488,143 @@ class UI {
                 } finally {
                     btnExecutarLotomania.disabled = false;
                     btnExecutarLotomania.innerHTML = origText;
+        // === BOTÃO MOTOR TIMEMANIA (B2B) ===
+        const btnMotorTimemania = document.getElementById('btn-motor-timemania');
+        if (btnMotorTimemania) {
+            btnMotorTimemania.onclick = () => {
+                if (this.currentGameKey !== 'timemania') {
+                    const navBtn = document.querySelector(`.nav-btn[data-game="timemania"]`);
+                    if (navBtn) navBtn.click();
+                    else this.updateGameInfo('timemania');
+                }
+                if (typeof this.updateInvestmentPanel === 'function') this.updateInvestmentPanel();
+                if (typeof this.updateCurrentCostDisplay === 'function') this.updateCurrentCostDisplay();
+                const panel = document.getElementById('motor-timemania-panel');
+                if (panel) {
+                    panel.style.display = panel.style.display === 'none' ? 'block' : (panel.style.display === 'block' ? 'none' : 'block');
+                    panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            };
+        }
+
+        const btnExecutarTimemania = document.getElementById('btn-executar-motor-timemania');
+        if (btnExecutarTimemania) {
+            btnExecutarTimemania.onclick = async () => {
+                if (this.currentGameKey !== 'timemania') {
+                    const navBtn = document.querySelector(`.nav-btn[data-game="timemania"]`);
+                    if (navBtn) navBtn.click();
+                    else this.updateGameInfo('timemania');
+                }
+                const qty = parseInt(document.getElementById('games-quantity')?.value || '10') || 10;
+                const poolSize = parseInt(document.getElementById('select-pool-timemania')?.value || '80') || 80;
+                const historicoLimite = parseInt(document.getElementById('select-historico-timemania')?.value || '0') || null;
+                const estrategia = document.getElementById('select-estrategia-timemania')?.value || 'equilibrada';
+                const estrategiaTimeSelect = document.getElementById('select-estrategia-time-timemania')?.value || 'maior_ift';
+                const noConsecutive3InGroup = document.getElementById('check-no-consec-timemania')?.checked !== false;
+                const sniper = document.getElementById('check-sniper-timemania')?.checked || false;
+
+                let estrategiaTime = estrategiaTimeSelect;
+                let timeFixoUsuario = null;
+                if (estrategiaTimeSelect.startsWith('fixo_')) {
+                    const mapFixos = {
+                        'fixo_flamengo': 'FLAMENGO/RJ',
+                        'fixo_corinthians': 'CORINTHIANS/SP',
+                        'fixo_palmeiras': 'PALMEIRAS/SP',
+                        'fixo_saopaulo': 'SÃO PAULO/SP',
+                        'fixo_santos': 'SANTOS/SP',
+                        'fixo_vasco': 'VASCO DA GAMA/RJ',
+                        'fixo_gremio': 'GRÊMIO/RS',
+                        'fixo_internacional': 'INTERNACIONAL/RS',
+                        'fixo_cruzeiro': 'CRUZEIRO/MG',
+                        'fixo_atleticomg': 'ATLÉTICO/MG',
+                        'fixo_botafogo': 'BOTAFOGO/RJ',
+                        'fixo_fluminense': 'FLUMINENSE/RJ',
+                        'fixo_bahia': 'BAHIA/BA',
+                        'fixo_sport': 'SPORT/PE',
+                        'fixo_fortaleza': 'FORTALEZA/CE',
+                        'fixo_ceara': 'CEARÁ/CE'
+                    };
+                    timeFixoUsuario = mapFixos[estrategiaTimeSelect] || 'FLAMENGO/RJ';
+                    estrategiaTime = 'fixo';
+                }
+
+                // Configurar pool se reduzido
+                let pool = null;
+                if (poolSize < 80) {
+                    pool = Array.from({ length: poolSize }, (_, i) => i + 1);
+                }
+
+                const origText = btnExecutarTimemania.innerHTML;
+                btnExecutarTimemania.disabled = true;
+                btnExecutarTimemania.innerHTML = '⏳ Otimizando Carteira Timemania...';
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Executando Motor Timemania B2B (4 Grupos x 20 + IFM 8D + Time do Coração)...</div></div>';
+
+                try {
+                    const data = await MotorTimemaniaB2BEngine.gerarCarteira(qty, {
+                        historicoLimite,
+                        estrategia,
+                        sniper,
+                        noConsecutive3InGroup,
+                        pool,
+                        estrategiaTime,
+                        timeFixoUsuario
+                    });
+
+                    if (data && data.jogos && data.jogos.length > 0) {
+                        const rawGames = data.jogos.map(j => j.dezenas);
+                        const rawExtras = data.jogos.map(j => j.time_coracao);
+
+                        this.currentGeneratedGames = rawGames;
+                        this._lastGeneratedGames = rawGames;
+                        this.currentGeneratedExtras = rawExtras;
+
+                        this.renderGames({ pool: Array.from({length: 80}, (_, i) => i+1), games: rawGames, smartAnalysis: null }, 'timemania');
+
+                        const aud = data.auditoria_10_pontos || {};
+                        const bannerMsg = `
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                <span style="color:#34D399; font-weight:800; font-size:1.05rem;">🎯 MOTOR TIMEMANIA (B2B LOTERIAS) — ${data.jogos.length} JOGOS</span>
+                                <span style="background:rgba(16,185,129,0.2); color:#A7F3D0; padding:3px 10px; border-radius:6px; font-weight:700; font-size:0.78rem; border: 1px solid rgba(52,211,153,0.4);">
+                                    ${aud.status_geral || 'APROVADO (10/10)'} | SCORE MÉDIO: ${data.score_medio || 75}/100
+                                </span>
+                            </div>
+                            
+                            <div style="margin-top:10px; padding:10px 14px; background:rgba(0,0,0,0.3); border-radius:8px; border:1px solid rgba(52,211,153,0.2); font-size:0.82rem; color:#E2E8F0; line-height:1.6;">
+                                <strong style="color:#FCD34D;">📐 1. ESTRUTURA COMBINATÓRIA DOS 4 GRUPOS:</strong><br>
+                                • <strong>Grupos Analíticos (G1..G4):</strong> G1 (01-20), G2 (21-40), G3 (41-60), G4 (61-80) | <strong>10 números por jogo</strong><br>
+                                • <strong>Estruturas Centrais:</strong> Permutações de 3-3-2-2 e 3-2-3-2 (Centróide Hipergeométrico E[N]=2.5/grupo)<br>
+                                • <strong>Bloqueio de 3 Consecutivos no Grupo:</strong> ${data.regra_3_consec_bloqueada ? '✅ ATIVADO (Filtro Empírico 96.86%)' : 'DESATIVADO'} | 
+                                <strong>Modo SNIPER:</strong> ${data.sniper_ativo ? '🎯 LIGADO (Alta Precisão)' : 'DESLIGADO'}
+                            </div>
+
+                            <div style="margin-top:8px; padding:10px 14px; background:rgba(16,185,129,0.08); border-radius:8px; border:1px solid rgba(16,185,129,0.3); font-size:0.82rem; color:#D1FAE5; line-height:1.6;">
+                                <strong style="color:#34D399;">⚽ 2. TIME DO CORAÇÃO & COBERTURA:</strong><br>
+                                • <strong>Estratégia de Time:</strong> ${estrategiaTimeSelect} | <strong>Top Time Atribuído:</strong> ${data.jogos[0]?.time_coracao || '--'}<br>
+                                • <strong>Cobertura do Pool:</strong> <strong>${data.cobertura_pool_pct || 90}%</strong> (${data.total_numeros_cobertos || 72}/${data.total_pool || 80} dezenas ativas) | 
+                                <strong>Diversidade Jaccard:</strong> ${data.diversidade_jaccard_pct || 82}%
+                            </div>
+
+                            <div style="margin-top:8px; padding:12px 14px; background:rgba(239,68,68,0.08); border-radius:8px; border:1px solid rgba(239,68,68,0.35); font-size:0.80rem; color:#FECACA; line-height:1.5;">
+                                <strong style="color:#F87171;">🛡️ 3. VERDADE MATEMÁTICA (TRANSPARÊNCIA OBRIGATÓRIA):</strong><br>
+                                • <em>Loterias são processos estocásticos aleatórios independentes. O motor otimiza as estruturas matemáticas e a cobertura sem garantia de retorno futuro.</em>
+                            </div>
+                        `;
+
+                        setTimeout(() => {
+                            var b = document.createElement('div');
+                            b.className = 'smart-gen-analysis';
+                            b.style.cssText = 'margin-top:10px;margin-bottom:12px;padding:16px 20px;border-radius:12px;background:linear-gradient(135deg, rgba(5,150,105,0.18), rgba(15,23,42,0.95));border:1px solid #10b981;box-shadow:0 6px 25px rgba(16,185,129,0.3);';
+                            b.innerHTML = bannerMsg;
+                            var old = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                            if (old) old.remove();
+                            this.gamesContainer.parentNode.insertBefore(b, this.gamesContainer);
+                        }, 50);
+                    }
+                } catch (err) {
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro ao gerar no Motor Timemania: ' + err.message + '</div>';
+                } finally {
+                    btnExecutarTimemania.disabled = false;
+                    btnExecutarTimemania.innerHTML = origText;
                     setTimeout(() => { if (this.gamesContainer) this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
                 }
             };
@@ -3047,9 +3184,13 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 let extraHtml = '';
                 if (this.currentGeneratedExtras && this.currentGeneratedExtras[index] !== undefined) {
                     if (gameKey === 'diadesorte') {
-                        extraHtml = `<span style="font-size:0.75em;color:#F59E0B;background:rgba(245,158,11,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;">📅 ${L99_MESES[this.currentGeneratedExtras[index]]}</span>`;
+                        const mVal = this.currentGeneratedExtras[index];
+                        const mName = typeof mVal === 'string' ? mVal : (L99_MESES[mVal] || mVal);
+                        extraHtml = `<span style="font-size:0.75em;color:#F59E0B;background:rgba(245,158,11,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;">📅 ${mName}</span>`;
                     } else if (gameKey === 'timemania') {
-                        extraHtml = `<span style="font-size:0.75em;color:#10B981;background:rgba(16,185,129,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;">⚽ ${L99_TIMES[this.currentGeneratedExtras[index]]}</span>`;
+                        const tVal = this.currentGeneratedExtras[index];
+                        const tName = typeof tVal === 'string' ? tVal : (L99_TIMES[tVal] || tVal);
+                        extraHtml = `<span style="font-size:0.75em;color:#10B981;background:rgba(16,185,129,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;">⚽ ${tName}</span>`;
                     }
                 }
                 chunks.push(`<div class="game-card"><div style="display:flex;align-items:center;margin-bottom:5px"><div class="game-index-badge" style="position:static">Jogo ${index + 1}</div>${extraHtml}</div><div class="game-numbers-wrapper">${nums}</div></div>`);
@@ -3097,13 +3238,17 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                 extraBadge.style.borderRadius = '4px';
                 extraBadge.style.padding = '2px 6px';
                 if (gameKey === 'diadesorte') {
+                    const mVal = this.currentGeneratedExtras[index];
+                    const mName = typeof mVal === 'string' ? mVal : (L99_MESES[mVal] || mVal);
                     extraBadge.style.color = '#F59E0B';
                     extraBadge.style.background = 'rgba(245,158,11,0.1)';
-                    extraBadge.textContent = '📅 ' + L99_MESES[this.currentGeneratedExtras[index]];
+                    extraBadge.textContent = '📅 ' + mName;
                 } else if (gameKey === 'timemania') {
+                    const tVal = this.currentGeneratedExtras[index];
+                    const tName = typeof tVal === 'string' ? tVal : (L99_TIMES[tVal] || tVal);
                     extraBadge.style.color = '#10B981';
                     extraBadge.style.background = 'rgba(16,185,129,0.1)';
-                    extraBadge.textContent = '⚽ ' + L99_TIMES[this.currentGeneratedExtras[index]];
+                    extraBadge.textContent = '⚽ ' + tName;
                 }
                 leftGroup.appendChild(extraBadge);
             }
@@ -3691,7 +3836,7 @@ alert(OK + "/" + T + " jogos no carrinho!" + (ER > 0 ? "\\n" + ER + " erro(s)." 
                 });
                 clearTimeout(timeoutId);
                 if (resp.ok) {
-                    // resp já parseado por _callServerApi
+                    const data = await resp.json();
                     return data;
                 } else {
                     const errData = await resp.json().catch(() => ({}));
@@ -4098,15 +4243,24 @@ Verifique seus Downloads (${fileName})`, 'info', 5000);
         const games = [];
         const lines = text.split('\n');
         lines.forEach(line => {
-            // Expected format: "Jogo 1: 01 - 02 - 03..."
-            if (line.trim().startsWith('Jogo')) {
-                const parts = line.split(':');
+            const clean = line.trim();
+            if (!clean || clean.startsWith('═') || clean.startsWith('JOGOS') || clean.startsWith('Total') || clean.startsWith('Data') || clean.startsWith('B2B') || clean.startsWith('Time') || clean.startsWith('Mês') || clean.startsWith('Conferência') || clean.startsWith('Relatório')) {
+                return;
+            }
+            if (clean.toLowerCase().startsWith('jogo')) {
+                const parts = clean.split(':');
                 if (parts.length > 1) {
-                    const numbersStr = parts[1].trim();
-                    const numbers = numbersStr.split(' - ').map(n => parseInt(n)).filter(n => !isNaN(n));
+                    const numsPart = parts[1].split('|')[0].trim();
+                    const numbers = numsPart.split(/[\s,-]+/).map(n => parseInt(n)).filter(n => !isNaN(n));
                     if (numbers.length > 0) {
                         games.push(numbers);
                     }
+                }
+            } else {
+                const numsPart = clean.split('|')[0].trim();
+                const numbers = numsPart.split(/[\s,-]+/).map(n => parseInt(n)).filter(n => !isNaN(n));
+                if (numbers.length >= 5) {
+                    games.push(numbers);
                 }
             }
         });

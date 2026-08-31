@@ -12733,7 +12733,7 @@ alert(OK + "/" + T + " jogos no carrinho!" + (ER > 0 ? "\\n" + ER + " erro(s)." 
                 });
                 clearTimeout(timeoutId);
                 if (resp.ok) {
-                    // resp já parseado por _callServerApi
+                    const data = await resp.json();
                     return data;
                 } else {
                     const errData = await resp.json().catch(() => ({}));
@@ -13140,15 +13140,24 @@ Verifique seus Downloads (${fileName})`, 'info', 5000);
         const games = [];
         const lines = text.split('\n');
         lines.forEach(line => {
-            // Expected format: "Jogo 1: 01 - 02 - 03..."
-            if (line.trim().startsWith('Jogo')) {
-                const parts = line.split(':');
+            const clean = line.trim();
+            if (!clean || clean.startsWith('═') || clean.startsWith('JOGOS') || clean.startsWith('Total') || clean.startsWith('Data') || clean.startsWith('B2B') || clean.startsWith('Time') || clean.startsWith('Mês') || clean.startsWith('Conferência') || clean.startsWith('Relatório')) {
+                return;
+            }
+            if (clean.toLowerCase().startsWith('jogo')) {
+                const parts = clean.split(':');
                 if (parts.length > 1) {
-                    const numbersStr = parts[1].trim();
-                    const numbers = numbersStr.split(' - ').map(n => parseInt(n)).filter(n => !isNaN(n));
+                    const numsPart = parts[1].split('|')[0].trim();
+                    const numbers = numsPart.split(/[\s,-]+/).map(n => parseInt(n)).filter(n => !isNaN(n));
                     if (numbers.length > 0) {
                         games.push(numbers);
                     }
+                }
+            } else {
+                const numsPart = clean.split('|')[0].trim();
+                const numbers = numsPart.split(/[\s,-]+/).map(n => parseInt(n)).filter(n => !isNaN(n));
+                if (numbers.length >= 5) {
+                    games.push(numbers);
                 }
             }
         });
