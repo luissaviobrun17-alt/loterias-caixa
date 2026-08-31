@@ -307,9 +307,6 @@ class UI {
             };
         }
 
-        // === BOTÃO 📐 COBERTURA UNIFICADA v14 (Motor Unificado: Estatística + Cobertura + Sniper) ===
-        if (this.generateCoverageBtn) {
-            
         // === BOTÃO MOTOR LOTOFÁCIL (B2B) ===
         const btnMotorLotofacil = document.getElementById('btn-motor-lotofacil');
         if (btnMotorLotofacil) {
@@ -488,6 +485,11 @@ class UI {
                 } finally {
                     btnExecutarLotomania.disabled = false;
                     btnExecutarLotomania.innerHTML = origText;
+                    setTimeout(() => { if (this.gamesContainer) this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
+                }
+            };
+        }
+
         // === BOTÃO MOTOR TIMEMANIA (B2B) ===
         const btnMotorTimemania = document.getElementById('btn-motor-timemania');
         if (btnMotorTimemania) {
@@ -630,7 +632,9 @@ class UI {
             };
         }
 
-        this.generateCoverageBtn.onclick = () => {
+        // === BOTÃO 📐 COBERTURA UNIFICADA v14 (Motor Unificado: Estatística + Cobertura + Sniper) ===
+        if (this.generateCoverageBtn) {
+            this.generateCoverageBtn.onclick = () => {
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
                 const qty = parseInt(this.gamesQuantityInput.value) || 10;
