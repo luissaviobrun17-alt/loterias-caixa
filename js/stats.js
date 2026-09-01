@@ -107,9 +107,11 @@ class StatsService {
 
     // Tenta buscar de MÚLTIPLAS APIs em sequência
     static async _fetchLatestFromAPIs(gameType) {
+        // Mapear gameKey interno para o nome de rota da API Caixa
+        var caixaRoute = { milionaria: 'maismilionaria' }[gameType] || gameType;
         var apis = [
             'https://loteriascaixa-api.herokuapp.com/api/' + gameType + '/latest',
-            'https://servicebus2.caixa.gov.br/portaldeloterias/api/' + gameType
+            'https://servicebus2.caixa.gov.br/portaldeloterias/api/' + caixaRoute
         ];
 
         for (var a = 0; a < apis.length; a++) {
@@ -183,9 +185,10 @@ class StatsService {
     }
 
     static async _fetchSingleDraw(gameType, drawNumber) {
+        var caixaRoute2 = { milionaria: 'maismilionaria' }[gameType] || gameType;
         var apis = [
             'https://loteriascaixa-api.herokuapp.com/api/' + gameType + '/' + drawNumber,
-            'https://servicebus2.caixa.gov.br/portaldeloterias/api/' + gameType + '/' + drawNumber
+            'https://servicebus2.caixa.gov.br/portaldeloterias/api/' + caixaRoute2 + '/' + drawNumber
         ];
 
         for (var a = 0; a < apis.length; a++) {
@@ -214,6 +217,10 @@ class StatsService {
     }
 
     static _parseAPIResponse(data, gameType) {
+        // Normalizar campos - API Caixa usa 'numero' e 'listaDezenas' e 'dezenasSorteadasOrdemSorteio'
+        if (data && !data.concurso && data.numero) data.concurso = data.numero;
+        if (data && !data.dezenas && data.listaDezenas) data.dezenas = data.listaDezenas;
+        if (data && !data.dezenas && data.dezenasSorteadasOrdemSorteio) data.dezenas = data.dezenasSorteadasOrdemSorteio;
         if (!data || !data.concurso || !data.dezenas) return null;
 
         var drawNum = parseInt(data.concurso);
@@ -222,7 +229,7 @@ class StatsService {
         // SÓ atualizar prêmio se este concurso for MAIS RECENTE que o já armazenado
         var currentStored = this.prizeStore[storageKey];
         if (!currentStored || drawNum >= currentStored.currentDraw) {
-            var estimated = data.valorEstimadoProximoConcurso || data.valorAcumuladoProximoConcurso || 0;
+            var estimated = data.valorEstimadoProximoConcurso || data.valorAcumuladoProximoConcurso || data.valorAcumulado || 0;
 
             this.prizeStore[storageKey] = {
                 estimatedPrize: estimated,
@@ -288,6 +295,11 @@ class StatsService {
             }
             uniqueNumbers.sort(function(a, b) { return a - b; });
             result.numbers = uniqueNumbers;
+        }
+
+        // Salvar trevos para +Milionaria
+        if (gameType === 'milionaria' && data.trevosSorteados && data.trevosSorteados.length > 0) {
+            result.trevos = data.trevosSorteados.map(function(t) { return parseInt(t); }).sort(function(a,b){return a-b;});
         }
 
         return result;

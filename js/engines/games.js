@@ -265,5 +265,5 @@ GAMES.diadesorte.drawDays = [2, 4, 6];
 GAMES.diadesorte.drawTime = "20:00";
 GAMES.milionaria.drawDays = [3, 6];
 GAMES.milionaria.drawTime = "20:00";
-GAMES.milionaria.estimatedPrizeFallback = 10000000;
+GAMES.milionaria.estimatedPrizeFallback = 90000000; // Acumulado - estimativa 02/09/2026
 // ═══ FIM games.js V11 ═══
