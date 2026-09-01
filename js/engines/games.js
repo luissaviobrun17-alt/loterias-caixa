@@ -170,6 +170,40 @@ const GAMES = {
         maxBet: 80,
         statsCount: 20
     },
+        milionaria: {
+        name: "+Milionária",
+        range: [1, 50],
+        draw: 6,
+        color: "#059669",
+        colorGrad: "#047857",
+        cols: 10,
+        price: 6.00,
+        trevos: [1, 6],
+        qtdTrevos: 2,
+        strategies: [
+            { id: "faixa1",  label: "Faixa 1 (6 acertos + 2 trevos)", match: 6, prize: 10000000, prizeType: "acumulado", note: "Prêmio Principal — Mínimo R$ 10 milhões", paid: true },
+            { id: "faixa2",  label: "Faixa 2 (6 acertos + 1/0 trevo)", match: 6, prize: 250000,   prizeType: "rateio",    note: "Rateio oficial Caixa", paid: true },
+            { id: "faixa3",  label: "Faixa 3 (5 acertos + 2 trevos)", match: 5, prize: 50000,    prizeType: "rateio",    note: "Rateio oficial Caixa", paid: true },
+            { id: "faixa4",  label: "Faixa 4 (5 acertos + 1/0 trevo)", match: 5, prize: 12000,    prizeType: "rateio",    note: "Rateio oficial Caixa", paid: true },
+            { id: "faixa5",  label: "Faixa 5 (4 acertos + 2 trevos)", match: 4, prize: 1500,     prizeType: "rateio",    note: "Rateio oficial Caixa", paid: true },
+            { id: "faixa6",  label: "Faixa 6 (4 acertos + 1/0 trevo)", match: 4, prize: 250,      prizeType: "rateio",    note: "Rateio oficial Caixa", paid: true },
+            { id: "faixa7",  label: "Faixa 7 (3 acertos + 2 trevos)", match: 3, prize: 50,       prizeType: "rateio",    note: "Rateio oficial Caixa", paid: true },
+            { id: "faixa8",  label: "Faixa 8 (3 acertos + 1 trevo)",  match: 3, prize: 24,       prizeType: "fixo",      note: "FIXO: R$ 24,00 garantido", paid: true },
+            { id: "faixa9",  label: "Faixa 9 (2 acertos + 2 trevos)", match: 2, prize: 12,       prizeType: "fixo",      note: "FIXO: R$ 12,00 garantido", paid: true },
+            { id: "faixa10", label: "Faixa 10 (2 acertos + 1 trevo)", match: 2, prize: 6,        prizeType: "fixo",      note: "FIXO: R$ 6,00 garantido", paid: true }
+        ],
+        closingLevels: [
+            { id: "close6", label: "Fechamento 6 Números", guarantee: 6, icon: "🎯" },
+            { id: "close5", label: "Fechamento 5 Números", guarantee: 5, icon: "⭐" },
+            { id: "close4", label: "Fechamento 4 Números", guarantee: 4, icon: "🔥" }
+        ],
+        minBet: 6,
+        maxBet: 50,
+        statsCount: 20,
+        drawDays: [3, 6],
+        drawTime: "20:00",
+        estimatedPrizeFallback: 10000000
+    },
     diadesorte: {
         name: "Dia de Sorte",
         range: [1, 31],
@@ -229,4 +263,7 @@ GAMES.timemania.estimatedPrizeFallback = 3500000;
 GAMES.diadesorte.estimatedPrizeFallback = 1000000;
 GAMES.diadesorte.drawDays = [2, 4, 6];
 GAMES.diadesorte.drawTime = "20:00";
+GAMES.milionaria.drawDays = [3, 6];
+GAMES.milionaria.drawTime = "20:00";
+GAMES.milionaria.estimatedPrizeFallback = 10000000;
 // ═══ FIM games.js V11 ═══

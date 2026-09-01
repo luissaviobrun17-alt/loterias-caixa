@@ -308,6 +308,32 @@ class UI {
         }
 
         // === BOTÃO MOTOR LOTOFÁCIL (B2B) ===
+        
+        // === BOTÃO MOTOR +MILIONÁRIA (B2B) ===
+        const btnMotorMilionaria = document.getElementById('btn-motor-milionaria');
+        if (btnMotorMilionaria) {
+            btnMotorMilionaria.onclick = () => {
+                if (this.currentGameKey !== 'milionaria') {
+                    const navBtn = document.querySelector(`.nav-btn[data-game="milionaria"]`);
+                    if (navBtn) navBtn.click();
+                    else this.updateGameInfo('milionaria');
+                }
+                if (typeof this.updateInvestmentPanel === 'function') this.updateInvestmentPanel();
+                if (typeof this.updateCurrentCostDisplay === 'function') this.updateCurrentCostDisplay();
+                const panel = document.getElementById('motor-milionaria-panel');
+                if (panel) {
+                    const isOpening = panel.style.display === 'none' || !panel.style.display;
+                    ['motor-lotofacil-panel', 'motor-lotomania-panel', 'motor-timemania-panel'].forEach(id => {
+                        const p = document.getElementById(id);
+                        if (p) p.style.display = 'none';
+                    });
+                    panel.style.display = isOpening ? 'block' : 'none';
+                    if (isOpening) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            };
+        }
+        this._initMilionariaMotorEvents();
+
         const btnMotorLotofacil = document.getElementById('btn-motor-lotofacil');
         if (btnMotorLotofacil) {
             btnMotorLotofacil.onclick = () => {
@@ -3195,6 +3221,10 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                         const tVal = this.currentGeneratedExtras[index];
                         const tName = typeof tVal === 'string' ? tVal : (L99_TIMES[tVal] || tVal);
                         extraHtml = `<span style="font-size:0.75em;color:#10B981;background:rgba(16,185,129,0.1);padding:2px 6px;border-radius:4px;margin-left:auto;">⚽ ${tName}</span>`;
+                    } else if (gameKey === 'milionaria') {
+                        const trVal = this.currentGeneratedExtras[index];
+                        const trStr = Array.isArray(trVal) ? trVal.map(t => t.toString().padStart(2, '0')).join(' ') : trVal;
+                        extraHtml = `<span style="font-size:0.75em;color:#10B981;background:rgba(16,185,129,0.18);padding:2px 6px;border-radius:4px;margin-left:auto;font-weight:bold;">🍀 ${trStr}</span>`;
                     }
                 }
                 chunks.push(`<div class="game-card"><div style="display:flex;align-items:center;margin-bottom:5px"><div class="game-index-badge" style="position:static">Jogo ${index + 1}</div>${extraHtml}</div><div class="game-numbers-wrapper">${nums}</div></div>`);
@@ -3253,6 +3283,13 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
                     extraBadge.style.color = '#10B981';
                     extraBadge.style.background = 'rgba(16,185,129,0.1)';
                     extraBadge.textContent = '⚽ ' + tName;
+                } else if (gameKey === 'milionaria') {
+                    const trVal = this.currentGeneratedExtras[index];
+                    const trStr = Array.isArray(trVal) ? trVal.map(t => t.toString().padStart(2, '0')).join(' ') : trVal;
+                    extraBadge.style.color = '#10B981';
+                    extraBadge.style.background = 'rgba(16,185,129,0.18)';
+                    extraBadge.style.fontWeight = 'bold';
+                    extraBadge.textContent = '🍀 Trevos ' + trStr;
                 }
                 leftGroup.appendChild(extraBadge);
             }
@@ -3262,7 +3299,13 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             copySingleBtn.className = 'card-copy-btn copy-single-btn';
             copySingleBtn.innerHTML = '<span>📋</span> Copiar';
             copySingleBtn.title = "Copiar este jogo";
-            copySingleBtn.dataset.numbers = gameNumbers.map(n => n.toString().padStart(2, '0')).join(' - ');
+            let copyText = gameNumbers.map(n => n.toString().padStart(2, '0')).join(' - ');
+            if (gameKey === 'milionaria' && this.currentGeneratedExtras && this.currentGeneratedExtras[index]) {
+                const trVal = this.currentGeneratedExtras[index];
+                const trStr = Array.isArray(trVal) ? trVal.map(t => t.toString().padStart(2, '0')).join(' ') : trVal;
+                copyText += ` — 🍀 ${trStr}`;
+            }
+            copySingleBtn.dataset.numbers = copyText;
             header.appendChild(copySingleBtn);
 
             card.appendChild(header);
@@ -3469,7 +3512,8 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             duplasena:  { name: 'Dupla Sena',    url: 'dupla-sena' },
             lotomania:  { name: 'Lotomania',     url: 'lotomania' },
             timemania:  { name: 'Timemania',     url: 'timemania' },
-            diadesorte: { name: 'Dia de Sorte',  url: 'dia-de-sorte' }
+            diadesorte: { name: 'Dia de Sorte',  url: 'dia-de-sorte' },
+            milionaria: { name: '+Milionária', url: 'maismilionaria' }
         };
     }
 

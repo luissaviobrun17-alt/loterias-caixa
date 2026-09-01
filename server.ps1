@@ -39,6 +39,7 @@ $pastaPorJogo = @{
     "lotomania" = "LOTOMANIA"
     "timemania" = "TIMEMANIA"
     "diadesorte" = "DIA DE SORTE"
+    "milionaria" = "+MILIONARIA"
 }
 
 # Garantir subpastas em todos os caminhos
