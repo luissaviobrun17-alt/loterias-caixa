@@ -153,6 +153,11 @@ class UI {
         // Delega TODA lógica ao motor. Zero lógica inline.
         if (this.generateBtn) {
             this.generateBtn.onclick = () => {
+                // +Milionaria usa motor B2B exclusivo — redirecionar
+                if (this.currentGameKey === 'milionaria') {
+                    this._executarGeracaoMilionaria(0);
+                    return;
+                }
                 const game = GAMES[this.currentGameKey];
                 if (!game) return;
                 const qty = parseInt(this.gamesQuantityInput.value) || 10;
