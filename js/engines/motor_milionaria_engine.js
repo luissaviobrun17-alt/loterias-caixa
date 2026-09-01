@@ -270,23 +270,35 @@ class MotorMilionariaB2BEngine {
         while (jogos.length < qtd && tentativas < maxTentativas) {
             tentativas++;
 
-            // Amostragem combinatória de 6 dezenas do pool ponderadas por IFM
-            const cand = [];
+            // Amostragem combinatória de EXATAMENTE 6 dezenas do pool ponderadas por IFM
+            // Fase 1: selecionar candidatos ponderados por score IFM (amostragem por aceitação)
             const poolShuffle = poolEfetivo.slice().sort(() => Math.random() - 0.5);
-            // Ponderar levemente
+            const selecionados = [];
+            const rejeitados = [];
             for (const n of poolShuffle) {
-                const prob = scoresIFM[n] / 100.0;
-                if (Math.random() < prob || cand.length < 6) {
-                    if (!cand.includes(n)) cand.push(n);
+                const prob = Math.min(0.95, Math.max(0.30, scoresIFM[n] / 100.0));
+                if (Math.random() < prob) {
+                    selecionados.push(n);
+                } else {
+                    rejeitados.push(n);
                 }
-                if (cand.length === 6) break;
             }
+            // Fase 2: montar cand com exatamente 6, completando com rejeitados se necessário
+            const cand = selecionados.slice(0, 6);
             if (cand.length < 6) {
-                for (const n of poolShuffle) {
+                for (const n of rejeitados) {
                     if (!cand.includes(n)) cand.push(n);
                     if (cand.length === 6) break;
                 }
             }
+            // Garantia final: se ainda faltar (pool muito pequeno), completar com qualquer número do pool
+            if (cand.length < 6) {
+                for (const n of poolEfetivo) {
+                    if (!cand.includes(n)) cand.push(n);
+                    if (cand.length === 6) break;
+                }
+            }
+            if (cand.length !== 6) continue; // descarta - não deveria acontecer
             cand.sort((a, b) => a - b);
 
             // Filtro de Consecutivos (Bloquear > 3 consecutivos)
