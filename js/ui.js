@@ -3175,7 +3175,9 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         // Gerar múltiplos times/meses distribuídos com máxima cobertura (sem repetição precoce)
         if (gameKey === 'timemania' || gameKey === 'diadesorte') {
             this.currentGeneratedExtras = this._generateExtras(gameKey, result.games.length);
-        } else {
+        } else if (gameKey !== 'milionaria') {
+            // Para +Milionária, os trevos já foram definidos ANTES de renderGames ser chamado
+            // e devem ser preservados. Para as demais loterias, limpar.
             this.currentGeneratedExtras = null;
         }
 
