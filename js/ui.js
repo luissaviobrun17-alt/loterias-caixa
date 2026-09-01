@@ -3904,7 +3904,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
             lotomania:  { name: 'Lotomania',     url: 'lotomania' },
             timemania:  { name: 'Timemania',     url: 'timemania' },
             diadesorte: { name: 'Dia de Sorte',  url: 'dia-de-sorte' },
-            milionaria: { name: '+Milionária', url: 'maismilionaria' }
+            milionaria: { name: '+Milionária', url: 'mais-milionaria' }
         };
     }
 
@@ -3917,18 +3917,22 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
         const isLM = cfg.url === 'lotomania' || this.currentGameKey === 'lotomania';
         const isTM = cfg.url === 'timemania';
         const isDS = cfg.url === 'dia-de-sorte';
+        const isMIL = cfg.url === 'mais-milionaria' || this.currentGameKey === 'milionaria';
 
-        const normalizedGames = (games || []).map(g => {
+        const normalizedGames = (games || []).map((g, idx) => {
             let nums = Array.isArray(g) ? g : (g.jogo || []);
             if (isLM) {
-                // Na Lotomania, converter 100 para 0, garantir 50 dezenas
                 nums = nums.map(n => {
                     let v = parseInt(n);
                     return (v === 100 || v === 0) ? 0 : v;
                 });
                 nums = Array.from(new Set(nums)).sort((a, b) => a - b);
             }
-            return nums;
+            let trevos = [];
+            if (isMIL && this.currentGeneratedExtras && this.currentGeneratedExtras[idx]) {
+                trevos = Array.isArray(this.currentGeneratedExtras[idx]) ? this.currentGeneratedExtras[idx] : [1, 2];
+            }
+            return { d: nums, t: trevos };
         });
 
         const gamesJSON = JSON.stringify(normalizedGames);
@@ -3937,7 +3941,7 @@ console.log('[UI] Sugestão gerada: ' + (suggestion ? suggestion.length : 0) + '
 var LOTTERY_URL="${cfg.url}";
 var ALT_URLS = { 'quina': ['quina-de-sao-joao', 'quinadesaojoao'], 'mega-sena': ['mega-sena-da-virada'] };
 var ALTS = ALT_URLS[LOTTERY_URL] || [];
-var J=${gamesJSON};var T=J.length;var OK=0;var ER=0;var LM=${isLM};var TM=${isTM};var DS=${isDS};
+var J=${gamesJSON};var T=J.length;var OK=0;var ER=0;var LM=${isLM};var TM=${isTM};var DS=${isDS};var MIL=${isMIL};
 function d(ms){return new Promise(function(r){setTimeout(r,ms)})}
 function rc(e){if(!e)return!1;try{e.scrollIntoView({block:"center",behavior:"instant"});var r=e.getBoundingClientRect();var x=r.left+r.width/2;var y=r.top+r.height/2;["pointerdown","mousedown","pointerup","mouseup","click"].forEach(function(ev){e.dispatchEvent(new MouseEvent(ev,{view:window,bubbles:!0,cancelable:!0,clientX:x,clientY:y,button:0}))});try{var s=angular.element(e).scope();if(s&&s.$apply)s.$apply()}catch(ae){}return!0}catch(x){try{e.click();return!0}catch(x2){return!1}}}
 function fm(){["fecharModalAlerta","fecharModalErro","fecharModalInfo","confirmarModalConfirmacao","btnFecharModal","btnOk","btnConfirmar"].forEach(function(id){var e=document.getElementById(id);if(e&&e.offsetParent!==null)try{rc(e)}catch(x){}});document.querySelectorAll(".modal, .dialog, div[role='dialog']").forEach(function(m){var txt=(m.textContent||"").toLowerCase();if(txt.indexOf("completar")>=0||txt.indexOf("surpresinha")>=0)return;m.querySelectorAll("button,a").forEach(function(b){var t=b.textContent.trim().toLowerCase();if((t==="ok"||t==="entendi"||t==="fechar"||t==="confirmar"||t==="continuar")&&b.offsetParent!==null&&b.offsetWidth>0){try{rc(b)}catch(x){}}})})}
@@ -3963,11 +3967,21 @@ function cn(n){
   }
   return!1;
 }
+function ct(t){
+  var num=parseInt(t);if(isNaN(num))return!1;
+  var e=document.getElementById("trevo"+num)||document.querySelector("img#trevo"+num)||document.querySelector("[id*='trevo"+num+"']")||document.querySelector("img[title*='Trevo número "+num+"']");
+  if(e)return rc(e);
+  var all=document.querySelectorAll(".trevoVolante,img[id^='trevo'],li[ng-repeat*='Trevo'] img");
+  for(var i=0;i<all.length;i++){
+    if((all[i].id||"").indexOf(String(num))>=0||(all[i].getAttribute("title")||"").indexOf(String(num))>=0)return rc(all[i]);
+  }
+  return!1;
+}
 function lmp(){fm();var b=document.getElementById("limparvolante");if(b)return rc(b);b=document.querySelector("[id*=limpar]");if(b)return rc(b);var bs=document.querySelectorAll("button");for(var k=0;k<bs.length;k++)if(bs[k].textContent.toLowerCase().indexOf("limpar")>=0)return rc(bs[k]);return!1}
 async function selTime(){if(!TM)return!0;await d(500);var ts=document.querySelectorAll("[data-selecionar-time-do-coracao],img[name=btnTime],.time-coracao img");if(ts.length>0){rc(ts[Math.floor(Math.random()*ts.length)]);await d(800);return!0}return!1}
 async function selMes(){if(!DS)return!0;await d(500);var m=document.querySelectorAll('li[ng-repeat*=listaMeses],li[ng-click*=configurarMes],[id=mes] li,ul.meses li,.meses-list li,.lista-meses li,label.mes,.mes-sorte li');if(m.length===0){var nm=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro','marco'];var f=[];document.querySelectorAll('li,a,span,div,label,button').forEach(e=>{var tx=e.textContent.trim().toLowerCase();for(var i=0;i<nm.length;i++){if(tx.indexOf(nm[i])!==-1&&tx.length<25&&e.children.length<=1){f.push(e);break;}}});if(f.length>0)m=f;}if(m.length>0){var el=m[Math.floor(Math.random()*m.length)];rc(el);await d(600);if(el.tagName!=='LI'&&el.parentElement&&el.parentElement.tagName==='LI'){rc(el.parentElement);await d(400);}try{var sc=angular.element(el).scope();if(sc&&sc.$apply)sc.$apply()}catch(e){}return!0;}var s=document.querySelector('select');if(s&&s.options.length>1){s.selectedIndex=Math.floor(Math.random()*(s.options.length-1))+1;s.dispatchEvent(new Event('change',{bubbles:!0}));return!0;}return!1}
 async function car(){fm();await d(300);if(TM){await selTime();await d(600)}if(DS){await selMes();await d(600)}for(var t=0;t<12;t++){var b=document.getElementById("colocarnocarrinho");if(b&&b.offsetParent!==null){if(b.disabled||b.classList.contains("disabled")){try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}await d(1000);continue}rc(b);await d(1500);fm();await d(600);fm();return!0}var ab=document.querySelectorAll("button,a");for(var k=0;k<ab.length;k++){var tx=ab[k].textContent.toLowerCase().trim();if((tx.indexOf("colocar no carrinho")>=0)&&ab[k].offsetParent!==null&&ab[k].offsetWidth>0){if(ab[k].disabled)continue;rc(ab[k]);await d(1500);fm();await d(600);fm();return!0}}fm();await d(800)}return!1}
-function isVolanteReady(){var el=document.getElementById("n00")||document.getElementById("n01")||document.getElementById("d01")||document.querySelector(".dezena,.numero,a[id^='n'],li[id^='n'],button[id^='n']");return(el&&el.offsetParent!==null)?!0:!1;}
+function isVolanteReady(){var el=document.getElementById("n00")||document.getElementById("n01")||document.getElementById("d01")||(MIL&&document.getElementById("trevo1"))||document.querySelector(".dezena,.numero,a[id^='n'],li[id^='n'],button[id^='n'],img[id^='trevo']");return(el&&el.offsetParent!==null)?!0:!1;}
 async function waitVolante(){for(var w=0;w<30;w++){if(isVolanteReady()){console.log("[B2B] Volante ativo!");return!0;}fm();await d(600);}return!1;}
 async function navLoteria(){
   fm();await d(300);
@@ -3996,16 +4010,25 @@ if(!volOk){var pp=document.getElementById("b2b-pg");if(pp)pp.innerHTML='<div sty
 var pt0=document.getElementById("b2b-pt");if(pt0)pt0.textContent="0/"+T;
 fm();await d(800);
 for(var i=0;i<T;i++){
-  var j=J[i];
+  var item=J[i];
+  var j=item.d||item;
+  var trvs=item.t||[];
   var pt=document.getElementById("b2b-pt");
   var pb=document.getElementById("b2b-pb");
-  if(pt)pt.textContent="Jogo "+(i+1)+"/"+T+" ("+j.length+" dezenas)";
+  if(pt)pt.textContent="Jogo "+(i+1)+"/"+T+" ("+j.length+" dezenas"+(MIL&&trvs.length>0?" + "+trvs.length+" trevos":"")+")";
   if(pb)pb.style.width=((i+1)/T*100).toFixed(0)+"%";
   fm();
   if(i>0){lmp();await d(1000);fm();await d(300)}
   for(var n=0;n<j.length;n++){
     if(!cn(j[n])){await d(120);cn(j[n])}
     await d(80);
+  }
+  if(MIL&&trvs.length>0){
+    await d(400);
+    for(var t=0;t<trvs.length;t++){
+      if(!ct(trvs[t])){await d(150);ct(trvs[t])}
+      await d(100);
+    }
   }
   try{var rs=angular.element(document.body).scope();if(rs&&rs.$apply)rs.$apply()}catch(ae){}
   await d(1000);fm();await d(300);
@@ -4036,9 +4059,14 @@ alert(OK + "/" + T + " jogos no carrinho!" + (ER > 0 ? "\\n" + ER + " erro(s)." 
         let jogosHTML = '';
         games.forEach((g, i) => {
             const nums = g.map(n => String(n).padStart(2, '0'));
+            let extraMobile = '';
+            if (gameKey === 'milionaria' && this.currentGeneratedExtras && this.currentGeneratedExtras[i]) {
+                const tr = Array.isArray(this.currentGeneratedExtras[i]) ? this.currentGeneratedExtras[i] : [1, 2];
+                extraMobile = ' <span style="color:#34d399;font-weight:700;">— 🍀 ' + tr.map(t => String(t).padStart(2, '0')).join(' ') + '</span>';
+            }
             jogosHTML += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.06);">' +
                 '<div style="flex:1;"><div style="color:#60A5FA;font-weight:700;font-size:0.72rem;margin-bottom:3px;">Jogo ' + (i + 1) + '</div>' +
-                '<div style="color:#E2E8F0;font-size:1rem;font-weight:600;font-family:monospace;letter-spacing:1px;">' + nums.join('  ') + '</div></div>' +
+                '<div style="color:#E2E8F0;font-size:1rem;font-weight:600;font-family:monospace;letter-spacing:1px;">' + nums.join('  ') + extraMobile + '</div></div>' +
                 '<button class="mobile-copy-game-btn" data-nums="' + nums.join(', ') + '" style="background:linear-gradient(135deg,#22C55E,#16A34A);color:white;border:none;padding:10px 14px;border-radius:10px;font-size:0.8rem;font-weight:800;cursor:pointer;white-space:nowrap;min-width:70px;">📋 Copiar</button></div>';
         });
         const allFmt = games.map((g, i) => 'Jogo ' + (i + 1) + ': ' + g.map(n => String(n).padStart(2, '0')).join(' - ')).join('\n');
