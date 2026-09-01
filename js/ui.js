@@ -3956,7 +3956,8 @@ function cn(n){
   var num=parseInt(n);if(isNaN(num))return!1;
   if(LM&&(num===100||num===0))num=0;
   var p=String(num).padStart(2,"0");
-  var e=document.getElementById("n"+p)||document.getElementById("d"+p)||document.getElementById("n_"+p)||document.getElementById("btn-dezena-"+p);
+  var ns=String(num);
+  var e=document.getElementById("n"+ns)||document.getElementById("n"+p)||document.getElementById("d"+p)||document.getElementById("n_"+p)||document.getElementById("btn-dezena-"+p);
   if(e)return rc(e);
   e=document.querySelector("a#n"+p)||document.querySelector("li#n"+p)||document.querySelector("[id*='n"+p+"']")||document.querySelector("[data-dezena='"+p+"']")||document.querySelector("[data-numero='"+p+"']");
   if(e)return rc(e);
