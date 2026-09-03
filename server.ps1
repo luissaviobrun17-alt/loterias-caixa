@@ -39,13 +39,59 @@ $pastaPorJogo = @{
     "lotomania" = "LOTOMANIA"
     "timemania" = "TIMEMANIA"
     "diadesorte" = "DIA DE SORTE"
-    "milionaria" = "+MILIONARIA"
+    "milionaria" = "MILIONARIA"
+    "maismilionaria" = "MILIONARIA"
 }
 
+function Get-CandidateSubPastas($key) {
+    $k = if ($key) { $key.ToLower().Trim() } else { "" }
+    if ($k -eq "milionaria" -or $k -eq "maismilionaria" -or $k -eq "+milionaria") {
+        return @("MILIONARIA", "+MILIONARIA", "+MILIONÁRIA")
+    }
+    if ($k -eq "diadesorte" -or $k -eq "dia de sorte") {
+        return @("DIA DE SORTE", "DIADESORTE")
+    }
+    $primary = $pastaPorJogo[$k]
+    if (-not $primary -and $k) { $primary = $k.ToUpper() }
+    if ($primary) { return @($primary) }
+    return @()
+}
+
+$mimeTypes = @{
+    ".html" = "text/html; charset=utf-8"
+    ".js"   = "application/javascript; charset=utf-8"
+    ".css"  = "text/css; charset=utf-8"
+    ".json" = "application/json; charset=utf-8"
+    ".png"  = "image/png"
+    ".jpg"  = "image/jpeg"
+    ".jpeg" = "image/jpeg"
+    ".gif"  = "image/gif"
+    ".svg"  = "image/svg+xml"
+    ".ico"  = "image/x-icon"
+    ".webp" = "image/webp"
+    ".txt"  = "text/plain; charset=utf-8"
+}
+
+# Iniciar Listener IMEDIATAMENTE na inicializacao (sem atraso de pastas)
+$listener = New-Object System.Net.HttpListener
+$listener.Prefixes.Add("http://localhost:$port/")
+try {
+    $listener.Prefixes.Add("http://127.0.0.1:$port/")
+} catch {}
+
+try {
+    $listener.Start()
+} catch {
+    Write-Host "Porta $port ja em uso - servidor ativo."
+    exit 0
+}
+Write-Host "Servidor B2B Loterias rodando em http://localhost:$port/"
+
 # Garantir subpastas em todos os caminhos
+$allSubPastasToEnsure = @($pastaPorJogo.Values) + @("+MILIONARIA")
 foreach ($baseDir in $allJogosDirs) {
     if (-not (Test-Path $baseDir)) { New-Item -ItemType Directory -Path $baseDir -Force | Out-Null }
-    foreach ($sp in $pastaPorJogo.Values) {
+    foreach ($sp in $allSubPastasToEnsure) {
         $dir = Join-Path $baseDir $sp
         if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
     }
@@ -54,7 +100,8 @@ foreach ($baseDir in $allJogosDirs) {
 # Sincronizacao de arquivos entre todos os desktops
 function Sync-DesktopDirs {
     if ($allJogosDirs.Count -le 1) { return }
-    foreach ($sp in $pastaPorJogo.Values) {
+    $subPastasToSync = @($pastaPorJogo.Values) + @("+MILIONARIA") | Select-Object -Unique
+    foreach ($sp in $subPastasToSync) {
         for ($i = 0; $i -lt $allJogosDirs.Count; $i++) {
             $srcDir = Join-Path $allJogosDirs[$i] $sp
             if (-not (Test-Path $srcDir)) { continue }
@@ -74,32 +121,6 @@ function Sync-DesktopDirs {
     }
 }
 Sync-DesktopDirs
-
-$mimeTypes = @{
-    ".html" = "text/html; charset=utf-8"
-    ".js"   = "application/javascript; charset=utf-8"
-    ".css"  = "text/css; charset=utf-8"
-    ".json" = "application/json; charset=utf-8"
-    ".png"  = "image/png"
-    ".jpg"  = "image/jpeg"
-    ".jpeg" = "image/jpeg"
-    ".gif"  = "image/gif"
-    ".svg"  = "image/svg+xml"
-    ".ico"  = "image/x-icon"
-    ".webp" = "image/webp"
-    ".txt"  = "text/plain; charset=utf-8"
-}
-
-# Iniciar Listener
-$listener = New-Object System.Net.HttpListener
-$listener.Prefixes.Add("http://localhost:$port/")
-try {
-    $listener.Start()
-} catch {
-    Write-Host "Porta $port ja em uso - servidor ativo."
-    exit 0
-}
-Write-Host "Servidor B2B Loterias rodando em http://localhost:$port/"
 
 # Função para enviar resposta JSON
 function Send-Json($context, $obj, $statusCode = 200) {
@@ -234,22 +255,26 @@ while ($listener.IsListening) {
         # ROTA /listar-jogos
         if ($req.HttpMethod -eq "GET" -and $url -eq "/listar-jogos") {
             $gameKey = $req.QueryString["gameKey"]
-            $subPasta = $pastaPorJogo[$gameKey]
-            $targetDir = if ($subPasta) { Join-Path $desktop $subPasta } else { $desktop }
+            $candidateSubPastas = Get-CandidateSubPastas $gameKey
+            $primarySubPasta = if ($candidateSubPastas.Count -gt 0) { $candidateSubPastas[0] } else { "" }
+            $targetDir = if ($primarySubPasta) { Join-Path $desktop $primarySubPasta } else { $desktop }
             
             Sync-DesktopDirs
             
             $fileDict = @{}
             foreach ($baseDir in $allJogosDirs) {
-                $dir = if ($subPasta) { Join-Path $baseDir $subPasta } else { $baseDir }
-                if (Test-Path $dir) {
-                    Get-ChildItem -Path $dir -Filter "*.txt" -File | ForEach-Object {
-                        if (-not $fileDict.ContainsKey($_.Name) -or $_.LastWriteTime -gt $fileDict[$_.Name].LastWriteTime) {
-                            $fileDict[$_.Name] = @{
-                                "name" = $_.Name
-                                "size" = $_.Length
-                                "modified" = $_.LastWriteTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
-                                "LastWriteTime" = $_.LastWriteTime
+                $subPastasToScan = if ($candidateSubPastas.Count -gt 0) { $candidateSubPastas } else { @("") }
+                foreach ($sp in $subPastasToScan) {
+                    $dir = if ($sp) { Join-Path $baseDir $sp } else { $baseDir }
+                    if (Test-Path $dir) {
+                        Get-ChildItem -Path $dir -Filter "*.txt" -File -ErrorAction SilentlyContinue | ForEach-Object {
+                            if (-not $fileDict.ContainsKey($_.Name) -or $_.LastWriteTime -gt $fileDict[$_.Name].LastWriteTime) {
+                                $fileDict[$_.Name] = @{
+                                    "name" = $_.Name
+                                    "size" = $_.Length
+                                    "modified" = $_.LastWriteTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+                                    "LastWriteTime" = $_.LastWriteTime
+                                }
                             }
                         }
                     }
@@ -275,16 +300,20 @@ while ($listener.IsListening) {
             $fileName = $data.fileName
             
             $safeFileName = [System.IO.Path]::GetFileName($fileName)
-            $subPasta = $pastaPorJogo[$gameKey]
+            $candidateSubPastas = Get-CandidateSubPastas $gameKey
+            $subPastasToSearch = if ($candidateSubPastas.Count -gt 0) { $candidateSubPastas } else { @("") }
             
             $content = $null
             foreach ($baseDir in $allJogosDirs) {
-                $dir = if ($subPasta) { Join-Path $baseDir $subPasta } else { $baseDir }
-                $filePath = Join-Path $dir $safeFileName
-                if (Test-Path $filePath) {
-                    $content = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
-                    break
+                foreach ($sp in $subPastasToSearch) {
+                    $dir = if ($sp) { Join-Path $baseDir $sp } else { $baseDir }
+                    $filePath = Join-Path $dir $safeFileName
+                    if (Test-Path $filePath) {
+                        $content = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+                        break
+                    }
                 }
+                if ($null -ne $content) { break }
             }
             
             if ($null -eq $content) {
@@ -303,7 +332,8 @@ while ($listener.IsListening) {
             $content = $data.content
             $concurso = if ($data.concurso) { $data.concurso } else { "sem-concurso" }
             
-            $subPasta = $pastaPorJogo[$gameKey]
+            $candidateSubPastas = Get-CandidateSubPastas $gameKey
+            $subPasta = if ($candidateSubPastas.Count -gt 0) { $candidateSubPastas[0] } else { if ($gameKey) { $gameKey.ToUpper() } else { "" } }
             $now = Get-Date
             $dateStr = $now.ToString("yyyy-MM-dd")
             $timeStr = $now.ToString("HH-mm-ss")
@@ -331,7 +361,8 @@ while ($listener.IsListening) {
             $fileName = $data.fileName
             
             $safeFileName = [System.IO.Path]::GetFileName($fileName)
-            $subPasta = $pastaPorJogo[$gameKey]
+            $candidateSubPastas = Get-CandidateSubPastas $gameKey
+            $subPastasToSearch = if ($candidateSubPastas.Count -gt 0) { $candidateSubPastas } else { @("") }
             
             if ($safeFileName.StartsWith("✅")) {
                 Send-Json $context @{ "ok" = $true; "already" = $true; "fileName" = $safeFileName }
@@ -340,11 +371,13 @@ while ($listener.IsListening) {
             
             $newName = "✅CONFERIDO_" + $safeFileName
             foreach ($baseDir in $allJogosDirs) {
-                $targetDir = if ($subPasta) { Join-Path $baseDir $subPasta } else { $baseDir }
-                $oldPath = Join-Path $targetDir $safeFileName
-                $newPath = Join-Path $targetDir $newName
-                if (Test-Path $oldPath) {
-                    Rename-Item -Path $oldPath -NewName $newName -Force
+                foreach ($sp in $subPastasToSearch) {
+                    $targetDir = if ($sp) { Join-Path $baseDir $sp } else { $baseDir }
+                    $oldPath = Join-Path $targetDir $safeFileName
+                    $newPath = Join-Path $targetDir $newName
+                    if (Test-Path $oldPath) {
+                        Rename-Item -Path $oldPath -NewName $newName -Force
+                    }
                 }
             }
             

@@ -70,8 +70,8 @@ If Not ServidorAtivo() Then
     If fso.FileExists(psScript) Then
         sh.Run "powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File """ & psScript & """", 0, False
         Dim w
-        For w = 1 To 25
-            WScript.Sleep 500
+        For w = 1 To 50
+            WScript.Sleep 300
             If ServidorAtivo() Then Exit For
         Next
     End If

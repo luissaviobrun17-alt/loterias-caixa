@@ -10,20 +10,17 @@ echo  =============================================
 echo.
 
 :: Verificar se Node.js está instalado (comando global ou pasta padrão)
+set "USE_NODE=0"
 where node >nul 2>&1
-if %errorlevel% neq 0 (
-    if exist "C:\Program Files\nodejs\node.exe" (
-        set "NODE_EXE=C:\Program Files\nodejs\node.exe"
-    ) else if exist "%LOCALAPPDATA%\Programs\nodejs\node.exe" (
-        set "NODE_EXE=%LOCALAPPDATA%\Programs\nodejs\node.exe"
-    ) else (
-        echo  ERRO: Node.js nao encontrado!
-        echo  Baixe em: https://nodejs.org
-        pause
-        exit /b 1
-    )
-) else (
+if %errorlevel% equ 0 (
     set "NODE_EXE=node"
+    set "USE_NODE=1"
+) else if exist "C:\Program Files\nodejs\node.exe" (
+    set "NODE_EXE=C:\Program Files\nodejs\node.exe"
+    set "USE_NODE=1"
+) else if exist "%LOCALAPPDATA%\Programs\nodejs\node.exe" (
+    set "NODE_EXE=%LOCALAPPDATA%\Programs\nodejs\node.exe"
+    set "USE_NODE=1"
 )
 
 :: Matar servidor anterior se existir
@@ -34,7 +31,11 @@ for /f "tokens=5" %%a in ('netstat -ano 2^>nul ^| findstr ":8777" ^| findstr "LI
 
 :: Iniciar servidor em background
 echo  Iniciando servidor B2B Loterias...
-start /B "" "%NODE_EXE%" "%~dp0server.js"
+if "%USE_NODE%"=="1" (
+    start /B "" "%NODE_EXE%" "%~dp0server.js"
+) else (
+    start "" powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File "%~dp0server.ps1"
+)
 
 :: Aguardar servidor inicializar
 timeout /t 2 /nobreak >nul
