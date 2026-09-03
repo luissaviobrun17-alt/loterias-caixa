@@ -522,6 +522,97 @@ class UI {
             };
         }
 
+        // === BOTÃO MOTOR DIA DE SORTE (B2B) ===
+        const btnMotorDiaDeSorte = document.getElementById('btn-motor-diadesorte');
+        if (btnMotorDiaDeSorte) {
+            btnMotorDiaDeSorte.onclick = () => {
+                if (this.currentGameKey !== 'diadesorte') {
+                    const navBtn = document.querySelector(`.nav-btn[data-game="diadesorte"]`);
+                    if (navBtn) navBtn.click();
+                    else {
+                        const tabBtn = document.querySelector(`.lottery-btn[data-lottery="diadesorte"]`);
+                        if (tabBtn) tabBtn.click();
+                        else this.updateGameInfo('diadesorte');
+                    }
+                }
+                if (typeof this.updateInvestmentPanel === 'function') this.updateInvestmentPanel();
+                if (typeof this.updateCurrentCostDisplay === 'function') this.updateCurrentCostDisplay();
+                const panel = document.getElementById('motor-diadesorte-panel');
+                if (panel) {
+                    const isOpening = panel.style.display === 'none' || !panel.style.display;
+                    ['motor-lotofacil-panel', 'motor-lotomania-panel', 'motor-timemania-panel', 'motor-milionaria-panel'].forEach(id => {
+                        const p = document.getElementById(id);
+                        if (p) p.style.display = 'none';
+                    });
+                    panel.style.display = isOpening ? 'block' : 'none';
+                    if (isOpening) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            };
+        }
+
+        const btnExecutarDiaDeSorte = document.getElementById('btn-executar-motor-diadesorte');
+        if (btnExecutarDiaDeSorte) {
+            btnExecutarDiaDeSorte.onclick = async () => {
+                if (this.currentGameKey !== 'diadesorte') {
+                    const navBtn = document.querySelector(`.nav-btn[data-game="diadesorte"]`);
+                    if (navBtn) navBtn.click();
+                }
+                const qtyInput = document.getElementById('games-quantity');
+                const qty = qtyInput ? (parseInt(qtyInput.value) || 10) : 10;
+                const historicoLimite = parseInt(document.getElementById('select-historico-diadesorte')?.value || '30') || 30;
+                const estrategia = document.getElementById('select-estrategia-diadesorte')?.value || 'equilibrada';
+                const poolType = document.getElementById('select-pool-diadesorte')?.value || 'automatico';
+                let pool = null;
+                if (poolType === 'personalizado' && this.selectedNumbers && this.selectedNumbers.size >= 7) {
+                    pool = Array.from(this.selectedNumbers);
+                }
+
+                const origText = btnExecutarDiaDeSorte.innerHTML;
+                btnExecutarDiaDeSorte.disabled = true;
+                btnExecutarDiaDeSorte.innerHTML = '⏳ Calculando Modelos e Coocorrências...';
+                this.gamesContainer.innerHTML = '<div style="text-align:center;padding:40px;"><div class="sync-loader" style="font-size:1.2em;">Executando Motor Dia de Sorte (Grupos A: 01-15 | B: 16-31)...</div></div>';
+
+                try {
+                    const data = await MotorDiaDeSorteB2BEngine.gerarCarteira(qty, { historicoLimite, estrategia, pool });
+                    if (data && data.jogos && data.jogos.length > 0) {
+                        this.currentGeneratedGames = data.jogos.map(j => j.jogo);
+                        this._lastGeneratedGames = this.currentGeneratedGames;
+                        this.renderGames({ pool: pool || Array.from({length: 31}, (_, i) => i+1), games: this.currentGeneratedGames, smartAnalysis: null }, 'diadesorte');
+
+                        const rel = data.relatorio_pre_geracao || {};
+                        const bannerMsg = `
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                <span style="color:#FBBF24; font-weight:800; font-size:0.95rem;">🍀 MOTOR DIA DE SORTE (B2B LOTERIAS) — ${data.jogos.length} JOGOS</span>
+                                <span style="background:rgba(245,158,11,0.2); color:#FDE68A; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.75rem;">${rel.nivel_confianca_estatistica || 'AUDITORIA 10/10'}</span>
+                            </div>
+                            <div style="margin-top:6px; font-size:0.8rem; color:#E2E8F0; line-height:1.5;">
+                                • Modelos: <strong>${Object.entries(data.distribuicao_modelos || {}).map(([m, c]) => `${m}: ${c}`).join(' | ')}</strong><br>
+                                • Meses da Sorte: <strong>${(data.meses_utilizados || []).join(', ')}</strong><br>
+                                • Pares Fortes: <strong>${(rel.pares_maior_relevancia || []).slice(0, 3).join(', ')}</strong> | Consecutividade Máx: <strong>≤ 3</strong><br>
+                                • <span style="color:#94A3B8; font-style:italic;">${rel.advertencia_matematica || 'Honestidade Matemática: Análise histórica para diversificação e ordenação.'}</span>
+                            </div>
+                        `;
+
+                        setTimeout(() => {
+                            var b = document.createElement('div');
+                            b.className = 'smart-gen-analysis';
+                            b.style.cssText = 'margin-top:8px;margin-bottom:8px;padding:14px 18px;border-radius:10px;background:linear-gradient(135deg, rgba(217,119,6,0.15), rgba(15,23,42,0.9));border:1px solid #f59e0b;box-shadow:0 4px 15px rgba(245,158,11,0.2);';
+                            b.innerHTML = bannerMsg;
+                            var old = this.gamesContainer.parentNode.querySelector('.smart-gen-analysis');
+                            if (old) old.remove();
+                            this.gamesContainer.parentNode.insertBefore(b, this.gamesContainer);
+                        }, 50);
+                    }
+                } catch (err) {
+                    this.gamesContainer.innerHTML = '<div class="empty-state" style="color:#EF4444;">Erro no Motor Dia de Sorte: ' + err.message + '</div>';
+                } finally {
+                    btnExecutarDiaDeSorte.disabled = false;
+                    btnExecutarDiaDeSorte.innerHTML = origText;
+                    setTimeout(() => { if (this.gamesContainer) this.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
+                }
+            };
+        }
+
         // === BOTÃO MOTOR TIMEMANIA (B2B) ===
         const btnMotorTimemania = document.getElementById('btn-motor-timemania');
         if (btnMotorTimemania) {
