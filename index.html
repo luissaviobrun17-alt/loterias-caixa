@@ -85,7 +85,7 @@
     <meta name="description" content="Gerador inteligente de apostas para todas as loterias da Caixa com IA">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/main.css?v=1781904541">
+    <link rel="stylesheet" href="styles/main.css?v=20260904_V3">
     <link rel="stylesheet" href="styles/components.css?v=1781904541">
     <link rel="stylesheet" href="styles/lottery.css?v=1781904541">
     <link rel="stylesheet" href="styles/responsive.css?v=1781904541">
@@ -259,6 +259,7 @@
                                         Aleatório</button>
                                     <button id="btn-fixed-mode" class="sm-btn" title="Modo Fixar Números">📌
                                         Fixar</button>
+                                    <button id="btn-quick-motor-megasena" class="sm-btn" style="background: linear-gradient(135deg, #059669, #10b981); color: #ffffff; border: 1px solid #34d399; font-weight: 800; cursor: pointer; box-shadow: 0 0 10px rgba(16,185,129,0.4); display: none;" title="Abrir Motor Inteligente Mega-Sena (B2B)">⚡ Motor Mega-Sena</button>
                                     <button id="btn-clear-selection" class="sm-btn" title="Limpar todos os números selecionados e jogos gerados" style="margin-left: auto;">🗑️ Excluir Tudo</button>
                                 </div>
                             </div>
@@ -325,12 +326,85 @@
 
                         <!-- MOTORES EXCLUSIVOS B2B LOTERIAS (Lado a Lado) -->
                         <div id="b2b-motors-row" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-top: 8px;">
+                            <button id="btn-motor-megasena" class="action-btn" style="padding: 14px 12px; animation: pulseGlowMega 2.5s infinite alternate; background: linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%); border: 1px solid #34d399; color: #ffffff; font-weight: 800; font-size: 0.90rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(16,185,129,0.35); cursor:pointer;" title="MOTOR MEGA-SENA — B2B LOTERIAS: Grupos A (01-30) e B (31-60), modelos 3/3, 2/4, 4/2, 1/5, 5/1, filtro rígido máx 3 consecutivos, Lift, Z-score, Centróide Simétrico, Auto-pesos, Modo Sniper e Honestidade Matemática.">⚡ MOTOR MEGA-SENA (B2B)</button>
                             <button id="btn-motor-lotofacil" class="action-btn" style="padding: 12px 10px; background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #4c1d95 100%); border: 1px solid #c084fc; color: #ffffff; font-weight: 800; font-size: 0.90rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(192,132,252,0.35); cursor:pointer;" title="MOTOR INTELIGENTE LOTOFÁCIL — B2B LOTERIAS: Análise obrigatória 10 concursos, divisões dinâmicas, relações 7/8, 8/7, 6/9, 9/6, consecutividade máx 5, Score B2B e Transparência Matemática.">⚡ MOTOR LOTOFÁCIL (B2B)</button>
                             <button id="btn-motor-milionaria" class="action-btn" style="padding: 12px 10px; background: linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%); border: 1px solid #34d399; color: #ffffff; font-weight: 800; font-size: 0.90rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(16,185,129,0.35); cursor:pointer;" title="MOTOR +MILIONÁRIA — B2B LOTERIAS: 50 Números, 6 Dezenas + 2 Trevos, Pool de 20 a 50 dezenas, Score IFM 10D, Centróide Simétrico, Diversificação Máxima, Modo Sniper e Honestidade Científica.">🍀 +MILIONÁRIA</button>
 
                             <button id="btn-motor-lotomania" class="action-btn" style="padding: 12px 10px; background: linear-gradient(135deg, #0284c7 0%, #0f766e 100%); border: 1px solid #38bdf8; color: #ffffff; font-weight: 800; font-size: 0.90rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(56,189,248,0.35); cursor:pointer;" title="MOTOR LOTOMANIA — B2B LOTERIAS: 5 Conjuntos estritos de 20 numeros, 10 por conjunto (5x10=50), consecutividade maxima de 4 no jogo ordenado, scoring estatistico e auditoria 10 pontos.">⚛️ MOTOR LOTOMANIA (B2B)</button>
                             <button id="btn-motor-diadesorte" class="action-btn" style="padding: 12px 10px; background: linear-gradient(135deg, #d97706 0%, #b45309 50%, #78350f 100%); border: 1px solid #f59e0b; color: #ffffff; font-weight: 800; font-size: 0.90rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(245,158,11,0.35); cursor:pointer;" title="MOTOR DIA DE SORTE — B2B LOTERIAS: Grupos A (01-15) e B (16-31), modelos 3+4, 4+3, 5+2, 2+5, filtro máx 3 consecutivos, Lift/Z-score, auto-pesos e Mês da Sorte com Honestidade Matemática.">🍀 MOTOR DIA DE SORTE (B2B)</button>
                             <button id="btn-motor-timemania" class="action-btn" style="padding: 12px 10px; background: linear-gradient(135deg, #059669 0%, #10b981 50%, #064e3b 100%); border: 1px solid #34d399; color: #ffffff; font-weight: 800; font-size: 0.90rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(52,211,153,0.35); cursor:pointer;" title="MOTOR TIMEMANIA — B2B LOTERIAS: Divisão analítica em 4 Grupos (G1..G4), 10 dezenas por jogo, IFM 8D, Time do Coração (80 clubes), Bloqueio de 3 Consecutivos no grupo, SNIPER adaptativo e Auditoria 10 pontos.">🎯 MOTOR TIMEMANIA (B2B)</button>
+                        </div>
+
+                        <!-- PAINEL MOTOR MEGA-SENA DO B2B LOTERIAS -->
+                        <div id="motor-megasena-panel" style="display:none; margin-top: 12px; padding: 16px; background: radial-gradient(circle at top left, rgba(5, 150, 105, 0.25), rgba(15, 23, 42, 0.95)); border: 1px solid #10b981; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                                <div style="font-size: 1.05rem; font-weight: 800; color: #34d399; display: flex; align-items: center; gap: 8px;">
+                                    ⚡ MOTOR INTELIGENTE MEGA-SENA — B2B LOTERIAS
+                                </div>
+                                <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.15); color: #a7f3d0; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 700;">
+                                    Pool 60 (A: 01-30 | B: 31-60) • Max Consecutivo ≤ 3 • Modelos 3/3, 2/4, 4/2 • Lift/Z-Score • Sniper
+                                </span>
+                            </div>
+                            <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5; margin: 0 0 12px 0;">
+                                Motor matemático, probabilístico e combinatório com partição obrigatória em <strong style="color:#34d399;">Grupo A (01-30)</strong> e <strong style="color:#6ee7b7;">Grupo B (31-60)</strong>. Ordenação dinâmica dos modelos hipergeométricos (<strong style="color:#fcd34d;">3/3, 2/4, 4/2, 1/5, 5/1</strong>), bloqueio rígido de <strong>mais de 3 consecutivos</strong>, matriz Lift/Z-score com regularização Bayesiana, centróide simétrico ($\mu=30.5, \Sigma=183$) e modo 🎯 SNIPER.
+                            </p>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">Janela de Análise Histórica:</label>
+                                    <select id="select-historico-megasena" style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(16,185,129,0.3); color: #e2e8f0; padding: 6px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                                        <option value="3">Últimos 3 Concursos</option>
+                                        <option value="5">Últimos 5 Concursos</option>
+                                        <option value="10">Últimos 10 Concursos</option>
+                                        <option value="20">Últimos 20 Concursos</option>
+                                        <option value="30" selected>Últimos 30 Concursos (Recomendado)</option>
+                                        <option value="50">Últimos 50 Concursos</option>
+                                        <option value="75">Últimos 75 Concursos</option>
+                                        <option value="100">Últimos 100 Concursos</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">Estratégia do Motor:</label>
+                                    <select id="select-estrategia-megasena" style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(16,185,129,0.3); color: #e2e8f0; padding: 6px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                                        <option value="equilibrada" selected>1 — Equilibrada (Padrão Multicritério)</option>
+                                        <option value="sniper">2 — 🎯 Modo Sniper (Alta Concentração)</option>
+                                        <option value="frequencia_historica">3 — Frequência Histórica</option>
+                                        <option value="frequencia_recente">4 — Frequência Recente</option>
+                                        <option value="atrasos_recuperacoes">5 — Atrasos e Recuperações</option>
+                                        <option value="pares_trios">6 — Melhores Pares e Trios</option>
+                                        <option value="coocorrencia_lift_zscore">7 — Coocorrência / Lift / Z-Score</option>
+                                        <option value="auto_pesos">8 — Auto-Pesos Adaptativos</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">Pool de Dezenas:</label>
+                                    <select id="select-pool-megasena" style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(16,185,129,0.3); color: #e2e8f0; padding: 6px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                                        <option value="automatico" selected>Pool Oficial Completo (01 a 60)</option>
+                                        <option value="personalizado">Pool Personalizado (Marcados no Volante)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">Modelo A/B Preferencial:</label>
+                                    <select id="select-modelo-megasena" style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(16,185,129,0.3); color: #e2e8f0; padding: 6px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                                        <option value="auto" selected>Automático (Dinâmico pelo Histórico)</option>
+                                        <option value="3/3">Modelo 3/3 (3A + 3B — 32.9%)</option>
+                                        <option value="2/4">Modelo 2/4 (2A + 4B — 23.8%)</option>
+                                        <option value="4/2">Modelo 4/2 (4A + 2B — 23.8%)</option>
+                                        <option value="1/5">Modelo 1/5 (1A + 5B — 8.5%)</option>
+                                        <option value="5/1">Modelo 5/1 (5A + 1B — 8.5%)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button id="btn-executar-motor-megasena" style="flex: 2; min-width: 220px; background: linear-gradient(135deg, #059669, #10b981); border: 1px solid #34d399; color: white; padding: 10px 14px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 0 12px rgba(16,185,129,0.4);">
+                                    ⚡ GERAR CARTEIRA (MOTOR MEGA-SENA)
+                                </button>
+                                <button id="btn-relatorio-motor-megasena" style="flex: 1; min-width: 180px; background: rgba(15,23,42,0.8); border: 1px solid #10b981; color: #a7f3d0; padding: 10px 12px; border-radius: 6px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+                                    🔬 RELATÓRIO TÉCNICO
+                                </button>
+                                <button id="btn-backtest-motor-megasena" style="flex: 1; min-width: 180px; background: rgba(15,23,42,0.8); border: 1px solid #f59e0b; color: #fde68a; padding: 10px 12px; border-radius: 6px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+                                    📈 BACKTESTING WALK-FORWARD
+                                </button>
+                            </div>
                         </div>
 
                         <!-- PAINEL MOTOR LOTOFÁCIL DO B2B LOTERIAS -->
@@ -1813,6 +1887,7 @@
             <script src="js/engines/auto_updater.js?v=1781904541"></script>
             <script src="js/engines/pure_coverage_engine.js?v=1781904543"></script>
             <script src="js/engines/roi_dashboard.js?v=1781904541"></script>
+            <script src="js/engines/motor_megasena_engine.js?v=20260904_V3"></script>
             <script src="js/engines/motor_lotomania_engine.js?v=1781904545"></script>
             <script src="js/engines/motor_lotofacil_engine.js?v=1781904580"></script>
             <script src="js/engines/motor_diadesorte_engine.js?v=20260903"></script>
@@ -2009,7 +2084,7 @@
                 console.log('[B2B] repairGameLotomania injetado com sucesso no escopo global das classes.');
             })();
             </script>
-            <script src="js/ui.js?v=1781904570"></script>
+            <script src="js/ui.js?v=20260904_V3"></script>
             <script src="js/main.js?v=1781904541"></script>
 
     <!-- v11: Coverage handler inline REMOVIDO — handler canônico está em ui.js -->

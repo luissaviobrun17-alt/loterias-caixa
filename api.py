@@ -10,6 +10,8 @@ from motor_sugestao import MotorSugestaoLoteria
 from motor_lotomania import MotorLotomaniaB2B
 from motor_lotofacil import MotorLotofacilB2B
 from motor_timemania import MotorTimemaniaB2B
+from motor_diadesorte import MotorDiaDeSorteB2B
+from motor_megasena import MotorMegaSenaB2B
 
 app = FastAPI(
     title="Loteria B2B AI Engine API",
@@ -393,6 +395,163 @@ def endpoint_motor_timemania_analise(request: AnaliseTimemaniaRequest):
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Erro na Análise Timemania: {str(e)}")
+
+
+# =============================================================================
+# MÓDULO EXCLUSIVO: MOTOR DIA DE SORTE B2B (MÁXIMO RIGOR E HONESTIDADE)
+# =============================================================================
+
+class MotorDiaDeSorteRequest(BaseModel):
+    quantidade_jogos: int
+    historico_limite: Optional[int] = 30
+    estrategia: Optional[str] = "equilibrada"
+    pool: Optional[List[int]] = None
+    historico: Optional[List[List[int]]] = None
+    historico_meses: Optional[List[str]] = None
+
+
+class AnaliseDiaDeSorteRequest(BaseModel):
+    historico_limite: Optional[int] = 30
+    estrategia: Optional[str] = "equilibrada"
+    pool: Optional[List[int]] = None
+
+
+@app.post("/api/v1/motor-diadesorte")
+def endpoint_motor_diadesorte(request: MotorDiaDeSorteRequest):
+    """
+    Endpoint oficial do NOVO MOTOR DIA DE SORTE — B2B LOTERIAS.
+    Aplica rigor matemático, grupos A (01-15) e B (16-31), modelos 3+4, 4+3, 5+2, 2+5,
+    filtro <= 3 consecutivos, Lift/Z-score, auto-pesos, meses da sorte e transparência.
+    """
+    try:
+        motor = MotorDiaDeSorteB2B(
+            historico=request.historico,
+            historico_meses=request.historico_meses,
+            limite_historico=request.historico_limite or 30,
+            estrategia=request.estrategia or "equilibrada",
+            pool=request.pool
+        )
+        return motor.gerar_carteira(request.quantidade_jogos)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erro no Motor Dia de Sorte: {str(e)}")
+
+
+@app.post("/api/v1/motor-diadesorte/analise-estatistica")
+def endpoint_motor_diadesorte_analise(request: AnaliseDiaDeSorteRequest):
+    """Retorna o relatório pré-geração de evidência estatística do Dia de Sorte."""
+    try:
+        motor = MotorDiaDeSorteB2B(
+            limite_historico=request.historico_limite or 30,
+            estrategia=request.estrategia or "equilibrada",
+            pool=request.pool
+        )
+        return {
+            "sucesso": True,
+            "relatorio": motor.gerar_relatorio_pre_geracao(),
+            "distribuicoes": motor.stats["modelos_ordenados"],
+            "top_meses": motor.stats["meses"][:5]
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erro na Análise Dia de Sorte: {str(e)}")
+
+
+# =============================================================================
+# MÓDULO EXCLUSIVO: MOTOR MEGA-SENA B2B (RIGOR MATEMÁTICO E COMBINATÓRIO)
+# =============================================================================
+
+class MotorMegaSenaRequest(BaseModel):
+    quantidade_jogos: int
+    historico_limite: Optional[int] = 30
+    estrategia: Optional[str] = "equilibrada"
+    pool: Optional[List[int]] = None
+    modelo_preferencial: Optional[str] = None
+    numeros_fixos: Optional[List[int]] = None
+    numeros_proibidos: Optional[List[int]] = None
+    historico: Optional[List[List[int]]] = None
+
+
+class BacktestMegaSenaRequest(BaseModel):
+    concursos_teste: Optional[int] = 10
+    quantidade_jogos: Optional[int] = 10
+    historico_limite: Optional[int] = 30
+    estrategia: Optional[str] = "equilibrada"
+    pool: Optional[List[int]] = None
+
+
+class AnaliseMegaSenaRequest(BaseModel):
+    historico_limite: Optional[int] = 30
+    estrategia: Optional[str] = "equilibrada"
+    pool: Optional[List[int]] = None
+
+
+@app.post("/api/v1/motor-megasena")
+def endpoint_motor_megasena(request: MotorMegaSenaRequest):
+    """
+    Endpoint oficial do NOVO MOTOR MEGA-SENA — B2B LOTERIAS.
+    Aplica rigor matemático e estatístico, grupos A (01-30) e B (31-60), modelos hipergeométricos
+    (3/3, 2/4, 4/2, 1/5, 5/1), filtro estrito de no máximo 3 números consecutivos, centróide simétrico,
+    coocorrência/Lift/Z-Score, auto-pesos e diversificação de Jaccard.
+    """
+    try:
+        motor = MotorMegaSenaB2B(
+            historico=request.historico,
+            limite_historico=request.historico_limite or 30,
+            estrategia=request.estrategia or "equilibrada",
+            pool=request.pool,
+            modelo_preferencial=request.modelo_preferencial,
+            numeros_fixos=request.numeros_fixos,
+            numeros_proibidos=request.numeros_proibidos
+        )
+        return motor.gerar_carteira(request.quantidade_jogos)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erro no Motor Mega-Sena: {str(e)}")
+
+
+@app.post("/api/v1/motor-megasena/backtest")
+def endpoint_motor_megasena_backtest(request: BacktestMegaSenaRequest):
+    """Executa simulação retrospectiva Walk-Forward na Mega-Sena sem vazamento de dados futuros."""
+    try:
+        motor = MotorMegaSenaB2B(
+            limite_historico=request.historico_limite or 30,
+            estrategia=request.estrategia or "equilibrada",
+            pool=request.pool
+        )
+        return motor.executar_backtesting(
+            concursos_teste=request.concursos_teste or 10,
+            quantidade_jogos=request.quantidade_jogos or 10
+        )
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erro no Backtest Mega-Sena: {str(e)}")
+
+
+@app.post("/api/v1/motor-megasena/analise-estatistica")
+def endpoint_motor_megasena_analise(request: AnaliseMegaSenaRequest):
+    """Retorna o relatório pré-geração de evidência estatística da Mega-Sena."""
+    try:
+        motor = MotorMegaSenaB2B(
+            limite_historico=request.historico_limite or 30,
+            estrategia=request.estrategia or "equilibrada",
+            pool=request.pool
+        )
+        return {
+            "sucesso": True,
+            "relatorio": motor.gerar_relatorio_pre_geracao(),
+            "distribuicoes": motor.stats["modelos_ordenados"],
+            "top_pares": motor.stats["pares_top"][:10],
+            "robustez": motor.testar_robustez_indicadores()
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erro na Análise Mega-Sena: {str(e)}")
 
 
 if __name__ == "__main__":
