@@ -716,14 +716,14 @@ input:focus {
 
 .games-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1rem;
 }
 
 .game-card {
     background: var(--bg-main);
     border: 1px solid var(--border-color);
-    padding: 1.2rem;
+    padding: 1rem 0.8rem;
     border-radius: var(--radius-sm);
     display: flex;
     flex-direction: column;
@@ -748,9 +748,24 @@ input:focus {
 
 .game-numbers-wrapper {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-wrap: nowrap !important;
+    gap: 5px;
     justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.game-numbers-wrapper .ball {
+    flex: 0 0 auto;
+}
+
+/* Permitir quebra apenas em loterias com volume massivo de dezenas (Lotofácil 15 e Lotomania 50) */
+[data-game-key="lotofacil"] .game-numbers-wrapper,
+[data-game-key="lotomania"] .game-numbers-wrapper,
+.games-grid[data-game-key="lotofacil"] .game-numbers-wrapper,
+.games-grid[data-game-key="lotomania"] .game-numbers-wrapper {
+    flex-wrap: wrap !important;
+    gap: 6px;
 }
 
 .empty-state {
