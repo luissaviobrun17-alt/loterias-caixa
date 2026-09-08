@@ -464,8 +464,14 @@ class MotorTimemaniaB2B:
                     if g_nums[i + 1] == g_nums[i] + 1 and g_nums[i + 2] == g_nums[i + 1] + 1:
                         return False, f"3 consecutivos no grupo {g_start}..{g_start+19}"
 
+        sorted_pool = sorted(self.pool)
+        min_possible_soma = sum(sorted_pool[:10]) if len(sorted_pool) >= 10 else 55
+        max_possible_soma = sum(sorted_pool[-10:]) if len(sorted_pool) >= 10 else 755
+        soma_min_valida = max(min_possible_soma, min(260, max_possible_soma - 20))
+        soma_max_valida = min(max_possible_soma, max(550, min_possible_soma + 20))
+
         soma = sum(s)
-        if soma < 260 or soma > 550:
+        if soma < soma_min_valida or soma > soma_max_valida:
             return False, f"Soma fora do corredor probabilístico: {soma}"
 
         return True, "OK"
@@ -558,10 +564,20 @@ class MotorTimemaniaB2B:
                     candidatos.append(cand)
 
         if len(candidatos) < qtd:
-            while len(candidatos) < qtd:
-                cand = sorted(rng.sample(self.pool, 10))
+            tentativas_fallback = 0
+            while len(candidatos) < qtd and tentativas_fallback < 1000:
+                tentativas_fallback += 1
+                cand = sorted(rng.sample(self.pool, min(10, len(self.pool))))
                 valido, _ = self._validar_jogo_estrito(cand)
                 if valido and tuple(cand) not in candidatos_set:
+                    candidatos_set.add(tuple(cand))
+                    candidatos.append(cand)
+
+            tentativas_emergencia = 0
+            while len(candidatos) < qtd and tentativas_emergencia < 300:
+                tentativas_emergencia += 1
+                cand = sorted(rng.sample(self.pool, min(10, len(self.pool))))
+                if len(cand) == 10 and len(set(cand)) == 10 and tuple(cand) not in candidatos_set:
                     candidatos_set.add(tuple(cand))
                     candidatos.append(cand)
 
