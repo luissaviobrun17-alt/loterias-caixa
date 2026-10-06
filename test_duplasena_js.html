@@ -1,19 +1,19 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Teste JS Motor Mega-Sena</title>
+    <title>Teste JS Motor Dupla Sena</title>
     <script src="js/data/history_db.js"></script>
-    <script src="js/engines/motor_megasena_engine.js"></script>
+    <script src="js/engines/motor_duplasena_engine.js"></script>
 </head>
 <body>
     <div id="output">Executando...</div>
     <script>
     try {
-        const res1 = MotorMegaSenaB2BEngine.gerarCarteiraLocal(10, { historicoLimite: 30, estrategia: 'equilibrada' });
-        const resSniper = MotorMegaSenaB2BEngine.gerarCarteiraLocal(5, { historicoLimite: 50, estrategia: 'sniper' });
-        const resCustom = MotorMegaSenaB2BEngine.gerarCarteiraLocal(5, {
-            pool: [3, 7, 9, 12, 16, 18, 21, 24, 27, 30, 31, 34, 37, 40, 43, 45, 49, 52, 55, 60]
+        const res1 = MotorDuplaSenaB2BEngine.gerarCarteiraLocal(10, { historicoLimite: 30, estrategia: 'equilibrada' });
+        const resSniper = MotorDuplaSenaB2BEngine.gerarCarteiraLocal(5, { historicoLimite: 30, estrategia: 'sniper' });
+        const resCustom = MotorDuplaSenaB2BEngine.gerarCarteiraLocal(5, {
+            pool: [2, 5, 7, 11, 14, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48]
         });
 
         const checks1 = res1.checks_auditoria.aprovacao_integral_10_de_10;
@@ -21,7 +21,7 @@
         const checksCustom = resCustom.checks_auditoria.aprovacao_integral_10_de_10;
 
         const maxConsec1 = Math.max(...res1.jogos.map(j => j.max_consecutivo));
-        const allCustomValid = resCustom.jogos.every(j => j.numeros.every(n => [3, 7, 9, 12, 16, 18, 21, 24, 27, 30, 31, 34, 37, 40, 43, 45, 49, 52, 55, 60].includes(n)));
+        const allCustomValid = resCustom.jogos.every(j => j.numeros.every(n => [2, 5, 7, 11, 14, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48].includes(n)));
 
         const resultObj = {
             res1_sucesso: res1.sucesso,
@@ -33,13 +33,14 @@
             allCustomValid: allCustomValid,
             top1_jogo: res1.jogos[0].numeros_formatados,
             top1_score: res1.jogos[0].score_b2b,
+            top1_iga: res1.jogos[0].iga,
             top1_modelo: res1.jogos[0].modelo_ab,
             top1_pares_impares: res1.jogos[0].pares_impares
         };
 
         document.getElementById('output').innerText = JSON.stringify(resultObj, null, 2);
     } catch (e) {
-        document.getElementById('output').innerText = 'ERRO: ' + e.message;
+        document.getElementById('output').innerText = 'ERRO: ' + e.message + '\n' + e.stack;
     }
     </script>
 </body>

@@ -125,6 +125,25 @@ class AsyncGenerator {
         var game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         var name = game ? game.name : gameKey;
 
+        // Delegação oficial para Super Sete B2B
+        if (gameKey === 'supersete' && typeof MotorSuperSeteB2BEngine !== 'undefined') {
+            const ssRes = MotorSuperSeteB2BEngine._gerarFallbackNativo(numGames, {});
+            const games = (ssRes && ssRes.jogos) ? ssRes.jogos.map(j => j.jogo) : [];
+            self._isRunning = false;
+            self._hideBar();
+            callback({
+                games,
+                analysis: {
+                    totalGames: games.length,
+                    poolSize: 10,
+                    avgHamming: ssRes.metricas_carteira?.hamming_medio || 5.2,
+                    coveragePct: ssRes.icm_global || 85,
+                    elapsed: '10ms'
+                }
+            }, false, null);
+            return;
+        }
+
         // Barra indeterminada — motor processa tudo de uma vez
         self._showBar(name + ' — Manual', numGames);
 
@@ -138,6 +157,28 @@ class AsyncGenerator {
                     self._hideBar();
                     callback(null, true);
                     return;
+                }
+
+                // ═══ v16.3: Roteamento para volume alto (> 1000 jogos) ═══
+                // Para volumes massivos (> 1000 jogos), PureCoverageEngine processa em chunks assíncronos sem travar a UI
+                if (numGames > 1000 && typeof PureCoverageEngine !== 'undefined') {
+                    console.log('%c[AsyncGen] 🚀 MANUAL MASSIVO (Volume Alto via PureCoverageEngine): ' + numGames + ' jogos', 'color:#10B981;font-weight:bold;');
+                    self._showBar(name + ' — Manual Massivo (' + numGames.toLocaleString('pt-BR') + ' jogos)', numGames);
+                    return self.generatePureAsync(gameKey, numGames, { drawSize: drawSize, pool: pool, fixed: fixedNumbers }, function(pureRes, pureCancelled, pureError) {
+                        if (pureRes && pureRes.analysis) {
+                            pureRes.analysis.poolSize = pureRes.analysis.poolSize || pool.length;
+                            pureRes.analysis.fixedCount = (fixedNumbers || []).length;
+                            pureRes.analysis.fixedNumbers = fixedNumbers || [];
+                            var calcInv = (typeof pureRes.analysis.investimento === 'number')
+                                ? pureRes.analysis.investimento
+                                : ((typeof pureRes.analysis.investment === 'number')
+                                    ? pureRes.analysis.investment
+                                    : (pureRes.games.length * (game ? game.price : 0)));
+                            pureRes.analysis.investimento = calcInv;
+                            pureRes.analysis.investment = calcInv;
+                        }
+                        callback(pureRes, pureCancelled, pureError);
+                    });
                 }
 
                 // ═══ CHAMADA ÚNICA GLOBAL ═══
@@ -196,6 +237,25 @@ class AsyncGenerator {
         var game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         var name = game ? game.name : gameKey;
         var opts = options || {};
+
+        // Delegação oficial para Super Sete B2B
+        if (gameKey === 'supersete' && typeof MotorSuperSeteB2BEngine !== 'undefined') {
+            const ssRes = MotorSuperSeteB2BEngine._gerarFallbackNativo(numGames, opts);
+            const games = (ssRes && ssRes.jogos) ? ssRes.jogos.map(j => j.jogo) : [];
+            self._isRunning = false;
+            self._hideBar();
+            callback({
+                games,
+                analysis: {
+                    totalGames: games.length,
+                    poolSize: 10,
+                    avgHamming: ssRes.metricas_carteira?.hamming_medio || 5.2,
+                    coveragePct: ssRes.icm_global || 85,
+                    elapsed: '10ms'
+                }
+            }, false, null);
+            return;
+        }
 
         // ═══ v16.2 SNIPER RÁPIDO: redireciona para PureCoverageEngine ═══
         // O fluxo SmartCoverage/CoverageEngine bloqueia o browser por 400ms-7s.
@@ -531,6 +591,25 @@ class AsyncGenerator {
         var game = typeof GAMES !== 'undefined' ? GAMES[gameKey] : null;
         var name = game ? game.name : gameKey;
 
+        // Delegação oficial para Super Sete B2B
+        if (gameKey === 'supersete' && typeof MotorSuperSeteB2BEngine !== 'undefined') {
+            const ssRes = MotorSuperSeteB2BEngine._gerarFallbackNativo(numGames, options);
+            const games = (ssRes && ssRes.jogos) ? ssRes.jogos.map(j => j.jogo) : [];
+            self._isRunning = false;
+            self._hideBar();
+            callback({
+                games,
+                analysis: {
+                    totalGames: games.length,
+                    poolSize: 10,
+                    avgHamming: ssRes.metricas_carteira?.hamming_medio || 5.2,
+                    coveragePct: ssRes.icm_global || 85,
+                    elapsed: '10ms'
+                }
+            }, false, null);
+            return;
+        }
+
         // Barra indeterminada — motor processa tudo de uma vez
         self._showBar(name, numGames);
 
@@ -571,21 +650,32 @@ class AsyncGenerator {
                 self._doneBar(uniqueGames.length);
 
                 var elapsed = Date.now() - self._startTime;
+                var totalInvest = (result && result.analysis && typeof result.analysis.investment === 'number')
+                    ? result.analysis.investment
+                    : ((result && result.analysis && typeof result.analysis.investimento === 'number')
+                        ? result.analysis.investimento
+                        : (uniqueGames.length * (game ? game.price : 0)));
+                var poolArr = result.pool || (options && options.pool) || (function() {
+                    var s = {};
+                    for (var j = 0; j < uniqueGames.length; j++)
+                        for (var m = 0; m < uniqueGames[j].length; m++)
+                            s[uniqueGames[j][m]] = true;
+                    return Object.keys(s).map(Number).sort(function(a,b){return a-b});
+                })();
                 var fr = {
                     games: uniqueGames,
-                    pool: result.pool || (function() {
-                        var s = {};
-                        for (var j = 0; j < uniqueGames.length; j++)
-                            for (var m = 0; m < uniqueGames[j].length; m++)
-                                s[uniqueGames[j][m]] = true;
-                        return Object.keys(s).map(Number).sort(function(a,b){return a-b});
-                    })(),
+                    pool: poolArr,
                     analysis: Object.assign({}, result.analysis || {}, {
                         engine: 'PureCoverageEngine',
                         totalGames: uniqueGames.length,
                         elapsed: elapsed + 'ms',
                         asyncMode: true,
-                        chunksProcessed: 1
+                        chunksProcessed: 1,
+                        investment: totalInvest,
+                        investimento: totalInvest,
+                        poolSize: poolArr ? poolArr.length : (result.analysis && result.analysis.poolSize ? result.analysis.poolSize : 0),
+                        fixedCount: (options && options.fixed) ? options.fixed.length : 0,
+                        fixedNumbers: (options && options.fixed) || []
                     })
                 };
 

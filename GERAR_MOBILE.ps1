@@ -98,6 +98,16 @@ $jsFiles = @(
     @{ path = "js/engines/quantum.js"; pattern = 'quantum\.js"' },
     @{ path = "js/engines/quantum_god_mode.js"; pattern = 'quantum_god_mode\.js' },
     @{ path = "js/engines/smart_bets.js"; pattern = 'smart_bets\.js' },
+    @{ path = "js/engines/motor_megasena_engine.js"; pattern = 'motor_megasena_engine\.js' },
+    @{ path = "js/engines/motor_supersete_engine.js"; pattern = 'motor_supersete_engine\.js' },
+    @{ path = "js/engines/motor_duplasena_engine.js"; pattern = 'motor_duplasena_engine\.js' },
+@{ path = "js/engines/motor_quina_engine.js"; pattern = 'motor_quina_engine\.js' },
+    @{ path = "js/engines/motor_lotofacil_engine.js"; pattern = 'motor_lotofacil_engine\.js' },
+    @{ path = "js/engines/motor_lotomania_engine.js"; pattern = 'motor_lotomania_engine\.js' },
+    @{ path = "js/engines/motor_diadesorte_engine.js"; pattern = 'motor_diadesorte_engine\.js' },
+    @{ path = "js/engines/motor_timemania_engine.js"; pattern = 'motor_timemania_engine\.js' },
+    @{ path = "js/engines/motor_milionaria_engine.js"; pattern = 'motor_milionaria_engine\.js' },
+    @{ path = "js/engines/motor_loteca_engine.js"; pattern = 'motor_loteca_engine\.js' },
     @{ path = "js/ui.js"; pattern = 'ui\.js' },
     @{ path = "js/main.js"; pattern = 'main\.js' },
     @{ path = "js/license.js"; pattern = 'license\.js' }
@@ -238,7 +248,6 @@ Write-Host "  O WhatsApp e iMessage corrompem arquivos HTML." -ForegroundColor R
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Green
 
-# Abrir pasta
-Start-Process explorer.exe -ArgumentList "/select, `"$zipFile`""
-
-Read-Host "Pressione ENTER para fechar"
+if ($host.Name -eq "ConsoleHost" -and [Environment]::UserInteractive -and ($args -notcontains "-NoWait")) {
+    Start-Process explorer.exe -ArgumentList "/select, `"$zipFile`""
+}

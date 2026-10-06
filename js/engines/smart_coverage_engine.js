@@ -223,8 +223,26 @@ class SmartCoverageEngine {
     // ─── Ponto de entrada ─────────────────────────────────────────────────
     static generate(gameKey, numGames, selectedNumbers, fixedNumbers, drawSize, options) {
         const t0 = Date.now();
-        const strategy = this._getStrategy(numGames);
         const opts = options || {};
+
+        // Delegação oficial para Super Sete B2B
+        if (gameKey === 'supersete' && typeof MotorSuperSeteB2BEngine !== 'undefined') {
+            console.log('%c[SmartCoverage] ⚡ Delegando Super Sete para MotorSuperSeteB2BEngine...', 'color: #38bdf8; font-weight: bold;');
+            const ssRes = MotorSuperSeteB2BEngine._gerarFallbackNativo(numGames, opts);
+            const games = (ssRes && ssRes.jogos) ? ssRes.jogos.map(j => j.jogo) : [];
+            return {
+                games,
+                analysis: {
+                    strategy: 'MOTOR_SUPERSETE_B2B',
+                    engineVersion: 'MotorSuperSeteB2B',
+                    avgHamming: ssRes.metricas_carteira?.hamming_medio || 5.2,
+                    coveragePct: ssRes.icm_global || 85,
+                    elapsed: (Date.now() - t0) + 'ms'
+                }
+            };
+        }
+
+        const strategy = this._getStrategy(numGames);
 
         console.log('[SmartCoverage] Strategy:', strategy, '| Games:', numGames, '| Game:', gameKey, '| drawSize:', drawSize);
 

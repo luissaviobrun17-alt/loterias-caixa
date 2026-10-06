@@ -68,7 +68,14 @@ If Not ServidorAtivo() Then
     Dim psScript
     psScript = APP_DIR & "\server.ps1"
     If fso.FileExists(psScript) Then
-        sh.Run "powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File """ & psScript & """", 0, False
+        On Error Resume Next
+        Dim wmi, proc, res
+        Set wmi = GetObject("winmgmts:\\.\root\cimv2:Win32_Process")
+        res = wmi.Create("powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File """ & psScript & """", Null, Null, proc)
+        If Err.Number <> 0 Or res <> 0 Then
+            sh.Run "powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File """ & psScript & """", 0, False
+        End If
+        On Error GoTo 0
         Dim w
         For w = 1 To 50
             WScript.Sleep 300

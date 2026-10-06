@@ -1,30 +1,42 @@
 @echo off
 :: =====================================================================
-:: B2B Loterias — Iniciador do Servidor (versao .bat)
-:: Mais confiavel que VBS em alguns ambientes Windows
+:: B2B Loterias — Iniciador do Servidor (versao .bat hibrida)
+:: Inicia Node.js se disponivel ou PowerShell server.ps1 automaticamente
 :: =====================================================================
 
-set APP_DIR=%~dp0
-set SERVER=%APP_DIR%server.js
-
-if exist "C:\Program Files\nodejs\node.exe" (
-    set NODE="C:\Program Files\nodejs\node.exe"
-) else if exist "%LOCALAPPDATA%\Programs\nodejs\node.exe" (
-    set NODE="%LOCALAPPDATA%\Programs\nodejs\node.exe"
-) else (
-    set NODE="node"
-)
+set "APP_DIR=%~dp0"
 
 :: Verificar se servidor ja esta rodando
 curl -s --connect-timeout 2 http://localhost:8777/ >nul 2>&1
 if %errorlevel%==0 (
-    echo [B2B] Servidor ja esta rodando em localhost:8777
+    echo [B2B] Servidor ja esta rodando em http://localhost:8777
+    start "" msedge "http://localhost:8777/"
     exit /b 0
 )
 
-:: Iniciar servidor em background
-echo [B2B] Iniciando servidor...
-start "" /min %NODE% "%SERVER%"
+echo [B2B] Iniciando servidor B2B Loterias...
+
+:: Verificar se Node.js esta disponivel
+set "USE_NODE=0"
+where node >nul 2>&1
+if %errorlevel% equ 0 (
+    set "NODE_EXE=node"
+    set "USE_NODE=1"
+) else if exist "C:\Program Files\nodejs\node.exe" (
+    set "NODE_EXE=C:\Program Files\nodejs\node.exe"
+    set "USE_NODE=1"
+) else if exist "%LOCALAPPDATA%\Programs\nodejs\node.exe" (
+    set "NODE_EXE=%LOCALAPPDATA%\Programs\nodejs\node.exe"
+    set "USE_NODE=1"
+)
+
+if "%USE_NODE%"=="1" (
+    echo [B2B] Modo: Node.js
+    start "" /min "%NODE_EXE%" "%APP_DIR%server.js"
+) else (
+    echo [B2B] Modo: PowerShell nativo
+    start "" powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File "%APP_DIR%server.ps1"
+)
 
 :: Aguardar o servidor subir (ate 15 segundos)
 set /a tentativas=0
@@ -35,9 +47,11 @@ timeout /t 1 /nobreak >nul
 curl -s --connect-timeout 1 http://localhost:8777/ >nul 2>&1
 if %errorlevel% NEQ 0 goto aguardar
 
-echo [B2B] Servidor iniciado com sucesso!
+echo [B2B] Servidor iniciado com sucesso em http://localhost:8777
+start "" msedge "http://localhost:8777/"
 exit /b 0
 
 :timeout_msg
-echo [B2B] Servidor demorou mas pode estar subindo ainda...
+echo [B2B] Servidor pode estar finalizando inicializacao...
+start "" msedge "http://localhost:8777/"
 exit /b 0

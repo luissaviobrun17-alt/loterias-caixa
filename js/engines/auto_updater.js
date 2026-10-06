@@ -15,7 +15,9 @@ var AutoUpdater = (function () {
         duplasena: 'dupla-sena',
         lotomania: 'lotomania',
         timemania: 'timemania',
-        diadesorte: 'dia-de-sorte'
+        diadesorte: 'dia-de-sorte',
+        milionaria: 'maismilionaria',
+        loteca: 'loteca'
     };
 
     var HEROKU_NAMES = {
@@ -25,10 +27,12 @@ var AutoUpdater = (function () {
         duplasena: 'duplasena',
         lotomania: 'lotomania',
         timemania: 'timemania',
-        diadesorte: 'diadesorte'
+        diadesorte: 'diadesorte',
+        milionaria: 'maismilionaria',
+        loteca: 'loteca'
     };
 
-    var ALL_GAMES = ['megasena', 'lotofacil', 'quina', 'duplasena', 'lotomania', 'timemania', 'diadesorte'];
+    var ALL_GAMES = ['megasena', 'lotofacil', 'quina', 'duplasena', 'lotomania', 'timemania', 'diadesorte', 'milionaria', 'loteca'];
     var CACHE_TTL = 2 * 60 * 60 * 1000; // 2 horas
     var REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutos
     var API_TIMEOUT = 6000; // 6 segundos
@@ -92,7 +96,7 @@ var AutoUpdater = (function () {
         if (!drawNum) return null;
 
         var dezenas = data.listaDezenas || data.dezenas || [];
-        if (dezenas.length === 0) return null;
+        if (dezenas.length === 0 && gameKey !== 'loteca') return null;
 
         var numbers = dezenas.map(function (n) { return parseInt(n); }).sort(function (a, b) { return a - b; });
 
@@ -100,6 +104,14 @@ var AutoUpdater = (function () {
             drawNumber: drawNum,
             numbers: numbers
         };
+
+        // +Milionária: trevos sorteados
+        if (gameKey === 'milionaria') {
+            var tr = data.trevosSorteados || data.trevos || [];
+            if (tr && tr.length > 0) {
+                result.trevos = tr.map(function (n) { return parseInt(n); }).sort(function (a, b) { return a - b; });
+            }
+        }
 
         // Dupla Sena: segundo sorteio
         if (gameKey === 'duplasena') {

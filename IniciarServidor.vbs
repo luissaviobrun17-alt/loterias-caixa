@@ -1,6 +1,6 @@
 ' =====================================================================
-' B2B Loterias — Servidor Silencioso v6.0
-' Startup do Windows — 100% invisivel, sem pop-ups
+' B2B Loterias — Servidor Silencioso v6.3
+' 100% invisivel, sem pop-ups, execucao desacoplada via WMI / PowerShell
 ' =====================================================================
 Option Explicit
 
@@ -10,7 +10,7 @@ Set fso = CreateObject("Scripting.FileSystemObject")
 
 Dim APP_DIR
 APP_DIR = fso.GetParentFolderName(WScript.ScriptFullName)
-Const PORTA   = 8777
+Const PORTA = 8777
 
 ' Testar se ja esta rodando
 Dim h, rodando : rodando = False
@@ -25,7 +25,7 @@ On Error GoTo 0
 
 If rodando Then WScript.Quit
 
-' Localizar node.exe
+' Localizar Node.js se existir
 Dim nd : nd = ""
 Dim caminhos : caminhos = Array( _
     "C:\Program Files\nodejs\node.exe", _
@@ -37,12 +37,26 @@ For Each p In caminhos
         Exit For
     End If
 Next
-If nd = "" Then nd = "node.exe"
 
-' Iniciar servidor
-Dim sj : sj = APP_DIR & "\server.js"
-If fso.FileExists(sj) Then
-    sh.Run nd & " """ & sj & """", 0, False
+If nd <> "" Then
+    Dim sj : sj = APP_DIR & "\server.js"
+    If fso.FileExists(sj) Then
+        sh.Run nd & " """ & sj & """", 0, False
+        WScript.Quit
+    End If
+End If
+
+' Fallback confiavel para PowerShell nativo server.ps1 (desacoplado via WMI)
+Dim sp : sp = APP_DIR & "\server.ps1"
+If fso.FileExists(sp) Then
+    On Error Resume Next
+    Dim wmi, proc, res
+    Set wmi = GetObject("winmgmts:\\.\root\cimv2:Win32_Process")
+    res = wmi.Create("powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File """ & sp & """", Null, Null, proc)
+    If Err.Number <> 0 Or res <> 0 Then
+        sh.Run "powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File """ & sp & """", 0, False
+    End If
+    On Error GoTo 0
 End If
 
 WScript.Quit

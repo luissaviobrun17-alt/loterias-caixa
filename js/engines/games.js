@@ -232,6 +232,58 @@ const GAMES = {
         statsCount: 15,
         drawDays: [2, 4, 6],
         drawTime: "20:00"
+    },
+        supersete: {
+        name: "Super Sete",
+        range: [0, 9],
+        draw: 7,
+        color: "#0284c7",
+        colorGrad: "#0369a1",
+        cols: 7,
+        price: 2.50,
+        isColumnGame: true,
+        // Faixas oficiais Caixa Econômica Federal:
+        strategies: [
+            { id: "7pts", label: "7 Colunas (Faixa 1 — Rateio)", match: 7, prize: 2000000, prizeType: "acumulado", note: "Rateio — acumula se vazio. Média: R$ 1-5 milhões", paid: true },
+            { id: "6pts", label: "6 Colunas (Faixa 2)", match: 6, prize: 15000, prizeType: "rateio", note: "Rateio — média R$ 10k-30k por vencedor", paid: true },
+            { id: "5pts", label: "5 Colunas (Faixa 3)", match: 5, prize: 800, prizeType: "rateio", note: "Rateio — média R$ 500-1.200 por vencedor", paid: true },
+            { id: "4pts", label: "4 Colunas (Faixa 4)", match: 4, prize: 50, prizeType: "rateio", note: "Rateio — média R$ 35-70 por vencedor", paid: true },
+            { id: "3pts", label: "3 Colunas (Faixa 5 — FIXO)", match: 3, prize: 5.00, prizeType: "fixo", note: "FIXO: R$ 5,00 garantido por aposta ganhadora", paid: true }
+        ],
+        closingLevels: [
+            { id: "close7", label: "Fechamento 7 Colunas", guarantee: 7, icon: "🎯" },
+            { id: "close6", label: "Fechamento 6 Colunas", guarantee: 6, icon: "⭐" },
+            { id: "close5", label: "Fechamento 5 Colunas", guarantee: 5, icon: "🔥" }
+        ],
+        minBet: 7,
+        maxBet: 21,
+        statsCount: 15,
+        drawDays: [1, 3, 5],
+        drawTime: "20:00",
+        estimatedPrizeFallback: 2000000
+    },
+    loteca: {
+        name: "Loteca",
+        range: [1, 14],
+        draw: 14,
+        color: "#15803d",
+        colorGrad: "#166534",
+        cols: 14,
+        price: 4.00,
+        strategies: [
+            { id: "14pts", label: "14 Pontos (Faixa Principal)", match: 14, prize: 1500000, prizeType: "acumulado", note: "Rateio — acumula se vazio. Média histórica: R$ 1-3 milhões", paid: true },
+            { id: "13pts", label: "13 Pontos", match: 13, prize: 35000, prizeType: "rateio", note: "Rateio — ~15% da arrecadação.", paid: true }
+        ],
+        closingLevels: [
+            { id: "close14", label: "Fechamento 14 Acertos", guarantee: 14, icon: "🎯" },
+            { id: "close13", label: "Fechamento 13 Acertos", guarantee: 13, icon: "⭐" }
+        ],
+        minBet: 14,
+        maxBet: 14,
+        statsCount: 14,
+        drawDays: [1, 2],
+        drawTime: "18:00",
+        estimatedPrizeFallback: 1500000
     }
 };
 
@@ -266,4 +318,12 @@ GAMES.diadesorte.drawTime = "20:00";
 GAMES.milionaria.drawDays = [3, 6];
 GAMES.milionaria.drawTime = "20:00";
 GAMES.milionaria.estimatedPrizeFallback = 90000000; // Acumulado - estimativa 02/09/2026
+
+GAMES.loteca.drawDays = [1, 2];
+GAMES.loteca.drawTime = "18:00";
+GAMES.loteca.estimatedPrizeFallback = 1500000;
+GAMES.supersete.drawDays = [1, 3, 5];
+GAMES.supersete.drawTime = "20:00";
+GAMES.supersete.estimatedPrizeFallback = 2000000;
+
 // ═══ FIM games.js V11 ═══

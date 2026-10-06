@@ -2,8 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     try {
-        // Garantir prêmios visíveis IMEDIATAMENTE na inicialização (fallback offline)
-        var gameKeys = ['megasena', 'lotofacil', 'quina', 'duplasena', 'lotomania', 'timemania', 'diadesorte'];
+        var gameKeys = ['megasena', 'lotofacil', 'quina', 'duplasena', 'lotomania', 'timemania', 'diadesorte', 'milionaria', 'loteca'];
         gameKeys.forEach(function(key) {
             try {
                 var game = typeof GAMES !== 'undefined' ? GAMES[key] : null;

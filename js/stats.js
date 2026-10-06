@@ -109,10 +109,18 @@ class StatsService {
     static async _fetchLatestFromAPIs(gameType) {
         // Mapear gameKey interno para o nome de rota da API Caixa
         var caixaRoute = { milionaria: 'maismilionaria' }[gameType] || gameType;
-        var apis = [
-            'https://loteriascaixa-api.herokuapp.com/api/' + gameType + '/latest',
-            'https://servicebus2.caixa.gov.br/portaldeloterias/api/' + caixaRoute
-        ];
+        var apis;
+        if (gameType === 'loteca') {
+            apis = [
+                'https://servicebus2.caixa.gov.br/portaldeloterias/api/loteca',
+                'https://loteriascaixa-api.herokuapp.com/api/loteca/latest'
+            ];
+        } else {
+            apis = [
+                'https://loteriascaixa-api.herokuapp.com/api/' + gameType + '/latest',
+                'https://servicebus2.caixa.gov.br/portaldeloterias/api/' + caixaRoute
+            ];
+        }
 
         for (var a = 0; a < apis.length; a++) {
             var controller = null;
@@ -154,7 +162,7 @@ class StatsService {
     }
 
     static async _fetchPreviousDraws(gameType, latestDraw, count) {
-        var promises = [];
+        var missingDraws = [];
         for (var i = 1; i <= count; i++) {
             var drawNum = latestDraw - i;
             var exists = false;
@@ -165,31 +173,40 @@ class StatsService {
                 }
             }
             if (!exists) {
-                promises.push(this._fetchSingleDraw(gameType, drawNum));
+                missingDraws.push(drawNum);
             }
         }
 
+        // Buscar em pequenos lotes de 5 para estabilidade e evitar timeouts da API
         var self = this;
-        var wrappedPromises = [];
-        for (var p = 0; p < promises.length; p++) {
-            wrappedPromises.push(
-                promises[p].then(function(val) { return val; }).catch(function() { return null; })
-            );
-        }
-        var results = await Promise.all(wrappedPromises);
-        for (var r = 0; r < results.length; r++) {
-            if (results[r]) {
-                self.historyStore[gameType].push(results[r]);
+        for (var b = 0; b < missingDraws.length; b += 5) {
+            var batch = missingDraws.slice(b, b + 5);
+            var batchPromises = batch.map(function(num) {
+                return self._fetchSingleDraw(gameType, num).catch(function() { return null; });
+            });
+            var batchResults = await Promise.all(batchPromises);
+            for (var r = 0; r < batchResults.length; r++) {
+                if (batchResults[r]) {
+                    self.historyStore[gameType].push(batchResults[r]);
+                }
             }
         }
     }
 
     static async _fetchSingleDraw(gameType, drawNumber) {
         var caixaRoute2 = { milionaria: 'maismilionaria' }[gameType] || gameType;
-        var apis = [
-            'https://loteriascaixa-api.herokuapp.com/api/' + gameType + '/' + drawNumber,
-            'https://servicebus2.caixa.gov.br/portaldeloterias/api/' + caixaRoute2 + '/' + drawNumber
-        ];
+        var apis;
+        if (gameType === 'loteca') {
+            apis = [
+                'https://servicebus2.caixa.gov.br/portaldeloterias/api/loteca/' + drawNumber,
+                'https://loteriascaixa-api.herokuapp.com/api/loteca/' + drawNumber
+            ];
+        } else {
+            apis = [
+                'https://loteriascaixa-api.herokuapp.com/api/' + gameType + '/' + drawNumber,
+                'https://servicebus2.caixa.gov.br/portaldeloterias/api/' + caixaRoute2 + '/' + drawNumber
+            ];
+        }
 
         for (var a = 0; a < apis.length; a++) {
             try {
@@ -221,6 +238,31 @@ class StatsService {
         if (data && !data.concurso && data.numero) data.concurso = data.numero;
         if (data && !data.dezenas && data.listaDezenas) data.dezenas = data.listaDezenas;
         if (data && !data.dezenas && data.dezenasSorteadasOrdemSorteio) data.dezenas = data.dezenasSorteadasOrdemSorteio;
+
+        // ★ Suporte especializado para LOTECA (14 Jogos de Futebol da Caixa)
+        var isLoteca = (gameType === 'loteca') || (data.tipoJogo && String(data.tipoJogo).toLowerCase().includes('loteca'));
+        var sortedMatches = null;
+        if (isLoteca) {
+            if (data.listaResultadoEquipeEsportiva && Array.isArray(data.listaResultadoEquipeEsportiva)) {
+                sortedMatches = data.listaResultadoEquipeEsportiva.slice().sort(function(a, b) {
+                    return (a.nuSequencial || 0) - (b.nuSequencial || 0);
+                });
+                var cols = sortedMatches.map(function(m) {
+                    if (m.resultado) return String(m.resultado).toUpperCase().trim();
+                    var g1 = (m.nuGolEquipeUm !== undefined && m.nuGolEquipeUm !== null) ? parseInt(m.nuGolEquipeUm) : null;
+                    var g2 = (m.nuGolEquipeDois !== undefined && m.nuGolEquipeDois !== null) ? parseInt(m.nuGolEquipeDois) : null;
+                    if (g1 !== null && g2 !== null) {
+                        return g1 > g2 ? '1' : (g2 > g1 ? '2' : 'X');
+                    }
+                    return '1';
+                });
+                data.dezenas = cols;
+                if (!data.premiacoes && data.listaRateioPremio) {
+                    data.premiacoes = data.listaRateioPremio;
+                }
+            }
+        }
+
         if (!data || !data.concurso || !data.dezenas) return null;
 
         var drawNum = parseInt(data.concurso);
@@ -250,18 +292,40 @@ class StatsService {
             console.log('[StatsService] ✅ Prêmio atualizado: ' + storageKey + ' (concurso ' + drawNum + ') = R$ ' + (estimated || 0).toLocaleString('pt-BR'));
         }
 
-        var rawNumbers = data.dezenas.map(function(n) { return parseInt(n); });
+        var rawNumbers = isLoteca
+            ? data.dezenas.map(function(c) { return String(c).toUpperCase(); })
+            : data.dezenas.map(function(n) { return parseInt(n); });
         var result = { drawNumber: parseInt(data.concurso) };
 
-        // ★ v10.9 FIX: Preservar dados extras da API (Mês da Sorte / Time do Coração)
-        if (data.mesSorte) {
-            result.mesSorte = data.mesSorte; // ex: "Maio"
-        }
-        if (data.nomeTimeCoracaoMesSorte) {
-            result.timeCoracao = data.nomeTimeCoracaoMesSorte; // ex: "Corinthians/SP"
+        if (isLoteca) {
+            result.numbers = rawNumbers;
+            if (sortedMatches || data.listaResultadoEquipeEsportiva) {
+                result.matches = sortedMatches || data.listaResultadoEquipeEsportiva;
+            }
+            if (data.dataApuracao) result.date = data.dataApuracao;
+            if (data.premiacoes) result.prizes = data.premiacoes;
+            return result;
         }
 
-        if (gameType === 'duplasena') {
+        // Data do sorteio para todas as loterias
+        if (data.dataApuracao) {
+            result.date = data.dataApuracao;
+        } else if (data.data) {
+            result.date = data.data;
+        }
+
+        // ★ Preservar dados extras da API (Mês da Sorte / Time do Coração)
+        if (data.nomeTimeCoracaoMesSorte || data.mesSorte) {
+            result.mesSorte = data.nomeTimeCoracaoMesSorte || data.mesSorte;
+        }
+        if (data.nomeTimeCoracaoMesSorte || data.timeCoracao) {
+            result.timeCoracao = (data.nomeTimeCoracaoMesSorte || data.timeCoracao || '').trim();
+        }
+
+        if (gameType === 'supersete' || (data.tipoJogo && String(data.tipoJogo).toUpperCase().includes('SUPER_SETE'))) {
+            // Super Sete: exatamente 7 colunas (C1 a C7) na ordem oficial, dígitos de 0 a 9 com repetições permitidas!
+            result.numbers = rawNumbers.slice(0, 7);
+        } else if (gameType === 'duplasena') {
             // Dupla Sena: pode vir como 12 números juntos, ou em dezenas + dezenas2 separados
             if (data.dezenas2 && data.dezenas2.length > 0) {
                 // Formato com dezenas2 separado (algumas APIs)
@@ -298,8 +362,11 @@ class StatsService {
         }
 
         // Salvar trevos para +Milionaria
-        if (gameType === 'milionaria' && data.trevosSorteados && data.trevosSorteados.length > 0) {
-            result.trevos = data.trevosSorteados.map(function(t) { return parseInt(t); }).sort(function(a,b){return a-b;});
+        if (gameType === 'milionaria') {
+            var rawTrevos = data.trevosSorteados || data.listaDezenasSegundoSorteio || data.trevos || [];
+            if (rawTrevos && rawTrevos.length > 0) {
+                result.trevos = rawTrevos.map(function(t) { return parseInt(t); }).sort(function(a,b){return a-b;});
+            }
         }
 
         return result;
@@ -354,6 +421,7 @@ class StatsService {
     static getStats(gameType, rangeAnalysis) {
         var game = typeof GAMES !== 'undefined' ? GAMES[gameType] : null;
         if (!game) return { hot: [], cold: [] };
+        if (gameType === 'loteca') return { hot: [], cold: [], totalDraws: 0 };
 
         if (!this.historyStore[gameType]) this.ensureHistory(gameType);
         var history = this.historyStore[gameType] || [];

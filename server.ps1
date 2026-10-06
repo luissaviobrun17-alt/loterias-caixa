@@ -41,20 +41,29 @@ $pastaPorJogo = @{
     "diadesorte" = "DIA DE SORTE"
     "milionaria" = "MILIONARIA"
     "maismilionaria" = "MILIONARIA"
+    "supersete" = "SUPERSETE"
+    "loteca" = "LOTECA"
 }
 
 function Get-CandidateSubPastas($key) {
     $k = if ($key) { $key.ToLower().Trim() } else { "" }
+    $list = [System.Collections.Generic.List[string]]::new()
     if ($k -eq "milionaria" -or $k -eq "maismilionaria" -or $k -eq "+milionaria") {
-        return @("MILIONARIA", "+MILIONARIA", "+MILIONÁRIA")
+        $list.Add("MILIONARIA")
+        $list.Add("+MILIONARIA")
+        $list.Add("+MILIONÁRIA")
+    } elseif ($k -eq "diadesorte" -or $k -eq "dia de sorte") {
+        $list.Add("DIA DE SORTE")
+        $list.Add("DIADESORTE")
+    } elseif ($k -eq "supersete" -or $k -eq "super sete") {
+        $list.Add("SUPERSETE")
+        $list.Add("SUPER SETE")
+    } else {
+        $primary = $pastaPorJogo[$k]
+        if (-not $primary -and $k) { $primary = $k.ToUpper() }
+        if ($primary) { $list.Add($primary) }
     }
-    if ($k -eq "diadesorte" -or $k -eq "dia de sorte") {
-        return @("DIA DE SORTE", "DIADESORTE")
-    }
-    $primary = $pastaPorJogo[$k]
-    if (-not $primary -and $k) { $primary = $k.ToUpper() }
-    if ($primary) { return @($primary) }
-    return @()
+    return [string[]]$list.ToArray()
 }
 
 $mimeTypes = @{
@@ -97,9 +106,13 @@ foreach ($baseDir in $allJogosDirs) {
     }
 }
 
-# Sincronizacao de arquivos entre todos os desktops
+# Sincronizacao de arquivos entre todos os desktops (com throttle para performance)
+$global:lastSyncTime = [DateTime]::MinValue
 function Sync-DesktopDirs {
     if ($allJogosDirs.Count -le 1) { return }
+    $now = Get-Date
+    if (($now - $global:lastSyncTime).TotalSeconds -lt 30) { return }
+    $global:lastSyncTime = $now
     $subPastasToSync = @($pastaPorJogo.Values) + @("+MILIONARIA") | Select-Object -Unique
     foreach ($sp in $subPastasToSync) {
         for ($i = 0; $i -lt $allJogosDirs.Count; $i++) {
@@ -122,14 +135,31 @@ function Sync-DesktopDirs {
 }
 Sync-DesktopDirs
 
+# Função para extrair assinatura de jogos de um arquivo/conteúdo (para anti-duplicidade)
+function Get-GameLinesSignature($text) {
+    if (-not $text) { return "" }
+    $sb = New-Object System.Text.StringBuilder
+    $lines = $text -split "`r?`n"
+    foreach ($line in $lines) {
+        $trim = $line.Trim()
+        if ($trim -match '^Jogo\s+\d+:\s*(.+)$') {
+            [void]$sb.AppendLine($Matches[1].Trim())
+        }
+    }
+    if ($sb.Length -gt 0) {
+        return $sb.ToString().Trim()
+    }
+    return $text.Trim()
+}
+
 # Função para enviar resposta JSON
 function Send-Json($context, $obj, $statusCode = 200) {
     $res = $context.Response
     $res.StatusCode = $statusCode
     $res.ContentType = "application/json; charset=utf-8"
-    $res.Headers.Add("Access-Control-Allow-Origin", "*")
-    $res.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-    $res.Headers.Add("Access-Control-Allow-Headers", "Content-Type")
+    $res.Headers["Access-Control-Allow-Origin"] = "*"
+    $res.Headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    $res.Headers["Access-Control-Allow-Headers"] = "Content-Type"
     
     $json = ConvertTo-Json -InputObject $obj -Depth 10
     $buffer = [System.Text.Encoding]::UTF8.GetBytes($json)
@@ -147,10 +177,10 @@ function Send-File($context, $filePath) {
     
     $res.StatusCode = 200
     $res.ContentType = $mime
-    $res.Headers.Add("Access-Control-Allow-Origin", "*")
-    $res.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate")
-    $res.Headers.Add("Pragma", "no-cache")
-    $res.Headers.Add("Expires", "0")
+    $res.Headers["Access-Control-Allow-Origin"] = "*"
+    $res.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    $res.Headers["Pragma"] = "no-cache"
+    $res.Headers["Expires"] = "0"
     
     $bytes = [System.IO.File]::ReadAllBytes($filePath)
     $res.ContentLength64 = $bytes.Length
@@ -160,6 +190,7 @@ function Send-File($context, $filePath) {
 
 # Loop principal
 while ($listener.IsListening) {
+    $context = $null
     try {
         $context = $listener.GetContext()
         $req = $context.Request
@@ -168,9 +199,9 @@ while ($listener.IsListening) {
         # CORS OPTIONS
         if ($req.HttpMethod -eq "OPTIONS") {
             $res.StatusCode = 204
-            $res.Headers.Add("Access-Control-Allow-Origin", "*")
-            $res.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-            $res.Headers.Add("Access-Control-Allow-Headers", "Content-Type")
+            $res.Headers["Access-Control-Allow-Origin"] = "*"
+            $res.Headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+            $res.Headers["Access-Control-Allow-Headers"] = "Content-Type"
             $res.Close()
             continue
         }
@@ -190,10 +221,63 @@ while ($listener.IsListening) {
             $gameKey = $data.gameKey
             $fileName = $data.fileName
             $content = $data.content
+            $force = ($data.force -eq $true)
             
             $subPasta = $pastaPorJogo[$gameKey]
             if (-not $subPasta) { $subPasta = $gameKey.ToUpper() }
             
+            # ── ANTI-DUPLICIDADE: Se já existir arquivo com os mesmos jogos, não duplica (a menos que force=$true) ──
+            $existingDuplicate = $null
+            $incomingLen = if ($content) { $content.Length } else { 0 }
+            
+            if (-not $force -and $incomingLen -gt 0) {
+                $incomingSig = Get-GameLinesSignature $content
+                if ($incomingSig) {
+                    $cutoffTime = (Get-Date).AddMinutes(-15)
+                    foreach ($baseDir in $allJogosDirs) {
+                        $checkDir = Join-Path $baseDir $subPasta
+                        if (Test-Path $checkDir) {
+                            # Limitar aos arquivos mais recentes (últimos 15 min ou top 3) para evitar gargalos
+                            $files = Get-ChildItem -Path $checkDir -Filter "*.txt" -File -ErrorAction SilentlyContinue |
+                                Where-Object { $_.Name -notmatch "CONFERIDO" -and $_.LastWriteTime -ge $cutoffTime } |
+                                Sort-Object LastWriteTime -Descending |
+                                Select-Object -First 3
+                            
+                            foreach ($ef in $files) {
+                                # Pré-filtro rápido por tamanho em bytes (0ms): se o tamanho diferir mais de 400 bytes, não pode ser idêntico
+                                if ([Math]::Abs($ef.Length - $incomingLen) -gt 400) { continue }
+                                
+                                try {
+                                    $efText = [System.IO.File]::ReadAllText($ef.FullName, [System.Text.Encoding]::UTF8)
+                                    $efSig = Get-GameLinesSignature $efText
+                                    if ($efSig -and $efSig -eq $incomingSig) {
+                                        $existingDuplicate = $ef
+                                        break
+                                    }
+                                } catch {}
+                            }
+                        }
+                        if ($existingDuplicate) { break }
+                    }
+                }
+            }
+            
+            if ($existingDuplicate) {
+                $dupRel = "LOTERIAS JOGOS SALVOS L99\$subPasta\$($existingDuplicate.Name)"
+                Write-Host "[B2B] Anti-duplicidade ativada: jogos ja salvos em $dupRel" -ForegroundColor Yellow
+                $respObj = @{
+                    "ok" = $true
+                    "alreadyExists" = $true
+                    "duplicate" = $true
+                    "path" = $existingDuplicate.FullName
+                    "fileName" = $existingDuplicate.Name
+                    "relativePath" = $dupRel
+                    "message" = "Estes jogos já foram salvos anteriormente no arquivo $($existingDuplicate.Name)"
+                }
+                Send-Json $context $respObj
+                continue
+            }
+
             $safeFileName = ($fileName -replace '[<>:"/\\|?*]', '_').Trim()
             if (-not $safeFileName.EndsWith('.txt')) { $safeFileName += '.txt' }
             
@@ -255,7 +339,7 @@ while ($listener.IsListening) {
         # ROTA /listar-jogos
         if ($req.HttpMethod -eq "GET" -and $url -eq "/listar-jogos") {
             $gameKey = $req.QueryString["gameKey"]
-            $candidateSubPastas = Get-CandidateSubPastas $gameKey
+            $candidateSubPastas = @(Get-CandidateSubPastas $gameKey)
             $primarySubPasta = if ($candidateSubPastas.Count -gt 0) { $candidateSubPastas[0] } else { "" }
             $targetDir = if ($primarySubPasta) { Join-Path $desktop $primarySubPasta } else { $desktop }
             
@@ -300,7 +384,7 @@ while ($listener.IsListening) {
             $fileName = $data.fileName
             
             $safeFileName = [System.IO.Path]::GetFileName($fileName)
-            $candidateSubPastas = Get-CandidateSubPastas $gameKey
+            $candidateSubPastas = @(Get-CandidateSubPastas $gameKey)
             $subPastasToSearch = if ($candidateSubPastas.Count -gt 0) { $candidateSubPastas } else { @("") }
             
             $content = $null
@@ -332,7 +416,7 @@ while ($listener.IsListening) {
             $content = $data.content
             $concurso = if ($data.concurso) { $data.concurso } else { "sem-concurso" }
             
-            $candidateSubPastas = Get-CandidateSubPastas $gameKey
+            $candidateSubPastas = @(Get-CandidateSubPastas $gameKey)
             $subPasta = if ($candidateSubPastas.Count -gt 0) { $candidateSubPastas[0] } else { if ($gameKey) { $gameKey.ToUpper() } else { "" } }
             $now = Get-Date
             $dateStr = $now.ToString("yyyy-MM-dd")
@@ -361,15 +445,15 @@ while ($listener.IsListening) {
             $fileName = $data.fileName
             
             $safeFileName = [System.IO.Path]::GetFileName($fileName)
-            $candidateSubPastas = Get-CandidateSubPastas $gameKey
+            $candidateSubPastas = @(Get-CandidateSubPastas $gameKey)
             $subPastasToSearch = if ($candidateSubPastas.Count -gt 0) { $candidateSubPastas } else { @("") }
             
-            if ($safeFileName.StartsWith("✅")) {
+            if ($safeFileName -match 'CONFERIDO_') {
                 Send-Json $context @{ "ok" = $true; "already" = $true; "fileName" = $safeFileName }
                 continue
             }
             
-            $newName = "✅CONFERIDO_" + $safeFileName
+            $newName = "CONFERIDO_" + $safeFileName
             foreach ($baseDir in $allJogosDirs) {
                 foreach ($sp in $subPastasToSearch) {
                     $targetDir = if ($sp) { Join-Path $baseDir $sp } else { $baseDir }
@@ -382,6 +466,88 @@ while ($listener.IsListening) {
             }
             
             Send-Json $context @{ "ok" = $true; "oldName" = $fileName; "newName" = $newName }
+            continue
+        }
+        
+        # ROTA /desmarcar-conferido
+        if ($req.HttpMethod -eq "POST" -and $url -eq "/desmarcar-conferido") {
+            $data = ConvertFrom-Json $body
+            $gameKey = $data.gameKey
+            $fileName = $data.fileName
+            
+            $safeFileName = [System.IO.Path]::GetFileName($fileName)
+            $candidateSubPastas = @(Get-CandidateSubPastas $gameKey)
+            $subPastasToSearch = if ($candidateSubPastas.Count -gt 0) { $candidateSubPastas } else { @("") }
+            
+            $newName = $safeFileName -replace '^.*?CONFERIDO_', ''
+            if ($newName -eq $safeFileName) {
+                Send-Json $context @{ "ok" = $true; "already" = $true; "fileName" = $safeFileName }
+                continue
+            }
+            
+            foreach ($baseDir in $allJogosDirs) {
+                foreach ($sp in $subPastasToSearch) {
+                    $targetDir = if ($sp) { Join-Path $baseDir $sp } else { $baseDir }
+                    $oldPath = Join-Path $targetDir $safeFileName
+                    $newPath = Join-Path $targetDir $newName
+                    if (Test-Path $oldPath) {
+                        Rename-Item -Path $oldPath -NewName $newName -Force
+                    }
+                }
+            }
+            
+            Send-Json $context @{ "ok" = $true; "oldName" = $fileName; "newName" = $newName }
+            continue
+        }
+
+        # ROTA /excluir-arquivo
+        if ($req.HttpMethod -eq "POST" -and $url -eq "/excluir-arquivo") {
+            $data = ConvertFrom-Json $body
+            $gameKey = $data.gameKey
+            $fileName = $data.fileName
+            
+            $safeFileName = [System.IO.Path]::GetFileName($fileName)
+            $candidateSubPastas = @(Get-CandidateSubPastas $gameKey)
+            $subPastasToSearch = if ($candidateSubPastas.Count -gt 0) { $candidateSubPastas } else { @("") }
+            
+            $delCount = 0
+            foreach ($baseDir in $allJogosDirs) {
+                foreach ($sp in $subPastasToSearch) {
+                    $targetDir = if ($sp) { Join-Path $baseDir $sp } else { $baseDir }
+                    $filePath = Join-Path $targetDir $safeFileName
+                    if (Test-Path $filePath) {
+                        Remove-Item -Path $filePath -Force -ErrorAction SilentlyContinue
+                        $delCount++
+                    }
+                }
+            }
+            
+            Send-Json $context @{ "ok" = $true; "deleted" = $safeFileName; "count" = $delCount }
+            continue
+        }
+
+        # ROTA /atualizar-arquivo
+        if ($req.HttpMethod -eq "POST" -and $url -eq "/atualizar-arquivo") {
+            $data = ConvertFrom-Json $body
+            $gameKey = $data.gameKey
+            $fileName = $data.fileName
+            $content = $data.content
+            
+            $safeFileName = [System.IO.Path]::GetFileName($fileName)
+            $candidateSubPastas = @(Get-CandidateSubPastas $gameKey)
+            $subPastasToSearch = if ($candidateSubPastas.Count -gt 0) { $candidateSubPastas } else { @("") }
+            
+            foreach ($baseDir in $allJogosDirs) {
+                foreach ($sp in $subPastasToSearch) {
+                    $targetDir = if ($sp) { Join-Path $baseDir $sp } else { $baseDir }
+                    $filePath = Join-Path $targetDir $safeFileName
+                    if (Test-Path $filePath) {
+                        [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::UTF8)
+                    }
+                }
+            }
+            
+            Send-Json $context @{ "ok" = $true; "fileName" = $safeFileName }
             continue
         }
         

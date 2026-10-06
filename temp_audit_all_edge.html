@@ -1,0 +1,46 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'></head><body>
+<script src='js/data/history_db.js'></script>
+<script src='js/engines/motor_megasena_engine.js'></script>
+<pre id='out'></pre>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    try {
+        const strats = [
+            ['estrategia_3_frequencia_historica', 'frequencia_historica'],
+            ['estrategia_4_frequencia_recente', 'frequencia_recente'],
+            ['estrategia_5_atrasos_recuperacoes', 'atrasos_recuperacoes'],
+            ['estrategia_6_pares_trios', 'pares_trios'],
+            ['estrategia_7_coocorrencia_lift_zscore', 'coocorrencia_lift_zscore'],
+            ['estrategia_8_auto_pesos', 'auto_pesos']
+        ];
+        const out = {};
+        for (const [name, code] of strats) {
+            const res = MotorMegaSenaB2BEngine.gerarCarteiraLocal(100, { historicoLimite: 30, estrategia: code });
+            const games = res.jogos;
+            const unique = new Set(games.map(j => (j.numeros || j.jogo).join(','))).size;
+            const models = {};
+            let maxC = 0;
+            games.forEach(j => {
+                const s = j.numeros || j.jogo;
+                const nA = s.filter(n => n <= 30).length;
+                const m = nA + '/' + (6 - nA);
+                models[m] = (models[m] || 0) + 1;
+                const c = MotorMegaSenaB2BEngine.contarMaxConsecutivos(s);
+                if (c > maxC) maxC = c;
+            });
+            out[name] = {
+                total: games.length,
+                unicidade: unique + '/100',
+                modelos: models,
+                maxConsecutivo: maxC,
+                scoreMedio: res.auditoria_carteira.score_medio,
+                checks: res.checks_auditoria.aprovacao_integral_10_de_10,
+                top1: games[0].numeros_formatados + ' | Score ' + games[0].score_b2b + ' | ' + games[0].modelo_ab
+            };
+        }
+        document.getElementById('out').innerText = 'JSON_STRATS:' + JSON.stringify(out);
+    } catch(e) {
+        document.getElementById('out').innerText = 'ERR:' + e.stack;
+    }
+});
+</script></body></html>

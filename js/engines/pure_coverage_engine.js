@@ -175,6 +175,27 @@ class PureCoverageEngine {
                 minZones: 9,
                 maxSameEnding: 8,
                 highLowBalance: [21, 29]
+            },
+            supersete: {
+                name: 'Super Sete',
+                drawSize: 7,
+                lotteryDraw: 7,
+                range: [0, 9],
+                totalNumbers: 10,
+                ticketPrice: 2.50,
+                prizeThresholds: [3, 4, 5, 6, 7],
+                prizeLabels: ['3 ac.', '4 ac.', '5 ac.', '6 ac.', '7 ac.'],
+                fixedPrizes: { 3: 5.00 },
+                zones: 7,
+                zoneSize: 10,
+                payout: 0.4335,
+                sumRange: [16, 47],
+                parityRange: [1, 6],
+                maxConsecutive: 3,
+                minZones: 7,
+                maxSameEnding: 3,
+                highLowBalance: [1, 6],
+                isColumnGame: true
             }
         };
         return configs[gameKey] || null;
@@ -188,6 +209,28 @@ class PureCoverageEngine {
     static generate(gameKey, numGames, options) {
         const t0 = (typeof performance !== 'undefined' ? performance.now() : Date.now());
         const opts = options || {};
+
+        // Delegação oficial para Super Sete B2B
+        if (gameKey === 'supersete' && typeof MotorSuperSeteB2BEngine !== 'undefined') {
+            console.log('%c[PURE-COVER] ⚡ Delegando Super Sete para MotorSuperSeteB2BEngine...', 'color: #38bdf8; font-weight: bold;');
+            const ssRes = MotorSuperSeteB2BEngine._gerarFallbackNativo(numGames, opts);
+            const games = (ssRes && ssRes.jogos) ? ssRes.jogos.map(j => j.jogo) : [];
+            const elapsed = Math.round(typeof performance !== 'undefined' ? performance.now() - t0 : Date.now() - t0);
+            return {
+                games,
+                analysis: {
+                    totalGames: games.length,
+                    poolSize: 10,
+                    fixedCount: 0,
+                    coveragePct: ssRes.icm_global || 85,
+                    avgHamming: ssRes.metricas_carteira?.hamming_medio || 5.2,
+                    mode: 'motor_supersete_b2b',
+                    elapsed: elapsed + 'ms',
+                    investimento: games.length * 2.50
+                }
+            };
+        }
+
         const cfg = this.getConfig(gameKey);
 
         if (!cfg) {
@@ -882,6 +925,7 @@ class PureCoverageEngine {
             probWithNGames,
             // Financeiro
             investment,
+            investimento: investment,
             ticketPrice: cfg.ticketPrice,
             // Metadados
             mode: 'pure_coverage',

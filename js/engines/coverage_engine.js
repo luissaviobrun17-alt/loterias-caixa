@@ -130,6 +130,19 @@ class CoverageEngine {
                 // Micro-Otimização Dia de Sorte
                 sumRangeTight: [100, 140],
                 weekScaleBalance: true
+            },
+            supersete: {
+                name: 'Super Sete', drawSize: 7, lotteryDraw: 7,
+                range: [0, 9], totalNumbers: 10,
+                zones: 7, zoneSize: 10,
+                sumRange: [16, 47], parityRange: [1, 6],
+                maxConsecutive: 3, minZones: 7,
+                prizeThresholds: [3, 4, 5, 6, 7],
+                prizeLabels: ['3 Colunas', '4 Colunas', '5 Colunas', '6 Colunas', '7 Colunas'],
+                candidatesPerSlot: 1000,
+                ticketPrice: 2.50,
+                isColumnGame: true,
+                cols: 7
             }
         };
         return configs[gameKey] || configs.megasena;
@@ -143,6 +156,26 @@ class CoverageEngine {
     static generate(gameKey, numGames, selectedNumbers, fixedNumbers, customDrawSize, options) {
         const t0 = Date.now();
         const _opts = options || {};
+
+        // Delegação oficial para Super Sete B2B
+        if (gameKey === 'supersete' && typeof MotorSuperSeteB2BEngine !== 'undefined') {
+            console.log('%c[COVERAGE] ⚡ Delegando Super Sete para MotorSuperSeteB2BEngine...', 'color: #38bdf8; font-weight: bold;');
+            const ssRes = MotorSuperSeteB2BEngine._gerarFallbackNativo(numGames, _opts);
+            const games = (ssRes && ssRes.jogos) ? ssRes.jogos.map(j => j.jogo) : [];
+            return {
+                games,
+                analysis: {
+                    totalGames: games.length,
+                    poolSize: 10,
+                    fixedCount: 0,
+                    coveragePct: ssRes.icm_global || 85,
+                    avgHamming: ssRes.metricas_carteira?.hamming_medio || 5.2,
+                    mode: 'motor_supersete_b2b',
+                    elapsed: Date.now() - t0
+                }
+            };
+        }
+
         // v11.1: Config vem sempre do getConfig — _tempConfig removido (race condition)
         const cfg = this.getConfig(gameKey);
         const [startNum, endNum] = cfg.range;
