@@ -695,7 +695,8 @@ class MotorFechamentoManual {
             
             var pairsMap = new Map();
             for (var h = 0; h < history.length; h++) {
-                var drawNums = (history[h].numbers || history[h].dezenas || []).map(function(n) { return parseInt(n, 10); });
+                var rawNums = Array.isArray(history[h]) ? history[h] : (history[h].numbers || history[h].dezenas || history[h].numeros || []);
+                var drawNums = rawNums.map(function(n) { return parseInt(n, 10); });
                 var filtered = [];
                 for (var i = 0; i < drawNums.length; i++) {
                     if (selectedNumbers.includes(drawNums[i])) filtered.push(drawNums[i]);

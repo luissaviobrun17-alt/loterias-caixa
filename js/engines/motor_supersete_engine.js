@@ -561,7 +561,7 @@ class MotorSuperSeteB2BEngine {
 
     static _gerarFallbackNativo(quantidade, options) {
         const opts = options || {};
-        const estrategia = opts.estrategia || 'maximin';
+        const estrategia = opts.estrategia || ((opts.precisionMode || opts.is_sniper) ? 'sniper' : 'maximin');
         if (estrategia === 'maximin') {
             return MotorSuperSeteB2BEngine._gerarMaximinCovering(quantidade, opts);
         }

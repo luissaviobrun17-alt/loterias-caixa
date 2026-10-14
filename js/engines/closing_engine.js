@@ -294,17 +294,22 @@ class ClosingEngine {
             selectedNumbers.forEach(n => { pairMatrix[n] = {}; selectedNumbers.forEach(m => pairMatrix[n][m] = 0); });
             
             history.forEach(draw => {
-                const nums = draw.numeros || draw;
-                const match = nums.filter(n => selectedNumbers.includes(n));
-                for(let i=0; i<match.length; i++) {
-                    for(let j=i+1; j<match.length; j++) {
-                        pairMatrix[match[i]][match[j]]++;
-                        pairMatrix[match[j]][match[i]]++;
+                const nums = Array.isArray(draw) ? draw : (draw.numbers || draw.numeros || draw.dezenas || []);
+                if (Array.isArray(nums) && nums.length > 0) {
+                    const match = nums.filter(n => selectedNumbers.includes(n));
+                    for(let i=0; i<match.length; i++) {
+                        for(let j=i+1; j<match.length; j++) {
+                            if (pairMatrix[match[i]] && pairMatrix[match[i]][match[j]] !== undefined) {
+                                pairMatrix[match[i]][match[j]]++;
+                                pairMatrix[match[j]][match[i]]++;
+                            }
+                        }
                     }
                 }
             });
             
-            return { scores: scoresInfo.scores, pairs: pairMatrix };
+            const scores = (scoresInfo && scoresInfo.scores) ? scoresInfo.scores : (scoresInfo || {});
+            return { scores: scores, pairs: pairMatrix };
         } catch(e) {
             console.error('[CLOSING-AI] Erro ao injetar IA', e);
             return null;

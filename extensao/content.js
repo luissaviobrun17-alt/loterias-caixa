@@ -73,17 +73,62 @@
         }
 
         function fm() {
-            ['fecharModalAlerta','fecharModalErro','fecharModalInfo','confirmarModalConfirmacao','botaosim','btnFecharModal','btnOk','btnConfirmar'].forEach(id => {
+            try { if (window.$ && window.$('.modal')) window.$('.modal').modal('hide'); } catch(x) {}
+            const bSim = document.getElementById('botaosim') || document.querySelector("[id*='botaosim'],[id*='botaoSim'],.btn-sim");
+            if (bSim && bSim.offsetParent !== null) try { rc(bSim); } catch(e) {}
+            ['fecharModalAlerta','fecharModalErro','fecharModalInfo','confirmarModalConfirmacao','botaosim','btnFecharModal','btnOk','btnConfirmar','btn-aceitar-cookies','btnAceitarCookies'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el && el.offsetParent !== null) try { rc(el); } catch(e) {}
             });
-            document.querySelectorAll('button,a').forEach(b => {
-                const t = b.textContent.trim().toLowerCase();
-                if ((t==='ok'||t==='entendi'||t==='fechar'||t==='confirmar'||t==='sim'||t==='continuar') && b.offsetParent!==null && b.offsetWidth>0) {
-                    const ic = b.id && (b.id.toLowerCase().indexOf('carrinho')>=0 || b.id.toLowerCase().indexOf('pagamento')>=0);
-                    if (!ic) try { rc(b); } catch(e) {}
-                }
+            document.querySelectorAll('.modal, .dialog, div[role=dialog], .modal-dialog, .msg-ul, .cookie-banner, .lgpd-banner, #cookie-notice').forEach(m => {
+                const txt = (m.textContent || '').toLowerCase();
+                if (txt.indexOf('completar') >= 0 || txt.indexOf('surpresinha') >= 0) return;
+                m.querySelectorAll('button,a').forEach(b => {
+                    const t = b.textContent.trim().toLowerCase();
+                    if ((t==='ok'||t==='entendi'||t==='fechar'||t==='confirmar'||t==='sim'||t==='continuar'||t==='aceitar'||t==='concordo'||t.indexOf('fechar')>=0||t.indexOf('18 anos')>=0) && b.offsetParent!==null && b.offsetWidth>0) {
+                        const ic = b.id && (b.id.toLowerCase().indexOf('carrinho')>=0 || b.id.toLowerCase().indexOf('pagamento')>=0);
+                        if (!ic) try { rc(b); } catch(e) {}
+                    }
+                });
             });
+            document.querySelectorAll('.modal-backdrop').forEach(mb => {
+                let hasVisible = false;
+                document.querySelectorAll('.modal.in, .modal.show').forEach(vm => {
+                    if (vm.offsetParent !== null && vm.offsetHeight > 0) hasVisible = true;
+                });
+                if (!hasVisible) try { mb.remove(); } catch(x) {}
+            });
+        }
+
+        function isVolanteReady() {
+            fm();
+            const dezenas = document.querySelectorAll("a[id^='n'], li[id^='n'], button[id^='n'], [data-dezena], a.dezena, li.dezena, a.numero");
+            let vis = 0;
+            for (let k = 0; k < dezenas.length; k++) {
+                if (dezenas[k].offsetParent !== null && dezenas[k].offsetWidth > 0) {
+                    vis++;
+                    if (vis >= 5) return true;
+                }
+            }
+            const el = document.getElementById('n01') || document.getElementById('n1') || document.getElementById('n00') || document.getElementById('d01');
+            if (el && el.offsetParent !== null && el.offsetWidth > 0) return true;
+            return false;
+        }
+
+        async function waitVolante() {
+            const pt = document.getElementById('b2b-ext-txt');
+            for (let w = 0; w < 60; w++) {
+                fm();
+                if (isVolanteReady()) {
+                    console.log('[B2B Extension] ✅ Volante ativo!');
+                    if (pt) pt.textContent = 'Volante pronto! Iniciando...';
+                    await d(400);
+                    return true;
+                }
+                if (pt && w % 3 === 0) pt.textContent = 'Aguardando volante da Caixa (' + (w+1) + '/60)...';
+                await d(500);
+            }
+            return isVolanteReady();
         }
 
         function cn(n) {
@@ -229,10 +274,13 @@
         pg.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#FFD700;font-weight:800;font-size:0.95rem;">🎰 B2B LOTERIAS — Automação</span><span id="b2b-ext-txt" style="color:#E2E8F0;font-size:0.85rem;font-weight:600;">Preparando...</span><button onclick="this.parentNode.parentNode.remove()" style="background:none;border:none;color:#94A3B8;font-size:1.3rem;cursor:pointer;padding:0 6px;">✕</button></div><div style="margin-top:8px;background:rgba(255,255,255,0.1);border-radius:6px;height:8px;overflow:hidden;"><div id="b2b-ext-bar" style="width:0%;height:100%;background:linear-gradient(90deg,#FFD700,#22C55E);border-radius:6px;transition:width 0.4s ease;"></div></div>';
         document.body.appendChild(pg);
 
-        // Esperar a página carregar completamente
-        await d(2000);
+        // Aguardar o volante estar 100% carregado e visível
+        const pronto = await waitVolante();
+        if (!pronto) {
+            console.warn('[B2B Extension] Volante pode não estar totalmente carregado. Tentando continuar...');
+        }
+        await d(600);
         fm();
-        await d(1000);
 
         for (let i = 0; i < T; i++) {
             const j = games[i];
@@ -244,9 +292,23 @@
             fm();
             if (i > 0) { lmp(); await d(500); fm(); await d(200); }
 
+            let markedCount = 0;
             for (let n = 0; n < j.length; n++) {
-                if (!cn(j[n])) { await d(150); cn(j[n]); }
+                let cOk = cn(j[n]);
+                if (!cOk) { await d(150); cOk = cn(j[n]); }
+                if (cOk) markedCount++;
                 await d(120);
+            }
+
+            // Self-healing: se for o jogo 1 e nenhum número foi marcado, re-sincronizar
+            if (markedCount === 0 && j.length > 0) {
+                console.warn('[B2B Extension] ⚠️ Jogo não marcou números. Aguardando estabilização...');
+                await d(1200); fm();
+                await waitVolante();
+                for (let n = 0; n < j.length; n++) {
+                    if (!cn(j[n])) { await d(150); cn(j[n]); }
+                    await d(120);
+                }
             }
 
             try { var rs = angular.element(document.body).scope(); if (rs && rs.$apply) rs.$apply(); } catch(ae) {}

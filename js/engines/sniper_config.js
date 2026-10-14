@@ -40,12 +40,12 @@ const SNIPER_CONFIG = {
     ]
   },
   lotomania: {
-    drawSize: 20,
+    drawSize: 50,
     totalRange: 100,
     presets: [
-      { name: 'conservador', label: 'Conservador (60 % do range)', percentage: 0.60 },
-      { name: 'equilibrado', label: 'Equilibrado (45 % do range)', percentage: 0.45 },
-      { name: 'agressivo', label: 'Agressivo (30 % do range)', percentage: 0.30 }
+      { name: 'conservador', label: 'Conservador (90 % do range)', percentage: 0.90 },
+      { name: 'equilibrado', label: 'Equilibrado (80 % do range)', percentage: 0.80 },
+      { name: 'agressivo', label: 'Agressivo (70 % do range)', percentage: 0.70 }
     ]
   },
   timemania: {
@@ -64,6 +64,24 @@ const SNIPER_CONFIG = {
       { name: 'conservador', label: 'Conservador (70 % do range)', percentage: 0.70 },
       { name: 'equilibrado', label: 'Equilibrado (55 % do range)', percentage: 0.55 },
       { name: 'agressivo', label: 'Agressivo (40 % do range)', percentage: 0.40 }
+    ]
+  },
+  milionaria: {
+    drawSize: 6,
+    totalRange: 50,
+    presets: [
+      { name: 'conservador', label: 'Conservador (70 % do range)', percentage: 0.70 },
+      { name: 'equilibrado', label: 'Equilibrado (55 % do range)', percentage: 0.55 },
+      { name: 'agressivo', label: 'Agressivo (40 % do range)', percentage: 0.40 }
+    ]
+  },
+  supersete: {
+    drawSize: 7,
+    totalRange: 10,
+    presets: [
+      { name: 'conservador', label: 'Conservador (70 % das colunas)', percentage: 0.70 },
+      { name: 'equilibrado', label: 'Equilibrado (50 % das colunas)', percentage: 0.50 },
+      { name: 'agressivo', label: 'Agressivo (30 % das colunas)', percentage: 0.30 }
     ]
   }
 };

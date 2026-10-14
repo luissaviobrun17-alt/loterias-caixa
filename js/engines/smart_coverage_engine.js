@@ -46,20 +46,23 @@ class SmartCoverageEngine {
         const start = game.range[0];
         const end = game.range[1];
         const totalRange = end - start + 1;
-        // v16.1 FIX: usar game.draw com fallback para game.minBet (evita NaN)
-        const gameDraw = game.draw || game.minBet || 6;
+        // v16.1 FIX: usar o maior entre minBet e draw (ex: Lotomania minBet=50, draw=20)
+        const requiredPick = Math.max(game.minBet || 0, game.draw || 0, 6);
+        const gameDraw = requiredPick;
 
         // v16.1 FIX: Validar poolSizePreference — parseInt pode retornar NaN
-        let targetSize = (poolSizePreference && !isNaN(poolSizePreference) && poolSizePreference > 0)
+        let targetSize = (poolSizePreference && !isNaN(poolSizePreference) && poolSizePreference >= requiredPick)
             ? Math.floor(poolSizePreference) : 0;
 
         if (!targetSize) {
-            if (numGames <= 10)       targetSize = Math.round(gameDraw * 2.8);
+            if (gameKey === 'lotomania') {
+                targetSize = 85; // Lotomania requer pelo menos 50 dezenas por jogo; 80-90 dezenas é o pool sniper ideal
+            } else if (numGames <= 10)       targetSize = Math.round(gameDraw * 2.8);
             else if (numGames <= 30)  targetSize = Math.round(gameDraw * 3.8);
             else if (numGames <= 100) targetSize = Math.round(gameDraw * 5.0);
             else                      targetSize = Math.round(gameDraw * 7.0);
         }
-        targetSize = Math.max(gameDraw, Math.min(targetSize, totalRange));
+        targetSize = Math.max(requiredPick, Math.min(targetSize, totalRange));
 
         // v16.2 CACHE TTL: Verificar cache antes de recalcular
         const cacheKey = gameKey + '_' + targetSize;

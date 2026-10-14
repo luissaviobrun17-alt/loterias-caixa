@@ -287,6 +287,33 @@ class NovaEraEngine {
                 },
                 scoreClamp: [0.3, 2.2],
                 _confidenceCeiling: 80  // v10.1: P(3+) ≈ 27%
+            },
+            milionaria: {
+                name: '+Milionária',
+                drawSize: 6,
+                lotteryDraw: 6,
+                range: [1, 50],
+                zoneSize: 10,
+                zones: 5,
+                minZonesCovered: 3,
+                maxConsecutive: 2,
+                evenOddRange: [1, 5],
+                sumRange: [100, 206],
+                maxUsagePct: 0.25,
+                maxOverlap: 3,
+                repeatFromLast: [0, 2],
+                weights: {
+                    frequency: 0.00, delay: 0.00, trend: 0.00,
+                    zone: 0.15, markov: 0.00, phase: 0.00,
+                    clairvoyance: 0.00, nextDraw: 0.10,
+                    bayesian: 0.05, positional: 0.04,
+                    sequential: 0.03, momentum: 0.03,
+                    mirror: 0.00, gap: 0.10, cluster: 0.10, reversion: 0.00,
+                    precision: 0.10, patternDna: 0.15, pairTrio: 0.10,
+                    cycleReturn: 0.05, quantumSuper: 0.00
+                },
+                scoreClamp: [0.3, 2.0],
+                _confidenceCeiling: 75
             }
         };
         return profiles[gameKey] || profiles.megasena;

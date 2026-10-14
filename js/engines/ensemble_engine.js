@@ -642,9 +642,9 @@ class EnsembleEngine {
 
         const W = Math.min(20, Math.floor(history.length / 3));
 
-        // Se não há dados suficientes para backtest leave-one-out,
+        // Se não há dados suficientes para backtest leave-one-out (ou Lotomania com 100 números),
         // usar os pesos medidos empiricamente (grid search offline)
-        if (W < 5) {
+        if (gameKey === 'lotomania' || W < 5) {
             const weights = {};
             if (lotteryWeights) {
                 for (const e of enginesUsed) {
@@ -995,7 +995,8 @@ class EnsembleEngine {
             duplasena:  { range: [1, 50], drawSize: 6, zones: 5, zoneSize: 10 },
             lotomania:  { range: [0, 99], drawSize: 20, zones: 10, zoneSize: 10 },
             timemania:  { range: [1, 80], drawSize: 7, zones: 8, zoneSize: 10 },
-            diadesorte: { range: [1, 31], drawSize: 7, zones: 4, zoneSize: 8 }
+            diadesorte: { range: [1, 31], drawSize: 7, zones: 4, zoneSize: 8 },
+            milionaria: { range: [1, 50], drawSize: 6, zones: 5, zoneSize: 10 }
         };
         return profiles[gameKey] || profiles.megasena;
     }

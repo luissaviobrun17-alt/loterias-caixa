@@ -327,3 +327,4 @@ GAMES.supersete.drawTime = "20:00";
 GAMES.supersete.estimatedPrizeFallback = 2000000;
 
 // ═══ FIM games.js V11 ═══
+if (typeof window !== 'undefined') window.GAMES = GAMES;
